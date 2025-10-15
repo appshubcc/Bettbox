@@ -1048,12 +1048,11 @@ packages:
   re_editor:
     dependency: "direct main"
     description:
-      path: "."
-      ref: main
-      resolved-ref: "7cda330fc33d5ef9e00333048b70ce65a5f5d550"
-      url: "https://github.com/chen08209/re-editor.git"
-    source: git
-    version: "0.7.0"
+      name: re_editor
+      sha256: dd4e6ca7350a8fa0cda4e425b82a0c3c010f0f6b3f618c74223e05b8129ab629
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.8.0"
   re_highlight:
     dependency: "direct main"
     description:

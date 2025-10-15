@@ -37,10 +37,7 @@ dependencies:
   webdav_client: ^1.2.2
   dio: ^5.8.0+1
   win32: ^5.5.1
-  re_editor:
-    git:
-      url: https://github.com/chen08209/re-editor.git
-      ref: main
+  re_editor: ^0.8.0
   re_highlight: ^0.0.3
   archive: ^4.0.7
   emoji_regex: ^0.0.5

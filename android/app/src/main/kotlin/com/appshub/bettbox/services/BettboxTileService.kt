@@ -3,12 +3,14 @@ package com.appshub.bettbox.services
 import android.annotation.SuppressLint
 import android.app.PendingIntent
 import android.content.Intent
+import android.graphics.drawable.Icon
 import android.os.Build
 import android.service.quicksettings.Tile
 import android.service.quicksettings.TileService
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.Observer
 import com.appshub.bettbox.GlobalState
+import com.appshub.bettbox.R
 import com.appshub.bettbox.RunState
 import com.appshub.bettbox.TempActivity
 
@@ -27,6 +29,14 @@ class BettboxTileService : TileService() {
                 RunState.PENDING -> Tile.STATE_UNAVAILABLE
                 RunState.STOP -> Tile.STATE_INACTIVE
             }
+            
+            val iconRes = if (runState == RunState.STOP && GlobalState.isSmartStopped) {
+                R.drawable.ic_tile_smart_stopped
+            } else {
+                R.drawable.ic_tile
+            }
+            qsTile.icon = Icon.createWithResource(this, iconRes)
+            
             qsTile.updateTile()
         }
     }

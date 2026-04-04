@@ -4,64 +4,129 @@ on:
   push:
     tags:
       - 'v*'
+  workflow_dispatch:
+    inputs:
+      build_android:
+        description: "Build Android"
+        required: false
+        default: true
+        type: boolean
+      build_mac:
+        description: "Build macOS"
+        required: false
+        default: true
+        type: boolean
+      build_windows:
+        description: "Build Windows"
+        required: false
+        default: true
+        type: boolean
+      build_linux:
+        description: "Build Linux"
+        required: false
+        default: true
+        type: boolean
 
 env:
-  IS_STABLE: ${{ !contains(github.ref, '-') }}
+  IS_STABLE: ${{ github.ref_type == 'tag' && !contains(github.ref, '-') }}
   IS_PRERELEASE: ${{ contains(github.ref_name, 'pre') }}
-  SHOULD_RELEASE: ${{ !contains(github.ref, '-') || contains(github.ref_name, 'pre') }}
   GRADLE_OPTS: -Dorg.gradle.vfs.watch=false
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
   SENTRY_BACKEND: none
   
 jobs:
+  setup-matrix:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - id: set-matrix
+        run: |
+          MATRIX='[
+            {
+              "platform": "android",
+              "os": "ubuntu-24.04",
+              "arch": "arm64"
+            },
+            {
+              "platform": "android",
+              "os": "ubuntu-24.04",
+              "arch": "amd64"
+            },
+            {
+              "platform": "android",
+              "os": "ubuntu-24.04",
+              "arch": "arm"
+            },
+            {
+              "platform": "android",
+              "os": "ubuntu-24.04",
+              "arch": "universal"
+            },
+            {
+              "platform": "windows",
+              "os": "windows-2022",
+              "arch": "amd64"
+            },
+            {
+              "platform": "windows",
+              "os": "windows-11-arm",
+              "arch": "arm64"},
+            {
+              "platform": "windows",
+              "os": "windows-2022",
+              "arch": "amd64",
+              "compatible": true
+            },
+            {
+              "platform": "macos",
+              "os": "macos-15",
+              "arch": "arm64"
+            },
+            {
+              "platform": "macos",
+              "os": "macos-15",
+              "arch": "amd64"},
+            {
+              "platform": "macos",
+              "os": "macos-15",
+              "arch": "amd64",
+              "compatible": true
+            },
+            {
+              "platform": "linux",
+              "os": "ubuntu-22.04",
+              "arch": "amd64"},
+            {
+              "platform": "linux",
+              "os": "ubuntu-24.04-arm",
+              "arch": "arm64"},
+            {
+              "platform": "linux",
+              "os": "ubuntu-22.04",
+              "arch": "amd64",
+              "compatible": true
+            }
+          ]'
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            FILTERED=$(echo "$MATRIX" | jq -c '[.[] | select(
+              (.platform == "android" and ${{ inputs.build_android }}) or
+              (.platform == "windows" and ${{ inputs.build_windows }}) or
+              (.platform == "macos" and ${{ inputs.build_mac }}) or
+              (.platform == "linux" and ${{ inputs.build_linux }})
+            )]')
+            echo "matrix=$FILTERED" >> "$GITHUB_OUTPUT"
+          else
+            echo "matrix=$MATRIX" >> "$GITHUB_OUTPUT"
+          fi
+
   build:
+    needs: [setup-matrix]
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - platform: android
-            os: ubuntu-24.04
-            arch: arm64
-          - platform: android
-            os: ubuntu-24.04
-            arch: amd64
-          - platform: android
-            os: ubuntu-24.04
-            arch: arm
-          - platform: android
-            os: ubuntu-24.04
-            arch: universal
-          - platform: windows
-            os: windows-2022
-            arch: amd64
-          - platform: windows
-            os: windows-11-arm
-            arch: arm64
-          - platform: windows
-            os: windows-2022
-            arch: amd64
-            compatible: true
-          - platform: macos
-            os: macos-15
-            arch: arm64
-          - platform: macos
-            os: macos-15
-            arch: amd64
-          - platform: macos
-            os: macos-15
-            arch: amd64
-            compatible: true
-          - platform: linux
-            os: ubuntu-22.04
-            arch: amd64
-          - platform: linux
-            os: ubuntu-24.04-arm
-            arch: arm64
-          - platform: linux
-            os: ubuntu-22.04
-            arch: amd64
-            compatible: true
+        include: ${{ fromJson(needs.setup-matrix.outputs.matrix) }}
 
     steps:
       - name: Checkout
@@ -194,7 +259,7 @@ jobs:
           fi
 
       - name: Release
-        if: ${{ env.SHOULD_RELEASE == 'true' }}
+        if: ${{ env.IS_STABLE == 'true' || env.IS_PRERELEASE == 'true' }}
         uses: softprops/action-gh-release@v3.0.0
         with:
           files: ./dist/*

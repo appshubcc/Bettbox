@@ -339,6 +339,11 @@ class BuildCommand extends Command {
         ].join(','),
         help: 'The $name build desc',
       );
+      argParser.addOption(
+        'targets',
+        valueHelp: 'deb,zip,appimage,rpm',
+        help: 'The linux package formats (comma separated)',
+      );
     } else {
       argParser.addOption(
         'arch',
@@ -685,15 +690,22 @@ if (actualOut != 'app') {
         );
         return;
       case TargetPlatform.linux:
+        final validTargets = ['deb', 'rpm', 'appimage', 'zip'];
+        final targets = argResults?['targets'] ?? <String>[];
+        if (targets.isEmpty) {
+          throw 'Invalid targets parameter';
+        }
+        final invalidTargets = targets.where((t) => !validTargets.contains(t)).toList();
+        if (invalidTargets.isNotEmpty) {
+          throw 'Invalid targets parameter: ${invalidTargets.join(', ')}';
+        }
+
         final targetMap = {Arch.arm64: 'linux-arm64', Arch.amd64: 'linux-x64'};
-        final targets = [
-          'deb',
-          if (arch == Arch.amd64) 'appimage',
-          if (arch == Arch.amd64) 'rpm',
-        ];
         final defaultTarget = targetMap[arch];
+
         await _setLinuxCoreSetuid();
-        for (final t in targets) {
+
+        for (final t in targets.isEmpty ? [''] : targets) {
           final ext = t == 'appimage' ? 'AppImage' : t;
           final currentSuffix = 'linux-$desc.$ext';
           await _buildDistributor(

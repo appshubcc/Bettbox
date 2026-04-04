@@ -18,6 +18,9 @@ env:
 jobs:
   build:
     runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash
     strategy:
       fail-fast: false
       matrix:
@@ -206,7 +209,14 @@ jobs:
         run: |
           flutter pub get
           dart run build_runner build -d
-          dart setup.dart ${{ matrix.platform }} --arch ${{ matrix.arch }} ${{ env.IS_STABLE == 'true' && '--env stable' || '' }} ${{ matrix.compatible == true && '--compatible' || '' }}
+          dart setup.dart \
+            ${{ matrix.platform }} \
+            --arch ${{ matrix.arch }} \
+            ${{ env.IS_STABLE == 'true' && '--env stable' || '' }} \
+            ${{ matrix.compatible == true && '--compatible' || '' }} \
+            ${{ matrix.platform == 'linux' && '--targets' || ''}} \
+            ${{ matrix.platform == 'linux' && matrix.arch == 'amd64' && 'deb,rpm,appimage' || '' }} \
+            ${{ matrix.platform == 'linux' && matrix.arch == 'arm64' && 'deb' || '' }}
 
       - name: Install SignPath (Windows)
         if: matrix.platform == 'windows'

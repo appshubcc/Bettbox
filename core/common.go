@@ -1,3 +1,4 @@
+```go
 package main
 
 import (
@@ -263,24 +264,27 @@ func setupConfig(params *SetupParams) error {
 		}
 	}
 
-	constant.DefaultTestURL = params.TestURL
-	if params.OverrideTestUrl && params.Config != nil {
-		if params.Config.ProxyGroup != nil {
-			for _, group := range params.Config.ProxyGroup {
-				group["url"] = params.TestURL
+	if params.TestURL != "" && params.Config != nil && params.Config.ProxyProvider != nil {
+		for _, provider := range params.Config.ProxyProvider {
+			if hc, ok := provider["health-check"]; ok {
+				if hcMap, ok := hc.(map[string]any); ok {
+					hcMap["url"] = params.TestURL
+				}
+			} else {
+				provider["health-check"] = map[string]any{"url": params.TestURL}
 			}
 		}
 	}
 
-	var err error
+	constant.DefaultTestURL = params.TestURL
 	currentConfig, err = config.ParseRawConfig(params.Config)
 	if err != nil {
-		currentConfig, _ = config.ParseRawConfig(config.DefaultRawConfig())
+		return err
 	}
-	hub.ApplyConfig(currentConfig)
+
 	patchSelectGroup(params.SelectedMap)
-	updateListeners()
-	return err
+
+	return nil
 }
 
 func UnmarshalJson(data []byte, v any) error {
@@ -289,3 +293,4 @@ func UnmarshalJson(data []byte, v any) error {
 	err := decoder.Decode(v)
 	return err
 }
+```

@@ -1,3 +1,4 @@
+```xml
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
@@ -60,9 +61,13 @@
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
 
-                <data android:scheme="clash" android:host="install-config" />
-                <data android:scheme="clashmeta" android:host="install-config" />
-                <data android:scheme="bettbox" android:host="install-config" />
+                <data android:scheme="clash" />
+                <data android:scheme="clashmeta" />
+                <data android:scheme="bettbox" />
+                <data android:scheme="liclash" />
+                <data android:scheme="mihomo" />
+
+                <data android:host="install-config" />
             </intent-filter>
         </activity>
 
@@ -168,9 +173,6 @@
                 <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
             </intent-filter>
         </receiver>
-
-        <meta-data
-            android:name="flutterEmbedding"
-            android:value="2" />
     </application>
 </manifest>
+```

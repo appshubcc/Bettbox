@@ -19,6 +19,8 @@ class Window {
       protocol.register('clash');
       protocol.register('clashmeta');
       protocol.register('bettbox');
+      protocol.register('liclash');
+      protocol.register('mihomo');
     }
     if ((version > 10 && system.isMacOS)) {
       await acrylic.Window.initialize();

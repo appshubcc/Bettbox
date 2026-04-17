@@ -575,14 +575,18 @@ class AppController {
   }
 
   Future<void> handleExit() async {
+    const exitTimeout = Duration(seconds: 5);
     try {
       stopWakelockAutoRecovery();
       await savePreferences();
       await Future.wait([
-        if (macOS != null) macOS!.updateDns(true),
-        if (proxy != null) proxy!.stopProxy(),
-        clashCore.shutdown(),
-        if (clashService != null) clashService!.destroy(),
+        if (macOS != null)
+          macOS!.updateDns(true).timeout(exitTimeout, onTimeout: () {}),
+        if (proxy != null)
+          proxy!.stopProxy().timeout(exitTimeout, onTimeout: () {}),
+        clashCore.shutdown().timeout(exitTimeout, onTimeout: () {}),
+        if (clashService != null)
+          clashService!.destroy().timeout(exitTimeout, onTimeout: () {}),
       ].whereType<Future<void>>().toList());
     } finally {
       system.exit();

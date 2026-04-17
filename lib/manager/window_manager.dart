@@ -79,6 +79,7 @@ class _WindowContainerState extends ConsumerState<WindowManager>
 
   @override
   void onWindowClose() async {
+    globalState.appController.unBackBlock();
     await globalState.appController.handleBackOrExit();
   }
 

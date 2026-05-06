@@ -215,17 +215,9 @@ class ProxyCard extends StatelessWidget {
                               spacing: 4,
                               children: [
                                 Expanded(
-                                  child: Text(
-                                    proxy.type,
-                                    style: context.textTheme.bodySmall
-                                        ?.copyWith(
-                                          overflow: TextOverflow.ellipsis,
-                                          color: context
-                                              .textTheme
-                                              .bodySmall
-                                              ?.color
-                                              ?.opacity80,
-                                        ),
+                                  child: Align(
+                                    alignment: Alignment.centerLeft,
+                                    child: _ProxyMetaTag(proxy.type),
                                   ),
                                 ),
                                 delayText,
@@ -293,6 +285,17 @@ class _ProxyDesc extends ConsumerWidget {
         .watch(getProxyCardStateProvider(proxy.name))
         .proxyName;
     if (selectedName.isEmpty) return const SizedBox.shrink();
+    return _ProxyMetaTag(selectedName);
+  }
+}
+
+class _ProxyMetaTag extends StatelessWidget {
+  final String text;
+
+  const _ProxyMetaTag(this.text);
+
+  @override
+  Widget build(BuildContext context) {
     final colorScheme = context.colorScheme;
     return Ink(
       padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 1),
@@ -304,7 +307,7 @@ class _ProxyDesc extends ConsumerWidget {
         ),
       ),
       child: Text(
-        selectedName,
+        text,
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
         style: context.textTheme.labelSmall?.copyWith(

@@ -1117,7 +1117,7 @@ return $default(_that.type,_that.overrideRules,_that.addedRules);case _:
 @JsonSerializable()
 
 class _OverrideRule implements OverrideRule {
-  const _OverrideRule({this.type = OverrideRuleType.added, final  List<Rule> overrideRules = const [], final  List<Rule> addedRules = const []}): _overrideRules = overrideRules,_addedRules = addedRules;
+  const _OverrideRule({this.type = OverrideRuleType.override, final  List<Rule> overrideRules = const [], final  List<Rule> addedRules = const []}): _overrideRules = overrideRules,_addedRules = addedRules;
   factory _OverrideRule.fromJson(Map<String, dynamic> json) => _$OverrideRuleFromJson(json);
 
 @override@JsonKey() final  OverrideRuleType type;

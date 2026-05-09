@@ -3223,7 +3223,7 @@ return $default(_that.mmdb,_that.asn,_that.geoip,_that.geosite);case _:
 @JsonSerializable()
 
 class _GeoXUrl implements GeoXUrl {
-  const _GeoXUrl({this.mmdb = 'https://cdn.jsdelivr.net/gh/Loyalsoldier/geoip@release/Country-only-cn-private.mmdb', this.asn = 'https://cdn.jsdelivr.net/gh/Loyalsoldier/geoip@release/Country-asn.mmdb', this.geoip = 'https://fastly.jsdelivr.net/gh/appshubcc/bett-rules@release/geoip.dat', this.geosite = 'https://cdn.jsdelivr.net/gh/Loyalsoldier/v2ray-rules-dat@release/geosite.dat'});
+  const _GeoXUrl({this.mmdb = 'https://fastly.jsdelivr.net/gh/appshubcc/bett-rules@release/geoip.metadb', this.asn = 'https://fastly.jsdelivr.net/gh/appshubcc/bett-rules@release/GeoLite2-ASN.mmdb', this.geoip = 'https://fastly.jsdelivr.net/gh/appshubcc/bett-rules@release/geoip.dat', this.geosite = 'https://fastly.jsdelivr.net/gh/appshubcc/bett-rules@release/geosite.dat'});
   factory _GeoXUrl.fromJson(Map<String, dynamic> json) => _$GeoXUrlFromJson(json);
 
 @override@JsonKey() final  String mmdb;

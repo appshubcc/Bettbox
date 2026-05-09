@@ -81,7 +81,7 @@ _OverrideRule _$OverrideRuleFromJson(Map<String, dynamic> json) =>
     _OverrideRule(
       type:
           $enumDecodeNullable(_$OverrideRuleTypeEnumMap, json['type']) ??
-          OverrideRuleType.added,
+          OverrideRuleType.override,
       overrideRules:
           (json['overrideRules'] as List<dynamic>?)
               ?.map((e) => Rule.fromJson(e as Map<String, dynamic>))

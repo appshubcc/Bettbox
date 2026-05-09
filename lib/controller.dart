@@ -32,6 +32,8 @@ class AppController {
   final BuildContext context;
   final WidgetRef _ref;
 
+  WidgetRef get ref => _ref;
+  
   Timer? _wakelockSyncTimer;
   Completer<void>? _restartLock;
   Completer<void>? _exitLock;

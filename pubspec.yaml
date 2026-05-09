@@ -55,7 +55,7 @@ dependencies:
   flutter_riverpod: ^2.6.1
   riverpod_annotation: ^2.6.1
   riverpod: ^2.6.1
-  material_color_utilities: ^0.11.1
+  material_color_utilities: ^0.13.0
   flutter_js: ^0.8.7
   flutter_svg: ^2.2.4
   xml: ^6.5.0

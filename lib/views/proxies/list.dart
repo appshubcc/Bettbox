@@ -203,7 +203,10 @@ class _GroupHeader extends ConsumerWidget {
                         style: context.textTheme.labelMedium?.toLight,
                       ),
                       if (selectedProxyName.isNotEmpty) ...[
-                        const SizedBox(width: 8),
+                        Text(
+                          '  •  ',
+                          style: context.textTheme.labelMedium?.toLight,
+                        ),
                         if (selectedProxyIcon.isNotEmpty) ...[
                           CommonTargetIcon(
                             src: selectedProxyIcon,
@@ -213,7 +216,7 @@ class _GroupHeader extends ConsumerWidget {
                         ],
                         Flexible(
                           child: EmojiText(
-                            '•  $selectedProxyName',
+                            selectedProxyName,
                             style: context.textTheme.labelMedium?.toLight,
                             overflow: TextOverflow.ellipsis,
                           ),

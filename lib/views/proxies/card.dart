@@ -5,6 +5,7 @@ import 'package:bett_box/providers/providers.dart';
 import 'package:bett_box/state.dart';
 import 'package:bett_box/views/proxies/common.dart';
 import 'package:bett_box/widgets/widgets.dart';
+import 'package:emoji_regex/emoji_regex.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -129,6 +130,12 @@ class ProxyCard extends StatelessWidget {
   /// 显示代理节点名称，如果该名称对应一个子策略组且有 icon，则在名称前面显示图标
   Widget _buildProxyNameWithIcon(BuildContext context, WidgetRef ref) {
     final nameWidget = _buildProxyNameText(context);
+
+    // 如果策略组名称包含 emoji，则不显示 icon 图标
+    if (emojiRegex().hasMatch(proxy.name)) {
+      return nameWidget;
+    }
+
     final subGroupIcon = ref.watch(
       groupsProvider.select((groups) {
         final g = groups.getGroup(proxy.name);
@@ -140,9 +147,10 @@ class ProxyCard extends StatelessWidget {
       return nameWidget;
     }
     return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
       mainAxisSize: MainAxisSize.min,
       children: [
-        CommonTargetIcon(src: subGroupIcon, size: 14),
+        CommonTargetIcon(src: subGroupIcon, size: measure.bodyMediumHeight),
         const SizedBox(width: 4),
         Flexible(child: nameWidget),
       ],
@@ -153,21 +161,27 @@ class ProxyCard extends StatelessWidget {
     if (type == ProxyCardType.min) {
       return SizedBox(
         height: measure.bodyMediumHeight * 1,
-        child: EmojiText(
-          proxy.name,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: context.textTheme.bodyMedium,
+        child: Align(
+          alignment: Alignment.centerLeft,
+          child: EmojiText(
+            proxy.name,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: context.textTheme.bodyMedium,
+          ),
         ),
       );
     } else {
       return SizedBox(
         height: measure.bodyMediumHeight * 2,
-        child: EmojiText(
-          proxy.name,
-          maxLines: 2,
-          overflow: TextOverflow.ellipsis,
-          style: context.textTheme.bodyMedium,
+        child: Align(
+          alignment: Alignment.centerLeft,
+          child: EmojiText(
+            proxy.name,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: context.textTheme.bodyMedium,
+          ),
         ),
       );
     }

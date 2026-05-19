@@ -363,6 +363,8 @@ class _ProxyGroupViewState extends ConsumerState<ProxyGroupView> {
 
   @override
   Widget build(BuildContext context) {
+    // 监听文本缩放变化，确保 ProxyCard 中的图标大小随主题缩放更新
+    ref.watch(themeSettingProvider.select((state) => state.textScale));
     final group = widget.group;
     final proxies = group.all;
     final sortedProxies = globalState.appController.getSortProxies(

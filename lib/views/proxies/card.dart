@@ -126,6 +126,29 @@ class ProxyCard extends StatelessWidget {
     };
   }
 
+  /// 显示代理节点名称，如果该名称对应一个子策略组且有 icon，则在名称前面显示图标
+  Widget _buildProxyNameWithIcon(BuildContext context, WidgetRef ref) {
+    final nameWidget = _buildProxyNameText(context);
+    final subGroupIcon = ref.watch(
+      groupsProvider.select((groups) {
+        final g = groups.getGroup(proxy.name);
+        return g?.icon ?? '';
+      }),
+    );
+    // 没有配置 icon 则不显示也不占位
+    if (subGroupIcon.isEmpty) {
+      return nameWidget;
+    }
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        CommonTargetIcon(src: subGroupIcon, size: 14),
+        const SizedBox(width: 4),
+        Flexible(child: nameWidget),
+      ],
+    );
+  }
+
   Widget _buildProxyNameText(BuildContext context) {
     if (type == ProxyCardType.min) {
       return SizedBox(
@@ -169,7 +192,6 @@ class ProxyCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final proxyNameText = _buildProxyNameText(context);
     final delayText = _buildDelayText(context);
     return RepaintBoundary(
       child: Stack(
@@ -195,7 +217,10 @@ class ProxyCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 spacing: 8,
                 children: [
-                  proxyNameText,
+                  Consumer(
+                    builder: (_, ref, _) =>
+                        _buildProxyNameWithIcon(context, ref),
+                  ),
                   if (type == ProxyCardType.expand) ...[
                     SizedBox(
                       height: measure.labelSmallHeight * 2 + 4,

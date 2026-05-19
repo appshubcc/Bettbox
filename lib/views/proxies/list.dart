@@ -1,8 +1,7 @@
 import 'package:bett_box/common/common.dart';
 import 'package:bett_box/enum/enum.dart';
 import 'package:bett_box/models/models.dart';
-import 'package:bett_box/providers/config.dart';
-import 'package:bett_box/providers/state.dart';
+import 'package:bett_box/providers/providers.dart';
 import 'package:bett_box/state.dart';
 import 'package:bett_box/widgets/widgets.dart';
 import 'package:flutter/material.dart';
@@ -170,6 +169,14 @@ class _GroupHeader extends ConsumerWidget {
       getSelectedProxyNameProvider(group.name),
     ).getSafeValue('');
 
+    // Resolve the icon of the selected proxy if it is a sub-group
+    final selectedProxyIcon = ref.watch(
+      groupsProvider.select((groups) {
+        if (selectedProxyName.isEmpty) return '';
+        return groups.getGroup(selectedProxyName)?.icon ?? '';
+      }),
+    );
+
     return CommonCard(
       radius: 16,
       type: CommonCardType.filled,
@@ -197,6 +204,13 @@ class _GroupHeader extends ConsumerWidget {
                       ),
                       if (selectedProxyName.isNotEmpty) ...[
                         const SizedBox(width: 8),
+                        if (selectedProxyIcon.isNotEmpty) ...[
+                          CommonTargetIcon(
+                            src: selectedProxyIcon,
+                            size: globalState.measure.labelMediumHeight,
+                          ),
+                          const SizedBox(width: 4),
+                        ],
                         Flexible(
                           child: EmojiText(
                             '•  $selectedProxyName',

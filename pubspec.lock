@@ -590,12 +590,13 @@ packages:
     source: hosted
     version: "0.2.3"
   hotkey_manager_linux:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: hotkey_manager_linux
-      sha256: "83676bda8210a3377bc6f1977f193bc1dbdd4c46f1bdd02875f44b6eff9a8473"
-      url: "https://pub.dev"
-    source: hosted
+      path: "packages/hotkey_manager_linux"
+      ref: fix-build-failure
+      resolved-ref: "1b31e3ca4ab017ee72f54a7065b2073a88403d61"
+      url: "https://github.com/gepbird/hotkey_manager.git"
+    source: git
     version: "0.2.0"
   hotkey_manager_macos:
     dependency: transitive

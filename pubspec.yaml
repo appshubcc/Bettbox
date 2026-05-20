@@ -68,6 +68,13 @@ dependencies:
   synchronized: ^3.4.0
   flutter_displaymode: ^0.7.0
   restart_app: ^1.8.3
+dependency_overrides:
+  # Fix compile failure: https://github.com/leanflutter/hotkey_manager/pull/66
+  hotkey_manager_linux:
+    git:
+      url: https://github.com/gepbird/hotkey_manager.git
+      path: packages/hotkey_manager_linux
+      ref: fix-build-failure
 dev_dependencies:
   flutter_test:
     sdk: flutter

@@ -171,7 +171,7 @@ class Utils {
     bool isStart = false,
   }) {
     if (system.isMacOS) {
-      return 'assets/images/icon_template.png';
+      return 'assets/images/icon.png';
     }
 
     if (system.isLinux) {
@@ -180,16 +180,7 @@ class Utils {
 
     final suffix = system.isWindows ? 'ico' : 'png';
 
-    return switch (brightness) {
-      Brightness.dark =>
-        !isStart
-            ? 'assets/images/icon.$suffix'
-            : 'assets/images/icon_white.$suffix',
-      Brightness.light =>
-        !isStart
-            ? 'assets/images/icon_light.$suffix'
-            : 'assets/images/icon_black.$suffix',
-    };
+    return 'assets/images/icon.$suffix';
   }
 
   int compareVersions(String version1, String version2) {

@@ -538,10 +538,6 @@ class MessageLookup extends MessageLookupByLibrary {
     "language": MessageLookupByLibrary.simpleMessage("Language"),
     "layout": MessageLookupByLibrary.simpleMessage("Layout"),
     "light": MessageLookupByLibrary.simpleMessage("Light"),
-    "lightIcon": MessageLookupByLibrary.simpleMessage("Light Icon"),
-    "lightIconDesc": MessageLookupByLibrary.simpleMessage(
-      "Manually switch light desktop app icon",
-    ),
     "list": MessageLookupByLibrary.simpleMessage("List"),
     "listen": MessageLookupByLibrary.simpleMessage("Listen"),
     "local": MessageLookupByLibrary.simpleMessage("Local"),

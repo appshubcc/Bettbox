@@ -28,18 +28,6 @@ class FlutterWindow : public Win32Window {
 
   // The Flutter instance hosted by this window.
   std::unique_ptr<flutter::FlutterViewController> flutter_controller_;
-  
-  // Setup app method channel
-  void SetupAppMethodChannel();
-  
-  // Set window icon
-  bool SetWindowIcon(bool use_light_icon);
-  
-  // Save icon preference
-  void SaveIconPreference(bool use_light_icon);
-  
-  // Load icon preference
-  bool LoadIconPreference();
 };
 
 #endif  // RUNNER_FLUTTER_WINDOW_H_

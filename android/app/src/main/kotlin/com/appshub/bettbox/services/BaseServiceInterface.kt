@@ -29,28 +29,9 @@ interface BaseServiceInterface {
 fun Service.createBettboxNotificationBuilder(): Deferred<NotificationCompat.Builder> =
     CoroutineScope(Dispatchers.Main).async {
         val defaultComponent = ComponentName(packageName, "com.appshub.bettbox.MainActivity")
-        val lightComponent = ComponentName(packageName, "com.appshub.bettbox.MainActivityLight")
-
-        val defaultState = runCatching { packageManager.getComponentEnabledSetting(defaultComponent) }
-            .getOrDefault(PackageManager.COMPONENT_ENABLED_STATE_DEFAULT)
-        val lightState = runCatching { packageManager.getComponentEnabledSetting(lightComponent) }
-            .getOrDefault(PackageManager.COMPONENT_ENABLED_STATE_DEFAULT)
-
-        val targetComponent = when {
-            lightState == PackageManager.COMPONENT_ENABLED_STATE_ENABLED -> lightComponent
-            lightState == PackageManager.COMPONENT_ENABLED_STATE_DISABLED -> defaultComponent
-            defaultState == PackageManager.COMPONENT_ENABLED_STATE_ENABLED -> defaultComponent
-            defaultState == PackageManager.COMPONENT_ENABLED_STATE_DISABLED -> lightComponent
-            else -> runCatching {
-                packageManager.getActivityInfo(lightComponent, 0)
-                    .takeIf { it.enabled }?.let { lightComponent }
-            }.getOrNull() ?: defaultComponent
-        }
-
-        android.util.Log.d("Notification", "Using ${targetComponent.className}")
 
         val intent = Intent().apply {
-            component = targetComponent
+            component = defaultComponent
             action = Intent.ACTION_MAIN
             addCategory(Intent.CATEGORY_LAUNCHER)
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP

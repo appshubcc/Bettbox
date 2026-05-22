@@ -392,9 +392,7 @@ class AppIcon extends ConsumerWidget {
           errorBuilder: (_, _, _) {
             // Fallback if file load fails
             return Image.asset(
-              isDark
-                  ? 'assets/images/icon.png'
-                  : 'assets/images/icon_light.png',
+              'assets/images/icon.png',
               fit: BoxFit.contain,
             );
           },
@@ -402,7 +400,7 @@ class AppIcon extends ConsumerWidget {
       );
     } else {
       icon = Image.asset(
-        isDark ? 'assets/images/icon.png' : 'assets/images/icon_light.png',
+        'assets/images/icon.png',
         fit: BoxFit.contain,
       );
     }

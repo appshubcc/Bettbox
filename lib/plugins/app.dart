@@ -129,13 +129,6 @@ class App {
     await methodChannel.invokeMethod<void>('requestIgnoreBatteryOptimizations');
   }
 
-  Future<bool> setLauncherIcon(bool useLightIcon) async {
-    final result = await methodChannel.invokeMethod<bool>('setLauncherIcon', {
-      'useLightIcon': useLightIcon,
-    });
-    return result ?? false;
-  }
-
   Future<bool> isAndroidTV() async {
     final result = await methodChannel.invokeMethod<bool>('isAndroidTV');
     return result ?? false;

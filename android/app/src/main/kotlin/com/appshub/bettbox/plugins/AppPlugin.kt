@@ -134,19 +134,13 @@ class AppPlugin : FlutterPlugin, MethodChannel.MethodCallHandler, ActivityAware 
     }
 
     private fun initShortcuts(label: String) {
-        val iconRes = if (isSystemInDarkMode()) R.mipmap.ic_launcher_round else R.mipmap.ic_launcher_round_light
+        val iconRes = R.mipmap.ic_launcher_round
         val shortcut = ShortcutInfoCompat.Builder(BettboxApplication.getAppContext(), "toggle")
             .setShortLabel(label)
             .setIcon(IconCompat.createWithResource(BettboxApplication.getAppContext(), iconRes))
             .setIntent(BettboxApplication.getAppContext().getActionIntent("CHANGE"))
             .build()
         ShortcutManagerCompat.setDynamicShortcuts(BettboxApplication.getAppContext(), listOf(shortcut))
-    }
-
-    private fun isSystemInDarkMode(): Boolean {
-        val nightModeFlags = BettboxApplication.getAppContext().resources.configuration.uiMode and
-            Configuration.UI_MODE_NIGHT_MASK
-        return nightModeFlags == Configuration.UI_MODE_NIGHT_YES
     }
 
     private fun isAndroidTV(): Boolean {
@@ -214,10 +208,6 @@ class AppPlugin : FlutterPlugin, MethodChannel.MethodCallHandler, ActivityAware 
             }
             "requestIgnoreBatteryOptimizations" -> {
                 requestIgnoreBatteryOptimizations()
-                result.success(true)
-            }
-            "setLauncherIcon" -> {
-                setLauncherIcon(call.argument<Boolean>("useLightIcon") ?: false)
                 result.success(true)
             }
             "hasPackageListPermission" -> {
@@ -501,23 +491,6 @@ class AppPlugin : FlutterPlugin, MethodChannel.MethodCallHandler, ActivityAware 
                     })
                 }
             }
-    }
-
-    private fun setLauncherIcon(useLightIcon: Boolean) {
-        val context = BettboxApplication.getAppContext()
-        val pm = context.packageManager
-        val packageName = context.packageName
-        val defaultComponent = android.content.ComponentName(packageName, "com.appshub.bettbox.MainActivity")
-        val lightComponent = android.content.ComponentName(packageName, "com.appshub.bettbox.MainActivityLight")
-
-        if (useLightIcon) {
-            pm.setComponentEnabledSetting(lightComponent, PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP)
-            pm.setComponentEnabledSetting(defaultComponent, PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP)
-        } else {
-            pm.setComponentEnabledSetting(defaultComponent, PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP)
-            pm.setComponentEnabledSetting(lightComponent, PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP)
-        }
-        VpnPlugin.updateNotificationIcon()
     }
 
     private fun hasPackageListPermission(): Boolean {

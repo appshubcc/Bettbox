@@ -384,8 +384,6 @@ class MessageLookup extends MessageLookupByLibrary {
     "language": MessageLookupByLibrary.simpleMessage("語言"),
     "layout": MessageLookupByLibrary.simpleMessage("版面配置"),
     "light": MessageLookupByLibrary.simpleMessage("淺色"),
-    "lightIcon": MessageLookupByLibrary.simpleMessage("丹青留白"),
-    "lightIconDesc": MessageLookupByLibrary.simpleMessage("手動切換淺色系桌面應用程式圖示"),
     "list": MessageLookupByLibrary.simpleMessage("清單"),
     "listen": MessageLookupByLibrary.simpleMessage("監聽"),
     "local": MessageLookupByLibrary.simpleMessage("本機"),

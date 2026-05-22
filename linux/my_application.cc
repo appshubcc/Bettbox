@@ -8,15 +8,7 @@
 #include "flutter/generated_plugin_registrant.h"
 
 // App method channel related
-static FlMethodChannel* app_channel = nullptr;
 static GtkWindow* main_window = nullptr;
-static gboolean use_light_icon = FALSE;
-
-// Forward declarations
-static void setup_app_method_channel(FlView* view);
-static gboolean set_window_icon(gboolean use_light);
-static void save_icon_preference(gboolean use_light);
-static gboolean load_icon_preference();
 
 struct _MyApplication {
   GtkApplication parent_instance;
@@ -60,7 +52,7 @@ static void my_application_activate(GApplication* application) {
 
   gtk_window_set_default_size(window, 1280, 720);
   gtk_widget_realize(GTK_WIDGET(window));
-  
+
   // Save window reference
   main_window = window;
 
@@ -72,15 +64,6 @@ static void my_application_activate(GApplication* application) {
   gtk_container_add(GTK_CONTAINER(window), GTK_WIDGET(view));
 
   fl_register_plugins(FL_PLUGIN_REGISTRY(view));
-  
-  // Setup app method channel
-  setup_app_method_channel(view);
-  
-  // Load and apply saved icon preference
-  use_light_icon = load_icon_preference();
-  if (use_light_icon) {
-    set_window_icon(TRUE);
-  }
 
   gtk_widget_grab_focus(GTK_WIDGET(view));
 }
@@ -149,122 +132,4 @@ MyApplication* my_application_new() {
   return MY_APPLICATION(g_object_new(my_application_get_type(),
                                      "application-id", APPLICATION_ID,
                                      nullptr));
-}
-
-// App method channel implementation
-
-static void app_method_call_handler(FlMethodChannel* channel,
-                                    FlMethodCall* method_call,
-                                    gpointer user_data) {
-  const gchar* method = fl_method_call_get_name(method_call);
-  
-  if (strcmp(method, "setLauncherIcon") == 0) {
-    FlValue* args = fl_method_call_get_args(method_call);
-    if (fl_value_get_type(args) == FL_VALUE_TYPE_MAP) {
-      FlValue* use_light_value = fl_value_lookup_string(args, "useLightIcon");
-      if (use_light_value != nullptr && fl_value_get_type(use_light_value) == FL_VALUE_TYPE_BOOL) {
-        gboolean use_light = fl_value_get_bool(use_light_value);
-        gboolean success = set_window_icon(use_light);
-        
-        g_autoptr(FlValue) result = fl_value_new_bool(success);
-        fl_method_call_respond_success(method_call, result, nullptr);
-        return;
-      }
-    }
-    
-    fl_method_call_respond_error(method_call, "INVALID_ARGUMENT",
-                                 "Missing useLightIcon argument", nullptr, nullptr);
-  } else {
-    fl_method_call_respond_not_implemented(method_call, nullptr);
-  }
-}
-
-static void setup_app_method_channel(FlView* view) {
-  FlEngine* engine = fl_view_get_engine(view);
-  FlBinaryMessenger* messenger = fl_engine_get_binary_messenger(engine);
-  
-  g_autoptr(FlStandardMethodCodec) codec = fl_standard_method_codec_new();
-  app_channel = fl_method_channel_new(messenger, "app", FL_METHOD_CODEC(codec));
-  
-  fl_method_channel_set_method_call_handler(app_channel, app_method_call_handler,
-                                           nullptr, nullptr);
-}
-
-static gboolean set_window_icon(gboolean use_light) {
-  if (main_window == nullptr) {
-    return FALSE;
-  }
-  
-  // Icon file path
-  const gchar* icon_name = use_light ? "icon_light.png" : "icon.png";
-  gchar* icon_path = g_strdup_printf("data/flutter_assets/assets/images/%s", icon_name);
-  
-  // Load icon
-  GError* error = nullptr;
-  GdkPixbuf* pixbuf = gdk_pixbuf_new_from_file(icon_path, &error);
-  g_free(icon_path);
-  
-  if (error != nullptr) {
-    g_warning("Failed to load icon: %s", error->message);
-    g_error_free(error);
-    return FALSE;
-  }
-  
-  if (pixbuf == nullptr) {
-    return FALSE;
-  }
-  
-  // Set window icon
-  gtk_window_set_icon(main_window, pixbuf);
-  g_object_unref(pixbuf);
-  
-  // Save preference
-  use_light_icon = use_light;
-  save_icon_preference(use_light);
-  
-  return TRUE;
-}
-
-static void save_icon_preference(gboolean use_light) {
-  // Save to config file
-  const gchar* config_dir = g_get_user_config_dir();
-  gchar* app_config_dir = g_build_filename(config_dir, "bettbox", nullptr);
-  
-  // Create config directory
-  g_mkdir_with_parents(app_config_dir, 0755);
-  
-  gchar* config_file = g_build_filename(app_config_dir, "icon_preference", nullptr);
-  
-  // Write config
-  const gchar* value = use_light ? "1" : "0";
-  GError* error = nullptr;
-  g_file_set_contents(config_file, value, -1, &error);
-  
-  if (error != nullptr) {
-    g_warning("Failed to save icon preference: %s", error->message);
-    g_error_free(error);
-  }
-  
-  g_free(config_file);
-  g_free(app_config_dir);
-}
-
-static gboolean load_icon_preference() {
-  const gchar* config_dir = g_get_user_config_dir();
-  gchar* config_file = g_build_filename(config_dir, "bettbox", "icon_preference", nullptr);
-  
-  gchar* contents = nullptr;
-  GError* error = nullptr;
-  gboolean result = FALSE;
-  
-  if (g_file_get_contents(config_file, &contents, nullptr, &error)) {
-    result = (g_strcmp0(contents, "1") == 0);
-    g_free(contents);
-  } else if (error != nullptr) {
-    // File not found or read failed, use default
-    g_error_free(error);
-  }
-  
-  g_free(config_file);
-  return result;
 }

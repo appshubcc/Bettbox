@@ -561,8 +561,6 @@
   "clearData": "清除数据",
   "zoom": "缩放",
   "textScale": "文本缩放",
-  "lightIcon": "丹青留白",
-  "lightIconDesc": "手动切换浅色系桌面应用图标",
   "harmonyFont": "鸿蒙字体",
   "harmonyFontDesc": "使用优化的HarmonyOS Sans",
   "internet": "互联网",

@@ -548,10 +548,6 @@ class MessageLookup extends MessageLookupByLibrary {
     "language": MessageLookupByLibrary.simpleMessage("Язык"),
     "layout": MessageLookupByLibrary.simpleMessage("Макет"),
     "light": MessageLookupByLibrary.simpleMessage("Светлая"),
-    "lightIcon": MessageLookupByLibrary.simpleMessage("Светлая иконка"),
-    "lightIconDesc": MessageLookupByLibrary.simpleMessage(
-      "Переключить на светлый стиль рабочего стола вручную",
-    ),
     "list": MessageLookupByLibrary.simpleMessage("Список"),
     "listen": MessageLookupByLibrary.simpleMessage("Прослушивание"),
     "local": MessageLookupByLibrary.simpleMessage("Локально"),

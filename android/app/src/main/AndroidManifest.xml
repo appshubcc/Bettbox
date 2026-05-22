@@ -66,25 +66,6 @@
             </intent-filter>
         </activity>
 
-        <!-- Light icon alias -->
-        <activity-alias
-            android:name="com.appshub.bettbox.MainActivityLight"
-            android:enabled="false"
-            android:exported="true"
-            android:icon="@mipmap/ic_launcher_light"
-            android:roundIcon="@mipmap/ic_launcher_round_light"
-            android:targetActivity="com.appshub.bettbox.MainActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-                <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
-            </intent-filter>
-            <!-- Tile long-press intent -->
-            <intent-filter>
-                <action android:name="android.service.quicksettings.action.QS_TILE_PREFERENCES" />
-            </intent-filter>
-        </activity-alias>
-
         <activity
             android:name=".TempActivity"
             android:exported="true"

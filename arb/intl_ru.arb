@@ -562,8 +562,6 @@
   "clearData": "Очистить данные",
   "zoom": "Масштаб",
   "textScale": "Масштаб текста",
-  "lightIcon": "Светлая иконка",
-  "lightIconDesc": "Переключить на светлый стиль рабочего стола вручную",
   "harmonyFont": "Шрифт Harmony",
   "harmonyFontDesc": "Использовать оптимизированный HarmonyOS Sans",
   "internet": "Интернет",

@@ -51,7 +51,6 @@ class ThemeView extends ConsumerWidget {
       _PrimaryColorItem(),
       if (brightness == Brightness.dark) _PrueBlackItem(),
       if (shouldShowHarmonyFont) _HarmonyFontItem(),
-      _LightIconItem(),
       _TextScaleFactorItem(),
       const SizedBox(height: 64),
     ];
@@ -467,43 +466,6 @@ class _HarmonyFontItem extends ConsumerWidget {
           ref
               .read(themeSettingProvider.notifier)
               .updateState((state) => state.copyWith(useHarmonyFont: value));
-        },
-      ),
-    );
-  }
-}
-
-class _LightIconItem extends ConsumerWidget {
-  const _LightIconItem();
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final useLightIcon = ref.watch(
-      themeSettingProvider.select((state) => state.useLightIcon),
-    );
-    return ListItem.switchItem(
-      leading: Icon(Icons.light_mode_outlined),
-      horizontalTitleGap: 12,
-      title: Text(
-        appLocalizations.lightIcon,
-        style: Theme.of(context).textTheme.titleSmall?.copyWith(
-          color: context.colorScheme.onSurfaceVariant,
-        ),
-      ),
-      subtitle: Text(
-        appLocalizations.lightIconDesc,
-        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-          color: context.colorScheme.onSurfaceVariant.withOpacity(0.7),
-        ),
-      ),
-      delegate: SwitchDelegate(
-        value: useLightIcon,
-        onChanged: (value) async {
-          // Call native method to switch icon
-          await app.setLauncherIcon(value);
-          ref
-              .read(themeSettingProvider.notifier)
-              .updateState((state) => state.copyWith(useLightIcon: value));
         },
       ),
     );

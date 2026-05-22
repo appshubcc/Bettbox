@@ -560,8 +560,6 @@
   "crashTest": "Crash Test",
   "clearData": "Clear Data",
   "textScale": "Text Scaling",
-  "lightIcon": "Light Icon",
-  "lightIconDesc": "Manually switch light desktop app icon",
   "harmonyFont": "HarmonyOS Font",
   "harmonyFontDesc": "Use optimized HarmonyOS Sans font",
   "internet": "Internet",

@@ -45,7 +45,7 @@ fun Service.createBettboxNotificationBuilder(): Deferred<NotificationCompat.Buil
         val pendingIntent = PendingIntent.getActivity(this@createBettboxNotificationBuilder, 0, intent, flags)
 
         NotificationCompat.Builder(this@createBettboxNotificationBuilder, GlobalState.NOTIFICATION_CHANNEL).apply {
-            setSmallIcon(R.drawable.ic)
+            setSmallIcon(R.drawable.ic_notification_light)
             setContentTitle("Bettbox")
             setContentIntent(pendingIntent)
             setCategory(NotificationCompat.CATEGORY_SERVICE)

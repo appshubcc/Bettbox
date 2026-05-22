@@ -180,7 +180,16 @@ class Utils {
 
     final suffix = system.isWindows ? 'ico' : 'png';
 
-    return 'assets/images/icon.$suffix';
+    return switch (brightness) {
+      Brightness.dark =>
+        !isStart
+            ? 'assets/images/icon.$suffix'
+            : 'assets/images/icon_white.$suffix',
+      Brightness.light =>
+        !isStart
+            ? 'assets/images/icon.$suffix'
+            : 'assets/images/icon_black.$suffix',
+    };
   }
 
   int compareVersions(String version1, String version2) {

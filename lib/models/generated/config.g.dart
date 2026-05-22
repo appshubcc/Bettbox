@@ -324,7 +324,6 @@ _ThemeProps _$ThemePropsFromJson(Map<String, dynamic> json) => _ThemeProps(
   textScale: json['textScale'] == null
       ? const TextScale()
       : TextScale.fromJson(json['textScale'] as Map<String, dynamic>),
-  useLightIcon: json['useLightIcon'] as bool? ?? false,
   useHarmonyFont: json['useHarmonyFont'] as bool? ?? false,
 );
 
@@ -336,7 +335,6 @@ Map<String, dynamic> _$ThemePropsToJson(_ThemeProps instance) =>
       'schemeVariant': _$DynamicSchemeVariantEnumMap[instance.schemeVariant]!,
       'pureBlack': instance.pureBlack,
       'textScale': instance.textScale,
-      'useLightIcon': instance.useLightIcon,
       'useHarmonyFont': instance.useHarmonyFont,
     };
 

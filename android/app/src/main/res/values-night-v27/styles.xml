@@ -1,4 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- LaunchTheme removed - using NormalTheme directly -->
+    <style name="LaunchTheme" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">#292C41</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_launcher_foreground_dark</item>
+        <item name="postSplashScreenTheme">@style/NormalTheme</item>
+    </style>
 </resources>

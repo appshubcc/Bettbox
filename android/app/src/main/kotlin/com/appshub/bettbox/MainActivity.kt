@@ -1,6 +1,8 @@
 package com.appshub.bettbox
 
 import android.content.Context
+import android.os.Bundle
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.appshub.bettbox.plugins.AppPlugin
 import com.appshub.bettbox.plugins.ServicePlugin
 import com.appshub.bettbox.plugins.TilePlugin
@@ -14,6 +16,11 @@ import io.flutter.plugins.GeneratedPluginRegistrant
 class MainActivity : FlutterActivity() {
     companion object {
         private const val MAIN_ENGINE_ID = "bettbox_main_engine"
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        installSplashScreen()
+        super.onCreate(savedInstanceState)
     }
 
     override fun provideFlutterEngine(context: Context): FlutterEngine {

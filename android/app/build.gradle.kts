@@ -79,6 +79,7 @@ dependencies {
     implementation("com.android.tools.smali:smali-dexlib2:3.0.9") {
         exclude(group = "com.google.guava", module = "guava")
     }
+    implementation("androidx.core:core-splashscreen:1.0.1")
 }
 
 configurations.all {

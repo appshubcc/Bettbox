@@ -2,7 +2,7 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <style name="LaunchTheme" parent="Theme.SplashScreen">
         <item name="windowSplashScreenBackground">#FFFFFF</item>
-        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_launcher_foreground_light</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/splash_text_light</item>
         <item name="postSplashScreenTheme">@style/NormalTheme</item>
     </style>
 </resources>

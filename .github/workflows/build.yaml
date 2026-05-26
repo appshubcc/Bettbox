@@ -142,7 +142,24 @@ jobs:
         if: matrix.platform == 'linux'
         run: |
           sudo apt-get update -o Acquire::Retries=3 -o Acquire::ForceIPv4=true
-          sudo apt-get install -y -o Acquire::Retries=3 -o Acquire::ForceIPv4=true --fix-missing libcurl4-openssl-dev ninja-build libgtk-3-dev rpm
+          sudo apt-get install -y -o Acquire::Retries=3 -o Acquire::ForceIPv4=true --fix-missing \
+            libcurl4-openssl-dev \
+            ninja-build \
+            libgtk-3-dev \
+            libayatana-appindicator3-dev \
+            libkeybinder-3.0-dev \
+            locate \
+            ${{ matrix.arch == 'amd64' && 'rpm patchelf libfuse2' || '' }}
+
+          _arch=${{ matrix.arch == 'amd64' && 'x86_64' || 'aarch64' }}
+          wget -O appimagetool https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-${_arch}.AppImage
+          chmod +x appimagetool
+          sudo mv appimagetool /usr/local/bin/
+
+      - name: Install Dependencies (macOS)
+        if: matrix.platform == 'macos'
+        run: |
+          npm install -g appdmg
 
       - name: Setup Golang
         uses: actions/setup-go@v6

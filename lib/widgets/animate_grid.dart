@@ -58,20 +58,22 @@ class AnimateGrid<T> extends StatelessWidget {
                   builder: (context) {
                     final item = items[i];
                     final offset = _getOffset(i, count, itemWidth, itemHeight);
-                    return TweenAnimationBuilder(
-                      tween: Tween<Offset>(end: offset),
-                      duration: duration,
-                      curve: curve,
-                      builder: (_, offset, child) {
-                        return Transform.translate(
-                          offset: offset,
-                          child: child,
-                        );
-                      },
-                      child: SizedBox(
-                        height: itemHeight,
-                        width: itemWidth,
-                        child: builder(context, item),
+                    return RepaintBoundary(
+                      child: TweenAnimationBuilder(
+                        tween: Tween<Offset>(end: offset),
+                        duration: duration,
+                        curve: curve,
+                        builder: (_, offset, child) {
+                          return Transform.translate(
+                            offset: offset,
+                            child: child,
+                          );
+                        },
+                        child: SizedBox(
+                          height: itemHeight,
+                          width: itemWidth,
+                          child: builder(context, item),
+                        ),
                       ),
                     );
                   },

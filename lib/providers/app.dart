@@ -51,6 +51,8 @@ final filteredLogsProvider = Provider<List<Log>>((ref) {
   final query = ref.watch(logsSearchProvider).toLowerCase();
   final keywords = ref.watch(logsKeywordsProvider);
 
+  if (query.isEmpty && keywords.isEmpty) return logs;
+
   return logs.where((item) {
     if (query.isNotEmpty) {
       final matchesQuery = item.payload.toLowerCase().contains(query) ||
@@ -96,6 +98,8 @@ final filteredRequestsProvider = Provider<List<TrackerInfo>>((ref) {
   final requests = ref.watch(requestsProvider.select((s) => s.list));
   final query = ref.watch(requestsSearchProvider).toLowerCase().trim();
   final keywords = ref.watch(requestsKeywordsProvider);
+
+  if (query.isEmpty && keywords.isEmpty) return requests;
 
   return requests.where((item) {
     if (query.isNotEmpty) {
@@ -459,47 +463,52 @@ final filteredConnectionsProvider = Provider<List<TrackerInfo>>((ref) {
   final query = ref.watch(connectionsSearchProvider).toLowerCase().trim();
   final keywords = ref.watch(connectionsKeywordsProvider);
 
-  final filtered = connections.where((item) {
-    if (query.isNotEmpty) {
-      final networkText = item.metadata.network.toLowerCase();
-      final hostText = item.metadata.host.toLowerCase();
-      final destinationIPText = item.metadata.destinationIP.toLowerCase();
-      final processText = item.metadata.process.toLowerCase();
-      final chainsText = item.chains.join('').toLowerCase();
-      final matchesQuery = networkText.contains(query) ||
-          hostText.contains(query) ||
-          destinationIPText.contains(query) ||
-          processText.contains(query) ||
-          chainsText.contains(query);
-      if (!matchesQuery) return false;
-    }
-    if (keywords.isNotEmpty) {
-      final chains = item.chains;
-      final process = item.metadata.process;
-      final matchesKeywords = {...chains, process}.containsAll(keywords);
-      if (!matchesKeywords) return false;
-    }
-    return true;
-  }).toList();
+  List<TrackerInfo> filtered;
+  if (query.isEmpty && keywords.isEmpty) {
+    filtered = connections;
+  } else {
+    filtered = connections.where((item) {
+      if (query.isNotEmpty) {
+        final networkText = item.metadata.network.toLowerCase();
+        final hostText = item.metadata.host.toLowerCase();
+        final destinationIPText = item.metadata.destinationIP.toLowerCase();
+        final processText = item.metadata.process.toLowerCase();
+        final chainsText = item.chains.join('').toLowerCase();
+        final matchesQuery = networkText.contains(query) ||
+            hostText.contains(query) ||
+            destinationIPText.contains(query) ||
+            processText.contains(query) ||
+            chainsText.contains(query);
+        if (!matchesQuery) return false;
+      }
+      if (keywords.isNotEmpty) {
+        final chains = item.chains;
+        final process = item.metadata.process;
+        final matchesKeywords = {...chains, process}.containsAll(keywords);
+        if (!matchesKeywords) return false;
+      }
+      return true;
+    }).toList();
+  }
 
   final sortType = ref.watch(connectionsSortProvider);
   switch (sortType) {
     case ConnectionsSortType.realTimeSpeed:
-      filtered.sort((a, b) {
+      filtered = List.of(filtered)..sort((a, b) {
         final aSpeed = (a.uploadSpeed ?? 0) + (a.downloadSpeed ?? 0);
         final bSpeed = (b.uploadSpeed ?? 0) + (b.downloadSpeed ?? 0);
         return bSpeed.compareTo(aSpeed);
       });
       break;
     case ConnectionsSortType.totalTraffic:
-      filtered.sort((a, b) {
+      filtered = List.of(filtered)..sort((a, b) {
         final aTraffic = a.upload + a.download;
         final bTraffic = b.upload + b.download;
         return bTraffic.compareTo(aTraffic);
       });
       break;
     case ConnectionsSortType.creationTime:
-      filtered.sort((a, b) => b.start.compareTo(a.start));
+      filtered = List.of(filtered)..sort((a, b) => b.start.compareTo(a.start));
       break;
     case ConnectionsSortType.defaultSort:
       break;

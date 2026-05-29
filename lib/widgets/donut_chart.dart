@@ -76,17 +76,19 @@ class _DonutChartState extends State<DonutChart>
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _animationController,
-      builder: (context, child) {
-        return CustomPaint(
-          painter: DonutChartPainter(
-            _oldData,
-            widget.data,
-            _animationController.value,
-          ),
-        );
-      },
+    return RepaintBoundary(
+      child: AnimatedBuilder(
+        animation: _animationController,
+        builder: (context, child) {
+          return CustomPaint(
+            painter: DonutChartPainter(
+              _oldData,
+              widget.data,
+              _animationController.value,
+            ),
+          );
+        },
+      ),
     );
   }
 }
@@ -96,7 +98,13 @@ class DonutChartPainter extends CustomPainter {
   final List<DonutChartData> newData;
   final double progress;
 
-  DonutChartPainter(this.oldData, this.newData, this.progress);
+  late Paint _arcPaint;
+
+  DonutChartPainter(this.oldData, this.newData, this.progress) {
+    _arcPaint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round;
+  }
 
   double _logTransform(double value) {
     const base = 10.0;
@@ -153,18 +161,15 @@ class DonutChartPainter extends CustomPainter {
 
       if (sweepAngle <= 0) continue;
 
-      final paint = Paint()
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = strokeWidth
-        ..strokeCap = StrokeCap.round
-        ..color = item.color;
+      _arcPaint.color = item.color;
+      _arcPaint.strokeWidth = strokeWidth;
 
       canvas.drawArc(
         Rect.fromCircle(center: center, radius: radius),
         startAngle,
         sweepAngle,
         false,
-        paint,
+        _arcPaint,
       );
 
       startAngle += sweepAngle + gapAngle;

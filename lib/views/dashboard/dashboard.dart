@@ -49,12 +49,26 @@ class _DashboardViewState extends ConsumerState<DashboardView> {
   final key = GlobalKey<SuperGridState>();
   final _isEditNotifier = ValueNotifier<bool>(false);
   final _addedWidgetsNotifier = ValueNotifier<List<GridItem>>([]);
+  List<DashboardWidget> _lastDashboardWidgets = [];
 
   @override
   dispose() {
     _isEditNotifier.dispose();
     _addedWidgetsNotifier.dispose();
     super.dispose();
+  }
+
+  void _updateAddedWidgets(List<DashboardWidget> currentWidgets) {
+    if (_lastDashboardWidgets == currentWidgets) return;
+    _lastDashboardWidgets = currentWidgets;
+    _addedWidgetsNotifier.value = DashboardWidget.values
+        .where(
+          (item) =>
+              !currentWidgets.contains(item.widget) &&
+              item.platforms.contains(SupportPlatform.currentPlatform),
+        )
+        .map((item) => item.widget)
+        .toList();
   }
 
   Widget _buildIsEdit(_IsEditWidgetBuilder builder) {
@@ -180,16 +194,7 @@ class _DashboardViewState extends ConsumerState<DashboardView> {
           )
           .map((item) => item.widget),
     ];
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _addedWidgetsNotifier.value = DashboardWidget.values
-          .where(
-            (item) =>
-                !children.contains(item.widget) &&
-                item.platforms.contains(SupportPlatform.currentPlatform),
-          )
-          .map((item) => item.widget)
-          .toList();
-    });
+    _updateAddedWidgets(dashboardState.dashboardWidgets);
     return CommonScaffold(
       title:
           ref.watch(customDashboardTitleProvider) ?? appLocalizations.dashboard,

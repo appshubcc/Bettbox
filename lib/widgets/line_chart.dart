@@ -71,47 +71,47 @@ class _LineChartState extends State<LineChart>
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (_, container) {
-        // Fast path without animation
-        if (!_hasAnimation) {
-          return CustomPaint(
-            painter: LineChartPainter(
-              prevPoints: points,
-              points: points,
-              progress: 1.0,
-              gradient: widget.gradient,
-              color: widget.color,
-              hasAnimation: false,
-            ),
-            child: SizedBox(
-              height: container.maxHeight,
-              width: container.maxWidth,
-            ),
-          );
-        }
-
-        // Use AnimatedBuilder with animation
-        return AnimatedBuilder(
-          animation: _controller!.view,
-          builder: (_, _) {
+    return RepaintBoundary(
+      child: LayoutBuilder(
+        builder: (_, container) {
+          if (!_hasAnimation) {
             return CustomPaint(
               painter: LineChartPainter(
-                prevPoints: prevPoints,
+                prevPoints: points,
                 points: points,
-                progress: _controller!.value,
+                progress: 1.0,
                 gradient: widget.gradient,
                 color: widget.color,
-                hasAnimation: true,
+                hasAnimation: false,
               ),
               child: SizedBox(
                 height: container.maxHeight,
                 width: container.maxWidth,
               ),
             );
-          },
-        );
-      },
+          }
+
+          return AnimatedBuilder(
+            animation: _controller!.view,
+            builder: (_, _) {
+              return CustomPaint(
+                painter: LineChartPainter(
+                  prevPoints: prevPoints,
+                  points: points,
+                  progress: _controller!.value,
+                  gradient: widget.gradient,
+                  color: widget.color,
+                  hasAnimation: true,
+                ),
+                child: SizedBox(
+                  height: container.maxHeight,
+                  width: container.maxWidth,
+                ),
+              );
+            },
+          );
+        },
+      ),
     );
   }
 }
@@ -124,6 +124,11 @@ class LineChartPainter extends CustomPainter {
   final bool gradient;
   final bool hasAnimation;
 
+  late Paint _strokePaint;
+  late Paint _fillPaint;
+  List<Point>? _cachedRenderPoints;
+  List<Point>? _cachedPointsKey;
+
   LineChartPainter({
     required this.prevPoints,
     required this.points,
@@ -131,9 +136,17 @@ class LineChartPainter extends CustomPainter {
     required this.color,
     required this.gradient,
     this.hasAnimation = true,
-  });
+  }) {
+    _strokePaint = Paint()
+      ..strokeWidth = 2.0
+      ..style = PaintingStyle.stroke;
+    _fillPaint = Paint()..style = PaintingStyle.fill;
+  }
 
   List<Point> getRenderPoints(List<Point> points) {
+    if (identical(points, _cachedPointsKey) && _cachedRenderPoints != null) {
+      return _cachedRenderPoints!;
+    }
     if (points.isEmpty) return [];
     double maxX = points[0].x;
     double minX = points[0].x;
@@ -147,13 +160,17 @@ class LineChartPainter extends CustomPainter {
       if (point.y < minY) minY = point.y;
     }
 
-    return points.map((e) {
+    final result = points.map((e) {
       var x = (e.x - minX) / (maxX - minX);
       if (x.isNaN) x = 0;
       var y = (e.y - minY) / (maxY - minY);
       if (y.isNaN) y = 0;
       return Point(x, y);
     }).toList();
+
+    _cachedPointsKey = points;
+    _cachedRenderPoints = result;
+    return result;
   }
 
   List<Point> getInterpolatePoints(
@@ -212,50 +229,39 @@ class LineChartPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    const strokeWidth = 2.0;
     final chartSize = Size(size.width, size.height * 0.7);
 
-    // Fast path without animation
     final Path path;
     if (!hasAnimation || progress >= 1.0) {
-      // Direct render without interpolation
       final renderPoints = getRenderPoints(points);
       path = getPath(renderPoints, chartSize);
     } else {
-      // Animated path
       path = getAnimatedPath(chartSize);
     }
 
     if (gradient) {
       final fillPath = Path.from(path);
-      fillPath.lineTo(size.width, size.height + strokeWidth * 2);
-      fillPath.lineTo(0, size.height + strokeWidth * 2);
+      fillPath.lineTo(size.width, size.height + _strokePaint.strokeWidth * 2);
+      fillPath.lineTo(0, size.height + _strokePaint.strokeWidth * 2);
       fillPath.close();
 
-      final gradient = LinearGradient(
+      final shader = LinearGradient(
         begin: Alignment.topCenter,
         end: Alignment.bottomCenter,
         colors: [color.opacity38, color.opacity10],
-      );
-
-      final shader = gradient.createShader(
-        Rect.fromLTWH(0, 0, size.width, size.height + strokeWidth * 2),
+      ).createShader(
+        Rect.fromLTWH(0, 0, size.width, size.height + _strokePaint.strokeWidth * 2),
       );
 
       canvas.drawPath(
         fillPath,
-        Paint()
-          ..shader = shader
-          ..style = PaintingStyle.fill,
+        _fillPaint..shader = shader,
       );
     }
 
     canvas.drawPath(
       path,
-      Paint()
-        ..color = color
-        ..strokeWidth = strokeWidth
-        ..style = PaintingStyle.stroke,
+      _strokePaint..color = color,
     );
   }
 

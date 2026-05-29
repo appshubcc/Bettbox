@@ -870,13 +870,12 @@ class DashboardRefreshManager {
     }
     if (token != _tickToken) return;
     _counter++;
-    tick1s.value++;
-    if (_counter % 2 == 0) {
-      tick2s.value++;
-    }
-    if (_counter % 5 == 0) {
-      tick5s.value++;
-    }
+    final has1sListeners = tick1s.hasListeners;
+    final has2sListeners = tick2s.hasListeners;
+    final has5sListeners = tick5s.hasListeners;
+    if (has1sListeners) tick1s.value++;
+    if (has2sListeners && _counter % 2 == 0) tick2s.value++;
+    if (has5sListeners && _counter % 5 == 0) tick5s.value++;
   }
 
   void start() {

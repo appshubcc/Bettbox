@@ -59,22 +59,24 @@ class _BarChartState extends State<BarChart>
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (_, container) {
-        return AnimatedBuilder(
-          animation: _animationController,
-          builder: (context, child) {
-            return CustomPaint(
-              painter: BarChartPainter(
-                _oldData,
-                widget.data,
-                _animationController.value,
-              ),
-              size: Size(container.maxWidth, container.maxHeight),
-            );
-          },
-        );
-      },
+    return RepaintBoundary(
+      child: LayoutBuilder(
+        builder: (_, container) {
+          return AnimatedBuilder(
+            animation: _animationController,
+            builder: (context, child) {
+              return CustomPaint(
+                painter: BarChartPainter(
+                  _oldData,
+                  widget.data,
+                  _animationController.value,
+                ),
+                size: Size(container.maxWidth, container.maxHeight),
+              );
+            },
+          );
+        },
+      ),
     );
   }
 }
@@ -84,7 +86,11 @@ class BarChartPainter extends CustomPainter {
   final List<BarChartData> newData;
   final double progress;
 
-  BarChartPainter(this.oldData, this.newData, this.progress);
+  late Paint _barPaint;
+
+  BarChartPainter(this.oldData, this.newData, this.progress) {
+    _barPaint = Paint()..style = PaintingStyle.fill;
+  }
 
   Map<String, Rect> getRectMap(List<BarChartData> dataList, Size size) {
     final spacing = size.width * 0.05;
@@ -120,9 +126,6 @@ class BarChartPainter extends CustomPainter {
     final oldRectMap = getRectMap(oldData, size);
     final newRectMap = getRectMap(newData, size);
 
-    final paint = Paint()
-      ..color = Colors.blue
-      ..style = PaintingStyle.fill;
     final newRectEntries = newRectMap.entries.toList();
     for (int i = 0; i < newRectEntries.length; i++) {
       final newRectEntry = newRectEntries[i];
@@ -138,7 +141,8 @@ class BarChartPainter extends CustomPainter {
         lerpDouble(oldRect.bottom, newRect.bottom, progress)!,
       );
 
-      canvas.drawRect(interpolatedRect, paint);
+      _barPaint.color = Colors.blue;
+      canvas.drawRect(interpolatedRect, _barPaint);
     }
   }
 

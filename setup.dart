@@ -493,6 +493,11 @@ class BuildCommand extends Command {
       'ensure',
       help: 'Skip build if output artifact already exists',
     );
+    argParser.addFlag(
+      'build-only',
+      abbr: 'B',
+      help: 'Skip packaging the app with flutter_distributor',
+    );
   }
 
   @override
@@ -555,32 +560,48 @@ class BuildCommand extends Command {
     required String appEnv,
     required String suffix,
     bool compatible = false,
+    final bool buildOnly = false,
   }) async {
     final sentryDsn = Platform.environment['SENTRY_DSN'] ?? '';
-    final sentryArg = sentryDsn.isNotEmpty
-        ? ' --build-dart-define=SENTRY_DSN=$sentryDsn'
-        : '';
-    final suffixArg = suffix.isNotEmpty
-        ? ' --build-dart-define=APP_ASSET_SUFFIX=$suffix'
-        : '';
+    String sentryArg = '';
+    if (sentryDsn.isNotEmpty) {
+      sentryArg = buildOnly
+          ? ' --dart-define=SENTRY_DSN=$sentryDsn'
+          : ' --build-dart-define=SENTRY_DSN=$sentryDsn';
+    }
+    String suffixArg = '';
+    if (suffix.isNotEmpty) {
+      suffixArg = buildOnly
+          ? ' --dart-define=APP_ASSET_SUFFIX=$suffix'
+          : ' --build-dart-define=APP_ASSET_SUFFIX=$suffix';
+    }
 
     final ipinfoToken = Platform.environment['IPINFO_TOKEN'] ?? '';
     final ipinfoArg = ipinfoToken.isNotEmpty
-        ? ' --build-dart-define=IPINFO_TOKEN=$ipinfoToken'
+        ? (buildOnly
+              ? ' --dart-define=IPINFO_TOKEN=$ipinfoToken'
+              : ' --build-dart-define=IPINFO_TOKEN=$ipinfoToken')
         : '';
 
-    final appDevArg = Build.isDev ? ' --build-dart-define=APP_DEV=true' : '';
+    String appDevArg = '';
+    if (Build.isDev) {
+      appDevArg = buildOnly
+          ? ' --dart-define=APP_DEV=true'
+          : ' --build-dart-define=APP_DEV=true';
+    }
 
     final environment = Map<String, String>.from(Platform.environment);
     if (compatible) {
       environment['BETTBOX_COMPATIBLE_BUILD'] = '1';
     }
 
-    await Build.getDistributor();
+    if (!buildOnly) await Build.getDistributor();
     await Build.exec(
       name: description,
       Build.getExecutable(
-'flutter_distributor package --skip-clean --platform ${platform.name} --targets $targets --flutter-build-args=verbose$args$sentryArg$suffixArg$ipinfoArg --build-dart-define=APP_ENV=$appEnv$appDevArg',
+        buildOnly
+            ? 'flutter build ${platform == TargetPlatform.android ? "apk" : platform.name} --release --verbose$args$sentryArg$suffixArg$ipinfoArg --dart-define=APP_ENV=$appEnv$appDevArg'
+            : 'flutter_distributor package --skip-clean --platform ${platform.name} --targets $targets --flutter-build-args=verbose$args$sentryArg$suffixArg$ipinfoArg --build-dart-define=APP_ENV=$appEnv$appDevArg',
       ),
       environment: environment,
     );
@@ -667,6 +688,7 @@ class BuildCommand extends Command {
       dev: argResults?['dev'] ?? false,
       ensure: argResults?['ensure'] ?? false,
       compatible: argResults?['compatible'] ?? false,
+      buildOnly: argResults?['build-only'] ?? false,
       coreHash: argResults?['core-hash'] as String?,
     );
   }
@@ -678,6 +700,7 @@ class BuildCommand extends Command {
     bool dev = false,
     bool ensure = false,
     bool compatible = false,
+    bool buildOnly = false,
     String? coreHash,
   }) async {
     final coreMode = platform == TargetPlatform.android ? CoreMode.lib : CoreMode.core;
@@ -698,6 +721,11 @@ final String actualOut = out ?? (platform.buildable ? 'app' : 'core');
     } else {
       arch = arches.where((element) => element.name == archParam).firstOrNull;
       if (arch == null) throw 'Invalid arch parameter!';
+    }
+
+    if (platform == TargetPlatform.android && buildOnly) {
+      print('Warning: Ignored --build-only.');
+      buildOnly = false;
     }
 
     if (ensure && actualOut != 'app') {
@@ -782,15 +810,18 @@ final String actualOut = out ?? (platform.buildable ? 'app' : 'core');
         await Build.buildHelper(platform, token!);
         await checkDeps(
           commands: ['rustup'],
-          files: [r'C:\Program Files (x86)\Inno Setup 6\ISCC.exe'],
+          files: buildOnly ? null : [r'C:\Program Files (x86)\Inno Setup 6\ISCC.exe'],
         );
         await _buildDistributor(
           platform: platform,
           targets: 'exe',
-          args: ' --description $desc --build-dart-define=CORE_SHA256=$token',
+          args: buildOnly
+              ? ' --dart-define=CORE_SHA256=$token'
+              : ' --description $desc --build-dart-define=CORE_SHA256=$token',
           appEnv: appEnv,
           suffix: appAssetSuffix,
           compatible: compatible,
+          buildOnly: buildOnly,
         );
         return;
       case TargetPlatform.linux:
@@ -800,12 +831,14 @@ final String actualOut = out ?? (platform.buildable ? 'app' : 'core');
 
         final validTargets = ['deb', 'rpm', 'appimage', 'zip'];
         final targets = argResults?['targets'] ?? <String>[];
-        if (targets.isEmpty) {
-          throw 'Invalid targets parameter';
-        }
-        final invalidTargets = targets.where((t) => !validTargets.contains(t)).toList();
-        if (invalidTargets.isNotEmpty) {
-          throw 'Invalid targets parameter: ${invalidTargets.join(', ')}';
+        if (!buildOnly) {
+          if (targets.isEmpty) {
+            throw 'Invalid targets parameter';
+          }
+          final invalidTargets = targets.where((t) => !validTargets.contains(t)).toList();
+          if (invalidTargets.isNotEmpty) {
+            throw 'Invalid targets parameter: ${invalidTargets.join(', ')}';
+          }
         }
 
         final requiredCmds = ['clang', 'cmake', 'ninja', 'rustup'];
@@ -839,10 +872,13 @@ final String actualOut = out ?? (platform.buildable ? 'app' : 'core');
           await _buildDistributor(
             platform: platform,
             targets: t,
-            args: ' --description $desc --build-target-platform $defaultTarget',
+            args: buildOnly
+                ? ' --target-platform $defaultTarget'
+                : ' --description $desc --build-target-platform $defaultTarget',
             appEnv: appEnv,
             suffix: currentSuffix,
             compatible: compatible,
+            buildOnly: buildOnly,
           );
         }
         return;
@@ -873,7 +909,8 @@ final String actualOut = out ?? (platform.buildable ? 'app' : 'core');
         );
         return;
       case TargetPlatform.macos:
-        await checkDeps(commands: ['rustup', 'appdmg']);
+        await checkDeps(commands: ['rustup']);
+        if (!buildOnly) await checkDeps(commands: ['appdmg']);
         await _setMacOSImpeller(!compatible);
         await Build.exec(
           Build.getExecutable('rm -rf Pods Podfile.lock'),
@@ -887,10 +924,11 @@ final String actualOut = out ?? (platform.buildable ? 'app' : 'core');
         await _buildDistributor(
           platform: platform,
           targets: 'dmg',
-          args: ' --description $desc',
+          args: buildOnly ? '' : ' --description $desc',
           appEnv: appEnv,
           suffix: appAssetSuffix,
           compatible: compatible,
+          buildOnly: buildOnly,
         );
         return;
     }
@@ -930,6 +968,10 @@ class AutoBuildCommand extends Command {
     argParser.addFlag(
       'ensure',
       help: 'Skip build if output artifact already exists',
+    );
+    argParser.addFlag(
+      'build-only',
+      help: 'Skip packaging the app with flutter_distributor',
     );
   }
 
@@ -1029,6 +1071,7 @@ class AutoBuildCommand extends Command {
       dev: argResults?['dev'] ?? false,
       ensure: argResults?['ensure'] ?? false,
       compatible: argResults?['compatible'] ?? false,
+      buildOnly: argResults?['build-only'] ?? false,
       coreHash: argResults?['core-hash'] as String?,
     );
   }

@@ -1,66 +1,20 @@
-# Miscellaneous
-*.md
-!.github/release_template.md
-!.github/release_template_pre.md
-*.class
-*.log
-*.pyc
-*.swp
-.DS_Store
-.atom/
-.build/
-.buildlog/
-.history
-.svn/
-.swiftpm/
-migrate_working_dir/
-
-# IntelliJ related
-*.iml
-*.ipr
-*.iws
-.idea/
-
-# The .vscode folder contains launch configuration and tasks you configure in
-# VS Code which you may wish to be included in version control, so this line
-# is commented out by default.
-#.vscode/
-
-# Flutter/Dart/Pub related
-**/doc/api/
-**/ios/Flutter/.last_build_id
-.dart_tool/
-.flutter-plugins
-.flutter-plugins-dependencies
-.packages
-.pub-cache/
-.pub/
+# Ignore build and IDE files
+.gradle/
+/local.properties
+/.idea/
+/*.iml
 /build/
-/specs/
-/dist/
-.test/
-.vscode/
-/services/helper/target/
+**/build/
 
-# Symbolication related
-app.*.symbols
+# OS files
+.DS_Store
+Thumbs.db
 
-# Obfuscation related
-app.*.map.json
+# Android
+/*.keystore
 
-# Android Studio will place build artifacts here
-/android/app/debug
-/android/app/profile
-/android/app/release
+# Kotlin
+/.kotlin/
 
-/android/core/.cxx
-
-#libclash
-/libclash/
-
-#jniLibs
-/android/app/src/main/jniLibs/
-
-# FVM Version Cache
-.fvm/
-.fvmrc
+# keep Gradle wrapper files
+!gradle/wrapper/gradle-wrapper.jar

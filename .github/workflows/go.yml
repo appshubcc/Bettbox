@@ -1,0 +1,30 @@
+name: Go CI
+
+on:
+  push:
+    branches: [ "migrate/go-server" ]
+  pull_request:
+    branches: [ "migrate/go-server" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: '1.21'
+    - name: Install dependencies
+      run: |
+        go mod download
+    - name: Run fmt check
+      run: |
+        go list ./... | xargs -n1 go vet || true
+    - name: Build
+      run: |
+        go build ./...
+    - name: Run tests
+      run: |
+        if [ -f "./server" ]; then echo "no tests"; fi

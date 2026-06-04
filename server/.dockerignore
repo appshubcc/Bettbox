@@ -1,0 +1,12 @@
+Binstubs
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Go build cache
+GOLANGCI_LINT_CACHE
+
+# Binaries
+server/server

@@ -252,7 +252,6 @@ class _ConnectionsViewState extends ConsumerState<ConnectionsView>
                   onPressed: () => _handleBlockConnection(trackerInfo.id),
                 ),
                 detailTitle: appLocalizations.details,
-                ),
               );
             },
             itemExtentBuilder: (index, _) {

@@ -714,7 +714,7 @@ class GeoipItem extends ConsumerWidget {
       ),
     );
     return ListItem.switchItem(
-      title: const Text('Geoip'),
+      title: const Text('GeoIP'),
       delegate: SwitchDelegate(
         value: geoip,
         onChanged: (bool value) async {
@@ -772,10 +772,10 @@ class GeositeItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListItem.open(
-      title: const Text('Geosite'),
+      title: const Text('GeoSite'),
       delegate: OpenDelegate(
         blur: false,
-        title: 'Geosite',
+        title: 'GeoSite',
         widget: Consumer(
           builder: (_, ref, _) {
             final geosite = ref.watch(
@@ -784,7 +784,7 @@ class GeositeItem extends StatelessWidget {
               ),
             );
             return ListInputPage(
-              title: 'Geosite',
+              title: 'GeoSite',
               items: geosite,
               titleBuilder: (item) => Text(item),
               onChange: (items) {

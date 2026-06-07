@@ -598,7 +598,7 @@
   "importFile": "Import from File",
   "importUrl": "Import from URL",
   "autoSetSystemDns": "Auto Set System DNS",
-  "details": "{label} Details",
+  "details": "Details",
   "creationTime": "Creation Time",
   "progress": "Progress",
   "host": "Host",

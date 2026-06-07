@@ -34,7 +34,7 @@ class _ProfilesViewState extends ConsumerState<ProfilesView> {
           body: AddProfileView(
             context: globalState.navigatorKey.currentState!.context,
           ),
-          title: '${appLocalizations.add}${appLocalizations.profile}',
+          title: appLocalizations.add,
         );
       },
     );
@@ -255,7 +255,7 @@ class ProfileItem extends StatelessWidget {
         return AdaptiveSheetScaffold(
           type: type,
           body: EditProfileView(profile: profile, context: context),
-          title: '${appLocalizations.edit}${appLocalizations.profile}',
+          title: appLocalizations.edit,
         );
       },
     );

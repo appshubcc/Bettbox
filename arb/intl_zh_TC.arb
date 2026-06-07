@@ -599,7 +599,7 @@
   "importFile": "透過檔案匯入",
   "importUrl": "透過 URL 匯入",
   "autoSetSystemDns": "自動設定系統 DNS",
-  "details": "{label}詳情",
+  "details": "詳情",
   "creationTime": "建立時間",
   "progress": "處理程序",
   "host": "主機",

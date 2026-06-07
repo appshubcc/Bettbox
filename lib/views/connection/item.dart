@@ -94,7 +94,7 @@ class TrackerInfoItem extends ConsumerWidget {
               ),
             ),
             Text(
-              trackerInfo.start.getLastUpdateTimeDesc(context),
+              trackerInfo.start.lastUpdateTimeDesc,
               style: context.textTheme.bodySmall?.copyWith(
                 color: context.colorScheme.onSurface.opacity60,
               ),
@@ -429,7 +429,7 @@ class TrackerInfoDetailView extends ConsumerWidget {
         title: appLocalizations.download,
         desc: TrafficValue(value: info.download).show,
       ),
-      if (detailTitle == appLocalizations.connectionDetails)
+      if (detailTitle.contains(appLocalizations.connection))
         _buildItem(
           title: appLocalizations.realTimeSpeed,
           desc: Traffic(up: info.uploadSpeed, down: info.downloadSpeed).toString(),

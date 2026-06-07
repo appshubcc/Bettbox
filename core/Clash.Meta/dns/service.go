@@ -24,6 +24,6 @@ func (s *Service) ServeMsg(ctx context.Context, msg *D.Msg) (*D.Msg, error) {
 
 var _ resolver.Service = (*Service)(nil)
 
-func NewService(resolver *Resolver, mapper *ResolverEnhancer) *Service {
+func NewService(resolver resolver.Resolver, mapper *ResolverEnhancer) *Service {
 	return &Service{handler: newHandler(resolver, mapper)}
 }

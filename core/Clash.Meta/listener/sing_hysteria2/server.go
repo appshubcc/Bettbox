@@ -100,6 +100,8 @@ func New(config LC.Hysteria2Server, tunnel C.Tunnel, additions ...inbound.Additi
 	}
 
 	var salamanderPassword string
+	var geckoPassword string
+	var geckoMinPacketSize, geckoMaxPacketSize int
 	if len(config.Obfs) > 0 {
 		if config.ObfsPassword == "" {
 			return nil, errors.New("missing obfs password")
@@ -107,6 +109,10 @@ func New(config LC.Hysteria2Server, tunnel C.Tunnel, additions ...inbound.Additi
 		switch config.Obfs {
 		case hysteria2.ObfsTypeSalamander:
 			salamanderPassword = config.ObfsPassword
+		case hysteria2.ObfsTypeGecko:
+			geckoPassword = config.ObfsPassword
+			geckoMinPacketSize = config.ObfsMinPacketSize
+			geckoMaxPacketSize = config.ObfsMaxPacketSize
 		default:
 			return nil, fmt.Errorf("unknown obfs type: %s", config.Obfs)
 		}
@@ -212,6 +218,9 @@ func New(config LC.Hysteria2Server, tunnel C.Tunnel, additions ...inbound.Additi
 		SendBPS:               utils.StringToBps(config.Up),
 		ReceiveBPS:            utils.StringToBps(config.Down),
 		SalamanderPassword:    salamanderPassword,
+		GeckoPassword:         geckoPassword,
+		GeckoMinPacketSize:    geckoMinPacketSize,
+		GeckoMaxPacketSize:    geckoMaxPacketSize,
 		TLSConfig:             tlsConfig,
 		QUICConfig:            quicConfig,
 		IgnoreClientBandwidth: config.IgnoreClientBandwidth,

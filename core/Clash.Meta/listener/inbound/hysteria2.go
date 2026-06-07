@@ -14,6 +14,8 @@ type Hysteria2Option struct {
 	Users                 map[string]string `inbound:"users,omitempty"`
 	Obfs                  string            `inbound:"obfs,omitempty"`
 	ObfsPassword          string            `inbound:"obfs-password,omitempty"`
+	ObfsMinPacketSize     int               `inbound:"obfs-min-packet-size,omitempty"`
+	ObfsMaxPacketSize     int               `inbound:"obfs-max-packet-size,omitempty"`
 	Certificate           string            `inbound:"certificate"`
 	PrivateKey            string            `inbound:"private-key"`
 	ClientAuthType        string            `inbound:"client-auth-type,omitempty"`
@@ -98,6 +100,8 @@ func NewHysteria2(options *Hysteria2Option) (*Hysteria2, error) {
 			Users:                 options.Users,
 			Obfs:                  options.Obfs,
 			ObfsPassword:          options.ObfsPassword,
+			ObfsMinPacketSize:     options.ObfsMinPacketSize,
+			ObfsMaxPacketSize:     options.ObfsMaxPacketSize,
 			Certificate:           options.Certificate,
 			PrivateKey:            options.PrivateKey,
 			ClientAuthType:        options.ClientAuthType,

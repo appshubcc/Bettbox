@@ -75,6 +75,17 @@ var _ C.Tunnel = Tunnel
 var _ P.Tunnel = Tunnel
 var _ proxydialer.Tunnel = Tunnel
 
+func init() {
+	statistic.IsDirectFunc = func(name string) bool {
+		configMux.RLock()
+		defer configMux.RUnlock()
+		if proxy, ok := proxies[name]; ok {
+			return proxy.Type() == C.Direct
+		}
+		return false
+	}
+}
+
 func (t tunnel) HandleTCPConn(conn net.Conn, metadata *C.Metadata) {
 	connCtx := icontext.NewConnContext(conn, metadata)
 	handleTCPConn(connCtx)

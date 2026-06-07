@@ -111,14 +111,11 @@ class ClashService extends ClashHandlerInterface {
     await _destroySocket();
 
     process?.kill();
-    for (var i = 0; i < 5; i++) {
-      if (process == null) break;
-      try {
-        process!.exitCode;
-        break;
-      } on StateError {
-        await Future.delayed(const Duration(milliseconds: 100));
-      }
+    if (process != null) {
+      await process!.exitCode.timeout(const Duration(seconds: 2), onTimeout: () {
+        process?.kill(ProcessSignal.sigkill);
+        return -1;
+      });
     }
     process = null;
 

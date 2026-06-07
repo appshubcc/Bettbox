@@ -67,24 +67,16 @@ class TUNItem extends ConsumerWidget {
       patchClashConfigProvider.select((state) => state.tun.enable),
     );
 
-    // Windows 桌面端：检查系统代理是否开启
-    final systemProxyEnabled = system.isWindows
-        ? ref.watch(networkSettingProvider.select((state) => state.systemProxy))
-        : false;
-
     return ListItem.switchItem(
       title: Text(appLocalizations.tun),
       subtitle: Text(appLocalizations.tunDesc),
       delegate: SwitchDelegate(
         value: enable,
-        // Windows 桌面端：系统代理开启时禁用开关（通过 onChanged: null）
-        onChanged: (system.isWindows && systemProxyEnabled)
-            ? null
-            : (value) async {
-                ref
-                    .read(patchClashConfigProvider.notifier)
-                    .updateState((state) => state.copyWith.tun(enable: value));
-              },
+        onChanged: (value) async {
+          ref
+              .read(patchClashConfigProvider.notifier)
+              .updateState((state) => state.copyWith.tun(enable: value));
+        },
       ),
     );
   }
@@ -146,26 +138,16 @@ class SystemProxyItem extends ConsumerWidget {
       networkSettingProvider.select((state) => state.systemProxy),
     );
 
-    // Windows 桌面端：检查 TUN 是否开启
-    final tunEnabled = system.isWindows
-        ? ref.watch(
-            patchClashConfigProvider.select((state) => state.tun.enable),
-          )
-        : false;
-
     return ListItem.switchItem(
       title: Text(appLocalizations.systemProxy),
       subtitle: Text(appLocalizations.systemProxyDesc),
       delegate: SwitchDelegate(
         value: systemProxy,
-        // Windows 桌面端：TUN 开启时禁用开关（通过 onChanged: null）
-        onChanged: (system.isWindows && tunEnabled)
-            ? null
-            : (bool value) async {
-                ref
-                    .read(networkSettingProvider.notifier)
-                    .updateState((state) => state.copyWith(systemProxy: value));
-              },
+        onChanged: (bool value) async {
+          ref
+              .read(networkSettingProvider.notifier)
+              .updateState((state) => state.copyWith(systemProxy: value));
+        },
       ),
     );
   }

@@ -139,11 +139,11 @@ class _NodeExclusionDialogState extends ConsumerState<_NodeExclusionDialog> {
 class _ConcurrencyLimitItem extends ConsumerWidget {
   const _ConcurrencyLimitItem();
 
-  static const _options = [1, 4, 8, 16, 32, 64];
+  static const _options = [8, 16, 32, 64, 250];
 
   String _getDisplayText(int value, BuildContext context) {
-    if (value == 64) {
-      return '$value (${appLocalizations.notRecommended})';
+    if (value == 250) {
+      return 'MAX';
     }
     return '$value';
   }

@@ -42,8 +42,12 @@ class System {
     };
   }
 
+  static String _shellEscape(String value) {
+    return "'${value.replaceAll("'", "'\\''")}'";
+  }
+
   Future<bool> checkIsAdmin() async {
-    final corePath = appPath.corePath.replaceAll(' ', '\\\\ ');
+    final corePath = appPath.corePath;
     if (system.isWindows) {
       final result = await windows?.checkService();
       return result == WindowsHelperServiceStatus.running;
@@ -52,13 +56,17 @@ class System {
     if (system.isMacOS) {
       final result = await Process.run('stat', ['-f', '%Su:%Sg %Sp', corePath]);
       final output = result.stdout.trim();
-      return output.startsWith('root:admin') && output.contains('rws');
+      final parts = output.split(' ');
+      if (parts.length < 2) return false;
+      return parts.first.startsWith('root:admin') && parts.last.contains('s');
     }
 
     if (Platform.isLinux) {
       final result = await Process.run('stat', ['-c', '%U:%G %A', corePath]);
       final output = result.stdout.trim();
-      return output.startsWith('root:') && output.contains('rws');
+      final parts = output.split(' ');
+      if (parts.length < 2) return false;
+      return parts.first.startsWith('root:') && parts.last.contains('s');
     }
 
     return true;
@@ -67,7 +75,6 @@ class System {
   Future<AuthorizeCode> authorizeCore() async {
     if (system.isAndroid) return AuthorizeCode.error;
 
-    final corePath = appPath.corePath.replaceAll(' ', '\\\\ ');
     if (await checkIsAdmin()) return AuthorizeCode.none;
 
     if (system.isWindows) {
@@ -76,7 +83,8 @@ class System {
     }
 
     if (system.isMacOS) {
-      final shell = 'chown root:admin $corePath; chmod +sx $corePath';
+      final escapedPath = _shellEscape(appPath.corePath);
+      final shell = 'chown root:admin $escapedPath && chmod u+s $escapedPath';
       final result = await Process.run('osascript', [
         '-e',
         'do shell script "$shell" with administrator privileges',
@@ -93,9 +101,14 @@ class System {
           value: '',
         ),
       );
+      if (password == null || password.isEmpty) {
+        return AuthorizeCode.error;
+      }
+      final escapedPassword = _shellEscape(password);
+      final escapedCorePath = _shellEscape(appPath.corePath);
       final result = await Process.run(shell, [
         '-c',
-        'echo "$password" | sudo -S chown root:root "$corePath" && echo "$password" | sudo -S chmod +sx "$corePath"',
+        'echo $escapedPassword | sudo -S chown root:root $escapedCorePath && echo $escapedPassword | sudo -S chmod u+s $escapedCorePath && sync',
       ]);
       return result.exitCode == 0 ? AuthorizeCode.success : AuthorizeCode.error;
     }

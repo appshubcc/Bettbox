@@ -143,7 +143,7 @@ class BettboxVpnService : VpnService(), BaseServiceInterface {
 
     private suspend fun notificationBuilder(): NotificationCompat.Builder {
         if (cachedBuilder == null) {
-            cachedBuilder = createBettboxNotificationBuilder().await()
+            cachedBuilder = createBettboxNotificationBuilder()
         }
         return cachedBuilder!!
     }

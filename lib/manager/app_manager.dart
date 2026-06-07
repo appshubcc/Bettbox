@@ -9,7 +9,6 @@ import 'package:bett_box/state.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_acrylic/widgets/transparent_macos_sidebar.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
@@ -64,6 +63,7 @@ class _AppStateManagerState extends ConsumerState<AppStateManager>
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _updateDashboardRefreshState();
       detectionState.tryStartCheck();
+      globalState.appController.updateGroupsDebounce();
     });
     if (window == null) {
       return;
@@ -166,6 +166,7 @@ class _AppStateManagerState extends ConsumerState<AppStateManager>
       await globalState.resumeForegroundUpdates();
       await globalState.appController.syncWakelockIfNeeded();
       _scheduleMissedUpdateCheck();
+      globalState.appController.updateGroupsDebounce();
 
       final hasDetection = ref
           .read(dashboardStateProvider)
@@ -251,14 +252,9 @@ class AppSidebarContainer extends ConsumerWidget {
     required BuildContext context,
     required Widget child,
   }) {
-    if (!system.isMacOS) {
-      return Material(
-        color: context.colorScheme.surfaceContainer,
-        child: child,
-      );
-    }
-    return TransparentMacOSSidebar(
-      child: Material(color: Colors.transparent, child: child),
+    return Material(
+      color: context.colorScheme.surfaceContainer,
+      child: child,
     );
   }
 

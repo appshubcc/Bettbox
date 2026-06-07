@@ -3,12 +3,13 @@ package statistic
 import (
 	"os"
 	"runtime"
-	"strings"
 	"time"
 
 	"github.com/metacubex/mihomo/common/atomic"
 	"github.com/metacubex/mihomo/common/xsync"
 )
+
+var IsDirectFunc func(string) bool
 
 var DefaultManager *Manager
 
@@ -74,8 +75,8 @@ func (m *Manager) Range(f func(c Tracker) bool) {
 	})
 }
 
-func (m *Manager) PushUploaded(lastChain string, size int64) {
-	if strings.ToUpper(lastChain) != "DIRECT" {
+func (m *Manager) PushUploaded(isDirect bool, size int64) {
+	if !isDirect {
 		m.proxyUploadTemp.Add(size)
 		m.proxyUploadTotal.Add(size)
 	}
@@ -83,8 +84,8 @@ func (m *Manager) PushUploaded(lastChain string, size int64) {
 	m.uploadTotal.Add(size)
 }
 
-func (m *Manager) PushDownloaded(lastChain string, size int64) {
-	if strings.ToUpper(lastChain) != "DIRECT" {
+func (m *Manager) PushDownloaded(isDirect bool, size int64) {
+	if !isDirect {
 		m.proxyDownloadTemp.Add(size)
 		m.proxyDownloadTotal.Add(size)
 	}

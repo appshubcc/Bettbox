@@ -314,7 +314,7 @@ func (w *Masque) run(ctx context.Context) error {
 			}
 			icmp, err := ipConn.WritePacket(buf[:sizes[0]])
 			if err != nil {
-				if errors.Is(err, net.ErrClosed) {
+				if errors.Is(err, net.ErrClosed) || errors.Is(err, io.ErrClosedPipe) {
 					log.Errorln("[Masque](%s) connection closed while writing to IP connection: %v", w.name, err)
 					return
 				}
@@ -335,7 +335,7 @@ func (w *Masque) run(ctx context.Context) error {
 		for runCtx.Err() == nil {
 			buf, err := ipConn.ReadPacket()
 			if err != nil {
-				if errors.Is(err, net.ErrClosed) {
+				if errors.Is(err, net.ErrClosed) || errors.Is(err, io.ErrClosedPipe) {
 					log.Errorln("[Masque](%s) connection closed while writing to IP connection: %v", w.name, err)
 					return
 				}

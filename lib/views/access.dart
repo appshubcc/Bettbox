@@ -971,11 +971,30 @@ class _AccessControlPanelState extends ConsumerState<AccessControlPanel> {
       final data = await Clipboard.getData('text/plain');
       final text = data?.text;
       if (text == null) return;
+      
+      AccessControl newAccessControl;
+      try {
+        newAccessControl = AccessControl.fromJson(json.decode(text));
+      } catch (_) {
+        final packages = text.split('\n')
+            .map((e) => e.trim())
+            .where((e) => e.isNotEmpty)
+            .toList();
+            
+        final currentState = ref.read(vpnSettingProvider).accessControl;
+        final isAccept = currentState.mode == AccessControlMode.acceptSelected;
+        
+        newAccessControl = currentState.copyWith(
+          acceptList: isAccept ? packages : currentState.acceptList,
+          rejectList: !isAccept ? packages : currentState.rejectList,
+        );
+      }
+
       ref
           .read(vpnSettingProvider.notifier)
           .updateState(
             (state) => state.copyWith(
-              accessControl: AccessControl.fromJson(json.decode(text)),
+              accessControl: newAccessControl,
             ),
           );
     });

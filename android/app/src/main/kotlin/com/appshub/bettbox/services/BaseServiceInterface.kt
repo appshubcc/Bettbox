@@ -17,6 +17,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
+import kotlinx.coroutines.withContext
 import android.content.ComponentName
 import android.content.Intent
 
@@ -26,26 +27,12 @@ interface BaseServiceInterface {
     suspend fun startForeground()
 }
 
-fun Service.createBettboxNotificationBuilder(): Deferred<NotificationCompat.Builder> =
-    CoroutineScope(Dispatchers.Main).async {
+suspend fun Service.createBettboxNotificationBuilder(): NotificationCompat.Builder =
+    withContext(Dispatchers.IO) {
         val defaultComponent = ComponentName(packageName, "com.appshub.bettbox.MainActivity")
         val lightComponent = ComponentName(packageName, "com.appshub.bettbox.MainActivityLight")
 
-        val defaultState = runCatching { packageManager.getComponentEnabledSetting(defaultComponent) }
-            .getOrDefault(PackageManager.COMPONENT_ENABLED_STATE_DEFAULT)
-        val lightState = runCatching { packageManager.getComponentEnabledSetting(lightComponent) }
-            .getOrDefault(PackageManager.COMPONENT_ENABLED_STATE_DEFAULT)
-
-        val targetComponent = when {
-            lightState == PackageManager.COMPONENT_ENABLED_STATE_ENABLED -> lightComponent
-            lightState == PackageManager.COMPONENT_ENABLED_STATE_DISABLED -> defaultComponent
-            defaultState == PackageManager.COMPONENT_ENABLED_STATE_ENABLED -> defaultComponent
-            defaultState == PackageManager.COMPONENT_ENABLED_STATE_DISABLED -> lightComponent
-            else -> runCatching {
-                packageManager.getActivityInfo(lightComponent, 0)
-                    .takeIf { it.enabled }?.let { lightComponent }
-            }.getOrNull() ?: defaultComponent
-        }
+        val targetComponent = NotificationComponentCache.get(packageManager, defaultComponent, lightComponent)
 
         android.util.Log.d("Notification", "Using ${targetComponent.className}")
 
@@ -61,7 +48,9 @@ fun Service.createBettboxNotificationBuilder(): Deferred<NotificationCompat.Buil
         } else {
             PendingIntent.FLAG_UPDATE_CURRENT
         }
-        val pendingIntent = PendingIntent.getActivity(this@createBettboxNotificationBuilder, 0, intent, flags)
+        val pendingIntent = withContext(Dispatchers.Main) {
+            PendingIntent.getActivity(this@createBettboxNotificationBuilder, 0, intent, flags)
+        }
 
         NotificationCompat.Builder(this@createBettboxNotificationBuilder, GlobalState.NOTIFICATION_CHANNEL).apply {
             setSmallIcon(R.drawable.ic)

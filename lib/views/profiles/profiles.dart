@@ -34,7 +34,7 @@ class _ProfilesViewState extends ConsumerState<ProfilesView> {
           body: AddProfileView(
             context: globalState.navigatorKey.currentState!.context,
           ),
-          title: appLocalizations.addProfile,
+          title: '${appLocalizations.add}${appLocalizations.profile}',
         );
       },
     );
@@ -255,7 +255,7 @@ class ProfileItem extends StatelessWidget {
         return AdaptiveSheetScaffold(
           type: type,
           body: EditProfileView(profile: profile, context: context),
-          title: appLocalizations.editProfile,
+          title: '${appLocalizations.edit}${appLocalizations.profile}',
         );
       },
     );
@@ -263,34 +263,38 @@ class ProfileItem extends StatelessWidget {
 
   List<Widget> _buildUrlProfileInfo(BuildContext context) {
     final subscriptionInfo = profile.subscriptionInfo;
-    final labelStyle = context.textTheme.labelMedium?.toLight;
+    final updateTimeText = profile.lastUpdateDate?.lastUpdateTimeDesc ?? '';
 
     return [
       const SizedBox(height: 8),
       if (subscriptionInfo != null) ...[
         SubscriptionInfoView(subscriptionInfo: subscriptionInfo),
+        // Traffic / Total · Expiry - Update time
         Row(
-          crossAxisAlignment: CrossAxisAlignment.baseline,
-          textBaseline: TextBaseline.alphabetic,
           children: [
-            Flexible(
+            Expanded(
               child: Text(
-                '${_getTrafficText(subscriptionInfo)} · ${_getExpireText(subscriptionInfo)} - ',
-                style: labelStyle,
+                '${_getTrafficText(subscriptionInfo)} · ${_getExpireText(subscriptionInfo)} - $updateTimeText',
+                style: context.textTheme.labelMedium?.toLight,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
             ),
-            LastUpdateTimeText(
-              lastUpdateDate: profile.lastUpdateDate,
-              style: labelStyle,
-            ),
           ],
         ),
       ] else
-        LastUpdateTimeText(
-          lastUpdateDate: profile.lastUpdateDate,
-          style: labelStyle,
+        // Show only update time when no subscription info
+        Row(
+          children: [
+            Expanded(
+              child: Text(
+                updateTimeText,
+                style: context.textTheme.labelMedium?.toLight,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
         ),
     ];
   }
@@ -301,13 +305,13 @@ class ProfileItem extends StatelessWidget {
 
     // Show Unlimited when no traffic info
     if (use == 0 && total == 0) {
-      return '∞';
+      return 'Unlimited';
     }
 
     // Total is 0 but has usage
     if (total == 0) {
       final useShow = TrafficValue(value: use).show;
-      return '$useShow / ∞';
+      return '$useShow / Unlimited';
     }
 
     final useShow = TrafficValue(value: use).show;
@@ -327,8 +331,8 @@ class ProfileItem extends StatelessWidget {
   List<Widget> _buildFileProfileInfo(BuildContext context) {
     return [
       const SizedBox(height: 8),
-      LastUpdateTimeText(
-        lastUpdateDate: profile.lastUpdateDate,
+      Text(
+        profile.lastUpdateDate?.lastUpdateTimeDesc ?? '',
         style: context.textTheme.labelMedium?.toLight,
       ),
     ];
@@ -555,33 +559,6 @@ class ProfileItem extends StatelessWidget {
       onPressed: isTV ? null : () => onChanged(profile.id),
       onLongPress: isTV ? null : () => _handlePreviewRuntimeConfig(context),
       child: isTV ? _buildTVLayout(context) : _buildNormalLayout(context),
-    );
-  }
-}
-
-class LastUpdateTimeText extends StatelessWidget {
-  final DateTime? lastUpdateDate;
-  final TextStyle? style;
-
-  const LastUpdateTimeText({
-    super.key,
-    required this.lastUpdateDate,
-    this.style,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    if (lastUpdateDate == null) {
-      return Text('', style: style);
-    }
-    return TickBuilder(
-      duration: const Duration(minutes: 1),
-      builder: (context, _) {
-        return Text(
-          lastUpdateDate!.getLastUpdateTimeDesc(context),
-          style: style,
-        );
-      },
     );
   }
 }

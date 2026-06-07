@@ -52,7 +52,7 @@ class BettboxService : Service(), BaseServiceInterface {
     }
 
     private suspend fun notificationBuilder() =
-        cachedBuilder ?: createBettboxNotificationBuilder().await().also { cachedBuilder = it }
+        cachedBuilder ?: createBettboxNotificationBuilder().also { cachedBuilder = it }
 
     @SuppressLint("ForegroundServiceType")
     override suspend fun startForeground() {

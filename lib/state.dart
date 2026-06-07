@@ -1,6 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
-import 'dart:ffi' show Pointer;
 
 import 'package:animations/animations.dart';
 import 'package:dio/dio.dart';
@@ -801,35 +799,14 @@ class GlobalState {
       final currentScript = globalState.config.scriptProps.currentScript;
       if (currentScript == null) return config;
 
-      // 如果指定了 profile 且该 profile 禁用了脚本覆写，则跳过
       if (profile != null && !profile.useScriptOverride) return config;
 
       config['proxy-providers'] ??= {};
-      final configJs = json.encode(config);
-      final scriptJs = json.encode(currentScript.content);
 
-      return JavaScriptRuntimeManager.execute((runtime) async {
-        final res = await runtime.evaluateAsync('''
-          (() => {
-            const __bettboxConfig = $configJs;
-            const __bettboxScript = $scriptJs;
-            const __bettboxMain = new Function(
-              __bettboxScript + '\\nreturn typeof main === "function" ? main : null;',
-            )();
-            if (typeof __bettboxMain !== 'function') {
-              throw new Error('Script must define main(config)');
-            }
-            return __bettboxMain(__bettboxConfig);
-          })()
-        ''');
-        if (res.isError) throw res.stringResult;
-
-        return switch (res.rawResult) {
-              Pointer() => runtime.convertValue<Map<String, dynamic>>(res),
-              _ => Map<String, dynamic>.from(res.rawResult),
-            } ??
-            config;
-      });
+      return JavaScriptRuntimeManager.evaluateScript(
+        currentScript.content,
+        config,
+      );
     });
   }
 }

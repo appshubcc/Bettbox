@@ -3,16 +3,17 @@ import 'dart:io';
 import 'package:bett_box/common/common.dart';
 import 'package:bett_box/state.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_acrylic/flutter_acrylic.dart' as acrylic;
 import 'package:screen_retriever/screen_retriever.dart';
 import 'package:tray_manager/tray_manager.dart';
 import 'package:window_manager/window_manager.dart';
 
 class Window {
-  Future<void> init(int version) async {
+  Future<void> init() async {
     final props = globalState.config.windowProps;
     final acquire = await singleInstanceLock.acquire();
     if (!acquire) {
+      commonPrint.log('SingleInstanceLock: another instance detected or lock failed, exiting');
+      await Future.delayed(const Duration(milliseconds: 100));
       exit(0);
     }
     if (system.isWindows) {
@@ -20,17 +21,12 @@ class Window {
       protocol.register('clashmeta');
       protocol.register('bettbox');
     }
-    if ((version > 10 && system.isMacOS)) {
-      await acrylic.Window.initialize();
-    }
     await windowManager.ensureInitialized();
     WindowOptions windowOptions = WindowOptions(
       size: Size(props.width, props.height),
       minimumSize: const Size(380, 400),
     );
-    if (!system.isMacOS || version > 10) {
-      await windowManager.setTitleBarStyle(TitleBarStyle.hidden);
-    }
+    await windowManager.setTitleBarStyle(TitleBarStyle.hidden);
     if (!system.isMacOS) {
       final left = props.left ?? 0;
       final top = props.top ?? 0;
@@ -61,10 +57,6 @@ class Window {
   }
 
   void updateMacOSBrightness(Brightness brightness) {
-    if (!system.isMacOS) {
-      return;
-    }
-    acrylic.Window.overrideMacOSBrightness(dark: brightness == Brightness.dark);
   }
 
   Future<void> show() async {

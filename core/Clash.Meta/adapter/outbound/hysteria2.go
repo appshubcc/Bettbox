@@ -38,26 +38,28 @@ type Hysteria2 struct {
 
 type Hysteria2Option struct {
 	BasicOption
-	Name           string     `proxy:"name"`
-	Server         string     `proxy:"server"`
-	Port           int        `proxy:"port,omitempty"`
-	Ports          string     `proxy:"ports,omitempty"`
-	HopInterval    string     `proxy:"hop-interval,omitempty"`
-	Up             string     `proxy:"up,omitempty"`
-	Down           string     `proxy:"down,omitempty"`
-	Password       string     `proxy:"password,omitempty"`
-	Obfs           string     `proxy:"obfs,omitempty"`
-	ObfsPassword   string     `proxy:"obfs-password,omitempty"`
-	SNI            string     `proxy:"sni,omitempty"`
-	ECHOpts        ECHOptions `proxy:"ech-opts,omitempty"`
-	SkipCertVerify bool       `proxy:"skip-cert-verify,omitempty"`
-	Fingerprint    string     `proxy:"fingerprint,omitempty"`
-	Certificate    string     `proxy:"certificate,omitempty"`
-	PrivateKey     string     `proxy:"private-key,omitempty"`
-	ALPN           []string   `proxy:"alpn,omitempty"`
-	CWND           int        `proxy:"cwnd,omitempty"`
-	BBRProfile     string     `proxy:"bbr-profile,omitempty"`
-	UdpMTU         int        `proxy:"udp-mtu,omitempty"`
+	Name              string     `proxy:"name"`
+	Server            string     `proxy:"server"`
+	Port              int        `proxy:"port,omitempty"`
+	Ports             string     `proxy:"ports,omitempty"`
+	HopInterval       string     `proxy:"hop-interval,omitempty"`
+	Up                string     `proxy:"up,omitempty"`
+	Down              string     `proxy:"down,omitempty"`
+	Password          string     `proxy:"password,omitempty"`
+	Obfs              string     `proxy:"obfs,omitempty"`
+	ObfsPassword      string     `proxy:"obfs-password,omitempty"`
+	ObfsMinPacketSize int        `proxy:"obfs-min-packet-size,omitempty"`
+	ObfsMaxPacketSize int        `proxy:"obfs-max-packet-size,omitempty"`
+	SNI               string     `proxy:"sni,omitempty"`
+	ECHOpts           ECHOptions `proxy:"ech-opts,omitempty"`
+	SkipCertVerify    bool       `proxy:"skip-cert-verify,omitempty"`
+	Fingerprint       string     `proxy:"fingerprint,omitempty"`
+	Certificate       string     `proxy:"certificate,omitempty"`
+	PrivateKey        string     `proxy:"private-key,omitempty"`
+	ALPN              []string   `proxy:"alpn,omitempty"`
+	CWND              int        `proxy:"cwnd,omitempty"`
+	BBRProfile        string     `proxy:"bbr-profile,omitempty"`
+	UdpMTU            int        `proxy:"udp-mtu,omitempty"`
 
 	RealmOpts Hysteria2RealmOption `proxy:"realm-opts,omitempty"`
 
@@ -139,6 +141,8 @@ func NewHysteria2(option Hysteria2Option) (*Hysteria2, error) {
 	outbound.dialer = option.NewDialer(outbound.DialOptions())
 
 	var salamanderPassword string
+	var geckoPassword string
+	var geckoMinPacketSize, geckoMaxPacketSize int
 	if len(option.Obfs) > 0 {
 		if option.ObfsPassword == "" {
 			return nil, errors.New("missing obfs password")
@@ -146,6 +150,10 @@ func NewHysteria2(option Hysteria2Option) (*Hysteria2, error) {
 		switch option.Obfs {
 		case hysteria2.ObfsTypeSalamander:
 			salamanderPassword = option.ObfsPassword
+		case hysteria2.ObfsTypeGecko:
+			geckoPassword = option.ObfsPassword
+			geckoMinPacketSize = option.ObfsMinPacketSize
+			geckoMaxPacketSize = option.ObfsMaxPacketSize
 		default:
 			return nil, fmt.Errorf("unknown obfs type: %s", option.Obfs)
 		}
@@ -199,6 +207,9 @@ func NewHysteria2(option Hysteria2Option) (*Hysteria2, error) {
 		SendBPS:            utils.StringToBps(option.Up),
 		ReceiveBPS:         utils.StringToBps(option.Down),
 		SalamanderPassword: salamanderPassword,
+		GeckoPassword:      geckoPassword,
+		GeckoMinPacketSize: geckoMinPacketSize,
+		GeckoMaxPacketSize: geckoMaxPacketSize,
 		Password:           option.Password,
 		TLSConfig:          tlsClientConfig,
 		QUICConfig:         quicConfig,

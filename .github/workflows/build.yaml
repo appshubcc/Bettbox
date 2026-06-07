@@ -131,10 +131,22 @@ jobs:
           flutter clean
 
       - name: Build Bettbox
+        shell: bash
         env:
           SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
         run: |
           flutter pub get
+          if [ "${{ matrix.platform }}" = "linux" ] && [ "${{ matrix.arch }}" = "arm64" ]; then
+            echo "Compiling QuickJS bridge for Linux arm64..."
+            git clone --depth 1 https://github.com/abner/quickjs-c-bridge.git
+            cd quickjs-c-bridge
+            cmake -S linux -B build -DCMAKE_BUILD_TYPE=Release
+            cmake --build build -j
+            mkdir -p ../linux/overrides/flutter_js/arm64
+            cp build/libquickjs_c_bridge_plugin.so ../linux/overrides/flutter_js/arm64/
+            cd ..
+            rm -rf quickjs-c-bridge
+          fi
           dart run build_runner build -d
           dart setup.dart ${{ matrix.platform }} --arch ${{ matrix.arch }} ${{ env.IS_STABLE == 'true' && '--env stable' || '' }} ${{ matrix.compatible == true && '--compatible' || '' }}
       

@@ -37,10 +37,10 @@ Future<void> main() async {
     commonPrint.log('Failed to initialize UI: $e');
   }
 
-  await _runApp(version);
+  await _runApp();
 }
 
-Future<void> _runApp(int version) async {
+Future<void> _runApp() async {
   if (system.isAndroid) {
     try {
       await FlutterDisplayMode.setHighRefreshRate();
@@ -50,7 +50,7 @@ Future<void> _runApp(int version) async {
   }
   await android?.init();
   
-  await window?.init(version);
+  await window?.init();
   HttpOverrides.global = BettboxHttpOverrides();
   runApp(ProviderScope(child: const Application()));
 }

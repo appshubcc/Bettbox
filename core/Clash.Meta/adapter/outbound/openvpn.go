@@ -48,6 +48,7 @@ type OpenVPNOption struct {
 	Dev      string `proxy:"dev,omitempty"`
 	Cipher   string `proxy:"cipher,omitempty"`
 	Auth     string `proxy:"auth,omitempty"`
+	CompLZO  string `proxy:"comp-lzo,omitempty"`
 	CA       string `proxy:"ca"`
 	Cert     string `proxy:"cert,omitempty"`
 	Key      string `proxy:"key,omitempty"`
@@ -69,6 +70,7 @@ func NewOpenVPN(option OpenVPNOption) (*OpenVPN, error) {
 		Dev:        option.Dev,
 		Cipher:     option.Cipher,
 		Auth:       option.Auth,
+		CompLZO:    option.CompLZO,
 		CA:         []byte(option.CA),
 		Cert:       []byte(option.Cert),
 		Key:        []byte(option.Key),
@@ -245,7 +247,7 @@ func (o *OpenVPN) run(ctx context.Context) (wireguard.Device, resolver.Resolver,
 		}
 		return nil, nil, E.Cause(err, "OpenVPN handshake")
 	}
-	log.Debugln("[OpenVPN](%s) handshake complete: prefixes=%v peer-id=%d dns=%v redirect=%t block-ipv6=%t", o.name, push.Prefixes, push.PeerID, push.DNS, push.Redirect, push.BlockIPv6)
+	log.Debugln("[OpenVPN](%s) handshake complete: prefixes=%v routes=%v peer-id=%d dns=%v redirect=%t block-ipv6=%t", o.name, push.Prefixes, push.Routes, push.PeerID, push.DNS, push.Redirect, push.BlockIPv6)
 
 	mtu := o.option.MTU
 	if mtu == 0 {

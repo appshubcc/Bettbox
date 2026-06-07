@@ -210,8 +210,8 @@ abstract class FileInfo with _$FileInfo {
 }
 
 extension FileInfoExt on FileInfo {
-  String getDesc(BuildContext context) =>
-      '${TrafficValue(value: size).show}  ·  ${lastModified.getLastUpdateTimeDesc(context)}';
+  String get desc =>
+      '${TrafficValue(value: size).show}  ·  ${lastModified.lastUpdateTimeDesc}';
 }
 
 @freezed

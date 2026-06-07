@@ -149,8 +149,8 @@ class ProviderItem extends StatelessWidget {
     }
   }
 
-  String _buildProviderDesc(BuildContext context) {
-    final baseInfo = provider.updateAt.getLastUpdateTimeDesc(context);
+  String _buildProviderDesc() {
+    final baseInfo = provider.updateAt.lastUpdateTimeDesc;
     final trafficInfo = _buildTrafficInfoText(provider.subscriptionInfo);
     final infoText = trafficInfo == null
         ? baseInfo
@@ -158,7 +158,7 @@ class ProviderItem extends StatelessWidget {
     final count = provider.count;
     return switch (count == 0) {
       true => infoText,
-      false => '$infoText  ·  $count${context.appLocalizations.entries}',
+      false => '$infoText  ·  $count${appLocalizations.entries}',
     };
   }
 
@@ -173,7 +173,7 @@ class ProviderItem extends StatelessWidget {
     }
     if (total == 0) {
       final useShow = TrafficValue(value: use).show;
-      return '$useShow / ∞';
+      return '$useShow / Unlimited';
     }
     final useShow = TrafficValue(value: use).show;
     final totalShow = TrafficValue(value: total).show;
@@ -189,7 +189,7 @@ class ProviderItem extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SizedBox(height: 4),
-          Text(_buildProviderDesc(context)),
+          Text(_buildProviderDesc()),
           const SizedBox(height: 4),
           if (provider.subscriptionInfo != null)
             SubscriptionInfoView(subscriptionInfo: provider.subscriptionInfo),

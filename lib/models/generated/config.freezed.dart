@@ -1711,7 +1711,7 @@ return $default(_that.type,_that.sortType,_that.layout,_that.iconStyle,_that.car
 @JsonSerializable()
 
 class _ProxiesStyle implements ProxiesStyle {
-  const _ProxiesStyle({this.type = ProxiesType.tab, this.sortType = ProxiesSortType.none, this.layout = ProxiesLayout.standard, this.iconStyle = ProxiesIconStyle.none, this.cardType = ProxyCardType.shrink, this.delayAnimation = DelayAnimationType.none, final  Map<String, String> iconMap = const {}, this.concurrencyLimit = 16}): _iconMap = iconMap;
+  const _ProxiesStyle({this.type = ProxiesType.tab, this.sortType = ProxiesSortType.none, this.layout = ProxiesLayout.standard, this.iconStyle = ProxiesIconStyle.none, this.cardType = ProxyCardType.shrink, this.delayAnimation = DelayAnimationType.none, final  Map<String, String> iconMap = const {}, this.concurrencyLimit = 250}): _iconMap = iconMap;
   factory _ProxiesStyle.fromJson(Map<String, dynamic> json) => _$ProxiesStyleFromJson(json);
 
 @override@JsonKey() final  ProxiesType type;

@@ -20,40 +20,28 @@ typedef String MessageIfAbsent(String messageStr, List<dynamic> args);
 class MessageLookup extends MessageLookupByLibrary {
   String get localeName => 'ru';
 
-  static String m0(count) =>
-      "${Intl.plural(count, one: '${count} день назад', few: '${count} дня назад', many: '${count} дней назад', other: '${count} дней назад')}";
+  static String m0(label) => "Удалить выбранные ${label}?";
 
-  static String m1(label) => "Удалить выбранные ${label}?";
+  static String m1(label) => "Удалить текущий ${label}?";
 
-  static String m2(label) => "Удалить текущий ${label}?";
+  static String m2(label) => "Подробности ${label}";
 
-  static String m3(label) => "Подробности ${label}";
+  static String m3(label) => "${label} не может быть пустым";
 
-  static String m4(label) => "${label} не может быть пустым";
+  static String m4(label) => "${label} уже существует";
 
-  static String m5(label) => "${label} уже существует";
+  static String m5(label) => "${label} отсутствует";
 
-  static String m6(count) =>
-      "${Intl.plural(count, one: '${count} час назад', few: '${count} часа назад', many: '${count} часов назад', other: '${count} часов назад')}";
+  static String m6(label) => "${label} должен быть числом";
 
-  static String m7(count) =>
-      "${Intl.plural(count, one: '${count} минуту назад', few: '${count} минуты назад', many: '${count} минут назад', other: '${count} минут назад')}";
+  static String m7(label) => "${label} должен быть от 1024 до 49151";
 
-  static String m8(count) =>
-      "${Intl.plural(count, one: '${count} месяц назад', few: '${count} месяца назад', many: '${count} месяцев назад', other: '${count} месяцев назад')}";
+  static String m8(statusCode) =>
+      "Не удалось импортировать профиль. Проверьте подключение к сети и попробуйте сбросить ссылку подписки (код ошибки HTTP: ${statusCode})";
 
-  static String m9(label) => "${label} отсутствует";
+  static String m9(count) => "Выбрано: ${count}";
 
-  static String m10(label) => "${label} должен быть числом";
-
-  static String m11(label) => "${label} должен быть от 1024 до 49151";
-
-  static String m12(count) => "Выбрано: ${count}";
-
-  static String m13(label) => "${label} должен быть URL";
-
-  static String m14(count) =>
-      "${Intl.plural(count, one: '${count} год назад', few: '${count} года назад', many: '${count} лет назад', other: '${count} лет назад')}";
+  static String m10(label) => "${label} должен быть URL";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
@@ -98,6 +86,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "advancedSettings": MessageLookupByLibrary.simpleMessage(
       "Расширенные настройки",
     ),
+    "ago": MessageLookupByLibrary.simpleMessage(" назад"),
     "agree": MessageLookupByLibrary.simpleMessage("Согласен"),
     "allApps": MessageLookupByLibrary.simpleMessage("Все приложения"),
     "allowBypass": MessageLookupByLibrary.simpleMessage("Разрешить обход VPN"),
@@ -232,9 +221,6 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "confirm": MessageLookupByLibrary.simpleMessage("Подтвердить"),
     "connection": MessageLookupByLibrary.simpleMessage("Активные соединения"),
-    "connectionDetails": MessageLookupByLibrary.simpleMessage(
-      "Подробности соединения",
-    ),
     "connections": MessageLookupByLibrary.simpleMessage("Соединения"),
     "connectionsDesc": MessageLookupByLibrary.simpleMessage(
       "Просмотр текущих соединений",
@@ -242,7 +228,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "connectionsSort": MessageLookupByLibrary.simpleMessage(
       "Сортировка соединений",
     ),
-    "connectivity": MessageLookupByLibrary.simpleMessage("Подключение："),
+    "connectivity": MessageLookupByLibrary.simpleMessage("Подключение:"),
     "contactMe": MessageLookupByLibrary.simpleMessage("Связаться со мной"),
     "content": MessageLookupByLibrary.simpleMessage("Содержимое"),
     "contentScheme": MessageLookupByLibrary.simpleMessage("Контентная тема"),
@@ -263,7 +249,6 @@ class MessageLookup extends MessageLookupByLibrary {
     "country": MessageLookupByLibrary.simpleMessage("Регион"),
     "crashTest": MessageLookupByLibrary.simpleMessage("Тест сбоя"),
     "create": MessageLookupByLibrary.simpleMessage("Создать"),
-    "createProfile": MessageLookupByLibrary.simpleMessage("Создать профиль"),
     "creationTime": MessageLookupByLibrary.simpleMessage("Время создания"),
     "custom": MessageLookupByLibrary.simpleMessage("Пользовательский"),
     "customDashboardTitle": MessageLookupByLibrary.simpleMessage(
@@ -273,7 +258,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "cut": MessageLookupByLibrary.simpleMessage("Вырезать"),
     "dark": MessageLookupByLibrary.simpleMessage("Тёмная"),
     "dashboard": MessageLookupByLibrary.simpleMessage("Главная"),
-    "daysAgo": m0,
+    "days": MessageLookupByLibrary.simpleMessage("дней"),
     "defaultNameserver": MessageLookupByLibrary.simpleMessage(
       "DNS по умолчанию",
     ),
@@ -289,8 +274,8 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "delaySort": MessageLookupByLibrary.simpleMessage("По задержке"),
     "delete": MessageLookupByLibrary.simpleMessage("Удалить"),
-    "deleteMultipTip": m1,
-    "deleteTip": m2,
+    "deleteMultipTip": m0,
+    "deleteTip": m1,
     "deleteTunnel": MessageLookupByLibrary.simpleMessage(
       "Удалить перенаправление",
     ),
@@ -304,7 +289,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "destinationIPASN": MessageLookupByLibrary.simpleMessage(
       "IP ASN назначения",
     ),
-    "details": m3,
+    "details": m2,
     "detectionTip": MessageLookupByLibrary.simpleMessage(
       "Зависит от сторонних API, только для справки",
     ),
@@ -355,13 +340,10 @@ class MessageLookup extends MessageLookupByLibrary {
       "Синхронизация с режимом сна Android",
     ),
     "edit": MessageLookupByLibrary.simpleMessage("Редактировать"),
-    "editProfile": MessageLookupByLibrary.simpleMessage(
-      "Редактировать профиль",
-    ),
     "editTunnel": MessageLookupByLibrary.simpleMessage(
       "Изменить перенаправление",
     ),
-    "emptyTip": m4,
+    "emptyTip": m3,
     "en": MessageLookupByLibrary.simpleMessage("Английский"),
     "enableCrashReport": MessageLookupByLibrary.simpleMessage("Анализ сбоев"),
     "enableCrashReportDesc": MessageLookupByLibrary.simpleMessage(
@@ -385,7 +367,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "excludeDesc": MessageLookupByLibrary.simpleMessage(
       "Скрыть приложение из недавних задач",
     ),
-    "existsTip": m5,
+    "existsTip": m4,
     "exit": MessageLookupByLibrary.simpleMessage("Выход"),
     "expand": MessageLookupByLibrary.simpleMessage("Максимальная"),
     "experimental": MessageLookupByLibrary.simpleMessage("Экспериментальное"),
@@ -484,9 +466,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "global": MessageLookupByLibrary.simpleMessage("Глобально"),
     "go": MessageLookupByLibrary.simpleMessage("Перейти"),
     "goDownload": MessageLookupByLibrary.simpleMessage("Перейти к загрузке"),
-    "harmonyFont": MessageLookupByLibrary.simpleMessage("Шрифт Harmony"),
+    "harmonyFont": MessageLookupByLibrary.simpleMessage("Исправление шрифта"),
     "harmonyFontDesc": MessageLookupByLibrary.simpleMessage(
-      "Использовать оптимизированный HarmonyOS Sans",
+      "Встроенный шрифт для исправления отображения",
     ),
     "hasCacheChange": MessageLookupByLibrary.simpleMessage(
       "Сохранить изменения кэша?",
@@ -520,7 +502,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "hotkeyManagementDesc": MessageLookupByLibrary.simpleMessage(
       "Управление приложением с клавиатуры",
     ),
-    "hoursAgo": m6,
+    "hours": MessageLookupByLibrary.simpleMessage("часов"),
     "httpPortSniffer": MessageLookupByLibrary.simpleMessage(
       "HTTP порты сниффера",
     ),
@@ -561,9 +543,9 @@ class MessageLookup extends MessageLookupByLibrary {
       "Разрешить входящие IPv6",
     ),
     "ja": MessageLookupByLibrary.simpleMessage("Японский"),
-    "justNow": MessageLookupByLibrary.simpleMessage("Только что"),
+    "just": MessageLookupByLibrary.simpleMessage("только что"),
     "keepAliveIntervalDesc": MessageLookupByLibrary.simpleMessage(
-      "Интервал поддержания TCP-соединения",
+      "Интервал TCP keep-alive",
     ),
     "key": MessageLookupByLibrary.simpleMessage("Ключ"),
     "language": MessageLookupByLibrary.simpleMessage("Язык"),
@@ -583,7 +565,6 @@ class MessageLookup extends MessageLookupByLibrary {
       "Восстановление из файла",
     ),
     "log": MessageLookupByLibrary.simpleMessage("Лог"),
-    "logDetails": MessageLookupByLibrary.simpleMessage("Подробности лога"),
     "logLevel": MessageLookupByLibrary.simpleMessage("Уровень логов"),
     "logcat": MessageLookupByLibrary.simpleMessage("Сбор логов"),
     "logcatDesc": MessageLookupByLibrary.simpleMessage("Показать раздел логов"),
@@ -608,11 +589,11 @@ class MessageLookup extends MessageLookupByLibrary {
     "minimizeOnExitDesc": MessageLookupByLibrary.simpleMessage(
       "Изменить поведение при выходе",
     ),
-    "minutesAgo": m7,
+    "minutes": MessageLookupByLibrary.simpleMessage("минут"),
     "mixedPort": MessageLookupByLibrary.simpleMessage("Смешанный порт"),
     "mode": MessageLookupByLibrary.simpleMessage("Режим"),
     "monochromeScheme": MessageLookupByLibrary.simpleMessage("Монохром"),
-    "monthsAgo": m8,
+    "months": MessageLookupByLibrary.simpleMessage("месяцев"),
     "more": MessageLookupByLibrary.simpleMessage("Подробности"),
     "name": MessageLookupByLibrary.simpleMessage("Имя"),
     "nameSort": MessageLookupByLibrary.simpleMessage("По имени"),
@@ -694,8 +675,8 @@ class MessageLookup extends MessageLookupByLibrary {
     "nullProfileDesc": MessageLookupByLibrary.simpleMessage(
       "Нет профиля, добавьте его",
     ),
-    "nullTip": m9,
-    "numberTip": m10,
+    "nullTip": m5,
+    "numberTip": m6,
     "oneColumn": MessageLookupByLibrary.simpleMessage("1 колонка"),
     "onlinePanel": MessageLookupByLibrary.simpleMessage("Онлайн-панель"),
     "onlyIcon": MessageLookupByLibrary.simpleMessage("Только иконки"),
@@ -801,7 +782,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "portConflictTip": MessageLookupByLibrary.simpleMessage(
       "Введите разные порты",
     ),
-    "portTip": m11,
+    "portTip": m7,
     "powerSwitch": MessageLookupByLibrary.simpleMessage("Переключатель"),
     "preferH3Desc": MessageLookupByLibrary.simpleMessage(
       "Приоритет HTTP/3 для DoH",
@@ -818,6 +799,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "profileHasUpdate": MessageLookupByLibrary.simpleMessage(
       "Конфигурация изменена. Отключить автообновление?",
     ),
+    "profileImportFailed": m8,
     "profileNameNullValidationDesc": MessageLookupByLibrary.simpleMessage(
       "Введите имя профиля",
     ),
@@ -912,9 +894,6 @@ class MessageLookup extends MessageLookupByLibrary {
     "remove": MessageLookupByLibrary.simpleMessage("Удалить"),
     "rename": MessageLookupByLibrary.simpleMessage("Переименовать"),
     "request": MessageLookupByLibrary.simpleMessage("Запрос"),
-    "requestDetails": MessageLookupByLibrary.simpleMessage(
-      "Подробности запроса",
-    ),
     "requests": MessageLookupByLibrary.simpleMessage("Запросы"),
     "requestsDesc": MessageLookupByLibrary.simpleMessage(
       "Просмотр недавних запросов",
@@ -961,7 +940,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "selectAll": MessageLookupByLibrary.simpleMessage("Выбрать все"),
     "selected": MessageLookupByLibrary.simpleMessage("Выбрано"),
-    "selectedCountTitle": m12,
+    "selectedCountTitle": m9,
     "serviceReady": MessageLookupByLibrary.simpleMessage("Служба готова"),
     "serviceRunning": MessageLookupByLibrary.simpleMessage("Служба запущена"),
     "settings": MessageLookupByLibrary.simpleMessage("Настройки"),
@@ -1146,7 +1125,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "upload": MessageLookupByLibrary.simpleMessage("Отправка"),
     "url": MessageLookupByLibrary.simpleMessage("URL"),
     "urlDesc": MessageLookupByLibrary.simpleMessage("Получить профиль по URL"),
-    "urlTip": m13,
+    "urlTip": m10,
     "useGlobalScriptOverride": MessageLookupByLibrary.simpleMessage(
       "Глобальное переопределение",
     ),
@@ -1183,7 +1162,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "writeToSystemDesc": MessageLookupByLibrary.simpleMessage(
       "Требуются права администратора",
     ),
-    "yearsAgo": m14,
+    "years": MessageLookupByLibrary.simpleMessage("лет"),
     "zh_CN": MessageLookupByLibrary.simpleMessage("Китайский (упрощённый)"),
     "zh_TC": MessageLookupByLibrary.simpleMessage("Китайский (традиционный)"),
   };

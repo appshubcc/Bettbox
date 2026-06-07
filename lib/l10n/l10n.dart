@@ -994,74 +994,39 @@ class AppLocalizations {
     return Intl.message('Delete', name: 'delete', desc: '', args: []);
   }
 
+  /// `Years`
+  String get years {
+    return Intl.message('Years', name: 'years', desc: '', args: []);
+  }
+
+  /// `Months`
+  String get months {
+    return Intl.message('Months', name: 'months', desc: '', args: []);
+  }
+
+  /// `Hours`
+  String get hours {
+    return Intl.message('Hours', name: 'hours', desc: '', args: []);
+  }
+
+  /// `Days`
+  String get days {
+    return Intl.message('Days', name: 'days', desc: '', args: []);
+  }
+
+  /// `Minutes`
+  String get minutes {
+    return Intl.message('Minutes', name: 'minutes', desc: '', args: []);
+  }
+
   /// `Seconds`
   String get seconds {
     return Intl.message('Seconds', name: 'seconds', desc: '', args: []);
   }
 
-  /// `{count, plural, =1{1 year ago} other{{count} years ago}}`
-  String yearsAgo(num count) {
-    return Intl.plural(
-      count,
-      one: '1 year ago',
-      other: '$count years ago',
-      name: 'yearsAgo',
-      desc: '',
-      args: [count],
-    );
-  }
-
-  /// `{count, plural, =1{1 month ago} other{{count} months ago}}`
-  String monthsAgo(num count) {
-    return Intl.plural(
-      count,
-      one: '1 month ago',
-      other: '$count months ago',
-      name: 'monthsAgo',
-      desc: '',
-      args: [count],
-    );
-  }
-
-  /// `{count, plural, =1{1 day ago} other{{count} days ago}}`
-  String daysAgo(num count) {
-    return Intl.plural(
-      count,
-      one: '1 day ago',
-      other: '$count days ago',
-      name: 'daysAgo',
-      desc: '',
-      args: [count],
-    );
-  }
-
-  /// `{count, plural, =1{1 hour ago} other{{count} hours ago}}`
-  String hoursAgo(num count) {
-    return Intl.plural(
-      count,
-      one: '1 hour ago',
-      other: '$count hours ago',
-      name: 'hoursAgo',
-      desc: '',
-      args: [count],
-    );
-  }
-
-  /// `{count, plural, =1{1 minute ago} other{{count} minutes ago}}`
-  String minutesAgo(num count) {
-    return Intl.plural(
-      count,
-      one: '1 minute ago',
-      other: '$count minutes ago',
-      name: 'minutesAgo',
-      desc: '',
-      args: [count],
-    );
-  }
-
-  /// `Just now`
-  String get justNow {
-    return Intl.message('Just now', name: 'justNow', desc: '', args: []);
+  /// ` Ago`
+  String get ago {
+    return Intl.message(' Ago', name: 'ago', desc: '', args: []);
   }
 
   /// `Please close TUN first`
@@ -1082,6 +1047,11 @@ class AppLocalizations {
       desc: '',
       args: [],
     );
+  }
+
+  /// `Just now`
+  String get just {
+    return Intl.message('Just now', name: 'just', desc: '', args: []);
   }
 
   /// `QR Code`
@@ -2124,29 +2094,9 @@ class AppLocalizations {
     return Intl.message('Start Test', name: 'startTest', desc: '', args: []);
   }
 
-  /// `Add profile`
+  /// `Add Profile`
   String get addProfile {
-    return Intl.message('Add profile', name: 'addProfile', desc: '', args: []);
-  }
-
-  /// `Edit profile`
-  String get editProfile {
-    return Intl.message(
-      'Edit profile',
-      name: 'editProfile',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Create profile`
-  String get createProfile {
-    return Intl.message(
-      'Create profile',
-      name: 'createProfile',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Add Profile', name: 'addProfile', desc: '', args: []);
   }
 
   /// `Custom URL`
@@ -4619,20 +4569,15 @@ class AppLocalizations {
     );
   }
 
-  /// `HarmonyOS Font`
+  /// `Font Fix`
   String get harmonyFont {
-    return Intl.message(
-      'HarmonyOS Font',
-      name: 'harmonyFont',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Font Fix', name: 'harmonyFont', desc: '', args: []);
   }
 
-  /// `Use optimized HarmonyOS Sans font`
+  /// `Use built-in font to fix display issues`
   String get harmonyFontDesc {
     return Intl.message(
-      'Use optimized HarmonyOS Sans font',
+      'Use built-in font to fix display issues',
       name: 'harmonyFontDesc',
       desc: '',
       args: [],
@@ -4914,31 +4859,6 @@ class AppLocalizations {
     );
   }
 
-  /// `Request details`
-  String get requestDetails {
-    return Intl.message(
-      'Request details',
-      name: 'requestDetails',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Connection details`
-  String get connectionDetails {
-    return Intl.message(
-      'Connection details',
-      name: 'connectionDetails',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Log details`
-  String get logDetails {
-    return Intl.message('Log details', name: 'logDetails', desc: '', args: []);
-  }
-
   /// `Creation Time`
   String get creationTime {
     return Intl.message(
@@ -5181,6 +5101,16 @@ class AppLocalizations {
       name: 'useGlobalScriptOverride',
       desc: '',
       args: [],
+    );
+  }
+
+  /// `Failed to import profile. Please check your network and try resetting the subscription link (HTTP error code: {statusCode})`
+  String profileImportFailed(Object statusCode) {
+    return Intl.message(
+      'Failed to import profile. Please check your network and try resetting the subscription link (HTTP error code: $statusCode)',
+      name: 'profileImportFailed',
+      desc: '',
+      args: [statusCode],
     );
   }
 }

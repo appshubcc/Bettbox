@@ -1,4 +1,3 @@
-import 'package:bett_box/l10n/l10n.dart';
 import 'package:bett_box/manager/message_manager.dart';
 import 'package:bett_box/widgets/scaffold.dart';
 import 'package:flutter/material.dart';
@@ -44,8 +43,6 @@ extension BuildContextExtension on BuildContext {
   ColorScheme get colorScheme => Theme.of(this).colorScheme;
 
   TextTheme get textTheme => Theme.of(this).textTheme;
-
-  AppLocalizations get appLocalizations => AppLocalizations.of(this);
 
   T? findLastStateOfType<T extends State>() {
     T? state;

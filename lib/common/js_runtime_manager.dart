@@ -1,63 +1,36 @@
 import 'dart:async';
+import 'dart:convert';
+import 'dart:ffi' as ffi;
+import 'dart:io';
 
 import 'package:flutter_js/flutter_js.dart';
-import 'package:synchronized/synchronized.dart';
 
 class JavaScriptRuntimeManager {
-  static JavascriptRuntime? _instance;
-  static final Lock _lock = Lock();
-  static int _activeCount = 0;
-  static bool _isDisposing = false;
-  static Timer? _disposeTimer;
-  static const Duration _disposeDelay = Duration(seconds: 10);
-
-  static Future<T> execute<T>(
-    Future<T> Function(JavascriptRuntime runtime) task,
+  static Future<Map<String, dynamic>> evaluateScript(
+    String scriptContent,
+    Map<String, dynamic> config,
   ) async {
-    final runtime = await _acquire();
+    final runtime = getJavascriptRuntime(xhr: false);
+    final engineId = runtime.getEngineInstanceId();
     try {
-      return await task(runtime);
+      final configJs = json.encode(config);
+      final res = await runtime.evaluateAsync('''
+        $scriptContent
+        main($configJs)
+      ''');
+      if (res.isError) {
+        throw res.stringResult;
+      }
+      final value = switch (res.rawResult is ffi.Pointer) {
+        true => runtime.convertValue<Map<String, dynamic>>(res),
+        false => Map<String, dynamic>.from(res.rawResult),
+      };
+      return value ?? config;
     } finally {
-      await _release();
+      JavascriptRuntime.channelFunctionsRegistered.remove(engineId);
+      if (!Platform.isMacOS) {
+        runtime.dispose();
+      }
     }
-  }
-
-  static Future<JavascriptRuntime> _acquire() async {
-    return _lock.synchronized(() async {
-      while (_isDisposing) {
-        await Future.delayed(const Duration(milliseconds: 10));
-      }
-      _disposeTimer?.cancel();
-      _disposeTimer = null;
-      _activeCount++;
-      _instance ??= getJavascriptRuntime();
-      return _instance!;
-    });
-  }
-
-  static Future<void> _release() async {
-    await _lock.synchronized(() async {
-      _activeCount--;
-      if (_activeCount <= 0 && _instance != null) {
-        _disposeTimer?.cancel();
-        _disposeTimer = Timer(_disposeDelay, () {
-          dispose();
-        });
-      }
-    });
-  }
-
-  static Future<void> dispose() async {
-    return _lock.synchronized(() async {
-      if (_activeCount > 0) return;
-      if (_instance != null) {
-        _isDisposing = true;
-        try {
-          _instance!.dispose();
-        } catch (_) {}
-        _instance = null;
-        _isDisposing = false;
-      }
-    });
   }
 }

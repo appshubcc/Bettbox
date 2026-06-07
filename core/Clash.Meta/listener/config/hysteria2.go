@@ -12,6 +12,8 @@ type Hysteria2Server struct {
 	Users                 map[string]string `yaml:"users" json:"users,omitempty"`
 	Obfs                  string            `yaml:"obfs" json:"obfs,omitempty"`
 	ObfsPassword          string            `yaml:"obfs-password" json:"obfs-password,omitempty"`
+	ObfsMinPacketSize     int               `yaml:"obfs-min-packet-size" json:"obfs-min-packet-size,omitempty"`
+	ObfsMaxPacketSize     int               `yaml:"obfs-max-packet-size" json:"obfs-max-packet-size,omitempty"`
 	Certificate           string            `yaml:"certificate" json:"certificate"`
 	PrivateKey            string            `yaml:"private-key" json:"private-key"`
 	ClientAuthType        string            `yaml:"client-auth-type" json:"client-auth-type,omitempty"`

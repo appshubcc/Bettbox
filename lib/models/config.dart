@@ -203,7 +203,7 @@ abstract class ProxiesStyle with _$ProxiesStyle {
     @Default(ProxyCardType.shrink) ProxyCardType cardType,
     @Default(DelayAnimationType.none) DelayAnimationType delayAnimation,
     @Default({}) Map<String, String> iconMap,
-    @Default(16) int concurrencyLimit,
+    @Default(250) int concurrencyLimit,
   }) = _ProxiesStyle;
 
   factory ProxiesStyle.fromJson(Map<String, Object?>? json) =>

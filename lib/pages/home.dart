@@ -347,39 +347,14 @@ class _HomePageViewState extends ConsumerState<_HomePageView> {
   }
 }
 
-class HomeBackScope extends ConsumerStatefulWidget {
+class HomeBackScope extends ConsumerWidget {
   final Widget child;
 
   const HomeBackScope({super.key, required this.child});
 
   @override
-  ConsumerState<HomeBackScope> createState() => _HomeBackScopeState();
-}
-
-class _HomeBackScopeState extends ConsumerState<HomeBackScope> {
-  int? sdkInt;
-
-  @override
-  void initState() {
-    super.initState();
+  Widget build(BuildContext context, WidgetRef ref) {
     if (system.isAndroid) {
-      system.version.then((value) {
-        if (mounted) {
-          setState(() {
-            sdkInt = value;
-          });
-        }
-      });
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    if (system.isAndroid) {
-      if (sdkInt == null) {
-        return widget.child;
-      }
-
       final backBlock = ref.watch(backBlockProvider);
       final currentPage = ref.watch(currentPageLabelProvider);
       final rootPageLabels = ref.watch(
@@ -388,19 +363,6 @@ class _HomeBackScopeState extends ConsumerState<HomeBackScope> {
         ),
       );
       final isCurrentRootPage = rootPageLabels.contains(currentPage);
-
-      if (sdkInt! >= 31) {
-        return PopScope(
-          canPop: !backBlock && isCurrentRootPage,
-          onPopInvokedWithResult: (didPop, _) async {
-            if (didPop || backBlock) return;
-            if (!isCurrentRootPage) {
-              globalState.appController.toPage(PageLabel.dashboard);
-            }
-          },
-          child: widget.child,
-        );
-      }
 
       return PopScope(
         canPop: false,
@@ -417,9 +379,9 @@ class _HomeBackScopeState extends ConsumerState<HomeBackScope> {
             await globalState.appController.handleBackOrExit();
           }
         },
-        child: widget.child,
+        child: child,
       );
     }
-    return widget.child;
+    return child;
   }
 }

@@ -196,14 +196,14 @@ func withFakeIP(skipper *fakeip.Skipper, fakePool *fakeip.Pool, fakePool6 *fakei
 	}
 }
 
-func withResolver(resolver *Resolver) handler {
+func withResolver(resolver resolver.Resolver, ipv6 bool) handler {
 	return func(ctx *icontext.DNSContext, r *D.Msg) (*D.Msg, error) {
 		ctx.SetType(icontext.DNSTypeRaw)
 
 		q := r.Question[0]
 
 		// return a empty AAAA msg when ipv6 disabled
-		if !resolver.ipv6 && q.Qtype == D.TypeAAAA {
+		if !ipv6 && q.Qtype == D.TypeAAAA {
 			return handleMsgWithEmptyAnswer(r), nil
 		}
 
@@ -230,7 +230,7 @@ func compose(middlewares []middleware, endpoint handler) handler {
 	return h
 }
 
-func newHandler(resolver *Resolver, mapper *ResolverEnhancer) handler {
+func newHandler(resolver resolver.Resolver, mapper *ResolverEnhancer) handler {
 	var middlewares []middleware
 
 	if mapper.useHosts {
@@ -245,5 +245,5 @@ func newHandler(resolver *Resolver, mapper *ResolverEnhancer) handler {
 		middlewares = append(middlewares, withMapping(mapper.mapping))
 	}
 
-	return compose(middlewares, withResolver(resolver))
+	return compose(middlewares, withResolver(resolver, mapper.ipv6))
 }

@@ -59,6 +59,8 @@ class AppController {
     debouncer.call(FunctionTag.updateGroups, updateGroups);
   }
 
+
+
   void addCheckIpNumDebounce() {
     debouncer.call(FunctionTag.addCheckIpNum, () {
       _ref.read(checkIpNumProvider.notifier).add();
@@ -566,6 +568,31 @@ class AppController {
         retryIf: (res) => res.isEmpty,
         maxAttempts: maxAttempts,
       );
+
+      final currentProfile = _ref.read(currentProfileProvider);
+      if (currentProfile != null) {
+        final selectedMap = Map<String, String>.from(currentProfile.selectedMap);
+        bool hasChanged = false;
+
+        for (final newGroup in newGroups) {
+          final oldGroup = currentGroups.firstWhereOrNull((g) => g.name == newGroup.name);
+          if (oldGroup != null &&
+              newGroup.type == GroupType.Selector &&
+              newGroup.now != oldGroup.now) {
+            if (selectedMap[newGroup.name] != newGroup.realNow) {
+              selectedMap[newGroup.name] = newGroup.realNow;
+              hasChanged = true;
+            }
+          }
+        }
+
+        if (hasChanged) {
+          _ref.read(profilesProvider.notifier).setProfile(
+                currentProfile.copyWith(selectedMap: selectedMap),
+              );
+        }
+      }
+
       _ref.read(groupsProvider.notifier).value = newGroups;
       _updateGroupsRetryCount = 0;
       return;
@@ -1006,7 +1033,7 @@ class AppController {
   void initLink() {
     linkManager.initAppLinksListen((url) async {
       final res = await globalState.showMessage(
-        title: appLocalizations.addProfile,
+        title: '${appLocalizations.add}${appLocalizations.profile}',
         message: TextSpan(
           children: [
             TextSpan(text: appLocalizations.doYouWantToPass),
@@ -1019,7 +1046,7 @@ class AppController {
               ),
             ),
             TextSpan(
-              text: appLocalizations.createProfile,
+              text: '${appLocalizations.create}${appLocalizations.profile}',
             ),
           ],
         ),
@@ -1084,7 +1111,7 @@ class AppController {
         return await Profile.normal(url: url).update();
       },
       needLoading: true,
-      title: appLocalizations.addProfile,
+      title: '${appLocalizations.add}${appLocalizations.profile}',
     );
     if (profile != null) {
       await addProfile(profile);
@@ -1107,7 +1134,7 @@ class AppController {
         return await Profile.normal(label: platformFile?.name).saveFile(bytes);
       },
       needLoading: true,
-      title: appLocalizations.addProfile,
+      title: '${appLocalizations.add}${appLocalizations.profile}',
     );
     if (profile != null) {
       await addProfile(profile);
@@ -1982,17 +2009,31 @@ class AppController {
       return res;
     } catch (e) {
       commonPrint.log('$e');
+      final errorMessage = _formatErrorMessage(e);
       if (realSilence) {
-        globalState.showNotifier(e.toString());
+        globalState.showNotifier(errorMessage);
       } else {
         globalState.showMessage(
           title: title ?? appLocalizations.tip,
-          message: TextSpan(text: e.toString()),
+          message: TextSpan(text: errorMessage),
         );
       }
       return null;
     } finally {
       _ref.read(loadingProvider.notifier).value = false;
     }
+  }
+
+  String _formatErrorMessage(dynamic error) {
+    final errorStr = error.toString();
+
+    final statusCodeMatch = RegExp(r'statusCode: (\d+)').firstMatch(errorStr);
+    final statusCode = statusCodeMatch?.group(1);
+
+    if (statusCode != null) {
+      return appLocalizations.profileImportFailed(statusCode);
+    }
+
+    return error.toString();
   }
 }

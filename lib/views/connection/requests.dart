@@ -127,7 +127,6 @@ class _RequestsViewState extends ConsumerState<RequestsView> {
                                 context.commonScaffoldState?.addKeyword(value);
                               },
                               detailTitle: appLocalizations.details,
-                              ),
                             );
                           },
                           itemExtentBuilder: (index, _) {

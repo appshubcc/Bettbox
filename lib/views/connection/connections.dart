@@ -225,7 +225,7 @@ class _ConnectionsViewState extends ConsumerState<ConnectionsView>
 
           return CommonScrollBar(
             controller: _scrollController,
-            child: ListView.builder(
+            child: AdaptiveListView.builder(
               controller: _scrollController,
               itemBuilder: (context, index) {
               if (index.isOdd) {
@@ -254,13 +254,7 @@ class _ConnectionsViewState extends ConsumerState<ConnectionsView>
                 detailTitle: appLocalizations.details,
               );
             },
-            itemExtentBuilder: (index, _) {
-              if (index.isOdd) {
-                return 0;
-              }
-              return TrackerInfoItem.height;
-            },
-              itemCount: connections.length * 2 - 1,
+            itemCount: connections.length * 2 - 1,
             ),
           );
         },

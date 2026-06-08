@@ -290,6 +290,18 @@ Win32Window::MessageHandler(HWND hwnd,
   case WM_POWERBROADCAST:
     if (wparam == PBT_APMRESUMESUSPEND || wparam == PBT_APMRESUMEAUTOMATIC)
     {
+      SetTimer(hwnd, kResumeTimerId, 500, nullptr);
+    }
+    else if (wparam == PBT_APMSUSPEND)
+    {
+      KillTimer(hwnd, kResumeTimerId);
+    }
+    return TRUE;
+
+  case WM_TIMER:
+    if (wparam == kResumeTimerId)
+    {
+      KillTimer(hwnd, kResumeTimerId);
       if (IsWindowVisible(hwnd))
       {
         RECT rect = GetClientArea();
@@ -297,7 +309,7 @@ Win32Window::MessageHandler(HWND hwnd,
                     MAKELPARAM(rect.right - rect.left, rect.bottom - rect.top));
       }
     }
-    return TRUE;
+    return 0;
   }
 
   return DefWindowProc(window_handle_, message, wparam, lparam);

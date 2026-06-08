@@ -34,10 +34,10 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m6(label) => "${label}必須為數字";
 
-  static String m7(label) => "${label} 必須在 1024 到 49151 之間";
+  static String m7(label) => "${label} 必須在 1024 到 49151 之間, 0為關閉";
 
   static String m8(statusCode) =>
-      "配置導入失敗，請檢查網路問題並嘗試重置訂閱連結(HTTP錯誤代碼: ${statusCode})";
+      "配置導入失敗，請检查網路問題並嘗試重置訂閱連結(HTTP錯誤代碼: ${statusCode})";
 
   static String m9(count) => "已選擇 ${count} 項";
 
@@ -74,6 +74,19 @@ class MessageLookup extends MessageLookupByLibrary {
       "使用管理員模式開機自動啟動",
     ),
     "advancedSettings": MessageLookupByLibrary.simpleMessage("進階設定"),
+    "ageKeyGenerateTitle": MessageLookupByLibrary.simpleMessage("Age Key 生成"),
+    "ageKeyPairGeneratedSuccess": MessageLookupByLibrary.simpleMessage(
+      "已生成X25519密鑰對, 請妥善保存",
+    ),
+    "agePrivateKeyLabel": MessageLookupByLibrary.simpleMessage("Age 私鑰"),
+    "agePrivateKeyRequired": MessageLookupByLibrary.simpleMessage(
+      "請先輸入正確的Age 私鑰",
+    ),
+    "agePublicKeyLabel": MessageLookupByLibrary.simpleMessage("Age 公鑰"),
+    "ageSecretKeyInvalidValidationDesc": MessageLookupByLibrary.simpleMessage(
+      "請輸入有效的 Age 私鑰 (必須以 AGE-SECRET-KEY- 開頭)",
+    ),
+    "ageSecretKeyOptional": MessageLookupByLibrary.simpleMessage("Age 私鑰 (可選)"),
     "ago": MessageLookupByLibrary.simpleMessage("前"),
     "agree": MessageLookupByLibrary.simpleMessage("同意"),
     "allApps": MessageLookupByLibrary.simpleMessage("所有應用程式"),
@@ -82,11 +95,16 @@ class MessageLookup extends MessageLookupByLibrary {
     "allowLan": MessageLookupByLibrary.simpleMessage("區域網路代理"),
     "allowLanDesc": MessageLookupByLibrary.simpleMessage("允許透過區域網路存取代理"),
     "alreadyInWhitelist": MessageLookupByLibrary.simpleMessage("目前應用程式已在白名單內"),
+    "alwaysShowTitleBar": MessageLookupByLibrary.simpleMessage("標題按鈕"),
+    "alwaysShowTitleBarDesc": MessageLookupByLibrary.simpleMessage(
+      "始終顯示右上角的標題欄按鈕",
+    ),
     "app": MessageLookupByLibrary.simpleMessage("應用"),
     "appAccessControl": MessageLookupByLibrary.simpleMessage("應用存取控制"),
     "appDesc": MessageLookupByLibrary.simpleMessage("處理應用相關設定"),
     "application": MessageLookupByLibrary.simpleMessage("應用程式"),
     "applicationDesc": MessageLookupByLibrary.simpleMessage("修改應用程式設定"),
+    "authorized": MessageLookupByLibrary.simpleMessage("已授權"),
     "auto": MessageLookupByLibrary.simpleMessage("自動"),
     "autoCheckUpdate": MessageLookupByLibrary.simpleMessage("自動檢查更新"),
     "autoCheckUpdateDesc": MessageLookupByLibrary.simpleMessage("應用啟動時自動檢查更新"),
@@ -319,6 +337,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "fruitSaladScheme": MessageLookupByLibrary.simpleMessage("果繽紛"),
     "general": MessageLookupByLibrary.simpleMessage("一般"),
     "generalDesc": MessageLookupByLibrary.simpleMessage("修改一般設定"),
+    "generateFromPrivateKey": MessageLookupByLibrary.simpleMessage("從Age私鑰生成"),
     "generateSecret": MessageLookupByLibrary.simpleMessage("產生"),
     "geoData": MessageLookupByLibrary.simpleMessage("地理資料"),
     "geodataLoader": MessageLookupByLibrary.simpleMessage("GEO 節能"),
@@ -431,9 +450,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "networkDesc": MessageLookupByLibrary.simpleMessage("修改網路相關設定"),
     "networkDetection": MessageLookupByLibrary.simpleMessage("網路檢測"),
     "networkFix": MessageLookupByLibrary.simpleMessage("網路修復"),
-    "networkFixDesc": MessageLookupByLibrary.simpleMessage(
-      "修復 Windows 網路檢測地球圖示問題",
-    ),
+    "networkFixDesc": MessageLookupByLibrary.simpleMessage("修復系統網路檢測地球圖示問題"),
     "networkMatch": MessageLookupByLibrary.simpleMessage("網路匹配"),
     "networkMatchHint": MessageLookupByLibrary.simpleMessage(
       "輸入 IP 或 CIDR，最多 2 個，以逗號分隔",
@@ -780,6 +797,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "unableToUpdateCurrentProfileDesc": MessageLookupByLibrary.simpleMessage(
       "無法更新目前的設定檔",
     ),
+    "unauthorized": MessageLookupByLibrary.simpleMessage("未授權"),
     "undo": MessageLookupByLibrary.simpleMessage("復原"),
     "unifiedDelay": MessageLookupByLibrary.simpleMessage("統一延遲"),
     "unifiedDelayDesc": MessageLookupByLibrary.simpleMessage("去除交握解析等額外延遲"),

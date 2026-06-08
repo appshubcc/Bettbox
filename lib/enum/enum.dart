@@ -250,6 +250,8 @@ enum ActionMethod {
   setupConfig,
   flushFakeIP,
   flushDnsCache,
+  generateAgeKeyPair,
+  convertAgeSecretKeyToPublicKey,
 
   ///Android,
   setState,

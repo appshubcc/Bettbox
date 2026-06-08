@@ -1,0 +1,23 @@
+# Build artifacts
+build/
+
+# Example app (pub.dev auto-detects example/)
+# but exclude build outputs inside it
+example/build/
+example/android/build/
+example/android/app/build/
+example/android/.gradle/
+example/ios/Pods/
+example/macos/Pods/
+example/.dart_tool/
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# Assets (images referenced via GitHub raw URL in README)
+assets/
+
+# Work notes
+work.md

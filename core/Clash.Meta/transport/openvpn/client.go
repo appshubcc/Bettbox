@@ -9,9 +9,11 @@ import (
 	"io"
 	"net"
 	"strings"
+	"sync/atomic"
 	"time"
 
 	"github.com/metacubex/tls"
+	"golang.org/x/sync/semaphore"
 )
 
 const (
@@ -29,6 +31,11 @@ type Client struct {
 	push    *PushReply
 
 	cancel context.CancelFunc
+
+	writeSem *semaphore.Weighted
+
+	lastSendNano    atomic.Int64
+	lastReceiveNano atomic.Int64
 }
 
 func NewClient(config *ClientConfig, io PacketIO) (*Client, error) {
@@ -53,12 +60,16 @@ func NewClient(config *ClientConfig, io PacketIO) (*Client, error) {
 	runCtx, cancel := context.WithCancel(context.Background())
 	mux := NewPacketMux(io)
 	go mux.Run(runCtx)
-	return &Client{
-		config:  config,
-		mux:     mux,
-		control: NewControlChannel(mux, crypt, local),
-		cancel:  cancel,
-	}, nil
+	client := &Client{
+		config:   config,
+		mux:      mux,
+		control:  NewControlChannel(mux, crypt, local),
+		cancel:   cancel,
+		writeSem: semaphore.NewWeighted(1),
+	}
+	client.markSend()
+	client.markReceive()
+	return client, nil
 }
 
 func (c *Client) Handshake(ctx context.Context) (*PushReply, error) {
@@ -126,22 +137,48 @@ func (c *Client) Handshake(ctx context.Context) (*PushReply, error) {
 		return nil, err
 	}
 	c.push = push
-	c.data, err = NewDataChannel(keys, c.config.Cipher, c.config.Auth, push.PeerID, c.config.CompLZO)
+	c.data, err = NewDataChannel(keys, c.config.Cipher, c.config.Auth, push.PeerID)
 	if err != nil {
 		return nil, err
 	}
+	c.markSend()
+	c.markReceive()
 	return push, nil
 }
 
 func (c *Client) WriteIPPacket(ctx context.Context, packet []byte) error {
+	return c.writeDataPacket(ctx, packet, true)
+}
+
+func (c *Client) WritePing(ctx context.Context) error {
+	return c.writeDataPacket(ctx, openVPNPingPacket, false)
+}
+
+func (c *Client) writeDataPacket(ctx context.Context, packet []byte, compress bool) error {
 	if c.data == nil {
 		return errors.New("openvpn data channel is not ready")
+	}
+	if err := c.writeSem.Acquire(ctx, 1); err != nil {
+		return err
+	}
+	defer c.writeSem.Release(1)
+	if compress && c.config.CompLZO == CompLzoYes {
+		compressed, err := lzo1xCompressSafe(packet)
+		if err != nil {
+			return err
+		}
+		packet = compressed
 	}
 	encrypted, err := c.data.Encrypt(packet)
 	if err != nil {
 		return err
 	}
-	return c.mux.WritePacket(ctx, encrypted)
+	err = c.mux.WritePacket(ctx, encrypted)
+	if err != nil {
+		return err
+	}
+	c.markSend()
+	return nil
 }
 
 func (c *Client) ReadIPPacket(ctx context.Context) ([]byte, error) {
@@ -157,9 +194,37 @@ func (c *Client) ReadIPPacket(ctx context.Context) ([]byte, error) {
 		if err != nil {
 			continue
 		}
+		c.markReceive()
+		if IsPingPacket(plain) {
+			continue
+		}
+		if c.config.CompLZO == CompLzoYes && len(plain) > 0 {
+			return lzo1xDecompressSafe(plain)
+		}
 		return plain, nil
 	}
 }
+
+func (c *Client) SinceSend() time.Duration {
+	return time.Duration(int64(time.Since(start)) - c.lastSendNano.Load())
+}
+
+func (c *Client) SinceReceive() time.Duration {
+	return time.Duration(int64(time.Since(start)) - c.lastReceiveNano.Load())
+}
+
+func (c *Client) markSend() {
+	c.lastSendNano.Store(int64(time.Since(start)))
+}
+
+func (c *Client) markReceive() {
+	c.lastReceiveNano.Store(int64(time.Since(start)))
+}
+
+// The absolute value doesn't matter, but it should be in the past,
+// so that every timestamp obtained with Now() is non-zero,
+// even on systems with low timer resolutions (e.g. Windows).
+var start = time.Now().Add(-time.Hour)
 
 func (c *Client) Close() error {
 	if c.cancel != nil {

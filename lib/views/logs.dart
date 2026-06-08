@@ -155,7 +155,7 @@ class _LogsViewState extends ConsumerState<LogsView> {
 
                       return SizedBox(
                         height: listViewHeight,
-                        child: ListView.builder(
+                        child: AdaptiveListView.builder(
                           physics: const NextClampingScrollPhysics(),
                           reverse: true,
                           controller: _scrollController,
@@ -175,12 +175,6 @@ class _LogsViewState extends ConsumerState<LogsView> {
                                 context.commonScaffoldState?.addKeyword(value);
                               },
                             );
-                          },
-                          itemExtentBuilder: (index, _) {
-                            if (index.isOdd) {
-                              return 0;
-                            }
-                            return LogItem.height;
                           },
                           itemCount: logs.length * 2 - 1,
                         ),

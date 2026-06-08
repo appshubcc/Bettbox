@@ -20,6 +20,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final Map<int, FocusNode> _navFocusNodes = {};
   int _currentNavIndex = 0;
+  bool _isNavFocused = false;
 
   FocusNode _getNavFocusNode(int index) {
     return _navFocusNodes.putIfAbsent(index, () => FocusNode());
@@ -164,51 +165,71 @@ class _HomePageState extends State<HomePage> {
                   animation: focusNode,
                   builder: (context, child) {
                     final isFocused = focusNode.hasFocus;
-                    return InkWell(
-                      focusNode: focusNode,
-                      onTap: () {
-                        globalState.appController.toPage(item.label);
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                        decoration: BoxDecoration(
-                          color: isSelected
-                              ? context.colorScheme.secondaryContainer
-                              : Colors.transparent,
-                          borderRadius: BorderRadius.circular(12),
-                          border: isFocused
-                              ? Border.all(
-                                  color: context.colorScheme.primary,
-                                  width: 2,
-                                )
-                              : Border.all(
-                                  color: Colors.transparent,
-                                  width: 2,
+                      return Focus(
+                        focusNode: focusNode,
+                        onFocusChange: (hasFocus) {
+                          if (hasFocus) {
+                            if (!_isNavFocused) {
+                              _isNavFocused = true;
+                              if (index != currentIndex) {
+                                _requestNavFocus(currentIndex);
+                                return;
+                              }
+                            }
+                          } else {
+                            Future.microtask(() {
+                              final currentFocus = FocusManager.instance.primaryFocus;
+                              if (currentFocus == null || !_navFocusNodes.values.contains(currentFocus)) {
+                                _isNavFocused = false;
+                              }
+                            });
+                          }
+                        },
+                        child: InkWell(
+                          onTap: () {
+                            globalState.appController.toPage(item.label);
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                            decoration: BoxDecoration(
+                              color: isSelected
+                                  ? context.colorScheme.secondaryContainer
+                                  : Colors.transparent,
+                              borderRadius: BorderRadius.circular(12),
+                              border: isFocused
+                                  ? Border.all(
+                                      color: context.colorScheme.primary,
+                                      width: 2,
+                                    )
+                                  : Border.all(
+                                      color: Colors.transparent,
+                                      width: 2,
+                                    ),
+                            ),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                IconTheme(
+                                  data: IconThemeData(
+                                    color: isSelected
+                                        ? context.colorScheme.onSecondaryContainer
+                                        : context.colorScheme.onSurfaceVariant,
+                                    size: 24,
+                                  ),
+                                  child: item.icon,
                                 ),
-                        ),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              IconTheme(
-                                data: IconThemeData(
-                                  color: isSelected
-                                      ? context.colorScheme.onSecondaryContainer
-                                      : context.colorScheme.onSurfaceVariant,
-                                  size: 24,
+                                const SizedBox(height: 4),
+                                Text(
+                                  _getLocalizedLabel(item.label),
+                                  style: TextStyle(
+                                    color: isSelected
+                                        ? context.colorScheme.onSecondaryContainer
+                                        : context.colorScheme.onSurfaceVariant,
+                                    fontSize: 12,
+                                  ),
                                 ),
-                                child: item.icon,
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                _getLocalizedLabel(item.label),
-                                style: TextStyle(
-                                  color: isSelected
-                                      ? context.colorScheme.onSecondaryContainer
-                                      : context.colorScheme.onSurfaceVariant,
-                                  fontSize: 12,
-                                ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                         ),
                       );

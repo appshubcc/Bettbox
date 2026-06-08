@@ -394,14 +394,14 @@ class BuildCommand extends Command {
   Future<void> _setMacOSCompatibleBuild(bool enable) async {
     final infoPlistPath = 'macos/Runner/Info.plist';
     final file = File(infoPlistPath);
-    
+
     if (!await file.exists()) {
       print('Warning: Info.plist not found at $infoPlistPath');
       return;
     }
-    
+
     var content = await file.readAsString();
-    
+
     // Check if FLTDisableImpeller key exists
     if (content.contains('<key>FLTDisableImpeller</key>')) {
       // Update existing key
@@ -426,9 +426,73 @@ class BuildCommand extends Command {
         '$impellerEntry</dict>\n</plist>',
       );
     }
-    
+
     await file.writeAsString(content);
     print('macOS ${enable ? "Compatible" : "Standard"} build: FLTDisableImpeller set to $enable');
+  }
+
+  Future<void> _setWindowsCompatibleBuild(bool enable) async {
+    final cmakePath = 'windows/CMakeLists.txt';
+    final file = File(cmakePath);
+
+    if (!await file.exists()) {
+      print('Warning: CMakeLists.txt not found at $cmakePath');
+      return;
+    }
+
+    var content = await file.readAsString();
+    final hasDefinition = content.contains('FLUTTER_DISABLE_IMPELLER');
+
+    if (enable) {
+      if (!hasDefinition) {
+        content = content.replaceFirst(
+          'project(Bettbox LANGUAGES CXX)',
+          'project(Bettbox LANGUAGES CXX)\n\nadd_definitions(-DFLUTTER_DISABLE_IMPELLER=1)',
+        );
+      }
+    } else {
+      if (hasDefinition) {
+        content = content.replaceAll(
+          RegExp(r'\n?add_definitions\(-DFLUTTER_DISABLE_IMPELLER=1\)\n?'),
+          '\n',
+        );
+      }
+    }
+
+    await file.writeAsString(content);
+    print('Windows ${enable ? "Compatible" : "Standard"} build: Impeller ${enable ? "disabled" : "enabled"}');
+  }
+
+  Future<void> _setLinuxCompatibleBuild(bool enable) async {
+    final cmakePath = 'linux/CMakeLists.txt';
+    final file = File(cmakePath);
+
+    if (!await file.exists()) {
+      print('Warning: CMakeLists.txt not found at $cmakePath');
+      return;
+    }
+
+    var content = await file.readAsString();
+    final hasDefinition = content.contains('FLUTTER_DISABLE_IMPELLER');
+
+    if (enable) {
+      if (!hasDefinition) {
+        content = content.replaceFirst(
+          'set(APPLICATION_ID "com.appshub.bettbox")',
+          'set(APPLICATION_ID "com.appshub.bettbox")\n\nadd_definitions(-DFLUTTER_DISABLE_IMPELLER=1)',
+        );
+      }
+    } else {
+      if (hasDefinition) {
+        content = content.replaceAll(
+          RegExp(r'\n?add_definitions\(-DFLUTTER_DISABLE_IMPELLER=1\)\n?'),
+          '\n',
+        );
+      }
+    }
+
+    await file.writeAsString(content);
+    print('Linux ${enable ? "Compatible" : "Standard"} build: Impeller ${enable ? "disabled" : "enabled"}');
   }
 
   Future<void> _buildDistributor({
@@ -497,6 +561,11 @@ class BuildCommand extends Command {
             ? await Build.calcSha256(corePaths.first)
             : null;
         Build.buildHelper(target, token!);
+        if (compatible) {
+          await _setWindowsCompatibleBuild(true);
+        } else {
+          await _setWindowsCompatibleBuild(false);
+        }
         _buildDistributor(
           target: target,
           targets: 'exe',
@@ -513,6 +582,11 @@ class BuildCommand extends Command {
         ].join(',');
         final defaultTarget = targetMap[arch];
         await _getLinuxDependencies(arch!);
+        if (compatible) {
+          await _setLinuxCompatibleBuild(true);
+        } else {
+          await _setLinuxCompatibleBuild(false);
+        }
         _buildDistributor(
           target: target,
           targets: targets,

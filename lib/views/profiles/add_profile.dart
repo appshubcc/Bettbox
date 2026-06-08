@@ -14,8 +14,8 @@ class AddProfileView extends StatelessWidget {
     globalState.appController.addProfileFormFile();
   }
 
-  Future<void> _handleAddProfileFormURL(String url) async {
-    globalState.appController.addProfileFormURL(url);
+  Future<void> _handleAddProfileFormURL(String url, {String? ageSecretKey}) async {
+    globalState.appController.addProfileFormURL(url, ageSecretKey: ageSecretKey);
   }
 
   Future<void> _handleAddProfileFromClipboard() async {
@@ -63,26 +63,11 @@ class AddProfileView extends StatelessWidget {
   }
 
   Future<void> _toAdd() async {
-    final url = await globalState.showCommonDialog<String>(
-      child: InputDialog(
-        autofocus: true,
-        autovalidateMode: AutovalidateMode.onUnfocus,
-        title: appLocalizations.importFromURL,
-        labelText: appLocalizations.url,
-        value: '',
-        validator: (value) {
-          if (value == null || value.isEmpty) {
-            return appLocalizations.emptyTip('').trim();
-          }
-          if (!value.isUrl) {
-            return appLocalizations.urlTip('').trim();
-          }
-          return null;
-        },
-      ),
+    final result = await globalState.showCommonDialog<Map<String, String>>(
+      child: const URLFormDialog(),
     );
-    if (url != null) {
-      _handleAddProfileFormURL(url);
+    if (result != null && result.containsKey('url')) {
+      _handleAddProfileFormURL(result['url']!, ageSecretKey: result['ageSecretKey']);
     }
   }
 
@@ -128,11 +113,36 @@ class URLFormDialog extends StatefulWidget {
 
 class _URLFormDialogState extends State<URLFormDialog> {
   final urlController = TextEditingController();
+  final ageSecretKeyController = TextEditingController();
+  bool _obscureAgeSecretKey = true;
+
+  @override
+  void dispose() {
+    urlController.dispose();
+    ageSecretKeyController.dispose();
+    super.dispose();
+  }
 
   Future<void> _handleAddProfileFormURL() async {
-    final url = urlController.value.text;
-    if (url.isEmpty) return;
-    Navigator.of(context).pop<String>(url);
+    final url = urlController.value.text.trim();
+    if (url.isEmpty || !url.isUrl) {
+      if (mounted) {
+        context.showSnackBar(appLocalizations.urlTip(''));
+      }
+      return;
+    }
+    final ageKey = ageSecretKeyController.text.trim();
+    if (ageKey.isNotEmpty && !ageKey.startsWith('AGE-SECRET-KEY-')) {
+      if (mounted) {
+        context.showSnackBar(appLocalizations.ageSecretKeyInvalidValidationDesc);
+      }
+      return;
+    }
+
+    Navigator.of(context).pop<Map<String, String>>({
+      'url': url,
+      if (ageKey.isNotEmpty) 'ageSecretKey': ageKey,
+    });
   }
 
   @override
@@ -140,6 +150,10 @@ class _URLFormDialogState extends State<URLFormDialog> {
     return CommonDialog(
       title: appLocalizations.importFromURL,
       actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text(appLocalizations.cancel),
+        ),
         TextButton(
           onPressed: _handleAddProfileFormURL,
           child: Text(appLocalizations.submit),
@@ -151,6 +165,7 @@ class _URLFormDialogState extends State<URLFormDialog> {
           runSpacing: 16,
           children: [
             TextField(
+              autofocus: true,
               keyboardType: TextInputType.url,
               minLines: 1,
               maxLines: 5,
@@ -162,6 +177,28 @@ class _URLFormDialogState extends State<URLFormDialog> {
               decoration: InputDecoration(
                 border: const OutlineInputBorder(),
                 labelText: appLocalizations.url,
+              ),
+            ),
+            TextField(
+              textInputAction: TextInputAction.next,
+              controller: ageSecretKeyController,
+              obscureText: _obscureAgeSecretKey,
+              maxLines: 1,
+              minLines: 1,
+              decoration: InputDecoration(
+                border: const OutlineInputBorder(),
+                labelText: appLocalizations.ageSecretKeyOptional,
+                hintText: 'AGE-SECRET-KEY-...',
+                suffixIcon: IconButton(
+                  icon: Icon(
+                    _obscureAgeSecretKey ? Icons.visibility : Icons.visibility_off,
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      _obscureAgeSecretKey = !_obscureAgeSecretKey;
+                    });
+                  },
+                ),
               ),
             ),
           ],

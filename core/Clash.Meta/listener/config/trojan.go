@@ -23,6 +23,7 @@ type TrojanServer struct {
 	ClientAuthType  string
 	ClientAuthCert  string
 	EchKey          string
+	AllowInsecure   bool
 	RealityConfig   reality.Config
 	MuxOption       sing.MuxOption
 	TrojanSSOption  TrojanSSOption

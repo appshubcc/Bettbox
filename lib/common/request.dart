@@ -32,21 +32,32 @@ class Request {
   }
 
   Future<Response> _getResponseForUrl(String url, ResponseType responseType) async {
-    final uri = Uri.parse(url);
-    final userInfo = uri.userInfo;
+    String? userInfo;
+    String requestUrl = url;
+
+    if (url.startsWith('http://') || url.startsWith('https://')) {
+      final schemeEnd = url.indexOf('://') + 3;
+      final atIndex = url.indexOf('@', schemeEnd);
+      if (atIndex != -1) {
+        final slashIndex = url.indexOf('/', schemeEnd);
+        if (slashIndex == -1 || atIndex < slashIndex) {
+          userInfo = url.substring(schemeEnd, atIndex);
+          requestUrl = url.substring(0, schemeEnd) + url.substring(atIndex + 1);
+        }
+      }
+    }
 
     Options? options;
-    if (userInfo.isNotEmpty) {
+    if (userInfo != null && userInfo.isNotEmpty) {
       final auth = base64Encode(utf8.encode(userInfo));
       options = Options(
         responseType: responseType,
         headers: {'Authorization': 'Basic $auth'},
       );
-      url = uri.replace(userInfo: '').toString();
     }
 
     final response = await _clashDio.get(
-      url,
+      requestUrl,
       options: options ?? Options(responseType: responseType),
     );
     return response;

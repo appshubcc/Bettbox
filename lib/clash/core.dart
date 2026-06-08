@@ -39,7 +39,7 @@ class ClashCore {
     if (!await homeDir.exists()) {
       await homeDir.create(recursive: true);
     }
-    const geoFileNameList = [mmdbFileName, geoSiteFileName, asnFileName];
+    const geoFileNameList = [mmdbFileName, geoSiteFileName, asnFileName, bundleMRSFileName];
     try {
       for (final geoFileName in geoFileNameList) {
         final geoFile = File(join(homePath, geoFileName));
@@ -75,8 +75,8 @@ class ClashCore {
 
   FutureOr<bool> get isInit => clashInterface.isInit;
 
-  FutureOr<String> validateConfig(String data) {
-    return clashInterface.validateConfig(data);
+  FutureOr<String> validateConfig(String data, {String? ageSecretKey}) {
+    return clashInterface.validateConfig(data, ageSecretKey: ageSecretKey);
   }
 
   Future<String> updateConfig(UpdateParams updateParams) async {
@@ -228,9 +228,9 @@ class ClashCore {
     }
   }
 
-  Future<Map<String, dynamic>> getConfig(String id) async {
+  Future<Map<String, dynamic>> getConfig(String id, {String? ageSecretKey}) async {
     final profilePath = await appPath.getProfilePath(id);
-    final res = await clashInterface.getConfig(profilePath);
+    final res = await clashInterface.getConfig(profilePath, ageSecretKey: ageSecretKey);
     if (res.isSuccess) {
       return res.data as Map<String, dynamic>;
     } else {
@@ -302,6 +302,14 @@ class ClashCore {
 
   Future<void> flushDnsCache() async {
     await clashInterface.flushDnsCache();
+  }
+
+  Future<Map<String, String>> generateAgeKeyPair() {
+    return clashInterface.generateAgeKeyPair();
+  }
+
+  Future<Result<String>> convertAgeSecretKeyToPublicKey(String secretKey) {
+    return clashInterface.convertAgeSecretKeyToPublicKey(secretKey);
   }
 
   Future<void> destroy() async {

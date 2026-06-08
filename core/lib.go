@@ -9,10 +9,46 @@ import "C"
 import (
 	bridge "core/dart-bridge"
 	"encoding/json"
+	"github.com/metacubex/mihomo/log"
+	"sync"
+	"time"
 	"unsafe"
 )
 
 var messagePort int64 = -1
+
+var (
+	batchMutex      sync.Mutex
+	batchMessages   []Message
+	batchTimer      *time.Timer
+	batchInterval   = 500 * time.Millisecond
+)
+
+func sendBatchMessages() {
+	batchMutex.Lock()
+	messages := make([]Message, len(batchMessages))
+	copy(messages, batchMessages)
+	batchMessages = batchMessages[:0]
+	batchTimer = nil
+	batchMutex.Unlock()
+
+	if len(messages) == 0 || messagePort == -1 {
+		return
+	}
+	result := ActionResult{
+		Method: messageMethod,
+		Port:   messagePort,
+		Data:   messages,
+	}
+	result.send()
+}
+
+func shouldBatch(messageType MessageType) bool {
+	if messageType != LogMessage && messageType != RequestMessage {
+		return false
+	}
+	return log.Level() == log.DEBUG
+}
 
 //export initNativeApiBridge
 func initNativeApiBridge(api unsafe.Pointer) {
@@ -69,6 +105,15 @@ func sendMessage(message Message) {
 	if messagePort == -1 {
 		return
 	}
+	if shouldBatch(message.Type) {
+		batchMutex.Lock()
+		batchMessages = append(batchMessages, message)
+		if batchTimer == nil {
+			batchTimer = time.AfterFunc(batchInterval, sendBatchMessages)
+		}
+		batchMutex.Unlock()
+		return
+	}
 	result := ActionResult{
 		Method: messageMethod,
 		Port:   messagePort,
@@ -79,8 +124,13 @@ func sendMessage(message Message) {
 
 //export getConfig
 func getConfig(s *C.char) *C.char {
-	path := C.GoString(s)
-	config, err := handleGetConfig(path)
+	paramsString := C.GoString(s)
+	var params GetConfigParams
+	err := json.Unmarshal([]byte(paramsString), &params)
+	if err != nil {
+		params.Path = paramsString
+	}
+	config, err := handleGetConfig(&params)
 	if err != nil {
 		return C.CString("")
 	}

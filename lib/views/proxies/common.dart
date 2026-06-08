@@ -27,9 +27,7 @@ Future<void> proxyDelayTest(Proxy proxy, [String? testUrl]) async {
   if (state.proxyName.isEmpty) {
     return;
   }
-  // Set testing state
   appController.setDelay(Delay(url: url, name: state.proxyName, value: 0));
-  // Get and set delay
   appController.setDelay(await clashCore.getDelay(url, state.proxyName));
 }
 
@@ -38,11 +36,18 @@ bool _isNonTestableProxy(String proxyName) {
   return name == 'REJECT' || name == 'REJECT-DROP' || name == 'PASS';
 }
 
+int _delayTestSessionId = 0;
+
+void cancelDelayTest() {
+  _delayTestSessionId++;
+}
+
 Future<void> delayTest(
   List<Proxy> proxies, [
   String? testUrl,
   Future<void> Function()? onDelayUpdated,
 ]) async {
+  final sessionId = ++_delayTestSessionId;
   final appController = globalState.appController;
   final proxyNames = proxies
       .map((proxy) => proxy.name)
@@ -51,7 +56,6 @@ Future<void> delayTest(
       .toList();
   final concurrencyLimit = globalState.config.proxiesStyle.concurrencyLimit;
 
-  // Create lazy task
   final delayTasks = proxyNames.map((proxyName) {
     return () async {
       final state = appController.getProxyCardState(proxyName);
@@ -62,20 +66,23 @@ Future<void> delayTest(
       if (name.isEmpty || _isNonTestableProxy(name)) {
         return;
       }
-      // Set testing state
+      if (sessionId != _delayTestSessionId) return;
       appController.setDelay(Delay(url: url, name: name, value: 0));
-      // Get and set delay
-      appController.setDelay(await clashCore.getDelay(url, name));
+      final delay = await clashCore.getDelay(url, name);
+      if (sessionId != _delayTestSessionId) return;
+      appController.setDelay(delay);
       await onDelayUpdated?.call();
     };
   }).toList();
 
-  // Execute tasks in batches
   final batchedTasks = delayTasks.batch(concurrencyLimit);
   for (final batchTasks in batchedTasks) {
+    if (sessionId != _delayTestSessionId) break;
     await Future.wait(batchTasks.map((task) => task()));
   }
-  appController.addSortNum();
+  if (sessionId == _delayTestSessionId) {
+    appController.addSortNum();
+  }
 }
 
 double getScrollToSelectedOffset({

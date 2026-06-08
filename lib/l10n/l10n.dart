@@ -489,6 +489,26 @@ class AppLocalizations {
     );
   }
 
+  /// `Title Buttons`
+  String get alwaysShowTitleBar {
+    return Intl.message(
+      'Title Buttons',
+      name: 'alwaysShowTitleBar',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Always show the title bar buttons in the top-right corner`
+  String get alwaysShowTitleBarDesc {
+    return Intl.message(
+      'Always show the title bar buttons in the top-right corner',
+      name: 'alwaysShowTitleBarDesc',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Tray Enhancement`
   String get trayEnhancement {
     return Intl.message(
@@ -574,10 +594,10 @@ class AppLocalizations {
     return Intl.message('Network Fix', name: 'networkFix', desc: '', args: []);
   }
 
-  /// `Fix Windows network globe icon issue`
+  /// `Fix system network globe icon issue`
   String get networkFixDesc {
     return Intl.message(
-      'Fix Windows network globe icon issue',
+      'Fix system network globe icon issue',
       name: 'networkFixDesc',
       desc: '',
       args: [],
@@ -4774,10 +4794,10 @@ class AppLocalizations {
     return Intl.message('Tproxy Port', name: 'tproxyPort', desc: '', args: []);
   }
 
-  /// `{label} must be between 1024 and 49151`
+  /// `{label} must be between 1024 and 49151, 0 to disable`
   String portTip(Object label) {
     return Intl.message(
-      '$label must be between 1024 and 49151',
+      '$label must be between 1024 and 49151, 0 to disable',
       name: 'portTip',
       desc: '',
       args: [label],
@@ -5111,6 +5131,101 @@ class AppLocalizations {
       name: 'profileImportFailed',
       desc: '',
       args: [statusCode],
+    );
+  }
+
+  /// `Authorized`
+  String get authorized {
+    return Intl.message('Authorized', name: 'authorized', desc: '', args: []);
+  }
+
+  /// `Unauthorized`
+  String get unauthorized {
+    return Intl.message(
+      'Unauthorized',
+      name: 'unauthorized',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Age Secret Key (Optional)`
+  String get ageSecretKeyOptional {
+    return Intl.message(
+      'Age Secret Key (Optional)',
+      name: 'ageSecretKeyOptional',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Please enter a valid Age secret key (must start with AGE-SECRET-KEY-)`
+  String get ageSecretKeyInvalidValidationDesc {
+    return Intl.message(
+      'Please enter a valid Age secret key (must start with AGE-SECRET-KEY-)',
+      name: 'ageSecretKeyInvalidValidationDesc',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Age Key Generation`
+  String get ageKeyGenerateTitle {
+    return Intl.message(
+      'Age Key Generation',
+      name: 'ageKeyGenerateTitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Age Private Key`
+  String get agePrivateKeyLabel {
+    return Intl.message(
+      'Age Private Key',
+      name: 'agePrivateKeyLabel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Age Public Key`
+  String get agePublicKeyLabel {
+    return Intl.message(
+      'Age Public Key',
+      name: 'agePublicKeyLabel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Generate from Age private key`
+  String get generateFromPrivateKey {
+    return Intl.message(
+      'Generate from Age private key',
+      name: 'generateFromPrivateKey',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `X25519 Key pair generated, please keep it safe`
+  String get ageKeyPairGeneratedSuccess {
+    return Intl.message(
+      'X25519 Key pair generated, please keep it safe',
+      name: 'ageKeyPairGeneratedSuccess',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Please enter a correct Age private key first`
+  String get agePrivateKeyRequired {
+    return Intl.message(
+      'Please enter a correct Age private key first',
+      name: 'agePrivateKeyRequired',
+      desc: '',
+      args: [],
     );
   }
 }

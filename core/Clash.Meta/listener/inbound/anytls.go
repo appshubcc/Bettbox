@@ -17,6 +17,7 @@ type AnyTLSOption struct {
 	ClientAuthType string            `inbound:"client-auth-type,omitempty"`
 	ClientAuthCert string            `inbound:"client-auth-cert,omitempty"`
 	EchKey         string            `inbound:"ech-key,omitempty"`
+	AllowInsecure  bool              `inbound:"allow-insecure,omitempty"`
 	PaddingScheme  string            `inbound:"padding-scheme,omitempty"`
 }
 
@@ -48,6 +49,7 @@ func NewAnyTLS(options *AnyTLSOption) (*AnyTLS, error) {
 			ClientAuthType: options.ClientAuthType,
 			ClientAuthCert: options.ClientAuthCert,
 			EchKey:         options.EchKey,
+			AllowInsecure:  options.AllowInsecure,
 			PaddingScheme:  options.PaddingScheme,
 		},
 	}, nil

@@ -18,9 +18,13 @@ mixin ClashInterface {
 
   Future<bool> forceGc();
 
-  FutureOr<String> validateConfig(String data);
+  FutureOr<String> validateConfig(String data, {String? ageSecretKey});
 
-  FutureOr<Result> getConfig(String path);
+  FutureOr<Result> getConfig(String path, {String? ageSecretKey});
+
+  Future<Map<String, String>> generateAgeKeyPair();
+
+  Future<Result<String>> convertAgeSecretKeyToPublicKey(String secretKey);
 
   Future<String> asyncTestDelay(String url, String proxyName);
 
@@ -98,11 +102,24 @@ abstract class ClashHandlerInterface with ClashInterface {
     try {
       switch (result.method) {
         case ActionMethod.message:
-          clashMessage.controller.add(result.data);
+          final data = result.data;
+          if (data is List) {
+            for (final item in data) {
+              if (item is Map<String, Object?>) {
+                clashMessage.controller.add(item);
+              }
+            }
+          } else if (data is Map<String, Object?>) {
+            clashMessage.controller.add(data);
+          }
           completer?.complete(true);
           return;
         case ActionMethod.getConfig:
+        case ActionMethod.convertAgeSecretKeyToPublicKey:
           completer?.complete(result.toResult);
+          return;
+        case ActionMethod.generateAgeKeyPair:
+          completer?.complete(result.data);
           return;
         default:
           completer?.complete(result.data);
@@ -192,8 +209,15 @@ abstract class ClashHandlerInterface with ClashInterface {
   }
 
   @override
-  FutureOr<String> validateConfig(String data) {
-    return invoke<String>(method: ActionMethod.validateConfig, data: data);
+  FutureOr<String> validateConfig(String data, {String? ageSecretKey}) {
+    final params = {
+      'data': data,
+      'age-secret-key': ageSecretKey ?? '',
+    };
+    return invoke<String>(
+      method: ActionMethod.validateConfig,
+      data: json.encode(params),
+    );
   }
 
   @override
@@ -201,16 +225,20 @@ abstract class ClashHandlerInterface with ClashInterface {
     return await invoke<String>(
       method: ActionMethod.updateConfig,
       data: json.encode(updateParams),
-      timeout: Duration(minutes: 2),
+      timeout: const Duration(seconds: 60),
     );
   }
 
   @override
-  Future<Result> getConfig(String path) async {
+  Future<Result> getConfig(String path, {String? ageSecretKey}) async {
+    final params = {
+      'path': path,
+      'age-secret-key': ageSecretKey ?? '',
+    };
     final res = await invoke<Result>(
       method: ActionMethod.getConfig,
-      data: path,
-      timeout: Duration(minutes: 2),
+      data: json.encode(params),
+      timeout: const Duration(seconds: 60),
       defaultValue: Result.success({}),
     );
     return res;
@@ -222,7 +250,7 @@ abstract class ClashHandlerInterface with ClashInterface {
     return await invoke<String>(
       method: ActionMethod.setupConfig,
       data: data,
-      timeout: Duration(minutes: 2),
+      timeout: const Duration(seconds: 60),
     );
   }
 
@@ -354,7 +382,7 @@ abstract class ClashHandlerInterface with ClashInterface {
     return invoke<String>(
       method: ActionMethod.asyncTestDelay,
       data: json.encode(delayParams),
-      timeout: Duration(milliseconds: 6000),
+      timeout: Duration(milliseconds: 5000),
       onTimeout: () {
         return json.encode(Delay(name: proxyName, value: -1, url: url));
       },
@@ -379,5 +407,27 @@ abstract class ClashHandlerInterface with ClashInterface {
   @override
   FutureOr<bool> flushDnsCache() {
     return invoke<bool>(method: ActionMethod.flushDnsCache);
+  }
+
+  @override
+  Future<Map<String, String>> generateAgeKeyPair() async {
+    final res = await invoke<Map>(
+      method: ActionMethod.generateAgeKeyPair,
+    );
+    return res.map((key, value) => MapEntry(key.toString(), value.toString()));
+  }
+
+  @override
+  Future<Result<String>> convertAgeSecretKeyToPublicKey(String secretKey) async {
+    final res = await invoke<Result>(
+      method: ActionMethod.convertAgeSecretKeyToPublicKey,
+      data: secretKey,
+      defaultValue: Result.error('error'),
+    );
+    return Result<String>(
+      data: res.data?.toString(),
+      type: res.type,
+      message: res.message,
+    );
   }
 }

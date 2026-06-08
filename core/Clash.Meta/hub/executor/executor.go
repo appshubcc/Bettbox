@@ -26,7 +26,6 @@ import (
 	"github.com/metacubex/mihomo/component/resolver"
 	"github.com/metacubex/mihomo/component/resource"
 	"github.com/metacubex/mihomo/component/sniffer"
-	tlsC "github.com/metacubex/mihomo/component/tls"
 	"github.com/metacubex/mihomo/component/trie"
 	"github.com/metacubex/mihomo/component/updater"
 	"github.com/metacubex/mihomo/config"
@@ -166,20 +165,19 @@ func GetGeneral() *config.General {
 			ASN:     geodata.ASNUrl(),
 			GeoSite: geodata.GeoSiteUrl(),
 		},
-		GeoAutoUpdate:           updater.GeoAutoUpdate(),
-		GeoUpdateInterval:       updater.GeoUpdateInterval(),
-		GeodataMode:             geodata.GeodataMode(),
-		GeodataLoader:           geodata.LoaderName(),
-		GeositeMatcher:          geodata.SiteMatcherName(),
-		TCPConcurrent:           dialer.GetTcpConcurrent(),
-		FindProcessMode:         tunnel.FindProcessMode(),
-		Sniffing:                tunnel.IsSniffing(),
-		GlobalClientFingerprint: tlsC.GetGlobalFingerprint(),
-		GlobalUA:                mihomoHttp.UA(),
-		ETagSupport:             resource.ETag(),
-		KeepAliveInterval:       int(keepalive.KeepAliveInterval() / time.Second),
-		KeepAliveIdle:           int(keepalive.KeepAliveIdle() / time.Second),
-		DisableKeepAlive:        keepalive.DisableKeepAlive(),
+		GeoAutoUpdate:     updater.GeoAutoUpdate(),
+		GeoUpdateInterval: updater.GeoUpdateInterval(),
+		GeodataMode:       geodata.GeodataMode(),
+		GeodataLoader:     geodata.LoaderName(),
+		GeositeMatcher:    geodata.SiteMatcherName(),
+		TCPConcurrent:     dialer.GetTcpConcurrent(),
+		FindProcessMode:   tunnel.FindProcessMode(),
+		Sniffing:          tunnel.IsSniffing(),
+		GlobalUA:          mihomoHttp.UA(),
+		ETagSupport:       resource.ETag(),
+		KeepAliveInterval: int(keepalive.KeepAliveInterval() / time.Second),
+		KeepAliveIdle:     int(keepalive.KeepAliveIdle() / time.Second),
+		DisableKeepAlive:  keepalive.DisableKeepAlive(),
 	}
 
 	return general
@@ -429,11 +427,6 @@ func updateGeneral(general *config.General, logging bool) {
 	geodata.SetASNUrl(general.GeoXUrl.ASN)
 	mihomoHttp.SetUA(general.GlobalUA)
 	resource.SetETag(general.ETagSupport)
-
-	if general.GlobalClientFingerprint != "" {
-		log.Warnln("The `global-client-fingerprint` configuration is deprecated, please set `client-fingerprint` directly on the proxy instead")
-	}
-	tlsC.SetGlobalFingerprint(general.GlobalClientFingerprint)
 }
 
 func updateUsers(users []auth.AuthUser) {

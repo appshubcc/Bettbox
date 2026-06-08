@@ -121,7 +121,7 @@ class _ToolViewState extends ConsumerState<ToolsView> {
     ];
     return CommonScaffold(
       title: appLocalizations.tools,
-      body: ListView.builder(
+      body: AdaptiveListView.builder(
         key: toolsStoreKey,
         itemCount: items.length,
         itemBuilder: (_, index) => items[index],

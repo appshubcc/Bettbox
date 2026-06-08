@@ -9,6 +9,7 @@ import (
 	"net"
 	"strconv"
 	"strings"
+	"time"
 )
 
 const (
@@ -49,6 +50,9 @@ type ClientConfig struct {
 
 	Username string
 	Password string
+
+	PingInterval time.Duration
+	PingRestart  time.Duration
 
 	TLSCryptKey []byte
 }
@@ -181,6 +185,12 @@ func (c *ClientConfig) ValidateInstallScriptSubset() error {
 		}
 	} else if strings.TrimSpace(c.Username) == "" {
 		return errors.New("openvpn requires either cert+key or username (auth-user-pass)")
+	}
+	if c.PingInterval < 0 {
+		return errors.New("openvpn ping interval must be positive")
+	}
+	if c.PingRestart < 0 {
+		return errors.New("openvpn ping restart must be positive")
 	}
 	return nil
 }

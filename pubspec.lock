@@ -1063,10 +1063,11 @@ packages:
   re_editor:
     dependency: "direct main"
     description:
-      path: "plugins/re-editor"
-      relative: true
-    source: path
-    version: "0.8.0"
+      name: re_editor
+      sha256: "73e5daf7041b382c07ed707d5efd2d0a53851bb9eb6d6987260229ae0ed2f458"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.9.0"
   re_highlight:
     dependency: "direct main"
     description:
@@ -1243,6 +1244,13 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.1.2"
+  silky_scroll:
+    dependency: "direct main"
+    description:
+      path: "plugins/silky_scroll"
+      relative: true
+    source: path
+    version: "2.6.4"
   sky_engine:
     dependency: transitive
     description: flutter
@@ -1671,5 +1679,5 @@ packages:
     source: hosted
     version: "2.2.4"
 sdks:
-  dart: ">=3.10.0-0 <4.0.0"
-  flutter: ">=3.35.6"
+  dart: ">=3.10.7 <4.0.0"
+  flutter: ">=3.44.0"

@@ -12,7 +12,8 @@ type AnyTLSServer struct {
 	PrivateKey     string            `yaml:"private-key" json:"private-key"`
 	ClientAuthType string            `yaml:"client-auth-type" json:"client-auth-type,omitempty"`
 	ClientAuthCert string            `yaml:"client-auth-cert" json:"client-auth-cert,omitempty"`
-	EchKey         string            `yaml:"ech-key" json:"ech-key"`
+	EchKey         string            `yaml:"ech-key" json:"ech-key,omitempty"`
+	AllowInsecure  bool              `yaml:"allow-insecure" json:"allow-insecure,omitempty"`
 	PaddingScheme  string            `yaml:"padding-scheme" json:"padding-scheme,omitempty"`
 }
 

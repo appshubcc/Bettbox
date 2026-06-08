@@ -100,8 +100,8 @@ class TrayManagerPlugin : public flutter::Plugin {
   std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> g_converter;
 
   flutter::PluginRegistrarWindows* registrar;
-  NOTIFYICONDATA nid;
-  NOTIFYICONIDENTIFIER niif;
+  NOTIFYICONDATA nid{};
+  NOTIFYICONIDENTIFIER niif{};
   // do create pop-up menu only once.
   HMENU hMenu = CreatePopupMenu();
   bool tray_icon_setted = false;
@@ -296,8 +296,12 @@ std::optional<LRESULT> TrayManagerPlugin::HandleWindowProc(HWND hWnd,
   if (message == WM_DESTROY) {
     if (tray_icon_setted) {
       Shell_NotifyIcon(NIM_DELETE, &nid);
-      DestroyIcon(nid.hIcon);
     }
+    if (nid.hIcon != nullptr) {
+      DestroyIcon(nid.hIcon);
+      nid.hIcon = nullptr;
+    }
+    tray_icon_setted = false;
   } else if (message == WM_INITMENUPOPUP) {
     HMENU hmenu = (HMENU)wParam;
     if (hmenu == hMenu && !is_menu_open_) {
@@ -353,8 +357,13 @@ HWND TrayManagerPlugin::GetMainWindow() {
 void TrayManagerPlugin::Destroy(
     const flutter::MethodCall<flutter::EncodableValue>& method_call,
     std::unique_ptr<flutter::MethodResult<flutter::EncodableValue>> result) {
-  Shell_NotifyIcon(NIM_DELETE, &nid);
-  DestroyIcon(nid.hIcon);
+  if (tray_icon_setted) {
+    Shell_NotifyIcon(NIM_DELETE, &nid);
+  }
+  if (nid.hIcon != nullptr) {
+    DestroyIcon(nid.hIcon);
+    nid.hIcon = nullptr;
+  }
   tray_icon_setted = false;
 
   result->Success(flutter::EncodableValue(true));
@@ -373,6 +382,7 @@ void TrayManagerPlugin::SetIcon(
 
   if (nid.hIcon != nullptr) {
     DestroyIcon(nid.hIcon);
+    nid.hIcon = nullptr;
   }
 
   nid.hIcon = static_cast<HICON>(
@@ -391,6 +401,7 @@ void TrayManagerPlugin::_ApplyIcon() {
   } else {
     nid.cbSize = sizeof(NOTIFYICONDATA);
     nid.hWnd = GetMainWindow();
+    nid.uID = 1;
     nid.uCallbackMessage = WM_MYMESSAGE;
     nid.uFlags = NIF_MESSAGE | NIF_ICON;
     Shell_NotifyIcon(NIM_ADD, &nid);

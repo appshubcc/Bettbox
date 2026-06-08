@@ -2,6 +2,8 @@ package main
 
 import (
 	"encoding/json"
+
+	"github.com/metacubex/mihomo/component/age"
 )
 
 type Action struct {
@@ -52,8 +54,13 @@ func handleAction(action *Action, result ActionResult) {
 		result.success(handleShutdown())
 		return
 	case validateConfigMethod:
-		data := []byte(action.Data.(string))
-		result.success(handleValidateConfig(data))
+		paramsString := action.Data.(string)
+		var params ValidateConfigParams
+		err := json.Unmarshal([]byte(paramsString), &params)
+		if err != nil {
+			params.Data = paramsString
+		}
+		result.success(handleValidateConfig(&params))
 		return
 	case updateConfigMethod:
 		data := []byte(action.Data.(string))
@@ -98,8 +105,13 @@ func handleAction(action *Action, result ActionResult) {
 		result.success(handleResetConnections())
 		return
 	case getConfigMethod:
-		path := action.Data.(string)
-		config, err := handleGetConfig(path)
+		paramsString := action.Data.(string)
+		var params GetConfigParams
+		err := json.Unmarshal([]byte(paramsString), &params)
+		if err != nil {
+			params.Path = paramsString
+		}
+		config, err := handleGetConfig(&params)
 		if err != nil {
 			result.error(err)
 			return
@@ -185,6 +197,30 @@ func handleAction(action *Action, result ActionResult) {
 	case flushDnsCacheMethod:
 		handleFlushDnsCache()
 		result.success(true)
+		return
+	case generateAgeKeyPairMethod:
+		secretKey, publicKey, err := age.GenX25519KeyPair()
+		if err != nil {
+			result.error(err.Error())
+			return
+		}
+		result.success(map[string]string{
+			"secret-key": secretKey,
+			"public-key": publicKey,
+		})
+		return
+	case convertAgeSecretKeyToPublicKeyMethod:
+		secretKey := action.Data.(string)
+		publicKeys, err := age.ToPublicKeys(secretKey)
+		if err != nil {
+			result.error(err.Error())
+			return
+		}
+		if len(publicKeys) == 0 {
+			result.error("no public keys found")
+			return
+		}
+		result.success(publicKeys[0])
 		return
 	case crashMethod:
 		result.success(true)

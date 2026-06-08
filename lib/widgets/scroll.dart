@@ -5,6 +5,7 @@ import 'package:bett_box/common/common.dart';
 import 'package:bett_box/enum/enum.dart';
 import 'package:bett_box/state.dart';
 import 'package:flutter/material.dart';
+import 'package:silky_scroll/silky_scroll.dart';
 
 class CommonScrollBar extends StatelessWidget {
   final ScrollController? controller;
@@ -211,6 +212,56 @@ class _CacheItemExtentSliverReorderableListState
       // ignore: deprecated_member_use
       onReorder: widget.onReorder,
       proxyDecorator: widget.proxyDecorator,
+    );
+  }
+}
+
+class AdaptiveListView extends StatelessWidget {
+  final ScrollController? controller;
+  final ScrollPhysics? physics;
+  final bool reverse;
+  final int? itemCount;
+  final NullableIndexedWidgetBuilder itemBuilder;
+  final EdgeInsetsGeometry? padding;
+  final double? itemExtent;
+  final bool shrinkWrap;
+
+  const AdaptiveListView.builder({
+    super.key,
+    this.controller,
+    this.physics,
+    this.reverse = false,
+    this.itemCount,
+    required this.itemBuilder,
+    this.padding,
+    this.itemExtent,
+    this.shrinkWrap = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    if (system.isAndroid || reverse) {
+      return ListView.builder(
+        controller: controller,
+        physics: physics,
+        reverse: reverse,
+        itemCount: itemCount,
+        itemBuilder: itemBuilder,
+        padding: padding,
+        itemExtent: itemExtent,
+        shrinkWrap: shrinkWrap,
+      );
+    }
+    return SilkyListView.builder(
+      controller: controller,
+      physics: physics ?? const ScrollPhysics(),
+      reverse: reverse,
+      silkyConfig: silkyScrollConfig,
+      itemCount: itemCount,
+      itemBuilder: itemBuilder,
+      padding: padding,
+      itemExtent: itemExtent,
+      shrinkWrap: shrinkWrap,
     );
   }
 }

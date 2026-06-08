@@ -37,6 +37,7 @@ class _ResourcesViewState extends State<ResourcesView> {
     GeoItem(label: 'GeoSite', fileName: geoSiteFileName, key: 'geosite'),
     GeoItem(label: 'MMDB', fileName: mmdbFileName, key: 'mmdb'),
     GeoItem(label: 'ASN', fileName: asnFileName, key: 'asn'),
+    GeoItem(label: 'MRS', fileName: bundleMRSFileName, key: 'mrs'),
   ];
 
   Future<void> _handleSyncAll() async {
@@ -45,14 +46,16 @@ class _ResourcesViewState extends State<ResourcesView> {
     isUpdatingAll.value = true;
     try {
       await Future.wait(
-        geoItems.map(
-          (geoItem) => clashCore.updateGeoData(
-            UpdateGeoDataParams(
-              geoName: geoItem.fileName,
-              geoType: geoItem.label,
+        geoItems
+            .where((geoItem) => geoItem.key != 'mrs')
+            .map(
+              (geoItem) => clashCore.updateGeoData(
+                UpdateGeoDataParams(
+                  geoName: geoItem.fileName,
+                  geoType: geoItem.label,
+                ),
+              ),
             ),
-          ),
-        ),
       );
       if (mounted) {
         setState(() {});
@@ -170,7 +173,8 @@ class _GeoDataListItemState extends State<GeoDataListItem> {
             (state) => state.geoXUrl.toJson()[geoItem.key],
           ),
         );
-        if (url == null) {
+        final isBundleMRS = geoItem.key == 'mrs';
+        if (url == null && !isBundleMRS) {
           return SizedBox();
         }
         return Column(
@@ -193,50 +197,57 @@ class _GeoDataListItemState extends State<GeoDataListItem> {
               },
             ),
             const SizedBox(height: 4),
-            Text(url, style: context.textTheme.bodyMedium?.toLight),
-            const SizedBox(height: 12),
-            Wrap(
-              runSpacing: 6,
-              spacing: 12,
-              runAlignment: WrapAlignment.center,
-              children: [
-                CommonChip(
-                  avatar: const Icon(Icons.edit),
-                  label: appLocalizations.edit,
-                  onPressed: () {
-                    _updateUrl(url, ref);
-                  },
-                ),
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    SizedBox(
-                      child: ValueListenableBuilder(
-                        valueListenable: isUpdating,
-                        builder: (_, isUpdating, _) {
-                          return isUpdating
-                              ? SizedBox(
-                                  height: 30,
-                                  width: 30,
-                                  child: const Padding(
-                                    padding: EdgeInsets.all(2),
-                                    child: CircularProgressIndicator(),
-                                  ),
-                                )
-                              : CommonChip(
-                                  avatar: const Icon(Icons.sync),
-                                  label: appLocalizations.sync,
-                                  onPressed: () {
-                                    _handleUpdateGeoDataItem();
-                                  },
-                                );
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-              ],
+            Text(
+              isBundleMRS
+                  ? 'https://fastly.jsdelivr.net/gh/appshubcc/bett-rules@release/BundleMRS.7z'
+                  : url!,
+              style: context.textTheme.bodyMedium?.toLight,
             ),
+            if (!isBundleMRS) ...[
+              const SizedBox(height: 12),
+              Wrap(
+                runSpacing: 6,
+                spacing: 12,
+                runAlignment: WrapAlignment.center,
+                children: [
+                  CommonChip(
+                    avatar: const Icon(Icons.edit),
+                    label: appLocalizations.edit,
+                    onPressed: () {
+                      _updateUrl(url, ref);
+                    },
+                  ),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      SizedBox(
+                        child: ValueListenableBuilder(
+                          valueListenable: isUpdating,
+                          builder: (_, isUpdating, _) {
+                            return isUpdating
+                                ? SizedBox(
+                                    height: 30,
+                                    width: 30,
+                                    child: const Padding(
+                                      padding: EdgeInsets.all(2),
+                                      child: CircularProgressIndicator(),
+                                    ),
+                                  )
+                                : CommonChip(
+                                    avatar: const Icon(Icons.sync),
+                                    label: appLocalizations.sync,
+                                    onPressed: () {
+                                      _handleUpdateGeoDataItem();
+                                    },
+                                  );
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ],
           ],
         );
       },
@@ -257,6 +268,7 @@ class _GeoDataListItemState extends State<GeoDataListItem> {
   }
 
   Future<void> updateGeoDateItem() async {
+    if (geoItem.key == 'mrs') return;
     isUpdating.value = true;
     try {
       final message = await clashCore.updateGeoData(

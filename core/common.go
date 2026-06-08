@@ -181,6 +181,7 @@ func updateConfig(params *UpdateParams) {
 	runLock.Lock()
 	defer runLock.Unlock()
 	general := currentConfig.General
+	wasDebug := general.LogLevel == log.DEBUG
 	if params.MixedPort != nil {
 		general.MixedPort = *params.MixedPort
 	}
@@ -218,8 +219,30 @@ func updateConfig(params *UpdateParams) {
 	}
 	if params.ExternalController != nil {
 		currentConfig.Controller.ExternalController = *params.ExternalController
+	}
+
+	isDebug := general.LogLevel == log.DEBUG
+	needRecreateServer := params.ExternalController != nil ||
+		(params.LogLevel != nil && isDebug != wasDebug)
+
+	if needRecreateServer {
 		route.ReCreateServer(&route.Config{
-			Addr: currentConfig.Controller.ExternalController,
+			Addr:           currentConfig.Controller.ExternalController,
+			TLSAddr:        currentConfig.Controller.ExternalControllerTLS,
+			UnixAddr:       currentConfig.Controller.ExternalControllerUnix,
+			PipeAddr:       currentConfig.Controller.ExternalControllerPipe,
+			Secret:         currentConfig.Controller.Secret,
+			Certificate:    currentConfig.TLS.Certificate,
+			PrivateKey:     currentConfig.TLS.PrivateKey,
+			ClientAuthType: currentConfig.TLS.ClientAuthType,
+			ClientAuthCert: currentConfig.TLS.ClientAuthCert,
+			EchKey:         currentConfig.TLS.EchKey,
+			DohServer:      currentConfig.Controller.ExternalDohServer,
+			IsDebug:        isDebug,
+			Cors: route.Cors{
+				AllowOrigins:        currentConfig.Controller.Cors.AllowOrigins,
+				AllowPrivateNetwork: currentConfig.Controller.Cors.AllowPrivateNetwork,
+			},
 		})
 	}
 

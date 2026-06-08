@@ -639,9 +639,9 @@
   "ageSecretKeyOptional": "Приватный ключ Age (необязательно)",
   "ageSecretKeyInvalidValidationDesc": "Пожалуйста, введите корректный приватный ключ Age (должен начинаться с AGE-SECRET-KEY-)",
   "ageKeyGenerateTitle": "Генерация ключа Age",
-  "agePrivateKeyLabel": "Закрытый ключ Age",
-  "agePublicKeyLabel": "Открытый ключ Age",
-  "generateFromPrivateKey": "Создать из закрытого ключа Age",
+  "agePrivateKeyLabel": "Закрытый ключ",
+  "agePublicKeyLabel": "Открытый ключ",
+  "generateFromPrivateKey": "Создать из закрытого ключа",
   "ageKeyPairGeneratedSuccess": "Пара ключей X25519 создана, сохраните её в надёжном месте",
   "agePrivateKeyRequired": "Пожалуйста, сначала введите корректный закрытый ключ Age"
 }

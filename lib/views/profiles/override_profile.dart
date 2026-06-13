@@ -18,6 +18,8 @@ class OverrideProfileView extends StatefulWidget {
 
 class _OverrideProfileViewState extends State<OverrideProfileView> {
   final _controller = ScrollController();
+  final _searchController = TextEditingController();
+  String _keyword = '';
   double _currentMaxWidth = 0;
 
   void _initState(WidgetRef ref) {
@@ -142,13 +144,54 @@ class _OverrideProfileViewState extends State<OverrideProfileView> {
                 ),
                 SliverToBoxAdapter(
                   child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8,
+                    ),
+                    child: TextField(
+                      controller: _searchController,
+                      decoration: InputDecoration(
+                        hintText: appLocalizations.search,
+                        prefixIcon: const Icon(Icons.search),
+                        suffixIcon: _keyword.isNotEmpty
+                            ? IconButton(
+                                icon: const Icon(Icons.clear),
+                                onPressed: () {
+                                  _searchController.clear();
+                                  setState(() {
+                                    _keyword = '';
+                                  });
+                                },
+                              )
+                            : null,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(18),
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 0,
+                        ),
+                      ),
+                      onChanged: (value) {
+                        setState(() {
+                          _keyword = value;
+                        });
+                      },
+                    ),
+                  ),
+                ),
+                SliverToBoxAdapter(
+                  child: Padding(
                     padding: EdgeInsets.only(left: 8, right: 8),
                     child: RuleTitle(profileId: widget.profileId),
                   ),
                 ),
                 SliverPadding(
                   padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 0),
-                  sliver: RuleContent(maxWidth: _currentMaxWidth),
+                  sliver: RuleContent(
+                    maxWidth: _currentMaxWidth,
+                    keyword: _keyword,
+                  ),
                 ),
                 SliverToBoxAdapter(child: SizedBox(height: 16)),
               ],
@@ -413,8 +456,13 @@ class RuleTitle extends ConsumerWidget {
 
 class RuleContent extends ConsumerWidget {
   final double maxWidth;
+  final String keyword;
 
-  const RuleContent({super.key, required this.maxWidth});
+  const RuleContent({
+    super.key,
+    required this.maxWidth,
+    this.keyword = '',
+  });
 
   Widget _buildItem({
     required Rule rule,
@@ -490,33 +538,46 @@ class RuleContent extends ConsumerWidget {
         );
       }),
     );
-    final rules = vm3.a;
+    final rules = vm3.a as List<Rule>;
     final type = vm3.b;
     final selectedRules = vm3.c;
-    if (rules.isEmpty) {
+
+    final filteredRules = rules.where((rule) {
+      if (keyword.isEmpty) return true;
+      final parsed = ParsedRule.parseString(rule.value);
+      final searchSource = (parsed.ruleAction == RuleAction.RULE_SET
+              ? parsed.ruleProvider
+              : parsed.content) ??
+          '';
+      return searchSource.toLowerCase().contains(keyword.toLowerCase());
+    }).toList();
+
+    if (filteredRules.isEmpty) {
       return SliverToBoxAdapter(
         child: SizedBox(
           height: 300,
           child: Center(
-            child: type == OverrideRuleType.added
+            child: keyword.isNotEmpty
                 ? Text(appLocalizations.noData)
-                : FilledButton(
-                    onPressed: () {
-                      final rules = ref.read(
-                        profileOverrideStateProvider.select(
-                          (state) => state.snippet?.rule ?? [],
-                        ),
-                      );
-                      ref
-                          .read(profileOverrideStateProvider.notifier)
-                          .updateState((state) {
+                : type == OverrideRuleType.added
+                    ? Text(appLocalizations.noData)
+                    : FilledButton(
+                        onPressed: () {
+                          final rules = ref.read(
+                            profileOverrideStateProvider.select(
+                              (state) => state.snippet?.rule ?? [],
+                            ),
+                          );
+                          ref
+                              .read(profileOverrideStateProvider.notifier)
+                              .updateState((state) {
                             return state.copyWith.overrideData!.rule(
                               overrideRules: rules,
                             );
                           });
-                    },
-                    child: Text(appLocalizations.getOriginRules),
-                  ),
+                        },
+                        child: Text(appLocalizations.getOriginRules),
+                      ),
           ),
         ),
       );
@@ -524,7 +585,7 @@ class RuleContent extends ConsumerWidget {
     return CacheItemExtentSliverReorderableList(
       tag: CacheTag.rules,
       itemBuilder: (context, index) {
-        final rule = rules[index];
+        final rule = filteredRules[index];
         return ReorderableDelayedDragStartListener(
           key: ObjectKey(rule),
           index: index,
@@ -539,8 +600,11 @@ class RuleContent extends ConsumerWidget {
         );
       },
       proxyDecorator: proxyDecorator,
-      itemCount: rules.length,
+      itemCount: filteredRules.length,
       onReorder: (oldIndex, newIndex) {
+        if (keyword.isNotEmpty) {
+          return;
+        }
         if (oldIndex < newIndex) {
           newIndex -= 1;
         }
@@ -556,10 +620,10 @@ class RuleContent extends ConsumerWidget {
             );
       },
       keyBuilder: (int index) {
-        return rules[index].value;
+        return filteredRules[index].value;
       },
       itemExtentBuilder: (index) {
-        final rule = rules[index];
+        final rule = filteredRules[index];
         return 40 +
             globalState.measure
                 .computeTextSize(

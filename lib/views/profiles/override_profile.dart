@@ -21,8 +21,19 @@ class _OverrideProfileViewState extends State<OverrideProfileView> {
   final _searchController = TextEditingController();
   String _keyword = '';
   double _currentMaxWidth = 0;
+  bool _isInitialized = false;
+
+  @override
+  void didUpdateWidget(covariant OverrideProfileView oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.profileId != widget.profileId) {
+      _isInitialized = false;
+    }
+  }
 
   void _initState(WidgetRef ref) {
+    if (_isInitialized) return;
+    _isInitialized = true;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Future.delayed(Duration(milliseconds: 300), () async {
         final rawConfig = await globalState.getProfileConfig(widget.profileId);
@@ -144,6 +155,12 @@ class _OverrideProfileViewState extends State<OverrideProfileView> {
                 ),
                 SliverToBoxAdapter(
                   child: Padding(
+                    padding: EdgeInsets.only(left: 8, right: 8),
+                    child: RuleTitle(profileId: widget.profileId),
+                  ),
+                ),
+                SliverToBoxAdapter(
+                  child: Padding(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 16,
                       vertical: 8,
@@ -178,12 +195,6 @@ class _OverrideProfileViewState extends State<OverrideProfileView> {
                         });
                       },
                     ),
-                  ),
-                ),
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: EdgeInsets.only(left: 8, right: 8),
-                    child: RuleTitle(profileId: widget.profileId),
                   ),
                 ),
                 SliverPadding(

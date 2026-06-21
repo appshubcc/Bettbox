@@ -38,12 +38,20 @@ jobs:
           - platform: windows
             os: windows-11-arm
             arch: arm64
+          - platform: windows
+            os: windows-2022
+            arch: amd64
+            compatible: true
           - platform: macos
             os: macos-15
             arch: arm64
           - platform: macos
             os: macos-15
             arch: amd64
+          - platform: macos
+            os: macos-15
+            arch: amd64
+            compatible: true
           - platform: linux
             os: ubuntu-22.04
             arch: amd64
@@ -52,14 +60,6 @@ jobs:
             arch: arm64
           - platform: linux
             os: ubuntu-22.04
-            arch: amd64
-            compatible: true
-          - platform: windows
-            os: windows-2022
-            arch: amd64
-            compatible: true
-          - platform: macos
-            os: macos-15
             arch: amd64
             compatible: true
 
@@ -114,15 +114,30 @@ jobs:
           channel: ${{ contains(matrix.os, 'arm') && 'master' || 'stable' }}
           cache: true
           cache-key: flutter-${{ matrix.platform }}-${{ matrix.arch }}-${{ hashFiles('**/pubspec.lock') }}
-          flutter-version: ${{ contains(matrix.os, 'arm') && '' || '3.44.0' }}
+          flutter-version: ${{ contains(matrix.os, 'arm') && '' || '3.44.1' }}
 
-      - name: Use prebuilt QuickJS bridge (Windows arm64)
-        if: matrix.platform == 'windows' && matrix.arch == 'arm64'
-        shell: pwsh
+      - name: Setup QuickJS bridge (arm64)
+        shell: bash
         run: |
-          $dll = "windows\overrides\flutter_js\arm64\quickjs_c_bridge.dll"
-          if (-not (Test-Path $dll)) { throw "Missing prebuilt QuickJS bridge: $dll" }
-          Get-Item $dll | Select-Object FullName, Length, LastWriteTime
+          if [ "${{ matrix.platform }}" = "windows" ] && [ "${{ matrix.arch }}" = "arm64" ]; then
+            echo "Using prebuilt QuickJS bridge for Windows arm64..."
+            dll="windows/overrides/flutter_js/arm64/quickjs_c_bridge.dll"
+            if [ ! -f "$dll" ]; then
+              echo "Missing prebuilt QuickJS bridge: $dll"
+              exit 1
+            fi
+            ls -la "$dll"
+          elif [ "${{ matrix.platform }}" = "linux" ] && [ "${{ matrix.arch }}" = "arm64" ]; then
+            echo "Compiling QuickJS bridge for Linux arm64..."
+            git clone --depth 1 https://github.com/abner/quickjs-c-bridge.git
+            cd quickjs-c-bridge
+            cmake -S linux -B build -DCMAKE_BUILD_TYPE=Release
+            cmake --build build -j
+            mkdir -p ../linux/overrides/flutter_js/arm64
+            cp build/libquickjs_c_bridge_plugin.so ../linux/overrides/flutter_js/arm64/
+            cd ..
+            rm -rf quickjs-c-bridge
+          fi
 
       - name: Clean Gradle (Android)
         if: matrix.platform == 'android'
@@ -136,17 +151,6 @@ jobs:
           SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
         run: |
           flutter pub get
-          if [ "${{ matrix.platform }}" = "linux" ] && [ "${{ matrix.arch }}" = "arm64" ]; then
-            echo "Compiling QuickJS bridge for Linux arm64..."
-            git clone --depth 1 https://github.com/abner/quickjs-c-bridge.git
-            cd quickjs-c-bridge
-            cmake -S linux -B build -DCMAKE_BUILD_TYPE=Release
-            cmake --build build -j
-            mkdir -p ../linux/overrides/flutter_js/arm64
-            cp build/libquickjs_c_bridge_plugin.so ../linux/overrides/flutter_js/arm64/
-            cd ..
-            rm -rf quickjs-c-bridge
-          fi
           dart run build_runner build -d
           dart setup.dart ${{ matrix.platform }} --arch ${{ matrix.arch }} ${{ env.IS_STABLE == 'true' && '--env stable' || '' }} ${{ matrix.compatible == true && '--compatible' || '' }}
       
@@ -177,7 +181,7 @@ jobs:
 
       - name: Generate release.md
         run: |
-          echo -e "- Fixes and improvements\n- 具体变更参考最新Commits\n- 注意: 部分小米&Android16+机型在更新APP前,需提前关闭VPN以防止系统问题造成的网络锁死" > release.md
+          echo -e "- Fixes and improvements\n- 具体变更参考最新Commits" > release.md
 
       - name: Patch release.md
         run: |

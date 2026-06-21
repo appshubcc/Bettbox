@@ -102,6 +102,8 @@ private:
 
   // window handle for hosted content.
   HWND child_content_ = nullptr;
+
+  static constexpr UINT_PTR kResumeTimerId = 0xBB01;
 };
 
 #endif // RUNNER_WIN32_WINDOW_H_

@@ -516,7 +516,9 @@ class GlobalState {
     }
     rawConfig['tun']['enable'] = realPatchConfig.tun.enable;
     rawConfig['tun']['device'] = realPatchConfig.tun.device;
-    rawConfig['tun']['dns-hijack'] = realPatchConfig.tun.dnsHijack;
+    final dnsHijack = realPatchConfig.tun.dnsHijack;
+    rawConfig['tun']['dns-hijack'] =
+        dnsHijack.isEmpty ? const ['any:53'] : dnsHijack;
     rawConfig['tun']['stack'] = realPatchConfig.tun.stack.name;
     rawConfig['tun']['route-address'] = realPatchConfig.tun.routeAddress;
     rawConfig['tun']['route-exclude-address'] = realPatchConfig.tun.routeExcludeAddress;
@@ -775,9 +777,11 @@ class GlobalState {
   }
 
   Future<Map<String, dynamic>> getProfileConfig(String profileId) async {
+    final profile = config.profiles.getProfile(profileId);
+    final ageSecretKey = profile?.ageSecretKey;
     final configMap = await switch (clashLibHandler != null) {
-      true => clashLibHandler!.getConfig(profileId),
-      false => clashCore.getConfig(profileId),
+      true => clashLibHandler!.getConfig(profileId, ageSecretKey: ageSecretKey),
+      false => clashCore.getConfig(profileId, ageSecretKey: ageSecretKey),
     };
     configMap['rules'] = configMap['rule'];
     configMap.remove('rule');

@@ -59,6 +59,9 @@ Future<void> _runApp() async {
 Future<void> _service(List<String> flags) async {
   globalState.isService = true;
   WidgetsFlutterBinding.ensureInitialized();
+
+  PaintingBinding.instance.imageCache.maximumSizeBytes = 10 * 1024 * 1024;
+
   await globalState.init();
 
   {

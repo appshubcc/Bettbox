@@ -58,8 +58,15 @@ std::optional<LRESULT> WindowExtPlugin::HandleWindowProc(HWND hWnd,
                                                            WPARAM wParam,
                                                            LPARAM lParam) {
   std::optional<LRESULT> result;
-  if(message == WM_TASKBARCREATED){
-    channel -> InvokeMethod("taskbarCreated", std::make_unique<flutter::EncodableValue>());
+  if (message == WM_TASKBARCREATED) {
+    channel->InvokeMethod("taskbarCreated", std::make_unique<flutter::EncodableValue>());
+  } else if (message == WM_POWERBROADCAST) {
+    if (wParam == PBT_APMSUSPEND) {
+      channel->InvokeMethod("powerSuspend", std::make_unique<flutter::EncodableValue>());
+    } else if (wParam == PBT_APMRESUMESUSPEND || wParam == PBT_APMRESUMEAUTOMATIC) {
+      channel->InvokeMethod("powerResume", std::make_unique<flutter::EncodableValue>());
+    }
+    // Do not consume the message; let Win32Window handle its resume timer.
   }
   return result;
 }

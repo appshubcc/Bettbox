@@ -15,6 +15,7 @@ import (
 	"syscall"
 
 	"github.com/metacubex/mihomo/common/cmd"
+	"github.com/metacubex/mihomo/component/age"
 	"github.com/metacubex/mihomo/component/generator"
 	"github.com/metacubex/mihomo/component/geodata"
 	"github.com/metacubex/mihomo/component/updater"
@@ -37,6 +38,7 @@ var (
 	configFile             string
 	configString           string
 	configBytes            []byte
+	ageSecretKey           string
 	externalUI             string
 	externalController     string
 	externalControllerUnix string
@@ -50,6 +52,7 @@ func init() {
 	flag.StringVar(&homeDir, "d", os.Getenv("CLASH_HOME_DIR"), "set configuration directory")
 	flag.StringVar(&configFile, "f", os.Getenv("CLASH_CONFIG_FILE"), "specify configuration file")
 	flag.StringVar(&configString, "config", os.Getenv("CLASH_CONFIG_STRING"), "specify base64-encoded configuration string")
+	flag.StringVar(&ageSecretKey, "age-secret-key", os.Getenv("CLASH_AGE_SECRET_KEY"), "specify age secret key to decrypt configuration")
 	flag.StringVar(&externalUI, "ext-ui", os.Getenv("CLASH_OVERRIDE_EXTERNAL_UI_DIR"), "override external ui directory")
 	flag.StringVar(&externalController, "ext-ctl", os.Getenv("CLASH_OVERRIDE_EXTERNAL_CONTROLLER"), "override external controller address")
 	flag.StringVar(&externalControllerUnix, "ext-ctl-unix", os.Getenv("CLASH_OVERRIDE_EXTERNAL_CONTROLLER_UNIX"), "override external controller unix address")
@@ -94,6 +97,11 @@ func main() {
 		return
 	}
 
+	if len(os.Args) > 1 && os.Args[1] == "age" {
+		age.Main(os.Args[2:])
+		return
+	}
+
 	if version {
 		fmt.Printf("Mihomo Meta %s %s %s with %s %s\n",
 			C.Version, runtime.GOOS, runtime.GOARCH, runtime.Version(), C.BuildTime)
@@ -114,6 +122,13 @@ func main() {
 
 	if geodataMode {
 		geodata.SetGeodataMode(true)
+	}
+
+	if ageSecretKey != "" {
+		if err := age.VeritySecretKeys(ageSecretKey); err != nil {
+			log.Errorln("Parse age-secret-key error: %s", err.Error())
+		}
+		age.SetGlobalSecretKeys(ageSecretKey)
 	}
 
 	if configString != "" {

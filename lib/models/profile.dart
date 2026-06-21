@@ -62,17 +62,19 @@ abstract class Profile with _$Profile {
     @Default(false)
     bool isUpdating,
     @Default(true) bool useScriptOverride,
+    String? ageSecretKey,
   }) = _Profile;
 
   factory Profile.fromJson(Map<String, Object?> json) =>
       _$ProfileFromJson(json);
 
-  factory Profile.normal({String? label, String url = ''}) {
+  factory Profile.normal({String? label, String url = '', String? ageSecretKey}) {
     return Profile(
       label: label,
       url: url,
       id: DateTime.now().millisecondsSinceEpoch.toString(),
       autoUpdateDuration: defaultUpdateDuration,
+      ageSecretKey: ageSecretKey,
     );
   }
 }
@@ -176,7 +178,7 @@ extension ProfileExtension on Profile {
   }
 
   Future<Profile> saveFile(Uint8List bytes) async {
-    final message = await clashCore.validateConfig(utf8.decode(bytes));
+    final message = await clashCore.validateConfig(utf8.decode(bytes), ageSecretKey: ageSecretKey);
     if (message.isNotEmpty) {
       throw message;
     }
@@ -186,7 +188,7 @@ extension ProfileExtension on Profile {
   }
 
   Future<Profile> saveFileWithString(String value) async {
-    final message = await clashCore.validateConfig(value);
+    final message = await clashCore.validateConfig(value, ageSecretKey: ageSecretKey);
     if (message.isNotEmpty) {
       throw message;
     }

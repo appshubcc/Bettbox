@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:bett_box/clash/clash.dart';
 import 'package:bett_box/common/common.dart';
@@ -10,6 +9,7 @@ import 'package:bett_box/pages/editor.dart';
 import 'package:bett_box/state.dart';
 import 'package:bett_box/widgets/widgets.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class EditProfileView extends StatefulWidget {
   final Profile profile;
@@ -22,14 +22,16 @@ class EditProfileView extends StatefulWidget {
   });
 
   @override
-  State<EditProfileView> createState() => _EditProfileViewState();
+  State<EditProfileView> createState() => EditProfileViewState();
 }
 
-class _EditProfileViewState extends State<EditProfileView> {
+class EditProfileViewState extends State<EditProfileView> {
   late TextEditingController labelController;
   late TextEditingController urlController;
   late TextEditingController autoUpdateDurationController;
   late bool autoUpdate;
+  late TextEditingController ageSecretKeyController;
+  bool _obscureAgeSecretKey = true;
   String? rawText;
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final fileInfoNotifier = ValueNotifier<FileInfo?>(null);
@@ -46,9 +48,19 @@ class _EditProfileViewState extends State<EditProfileView> {
     autoUpdateDurationController = TextEditingController(
       text: widget.profile.autoUpdateDuration.inMinutes.toString(),
     );
+    ageSecretKeyController = TextEditingController(text: widget.profile.ageSecretKey);
     appPath.getProfilePath(widget.profile.id).then((path) async {
       fileInfoNotifier.value = await _getFileInfo(path);
     });
+  }
+
+  @override
+  void dispose() {
+    labelController.dispose();
+    urlController.dispose();
+    autoUpdateDurationController.dispose();
+    ageSecretKeyController.dispose();
+    super.dispose();
   }
 
   Future<void> _handleConfirm() async {
@@ -57,6 +69,7 @@ class _EditProfileViewState extends State<EditProfileView> {
     Profile profile = this.profile.copyWith(
       url: urlController.text,
       label: labelController.text,
+      ageSecretKey: ageSecretKeyController.text.trim().isEmpty ? null : ageSecretKeyController.text.trim(),
       autoUpdate: autoUpdate,
       autoUpdateDuration: Duration(
         minutes: int.parse(autoUpdateDurationController.text),
@@ -119,7 +132,7 @@ class _EditProfileViewState extends State<EditProfileView> {
 
   Future<void> _handleSaveEdit(BuildContext context, String data) async {
     final message = await globalState.appController.safeRun<String>(() async {
-      final message = await clashCore.validateConfig(data);
+      final message = await clashCore.validateConfig(data, ageSecretKey: ageSecretKeyController.text.trim());
       return message;
     }, silence: false);
     if (message?.isNotEmpty == true) {
@@ -204,6 +217,12 @@ class _EditProfileViewState extends State<EditProfileView> {
     }
   }
 
+  void showAgeKeyGenerator() {
+    globalState.showCommonDialog(
+      child: const _AgeKeyGeneratorDialog(),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final items = [
@@ -241,6 +260,38 @@ class _EditProfileViewState extends State<EditProfileView> {
               }
               if (!value.isUrl) {
                 return appLocalizations.profileUrlInvalidValidationDesc;
+              }
+              return null;
+            },
+          ),
+        ),
+        ListItem(
+          title: TextFormField(
+            textInputAction: TextInputAction.next,
+            controller: ageSecretKeyController,
+            obscureText: _obscureAgeSecretKey,
+            maxLines: 1,
+            minLines: 1,
+            decoration: InputDecoration(
+              border: const OutlineInputBorder(),
+              labelText: appLocalizations.ageSecretKeyOptional,
+              hintText: 'AGE-SECRET-KEY-...',
+              suffixIcon: IconButton(
+                icon: Icon(
+                  _obscureAgeSecretKey ? Icons.visibility : Icons.visibility_off,
+                ),
+                onPressed: () {
+                  setState(() {
+                    _obscureAgeSecretKey = !_obscureAgeSecretKey;
+                  });
+                },
+              ),
+            ),
+            validator: (String? value) {
+              if (value != null && value.isNotEmpty) {
+                if (!value.startsWith('AGE-SECRET-KEY-')) {
+                  return appLocalizations.ageSecretKeyInvalidValidationDesc;
+                }
               }
               return null;
             },
@@ -348,6 +399,192 @@ class _EditProfileViewState extends State<EditProfileView> {
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _AgeKeyGeneratorDialog extends StatefulWidget {
+  const _AgeKeyGeneratorDialog();
+
+  @override
+  State<_AgeKeyGeneratorDialog> createState() => _AgeKeyGeneratorDialogState();
+}
+
+class _AgeKeyGeneratorDialogState extends State<_AgeKeyGeneratorDialog> {
+  late TextEditingController _privateKeyController;
+  late TextEditingController _publicKeyController;
+  bool _generateFromPrivateKey = false;
+  String? _helperText;
+  bool _isGenerating = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _privateKeyController = TextEditingController();
+    _publicKeyController = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _privateKeyController.dispose();
+    _publicKeyController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _handleGenerate() async {
+    setState(() {
+      _helperText = null;
+    });
+
+    final privateKey = _privateKeyController.text.trim();
+
+    if (_generateFromPrivateKey) {
+      if (privateKey.isEmpty || !privateKey.startsWith('AGE-SECRET-KEY-')) {
+        setState(() {
+          _helperText = appLocalizations.agePrivateKeyRequired;
+        });
+        return;
+      }
+
+      setState(() {
+        _isGenerating = true;
+      });
+
+      try {
+        final result = await clashCore.convertAgeSecretKeyToPublicKey(privateKey);
+        if (result.isSuccess && result.data != null && result.data!.isNotEmpty) {
+          setState(() {
+            _publicKeyController.text = result.data!;
+            _helperText = null;
+          });
+        } else {
+          setState(() {
+            _helperText = appLocalizations.agePrivateKeyRequired;
+          });
+        }
+      } catch (e) {
+        setState(() {
+          _helperText = appLocalizations.agePrivateKeyRequired;
+        });
+      } finally {
+        setState(() {
+          _isGenerating = false;
+        });
+      }
+    } else {
+      setState(() {
+        _isGenerating = true;
+      });
+
+      try {
+        final keyPair = await clashCore.generateAgeKeyPair();
+        final secKey = keyPair['secret-key'] ?? '';
+        final pubKey = keyPair['public-key'] ?? '';
+
+        if (secKey.isNotEmpty && pubKey.isNotEmpty) {
+          setState(() {
+            _privateKeyController.text = secKey;
+            _publicKeyController.text = pubKey;
+            _helperText = appLocalizations.ageKeyPairGeneratedSuccess;
+          });
+        }
+      } catch (e) {
+        setState(() {
+          _helperText = e.toString();
+        });
+      } finally {
+        setState(() {
+          _isGenerating = false;
+        });
+      }
+    }
+  }
+
+  Future<void> _copyToClipboard(String text) async {
+    if (text.isEmpty) return;
+    await Clipboard.setData(ClipboardData(text: text));
+    if (mounted) {
+      context.showNotifier(appLocalizations.copySuccess);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return CommonDialog(
+      title: appLocalizations.ageKeyGenerateTitle,
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text(appLocalizations.cancel),
+        ),
+        TextButton(
+          onPressed: _isGenerating ? null : _handleGenerate,
+          child: Text(appLocalizations.generateSecret),
+        ),
+      ],
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const SizedBox(height: 8),
+          TextField(
+            controller: _privateKeyController,
+            decoration: InputDecoration(
+              border: const OutlineInputBorder(),
+              floatingLabelBehavior: FloatingLabelBehavior.always,
+              labelText: appLocalizations.agePrivateKeyLabel,
+              suffixIcon: IconButton(
+                icon: const Icon(Icons.copy),
+                onPressed: () => _copyToClipboard(_privateKeyController.text),
+              ),
+            ),
+            onChanged: (_) {
+              if (_helperText != null) {
+                setState(() {
+                  _helperText = null;
+                });
+              }
+            },
+          ),
+          const SizedBox(height: 24),
+          TextField(
+            controller: _publicKeyController,
+            readOnly: true,
+            decoration: InputDecoration(
+              border: const OutlineInputBorder(),
+              floatingLabelBehavior: FloatingLabelBehavior.always,
+              labelText: appLocalizations.agePublicKeyLabel,
+              helperText: _helperText,
+              helperMaxLines: 2,
+              helperStyle: _helperText == appLocalizations.agePrivateKeyRequired
+                  ? TextStyle(color: context.colorScheme.error)
+                  : (_helperText == appLocalizations.ageKeyPairGeneratedSuccess
+                      ? TextStyle(color: context.colorScheme.primary)
+                      : null),
+              suffixIcon: IconButton(
+                icon: const Icon(Icons.copy),
+                onPressed: () => _copyToClipboard(_publicKeyController.text),
+              ),
+            ),
+          ),
+          const SizedBox(height: 24),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(appLocalizations.generateFromPrivateKey),
+              Switch(
+                value: _generateFromPrivateKey,
+                onChanged: (value) {
+                  setState(() {
+                    _generateFromPrivateKey = value;
+                    _helperText = null;
+                  });
+                },
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }

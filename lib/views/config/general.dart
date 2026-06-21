@@ -7,6 +7,7 @@ import 'package:bett_box/widgets/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class LogLevelItem extends ConsumerWidget {
   const LogLevelItem({super.key});
@@ -431,35 +432,6 @@ class PortItem extends ConsumerWidget {
       onTap: () {
         handleShowPortDialog();
       },
-      // delegate: InputDelegate(
-      //   title: appLocalizations.port,
-      //   value: "$mixedPort",
-      //   validator: (String? value) {
-      //     if (value == null || value.isEmpty) {
-      //       return appLocalizations.emptyTip(appLocalizations.proxyPort);
-      //     }
-      //     final mixedPort = int.tryParse(value);
-      //     if (mixedPort == null) {
-      //       return appLocalizations.numberTip(appLocalizations.proxyPort);
-      //     }
-      //     if (mixedPort < 1024 || mixedPort > 49151) {
-      //       return appLocalizations.proxyPortTip;
-      //     }
-      //     return null;
-      //   },
-      //   onChanged: (String? value) {
-      //     if (value == null) {
-      //       return;
-      //     }
-      //     final mixedPort = int.parse(value);
-      //     ref.read(patchClashConfigProvider.notifier).updateState(
-      //           (state) => state.copyWith(
-      //             mixedPort: mixedPort,
-      //           ),
-      //         );
-      //   },
-      //   resetValue: "$defaultMixedPort",
-      // ),
     );
   }
 }
@@ -701,15 +673,35 @@ class ControlSecretItem extends ConsumerWidget {
         secret.isEmpty ? appLocalizations.controlSecretDesc : secret,
       ),
       trailing: secret.isNotEmpty
-          ? IconButton(
-              icon: const Icon(Icons.copy),
-              tooltip: appLocalizations.copy,
-              onPressed: () {
-                Clipboard.setData(ClipboardData(text: secret));
-                if (context.mounted) {
-                  context.showSnackBar(appLocalizations.secretCopied);
-                }
-              },
+          ? Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.open_in_new),
+                  tooltip: appLocalizations.onlinePanel,
+                  onPressed: () async {
+                    final uri = Uri.parse(
+                      'http://127.0.0.1:9090/ui/#/setup?hostname=127.0.0.1&port=9090&secret=$secret',
+                    );
+                    if (await canLaunchUrl(uri)) {
+                      await launchUrl(
+                        uri,
+                        mode: LaunchMode.externalApplication,
+                      );
+                    }
+                  },
+                ),
+                IconButton(
+                  icon: const Icon(Icons.copy),
+                  tooltip: appLocalizations.copy,
+                  onPressed: () {
+                    Clipboard.setData(ClipboardData(text: secret));
+                    if (context.mounted) {
+                      context.showSnackBar(appLocalizations.secretCopied);
+                    }
+                  },
+                ),
+              ],
             )
           : null,
       onTap: () async {
@@ -943,6 +935,9 @@ class _PortDialogState extends ConsumerState<_PortDialog> {
                       return appLocalizations.numberTip(
                         appLocalizations.mixedPort,
                       );
+                    }
+                    if (port == 0) {
+                      return null;
                     }
                     if (port < 1024 || port > 49151) {
                       return appLocalizations.portTip(

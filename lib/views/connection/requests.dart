@@ -107,7 +107,7 @@ class _RequestsViewState extends ConsumerState<RequestsView> {
 
                       return SizedBox(
                         height: listViewHeight,
-                        child: ListView.builder(
+                        child: AdaptiveListView.builder(
                           reverse: true,
                           physics: const NextClampingScrollPhysics(),
                           controller: _scrollController,
@@ -130,12 +130,6 @@ class _RequestsViewState extends ConsumerState<RequestsView> {
                                 appLocalizations.request,
                               ),
                             );
-                          },
-                          itemExtentBuilder: (index, _) {
-                            if (index.isOdd) {
-                              return 0;
-                            }
-                            return TrackerInfoItem.height;
                           },
                           itemCount: requests.length * 2 - 1,
                         ),

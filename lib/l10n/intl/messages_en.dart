@@ -34,7 +34,8 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m6(label) => "${label} must be a number";
 
-  static String m7(label) => "${label} must be between 1024 and 49151";
+  static String m7(label) =>
+      "${label} must be between 1024 and 49151, 0 to disable";
 
   static String m8(statusCode) =>
       "Failed to import profile. Please check your network and try resetting the subscription link (HTTP error code: ${statusCode})";
@@ -86,6 +87,25 @@ class MessageLookup extends MessageLookupByLibrary {
     "advancedSettings": MessageLookupByLibrary.simpleMessage(
       "Advanced Settings",
     ),
+    "ageKeyGenerateTitle": MessageLookupByLibrary.simpleMessage(
+      "Age Key Generation",
+    ),
+    "ageKeyPairGeneratedSuccess": MessageLookupByLibrary.simpleMessage(
+      "X25519 Key pair generated, please keep it safe",
+    ),
+    "agePrivateKeyLabel": MessageLookupByLibrary.simpleMessage(
+      "Age Private Key",
+    ),
+    "agePrivateKeyRequired": MessageLookupByLibrary.simpleMessage(
+      "Please enter a correct Age private key first",
+    ),
+    "agePublicKeyLabel": MessageLookupByLibrary.simpleMessage("Age Public Key"),
+    "ageSecretKeyInvalidValidationDesc": MessageLookupByLibrary.simpleMessage(
+      "Please enter a valid Age secret key (must start with AGE-SECRET-KEY-)",
+    ),
+    "ageSecretKeyOptional": MessageLookupByLibrary.simpleMessage(
+      "Age Secret Key (Optional)",
+    ),
     "ago": MessageLookupByLibrary.simpleMessage(" Ago"),
     "agree": MessageLookupByLibrary.simpleMessage("Agree"),
     "allApps": MessageLookupByLibrary.simpleMessage("All Apps"),
@@ -100,6 +120,10 @@ class MessageLookup extends MessageLookupByLibrary {
     "alreadyInWhitelist": MessageLookupByLibrary.simpleMessage(
       "Already in whitelist",
     ),
+    "alwaysShowTitleBar": MessageLookupByLibrary.simpleMessage("Title Buttons"),
+    "alwaysShowTitleBarDesc": MessageLookupByLibrary.simpleMessage(
+      "Always show the title bar buttons in the top-right corner",
+    ),
     "app": MessageLookupByLibrary.simpleMessage("App"),
     "appAccessControl": MessageLookupByLibrary.simpleMessage(
       "App Access Control",
@@ -109,6 +133,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "applicationDesc": MessageLookupByLibrary.simpleMessage(
       "Modify application settings",
     ),
+    "authorized": MessageLookupByLibrary.simpleMessage("Authorized"),
     "auto": MessageLookupByLibrary.simpleMessage("Auto"),
     "autoCheckUpdate": MessageLookupByLibrary.simpleMessage(
       "Auto Check Updates",
@@ -447,6 +472,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "generalDesc": MessageLookupByLibrary.simpleMessage(
       "Modify general settings",
     ),
+    "generateFromPrivateKey": MessageLookupByLibrary.simpleMessage(
+      "Generate from Age private key",
+    ),
     "generateSecret": MessageLookupByLibrary.simpleMessage("Generate"),
     "geoData": MessageLookupByLibrary.simpleMessage("GeoData"),
     "geodataLoader": MessageLookupByLibrary.simpleMessage("GEO Low Memory"),
@@ -612,7 +640,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "networkFix": MessageLookupByLibrary.simpleMessage("Network Fix"),
     "networkFixDesc": MessageLookupByLibrary.simpleMessage(
-      "Fix Windows network globe icon issue",
+      "Fix system network globe icon issue",
     ),
     "networkMatch": MessageLookupByLibrary.simpleMessage("Network Match"),
     "networkMatchHint": MessageLookupByLibrary.simpleMessage(
@@ -1086,6 +1114,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "unableToUpdateCurrentProfileDesc": MessageLookupByLibrary.simpleMessage(
       "Unable to update current profile",
     ),
+    "unauthorized": MessageLookupByLibrary.simpleMessage("Unauthorized"),
     "undo": MessageLookupByLibrary.simpleMessage("Undo"),
     "unifiedDelay": MessageLookupByLibrary.simpleMessage("Unified Delay"),
     "unifiedDelayDesc": MessageLookupByLibrary.simpleMessage(

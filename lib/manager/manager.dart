@@ -3,6 +3,7 @@ export 'app_manager.dart';
 export 'clash_manager.dart';
 export 'connectivity_manager.dart';
 export 'message_manager.dart';
+export 'power_manager.dart';
 export 'proxy_manager.dart';
 export 'smart_auto_stop_manager.dart';
 export 'theme_manager.dart';

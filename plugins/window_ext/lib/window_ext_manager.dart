@@ -24,6 +24,12 @@ class WindowExtManager {
         case "shouldTerminate":
           listener.onShouldTerminate();
           break;
+        case "powerSuspend":
+          listener.onPowerSuspend();
+          break;
+        case "powerResume":
+          listener.onPowerResume();
+          break;
       }
     }
   }

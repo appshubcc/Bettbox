@@ -112,8 +112,8 @@ func New(config LC.AnyTLSServer, tunnel C.Tunnel, additions ...inbound.Addition)
 		}
 		if tlsConfig.GetCertificate != nil {
 			l = tls.NewListener(l, tlsConfig)
-		} else {
-			return nil, errors.New("disallow using AnyTLS without certificates config")
+		} else if !config.AllowInsecure {
+			return nil, errors.New("disallow using AnyTLS without certificates/allow-insecure config")
 		}
 		sl.listeners = append(sl.listeners, l)
 

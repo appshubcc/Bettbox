@@ -67,4 +67,16 @@ class MainActivity : FlutterActivity() {
     }
 
     override fun shouldDestroyEngineWithHost(): Boolean = false
+
+    override fun onDestroy() {
+        super.onDestroy()
+        if (GlobalState.currentRunState != RunState.STOP) {
+            val engineCache = FlutterEngineCache.getInstance()
+            engineCache.get(MAIN_ENGINE_ID)?.let { engine ->
+                engine.destroy()
+                engineCache.remove(MAIN_ENGINE_ID)
+            }
+            GlobalState.flutterEngine = null
+        }
+    }
 }

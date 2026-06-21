@@ -24,7 +24,7 @@ class TUNButton extends StatelessWidget {
                     items: [
                       if (system.isDesktop) const TUNItem(),
                       if (system.isMacOS) const AutoSetSystemDnsItem(),
-                      const StrictRouteItem(),
+                      if (!system.isAndroid) const StrictRouteItem(),
                       const IcmpForwardingItem(),
                       const TunStackItem(),
                     ],
@@ -178,7 +178,7 @@ class VpnButton extends StatelessWidget {
                   generateSection(
                     items: [
                       const VPNItem(),
-                      const StrictRouteItem(),
+                      if (!system.isAndroid) const StrictRouteItem(),
                       const IcmpForwardingItem(),
                       const TunStackItem(),
                     ],

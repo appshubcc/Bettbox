@@ -6,6 +6,7 @@ import 'package:bett_box/state.dart';
 import 'package:bett_box/widgets/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:silky_scroll/silky_scroll.dart';
 
 import 'card.dart';
 import 'common.dart';
@@ -171,6 +172,65 @@ class _ProxyGroupsListState extends ConsumerState<_ProxyGroupsList> {
     return flatItems;
   }
 
+  Widget _buildItem(BuildContext context, int index, double itemHeight) {
+    final flatItems = _buildFlatItems();
+    final item = flatItems[index];
+    if (item is _HeaderItem) {
+      final isExpand = widget.currentUnfoldSet.contains(item.group.name);
+      return _GroupHeader(
+        key: ValueKey('header_${item.group.name}'),
+        group: item.group,
+        isExpand: isExpand,
+        onToggle: () => _handleToggle(item.group.name),
+        cardType: widget.cardType,
+        columns: widget.columns,
+        onScrollToSelected: () => _scrollToSelected(item.group.name),
+      );
+    } else if (item is _SpacingItem) {
+      return SizedBox(height: item.height);
+    } else if (item is _RowItem) {
+      final cardWidgets = <Widget>[];
+      for (var i = 0; i < widget.columns; i++) {
+        if (i < item.proxies.length) {
+          final proxy = item.proxies[i];
+          cardWidgets.add(
+            Expanded(
+              child: ProxyCard(
+                key: ValueKey('${item.group.name}.${proxy.name}'),
+                proxy: proxy,
+                groupName: item.group.name,
+                type: widget.cardType,
+                groupType: item.group.type,
+                testUrl: item.group.testUrl,
+              ),
+            ),
+          );
+        } else {
+          cardWidgets.add(const Expanded(child: SizedBox()));
+        }
+      }
+
+      final rowChildren = <Widget>[];
+      for (var i = 0; i < cardWidgets.length; i++) {
+        rowChildren.add(cardWidgets[i]);
+        if (i < cardWidgets.length - 1) {
+          rowChildren.add(const SizedBox(width: 8));
+        }
+      }
+
+      return Padding(
+        padding: const EdgeInsets.only(bottom: 8),
+        child: SizedBox(
+          height: itemHeight,
+          child: Row(
+            children: rowChildren,
+          ),
+        ),
+      );
+    }
+    return const SizedBox();
+  }
+
   @override
   void dispose() {
     _scrollController.dispose();
@@ -183,74 +243,28 @@ class _ProxyGroupsListState extends ConsumerState<_ProxyGroupsList> {
     final headerHeight = _getHeaderHeight();
     final itemHeight = getItemHeight(widget.cardType);
 
-    return CommonScrollBar(
-      controller: _scrollController,
-      thumbVisibility: true,
-      trackVisibility: true,
-      child: ListView.builder(
+    if (system.isAndroid) {
+      return ListView.builder(
         controller: _scrollController,
         padding: const EdgeInsets.all(16),
         itemCount: flatItems.length,
         itemExtentBuilder: (index, _) {
           return flatItems[index].getHeight(headerHeight, itemHeight);
         },
-        itemBuilder: (context, index) {
-          final item = flatItems[index];
-          if (item is _HeaderItem) {
-            final isExpand = widget.currentUnfoldSet.contains(item.group.name);
-            return _GroupHeader(
-              key: ValueKey('header_${item.group.name}'),
-              group: item.group,
-              isExpand: isExpand,
-              onToggle: () => _handleToggle(item.group.name),
-              cardType: widget.cardType,
-              columns: widget.columns,
-              onScrollToSelected: () => _scrollToSelected(item.group.name),
-            );
-          } else if (item is _SpacingItem) {
-            return SizedBox(height: item.height);
-          } else if (item is _RowItem) {
-            final cardWidgets = <Widget>[];
-            for (var i = 0; i < widget.columns; i++) {
-              if (i < item.proxies.length) {
-                final proxy = item.proxies[i];
-                cardWidgets.add(
-                  Expanded(
-                    child: ProxyCard(
-                      key: ValueKey('${item.group.name}.${proxy.name}'),
-                      proxy: proxy,
-                      groupName: item.group.name,
-                      type: widget.cardType,
-                      groupType: item.group.type,
-                      testUrl: item.group.testUrl,
-                    ),
-                  ),
-                );
-              } else {
-                cardWidgets.add(const Expanded(child: SizedBox()));
-              }
-            }
+        itemBuilder: (context, index) => _buildItem(context, index, itemHeight),
+      );
+    }
 
-            final rowChildren = <Widget>[];
-            for (var i = 0; i < cardWidgets.length; i++) {
-              rowChildren.add(cardWidgets[i]);
-              if (i < cardWidgets.length - 1) {
-                rowChildren.add(const SizedBox(width: 8));
-              }
-            }
-
-            return Padding(
-              padding: const EdgeInsets.only(bottom: 8),
-              child: SizedBox(
-                height: itemHeight,
-                child: Row(
-                  children: rowChildren,
-                ),
-              ),
-            );
-          }
-          return const SizedBox();
-        },
+    return CommonScrollBar(
+      controller: _scrollController,
+      thumbVisibility: true,
+      trackVisibility: true,
+      child: SilkyListView.builder(
+        controller: _scrollController,
+        silkyConfig: silkyScrollConfig,
+        padding: const EdgeInsets.all(16),
+        itemCount: flatItems.length,
+        itemBuilder: (context, index) => _buildItem(context, index, itemHeight),
       ),
     );
   }

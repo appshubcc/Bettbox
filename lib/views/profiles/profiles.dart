@@ -249,12 +249,21 @@ class ProfileItem extends StatelessWidget {
   }
 
   void _handleShowEditExtendPage(BuildContext context) {
+    final editKey = GlobalKey<EditProfileViewState>();
     showExtend(
       context,
       builder: (_, type) {
         return AdaptiveSheetScaffold(
           type: type,
-          body: EditProfileView(profile: profile, context: context),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.security),
+              onPressed: () {
+                editKey.currentState?.showAgeKeyGenerator();
+              },
+            ),
+          ],
+          body: EditProfileView(key: editKey, profile: profile, context: context),
           title: '${appLocalizations.edit}${appLocalizations.profile}',
         );
       },

@@ -15,6 +15,7 @@ import (
 	"github.com/metacubex/mihomo/adapter/outboundgroup"
 	"github.com/metacubex/mihomo/common/observable"
 	"github.com/metacubex/mihomo/common/utils"
+	"github.com/metacubex/mihomo/component/age"
 	"github.com/metacubex/mihomo/component/mmdb"
 	"github.com/metacubex/mihomo/component/resolver"
 	"github.com/metacubex/mihomo/component/updater"
@@ -26,12 +27,14 @@ import (
 	"github.com/metacubex/mihomo/log"
 	"github.com/metacubex/mihomo/tunnel"
 	"github.com/metacubex/mihomo/tunnel/statistic"
+	"sync"
 )
 
 var (
 	isInit            = false
 	externalProviders = map[string]cp.Provider{}
 	logSubscriber     observable.Subscription[log.Event]
+	ageMutex          sync.Mutex
 )
 
 func handleInitClash(paramsString string) bool {
@@ -84,8 +87,16 @@ func handleShutdown() bool {
 	return true
 }
 
-func handleValidateConfig(bytes []byte) string {
-	_, err := config.UnmarshalRawConfig(bytes)
+func handleValidateConfig(params *ValidateConfigParams) string {
+	ageMutex.Lock()
+	defer ageMutex.Unlock()
+
+	if params.AgeSecretKey != "" {
+		age.SetGlobalSecretKeys(params.AgeSecretKey)
+		defer age.SetGlobalSecretKeys()
+	}
+
+	_, err := config.UnmarshalRawConfig([]byte(params.Data))
 	if err != nil {
 		return err.Error()
 	}
@@ -425,8 +436,16 @@ func handleSetState(params string) {
 	_ = json.Unmarshal([]byte(params), state.CurrentState)
 }
 
-func handleGetConfig(path string) (*config.RawConfig, error) {
-	bytes, err := readFile(path)
+func handleGetConfig(params *GetConfigParams) (*config.RawConfig, error) {
+	ageMutex.Lock()
+	defer ageMutex.Unlock()
+
+	if params.AgeSecretKey != "" {
+		age.SetGlobalSecretKeys(params.AgeSecretKey)
+		defer age.SetGlobalSecretKeys()
+	}
+
+	bytes, err := readFile(params.Path)
 	if err != nil {
 		return nil, err
 	}

@@ -11,8 +11,6 @@ set(BINARY_NAME "Bettbox")
 # https://wiki.gnome.org/HowDoI/ChooseApplicationID
 set(APPLICATION_ID "com.appshub.bettbox")
 
-add_definitions(-DFLUTTER_DISABLE_IMPELLER=1)
-
 # Explicitly opt in to modern CMake behaviors to avoid warnings with recent
 # versions of CMake.
 cmake_policy(SET CMP0063 NEW)

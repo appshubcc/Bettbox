@@ -25,6 +25,7 @@ import 'common/common.dart';
 import 'common/flclash_database_extractor.dart';
 import 'models/models.dart';
 import 'views/profiles/override_profile.dart';
+import 'views/proxies/common.dart';
 
 class AppController {
   int? lastProfileModified;
@@ -45,7 +46,9 @@ class AppController {
 
   void setupClashConfigDebounce() {
     debouncer.call(FunctionTag.setupClashConfig, () async {
-      await setupClashConfig();
+      await safeRun(() async {
+        await setupClashConfig();
+      }, needLoading: true);
     });
   }
 
@@ -142,11 +145,15 @@ class AppController {
       await globalState.handleStart([updateRunTime, updateTraffic]);
 
       Future.microtask(() async {
-        final res = await _requestAdmin(true);
-        if (res.needRestart) {
-          await restartCore();
-        } else if (!res.isError) {
-          await _updateClashConfig();
+        try {
+          final res = await _requestAdmin(true);
+          if (res.needRestart) {
+            await restartCore();
+          } else if (!res.isError) {
+            await _updateClashConfig();
+          }
+        } catch (e) {
+          commonPrint.log('FastStart update config failed: $e');
         }
         _backgroundLoad();
       });
@@ -471,10 +478,11 @@ class AppController {
   Future<void> setupClashConfig() async {
     await safeRun(() async {
       await _setupCoreConfig();
-    }, needLoading: true);
+    }, needLoading: false);
   }
 
   Future _applyProfile() async {
+    _backgroundLoadVersion++;
     await clashCore.requestGc();
     await setupClashConfig();
     await updateGroups();
@@ -494,6 +502,7 @@ class AppController {
 
   void handleChangeProfile() {
     _ref.read(delayDataSourceProvider.notifier).value = {};
+    cancelDelayTest();
     applyProfile();
     _ref.read(logsProvider.notifier).value = FixedList(maxLength);
     _ref.read(requestsProvider.notifier).value = FixedList(maxLength);
@@ -1100,7 +1109,7 @@ class AppController {
     return;
   }
 
-  Future<void> addProfileFormURL(String url) async {
+  Future<void> addProfileFormURL(String url, {String? ageSecretKey}) async {
     if (globalState.navigatorKey.currentState?.canPop() ?? false) {
       globalState.navigatorKey.currentState?.popUntil((route) => route.isFirst);
     }
@@ -1108,7 +1117,7 @@ class AppController {
 
     final profile = await safeRun(
       () async {
-        return await Profile.normal(url: url).update();
+        return await Profile.normal(url: url, ageSecretKey: ageSecretKey).update();
       },
       needLoading: true,
       title: '${appLocalizations.add}${appLocalizations.profile}',
@@ -2020,7 +2029,9 @@ class AppController {
       }
       return null;
     } finally {
-      _ref.read(loadingProvider.notifier).value = false;
+      if (needLoading) {
+        _ref.read(loadingProvider.notifier).value = false;
+      }
     }
   }
 

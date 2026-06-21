@@ -563,7 +563,7 @@ final networkItems = [
     items: [
       if (system.isDesktop) const TUNItem(),
       if (system.isMacOS) const AutoSetSystemDnsItem(),
-      const StrictRouteItem(),
+      if (!system.isAndroid) const StrictRouteItem(),
       const IcmpForwardingItem(),
       const DnsHijackItem(),
       const EndpointIndependentNatItem(),

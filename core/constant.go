@@ -13,6 +13,16 @@ import (
 	"github.com/metacubex/mihomo/tunnel"
 )
 
+type ValidateConfigParams struct {
+	Data         string `json:"data"`
+	AgeSecretKey string `json:"age-secret-key"`
+}
+
+type GetConfigParams struct {
+	Path         string `json:"path"`
+	AgeSecretKey string `json:"age-secret-key"`
+}
+
 type InitParams struct {
 	HomeDir string `json:"home-dir"`
 	Version int    `json:"version"`
@@ -112,6 +122,8 @@ const (
 	getConfigMethod                Method = "getConfig"
 	flushFakeIPMethod              Method = "flushFakeIP"
 	flushDnsCacheMethod            Method = "flushDnsCache"
+	generateAgeKeyPairMethod              Method = "generateAgeKeyPair"
+	convertAgeSecretKeyToPublicKeyMethod  Method = "convertAgeSecretKeyToPublicKey"
 )
 
 type Method string

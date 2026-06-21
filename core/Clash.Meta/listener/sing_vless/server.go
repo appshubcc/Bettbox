@@ -229,8 +229,8 @@ func New(config LC.VlessServer, tunnel C.Tunnel, additions ...inbound.Addition) 
 			l = realityBuilder.NewListener(l)
 		} else if tlsConfig.GetCertificate != nil {
 			l = tls.NewListener(l, tlsConfig)
-		} else if sl.decryption == nil {
-			return nil, errors.New("disallow using Vless without any certificates/reality/decryption config")
+		} else if sl.decryption == nil && !config.AllowInsecure {
+			return nil, errors.New("disallow using Vless without any certificates/reality/decryption/allow-insecure config")
 		}
 		sl.listeners = append(sl.listeners, l)
 

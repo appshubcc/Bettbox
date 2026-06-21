@@ -34,7 +34,8 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m6(label) => "${label} должен быть числом";
 
-  static String m7(label) => "${label} должен быть от 1024 до 49151";
+  static String m7(label) =>
+      "${label} должен быть от 1024 до 49151, 0 для отключения";
 
   static String m8(statusCode) =>
       "Не удалось импортировать профиль. Проверьте подключение к сети и попробуйте сбросить ссылку подписки (код ошибки HTTP: ${statusCode})";
@@ -86,6 +87,27 @@ class MessageLookup extends MessageLookupByLibrary {
     "advancedSettings": MessageLookupByLibrary.simpleMessage(
       "Расширенные настройки",
     ),
+    "ageKeyGenerateTitle": MessageLookupByLibrary.simpleMessage(
+      "Генерация ключа Age",
+    ),
+    "ageKeyPairGeneratedSuccess": MessageLookupByLibrary.simpleMessage(
+      "Пара ключей X25519 создана, сохраните её в надёжном месте",
+    ),
+    "agePrivateKeyLabel": MessageLookupByLibrary.simpleMessage(
+      "Закрытый ключ Age",
+    ),
+    "agePrivateKeyRequired": MessageLookupByLibrary.simpleMessage(
+      "Пожалуйста, сначала введите корректный закрытый ключ Age",
+    ),
+    "agePublicKeyLabel": MessageLookupByLibrary.simpleMessage(
+      "Открытый ключ Age",
+    ),
+    "ageSecretKeyInvalidValidationDesc": MessageLookupByLibrary.simpleMessage(
+      "Пожалуйста, введите корректный приватный ключ Age (должен начинаться с AGE-SECRET-KEY-)",
+    ),
+    "ageSecretKeyOptional": MessageLookupByLibrary.simpleMessage(
+      "Приватный ключ Age (необязательно)",
+    ),
     "ago": MessageLookupByLibrary.simpleMessage(" назад"),
     "agree": MessageLookupByLibrary.simpleMessage("Согласен"),
     "allApps": MessageLookupByLibrary.simpleMessage("Все приложения"),
@@ -100,6 +122,12 @@ class MessageLookup extends MessageLookupByLibrary {
     "alreadyInWhitelist": MessageLookupByLibrary.simpleMessage(
       "Уже в белом списке",
     ),
+    "alwaysShowTitleBar": MessageLookupByLibrary.simpleMessage(
+      "Кнопки заголовка",
+    ),
+    "alwaysShowTitleBarDesc": MessageLookupByLibrary.simpleMessage(
+      "Всегда показывать кнопки в правом верхнем углу",
+    ),
     "app": MessageLookupByLibrary.simpleMessage("Приложение"),
     "appAccessControl": MessageLookupByLibrary.simpleMessage(
       "Контроль доступа",
@@ -109,6 +137,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "applicationDesc": MessageLookupByLibrary.simpleMessage(
       "Настройки приложения",
     ),
+    "authorized": MessageLookupByLibrary.simpleMessage("Разрешено"),
     "auto": MessageLookupByLibrary.simpleMessage("Авто"),
     "autoCheckUpdate": MessageLookupByLibrary.simpleMessage("Автообновление"),
     "autoCheckUpdateDesc": MessageLookupByLibrary.simpleMessage(
@@ -451,6 +480,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "generalDesc": MessageLookupByLibrary.simpleMessage(
       "Изменить общие настройки",
     ),
+    "generateFromPrivateKey": MessageLookupByLibrary.simpleMessage(
+      "Создать из закрытого ключа Age",
+    ),
     "generateSecret": MessageLookupByLibrary.simpleMessage("Сгенерировать"),
     "geoData": MessageLookupByLibrary.simpleMessage("Геоданные"),
     "geodataLoader": MessageLookupByLibrary.simpleMessage(
@@ -616,7 +648,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "networkDetection": MessageLookupByLibrary.simpleMessage("Ваш IP адрес"),
     "networkFix": MessageLookupByLibrary.simpleMessage("Исправление сети"),
     "networkFixDesc": MessageLookupByLibrary.simpleMessage(
-      "Исправляет значок сети Windows",
+      "Исправляет значок сети в системе",
     ),
     "networkMatch": MessageLookupByLibrary.simpleMessage("Сопоставление сети"),
     "networkMatchHint": MessageLookupByLibrary.simpleMessage(
@@ -1112,6 +1144,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "unableToUpdateCurrentProfileDesc": MessageLookupByLibrary.simpleMessage(
       "Невозможно обновить текущий профиль",
     ),
+    "unauthorized": MessageLookupByLibrary.simpleMessage("Не разрешено"),
     "undo": MessageLookupByLibrary.simpleMessage("Отменить"),
     "unifiedDelay": MessageLookupByLibrary.simpleMessage(
       "Унифицированная задержка",

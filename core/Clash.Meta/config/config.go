@@ -18,6 +18,7 @@ import (
 	"github.com/metacubex/mihomo/common/orderedmap"
 	"github.com/metacubex/mihomo/common/utils"
 	"github.com/metacubex/mihomo/common/yaml"
+	"github.com/metacubex/mihomo/component/age"
 	"github.com/metacubex/mihomo/component/auth"
 	"github.com/metacubex/mihomo/component/cidr"
 	"github.com/metacubex/mihomo/component/fakeip"
@@ -34,6 +35,7 @@ import (
 	LC "github.com/metacubex/mihomo/listener/config"
 	"github.com/metacubex/mihomo/log"
 	R "github.com/metacubex/mihomo/rules"
+	RB "github.com/metacubex/mihomo/rules/bundle"
 	RC "github.com/metacubex/mihomo/rules/common"
 	RP "github.com/metacubex/mihomo/rules/provider"
 	RW "github.com/metacubex/mihomo/rules/wrapper"
@@ -45,27 +47,26 @@ import (
 // General config
 type General struct {
 	Inbound
-	Mode                    T.TunnelMode            `json:"mode"`
-	UnifiedDelay            bool                    `json:"unified-delay"`
-	LogLevel                log.LogLevel            `json:"log-level"`
-	IPv6                    bool                    `json:"ipv6"`
-	Interface               string                  `json:"interface-name"`
-	RoutingMark             int                     `json:"routing-mark"`
-	GeoXUrl                 GeoXUrl                 `json:"geox-url"`
-	GeoAutoUpdate           bool                    `json:"geo-auto-update"`
-	GeoUpdateInterval       int                     `json:"geo-update-interval"`
-	GeodataMode             bool                    `json:"geodata-mode"`
-	GeodataLoader           string                  `json:"geodata-loader"`
-	GeositeMatcher          string                  `json:"geosite-matcher"`
-	TCPConcurrent           bool                    `json:"tcp-concurrent"`
-	FindProcessMode         process.FindProcessMode `json:"find-process-mode"`
-	Sniffing                bool                    `json:"sniffing"`
-	GlobalClientFingerprint string                  `json:"global-client-fingerprint"`
-	GlobalUA                string                  `json:"global-ua"`
-	ETagSupport             bool                    `json:"etag-support"`
-	KeepAliveIdle           int                     `json:"keep-alive-idle"`
-	KeepAliveInterval       int                     `json:"keep-alive-interval"`
-	DisableKeepAlive        bool                    `json:"disable-keep-alive"`
+	Mode              T.TunnelMode            `json:"mode"`
+	UnifiedDelay      bool                    `json:"unified-delay"`
+	LogLevel          log.LogLevel            `json:"log-level"`
+	IPv6              bool                    `json:"ipv6"`
+	Interface         string                  `json:"interface-name"`
+	RoutingMark       int                     `json:"routing-mark"`
+	GeoXUrl           GeoXUrl                 `json:"geox-url"`
+	GeoAutoUpdate     bool                    `json:"geo-auto-update"`
+	GeoUpdateInterval int                     `json:"geo-update-interval"`
+	GeodataMode       bool                    `json:"geodata-mode"`
+	GeodataLoader     string                  `json:"geodata-loader"`
+	GeositeMatcher    string                  `json:"geosite-matcher"`
+	TCPConcurrent     bool                    `json:"tcp-concurrent"`
+	FindProcessMode   process.FindProcessMode `json:"find-process-mode"`
+	Sniffing          bool                    `json:"sniffing"`
+	GlobalUA          string                  `json:"global-ua"`
+	ETagSupport       bool                    `json:"etag-support"`
+	KeepAliveIdle     int                     `json:"keep-alive-idle"`
+	KeepAliveInterval int                     `json:"keep-alive-interval"`
+	DisableKeepAlive  bool                    `json:"disable-keep-alive"`
 }
 
 // Inbound config
@@ -595,6 +596,12 @@ func UnmarshalRawConfig(buf []byte) (*RawConfig, error) {
 	// config with default value
 	rawCfg := DefaultRawConfig()
 
+	// decrypt config
+	buf, err := age.DecryptBytes(buf)
+	if err != nil {
+		return nil, fmt.Errorf("decrypt config error: %w", err)
+	}
+
 	if err := yaml.Unmarshal(buf, rawCfg); err != nil {
 		return nil, err
 	}
@@ -739,6 +746,9 @@ func ParseRawConfig(rawCfg *RawConfig) (*Config, error) {
 func temporaryUpdateGeneral(general *General) func()
 
 func parseGeneral(cfg *RawConfig) (*General, error) {
+	if cfg.GlobalClientFingerprint != "" {
+		log.Errorln("The `global-client-fingerprint` configuration is removed, please set `client-fingerprint` directly on the proxy instead")
+	}
 	return &General{
 		Inbound: Inbound{
 			Port:              cfg.Port,
@@ -768,19 +778,18 @@ func parseGeneral(cfg *RawConfig) (*General, error) {
 			ASN:     cfg.GeoXUrl.ASN,
 			GeoSite: cfg.GeoXUrl.GeoSite,
 		},
-		GeoAutoUpdate:           cfg.GeoAutoUpdate,
-		GeoUpdateInterval:       cfg.GeoUpdateInterval,
-		GeodataMode:             cfg.GeodataMode,
-		GeodataLoader:           cfg.GeodataLoader,
-		GeositeMatcher:          cfg.GeositeMatcher,
-		TCPConcurrent:           cfg.TCPConcurrent,
-		FindProcessMode:         cfg.FindProcessMode,
-		GlobalClientFingerprint: cfg.GlobalClientFingerprint,
-		GlobalUA:                cfg.GlobalUA,
-		ETagSupport:             cfg.ETagSupport,
-		KeepAliveIdle:           cfg.KeepAliveIdle,
-		KeepAliveInterval:       cfg.KeepAliveInterval,
-		DisableKeepAlive:        cfg.DisableKeepAlive,
+		GeoAutoUpdate:     cfg.GeoAutoUpdate,
+		GeoUpdateInterval: cfg.GeoUpdateInterval,
+		GeodataMode:       cfg.GeodataMode,
+		GeodataLoader:     cfg.GeodataLoader,
+		GeositeMatcher:    cfg.GeositeMatcher,
+		TCPConcurrent:     cfg.TCPConcurrent,
+		FindProcessMode:   cfg.FindProcessMode,
+		GlobalUA:          cfg.GlobalUA,
+		ETagSupport:       cfg.ETagSupport,
+		KeepAliveIdle:     cfg.KeepAliveIdle,
+		KeepAliveInterval: cfg.KeepAliveInterval,
+		DisableKeepAlive:  cfg.DisableKeepAlive,
 	}, nil
 }
 
@@ -872,6 +881,7 @@ func parseProxies(cfg *RawConfig) (proxies map[string]C.Proxy, providersMap map[
 	proxies["REJECT-DROP"] = adapter.NewProxy(outbound.NewRejectDrop())
 	proxies["COMPATIBLE"] = adapter.NewProxy(outbound.NewCompatible())
 	proxies["PASS"] = adapter.NewProxy(outbound.NewPass())
+	proxies["PASS-RULE"] = adapter.NewProxy(outbound.NewPassRule())
 	proxyList = append(proxyList, "DIRECT", "REJECT")
 
 	// parse proxy
@@ -942,7 +952,7 @@ func parseProxies(cfg *RawConfig) (proxies map[string]C.Proxy, providersMap map[
 
 	var ps []C.Proxy
 	for _, v := range proxyList {
-		if proxies[v].Type() == C.Pass {
+		if proxies[v].Type() == C.Pass || proxies[v].Type() == C.PassRule {
 			continue
 		}
 		ps = append(ps, proxies[v])
@@ -956,6 +966,7 @@ func parseProxies(cfg *RawConfig) (proxies map[string]C.Proxy, providersMap map[
 			&outboundgroup.GroupCommonOption{
 				Name: "GLOBAL",
 			},
+			proxies["COMPATIBLE"],
 			[]P.ProxyProvider{pd},
 		)
 		proxies["GLOBAL"] = adapter.NewProxy(global)
@@ -993,7 +1004,7 @@ func parseRuleProviders(cfg *RawConfig) (ruleProviders map[string]P.RuleProvider
 	ruleProviders = map[string]P.RuleProvider{}
 	// parse rule provider
 	for name, mapping := range cfg.RuleProvider {
-		rp, err := RP.ParseRuleProvider(name, mapping, R.ParseRule)
+		rp, err := RP.ParseRuleProvider(name, mapping, R.ParseRule, RB.MakeBundleFile)
 		if err != nil {
 			return nil, err
 		}

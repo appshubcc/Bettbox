@@ -1199,6 +1199,8 @@ proxies: # socks5
     #   00000000000000000000000000000000
     #   ...
     #   -----END OpenVPN Static key V1-----
+    # ping: 10 # 默认值为 0
+    # ping-restart: 60 # 默认值为 0
     # mtu: 1500
     udp: true
     # 一个出站代理的标识。当值不为空时，将使用指定的 proxy 发出连接
@@ -1457,6 +1459,7 @@ proxy-groups:
     proxies:
       - Proxy
       - DIRECT
+    # empty-fallback: COMPATIBLE # 设置当组为空时的回退proxy
 
 # Mihomo 格式的节点或支持 *ray 的分享格式
 proxy-providers:
@@ -1467,6 +1470,22 @@ proxy-providers:
     path: ./provider1.yaml # 默认只允许存储在 mihomo 的 Home Dir，如果想存储到其他位置，请通过设置 SAFE_PATHS 环境变量指定额外的安全路径。该环境变量的语法同本操作系统的PATH环境变量解析规则（即Windows下以分号分割，其他系统下以冒号分割）
     proxy: DIRECT
     # size-limit: 10240 # 限制下载文件最大为10kb，默认为0即不限制文件大小
+    # #
+    # # 如果设置会age-secret-key尝试通过此secret解密age armor格式加密的配置文件
+    # #
+    # # 注意：
+    # #   对于加密内容，目前仅支持 age-encryption.org/v1 的 official ASCII "armor" format
+    # #   对于key格式，目前仅支持 age-encryption.org/v1 的 x25519 recipient type 和 The mlkem768-x25519 hybrid post-quantum recipient type
+    # # 实用工具：
+    # #   您可以通过 "mihomo age keygen" 生成符合要求的 x25519 key
+    # #   您可以通过 "mihomo age keygen-pq" 生成符合要求的 mlkem768-x25519 key
+    # #   您可以通过 "mihomo age convert <secret_key>" 从 age-secret-key 导出 age-public-key
+    # #   您可以通过 "mihomo age decrypt <secret_key> <source_file> <target_file>" 将已加密文件解密，<source_file> 为 - 时会从标准输入读取，<target_file> 为 - 时会往标准输出写入
+    # #   您可以通过 "mihomo age encrypt <public_key> <source_file> <target_file>" 将未加密文件加密，<source_file> 为 - 时会从标准输入读取，<target_file> 为 - 时会往标准输出写入
+    # # 参考实现：
+    # #   https://github.com/FiloSottile/awesome-age#implementations
+    # #
+    # age-secret-key: AGE-SECRET-KEY-1ZTQLLN0A4U3ZTT3DCZKYN0CGZEZQLWX2DFTXUWMT4ZHR0N2UG6LSW9NT0N
     header:
       User-Agent:
       - "Clash/v1.18.0"
@@ -1475,6 +1494,8 @@ proxy-providers:
       # - 'application/vnd.github.v3.raw'
       # Authorization:
       # - 'token 1231231'
+      # X-Age-Public-Key:
+      # - 'age1xh86kh9v23vattr58yedspm3f57sxvnswu9krr6ns438amekx5gsd09uma'
     health-check:
       enable: true
       interval: 600
@@ -1549,6 +1570,7 @@ rule-providers:
     format: mrs
     behavior: domain
     path: /path/to/save/file.mrs
+    # path-in-bundle: "geo/geosite/cn.mrs" # 当设置该选项时，如果本地文件不存在，会优先从 Home Dir的 BundleMRS.7z 中解压该文件，此项的值用于指定在 BundleMRS.7z 中的路径
   rule4:
     type: inline
     behavior: domain # classical / ipcidr
@@ -1904,7 +1926,8 @@ listeners:
         after-bytes: 0 # 传输指定字节后开始限速
         bytes-per-sec: 0 # 基准速率（字节/秒）
         burst-bytes-per-sec: 0 # 突发速率（字节/秒），大于 bytesPerSec 时生效
-    ### 注意，对于vless listener, 至少需要填写 “certificate和private-key” 或 “reality-config” 或 “decryption” 的其中一项 ###
+    ### 注意，对于vless listener, 如果 "allow-insecure" 不为 true, 至少需要填写 “certificate和private-key” 或 “reality-config” 或 “decryption” 的其中一项 ###
+    # allow-insecure: false # 是否允许不开启tls加密（注意：仅用于有 nginx, caddy 前置的情况）
 
   - name: anytls-in-1
     type: anytls
@@ -1926,6 +1949,8 @@ listeners:
     #   madSJjYQIf9o1N5GXjkW4DEEeb17qMxHdwMdNnwADAABAAEAAQACAAEAAwAIdGVz
     #   dC5jb20AAA==
     #   -----END ECH KEYS-----
+    ### 注意，anytls listener, 如果 "allow-insecure" 不为 true, 必须填写 “certificate和private-key” ###
+    # allow-insecure: false # 是否允许不开启tls加密（注意：仅用于有 nginx, caddy 前置的情况）
     # padding-scheme: "" # https://github.com/anytls/anytls-go/blob/main/docs/protocol.md#cmdupdatepaddingscheme
 
   - name: mieru-in-1
@@ -2010,7 +2035,8 @@ listeners:
     #   enabled: false
     #   method: aes-128-gcm # aes-128-gcm/aes-256-gcm/chacha20-ietf-poly1305
     #   password: "example"
-    ### 注意，对于trojan listener, 至少需要填写 “certificate和private-key” 或 “reality-config” 或 “ss-option” 的其中一项 ###
+    ### 注意，对于trojan listener, 如果 "allow-insecure" 不为 true, 至少需要填写 “certificate和private-key” 或 “reality-config” 或 “ss-option” 的其中一项 ###
+    # allow-insecure: false # 是否允许不开启tls加密（注意：仅用于有 nginx, caddy 前置的情况）
 
   - name: hysteria2-in-1
     type: hysteria2

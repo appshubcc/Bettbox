@@ -9,6 +9,7 @@ import 'card.dart';
 import 'input.dart';
 import 'scaffold.dart';
 import 'sheet.dart';
+import 'scroll.dart';
 
 class Delegate {
   const Delegate();
@@ -564,7 +565,7 @@ List<Widget> generateInfoSection({
 }
 
 Widget generateListView(List<Widget> items) {
-  return ListView.builder(
+  return AdaptiveListView.builder(
     itemCount: items.length,
     itemBuilder: (_, index) => items[index],
     padding: const EdgeInsets.only(bottom: 16),

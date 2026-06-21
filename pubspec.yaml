@@ -1,7 +1,7 @@
 name: bett_box
 description: A multi-platform proxy client based on Mihomo, simple and easy to use, open-source and ad-free.
 publish_to: 'none'
-version: 1.17.10+2026060101
+version: 1.18.0+2026060803
 environment:
   sdk: '>=3.9.0 <4.0.0'
 
@@ -22,14 +22,16 @@ dependencies:
     path: plugins/proxy
   window_ext:
     path: plugins/window_ext
+  tray_manager:
+    path: plugins/tray_manager
+  silky_scroll:
+    path: plugins/silky_scroll
   launch_at_startup: ^0.5.1
   json_annotation: ^4.9.0
   file_picker: ^8.3.7
   mobile_scanner: ^7.2.0
   app_links: ^6.3.3
   win32_registry: ^2.0.0
-  tray_manager:
-    path: plugins/tray_manager
   collection: ^1.18.0
   animations: ^2.1.2
   package_info_plus: ^9.0.1
@@ -40,8 +42,7 @@ dependencies:
   dio: ^5.9.2
   win32: ^5.15.0
   ffi: ^2.2.0
-  re_editor:
-    path: plugins/re-editor
+  re_editor: ^0.9.0
   re_highlight: ^0.0.3
   archive: ^4.0.7
   lpinyin: ^2.0.3

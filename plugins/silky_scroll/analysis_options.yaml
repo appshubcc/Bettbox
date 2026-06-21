@@ -1,0 +1,14 @@
+include: package:lints/recommended.yaml
+
+linter:
+  rules:
+    prefer_const_constructors: true
+    prefer_const_declarations: true
+    avoid_print: true
+    prefer_final_locals: true
+    always_declare_return_types: true
+    unawaited_futures: true
+    sort_constructors_first: true
+    prefer_single_quotes: true
+    use_super_parameters: true
+    unnecessary_lambdas: true

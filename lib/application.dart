@@ -158,7 +158,9 @@ class ApplicationState extends ConsumerState<Application>
 
   Widget _buildPlatformApp(Widget child) {
     if (system.isDesktop) {
-      return WindowHeaderContainer(child: child);
+      return PowerManager(
+        child: WindowHeaderContainer(child: child),
+      );
     }
     return VpnManager(child: child);
   }

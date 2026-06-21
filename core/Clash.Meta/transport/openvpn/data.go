@@ -1,6 +1,7 @@
 package openvpn
 
 import (
+	"bytes"
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/hmac"
@@ -28,6 +29,18 @@ const (
 	PeerIDUnset uint32 = 0xffffff
 )
 
+// OpenVPN data-channel ping payload, matching PING_STRING in upstream OpenVPN.
+var openVPNPingPacket = []byte{
+	0x2a, 0x18, 0x7b, 0xf3,
+	0x64, 0x1e, 0xb4, 0xcb,
+	0x07, 0xed, 0x2d, 0x0a,
+	0x98, 0x1f, 0xc7, 0x48,
+}
+
+func IsPingPacket(packet []byte) bool {
+	return bytes.Equal(packet, openVPNPingPacket)
+}
+
 type DataChannel struct {
 	sendAEAD cipher.AEAD
 	recvAEAD cipher.AEAD
@@ -44,10 +57,9 @@ type DataChannel struct {
 	sendImplicitIV [DataChannelIVSize]byte
 	recvImplicitIV [DataChannelIVSize]byte
 
-	keyID   uint8
-	peerID  uint32
-	header  []byte
-	compLZO string
+	keyID  uint8
+	peerID uint32
+	header []byte
 
 	mu           sync.Mutex
 	sendPacketID uint32
@@ -60,7 +72,7 @@ type DataChannel struct {
 	randOffset int
 }
 
-func NewDataChannel(keys *KeyMaterial, cipherName, authName string, peerID uint32, compLZO string) (*DataChannel, error) {
+func NewDataChannel(keys *KeyMaterial, cipherName, authName string, peerID uint32) (*DataChannel, error) {
 	if keys == nil {
 		return nil, errors.New("nil openvpn key material")
 	}
@@ -81,7 +93,6 @@ func NewDataChannel(keys *KeyMaterial, cipherName, authName string, peerID uint3
 			recvAEAD: recv,
 			peerID:   peerID,
 			header:   dataHeader(peerID, 0),
-			compLZO:  compLZO,
 		}
 		copy(d.sendImplicitIV[4:], keys.SendHMACKey[:DataChannelIVSize-4])
 		copy(d.recvImplicitIV[4:], keys.RecvHMACKey[:DataChannelIVSize-4])
@@ -112,7 +123,6 @@ func NewDataChannel(keys *KeyMaterial, cipherName, authName string, peerID uint3
 		authSize:    authSize,
 		peerID:      peerID,
 		header:      dataHeader(peerID, 0),
-		compLZO:     compLZO,
 	}
 	d.sendMACPool.New = func() any {
 		return hmac.New(d.authHash, d.sendHMACKey)
@@ -178,14 +188,6 @@ func (d *DataChannel) Encrypt(packet []byte) ([]byte, error) {
 		return nil, errors.New("nil openvpn data channel")
 	}
 
-	// Prepend comp-lzo header (0xfa = not compressed) to satisfy servers expecting the framing.
-	if d.compLZO == CompLzoYes {
-		lzoPacket := make([]byte, 1+len(packet))
-		lzoPacket[0] = lzoCompressNone
-		copy(lzoPacket[1:], packet)
-		packet = lzoPacket
-	}
-
 	packetID := d.nextPacketID()
 	if d.sendAEAD != nil {
 		return d.encryptAEAD(packet, packetID)
@@ -245,25 +247,10 @@ func (d *DataChannel) Decrypt(packet []byte) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	var plain []byte
 	if d.recvAEAD != nil {
-		plain, err = d.decryptAEAD(packet, headerSize)
-	} else {
-		plain, err = d.decryptCBC(packet, headerSize)
+		return d.decryptAEAD(packet, headerSize)
 	}
-	if err != nil {
-		return nil, err
-	}
-	if d.compLZO == CompLzoYes && len(plain) > 0 {
-		decompressed, err := lzo1xDecompressSafe(plain)
-		if err != nil {
-			return nil, err
-		}
-		if len(decompressed) > 0 {
-			return decompressed, nil
-		}
-	}
-	return plain, nil
+	return d.decryptCBC(packet, headerSize)
 }
 
 func (d *DataChannel) decryptAEAD(packet []byte, headerSize int) ([]byte, error) {

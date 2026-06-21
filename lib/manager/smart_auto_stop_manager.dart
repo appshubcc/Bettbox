@@ -46,9 +46,15 @@ class _SmartAutoStopManagerState extends ConsumerState<SmartAutoStopManager> {
       } else if (method == 'quickResponse') {
         final vpnProps = ref.read(vpnSettingProvider);
         if (vpnProps.quickResponse) {
-          commonPrint.log(
-            'Network change: Closing connections.',
-          );
+          final isSmartStopped = ref.read(isSmartStoppedProvider);
+          if (isSmartStopped) {
+            return;
+          }
+          final startTime = globalState.startTime;
+          if (startTime != null &&
+              DateTime.now().difference(startTime) < const Duration(seconds: 3)) {
+            return;
+          }
           clashCore.closeConnections();
         }
       }

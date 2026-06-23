@@ -429,7 +429,7 @@ class TrackerInfoDetailView extends ConsumerWidget {
         title: appLocalizations.download,
         desc: TrafficValue(value: info.download).show,
       ),
-      if (detailTitle.contains(appLocalizations.connection))
+      if (connections.any((e) => e.id == trackerInfo.id))
         _buildItem(
           title: appLocalizations.realTimeSpeed,
           desc: Traffic(up: info.uploadSpeed, down: info.downloadSpeed).toString(),

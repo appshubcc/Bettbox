@@ -251,9 +251,7 @@ class _ConnectionsViewState extends ConsumerState<ConnectionsView>
                   icon: const Icon(Icons.block),
                   onPressed: () => _handleBlockConnection(trackerInfo.id),
                 ),
-                detailTitle: appLocalizations.details(
-                  appLocalizations.connection,
-                ),
+                detailTitle: appLocalizations.details
               );
             },
             itemExtentBuilder: (index, _) {

@@ -17,21 +17,23 @@ extension DateTimeExtension on DateTime {
     final difference = currentDateTime.difference(this);
     final days = difference.inDays;
     if (days >= 365) {
-      return '${(days / 365).floor()} ${appLocalizations.years}${appLocalizations.ago}';
+      final count = (days / 365).floor();
+      return '$count ${appLocalizations.years(count)}${appLocalizations.ago}';
     }
     if (days >= 30) {
-      return '${(days / 30).floor()} ${appLocalizations.months}${appLocalizations.ago}';
+      final count = (days / 30).floor();
+      return '$count ${appLocalizations.months(count)}${appLocalizations.ago}';
     }
     if (days >= 1) {
-      return '$days ${appLocalizations.days}${appLocalizations.ago}';
+      return '$days ${appLocalizations.days(days)}${appLocalizations.ago}';
     }
     final hours = difference.inHours;
     if (hours >= 1) {
-      return '$hours ${appLocalizations.hours}${appLocalizations.ago}';
+      return '$hours ${appLocalizations.hours(hours)}${appLocalizations.ago}';
     }
     final minutes = difference.inMinutes;
     if (minutes >= 1) {
-      return '$minutes ${appLocalizations.minutes}${appLocalizations.ago}';
+      return '$minutes ${appLocalizations.minutes(minutes)}${appLocalizations.ago}';
     }
     return appLocalizations.just;
   }

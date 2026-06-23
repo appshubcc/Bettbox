@@ -173,7 +173,7 @@ class ProviderItem extends StatelessWidget {
     }
     if (total == 0) {
       final useShow = TrafficValue(value: use).show;
-      return '$useShow / Unlimited';
+      return '$useShow / ∞';
     }
     final useShow = TrafficValue(value: use).show;
     final totalShow = TrafficValue(value: total).show;

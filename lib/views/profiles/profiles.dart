@@ -36,7 +36,7 @@ class _ProfilesViewState extends ConsumerState<ProfilesView> {
               context: globalState.navigatorKey.currentState!.context,
             ),
           ),
-          title: '${appLocalizations.add}${appLocalizations.profile}',
+          title: appLocalizations.add,
         );
       },
     );
@@ -277,7 +277,7 @@ class ProfileItem extends StatelessWidget {
               context: context,
             ),
           ),
-          title: '${appLocalizations.edit}${appLocalizations.profile}',
+          title: appLocalizations.edit,
         );
       },
     );
@@ -327,13 +327,13 @@ class ProfileItem extends StatelessWidget {
 
     // Show Unlimited when no traffic info
     if (use == 0 && total == 0) {
-      return 'Unlimited';
+      return '∞';
     }
 
     // Total is 0 but has usage
     if (total == 0) {
       final useShow = TrafficValue(value: use).show;
-      return '$useShow / Unlimited';
+      return '$useShow / ∞';
     }
 
     final useShow = TrafficValue(value: use).show;

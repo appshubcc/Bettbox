@@ -3,6 +3,7 @@ import 'package:bett_box/enum/enum.dart';
 import 'package:bett_box/models/models.dart';
 import 'package:bett_box/providers/app.dart';
 import 'package:bett_box/widgets/fade_box.dart';
+import 'package:bett_box/widgets/google_bottom_nav_bar.dart';
 import 'package:bett_box/widgets/pop_scope.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -287,7 +288,9 @@ class CommonScaffoldState extends State<CommonScaffold> {
   @override
   Widget build(BuildContext context) {
     assert(widget.appBar != null || widget.title != null);
+    final hasFloatingNav = FloatingNavBarScope.maybeOf(context) != null;
     final body = SafeArea(
+      bottom: !hasFloatingNav,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -333,6 +336,11 @@ class CommonScaffoldState extends State<CommonScaffold> {
       body: body,
       resizeToAvoidBottomInset: true,
       backgroundColor: widget.backgroundColor,
+      floatingActionButtonLocation: hasFloatingNav
+          ? FloatingNavFabLocation(
+              FloatingNavBarScope.maybeOf(context)!.scrollBottomPadding,
+            )
+          : null,
       floatingActionButton:
           widget.floatingActionButton ??
           ValueListenableBuilder<Widget?>(

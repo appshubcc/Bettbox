@@ -233,6 +233,7 @@ abstract class ThemeProps with _$ThemeProps {
     @Default(TextScale()) TextScale textScale,
     @Default(false) bool useLightIcon,
     @Default(false) bool useHarmonyFont,
+    @Default(true) bool useFloatingNavBar,
   }) = _ThemeProps;
 
   factory ThemeProps.fromJson(Map<String, Object?> json) =>

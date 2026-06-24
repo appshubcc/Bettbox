@@ -189,7 +189,7 @@ class _ProxyGroupsListState extends ConsumerState<_ProxyGroupsList> {
       trackVisibility: true,
       child: ListView.builder(
         controller: _scrollController,
-        padding: const EdgeInsets.all(16),
+        padding: context.withFloatingNavPadding(const EdgeInsets.all(16)),
         itemCount: flatItems.length,
         itemExtentBuilder: (index, _) {
           return flatItems[index].getHeight(headerHeight, itemHeight);

@@ -20,28 +20,36 @@ typedef String MessageIfAbsent(String messageStr, List<dynamic> args);
 class MessageLookup extends MessageLookupByLibrary {
   String get localeName => 'zh_TC';
 
-  static String m0(label) => "確定刪除選取的 ${label} 嗎？";
+  static String m0(count) => "${Intl.plural(count, other: '天')}";
 
-  static String m1(label) => "確定刪除目前的 ${label} 嗎？";
+  static String m1(label) => "確定刪除選取的 ${label} 嗎？";
 
-  static String m2(label) => "${label}詳情";
+  static String m2(label) => "確定刪除目前的 ${label} 嗎？";
 
   static String m3(label) => "${label}不能為空";
 
   static String m4(label) => "${label}目前已存在";
 
-  static String m5(label) => "暫無 ${label}";
+  static String m5(count) => "${Intl.plural(count, other: '小時')}";
 
-  static String m6(label) => "${label}必須為數字";
+  static String m6(count) => "${Intl.plural(count, other: '分鐘')}";
 
-  static String m7(label) => "${label} 必須在 1024 到 49151 之間, 0為關閉";
+  static String m7(count) => "${Intl.plural(count, other: '月')}";
 
-  static String m8(statusCode) =>
-      "配置導入失敗，請檢查網路問題並嘗試重置訂閱連結(HTTP錯誤代碼: ${statusCode})";
+  static String m8(label) => "暫無 ${label}";
 
-  static String m9(count) => "已選擇 ${count} 項";
+  static String m9(label) => "${label}必須為數字";
 
-  static String m10(label) => "${label}必須為 URL";
+  static String m10(label) => "${label} 必須在 1024 到 49151 之間, 0為關閉";
+
+  static String m11(statusCode) =>
+      "配置導入失敗，請检查網路問題並嘗試重置訂閱連結(HTTP錯誤代碼: ${statusCode})";
+
+  static String m12(count) => "已選擇 ${count} 項";
+
+  static String m13(label) => "${label}必須為 URL";
+
+  static String m14(count) => "${Intl.plural(count, other: '年')}";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
@@ -104,6 +112,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "appDesc": MessageLookupByLibrary.simpleMessage("處理應用相關設定"),
     "application": MessageLookupByLibrary.simpleMessage("應用程式"),
     "applicationDesc": MessageLookupByLibrary.simpleMessage("修改應用程式設定"),
+    "authorized": MessageLookupByLibrary.simpleMessage("已授權"),
     "auto": MessageLookupByLibrary.simpleMessage("自動"),
     "autoCheckUpdate": MessageLookupByLibrary.simpleMessage("自動檢查更新"),
     "autoCheckUpdateDesc": MessageLookupByLibrary.simpleMessage("應用啟動時自動檢查更新"),
@@ -203,7 +212,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "cut": MessageLookupByLibrary.simpleMessage("剪下"),
     "dark": MessageLookupByLibrary.simpleMessage("深色"),
     "dashboard": MessageLookupByLibrary.simpleMessage("首頁"),
-    "days": MessageLookupByLibrary.simpleMessage("天"),
+    "days": m0,
     "defaultNameserver": MessageLookupByLibrary.simpleMessage("預設網域名稱伺服器"),
     "defaultNameserverDesc": MessageLookupByLibrary.simpleMessage(
       "用於解析 DNS 伺服器",
@@ -215,8 +224,8 @@ class MessageLookup extends MessageLookupByLibrary {
     "delayAnimationDesc": MessageLookupByLibrary.simpleMessage("自訂測試過程中的動畫顯示"),
     "delaySort": MessageLookupByLibrary.simpleMessage("按延遲排序"),
     "delete": MessageLookupByLibrary.simpleMessage("刪除"),
-    "deleteMultipTip": m0,
-    "deleteTip": m1,
+    "deleteMultipTip": m1,
+    "deleteTip": m2,
     "deleteTunnel": MessageLookupByLibrary.simpleMessage("刪除轉發"),
     "desc": MessageLookupByLibrary.simpleMessage(
       "Bettbox 基於強大靈活的 Mihomo (Clash.Meta) 代理內核，致力於提供更好的體驗，Forked from FlClash，Better Experience, Out of the box",
@@ -224,7 +233,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "destination": MessageLookupByLibrary.simpleMessage("目標地址"),
     "destinationGeoIP": MessageLookupByLibrary.simpleMessage("目標地理定位"),
     "destinationIPASN": MessageLookupByLibrary.simpleMessage("目標 IP ASN"),
-    "details": m2,
+    "details": MessageLookupByLibrary.simpleMessage("詳情"),
     "detectionTip": MessageLookupByLibrary.simpleMessage("依賴第三方 API，僅供參考"),
     "developerMode": MessageLookupByLibrary.simpleMessage("開發者模式"),
     "developerModeEnableTip": MessageLookupByLibrary.simpleMessage("開發者模式已啟用。"),
@@ -321,6 +330,10 @@ class MessageLookup extends MessageLookupByLibrary {
     "filterSystemApp": MessageLookupByLibrary.simpleMessage("過濾系統應用程式"),
     "findProcessMode": MessageLookupByLibrary.simpleMessage("尋找處理程序"),
     "findProcessModeDesc": MessageLookupByLibrary.simpleMessage("開啟後將可以尋找處理程序"),
+    "floatingNavBar": MessageLookupByLibrary.simpleMessage("懸浮底欄"),
+    "floatingNavBarDesc": MessageLookupByLibrary.simpleMessage(
+      "使用毛玻璃膠囊底欄懸浮在頁面內容上方",
+    ),
     "fontFamily": MessageLookupByLibrary.simpleMessage("字體"),
     "forceDnsMapping": MessageLookupByLibrary.simpleMessage("強制 DNS 映射"),
     "forceDnsMappingDesc": MessageLookupByLibrary.simpleMessage(
@@ -368,7 +381,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "hotkeyConflict": MessageLookupByLibrary.simpleMessage("快捷鍵衝突"),
     "hotkeyManagement": MessageLookupByLibrary.simpleMessage("快捷鍵管理"),
     "hotkeyManagementDesc": MessageLookupByLibrary.simpleMessage("使用鍵盤控制應用程式"),
-    "hours": MessageLookupByLibrary.simpleMessage("小時"),
+    "hours": m5,
     "httpPortSniffer": MessageLookupByLibrary.simpleMessage("HTTP 連接埠嗅探"),
     "icmpForwarding": MessageLookupByLibrary.simpleMessage("ICMP 轉發"),
     "icmpForwardingDesc": MessageLookupByLibrary.simpleMessage(
@@ -427,11 +440,11 @@ class MessageLookup extends MessageLookupByLibrary {
     "min": MessageLookupByLibrary.simpleMessage("最小"),
     "minimizeOnExit": MessageLookupByLibrary.simpleMessage("退出最小化"),
     "minimizeOnExitDesc": MessageLookupByLibrary.simpleMessage("修改系統預設退出事件"),
-    "minutes": MessageLookupByLibrary.simpleMessage("分鐘"),
+    "minutes": m6,
     "mixedPort": MessageLookupByLibrary.simpleMessage("混合連接埠"),
     "mode": MessageLookupByLibrary.simpleMessage("模式"),
     "monochromeScheme": MessageLookupByLibrary.simpleMessage("單色"),
-    "months": MessageLookupByLibrary.simpleMessage("月"),
+    "months": m7,
     "more": MessageLookupByLibrary.simpleMessage("查看"),
     "name": MessageLookupByLibrary.simpleMessage("名稱"),
     "nameSort": MessageLookupByLibrary.simpleMessage("按名稱排序"),
@@ -489,8 +502,8 @@ class MessageLookup extends MessageLookupByLibrary {
     "ntpStatus": MessageLookupByLibrary.simpleMessage("狀態"),
     "ntpStatusDesc": MessageLookupByLibrary.simpleMessage("開啟 NTP 時間服務"),
     "nullProfileDesc": MessageLookupByLibrary.simpleMessage("沒有設定檔，請先新增設定檔"),
-    "nullTip": m5,
-    "numberTip": m6,
+    "nullTip": m8,
+    "numberTip": m9,
     "oneColumn": MessageLookupByLibrary.simpleMessage("一列"),
     "onlinePanel": MessageLookupByLibrary.simpleMessage("線上面板"),
     "onlyIcon": MessageLookupByLibrary.simpleMessage("僅圖示"),
@@ -564,7 +577,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "port": MessageLookupByLibrary.simpleMessage("連接埠"),
     "portConflictTip": MessageLookupByLibrary.simpleMessage("請輸入不同的連接埠"),
-    "portTip": m7,
+    "portTip": m10,
     "powerSwitch": MessageLookupByLibrary.simpleMessage("啟動開關"),
     "preferH3Desc": MessageLookupByLibrary.simpleMessage("優先使用 DOH 的 http/3"),
     "pressKeyboard": MessageLookupByLibrary.simpleMessage("請按下按鍵"),
@@ -577,7 +590,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "profileHasUpdate": MessageLookupByLibrary.simpleMessage(
       "設定檔已經修改，是否關閉自動更新 ",
     ),
-    "profileImportFailed": m8,
+    "profileImportFailed": m11,
     "profileNameNullValidationDesc": MessageLookupByLibrary.simpleMessage(
       "請輸入配置名稱",
     ),
@@ -674,7 +687,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "secretCopied": MessageLookupByLibrary.simpleMessage("密碼已複製到剪貼簿"),
     "selectAll": MessageLookupByLibrary.simpleMessage("全選"),
     "selected": MessageLookupByLibrary.simpleMessage("已選擇"),
-    "selectedCountTitle": m9,
+    "selectedCountTitle": m12,
     "serviceReady": MessageLookupByLibrary.simpleMessage("服務已就緒"),
     "serviceRunning": MessageLookupByLibrary.simpleMessage("服務正在執行中"),
     "settings": MessageLookupByLibrary.simpleMessage("設定"),
@@ -796,6 +809,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "unableToUpdateCurrentProfileDesc": MessageLookupByLibrary.simpleMessage(
       "無法更新目前的設定檔",
     ),
+    "unauthorized": MessageLookupByLibrary.simpleMessage("未授權"),
     "undo": MessageLookupByLibrary.simpleMessage("復原"),
     "unifiedDelay": MessageLookupByLibrary.simpleMessage("統一延遲"),
     "unifiedDelayDesc": MessageLookupByLibrary.simpleMessage("去除交握解析等額外延遲"),
@@ -805,7 +819,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "upload": MessageLookupByLibrary.simpleMessage("上傳"),
     "url": MessageLookupByLibrary.simpleMessage("URL"),
     "urlDesc": MessageLookupByLibrary.simpleMessage("透過 URL 獲取設定檔"),
-    "urlTip": m10,
+    "urlTip": m13,
     "useGlobalScriptOverride": MessageLookupByLibrary.simpleMessage(
       "使用全域指令碼覆寫",
     ),
@@ -832,7 +846,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "whitelistMode": MessageLookupByLibrary.simpleMessage("白名單模式"),
     "writeToSystem": MessageLookupByLibrary.simpleMessage("寫入系統"),
     "writeToSystemDesc": MessageLookupByLibrary.simpleMessage("需要管理員權限"),
-    "years": MessageLookupByLibrary.simpleMessage("年"),
+    "years": m14,
     "zh_CN": MessageLookupByLibrary.simpleMessage("簡體中文"),
     "zh_TC": MessageLookupByLibrary.simpleMessage("繁體中文"),
   };

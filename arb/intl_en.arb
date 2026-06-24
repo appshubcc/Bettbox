@@ -566,6 +566,8 @@
   "lightIconDesc": "Manually switch light desktop app icon",
   "harmonyFont": "Font Fix",
   "harmonyFontDesc": "Use built-in font to fix display issues",
+  "floatingNavBar": "Floating navigation bar",
+  "floatingNavBarDesc": "Use a frosted glass capsule bar that floats above page content",
   "internet": "Internet",
   "systemApp": "System App",
   "noNetworkApp": "No Network App",

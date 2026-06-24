@@ -147,11 +147,13 @@ class _ProfilesViewState extends ConsumerState<ProfilesView> {
             alignment: Alignment.topCenter,
             child: SingleChildScrollView(
               key: profilesStoreKey,
-              padding: const EdgeInsets.only(
-                left: 16,
-                right: 16,
-                top: 16,
-                bottom: 88,
+              padding: context.withFloatingNavPadding(
+                const EdgeInsets.only(
+                  left: 16,
+                  right: 16,
+                  top: 16,
+                  bottom: 88,
+                ),
               ),
               child: Grid(
                 mainAxisSpacing: 16,

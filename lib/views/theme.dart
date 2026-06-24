@@ -51,6 +51,7 @@ class ThemeView extends ConsumerWidget {
       _PrimaryColorItem(),
       if (brightness == Brightness.dark) _PrueBlackItem(),
       if (shouldShowHarmonyFont) _HarmonyFontItem(),
+      if (system.isAndroid && !globalState.isAndroidTV) _FloatingNavBarItem(),
       _LightIconItem(),
       _TextScaleFactorItem(),
       const SizedBox(height: 64),
@@ -468,6 +469,29 @@ class _HarmonyFontItem extends ConsumerWidget {
               .read(themeSettingProvider.notifier)
               .updateState((state) => state.copyWith(useHarmonyFont: value));
         },
+      ),
+    );
+  }
+}
+
+class _FloatingNavBarItem extends ConsumerWidget {
+  const _FloatingNavBarItem();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final useFloatingNavBar = ref.watch(
+      themeSettingProvider.select((state) => state.useFloatingNavBar),
+    );
+    return ListItem.switchItem(
+      leading: const Icon(Icons.navigation_outlined),
+      horizontalTitleGap: 12,
+      title: Text(appLocalizations.floatingNavBar),
+      subtitle: Text(appLocalizations.floatingNavBarDesc),
+      delegate: SwitchDelegate(
+        value: useFloatingNavBar,
+        onChanged: (value) => ref
+            .read(themeSettingProvider.notifier)
+            .updateState((state) => state.copyWith(useFloatingNavBar: value)),
       ),
     );
   }

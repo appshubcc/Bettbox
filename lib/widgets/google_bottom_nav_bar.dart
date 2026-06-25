@@ -172,13 +172,13 @@ class GoogleBottomNavBar extends ConsumerWidget {
       gap: 8,
       activeColor: colorScheme.onSecondaryContainer,
       iconSize: 24,
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       duration: const Duration(milliseconds: 250),
       tabBackgroundColor: colorScheme.secondaryContainer,
-      tabBorderRadius: 20,
+      tabBorderRadius: 24,
       color: colorScheme.onSurfaceVariant,
       curve: Curves.easeInOut,
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       tabs: _buildTabs(),
       selectedIndex: selectedIndex,
       onTabChange: (index) {
@@ -228,12 +228,11 @@ class GoogleBottomNavBar extends ConsumerWidget {
                     ),
                     child: Padding(
                       padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 6,
+                        horizontal: 6,
+                        vertical: 4,
                       ),
-                      child: UnconstrainedBox(
-                        constrainedAxis: Axis.horizontal,
-                        clipBehavior: Clip.none,
+                      child: SizedBox(
+                        width: double.infinity,
                         child: nav,
                       ),
                     ),

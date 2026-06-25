@@ -101,6 +101,7 @@ class _ResourcesViewState extends State<ResourcesView> {
         ),
       ],
       body: ListView.separated(
+        padding: context.withFloatingNavPadding(EdgeInsets.zero),
         itemBuilder: (_, index) {
           final geoItem = geoItems[index];
           return GeoDataListItem(geoItem: geoItem);

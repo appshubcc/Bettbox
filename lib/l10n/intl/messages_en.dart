@@ -20,29 +20,41 @@ typedef String MessageIfAbsent(String messageStr, List<dynamic> args);
 class MessageLookup extends MessageLookupByLibrary {
   String get localeName => 'en';
 
-  static String m0(label) => "Delete selected ${label}?";
+  static String m0(count) => "${Intl.plural(count, one: 'day', other: 'days')}";
 
-  static String m1(label) => "Delete current ${label}?";
+  static String m1(label) => "Delete selected ${label}?";
 
-  static String m2(label) => "${label} Details";
+  static String m2(label) => "Delete current ${label}?";
 
   static String m3(label) => "${label} cannot be empty";
 
   static String m4(label) => "${label} already exists";
 
-  static String m5(label) => "No ${label}";
+  static String m5(count) =>
+      "${Intl.plural(count, one: 'hour', other: 'hours')}";
 
-  static String m6(label) => "${label} must be a number";
+  static String m6(count) =>
+      "${Intl.plural(count, one: 'minute', other: 'minutes')}";
 
-  static String m7(label) =>
+  static String m7(count) =>
+      "${Intl.plural(count, one: 'month', other: 'months')}";
+
+  static String m8(label) => "No ${label}";
+
+  static String m9(label) => "${label} must be a number";
+
+  static String m10(label) =>
       "${label} must be between 1024 and 49151, 0 to disable";
 
-  static String m8(statusCode) =>
+  static String m11(statusCode) =>
       "Failed to import profile. Please check your network and try resetting the subscription link (HTTP error code: ${statusCode})";
 
-  static String m9(count) => "${count} items selected";
+  static String m12(count) => "${count} items selected";
 
-  static String m10(label) => "${label} must be a URL";
+  static String m13(label) => "${label} must be a URL";
+
+  static String m14(count) =>
+      "${Intl.plural(count, one: 'year', other: 'years')}";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
@@ -106,7 +118,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "ageSecretKeyOptional": MessageLookupByLibrary.simpleMessage(
       "Age Secret Key (Optional)",
     ),
-    "ago": MessageLookupByLibrary.simpleMessage(" Ago"),
+    "ago": MessageLookupByLibrary.simpleMessage(" ago"),
     "agree": MessageLookupByLibrary.simpleMessage("Agree"),
     "allApps": MessageLookupByLibrary.simpleMessage("All Apps"),
     "allowBypass": MessageLookupByLibrary.simpleMessage("Allow Bypassing VPN"),
@@ -133,6 +145,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "applicationDesc": MessageLookupByLibrary.simpleMessage(
       "Modify application settings",
     ),
+    "authorized": MessageLookupByLibrary.simpleMessage("Authorized"),
     "auto": MessageLookupByLibrary.simpleMessage("Auto"),
     "autoCheckUpdate": MessageLookupByLibrary.simpleMessage(
       "Auto Check Updates",
@@ -282,7 +295,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "cut": MessageLookupByLibrary.simpleMessage("Cut"),
     "dark": MessageLookupByLibrary.simpleMessage("Dark"),
     "dashboard": MessageLookupByLibrary.simpleMessage("Dashboard"),
-    "days": MessageLookupByLibrary.simpleMessage("Days"),
+    "days": m0,
     "defaultNameserver": MessageLookupByLibrary.simpleMessage(
       "Default Nameserver",
     ),
@@ -298,8 +311,8 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "delaySort": MessageLookupByLibrary.simpleMessage("Sort by Delay"),
     "delete": MessageLookupByLibrary.simpleMessage("Delete"),
-    "deleteMultipTip": m0,
-    "deleteTip": m1,
+    "deleteMultipTip": m1,
+    "deleteTip": m2,
     "deleteTunnel": MessageLookupByLibrary.simpleMessage("Delete Forwarding"),
     "desc": MessageLookupByLibrary.simpleMessage(
       "Bettbox is based on the powerful and flexible Mihomo (Clash.Meta) proxy kernel, dedicated to a superior user experience. Forked from FlClash: Better Experience, Out of the box",
@@ -311,7 +324,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "destinationIPASN": MessageLookupByLibrary.simpleMessage(
       "Destination IP ASN",
     ),
-    "details": m2,
+    "details": MessageLookupByLibrary.simpleMessage("Details"),
     "detectionTip": MessageLookupByLibrary.simpleMessage(
       "Third-party API result (for reference only)",
     ),
@@ -448,6 +461,12 @@ class MessageLookup extends MessageLookupByLibrary {
     "findProcessModeDesc": MessageLookupByLibrary.simpleMessage(
       "Enable process matching",
     ),
+    "floatingNavBar": MessageLookupByLibrary.simpleMessage(
+      "Floating navigation bar",
+    ),
+    "floatingNavBarDesc": MessageLookupByLibrary.simpleMessage(
+      "Use a frosted glass capsule bar that floats above page content",
+    ),
     "fontFamily": MessageLookupByLibrary.simpleMessage("Font"),
     "forceDnsMapping": MessageLookupByLibrary.simpleMessage(
       "Force DNS Mapping",
@@ -517,7 +536,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "hotkeyManagementDesc": MessageLookupByLibrary.simpleMessage(
       "Control app via keyboard",
     ),
-    "hours": MessageLookupByLibrary.simpleMessage("Hours"),
+    "hours": m5,
     "httpPortSniffer": MessageLookupByLibrary.simpleMessage(
       "HTTP Port Sniffing",
     ),
@@ -606,11 +625,11 @@ class MessageLookup extends MessageLookupByLibrary {
     "minimizeOnExitDesc": MessageLookupByLibrary.simpleMessage(
       "Override default exit behavior",
     ),
-    "minutes": MessageLookupByLibrary.simpleMessage("Minutes"),
+    "minutes": m6,
     "mixedPort": MessageLookupByLibrary.simpleMessage("Mixed Port"),
     "mode": MessageLookupByLibrary.simpleMessage("Mode"),
     "monochromeScheme": MessageLookupByLibrary.simpleMessage("Monochrome"),
-    "months": MessageLookupByLibrary.simpleMessage("Months"),
+    "months": m7,
     "more": MessageLookupByLibrary.simpleMessage("More"),
     "name": MessageLookupByLibrary.simpleMessage("Name"),
     "nameSort": MessageLookupByLibrary.simpleMessage("Sort by Name"),
@@ -692,8 +711,8 @@ class MessageLookup extends MessageLookupByLibrary {
     "nullProfileDesc": MessageLookupByLibrary.simpleMessage(
       "No profile. Please add one.",
     ),
-    "nullTip": m5,
-    "numberTip": m6,
+    "nullTip": m8,
+    "numberTip": m9,
     "oneColumn": MessageLookupByLibrary.simpleMessage("1 Column"),
     "onlinePanel": MessageLookupByLibrary.simpleMessage("Online Panel"),
     "onlyIcon": MessageLookupByLibrary.simpleMessage("Icon Only"),
@@ -795,7 +814,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "portConflictTip": MessageLookupByLibrary.simpleMessage(
       "Please enter a different port",
     ),
-    "portTip": m7,
+    "portTip": m10,
     "powerSwitch": MessageLookupByLibrary.simpleMessage("Power Switch"),
     "preferH3Desc": MessageLookupByLibrary.simpleMessage(
       "Prioritize DoH HTTP/3",
@@ -810,7 +829,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "profileHasUpdate": MessageLookupByLibrary.simpleMessage(
       "Profile modified. Disable auto-update?",
     ),
-    "profileImportFailed": m8,
+    "profileImportFailed": m11,
     "profileNameNullValidationDesc": MessageLookupByLibrary.simpleMessage(
       "Please enter a profile name",
     ),
@@ -955,7 +974,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "selectAll": MessageLookupByLibrary.simpleMessage("Select All"),
     "selected": MessageLookupByLibrary.simpleMessage("Selected"),
-    "selectedCountTitle": m9,
+    "selectedCountTitle": m12,
     "serviceReady": MessageLookupByLibrary.simpleMessage("Service Ready"),
     "serviceRunning": MessageLookupByLibrary.simpleMessage("Service Running"),
     "settings": MessageLookupByLibrary.simpleMessage("Settings"),
@@ -1113,6 +1132,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "unableToUpdateCurrentProfileDesc": MessageLookupByLibrary.simpleMessage(
       "Unable to update current profile",
     ),
+    "unauthorized": MessageLookupByLibrary.simpleMessage("Unauthorized"),
     "undo": MessageLookupByLibrary.simpleMessage("Undo"),
     "unifiedDelay": MessageLookupByLibrary.simpleMessage("Unified Delay"),
     "unifiedDelayDesc": MessageLookupByLibrary.simpleMessage(
@@ -1124,7 +1144,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "upload": MessageLookupByLibrary.simpleMessage("Upload"),
     "url": MessageLookupByLibrary.simpleMessage("URL"),
     "urlDesc": MessageLookupByLibrary.simpleMessage("Get profile via URL"),
-    "urlTip": m10,
+    "urlTip": m13,
     "useGlobalScriptOverride": MessageLookupByLibrary.simpleMessage(
       "Use Global Script Override",
     ),
@@ -1157,7 +1177,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "writeToSystemDesc": MessageLookupByLibrary.simpleMessage(
       "Requires administrator privileges",
     ),
-    "years": MessageLookupByLibrary.simpleMessage("Years"),
+    "years": m14,
     "zh_CN": MessageLookupByLibrary.simpleMessage("Simplified Chinese"),
     "zh_TC": MessageLookupByLibrary.simpleMessage("Traditional Chinese"),
   };

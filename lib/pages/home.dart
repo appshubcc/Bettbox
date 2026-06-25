@@ -48,56 +48,90 @@ class _HomePageState extends State<HomePage> {
         color: context.colorScheme.surface,
         child: Consumer(
           builder: (context, ref, child) {
-            final state = ref.watch(navigationStateProvider);
-            final isMobile = state.viewMode == ViewMode.mobile;
-            final navigationItems = state.navigationItems;
-            final currentIndex = state.currentIndex;
-            final bottomNavigationBar = globalState.isAndroidTV
-                ? _buildTVBottomNavBar(
-                    context,
-                    navigationItems: navigationItems,
-                    currentIndex: currentIndex,
-                  )
-                : GoogleBottomNavBar(
-                    navigationItems: navigationItems,
-                    selectedIndex: currentIndex,
-                    onTabChange: (index) {
-                      globalState.appController.toPage(navigationItems[index].label);
-                    },
-                  );
-            if (isMobile) {
+            final isMobile = ref.watch(
+              navigationStateProvider.select(
+                (state) => state.viewMode == ViewMode.mobile,
+              ),
+            );
+            if (!isMobile) {
+              return child!;
+            }
+
+            final useFloatingNavBar = ref.watch(
+              themeSettingProvider.select((state) => state.useFloatingNavBar),
+            );
+            final isFloatingNav =
+                !globalState.isAndroidTV && useFloatingNavBar;
+
+            if (isFloatingNav) {
               return AnnotatedRegion<SystemUiOverlayStyle>(
                 value: globalState.appState.systemUiOverlayStyle.copyWith(
-                  systemNavigationBarColor:
-                      context.colorScheme.surfaceContainer,
+                  systemNavigationBarColor: Colors.transparent,
                 ),
-                child: Column(
+                child: Stack(
+                  clipBehavior: Clip.none,
                   children: [
-                    Flexible(
-                      flex: 1,
+                    Positioned.fill(
                       child: MediaQuery.removePadding(
                         removeTop: false,
                         removeBottom: true,
                         removeLeft: true,
                         removeRight: true,
                         context: context,
-                        child: child!,
+                        child: FloatingNavBarScope(child: child!),
                       ),
                     ),
-                    MediaQuery.removePadding(
-                      removeTop: true,
-                      removeBottom: false,
-                      removeLeft: true,
-                      removeRight: true,
-                      context: context,
-                      child: bottomNavigationBar,
+                    const Positioned(
+                      left: 0,
+                      right: 0,
+                      bottom: 0,
+                      child: _HomeBottomNav(floating: true),
                     ),
                   ],
                 ),
               );
-            } else {
-              return child!;
             }
+
+            return AnnotatedRegion<SystemUiOverlayStyle>(
+              value: globalState.appState.systemUiOverlayStyle.copyWith(
+                systemNavigationBarColor:
+                    context.colorScheme.surfaceContainer,
+              ),
+              child: Column(
+                children: [
+                  Flexible(
+                    flex: 1,
+                    child: MediaQuery.removePadding(
+                      removeTop: false,
+                      removeBottom: true,
+                      removeLeft: true,
+                      removeRight: true,
+                      context: context,
+                      child: child!,
+                    ),
+                  ),
+                  MediaQuery.removePadding(
+                    removeTop: true,
+                    removeBottom: false,
+                    removeLeft: true,
+                    removeRight: true,
+                    context: context,
+                    child: globalState.isAndroidTV
+                        ? Consumer(
+                            builder: (context, ref, _) {
+                              final state = ref.watch(navigationStateProvider);
+                              return _buildTVBottomNavBar(
+                                context,
+                                navigationItems: state.navigationItems,
+                                currentIndex: state.currentIndex,
+                              );
+                            },
+                          )
+                        : const _HomeBottomNav(floating: false),
+                  ),
+                ],
+              ),
+            );
           },
           child: Consumer(
             builder: (_, ref, _) {
@@ -265,6 +299,31 @@ class _HomePageState extends State<HomePage> {
   }
 }
 
+class _HomeBottomNav extends ConsumerWidget {
+  final bool floating;
+
+  const _HomeBottomNav({required this.floating});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final navigationItems = ref.watch(
+      navigationStateProvider.select((state) => state.navigationItems),
+    );
+    final currentIndex = ref.watch(
+      navigationStateProvider.select((state) => state.currentIndex),
+    );
+
+    return GoogleBottomNavBar(
+      navigationItems: navigationItems,
+      selectedIndex: currentIndex,
+      floating: floating,
+      onTabChange: (index) {
+        globalState.appController.toPage(navigationItems[index].label);
+      },
+    );
+  }
+}
+
 class _HomePageView extends ConsumerStatefulWidget {
   final IndexedWidgetBuilder pageBuilder;
   final List<NavigationItem> navigationItems;
@@ -355,13 +414,15 @@ class _HomePageViewState extends ConsumerState<_HomePageView> {
 
   @override
   Widget build(BuildContext context) {
-    return PageView.builder(
-      controller: _pageController,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: widget.navigationItems.length,
-      itemBuilder: (context, index) {
-        return widget.pageBuilder(context, index);
-      },
+    return RepaintBoundary(
+      child: PageView.builder(
+        controller: _pageController,
+        physics: const NeverScrollableScrollPhysics(),
+        itemCount: widget.navigationItems.length,
+        itemBuilder: (context, index) {
+          return widget.pageBuilder(context, index);
+        },
+      ),
     );
   }
 }

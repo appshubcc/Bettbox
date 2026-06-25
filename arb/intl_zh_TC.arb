@@ -567,6 +567,8 @@
   "lightIconDesc": "手動切換淺色系桌面應用程式圖示",
   "harmonyFont": "字體修復",
   "harmonyFontDesc": "使用內建字體解決顯示異常問題",
+  "floatingNavBar": "懸浮底欄",
+  "floatingNavBarDesc": "使用毛玻璃膠囊底欄懸浮在頁面內容上方",
   "internet": "網際網路",
   "systemApp": "系統應用程式",
   "noNetworkApp": "無網路應用程式",

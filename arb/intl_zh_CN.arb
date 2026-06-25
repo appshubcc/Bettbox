@@ -567,6 +567,8 @@
   "lightIconDesc": "手动切换浅色系桌面APP图标",
   "harmonyFont": "字体修复",
   "harmonyFontDesc": "使用内置字体解决显示异常问题",
+  "floatingNavBar": "悬浮底栏",
+  "floatingNavBarDesc": "使用毛玻璃胶囊底栏悬浮在页面内容上方",
   "internet": "互联网",
   "systemApp": "系统应用",
   "noNetworkApp": "无网络应用",

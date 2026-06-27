@@ -37,8 +37,10 @@ class AppController {
 
   Timer? _wakelockSyncTimer;
   Completer<void>? _restartLock;
+  Completer<void>? _changeProfileLock;
   Completer<void>? _exitLock;
   int _backgroundLoadVersion = 0;
+  bool _hasPendingProfileChange = false;
 
   int _updateGroupsRetryCount = 0;
   bool _isUpdatingGroups = false;
@@ -541,13 +543,36 @@ class AppController {
     addCheckIpNumDebounce();
   }
 
-  Future<void> handleChangeProfile() async {
+  Future<void> _handleChangeProfile() async {
     _ref.read(delayDataSourceProvider.notifier).value = {};
-    await applyProfile(silence: true);
     await restartCore();
+    await applyProfile(silence: true);
     _ref.read(logsProvider.notifier).value = FixedList(maxLength);
     _ref.read(requestsProvider.notifier).value = FixedList(maxLength);
     globalState.computeHeightMapCache = {};
+  }
+
+  Future<void> handleChangeProfile() async {
+    if (_changeProfileLock != null) {
+      _hasPendingProfileChange = true;
+      return _changeProfileLock!.future;
+    }
+
+    final lock = Completer<void>();
+    _changeProfileLock = lock;
+
+    try {
+      do {
+        _hasPendingProfileChange = false;
+        await _handleChangeProfile();
+      } while (_hasPendingProfileChange);
+      lock.complete();
+    } catch (e, stackTrace) {
+      lock.completeError(e, stackTrace);
+      rethrow;
+    } finally {
+      _changeProfileLock = null;
+    }
   }
 
   void updateBrightness() {

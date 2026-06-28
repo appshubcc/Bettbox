@@ -682,12 +682,20 @@ class BuildCommand extends Command {
 final String actualOut = out ?? (platform.buildable ? 'app' : 'core');
     Build.isDev = dev;
 
-    Arch? arch = arches
-        .where((element) => element.name == archName)
-        .firstOrNull;
+    final String? archParam = archName;
 
-    if (platform != TargetPlatform.android) {
-      arch ??= arches.where((element) => element.same).first;
+    Arch? arch;
+    if (archParam == null) {
+      if (platform != TargetPlatform.android) {
+        arch = arches.firstWhere((element) => element.same);
+      }
+    } else if (archParam == 'universal') {
+      if (platform != TargetPlatform.android && platform != TargetPlatform.macos) {
+        throw 'Invalid arch parameter!';
+      }
+    } else {
+      arch = arches.where((element) => element.name == archParam).firstOrNull;
+      if (arch == null) throw 'Invalid arch parameter!';
     }
 
     if (ensure && actualOut != 'app') {
@@ -734,7 +742,7 @@ final String actualOut = out ?? (platform.buildable ? 'app' : 'core');
 
     final String desc = platform == TargetPlatform.android
         ? ''
-        : '${archName ?? arch!.name}${compatible ? "-compatible" : ""}';
+        : '${archParam ?? arch!.name}${compatible ? "-compatible" : ""}';
 
     String appAssetSuffix = '';
     switch (platform) {
@@ -747,7 +755,7 @@ final String actualOut = out ?? (platform.buildable ? 'app' : 'core');
       case TargetPlatform.linux:
         break;
       case TargetPlatform.android:
-        if (archName == 'universal') {
+        if (archParam == 'universal') {
           appAssetSuffix = 'android-universal.apk';
         } else if (arch == Arch.arm64) {
           appAssetSuffix = 'android-arm64-v8a.apk';
@@ -849,7 +857,7 @@ final String actualOut = out ?? (platform.buildable ? 'app' : 'core');
             .map((e) => targetMap[e])
             .toList();
 
-        final buildArgs = archName == 'universal'
+        final buildArgs = archParam == 'universal'
             ? ' --build-target-platform ${defaultTargets.join(",")} --description universal'
             : ',split-per-abi --build-target-platform ${defaultTargets.join(",")}';
 

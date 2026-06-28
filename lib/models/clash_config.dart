@@ -341,10 +341,7 @@ extension TunExt on Tun {
       );
     }
 
-    return copyWith(
-      autoRoute: true,
-      routeAddress: [],
-    );
+    return copyWith(autoRoute: true, routeAddress: []);
   }
 }
 
@@ -383,9 +380,7 @@ abstract class Dns with _$Dns {
     @Default('198.18.0.1/15')
     @JsonKey(name: 'fake-ip-range')
     String fakeIpRange,
-    @Default('fc00::/18')
-    @JsonKey(name: 'fake-ip-range-v6')
-    String fakeIpRangeV6,
+    @Default('fc00::/18') @JsonKey(name: 'fake-ip-range6') String fakeIpRangeV6,
     @Default(FilterMode.blacklist)
     @JsonKey(name: 'fake-ip-filter-mode')
     FilterMode fakeIpFilterMode,
@@ -567,10 +562,7 @@ abstract class ParsedRule with _$ParsedRule {
 extension ParsedRuleExt on ParsedRule {
   String get value {
     if (ruleAction == RuleAction.MATCH) {
-      return [
-        ruleAction.value,
-        ruleTarget,
-      ].join(',');
+      return [ruleAction.value, ruleTarget].join(',');
     }
     return [
       ruleAction.value,

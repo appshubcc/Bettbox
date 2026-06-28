@@ -257,7 +257,7 @@ _Dns _$DnsFromJson(Map<String, dynamic> json) => _Dns(
       $enumDecodeNullable(_$DnsModeEnumMap, json['enhanced-mode']) ??
       DnsMode.fakeIp,
   fakeIpRange: json['fake-ip-range'] as String? ?? '198.18.0.1/15',
-  fakeIpRangeV6: json['fake-ip-range-v6'] as String? ?? 'fc00::/18',
+  fakeIpRangeV6: json['fake-ip-range6'] as String? ?? 'fc00::/18',
   fakeIpFilterMode:
       $enumDecodeNullable(_$FilterModeEnumMap, json['fake-ip-filter-mode']) ??
       FilterMode.blacklist,
@@ -322,7 +322,7 @@ Map<String, dynamic> _$DnsToJson(_Dns instance) => <String, dynamic>{
   'default-nameserver': instance.defaultNameserver,
   'enhanced-mode': _$DnsModeEnumMap[instance.enhancedMode]!,
   'fake-ip-range': instance.fakeIpRange,
-  'fake-ip-range-v6': instance.fakeIpRangeV6,
+  'fake-ip-range6': instance.fakeIpRangeV6,
   'fake-ip-filter-mode': _$FilterModeEnumMap[instance.fakeIpFilterMode]!,
   'fake-ip-filter': instance.fakeIpFilter,
   'fake-ip-ttl': instance.fakeIpTtl,

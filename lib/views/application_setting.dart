@@ -75,29 +75,6 @@ class AutoLaunchItem extends ConsumerWidget {
   }
 }
 
-class SmartDelayLaunchItem extends ConsumerWidget {
-  const SmartDelayLaunchItem({super.key});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final smartDelayLaunch = ref.watch(
-      appSettingProvider.select((state) => state.smartDelayLaunch),
-    );
-    return ListItem.switchItem(
-      title: Text(appLocalizations.smartDelayLaunch),
-      subtitle: Text(appLocalizations.smartDelayLaunchDesc),
-      delegate: SwitchDelegate(
-        value: smartDelayLaunch,
-        onChanged: (bool value) {
-          ref
-              .read(appSettingProvider.notifier)
-              .updateState((state) => state.copyWith(smartDelayLaunch: value));
-        },
-      ),
-    );
-  }
-}
-
 class SilentLaunchItem extends ConsumerWidget {
   const SilentLaunchItem({super.key});
 
@@ -190,6 +167,31 @@ class AnimateTabItem extends ConsumerWidget {
   }
 }
 
+class AlwaysShowTitleBarItem extends ConsumerWidget {
+  const AlwaysShowTitleBarItem({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final alwaysShowTitleBar = ref.watch(
+      vpnSettingProvider.select((state) => state.alwaysShowTitleBar),
+    );
+    return ListItem.switchItem(
+      title: Text(appLocalizations.alwaysShowTitleBar),
+      subtitle: Text(appLocalizations.alwaysShowTitleBarDesc),
+      delegate: SwitchDelegate(
+        value: alwaysShowTitleBar,
+        onChanged: (bool value) async {
+          ref
+              .read(vpnSettingProvider.notifier)
+              .updateState(
+                (state) => state.copyWith(alwaysShowTitleBar: value),
+              );
+        },
+      ),
+    );
+  }
+}
+
 class NavBarHapticFeedbackItem extends ConsumerWidget {
   const NavBarHapticFeedbackItem({super.key});
 
@@ -204,9 +206,11 @@ class NavBarHapticFeedbackItem extends ConsumerWidget {
       delegate: SwitchDelegate(
         value: enableNavBarHapticFeedback,
         onChanged: (value) {
-          ref.read(appSettingProvider.notifier).updateState(
-            (state) => state.copyWith(enableNavBarHapticFeedback: value),
-          );
+          ref
+              .read(appSettingProvider.notifier)
+              .updateState(
+                (state) => state.copyWith(enableNavBarHapticFeedback: value),
+              );
         },
       ),
     );
@@ -239,27 +243,22 @@ class AutoCheckUpdateItem extends ConsumerWidget {
 class ApplicationSettingView extends StatelessWidget {
   const ApplicationSettingView({super.key});
 
-
-
   @override
   Widget build(BuildContext context) {
     return Consumer(
       builder: (context, ref, _) {
-        final autoLaunch = ref.watch(
-          appSettingProvider.select((state) => state.autoLaunch),
-        );
         List<Widget> items = [
           AutoLaunchItem(),
-          if (system.isDesktop) ...[
-            if (system.isWindows && autoLaunch) SmartDelayLaunchItem(),
-            SilentLaunchItem(),
-          ],
+          if (system.isDesktop) ...[SilentLaunchItem()],
           AutoRunItem(),
           if (system.isAndroid) ...[HiddenItem()],
-          AnimateTabItem(),
-          if (system.isAndroid) ...[
-            NavBarHapticFeedbackItem(),
+          if (system.isDesktop) ...[
+            if (system.isWindows || system.isLinux)
+              const AlwaysShowTitleBarItem(),
+          ] else ...[
+            const AnimateTabItem(),
           ],
+          if (system.isAndroid) ...[NavBarHapticFeedbackItem()],
           CloseConnectionsItem(),
           UsageItem(),
           AutoCheckUpdateItem(),

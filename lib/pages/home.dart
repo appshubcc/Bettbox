@@ -219,7 +219,7 @@ class _HomePageState extends State<HomePage> {
                                 ),
                                 const SizedBox(height: 4),
                                 Text(
-                                  _getLocalizedLabel(item.label),
+                                  item.label.localizedName,
                                   style: TextStyle(
                                     color: isSelected
                                         ? context.colorScheme.onSecondaryContainer
@@ -239,29 +239,6 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
     );
-  }
-
-  String _getLocalizedLabel(PageLabel label) {
-    switch (label) {
-      case PageLabel.dashboard:
-        return appLocalizations.dashboard;
-      case PageLabel.proxies:
-        return appLocalizations.proxies;
-      case PageLabel.profiles:
-        return appLocalizations.profiles;
-      case PageLabel.tools:
-        return appLocalizations.tools;
-      case PageLabel.logs:
-        return appLocalizations.logs;
-      case PageLabel.requests:
-        return appLocalizations.requests;
-      case PageLabel.resources:
-        return appLocalizations.resources;
-      case PageLabel.script:
-        return appLocalizations.script;
-      case PageLabel.connections:
-        return appLocalizations.connections;
-    }
   }
 }
 
@@ -328,7 +305,7 @@ class _HomePageViewState extends ConsumerState<_HomePageView> {
       FocusManager.instance.primaryFocus?.unfocus();
     }
     
-    final isAnimateToPage = ref.read(appSettingProvider).isAnimateToPage;
+    final isAnimateToPage = system.isDesktop || ref.read(appSettingProvider).isAnimateToPage;
     final isMobile = ref.read(isMobileViewProvider);
     if (isAnimateToPage && isMobile && !ignoreAnimateTo) {
       await _pageController.animateToPage(

@@ -75,6 +75,7 @@ GroupsState currentGroupsState(Ref ref) {
 
 @riverpod
 NavigationItemsState navigationItemsState(Ref ref) {
+  ref.watch(appSettingProvider.select((state) => state.locale));
   final openLogs = ref.watch(appSettingProvider).openLogs;
   return NavigationItemsState(
     value: navigation.getItems(openLogs: openLogs, hasProxies: true),

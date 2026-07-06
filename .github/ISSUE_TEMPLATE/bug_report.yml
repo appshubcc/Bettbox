@@ -13,7 +13,7 @@ body:
     id: bug-description
     attributes:
       label: 问题描述 / Description
-      placeholder: 注意: Android系统相关ISSUE，如为国内OS版本务必注明, 例如: HyperOS 3。请清晰地描述你遇到的问题，必要时附上截图。 / Describe the issue in detail, with screenshots if possible.
+      placeholder: 注意 Android系统相关ISSUE，如为国内OS版本务必注明, 例如 HyperOS 3。请清晰地描述你遇到的问题，必要时附上截图。 / Describe the issue in detail, with screenshots if possible.
     validations:
       required: true
 

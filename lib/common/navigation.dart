@@ -18,14 +18,14 @@ class Navigation {
         icon: Icon(Icons.space_dashboard),
         label: PageLabel.dashboard,
         builder: (_) =>
-            const DashboardView(key: GlobalObjectKey(PageLabel.dashboard)),
+            DashboardView(key: const GlobalObjectKey(PageLabel.dashboard)),
       ),
       NavigationItem(
         icon: const Icon(Icons.article),
         label: PageLabel.proxies,
         builder: (_) => ProviderScope(
           overrides: [queryProvider.overrideWith(() => Query())],
-          child: const ProxiesView(key: GlobalObjectKey(PageLabel.proxies)),
+          child: ProxiesView(key: const GlobalObjectKey(PageLabel.proxies)),
         ),
         modes: hasProxies
             ? [NavigationItemMode.mobile, NavigationItemMode.desktop]
@@ -35,13 +35,13 @@ class Navigation {
         icon: Icon(Icons.folder),
         label: PageLabel.profiles,
         builder: (_) =>
-            const ProfilesView(key: GlobalObjectKey(PageLabel.profiles)),
+            ProfilesView(key: const GlobalObjectKey(PageLabel.profiles)),
       ),
       NavigationItem(
         icon: Icon(Icons.view_timeline),
         label: PageLabel.requests,
         builder: (_) =>
-            const RequestsView(key: GlobalObjectKey(PageLabel.requests)),
+            RequestsView(key: const GlobalObjectKey(PageLabel.requests)),
         description: 'requestsDesc',
         modes: [NavigationItemMode.desktop, NavigationItemMode.more],
       ),
@@ -49,7 +49,7 @@ class Navigation {
         icon: Icon(Icons.ballot),
         label: PageLabel.connections,
         builder: (_) =>
-            const ConnectionsView(key: GlobalObjectKey(PageLabel.connections)),
+            ConnectionsView(key: const GlobalObjectKey(PageLabel.connections)),
         description: 'connectionsDesc',
         modes: [NavigationItemMode.desktop, NavigationItemMode.more],
       ),
@@ -58,7 +58,7 @@ class Navigation {
         label: PageLabel.resources,
         description: 'resourcesDesc',
         builder: (_) =>
-            const ResourcesView(key: GlobalObjectKey(PageLabel.resources)),
+            ResourcesView(key: const GlobalObjectKey(PageLabel.resources)),
         modes: [NavigationItemMode.more],
       ),
       NavigationItem(
@@ -66,20 +66,20 @@ class Navigation {
         label: PageLabel.script,
         description: 'scriptDesc',
         builder: (_) =>
-            const ScriptsView(key: GlobalObjectKey(PageLabel.script)),
+            ScriptsView(key: const GlobalObjectKey(PageLabel.script)),
         modes: [NavigationItemMode.more],
       ),
       NavigationItem(
         icon: const Icon(Icons.adb),
         label: PageLabel.logs,
-        builder: (_) => const LogsView(key: GlobalObjectKey(PageLabel.logs)),
+        builder: (_) => LogsView(key: const GlobalObjectKey(PageLabel.logs)),
         description: 'logsDesc',
         modes: [NavigationItemMode.desktop, NavigationItemMode.more],
       ),
       NavigationItem(
         icon: Icon(Icons.construction),
         label: PageLabel.tools,
-        builder: (_) => const ToolsView(key: GlobalObjectKey(PageLabel.tools)),
+        builder: (_) => ToolsView(key: const GlobalObjectKey(PageLabel.tools)),
         modes: [NavigationItemMode.desktop, NavigationItemMode.mobile],
       ),
     ];

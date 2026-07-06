@@ -436,29 +436,6 @@ class NetworkSpeedNotificationItem extends ConsumerWidget {
   }
 }
 
-class AlwaysShowTitleBarItem extends ConsumerWidget {
-  const AlwaysShowTitleBarItem({super.key});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final alwaysShowTitleBar = ref.watch(
-      vpnSettingProvider.select((state) => state.alwaysShowTitleBar),
-    );
-    return ListItem.switchItem(
-      title: Text(appLocalizations.alwaysShowTitleBar),
-      subtitle: Text(appLocalizations.alwaysShowTitleBarDesc),
-      delegate: SwitchDelegate(
-        value: alwaysShowTitleBar,
-        onChanged: (bool value) async {
-          ref
-              .read(vpnSettingProvider.notifier)
-              .updateState((state) => state.copyWith(alwaysShowTitleBar: value));
-        },
-      ),
-    );
-  }
-}
-
 class TrayEnhancementItem extends ConsumerWidget {
   const TrayEnhancementItem({super.key});
 
@@ -531,7 +508,6 @@ class OtherSettingView extends ConsumerWidget {
       const StoreFixItem(),
       const DisableQuicItem(),
       if (system.isAndroid) const NetworkSpeedNotificationItem(),
-      if (system.isWindows || system.isLinux) const AlwaysShowTitleBarItem(),
       if (!system.isAndroid) const TrayEnhancementItem(),
       if (disableQuic && !isRussian) const ExcludeChinaItem(),
       if (system.isWindows) const HighPriorityItem(),

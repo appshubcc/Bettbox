@@ -235,6 +235,12 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "clearCacheTitle": MessageLookupByLibrary.simpleMessage("Clear Cache"),
     "clearData": MessageLookupByLibrary.simpleMessage("Clear Data"),
+    "clearDataTipDesc": MessageLookupByLibrary.simpleMessage(
+      "This operation will reset the application. Please make backups. Are you sure you want to continue?",
+    ),
+    "clearDataTipTitle": MessageLookupByLibrary.simpleMessage(
+      "Dangerous Operation",
+    ),
     "clipboard": MessageLookupByLibrary.simpleMessage("Clipboard"),
     "clipboardDesc": MessageLookupByLibrary.simpleMessage(
       "Get profile link from clipboard",
@@ -389,6 +395,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "enableOverride": MessageLookupByLibrary.simpleMessage("Enable Override"),
     "endpointIndependentNat": MessageLookupByLibrary.simpleMessage(
       "NAT Enhancement",
+    ),
+    "endpointIndependentNatConfirmDesc": MessageLookupByLibrary.simpleMessage(
+      "Enabling Endpoint-Independent NAT feature may slightly degrade performance. It is recommended to enable it only if necessary and you are familiar with it.",
     ),
     "endpointIndependentNatDesc": MessageLookupByLibrary.simpleMessage(
       "Optimize UDP/P2P experience",
@@ -652,6 +661,8 @@ class MessageLookup extends MessageLookupByLibrary {
     "navBarHapticFeedbackDesc": MessageLookupByLibrary.simpleMessage(
       "Vibrate on navigation tab switch",
     ),
+    "navConnections": MessageLookupByLibrary.simpleMessage("Active"),
+    "navTools": MessageLookupByLibrary.simpleMessage("More"),
     "network": MessageLookupByLibrary.simpleMessage("Network"),
     "networkDesc": MessageLookupByLibrary.simpleMessage(
       "Modify network-related settings",

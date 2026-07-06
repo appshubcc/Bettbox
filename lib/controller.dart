@@ -454,7 +454,7 @@ class AppController {
   }
 
   void addLog(Log log) {
-    _ref.read(logsProvider).add(log);
+    _ref.read(logsProvider.notifier).addLog(log);
   }
 
   void updateOrAddHotKeyAction(HotKeyAction hotKeyAction) {

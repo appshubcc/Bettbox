@@ -282,14 +282,23 @@ class EndpointIndependentNatItem extends ConsumerWidget {
       subtitle: Text(appLocalizations.endpointIndependentNatDesc),
       delegate: SwitchDelegate(
         value: endpointIndependentNat,
-        onChanged: (value) async {
-          ref
-              .read(patchClashConfigProvider.notifier)
-              .updateState(
-                (state) => state.copyWith.tun(endpointIndependentNat: value),
-              );
-          await _handleNetworkConfigChange(ref);
-        },
+      onChanged: (value) async {
+        if (value) {
+          final res = await globalState.showMessage(
+            title: appLocalizations.tip,
+            message: TextSpan(
+              text: appLocalizations.endpointIndependentNatConfirmDesc,
+            ),
+          );
+          if (res != true) return;
+        }
+        ref
+            .read(patchClashConfigProvider.notifier)
+            .updateState(
+              (state) => state.copyWith.tun(endpointIndependentNat: value),
+            );
+        await _handleNetworkConfigChange(ref);
+      },
       ),
     );
   }

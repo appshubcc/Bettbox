@@ -133,7 +133,7 @@ class System {
 
     if (Platform.isLinux) {
       final escapedCorePath = _shellEscape(appPath.corePath);
-      
+
       try {
         final pkexecResult = await Process.run('pkexec', [
           'sh',
@@ -415,10 +415,7 @@ class Windows {
     await Process.run('sc', ['stop', appHelperService]);
   }
 
-  Future<bool> registerTask(
-    String appName, {
-    bool requireNetwork = true,
-  }) async {
+  Future<bool> registerTask(String appName) async {
     final executablePath = Platform.resolvedExecutable;
     final workingDirectory = dirname(executablePath);
 
@@ -447,7 +444,7 @@ class Windows {
     <StopIfGoingOnBatteries>false</StopIfGoingOnBatteries>
     <AllowHardTerminate>false</AllowHardTerminate>
     <StartWhenAvailable>true</StartWhenAvailable>
-    <RunOnlyIfNetworkAvailable>$requireNetwork</RunOnlyIfNetworkAvailable>
+    <RunOnlyIfNetworkAvailable>false</RunOnlyIfNetworkAvailable>
     <IdleSettings>
       <StopOnIdleEnd>false</StopOnIdleEnd>
       <RestartOnIdle>false</RestartOnIdle>

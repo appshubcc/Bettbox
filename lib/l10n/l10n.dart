@@ -3989,6 +3989,16 @@ class AppLocalizations {
     );
   }
 
+  /// `Enabling Endpoint-Independent NAT feature may slightly degrade performance. It is recommended to enable it only if necessary and you are familiar with it.`
+  String get endpointIndependentNatConfirmDesc {
+    return Intl.message(
+      'Enabling Endpoint-Independent NAT feature may slightly degrade performance. It is recommended to enable it only if necessary and you are familiar with it.',
+      name: 'endpointIndependentNatConfirmDesc',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Network`
   String get network {
     return Intl.message('Network', name: 'network', desc: '', args: []);
@@ -4187,6 +4197,16 @@ class AppLocalizations {
       desc: '',
       args: [],
     );
+  }
+
+  /// `Active`
+  String get navConnections {
+    return Intl.message('Active', name: 'navConnections', desc: '', args: []);
+  }
+
+  /// `More`
+  String get navTools {
+    return Intl.message('More', name: 'navTools', desc: '', args: []);
   }
 
   /// `Copy Successful`
@@ -4627,6 +4647,26 @@ class AppLocalizations {
   /// `Clear Data`
   String get clearData {
     return Intl.message('Clear Data', name: 'clearData', desc: '', args: []);
+  }
+
+  /// `Dangerous Operation`
+  String get clearDataTipTitle {
+    return Intl.message(
+      'Dangerous Operation',
+      name: 'clearDataTipTitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `This operation will reset the application. Please make backups. Are you sure you want to continue?`
+  String get clearDataTipDesc {
+    return Intl.message(
+      'This operation will reset the application. Please make backups. Are you sure you want to continue?',
+      name: 'clearDataTipDesc',
+      desc: '',
+      args: [],
+    );
   }
 
   /// `Text Scaling`

@@ -7,8 +7,6 @@ import 'package:bett_box/widgets/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../providers/app.dart';
-
 class DeveloperView extends ConsumerWidget {
   const DeveloperView({super.key});
 
@@ -25,7 +23,7 @@ class DeveloperView extends ConsumerWidget {
         ListItem(
           title: Text(appLocalizations.logsTest),
           onTap: () {
-            for (int i = 0; i < 1000; i++) {
+            for (int i = 0; i < 100; i++) {
               globalState.appController.addLog(
                 Log.app(
                   '[$i]${utils.generateRandomString(maxLength: 200, minLength: 20)}',
@@ -37,13 +35,14 @@ class DeveloperView extends ConsumerWidget {
         ListItem(
           title: Text(appLocalizations.clearData),
           onTap: () async {
+            final res = await globalState.showMessage(
+              title: appLocalizations.clearDataTipTitle,
+              message: TextSpan(
+                text: appLocalizations.clearDataTipDesc,
+              ),
+            );
+            if (res != true) return;
             await globalState.appController.handleClear();
-          },
-        ),
-        ListItem(
-          title: Text('loading'),
-          onTap: () {
-            ref.read(loadingProvider.notifier).value = true;
           },
         ),
       ],

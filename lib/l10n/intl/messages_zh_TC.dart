@@ -168,6 +168,10 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "clearCacheTitle": MessageLookupByLibrary.simpleMessage("清理快取"),
     "clearData": MessageLookupByLibrary.simpleMessage("清除資料"),
+    "clearDataTipDesc": MessageLookupByLibrary.simpleMessage(
+      "此操作將會重置應用程式, 請注意備份, 確定要繼續嗎？",
+    ),
+    "clearDataTipTitle": MessageLookupByLibrary.simpleMessage("危險操作"),
     "clipboard": MessageLookupByLibrary.simpleMessage("剪貼簿"),
     "clipboardDesc": MessageLookupByLibrary.simpleMessage("自動獲取剪貼簿訂閱連結"),
     "clipboardExport": MessageLookupByLibrary.simpleMessage("匯出剪貼簿"),
@@ -277,6 +281,9 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "enableOverride": MessageLookupByLibrary.simpleMessage("啟用覆寫"),
     "endpointIndependentNat": MessageLookupByLibrary.simpleMessage("NAT 增強"),
+    "endpointIndependentNatConfirmDesc": MessageLookupByLibrary.simpleMessage(
+      "啟用 Endpoint-Independent NAT 功能，性能可能會略有下降，此功能僅建議您在必要且熟悉的情況下開啟",
+    ),
     "endpointIndependentNatDesc": MessageLookupByLibrary.simpleMessage(
       "優化 UDP/P2P 應用體驗",
     ),
@@ -461,6 +468,8 @@ class MessageLookup extends MessageLookupByLibrary {
     "navBarHapticFeedbackDesc": MessageLookupByLibrary.simpleMessage(
       "底部導覽列切換震動回饋",
     ),
+    "navConnections": MessageLookupByLibrary.simpleMessage("連線"),
+    "navTools": MessageLookupByLibrary.simpleMessage("更多"),
     "network": MessageLookupByLibrary.simpleMessage("網路"),
     "networkDesc": MessageLookupByLibrary.simpleMessage("修改網路相關設定"),
     "networkDetection": MessageLookupByLibrary.simpleMessage("網路檢測"),

@@ -3,6 +3,7 @@
 import 'dart:io';
 
 import 'package:bett_box/common/system.dart';
+import 'package:bett_box/common/app_localizations.dart';
 import 'package:bett_box/views/dashboard/widgets/widgets.dart';
 import 'package:bett_box/widgets/widgets.dart';
 import 'package:flutter/material.dart';
@@ -358,6 +359,32 @@ enum PageLabel {
   script,
   connections,
 }
+
+extension PageLabelExtension on PageLabel {
+  String get localizedName {
+    switch (this) {
+      case PageLabel.dashboard:
+        return appLocalizations.dashboard;
+      case PageLabel.proxies:
+        return appLocalizations.proxies;
+      case PageLabel.profiles:
+        return appLocalizations.profiles;
+      case PageLabel.tools:
+        return appLocalizations.navTools;
+      case PageLabel.logs:
+        return appLocalizations.logs;
+      case PageLabel.requests:
+        return appLocalizations.requests;
+      case PageLabel.resources:
+        return appLocalizations.resources;
+      case PageLabel.script:
+        return appLocalizations.script;
+      case PageLabel.connections:
+        return appLocalizations.navConnections;
+    }
+  }
+}
+
 
 enum RuleAction {
   DOMAIN('DOMAIN'),

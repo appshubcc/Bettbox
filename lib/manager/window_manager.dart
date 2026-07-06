@@ -44,7 +44,6 @@ class _WindowContainerState extends ConsumerState<WindowManager>
   }
 
   ProviderSubscription? _autoLaunchSub;
-  ProviderSubscription? _smartDelaySub;
 
   @override
   void initState() {
@@ -53,24 +52,9 @@ class _WindowContainerState extends ConsumerState<WindowManager>
       appSettingProvider.select((state) => state.autoLaunch),
       (prev, next) {
         if (prev != next) {
-          final smartDelayLaunch = ref
-              .read(appSettingProvider)
-              .smartDelayLaunch;
           debouncer.call(FunctionTag.autoLaunch, () {
-            autoLaunch?.updateStatus(next, requireNetwork: smartDelayLaunch);
+            autoLaunch?.updateStatus(next);
           });
-        }
-      },
-    );
-
-    _smartDelaySub = ref.listenManual(
-      appSettingProvider.select((state) => state.smartDelayLaunch),
-      (prev, next) {
-        if (prev != next) {
-          final autoLaunchEnabled = ref.read(appSettingProvider).autoLaunch;
-          if (autoLaunchEnabled) {
-            autoLaunch?.updateStatus(true, requireNetwork: next);
-          }
         }
       },
     );
@@ -138,7 +122,6 @@ class _WindowContainerState extends ConsumerState<WindowManager>
   @override
   Future<void> dispose() async {
     _autoLaunchSub?.close();
-    _smartDelaySub?.close();
     windowManager.removeListener(this);
     windowExtManager.removeListener(this);
     _renderToggleTimer?.cancel();

@@ -271,7 +271,7 @@ func (p *Proxy) URLTest(ctx context.Context, url string, expectedStatus utils.In
 			start = second
 		} else {
 			if strings.HasPrefix(url, "http://") {
-				log.Errorln("%s failed to get the second response from %s: %v", p.Name(), url, ignoredErr)
+				log.Warnln("%s failed to get the second response from %s: %v", p.Name(), url, ignoredErr)
 				log.Warnln("It is recommended to use HTTPS for provider.health-check.url and group.url to ensure better reliability. Due to some proxy providers hijacking test addresses and not being compatible with repeated HEAD requests, using HTTP may result in failed tests.")
 			}
 		}

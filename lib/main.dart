@@ -16,12 +16,13 @@ import 'application.dart';
 import 'clash/core.dart';
 import 'clash/lib.dart';
 import 'common/common.dart';
+import 'common/external_control.dart';
 import 'models/models.dart';
 
 ReceivePort? _serviceReceiverPort;
 ReceivePort? _messageReceiverPort;
 
-Future<void> main() async {
+Future<void> main(List<String> args) async {
   globalState.isService = false;
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -31,6 +32,17 @@ Future<void> main() async {
   await clashCore.preload();
   await globalState.initApp(version);
 
+  if (system.isDesktop) {
+    if (args.contains('--exit')) {
+      await _sendControlCommand('exit');
+      exit(0);
+    }
+    if (args.contains('--restart')) {
+      await _sendControlCommand('restart');
+      exit(0);
+    }
+  }
+
   try {
     await uiManager.initializeUI();
   } catch (e) {
@@ -38,6 +50,15 @@ Future<void> main() async {
   }
 
   await _runApp();
+}
+
+Future<void> _sendControlCommand(String command) async {
+  try {
+    await ExternalControl.sendCommand(command);
+    commonPrint.log('Sent $command command to running instance');
+  } catch (e) {
+    commonPrint.log('No running instance to $command: $e');
+  }
 }
 
 Future<void> _runApp() async {
@@ -49,7 +70,7 @@ Future<void> _runApp() async {
     }
   }
   await android?.init();
-  
+
   await window?.init();
   HttpOverrides.global = BettboxHttpOverrides();
   runApp(ProviderScope(child: const Application()));
@@ -100,7 +121,9 @@ Future<void> _service(List<String> flags) async {
     }
 
     if (bootStart && !globalState.config.appSetting.autoRun) {
-      commonPrint.log('Silent boot detected, but autoRun is disabled. Staying idle.');
+      commonPrint.log(
+        'Silent boot detected, but autoRun is disabled. Staying idle.',
+      );
       _handleMainIpc(clashLibHandler);
       return;
     }
@@ -116,7 +139,9 @@ Future<void> _service(List<String> flags) async {
 
     Future(() async {
       try {
-        final params = await globalState.getSetupParams(pathConfig: clashConfig);
+        final params = await globalState.getSetupParams(
+          pathConfig: clashConfig,
+        );
         final profileId = globalState.config.currentProfileId;
         if (profileId == null) {
           return;
@@ -139,13 +164,20 @@ Future<void> _service(List<String> flags) async {
               .where((e) => e.id == profileId)
               .firstOrNull;
           final profileName = profile?.label ?? 'Bettbox';
-          await vpn_service.service?.updateNotificationSpeed(profileName, '↑0B/s ↓0B/s');
+          await vpn_service.service?.updateNotificationSpeed(
+            profileName,
+            '↑0B/s ↓0B/s',
+          );
         }
 
         if (globalState.config.appSetting.openLogs) {
-          await clashLibHandler.invokeAction('{"id": "quickStartLog", "method": "startLog"}');
+          await clashLibHandler.invokeAction(
+            '{"id": "quickStartLog", "method": "startLog"}',
+          );
         } else {
-          await clashLibHandler.invokeAction('{"id": "quickStopLog", "method": "stopLog"}');
+          await clashLibHandler.invokeAction(
+            '{"id": "quickStopLog", "method": "stopLog"}',
+          );
         }
 
         clashLibHandler.startListener();

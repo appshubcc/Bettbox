@@ -4,6 +4,7 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:bett_box/clash/clash.dart';
 import 'package:bett_box/common/common.dart';
+import 'package:bett_box/common/external_control.dart';
 import 'package:bett_box/l10n/l10n.dart';
 import 'package:bett_box/manager/hotkey_manager.dart';
 import 'package:bett_box/manager/manager.dart';
@@ -70,6 +71,7 @@ class ApplicationState extends ConsumerState<Application>
       globalState.appController = AppController(currentContext, ref);
     }
     await globalState.appController.init();
+    await ExternalControl.start();
     globalState.appController.initLink();
     if (system.isAndroid) {
       app.initShortcuts();
@@ -245,6 +247,7 @@ class ApplicationState extends ConsumerState<Application>
     linkManager.destroy();
     _autoUpdateGroupTaskTimer?.cancel();
     _autoUpdateProfilesTaskTimer?.cancel();
+    ExternalControl.stop();
     if (!system.isAndroid && !globalState.isExiting) {
       unawaited(globalState.appController.handleExit());
     }

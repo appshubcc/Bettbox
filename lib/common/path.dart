@@ -100,6 +100,11 @@ class AppPath {
     return join(directory.path, '${AppIdentity.dataDirName}.lock');
   }
 
+  Future<String> get controlPortFilePath async {
+    final directory = await dataDir.future;
+    return join(directory.path, '${AppIdentity.dataDirName}.port');
+  }
+
   Future<String> get sharedPreferencesPath async {
     final directory = await dataDir.future;
     return join(directory.path, 'shared_preferences.json');

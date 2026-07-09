@@ -37,8 +37,6 @@ end;
 procedure ForceKillProcesses;
 var
   ResultCode: Integer;
-  Processes: TArrayOfString;
-  i: Integer;
   WaitCount: Integer;
 begin
   if IsProcessRunning('{{HELPER_EXECUTABLE_NAME}}') then
@@ -56,13 +54,26 @@ begin
       Exec('taskkill', '/f /im {{HELPER_EXECUTABLE_NAME}}', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
   end;
 
-  Processes := ['{{EXECUTABLE_NAME}}', '{{CORE_EXECUTABLE_NAME}}'];
-
-  for i := 0 to GetArrayLength(Processes)-1 do
+  { Try to elegantly exit the main app using --exit parameter }
+  if FileExists(ExpandConstant('{app}\{{EXECUTABLE_NAME}}')) and IsProcessRunning('{{EXECUTABLE_NAME}}') then
   begin
-    if IsProcessRunning(Processes[i]) then
-      Exec('taskkill', '/f /im ' + Processes[i], '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
+    Exec(ExpandConstant('{app}\{{EXECUTABLE_NAME}}'), '--exit', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
+
+    { Wait up to 3 seconds for the main app and core to exit }
+    WaitCount := 0;
+    while (WaitCount < 10) and (IsProcessRunning('{{EXECUTABLE_NAME}}') or IsProcessRunning('{{CORE_EXECUTABLE_NAME}}')) do
+    begin
+      Sleep(300);
+      WaitCount := WaitCount + 1;
+    end;
   end;
+
+  { Fallback: force-kill if still running }
+  if IsProcessRunning('{{EXECUTABLE_NAME}}') then
+    Exec('taskkill', '/f /im {{EXECUTABLE_NAME}}', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
+
+  if IsProcessRunning('{{CORE_EXECUTABLE_NAME}}') then
+    Exec('taskkill', '/f /im {{CORE_EXECUTABLE_NAME}}', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
 end;
 
 procedure CleanWintunDevices;

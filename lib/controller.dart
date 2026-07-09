@@ -701,6 +701,35 @@ class AppController {
     return _coreLifecycleLock.synchronized(_updateGroups);
   }
 
+  void _handleUpdateGroupsError(int generation, dynamic e) {
+    if (generation != _coreGeneration) {
+      return;
+    }
+    final currentGroups = _ref.read(groupsProvider);
+    final isInitialLoad = currentGroups.isEmpty;
+    final maxRetryRounds = isInitialLoad ? 6 : 4;
+    final retryDelay = isInitialLoad
+        ? const Duration(seconds: 2)
+        : const Duration(seconds: 3);
+    if (currentGroups.isNotEmpty) {
+      commonPrint.log('updateGroups error: $e');
+      return;
+    }
+
+    if (_updateGroupsRetryCount >= maxRetryRounds) {
+      _updateGroupsRetryCount = 0;
+      return;
+    }
+    _updateGroupsRetryCount++;
+    _updateGroupsRetryTimer?.cancel();
+    _updateGroupsRetryTimer = Timer(retryDelay, () {
+      if (generation != _coreGeneration) return;
+      Zone.root.run(() {
+        unawaited(updateGroups());
+      });
+    });
+  }
+
   Future<void> _updateGroups() async {
     if (_isUpdatingGroups) {
       commonPrint.log('updateGroups already in progress, skipping');
@@ -720,7 +749,11 @@ class AppController {
       );
 
       if (newGroups.isEmpty) {
-        throw 'getProxiesGroups returned empty after inner retries, forcing outer retry';
+        _handleUpdateGroupsError(
+          generation,
+          'getProxiesGroups returned empty after inner retries',
+        );
+        return;
       }
 
       try {
@@ -776,30 +809,7 @@ class AppController {
       _updateGroupsRetryTimer = null;
       return;
     } catch (e) {
-      if (generation != _coreGeneration) {
-        return;
-      }
-      final currentGroups = _ref.read(groupsProvider);
-      final isInitialLoad = currentGroups.isEmpty;
-      final maxRetryRounds = isInitialLoad ? 6 : 4;
-      final retryDelay = isInitialLoad
-          ? const Duration(seconds: 2)
-          : const Duration(seconds: 3);
-      if (currentGroups.isNotEmpty) {
-        commonPrint.log('updateGroups error: $e');
-        return;
-      }
-
-      if (_updateGroupsRetryCount >= maxRetryRounds) {
-        _updateGroupsRetryCount = 0;
-        return;
-      }
-      _updateGroupsRetryCount++;
-      _updateGroupsRetryTimer?.cancel();
-      _updateGroupsRetryTimer = Timer(retryDelay, () {
-        if (generation != _coreGeneration) return;
-        unawaited(updateGroups());
-      });
+      _handleUpdateGroupsError(generation, e);
     } finally {
       _isUpdatingGroups = false;
     }
@@ -1074,6 +1084,11 @@ class AppController {
       if (method == 'vpnStartFailed') {
         globalState.showNotifier('Failed, Please try again later');
         await updateStatus(false);
+      } else if (method == 'runStateChanged') {
+        final state = arguments as String?;
+        if (state == 'STOP') {
+          await updateStatus(false);
+        }
       }
     });
 

@@ -591,6 +591,7 @@ data object VpnPlugin : FlutterPlugin, MethodChannel.MethodCallHandler {
             if (!force && GlobalState.currentRunState == RunState.STOP) return
             GlobalState.updateIsStopping(true)
             GlobalState.updateRunState(RunState.STOP)
+            ServicePlugin.notifyRunStateChanged(RunState.STOP)
             serviceRef = bettBoxService
             wasBound = isBind
             shouldForceStop = force || bettBoxService == null

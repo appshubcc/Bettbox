@@ -122,6 +122,7 @@ object GlobalState {
     }
 
     fun syncStatus() {
+        if (currentRunState == RunState.PENDING) return
         val status = VpnPlugin.getStatus()
         updateRunState(if (status) RunState.START else RunState.STOP)
     }

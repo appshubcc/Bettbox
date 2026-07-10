@@ -5,6 +5,7 @@ import 'package:bett_box/state.dart';
 import 'package:bett_box/widgets/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'bulk_import_profiles.dart';
 import 'edit_profile.dart';
 
 class AddProfileView extends StatelessWidget {
@@ -95,6 +96,21 @@ class AddProfileView extends StatelessWidget {
     _handleAddProfileFormURL('');
   }
 
+  void _handleBulkImport() {
+    showExtend(
+      context,
+      builder: (_, type) {
+        return AdaptiveSheetScaffold(
+          type: type,
+          body: SingleChildScrollView(
+            child: BulkImportProfilesView(parentContext: context),
+          ),
+          title: appLocalizations.bulkImportTitle,
+        );
+      },
+    );
+  }
+
   @override
   Widget build(context) {
     return ListView(
@@ -122,6 +138,12 @@ class AddProfileView extends StatelessWidget {
           title: Text(appLocalizations.url),
           subtitle: Text(appLocalizations.urlDesc),
           onTap: _toAdd,
+        ),
+        ListItem(
+          leading: const Icon(Icons.playlist_add_rounded),
+          title: Text(appLocalizations.bulkImport),
+          subtitle: Text(appLocalizations.bulkImportDesc),
+          onTap: _handleBulkImport,
         ),
       ],
     );

@@ -185,6 +185,8 @@
   "show": "Show",
   "exit": "Exit",
   "systemProxy": "System Proxy",
+  "systemProxyPort": "System Proxy Port",
+  "systemProxyPortDesc": "Port used for the system HTTP/HTTPS proxy (1024–49151)",
   "project": "Project",
   "core": "Core",
   "tabAnimation": "Tab Animation",
@@ -652,4 +654,3 @@
   "ageKeyPairGeneratedSuccess": "X25519 Key pair generated, please keep it safe",
   "agePrivateKeyRequired": "Please enter a correct Age private key first"
 }
-

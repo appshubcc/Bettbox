@@ -185,6 +185,7 @@ abstract class VpnProps with _$VpnProps {
 abstract class NetworkProps with _$NetworkProps {
   const factory NetworkProps({
     @Default(false) bool systemProxy,
+    @Default(7890) int systemProxyPort,
     @Default(defaultBypassDomain) List<String> bypassDomain,
     @Default(true) bool bypassPrivateRoute,
     @Default(true) bool autoSetSystemDns,

@@ -653,6 +653,27 @@
   "agePublicKeyLabel": "Открытый ключ",
   "generateFromPrivateKey": "Создать из закрытого ключа",
   "ageKeyPairGeneratedSuccess": "Пара ключей X25519 создана, сохраните её в надёжном месте",
-  "agePrivateKeyRequired": "Пожалуйста, сначала введите корректный закрытый ключ Age"
+  "agePrivateKeyRequired": "Пожалуйста, сначала введите корректный закрытый ключ Age",
+  "bulkImport": "Массовый импорт",
+  "bulkImportDesc": "Вставьте текст с URL для массового импорта профилей",
+  "bulkImportTitle": "Массовый импорт профилей",
+  "bulkImportPaste": "Вставьте текст сюда — все URL будут автоматически обнаружены...",
+  "bulkImportDetected": "Обнаружено {count} URL",
+  "@bulkImportDetected": {
+    "placeholders": {
+      "count": { "type": "String" }
+    }
+  },
+  "bulkImportNoUrls": "В тексте не найдено действительных URL",
+  "bulkImportStart": "Импортировать выбранные",
+  "bulkImportAdding": "Импорт...",
+  "bulkImportDone": "Готово",
+  "bulkImportResult": "Импортировано: {success}, ошибок: {fail}",
+  "@bulkImportResult": {
+    "placeholders": {
+      "success": { "type": "String" },
+      "fail": { "type": "String" }
+    }
+  }
 }
 

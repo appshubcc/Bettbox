@@ -1050,12 +1050,12 @@ class AppLocalizations {
     );
   }
 
-  /// `{count, plural, one{day} other{days}}`
+  /// `{count, plural, one{day} other{years}}`
   String days(num count) {
     return Intl.plural(
       count,
       one: 'day',
-      other: 'days',
+      other: 'years',
       name: 'days',
       desc: '',
       args: [count],
@@ -5336,6 +5336,96 @@ class AppLocalizations {
       name: 'agePrivateKeyRequired',
       desc: '',
       args: [],
+    );
+  }
+
+  /// `Bulk Import`
+  String get bulkImport {
+    return Intl.message('Bulk Import', name: 'bulkImport', desc: '', args: []);
+  }
+
+  /// `Paste any text containing URLs to import multiple profiles at once`
+  String get bulkImportDesc {
+    return Intl.message(
+      'Paste any text containing URLs to import multiple profiles at once',
+      name: 'bulkImportDesc',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Bulk Import Profiles`
+  String get bulkImportTitle {
+    return Intl.message(
+      'Bulk Import Profiles',
+      name: 'bulkImportTitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Paste text here — any URLs will be auto-detected...`
+  String get bulkImportPaste {
+    return Intl.message(
+      'Paste text here — any URLs will be auto-detected...',
+      name: 'bulkImportPaste',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{count} URL(s) detected`
+  String bulkImportDetected(String count) {
+    return Intl.message(
+      '$count URL(s) detected',
+      name: 'bulkImportDetected',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `No valid URLs found in the text`
+  String get bulkImportNoUrls {
+    return Intl.message(
+      'No valid URLs found in the text',
+      name: 'bulkImportNoUrls',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Import Selected`
+  String get bulkImportStart {
+    return Intl.message(
+      'Import Selected',
+      name: 'bulkImportStart',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Importing...`
+  String get bulkImportAdding {
+    return Intl.message(
+      'Importing...',
+      name: 'bulkImportAdding',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Done`
+  String get bulkImportDone {
+    return Intl.message('Done', name: 'bulkImportDone', desc: '', args: []);
+  }
+
+  /// `{success} imported, {fail} failed`
+  String bulkImportResult(String success, String fail) {
+    return Intl.message(
+      '$success imported, $fail failed',
+      name: 'bulkImportResult',
+      desc: '',
+      args: [success, fail],
     );
   }
 }

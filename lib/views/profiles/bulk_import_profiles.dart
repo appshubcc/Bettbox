@@ -11,7 +11,7 @@ import 'edit_profile.dart';
 /// Matches http(s)/ftp as well as common proxy URI schemes.
 List<String> extractProfileUrls(String text) {
   final pattern = RegExp(
-    r'(?:https?|ftp|vmess|vless|ss|trojan|hysteria2?|tuic|wg|wireguard)://[^\s"\'>\]\)]+',
+    r"""(?:https?|ftp|vmess|vless|ss|trojan|hysteria2?|tuic|wg|wireguard)://[^\s"'<>\]\)]+""",
     caseSensitive: false,
   );
   return pattern

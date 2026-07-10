@@ -20,40 +20,45 @@ typedef String MessageIfAbsent(String messageStr, List<dynamic> args);
 class MessageLookup extends MessageLookupByLibrary {
   String get localeName => 'en';
 
-  static String m0(count) => "${Intl.plural(count, one: 'day', other: 'days')}";
+  static String m0(count) => "${count} URL(s) detected";
 
-  static String m1(label) => "Delete selected ${label}?";
+  static String m1(success, fail) => "${success} imported, ${fail} failed";
 
-  static String m2(label) => "Delete current ${label}?";
+  static String m2(count) =>
+      "${Intl.plural(count, one: 'day', other: 'years')}";
 
-  static String m3(label) => "${label} cannot be empty";
+  static String m3(label) => "Delete selected ${label}?";
 
-  static String m4(label) => "${label} already exists";
+  static String m4(label) => "Delete current ${label}?";
 
-  static String m5(count) =>
-      "${Intl.plural(count, one: 'hour', other: 'hours')}";
+  static String m5(label) => "${label} cannot be empty";
 
-  static String m6(count) =>
-      "${Intl.plural(count, one: 'minute', other: 'minutes')}";
+  static String m6(label) => "${label} already exists";
 
   static String m7(count) =>
+      "${Intl.plural(count, one: 'hour', other: 'hours')}";
+
+  static String m8(count) =>
+      "${Intl.plural(count, one: 'minute', other: 'minutes')}";
+
+  static String m9(count) =>
       "${Intl.plural(count, one: 'month', other: 'months')}";
 
-  static String m8(label) => "No ${label}";
+  static String m10(label) => "No ${label}";
 
-  static String m9(label) => "${label} must be a number";
+  static String m11(label) => "${label} must be a number";
 
-  static String m10(label) =>
+  static String m12(label) =>
       "${label} must be between 1024 and 49151, 0 to disable";
 
-  static String m11(statusCode) =>
+  static String m13(statusCode) =>
       "Failed to import profile. Please check your network status or try resetting the subscription link ( HTTP error code: ${statusCode} )";
 
-  static String m12(count) => "${count} items selected";
+  static String m14(count) => "${count} items selected";
 
-  static String m13(label) => "${label} must be a URL";
+  static String m15(label) => "${label} must be a URL";
 
-  static String m14(count) =>
+  static String m16(count) =>
       "${Intl.plural(count, one: 'year', other: 'years')}";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
@@ -195,6 +200,24 @@ class MessageLookup extends MessageLookupByLibrary {
     "bind": MessageLookupByLibrary.simpleMessage("Bind"),
     "blacklist": MessageLookupByLibrary.simpleMessage("Blacklist"),
     "blacklistMode": MessageLookupByLibrary.simpleMessage("Blacklist Mode"),
+    "bulkImport": MessageLookupByLibrary.simpleMessage("Bulk Import"),
+    "bulkImportAdding": MessageLookupByLibrary.simpleMessage("Importing..."),
+    "bulkImportDesc": MessageLookupByLibrary.simpleMessage(
+      "Paste any text containing URLs to import multiple profiles at once",
+    ),
+    "bulkImportDetected": m0,
+    "bulkImportDone": MessageLookupByLibrary.simpleMessage("Done"),
+    "bulkImportNoUrls": MessageLookupByLibrary.simpleMessage(
+      "No valid URLs found in the text",
+    ),
+    "bulkImportPaste": MessageLookupByLibrary.simpleMessage(
+      "Paste text here — any URLs will be auto-detected...",
+    ),
+    "bulkImportResult": m1,
+    "bulkImportStart": MessageLookupByLibrary.simpleMessage("Import Selected"),
+    "bulkImportTitle": MessageLookupByLibrary.simpleMessage(
+      "Bulk Import Profiles",
+    ),
     "bypassDomain": MessageLookupByLibrary.simpleMessage("Bypass Domain"),
     "bypassDomainDesc": MessageLookupByLibrary.simpleMessage(
       "Active only when System Proxy is on",
@@ -301,7 +324,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "cut": MessageLookupByLibrary.simpleMessage("Cut"),
     "dark": MessageLookupByLibrary.simpleMessage("Dark"),
     "dashboard": MessageLookupByLibrary.simpleMessage("Dash"),
-    "days": m0,
+    "days": m2,
     "defaultNameserver": MessageLookupByLibrary.simpleMessage(
       "Default Nameserver",
     ),
@@ -317,8 +340,8 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "delaySort": MessageLookupByLibrary.simpleMessage("Sort by Delay"),
     "delete": MessageLookupByLibrary.simpleMessage("Delete"),
-    "deleteMultipTip": m1,
-    "deleteTip": m2,
+    "deleteMultipTip": m3,
+    "deleteTip": m4,
     "deleteTunnel": MessageLookupByLibrary.simpleMessage("Delete Forwarding"),
     "desc": MessageLookupByLibrary.simpleMessage(
       "Bettbox is based on the powerful and flexible Mihomo (Clash.Meta) proxy kernel, dedicated to a superior user experience. Forked from FlClash: Better Experience, Out of the box",
@@ -384,7 +407,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "edit": MessageLookupByLibrary.simpleMessage("Edit"),
     "editTunnel": MessageLookupByLibrary.simpleMessage("Edit Forwarding"),
-    "emptyTip": m3,
+    "emptyTip": m5,
     "en": MessageLookupByLibrary.simpleMessage("English"),
     "enableCrashReport": MessageLookupByLibrary.simpleMessage(
       "Crash Analytics",
@@ -411,7 +434,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "excludeDesc": MessageLookupByLibrary.simpleMessage(
       "Hide app from recent tasks list",
     ),
-    "existsTip": m4,
+    "existsTip": m6,
     "exit": MessageLookupByLibrary.simpleMessage("Exit"),
     "expand": MessageLookupByLibrary.simpleMessage("Standard"),
     "experimental": MessageLookupByLibrary.simpleMessage("Experimental"),
@@ -545,7 +568,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "hotkeyManagementDesc": MessageLookupByLibrary.simpleMessage(
       "Control app via keyboard",
     ),
-    "hours": m5,
+    "hours": m7,
     "httpPortSniffer": MessageLookupByLibrary.simpleMessage(
       "HTTP Port Sniffing",
     ),
@@ -637,11 +660,11 @@ class MessageLookup extends MessageLookupByLibrary {
     "minimizeOnExitDesc": MessageLookupByLibrary.simpleMessage(
       "Override default exit behavior",
     ),
-    "minutes": m6,
+    "minutes": m8,
     "mixedPort": MessageLookupByLibrary.simpleMessage("Mixed Port"),
     "mode": MessageLookupByLibrary.simpleMessage("Mode"),
     "monochromeScheme": MessageLookupByLibrary.simpleMessage("Monochrome"),
-    "months": m7,
+    "months": m9,
     "more": MessageLookupByLibrary.simpleMessage("More"),
     "name": MessageLookupByLibrary.simpleMessage("Name"),
     "nameSort": MessageLookupByLibrary.simpleMessage("Sort by Name"),
@@ -723,8 +746,8 @@ class MessageLookup extends MessageLookupByLibrary {
     "nullProfileDesc": MessageLookupByLibrary.simpleMessage(
       "No profile. Please add one.",
     ),
-    "nullTip": m8,
-    "numberTip": m9,
+    "nullTip": m10,
+    "numberTip": m11,
     "oneColumn": MessageLookupByLibrary.simpleMessage("1 Column"),
     "onlinePanel": MessageLookupByLibrary.simpleMessage("Online Panel"),
     "onlyIcon": MessageLookupByLibrary.simpleMessage("Icon Only"),
@@ -826,7 +849,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "portConflictTip": MessageLookupByLibrary.simpleMessage(
       "Please enter a different port",
     ),
-    "portTip": m10,
+    "portTip": m12,
     "powerSwitch": MessageLookupByLibrary.simpleMessage("Power"),
     "preferH3Desc": MessageLookupByLibrary.simpleMessage(
       "Prioritize DoH HTTP/3",
@@ -841,7 +864,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "profileHasUpdate": MessageLookupByLibrary.simpleMessage(
       "Profile modified. Disable auto-update?",
     ),
-    "profileImportFailed": m11,
+    "profileImportFailed": m13,
     "profileNameNullValidationDesc": MessageLookupByLibrary.simpleMessage(
       "Please enter a profile name",
     ),
@@ -986,7 +1009,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "selectAll": MessageLookupByLibrary.simpleMessage("Select All"),
     "selected": MessageLookupByLibrary.simpleMessage("Selected"),
-    "selectedCountTitle": m12,
+    "selectedCountTitle": m14,
     "serviceReady": MessageLookupByLibrary.simpleMessage("Service Ready"),
     "serviceRunning": MessageLookupByLibrary.simpleMessage("Service Running"),
     "settings": MessageLookupByLibrary.simpleMessage("Settings"),
@@ -1160,7 +1183,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "upload": MessageLookupByLibrary.simpleMessage("Upload"),
     "url": MessageLookupByLibrary.simpleMessage("URL"),
     "urlDesc": MessageLookupByLibrary.simpleMessage("Get profile via URL"),
-    "urlTip": m13,
+    "urlTip": m15,
     "useGlobalScriptOverride": MessageLookupByLibrary.simpleMessage(
       "Use Global Script Override",
     ),
@@ -1193,7 +1216,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "writeToSystemDesc": MessageLookupByLibrary.simpleMessage(
       "Requires administrator privileges",
     ),
-    "years": m14,
+    "years": m16,
     "zh_CN": MessageLookupByLibrary.simpleMessage("Simplified Chinese"),
     "zh_TC": MessageLookupByLibrary.simpleMessage("Traditional Chinese"),
   };

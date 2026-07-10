@@ -229,12 +229,7 @@ class Tray {
         },
         checked: trayState.autoLaunch,
       ),
-      MenuItem(
-        label: appLocalizations.copyEnvVar,
-        onClick: (_) async {
-          await _copyEnv(trayState.port);
-        },
-      ),
+      _buildCopyEnvSubmenu(trayState.port),
       MenuItem(
         label: appLocalizations.restartCoreTitle,
         onClick: (_) async {
@@ -302,21 +297,63 @@ class Tray {
     }
   }
 
-  Future<void> _copyEnv(int port) async {
+  MenuItem _buildCopyEnvSubmenu(int port) {
+    final items = <MenuItem>[];
+
+    final shells = <({String label, Future<void> Function() action})>[
+      (label: 'PowerShell', action: () => _copyEnvPowerShell(port)),
+      (label: 'CMD', action: () => _copyEnvCmd(port)),
+      (label: 'Bash', action: () => _copyEnvBash(port)),
+      (label: 'Fish', action: () => _copyEnvFish(port)),
+    ];
+
+    for (final shell in shells) {
+      items.add(
+        MenuItem(
+          label: shell.label,
+          onClick: (_) async {
+            await shell.action();
+          },
+        ),
+      );
+    }
+
+    return MenuItem.submenu(
+      label: appLocalizations.copyEnvVar,
+      submenu: Menu(items: items),
+    );
+  }
+
+  Future<void> _copyEnvPowerShell(int port) async {
     final url = 'http://127.0.0.1:$port';
+    final cmd = '\$env:http_proxy="$url"\n'
+        '\$env:https_proxy="$url"\n'
+        '\$env:all_proxy="$url"';
+    await Clipboard.setData(ClipboardData(text: cmd));
+  }
 
-    final cmdline = system.isWindows
-        ? 'set http_proxy=$url\r\n'
-          'set https_proxy=$url\r\n'
-          'set all_proxy=$url\r\n'
-          '\$env:http_proxy="$url" 2>nul\r\n'
-          '\$env:https_proxy="$url" 2>nul\r\n'
-          '\$env:all_proxy="$url" 2>nul'
-        : 'export http_proxy=$url\n'
-          'export https_proxy=$url\n'
-          'export all_proxy=$url';
+  Future<void> _copyEnvCmd(int port) async {
+    final url = 'http://127.0.0.1:$port';
+    final cmd = 'set http_proxy=$url\n'
+        'set https_proxy=$url\n'
+        'set all_proxy=$url';
+    await Clipboard.setData(ClipboardData(text: cmd));
+  }
 
-    await Clipboard.setData(ClipboardData(text: cmdline));
+  Future<void> _copyEnvBash(int port) async {
+    final url = 'http://127.0.0.1:$port';
+    final cmd = 'export http_proxy=$url\n'
+        'export https_proxy=$url\n'
+        'export all_proxy=$url';
+    await Clipboard.setData(ClipboardData(text: cmd));
+  }
+
+  Future<void> _copyEnvFish(int port) async {
+    final url = 'http://127.0.0.1:$port';
+    final cmd = 'set -gx http_proxy $url\n'
+        'set -gx https_proxy $url\n'
+        'set -gx all_proxy $url';
+    await Clipboard.setData(ClipboardData(text: cmd));
   }
 
   Future<void> _toggleWakelock(bool currentEnabled) async {

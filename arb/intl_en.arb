@@ -120,7 +120,7 @@
   "years": "{count, plural, one{year} other{years}}",
   "months": "{count, plural, one{month} other{months}}",
   "hours": "{count, plural, one{hour} other{hours}}",
-  "days": "{count, plural, one{day} other{days}}",
+  "days": "{count, plural, one{day} other{years}}",
   "minutes": "{count, plural, one{minute} other{minutes}}",
   "seconds": "Seconds",
   "ago": " ago",
@@ -650,6 +650,26 @@
   "agePublicKeyLabel": "Age Public Key",
   "generateFromPrivateKey": "Generate from Age private key",
   "ageKeyPairGeneratedSuccess": "X25519 Key pair generated, please keep it safe",
-  "agePrivateKeyRequired": "Please enter a correct Age private key first"
+  "agePrivateKeyRequired": "Please enter a correct Age private key first",
+  "bulkImport": "Bulk Import",
+  "bulkImportDesc": "Paste any text containing URLs to import multiple profiles at once",
+  "bulkImportTitle": "Bulk Import Profiles",
+  "bulkImportPaste": "Paste text here — any URLs will be auto-detected...",
+  "bulkImportDetected": "{count} URL(s) detected",
+  "@bulkImportDetected": {
+    "placeholders": {
+      "count": { "type": "String" }
+    }
+  },
+  "bulkImportNoUrls": "No valid URLs found in the text",
+  "bulkImportStart": "Import Selected",
+  "bulkImportAdding": "Importing...",
+  "bulkImportDone": "Done",
+  "bulkImportResult": "{success} imported, {fail} failed",
+  "@bulkImportResult": {
+    "placeholders": {
+      "success": { "type": "String" },
+      "fail": { "type": "String" }
+    }
+  }
 }
-

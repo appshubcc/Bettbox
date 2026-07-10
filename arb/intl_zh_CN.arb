@@ -651,6 +651,27 @@
   "agePublicKeyLabel": "Age 公钥",
   "generateFromPrivateKey": "从Age私钥生成",
   "ageKeyPairGeneratedSuccess": "已生成X25519密钥对, 请妥善保存",
-  "agePrivateKeyRequired": "请先输入正确的Age 私钥"
+  "agePrivateKeyRequired": "请先输入正确的Age 私钥",
+  "bulkImport": "批量导入",
+  "bulkImportDesc": "粘贴包含URL的文本，一次性导入多个配置",
+  "bulkImportTitle": "批量导入配置",
+  "bulkImportPaste": "在此粘贴文本 — 任何URL将被自动检测...",
+  "bulkImportDetected": "检测到 {count} 个URL",
+  "@bulkImportDetected": {
+    "placeholders": {
+      "count": { "type": "String" }
+    }
+  },
+  "bulkImportNoUrls": "文本中未找到有效的URL",
+  "bulkImportStart": "导入选中项",
+  "bulkImportAdding": "导入中...",
+  "bulkImportDone": "完成",
+  "bulkImportResult": "成功导入 {success} 个，失败 {fail} 个",
+  "@bulkImportResult": {
+    "placeholders": {
+      "success": { "type": "String" },
+      "fail": { "type": "String" }
+    }
+  }
 }
 

@@ -244,12 +244,6 @@ class SystemProxyPortItem extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, ref) {
-    final systemProxy = ref.watch(
-      networkSettingProvider.select((state) => state.systemProxy),
-    );
-
-    if (!systemProxy) return const SizedBox.shrink();
-
     final port = ref.watch(
       networkSettingProvider.select((state) => state.systemProxyPort),
     );

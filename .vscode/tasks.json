@@ -2,102 +2,17 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "bettbox: ensure windows dev core",
-      "type": "shell",
-      "command": "dart",
+      "label": "bettbox: ensure dev core",
+      "type": "process",
+      "command": "bash",
       "args": [
-        "./setup.dart",
-        "windows",
-        "--arch",
-        "auto",
-        "--out",
-        "core",
-        "--dev",
-        "--ensure"
+        "-c",
+        "exec dart ./setup.dart \"$(flutter devices --machine 2>/dev/null | jq -r --arg id \"${command:flutter.getSelectedDeviceId}\" '.[] | select(.id == $id).targetPlatform' | sed 's/-.*//;s/darwin/macos/')\" --out core --dev --ensure"
       ],
       "options": {
         "cwd": "${workspaceFolder}"
       },
-      "problemMatcher": [],
-      "group": "build"
-    },
-    {
-      "label": "bettbox: ensure macos dev core",
-      "type": "shell",
-      "command": "dart",
-      "args": [
-        "./setup.dart",
-        "macos",
-        "--arch",
-        "auto",
-        "--out",
-        "core",
-        "--dev",
-        "--ensure"
-      ],
-      "options": {
-        "cwd": "${workspaceFolder}"
-      },
-      "problemMatcher": [],
-      "group": "build"
-    },
-    {
-      "label": "bettbox: ensure linux dev core",
-      "type": "shell",
-      "command": "dart",
-      "args": [
-        "./setup.dart",
-        "linux",
-        "--arch",
-        "auto",
-        "--out",
-        "core",
-        "--dev",
-        "--ensure"
-      ],
-      "options": {
-        "cwd": "${workspaceFolder}"
-      },
-      "problemMatcher": [],
-      "group": "build"
-    },
-    {
-      "label": "bettbox: ensure android x64 core",
-      "type": "shell",
-      "command": "dart",
-      "args": [
-        "./setup.dart",
-        "android",
-        "--arch",
-        "amd64",
-        "--out",
-        "core",
-        "--ensure"
-      ],
-      "options": {
-        "cwd": "${workspaceFolder}"
-      },
-      "problemMatcher": [],
-      "group": "build"
-    },
-    {
-      "label": "bettbox: ensure android arm64 core",
-      "type": "shell",
-      "command": "dart",
-      "args": [
-        "./setup.dart",
-        "android",
-        "--arch",
-        "arm64",
-        "--out",
-        "core",
-        "--ensure"
-      ],
-      "options": {
-        "cwd": "${workspaceFolder}"
-      },
-      "problemMatcher": [],
-      "group": "build"
+      "problemMatcher": []
     }
   ]
 }

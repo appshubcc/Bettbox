@@ -153,6 +153,110 @@ class SystemProxyItem extends ConsumerWidget {
   }
 }
 
+class SystemProxyPortItem extends ConsumerWidget {
+  const SystemProxyPortItem({super.key});
+
+  Future<void> _showPortDialog(
+    BuildContext context,
+    WidgetRef ref,
+    int currentPort,
+  ) async {
+    String inputValue = '$currentPort';
+    String? errorText;
+    final controller = TextEditingController(text: inputValue);
+
+    final result = await globalState.showCommonDialog<bool>(
+      child: StatefulBuilder(
+        builder: (context, setState) {
+          return CommonDialog(
+            title: appLocalizations.systemProxyPort,
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: Text(appLocalizations.cancel),
+              ),
+              TextButton(
+                onPressed: errorText == null && inputValue.isNotEmpty
+                    ? () => Navigator.of(context).pop(true)
+                    : null,
+                child: Text(appLocalizations.confirm),
+              ),
+            ],
+            child: TextField(
+              autofocus: true,
+              keyboardType: TextInputType.number,
+              controller: controller,
+              decoration: InputDecoration(
+                labelText: appLocalizations.systemProxyPort,
+                errorText: errorText,
+                hintText: '1024-49151',
+                helperText: appLocalizations.systemProxyPortDesc,
+              ),
+              onChanged: (value) {
+                inputValue = value;
+                if (value.isEmpty) {
+                  setState(() {
+                    errorText = appLocalizations.emptyTip(
+                      appLocalizations.systemProxyPort,
+                    );
+                  });
+                } else {
+                  final intValue = int.tryParse(value);
+                  if (intValue == null) {
+                    setState(() {
+                      errorText = appLocalizations.numberTip(
+                        appLocalizations.systemProxyPort,
+                      );
+                    });
+                  } else if (intValue < 1024 || intValue > 49151) {
+                    setState(() {
+                      errorText = appLocalizations.portTip(
+                        appLocalizations.systemProxyPort,
+                      );
+                    });
+                  } else {
+                    setState(() => errorText = null);
+                  }
+                }
+              },
+              onSubmitted: (value) {
+                if (errorText == null && value.isNotEmpty) {
+                  Navigator.of(context).pop(true);
+                }
+              },
+            ),
+          );
+        },
+      ),
+    );
+
+    controller.dispose();
+
+    if (result == true && inputValue.isNotEmpty) {
+      final intValue = int.tryParse(inputValue);
+      if (intValue != null && intValue >= 1024 && intValue <= 49151) {
+        ref
+            .read(networkSettingProvider.notifier)
+            .updateState((state) => state.copyWith(systemProxyPort: intValue));
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context, ref) {
+    final port = ref.watch(
+      networkSettingProvider.select((state) => state.systemProxyPort),
+    );
+
+    return ListItem(
+      title: Text(appLocalizations.systemProxyPort),
+      subtitle: Text('$port'),
+      trailing: const Icon(Icons.chevron_right),
+      onTap: () => _showPortDialog(context, ref, port),
+    );
+  }
+}
+
 class AutoSetSystemDnsItem extends ConsumerWidget {
   const AutoSetSystemDnsItem({super.key});
 
@@ -206,8 +310,6 @@ class IcmpForwardingItem extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // Note: inverted because disableIcmpForwarding=true means disabled
-    // UI shows "Enable ICMP forwarding"
     final icmpForwarding = ref.watch(
       patchClashConfigProvider.select(
         (state) => !state.tun.disableIcmpForwarding,
@@ -220,7 +322,6 @@ class IcmpForwardingItem extends ConsumerWidget {
       delegate: SwitchDelegate(
         value: icmpForwarding,
         onChanged: (value) async {
-          // Invert before passing to core
           ref
               .read(patchClashConfigProvider.notifier)
               .updateState(
@@ -379,7 +480,6 @@ class MtuItem extends ConsumerWidget {
               ),
               onChanged: (value) {
                 inputValue = value;
-                // Real-time validation
                 if (value.isEmpty) {
                   setState(() {
                     errorText = appLocalizations.emptyTip('MTU');
@@ -412,7 +512,6 @@ class MtuItem extends ConsumerWidget {
       ),
     );
 
-    // Clean up controller
     controller.dispose();
 
     if (result == true && inputValue.isNotEmpty) {
@@ -432,7 +531,6 @@ class MtuItem extends ConsumerWidget {
       patchClashConfigProvider.select((state) => state.tun.mtu),
     );
 
-    // Preset options
     final presetOptions = [1480, 4064, 9000];
     final isCustom = !presetOptions.contains(mtu);
 
@@ -451,11 +549,9 @@ class MtuItem extends ConsumerWidget {
         onChanged: (value) async {
           if (value == null) return;
 
-          // If custom option selected
           if (value == 'custom') {
             await _showCustomMtuDialog(context, ref, mtu);
           } else {
-            // Apply preset value directly
             final intValue = int.parse(value);
             ref
                 .read(patchClashConfigProvider.notifier)
@@ -565,7 +661,7 @@ final networkItems = [
   if (system.isDesktop)
     ...generateSection(
       title: appLocalizations.system,
-      items: [SystemProxyItem(), BypassDomainItem()],
+      items: [SystemProxyItem(), SystemProxyPortItem(), BypassDomainItem()],
     ),
   ...generateSection(
     title: appLocalizations.options,

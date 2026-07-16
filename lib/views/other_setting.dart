@@ -1,5 +1,6 @@
 import 'package:bett_box/common/common.dart';
 import 'package:bett_box/common/network_matcher.dart';
+import 'package:bett_box/models/models.dart';
 import 'package:bett_box/plugins/app.dart';
 import 'package:bett_box/plugins/service.dart';
 import 'package:bett_box/providers/config.dart';
@@ -298,7 +299,8 @@ class BatteryOptimizationItem extends ConsumerStatefulWidget {
       _BatteryOptimizationItemState();
 }
 
-class _BatteryOptimizationItemState extends ConsumerState<BatteryOptimizationItem>
+class _BatteryOptimizationItemState
+    extends ConsumerState<BatteryOptimizationItem>
     with WidgetsBindingObserver {
   bool? _isIgnoring;
   bool _isWaitingForSettings = false;
@@ -484,6 +486,124 @@ class ExcludeChinaItem extends ConsumerWidget {
   }
 }
 
+class TorEnableItem extends ConsumerWidget {
+  const TorEnableItem({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final enabled = ref.watch(
+      torSettingProvider.select((state) => state.enable),
+    );
+    return ListItem.switchItem(
+      title: const Text('Tor'),
+      subtitle: const Text(
+        'Route selected TCP traffic through the local Tor SOCKS path.',
+      ),
+      delegate: SwitchDelegate(
+        value: enabled,
+        onChanged: (value) {
+          ref
+              .read(torSettingProvider.notifier)
+              .updateState((state) => state.copyWith(enable: value));
+        },
+      ),
+    );
+  }
+}
+
+class TorBridgeModeItem extends ConsumerWidget {
+  const TorBridgeModeItem({super.key});
+
+  String _label(TorBridgeMode mode) => switch (mode) {
+    TorBridgeMode.direct => 'Direct',
+    TorBridgeMode.obfs4 => 'obfs4',
+    TorBridgeMode.snowflake => 'Snowflake',
+    TorBridgeMode.meek => 'meek',
+  };
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final mode = ref.watch(
+      torSettingProvider.select((state) => state.bridgeMode),
+    );
+    return ListItem<TorBridgeMode>.options(
+      title: const Text('Tor Bridge'),
+      subtitle: Text(_label(mode)),
+      delegate: OptionsDelegate<TorBridgeMode>(
+        title: 'Tor Bridge',
+        options: TorBridgeMode.values,
+        textBuilder: _label,
+        value: mode,
+        onChanged: (value) {
+          if (value == null) return;
+          ref
+              .read(torSettingProvider.notifier)
+              .updateState((state) => state.copyWith(bridgeMode: value));
+        },
+      ),
+    );
+  }
+}
+
+class TorCustomBridgesEnabledItem extends ConsumerWidget {
+  const TorCustomBridgesEnabledItem({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final enabled = ref.watch(
+      torSettingProvider.select((state) => state.customBridgesEnabled),
+    );
+    return ListItem.switchItem(
+      title: const Text('Custom Tor Bridges'),
+      subtitle: const Text(
+        'Use custom bridge lines instead of built-in bridge defaults.',
+      ),
+      delegate: SwitchDelegate(
+        value: enabled,
+        onChanged: (value) {
+          ref
+              .read(torSettingProvider.notifier)
+              .updateState(
+                (state) => state.copyWith(customBridgesEnabled: value),
+              );
+        },
+      ),
+    );
+  }
+}
+
+class TorCustomBridgesItem extends ConsumerWidget {
+  const TorCustomBridgesItem({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final bridges = ref.watch(
+      torSettingProvider.select((state) => state.customBridges),
+    );
+    final lineCount = bridges
+        .split(RegExp(r'\r\n|\n|\r'))
+        .where((line) => line.trim().isNotEmpty)
+        .length;
+    return ListItem.input(
+      title: const Text('Tor Bridge Lines'),
+      subtitle: Text(
+        lineCount == 0 ? 'No custom bridge lines' : '$lineCount bridge line(s)',
+      ),
+      delegate: InputDelegate(
+        title: 'Tor Bridge Lines',
+        value: bridges,
+        hintText: 'obfs4 1.2.3.4:443 fingerprint cert=... iat-mode=0',
+        onChanged: (value) {
+          if (value == null) return;
+          ref
+              .read(torSettingProvider.notifier)
+              .updateState((state) => state.copyWith(customBridges: value));
+        },
+      ),
+    );
+  }
+}
+
 class OtherSettingView extends ConsumerWidget {
   const OtherSettingView({super.key});
 
@@ -505,6 +625,16 @@ class OtherSettingView extends ConsumerWidget {
       if (smartAutoStop) const NetworkMatchItem(),
       if (system.isAndroid) const DozeSuspendItem(),
       if (system.isAndroid) const QuickResponseItem(),
+      if (system.isAndroid) const TorEnableItem(),
+      if (system.isAndroid &&
+          ref.watch(torSettingProvider.select((state) => state.enable))) ...[
+        const TorBridgeModeItem(),
+        const TorCustomBridgesEnabledItem(),
+        if (ref.watch(
+          torSettingProvider.select((state) => state.customBridgesEnabled),
+        ))
+          const TorCustomBridgesItem(),
+      ],
       const StoreFixItem(),
       const DisableQuicItem(),
       if (system.isAndroid) const NetworkSpeedNotificationItem(),

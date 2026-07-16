@@ -31,14 +31,14 @@ if (NOT "${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
     add_compile_options(-fvisibility=hidden -fvisibility-inlines-hidden)
 endif ()
 
-set(LIB_CLASH_PATH "${CMAKE_SOURCE_DIR}/../jniLibs/${ANDROID_ABI}/libclash.so")
+set(LIB_CLASH_PATH "${CMAKE_SOURCE_DIR}/../../../../../libclash/android/${ANDROID_ABI}/libclash.so")
 
 message("LIB_CLASH_PATH ${LIB_CLASH_PATH}")
 if (EXISTS ${LIB_CLASH_PATH})
     message("Found libclash.so for ABI ${ANDROID_ABI}")
     add_compile_definitions(LIBCLASH)
-    include_directories(${CMAKE_SOURCE_DIR}/../jniLibs/${ANDROID_ABI})
-    link_directories(${CMAKE_SOURCE_DIR}/../jniLibs/${ANDROID_ABI})
+    include_directories(${CMAKE_SOURCE_DIR}/../../../../../libclash/android/${ANDROID_ABI})
+    link_directories(${CMAKE_SOURCE_DIR}/../../../../../libclash/android/${ANDROID_ABI})
     add_library(${CMAKE_PROJECT_NAME} SHARED
             jni_helper.cpp
             core.cpp)

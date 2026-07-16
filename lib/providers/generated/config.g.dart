@@ -54,6 +54,22 @@ final vpnSettingProvider =
     );
 
 typedef _$VpnSetting = AutoDisposeNotifier<VpnProps>;
+String _$torSettingHash() => r'31a4df04889ea2183a691634b90d6aa65b230437';
+
+/// See also [TorSetting].
+@ProviderFor(TorSetting)
+final torSettingProvider =
+    AutoDisposeNotifierProvider<TorSetting, TorProps>.internal(
+      TorSetting.new,
+      name: r'torSettingProvider',
+      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$torSettingHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
+
+typedef _$TorSetting = AutoDisposeNotifier<TorProps>;
 String _$networkSettingHash() => r'5a30d4cbfaba94cc29ad08dc1771ebb368b4ba14';
 
 /// See also [NetworkSetting].

@@ -78,6 +78,8 @@ const _$DashboardWidgetEnumMap = {
   DashboardWidget.outboundMode: 'outboundMode',
   DashboardWidget.trafficUsage: 'trafficUsage',
   DashboardWidget.networkDetection: 'networkDetection',
+  DashboardWidget.torStatus: 'torStatus',
+  DashboardWidget.torTrafficUsage: 'torTrafficUsage',
   DashboardWidget.tunButton: 'tunButton',
   DashboardWidget.vpnButton: 'vpnButton',
   DashboardWidget.systemProxyButton: 'systemProxyButton',
@@ -138,6 +140,39 @@ const _$AccessSortTypeEnumMap = {
   AccessSortType.none: 'none',
   AccessSortType.name: 'name',
   AccessSortType.time: 'time',
+};
+
+_TorProps _$TorPropsFromJson(Map<String, dynamic> json) => _TorProps(
+  enable: json['enable'] as bool? ?? false,
+  bridgeMode:
+      $enumDecodeNullable(_$TorBridgeModeEnumMap, json['bridgeMode']) ??
+      TorBridgeMode.obfs4,
+  customBridgesEnabled: json['customBridgesEnabled'] as bool? ?? false,
+  customBridges: json['customBridges'] as String? ?? '',
+  shareEnabled: json['shareEnabled'] as bool? ?? false,
+  sharePort: (json['sharePort'] as num?)?.toInt() ?? 19050,
+  appPackages:
+      (json['appPackages'] as List<dynamic>?)
+          ?.map((e) => e as String)
+          .toList() ??
+      const [],
+);
+
+Map<String, dynamic> _$TorPropsToJson(_TorProps instance) => <String, dynamic>{
+  'enable': instance.enable,
+  'bridgeMode': _$TorBridgeModeEnumMap[instance.bridgeMode]!,
+  'customBridgesEnabled': instance.customBridgesEnabled,
+  'customBridges': instance.customBridges,
+  'shareEnabled': instance.shareEnabled,
+  'sharePort': instance.sharePort,
+  'appPackages': instance.appPackages,
+};
+
+const _$TorBridgeModeEnumMap = {
+  TorBridgeMode.direct: 'direct',
+  TorBridgeMode.obfs4: 'obfs4',
+  TorBridgeMode.snowflake: 'snowflake',
+  TorBridgeMode.meek: 'meek',
 };
 
 _WindowProps _$WindowPropsFromJson(Map<String, dynamic> json) => _WindowProps(
@@ -409,6 +444,9 @@ _Config _$ConfigFromJson(Map<String, dynamic> json) => _Config(
   vpnProps: json['vpnProps'] == null
       ? defaultVpnProps
       : VpnProps.safeFromJson(json['vpnProps'] as Map<String, Object?>?),
+  torProps: json['torProps'] == null
+      ? defaultTorProps
+      : TorProps.safeFromJson(json['torProps'] as Map<String, Object?>?),
   themeProps: ThemeProps.safeFromJson(
     json['themeProps'] as Map<String, Object?>?,
   ),
@@ -442,6 +480,7 @@ Map<String, dynamic> _$ConfigToJson(_Config instance) => <String, dynamic>{
   'dav': instance.dav,
   'networkProps': instance.networkProps,
   'vpnProps': instance.vpnProps,
+  'torProps': instance.torProps,
   'themeProps': instance.themeProps,
   'proxiesStyle': instance.proxiesStyle,
   'windowProps': instance.windowProps,

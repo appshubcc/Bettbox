@@ -11,6 +11,7 @@ import 'package:bett_box/enum/enum.dart';
 import 'package:bett_box/l10n/l10n.dart';
 import 'package:bett_box/plugins/app.dart';
 import 'package:bett_box/plugins/service.dart';
+import 'package:bett_box/plugins/tor.dart';
 import 'package:bett_box/providers/providers.dart';
 import 'package:bett_box/providers/state.dart' as providers_state;
 
@@ -24,6 +25,7 @@ import 'package:synchronized/synchronized.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'common/common.dart';
+import 'common/tor_config_transformer.dart';
 import 'controller.dart';
 import 'models/models.dart';
 
@@ -312,6 +314,7 @@ class GlobalState {
       await clashCore.startListener();
     }
     await service?.startVpn();
+    await _startTorIfEnabled();
     final prefs = await preferences.sharedPreferencesCompleter.future;
     await prefs?.setBool('is_vpn_running', true);
 
@@ -321,6 +324,27 @@ class GlobalState {
       await service?.setQuickResponse(conflictFreeQuickResponse);
     }
     await startUpdateTasks(tasks);
+  }
+
+  Future<void> _startTorIfEnabled() async {
+    if (!system.isAndroid || !config.torProps.enable) return;
+    try {
+      await const TorControl().start(
+        torProps: config.torProps,
+        upstreamSocksPort: config.patchClashConfig.mixedPort,
+      );
+    } catch (e) {
+      commonPrint.log('Tor start failed: $e');
+    }
+  }
+
+  Future<void> _stopTorIfNeeded() async {
+    if (!system.isAndroid) return;
+    try {
+      await const TorControl().stop();
+    } catch (e) {
+      commonPrint.log('Tor stop failed: $e');
+    }
   }
 
   Future updateStartTime() async {
@@ -344,6 +368,7 @@ class GlobalState {
   }
 
   Future handleStop() async {
+    await _stopTorIfNeeded();
     startTime = null;
     if (system.isAndroid && isService) {
       await clashLibHandler?.stopListener();
@@ -845,6 +870,13 @@ class GlobalState {
       }
     }
 
+    rules = const TorConfigTransformer().transform(
+      rawConfig: rawConfig,
+      rules: rules,
+      torProps: config.torProps,
+      accessControl: config.vpnProps.accessControl,
+    );
+
     rawConfig['rule'] = rules;
     return rawConfig;
   }
@@ -1079,6 +1111,19 @@ class DetectionState {
     );
   }
 
+  void _retryWhileStarted(
+    int requestId, {
+    Duration delay = const Duration(seconds: 10),
+  }) {
+    Future.delayed(delay, () {
+      if (requestId != _requestId) return;
+      if (globalState.appState.runTime == null) return;
+      if (state.value.ipInfo == null && !state.value.isLoading) {
+        startCheck(immediate: true);
+      }
+    });
+  }
+
   Future<void> _checkIp() async {
     final appState = globalState.appState;
 
@@ -1106,7 +1151,9 @@ class DetectionState {
       ipInfo: isStateChanged ? null : state.value.ipInfo,
     );
 
-    final timeout = const Duration(seconds: 5);
+    final timeout = isStart
+        ? const Duration(seconds: 8)
+        : const Duration(seconds: 5);
 
     final res = isStart
         ? await request.checkIp(cancelToken: _cancelToken, timeout: timeout)
@@ -1129,6 +1176,9 @@ class DetectionState {
     } else {
       _isFirstLaunch = false;
       _handleResponse(res);
+      if (isStart && (res.isError || res.data == null)) {
+        _retryWhileStarted(requestId);
+      }
     }
   }
 }

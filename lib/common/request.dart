@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
@@ -9,6 +8,13 @@ import 'package:bett_box/common/common.dart';
 import 'package:bett_box/models/models.dart';
 import 'package:bett_box/state.dart';
 import 'package:flutter/cupertino.dart';
+
+class IpInfoSource {
+  final String url;
+  final IpInfo Function(String data) parser;
+
+  const IpInfoSource({required this.url, required this.parser});
+}
 
 class Request {
   late final Dio _dio;
@@ -128,18 +134,38 @@ class Request {
     return null;
   }
 
-  final List<String> _ipInfoSources = [
-    'https://cp.cloudflare.com/cdn-cgi/trace',
-    'https://api.cloudflare.com/cdn-cgi/trace',
+  final List<IpInfoSource> _ipInfoSources = [
+    IpInfoSource(
+      url: 'https://cp.cloudflare.com/cdn-cgi/trace',
+      parser: IpInfo.fromCloudflareTrace,
+    ),
+    IpInfoSource(
+      url: 'https://api.cloudflare.com/cdn-cgi/trace',
+      parser: IpInfo.fromCloudflareTrace,
+    ),
+    IpInfoSource(
+      url: 'http://ip-api.com/json/?fields=status,countryCode,query',
+      parser: IpInfo.fromIpApiJson,
+    ),
   ];
 
-  final List<String> _domesticIpSources = [
-    'https://www.qualcomm.cn/cdn-cgi/trace',
-    'https://www.cloudflare-cn.com/cdn-cgi/trace',
+  final List<IpInfoSource> _domesticIpSources = [
+    IpInfoSource(
+      url: 'https://www.qualcomm.cn/cdn-cgi/trace',
+      parser: IpInfo.fromCloudflareTrace,
+    ),
+    IpInfoSource(
+      url: 'https://www.cloudflare-cn.com/cdn-cgi/trace',
+      parser: IpInfo.fromCloudflareTrace,
+    ),
+    IpInfoSource(
+      url: 'http://ip-api.com/json/?fields=status,countryCode,query',
+      parser: IpInfo.fromIpApiJson,
+    ),
   ];
 
   Future<Result<IpInfo?>> _checkIpFromSources(
-    List<String> sources,
+    List<IpInfoSource> sources,
     CancelToken? cancelToken,
     Duration? timeout,
   ) async {
@@ -152,53 +178,24 @@ class Request {
       ),
     );
 
-    final Completer<Result<IpInfo?>> resultCompleter = Completer();
-    int failureCount = 0;
-
-    void handleFailure() {
-      if (resultCompleter.isCompleted) return;
-      failureCount++;
-      if (failureCount == sources.length) {
-        resultCompleter.complete(Result.success(null));
-      }
-    }
-
-    for (final url in sources) {
-      dio
-          .get<String>(
-            url,
+    try {
+      for (final source in sources) {
+        try {
+          final res = await dio.get<String>(
+            source.url,
             cancelToken: cancelToken,
             options: Options(responseType: ResponseType.plain),
-          )
-          .then((res) {
-            if (resultCompleter.isCompleted) return;
-            if (res.statusCode == HttpStatus.ok && res.data != null) {
-              try {
-                resultCompleter.complete(
-                  Result.success(IpInfo.fromCloudflareTrace(res.data!)),
-                );
-              } catch (_) {
-                handleFailure();
-              }
-            } else {
-              handleFailure();
-            }
-          })
-          .catchError((e) {
-            if (resultCompleter.isCompleted) return;
-            if (e is DioException && e.type == DioExceptionType.cancel) {
-              resultCompleter.complete(Result.error('cancelled'));
-              return;
-            }
-            handleFailure();
-          });
-    }
-
-    try {
-      return await resultCompleter.future.timeout(
-        effectiveTimeout,
-        onTimeout: () => Result.success(null),
-      );
+          );
+          if (res.statusCode == HttpStatus.ok && res.data != null) {
+            return Result.success(source.parser(res.data!));
+          }
+        } catch (e) {
+          if (e is DioException && e.type == DioExceptionType.cancel) {
+            return Result.error('cancelled');
+          }
+        }
+      }
+      return Result.success(null);
     } finally {
       dio.close(force: true);
     }

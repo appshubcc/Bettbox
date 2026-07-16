@@ -12,6 +12,7 @@ import (
 	"github.com/metacubex/mihomo/common/batch"
 	"github.com/metacubex/mihomo/component/dialer"
 	"github.com/metacubex/mihomo/component/resolver"
+	"github.com/metacubex/mihomo/component/torstate"
 	"github.com/metacubex/mihomo/config"
 	"github.com/metacubex/mihomo/constant"
 	"github.com/metacubex/mihomo/constant/features"
@@ -25,6 +26,7 @@ import (
 	"os"
 	"runtime"
 	"runtime/debug"
+	"strings"
 	"sync"
 )
 
@@ -303,12 +305,42 @@ func setupConfig(params *SetupParams) error {
 	if err != nil {
 		return err
 	}
+	syncTorStateFromConfig(params.Config)
 	hub.ApplyConfig(currentConfig)
 	patchSelectGroup(params.SelectedMap)
 	updateListeners()
 	runtime.GC()
 	debug.FreeOSMemory()
 	return nil
+}
+
+func syncTorStateFromConfig(rawConfig *config.RawConfig) {
+	if rawConfig == nil {
+		torstate.Update(false, nil)
+		return
+	}
+	pkgSet := map[string]struct{}{}
+	for _, rule := range rawConfig.Rule {
+		parts := strings.Split(rule, ",")
+		if len(parts) < 3 {
+			continue
+		}
+		if strings.TrimSpace(parts[0]) != "PROCESS-NAME" {
+			continue
+		}
+		if strings.TrimSpace(parts[2]) != "tor-out" {
+			continue
+		}
+		pkg := strings.TrimSpace(parts[1])
+		if pkg != "" {
+			pkgSet[pkg] = struct{}{}
+		}
+	}
+	packages := make([]string, 0, len(pkgSet))
+	for pkg := range pkgSet {
+		packages = append(packages, pkg)
+	}
+	torstate.Update(len(packages) > 0, packages)
 }
 
 func UnmarshalJson(data []byte, v any) error {

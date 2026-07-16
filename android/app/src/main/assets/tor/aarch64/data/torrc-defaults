@@ -1,0 +1,3 @@
+ClientTransportPlugin meek_lite,obfs2,obfs3,obfs4,scramblesuit,webtunnel exec lyrebird
+ClientTransportPlugin snowflake exec lyrebird
+ClientTransportPlugin conjure exec conjure-client -registerURL https://registration.refraction.network/api

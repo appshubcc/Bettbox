@@ -31,6 +31,7 @@ const defaultBypassDomain = [
 
 const defaultAppSettingProps = AppSettingProps();
 const defaultVpnProps = VpnProps();
+const defaultTorProps = TorProps();
 const defaultNetworkProps = NetworkProps();
 const defaultProxiesStyle = ProxiesStyle();
 const defaultWindowProps = WindowProps();
@@ -43,6 +44,8 @@ const List<DashboardWidget> defaultDashboardWidgets = [
   DashboardWidget.tunButton,
   DashboardWidget.outboundMode,
   DashboardWidget.networkDetection,
+  DashboardWidget.torStatus,
+  DashboardWidget.torTrafficUsage,
   DashboardWidget.trafficUsage,
   DashboardWidget.intranetIp,
   DashboardWidget.memoryInfo,
@@ -98,10 +101,7 @@ abstract class AppSettingProps with _$AppSettingProps {
         ? defaultAppSettingProps
         : AppSettingProps.fromJson(json);
 
-    return props.copyWith(
-      minimizeOnExit: true,
-      openLogs: true,
-    );
+    return props.copyWith(minimizeOnExit: true, openLogs: true);
   }
 }
 
@@ -126,6 +126,41 @@ extension AccessControlExt on AccessControl {
     AccessControlMode.acceptSelected => acceptList,
     AccessControlMode.rejectSelected => rejectList,
   };
+}
+
+enum TorBridgeMode { direct, obfs4, snowflake, meek }
+
+@freezed
+abstract class TorProps with _$TorProps {
+  const factory TorProps({
+    @Default(false) bool enable,
+    @Default(TorBridgeMode.obfs4) TorBridgeMode bridgeMode,
+    @Default(false) bool customBridgesEnabled,
+    @Default('') String customBridges,
+    @Default(false) bool shareEnabled,
+    @Default(19050) int sharePort,
+    @Default([]) List<String> appPackages,
+  }) = _TorProps;
+
+  factory TorProps.fromJson(Map<String, Object?> json) =>
+      _$TorPropsFromJson(json);
+
+  factory TorProps.safeFromJson(Map<String, Object?>? json) {
+    if (json == null) return defaultTorProps;
+    try {
+      return TorProps.fromJson(json);
+    } catch (_) {
+      return defaultTorProps;
+    }
+  }
+}
+
+extension TorPropsExt on TorProps {
+  List<String> get bridgeLines => customBridges
+      .split(RegExp(r'\r\n|\n|\r'))
+      .map((line) => line.trim())
+      .where((line) => line.isNotEmpty)
+      .toList();
 }
 
 @freezed
@@ -300,6 +335,9 @@ abstract class Config with _$Config {
     @JsonKey(fromJson: VpnProps.safeFromJson)
     @Default(defaultVpnProps)
     VpnProps vpnProps,
+    @JsonKey(fromJson: TorProps.safeFromJson)
+    @Default(defaultTorProps)
+    TorProps torProps,
     @JsonKey(fromJson: ThemeProps.safeFromJson) required ThemeProps themeProps,
     @Default(defaultProxiesStyle) ProxiesStyle proxiesStyle,
     @Default(defaultWindowProps) WindowProps windowProps,

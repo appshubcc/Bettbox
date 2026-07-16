@@ -110,9 +110,13 @@ class BettboxVpnService : VpnService(), BaseServiceInterface {
 
         options.accessControl.takeIf { it.enable }?.let { ac ->
             when (ac.mode) {
-                AccessControlMode.acceptSelected -> (ac.acceptList + packageName).forEach { addAllowedApplication(it) }
-                AccessControlMode.rejectSelected -> (ac.rejectList - packageName).forEach { addDisallowedApplication(it) }
+                AccessControlMode.acceptSelected -> (ac.acceptList + packageName).distinct().forEach { addAllowedApplication(it) }
+                AccessControlMode.rejectSelected -> ac.rejectList.distinct().forEach { addDisallowedApplication(it) }
             }
+        } ?: runCatching {
+            addDisallowedApplication(packageName)
+        }.onFailure {
+            Log.w(TAG, "Failed to exclude own package from VPN: ${it.message}")
         }
 
         setSession("Bettbox")

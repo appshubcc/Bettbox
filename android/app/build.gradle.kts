@@ -86,6 +86,7 @@ configurations.all {
     resolutionStrategy {
         eachDependency {
             if (requested.group == "androidx.datastore") useVersion("1.1.2")
+            if (requested.group == "androidx.profileinstaller" && requested.name == "profileinstaller") useVersion("1.4.1")
         }
     }
 }

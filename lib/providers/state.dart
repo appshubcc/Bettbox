@@ -243,10 +243,30 @@ DashboardState dashboardState(Ref ref) {
   final dashboardWidgets = ref.watch(
     appSettingProvider.select((state) => state.dashboardWidgets),
   );
+  final torEnabled = ref.watch(
+    torSettingProvider.select((state) => state.enable),
+  );
   final viewWidth = ref.watch(viewWidthProvider);
-  final widgets = dashboardWidgets.contains(DashboardWidget.startButton)
-      ? dashboardWidgets
-      : [...dashboardWidgets, DashboardWidget.startButton];
+  var widgets = dashboardWidgets;
+  if (system.isAndroid && torEnabled) {
+    final torWidgets = [
+      DashboardWidget.torStatus,
+      DashboardWidget.torTrafficUsage,
+    ].where((widget) => !widgets.contains(widget)).toList();
+    final startButtonIndex = widgets.indexOf(DashboardWidget.startButton);
+    var insertIndex = startButtonIndex < 0 ? widgets.length : startButtonIndex;
+    for (final widget in torWidgets) {
+      widgets = [
+        ...widgets.take(insertIndex),
+        widget,
+        ...widgets.skip(insertIndex),
+      ];
+      insertIndex++;
+    }
+  }
+  widgets = widgets.contains(DashboardWidget.startButton)
+      ? widgets
+      : [...widgets, DashboardWidget.startButton];
   return DashboardState(dashboardWidgets: widgets, viewWidth: viewWidth);
 }
 

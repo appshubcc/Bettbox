@@ -2,6 +2,7 @@
 *.md
 !/README*.md
 !/SIGNING-POLICY.md
+!/docs/*.md
 !.github/release_template.md
 !.github/release_template_pre.md
 *.class
@@ -38,6 +39,7 @@ migrate_working_dir/
 .pub-cache/
 .pub/
 /build/
+/android/build/
 /specs/
 /dist/
 .test/

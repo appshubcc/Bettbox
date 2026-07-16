@@ -120,7 +120,12 @@ enum AccessSortType { none, name, time }
 
 enum ProfileType { file, url }
 
-enum ConnectionsSortType { defaultSort, realTimeSpeed, totalTraffic, creationTime }
+enum ConnectionsSortType {
+  defaultSort,
+  realTimeSpeed,
+  totalTraffic,
+  creationTime,
+}
 
 enum ResultType {
   @JsonValue(0)
@@ -302,6 +307,14 @@ enum DashboardWidget {
   outboundMode(GridItem(crossAxisCellCount: 4, child: OutboundMode())),
   trafficUsage(GridItem(crossAxisCellCount: 4, child: TrafficUsage())),
   networkDetection(GridItem(crossAxisCellCount: 4, child: NetworkDetection())),
+  torStatus(
+    GridItem(crossAxisCellCount: 4, child: TorStatus()),
+    platforms: [SupportPlatform.Android],
+  ),
+  torTrafficUsage(
+    GridItem(crossAxisCellCount: 4, child: TorTrafficUsage()),
+    platforms: [SupportPlatform.Android],
+  ),
   tunButton(
     GridItem(crossAxisCellCount: 4, child: TUNButton()),
     platforms: desktopPlatforms,
@@ -384,7 +397,6 @@ extension PageLabelExtension on PageLabel {
     }
   }
 }
-
 
 enum RuleAction {
   DOMAIN('DOMAIN'),

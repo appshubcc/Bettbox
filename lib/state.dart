@@ -2,9 +2,6 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:animations/animations.dart';
-import 'package:crypto/crypto.dart';
-import 'package:dio/dio.dart';
-import 'package:dynamic_color/dynamic_color.dart';
 import 'package:bett_box/clash/clash.dart';
 import 'package:bett_box/common/theme.dart';
 import 'package:bett_box/enum/enum.dart';
@@ -13,8 +10,10 @@ import 'package:bett_box/plugins/app.dart';
 import 'package:bett_box/plugins/service.dart';
 import 'package:bett_box/providers/providers.dart';
 import 'package:bett_box/providers/state.dart' as providers_state;
-
 import 'package:bett_box/widgets/dialog.dart';
+import 'package:crypto/crypto.dart';
+import 'package:dio/dio.dart';
+import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart' as flutter_riverpod;
@@ -836,10 +835,6 @@ class GlobalState {
           if (globalClientFingerprint != null &&
               proxy['client-fingerprint'] == null) {
             proxy['client-fingerprint'] = globalClientFingerprint;
-          }
-
-          if (proxy['client-fingerprint'] == 'chrome') {
-            proxy['client-fingerprint'] = 'firefox';
           }
         }
       }

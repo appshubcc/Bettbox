@@ -1,12 +1,12 @@
 import 'dart:async';
 import 'dart:math';
 
-import 'package:defer_pointer/defer_pointer.dart';
 import 'package:bett_box/common/common.dart';
 import 'package:bett_box/enum/enum.dart';
 import 'package:bett_box/widgets/activate_box.dart';
 import 'package:bett_box/widgets/card.dart';
 import 'package:bett_box/widgets/grid.dart';
+import 'package:defer_pointer/defer_pointer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/physics.dart';
 
@@ -497,12 +497,12 @@ class SuperGridState extends State<SuperGrid> with TickerProviderStateMixin {
   }
 
   Widget _builderItem(int index) {
-    final girdItem = _childrenNotifier.value[index];
-    final child = girdItem.child;
+    final gridItem = _childrenNotifier.value[index];
+    final child = gridItem.child;
     return GridItem(
-      mainAxisCellCount: girdItem.mainAxisCellCount,
-      crossAxisCellCount: girdItem.crossAxisCellCount,
-      isDeletable: girdItem.isDeletable,
+      mainAxisCellCount: gridItem.mainAxisCellCount,
+      crossAxisCellCount: gridItem.crossAxisCellCount,
+      isDeletable: gridItem.isDeletable,
       child: Builder(
         builder: (context) {
           _itemContexts[index] = context;
@@ -524,7 +524,7 @@ class SuperGridState extends State<SuperGrid> with TickerProviderStateMixin {
               feedback: feedback,
               item: child,
               index: index,
-              isDeletable: girdItem.isDeletable,
+              isDeletable: gridItem.isDeletable,
             ),
             index,
           );

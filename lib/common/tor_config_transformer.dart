@@ -34,13 +34,16 @@ class TorConfigTransformer {
   }) {
     if (!torProps.enable) return rules;
 
+    final torAppPackages = _effectiveTorAppPackages(torProps, accessControl);
+    if (torAppPackages.isEmpty) return rules;
+
     _ensureMixedPort(rawConfig);
     _ensureTorProxy(rawConfig);
     _ensureTorDns(rawConfig);
-    _ensureProcessLookup(rawConfig, torProps, accessControl);
+    _ensureProcessLookup(rawConfig);
 
     return [
-      ..._buildTorRules(rawConfig, torProps, accessControl),
+      ..._buildTorRules(rawConfig, torProps, accessControl, torAppPackages),
       ...rules.where((rule) => !_isGeneratedTorRule(rule)),
     ];
   }
@@ -74,23 +77,31 @@ class TorConfigTransformer {
     rawConfig['dns'] = dnsMap;
   }
 
-  void _ensureProcessLookup(
-    Map<String, dynamic> rawConfig,
+  void _ensureProcessLookup(Map<String, dynamic> rawConfig) {
+    rawConfig['find-process-mode'] = FindProcessMode.always.name;
+  }
+
+  Iterable<String> _effectiveTorAppPackages(
     TorProps torProps,
     AccessControl? accessControl,
   ) {
-    final hasPerAppTor = torProps.appPackages.isNotEmpty;
+    final torPackages = torProps.appPackages
+        .map((packageName) => packageName.trim())
+        .where((packageName) => packageName.isNotEmpty);
     final isVpnWhitelist =
         accessControl?.enable == true &&
         accessControl?.mode == AccessControlMode.acceptSelected;
-    if (!hasPerAppTor && !isVpnWhitelist) return;
-    rawConfig['find-process-mode'] = FindProcessMode.always.name;
+    if (!isVpnWhitelist) return torPackages;
+    return torPackages.where(
+      (packageName) => accessControl!.acceptList.contains(packageName),
+    );
   }
 
   List<String> _buildTorRules(
     Map<String, dynamic> rawConfig,
     TorProps torProps,
     AccessControl? accessControl,
+    Iterable<String> torAppPackages,
   ) {
     final bridgeProxy = _bridgeProxyName(rawConfig);
     final bridgeRules = _bridgeRules(torProps, bridgeProxy);
@@ -98,42 +109,20 @@ class TorConfigTransformer {
     final networkDetectionRules = networkDetectionDomains.map(
       (domain) => 'DOMAIN,$domain,$bridgeProxy',
     );
-    final isVpnWhitelist =
-        accessControl?.enable == true &&
-        accessControl?.mode == AccessControlMode.acceptSelected;
-    final torAppPackages = isVpnWhitelist
-        ? torProps.appPackages.where(
-            (packageName) => accessControl!.acceptList.contains(packageName),
-          )
-        : torProps.appPackages;
     final allVpnAppsUseTor = _allVpnAppsUseTor(torProps, accessControl);
-    final packageRules = torAppPackages
-        .where((packageName) => packageName.trim().isNotEmpty)
-        .expand((packageName) {
-          final name = packageName.trim();
-          return [
-            'PROCESS-NAME,$name,$outboundName',
-            'PROCESS-NAME-REGEX,^${RegExp.escape(name)}(:.*)?\$,$outboundName',
-          ];
-        });
-
-    if (isVpnWhitelist || torProps.appPackages.isNotEmpty) {
+    final packageRules = torAppPackages.expand((packageName) {
       return [
-        ...bridgeRules,
-        ...proxyServerRules,
-        ...networkDetectionRules,
-        ...packageRules,
-        if (allVpnAppsUseTor) 'NETWORK,TCP,$outboundName',
-        'AND,((NETWORK,UDP),(DST-PORT,53)),REJECT',
-        'AND,((NETWORK,UDP),(NOT,((DST-PORT,53)))),REJECT',
+        'PROCESS-NAME,$packageName,$outboundName',
+        'PROCESS-NAME-REGEX,^${RegExp.escape(packageName)}(:.*)?\$,$outboundName',
       ];
-    }
+    });
 
     return [
       ...bridgeRules,
       ...proxyServerRules,
       ...networkDetectionRules,
-      'NETWORK,TCP,tor-out',
+      ...packageRules,
+      if (allVpnAppsUseTor) 'NETWORK,TCP,$outboundName',
       'AND,((NETWORK,UDP),(DST-PORT,53)),REJECT',
       'AND,((NETWORK,UDP),(NOT,((DST-PORT,53)))),REJECT',
     ];

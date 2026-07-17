@@ -248,6 +248,15 @@ DashboardState dashboardState(Ref ref) {
   );
   final viewWidth = ref.watch(viewWidthProvider);
   var widgets = dashboardWidgets;
+  if (system.isAndroid && !torEnabled) {
+    widgets = widgets
+        .where(
+          (widget) =>
+              widget != DashboardWidget.torStatus &&
+              widget != DashboardWidget.torTrafficUsage,
+        )
+        .toList();
+  }
   if (system.isAndroid && torEnabled) {
     final torWidgets = [
       DashboardWidget.torStatus,

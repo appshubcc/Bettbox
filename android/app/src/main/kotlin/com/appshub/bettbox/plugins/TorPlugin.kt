@@ -4,12 +4,12 @@ import android.content.Context
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
-import com.google.gson.Gson
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import java.io.File
 import java.io.FileOutputStream
+import java.io.IOException
 import java.net.URI
 import java.net.InetSocketAddress
 import java.net.Socket
@@ -50,6 +50,7 @@ class TorPlugin : FlutterPlugin, MethodChannel.MethodCallHandler {
     private var status: String = "disabled"
     private var message: String? = null
     private var lastOptions: TorStartOptions? = null
+    @Volatile
     private var torProcess: Process? = null
     private var bootstrapPercent: Int = 0
     private val executor = Executors.newSingleThreadExecutor()
@@ -89,7 +90,7 @@ class TorPlugin : FlutterPlugin, MethodChannel.MethodCallHandler {
         }
 
         val options = runCatching {
-            Gson().fromJson(data, TorStartOptions::class.java)
+            parseStartOptions(data)
         }.getOrElse {
             result.error("PARSE_ERROR", "Failed to parse Tor options: ${it.message}", null)
             return
@@ -123,6 +124,27 @@ class TorPlugin : FlutterPlugin, MethodChannel.MethodCallHandler {
                     }
             }
         }
+    }
+
+    private fun parseStartOptions(data: String): TorStartOptions {
+        val json = JSONObject(data)
+        val customBridges = json.optJSONArray("customBridges")?.let { array ->
+            buildList {
+                for (index in 0 until array.length()) {
+                    array.optString(index).takeIf { it.isNotBlank() }?.let(::add)
+                }
+            }
+        }.orEmpty()
+        return TorStartOptions(
+            enabled = json.optBoolean("enabled", false),
+            bridgeMode = json.optString("bridgeMode", "obfs4"),
+            customBridgesEnabled = json.optBoolean("customBridgesEnabled", false),
+            customBridges = customBridges,
+            upstreamSocksPort = json.optInt("upstreamSocksPort", 12334),
+            socksPort = json.optInt("socksPort", 19050),
+            controlPort = json.optInt("controlPort", 19051),
+            dnsPort = json.optInt("dnsPort", 19053),
+        )
     }
 
     private fun handleCheckExit(call: MethodCall, result: MethodChannel.Result) {
@@ -170,15 +192,22 @@ class TorPlugin : FlutterPlugin, MethodChannel.MethodCallHandler {
     }
 
     private fun handleStop() {
-        torProcess?.destroy()
-        if (torProcess?.waitFor(2, TimeUnit.SECONDS) == false) {
-            torProcess?.destroyForcibly()
-        }
+        val process = torProcess
         torProcess = null
         bootstrapPercent = 0
         status = "disabled"
         message = null
         lastOptions = null
+
+        if (process == null) return
+        runCatching {
+            process.destroy()
+            if (!process.waitFor(2, TimeUnit.SECONDS)) {
+                process.destroyForcibly()
+            }
+        }.onFailure {
+            Log.w(TAG, "Failed to stop Tor process cleanly: ${it.message}")
+        }
     }
 
     private fun startTor(options: TorStartOptions) {
@@ -280,10 +309,18 @@ class TorPlugin : FlutterPlugin, MethodChannel.MethodCallHandler {
 
     private fun watchTorOutput(process: Process) {
         thread(name = "bettbox-tor-output", isDaemon = true) {
-            process.inputStream.bufferedReader().useLines { lines ->
-                lines.forEach { line ->
-                    Log.i(TAG, line)
-                    parseTorLog(line)
+            try {
+                process.inputStream.bufferedReader().useLines { lines ->
+                    lines.forEach { line ->
+                        Log.i(TAG, line)
+                        parseTorLog(line)
+                    }
+                }
+            } catch (error: IOException) {
+                if (torProcess === process && status != "disabled") {
+                    Log.e(TAG, "Failed to read Tor output", error)
+                } else {
+                    Log.d(TAG, "Tor output reader closed during shutdown")
                 }
             }
             if (torProcess === process && status != "disabled") {

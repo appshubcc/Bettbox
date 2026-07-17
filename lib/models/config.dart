@@ -44,8 +44,6 @@ const List<DashboardWidget> defaultDashboardWidgets = [
   DashboardWidget.tunButton,
   DashboardWidget.outboundMode,
   DashboardWidget.networkDetection,
-  DashboardWidget.torStatus,
-  DashboardWidget.torTrafficUsage,
   DashboardWidget.trafficUsage,
   DashboardWidget.intranetIp,
   DashboardWidget.memoryInfo,

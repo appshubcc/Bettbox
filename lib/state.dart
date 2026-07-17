@@ -313,8 +313,8 @@ class GlobalState {
     } else {
       await clashCore.startListener();
     }
+    await _syncTorForStart();
     await service?.startVpn();
-    await _startTorIfEnabled();
     final prefs = await preferences.sharedPreferencesCompleter.future;
     await prefs?.setBool('is_vpn_running', true);
 
@@ -326,8 +326,12 @@ class GlobalState {
     await startUpdateTasks(tasks);
   }
 
-  Future<void> _startTorIfEnabled() async {
-    if (!system.isAndroid || !config.torProps.enable) return;
+  Future<void> _syncTorForStart() async {
+    if (!system.isAndroid) return;
+    if (!config.torProps.enable) {
+      await _stopTorIfNeeded();
+      return;
+    }
     try {
       await const TorControl().start(
         torProps: config.torProps,

@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:bett_box/common/common.dart';
 import 'package:bett_box/enum/enum.dart';
 import 'package:bett_box/plugins/tor.dart';
-import 'package:bett_box/state.dart';
 import 'package:bett_box/widgets/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -20,7 +19,6 @@ class _TorStatusState extends State<TorStatus> {
 
   Timer? _timer;
   String _status = 'disabled';
-  String? _message;
   int _progress = 0;
   String? _ip;
   String? _countryCode;
@@ -48,11 +46,9 @@ class _TorStatusState extends State<TorStatus> {
 
     final progress = (status['bootstrapPercent'] as num?)?.toInt() ?? 0;
     final torStatus = status['status']?.toString() ?? 'disabled';
-    final message = status['message']?.toString();
 
     setState(() {
       _status = torStatus;
-      _message = message;
       _progress = progress.clamp(0, 100);
       if (torStatus == 'disabled') {
         _ip = null;

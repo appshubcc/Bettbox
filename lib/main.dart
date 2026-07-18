@@ -9,6 +9,7 @@ import 'package:bett_box/plugins/tile.dart';
 import 'package:bett_box/plugins/vpn.dart';
 import 'package:bett_box/state.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_displaymode/flutter_displaymode.dart';
 
@@ -59,6 +60,7 @@ Future<void> _sendControlCommand(String command) async {
 
 Future<void> _runApp() async {
   if (system.isAndroid) {
+    await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
     try {
       await FlutterDisplayMode.setHighRefreshRate();
     } catch (e) {

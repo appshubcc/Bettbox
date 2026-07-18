@@ -19,31 +19,18 @@ class ThemeManager extends ConsumerWidget {
     if (!system.isAndroid) {
       return child;
     }
-    return AnnotatedRegion<SystemUiMode>(
-      sized: false,
-      value: SystemUiMode.edgeToEdge,
-      child: Consumer(
-        builder: (context, ref, _) {
-          final brightness = ref.watch(currentBrightnessProvider);
-          final iconBrightness = brightness == Brightness.light
-              ? Brightness.dark
-              : Brightness.light;
-          globalState.appState = globalState.appState.copyWith(
-            systemUiOverlayStyle: SystemUiOverlayStyle(
-              statusBarColor: Colors.transparent,
-              statusBarIconBrightness: iconBrightness,
-              systemNavigationBarIconBrightness: iconBrightness,
-              systemNavigationBarColor: context.colorScheme.surface,
-              systemNavigationBarDividerColor: Colors.transparent,
-            ),
-          );
-          return AnnotatedRegion<SystemUiOverlayStyle>(
-            value: globalState.appState.systemUiOverlayStyle,
-            sized: false,
-            child: child,
-          );
-        },
-      ),
+    return Consumer(
+      builder: (context, ref, _) {
+        final brightness = ref.watch(currentBrightnessProvider);
+        globalState.appState = globalState.appState.copyWith(
+          systemUiOverlayStyle: createSystemUiOverlayStyle(brightness),
+        );
+        return AnnotatedRegion<SystemUiOverlayStyle>(
+          value: globalState.appState.systemUiOverlayStyle,
+          sized: false,
+          child: SystemUiBackground(child: child),
+        );
+      },
     );
   }
 
@@ -95,6 +82,34 @@ class ThemeManager extends ConsumerWidget {
           return _buildSystemUi(child);
         },
       ),
+    );
+  }
+}
+
+SystemUiOverlayStyle createSystemUiOverlayStyle(Brightness brightness) {
+  final iconBrightness = brightness == Brightness.light
+      ? Brightness.dark
+      : Brightness.light;
+  return SystemUiOverlayStyle(
+    statusBarColor: Colors.transparent,
+    statusBarIconBrightness: iconBrightness,
+    systemNavigationBarIconBrightness: iconBrightness,
+    systemNavigationBarColor: Colors.transparent,
+    systemNavigationBarDividerColor: Colors.transparent,
+    systemNavigationBarContrastEnforced: false,
+  );
+}
+
+class SystemUiBackground extends StatelessWidget {
+  final Widget child;
+
+  const SystemUiBackground({super.key, required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    return ColoredBox(
+      color: Theme.of(context).colorScheme.surface,
+      child: child,
     );
   }
 }

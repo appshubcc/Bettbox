@@ -8,10 +8,21 @@ set(SENTRY_BACKEND none CACHE STRING "Sentry backend" FORCE)
 # the on-disk name of your application.
 set(BINARY_NAME "Bettbox")
 
+# Detect APP_DEV=true from dart defines (base64 of "APP_DEV=true" is "QVBQX0RFVj10cnVl")
+set(_app_dev_found -1)
+set(EPHEMERAL_DIR "${CMAKE_CURRENT_SOURCE_DIR}/flutter/ephemeral")
+set(GENERATED_CONFIG "${EPHEMERAL_DIR}/generated_config.cmake")
+if(EXISTS "${GENERATED_CONFIG}")
+  file(READ "${GENERATED_CONFIG}" _generated_config_content)
+  string(FIND "${_generated_config_content}" "QVBQX0RFVj10cnVl" _app_dev_found)
+endif()
 
 # The unique GTK application identifier for this application. See:
 # https://wiki.gnome.org/HowDoI/ChooseApplicationID
 set(APPLICATION_ID "com.appshub.bettbox")
+if(_app_dev_found GREATER -1)
+  set(APPLICATION_ID "${APPLICATION_ID}.dev")
+endif()
 
 # Explicitly opt in to modern CMake behaviors to avoid warnings with recent
 # versions of CMake.
@@ -129,12 +140,12 @@ install(FILES "${FLUTTER_LIBRARY}" DESTINATION "${INSTALL_BUNDLE_LIB_DIR}"
 
 # libclash.so
 set(CLASH_DIR "../libclash/linux")
-install(PROGRAMS "${CLASH_DIR}/BettboxCore" DESTINATION "${BUILD_BUNDLE_DIR}"
-  CONFIGURATIONS Profile;Release
-  COMPONENT Runtime)
-
-install(PROGRAMS "${CLASH_DIR}/BettboxDevCore" DESTINATION "${BUILD_BUNDLE_DIR}"
-  CONFIGURATIONS Debug
+if(_app_dev_found GREATER -1)
+  set(CORE_PATH "${CLASH_DIR}/BettboxDevCore")
+else()
+  set(CORE_PATH "${CLASH_DIR}/BettboxCore")
+endif()
+install(PROGRAMS "${CORE_PATH}" DESTINATION "${BUILD_BUNDLE_DIR}"
   COMPONENT Runtime)
 
 foreach(bundled_library ${PLUGIN_BUNDLED_LIBRARIES})

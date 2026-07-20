@@ -311,11 +311,7 @@ Win32Window::MessageHandler(HWND hwnd,
       KillTimer(hwnd, kResumeTimerId);
       if (IsWindowVisible(hwnd) && !IsIconic(hwnd))
       {
-        if (child_content_ != nullptr && IsWindow(child_content_))
-        {
-          InvalidateRect(child_content_, nullptr, TRUE);
-          UpdateWindow(child_content_);
-        }
+        PostMessage(hwnd, WM_SIZE, SIZE_RESTORED, 0);
       }
       return 0;
     }

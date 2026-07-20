@@ -227,7 +227,7 @@ class RenderGrid extends RenderBox
         childParentData,
         crossAxisCount,
       );
-      final crossAxisExtent = stride * crossAxisCellCount - crossAxisSpacing;
+      final crossAxisExtent = math.max(0.0, stride * crossAxisCellCount - crossAxisSpacing);
       final shouldFitContent = childParentData.mainAxisCellCount == null;
 
       double mainAxisExtent = 0;

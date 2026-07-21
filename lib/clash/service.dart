@@ -238,7 +238,7 @@ class ClashService extends ClashHandlerInterface {
 
   @override
   sendMessage(String message) async {
-    if (_isDestroying || globalState.isExiting) {
+    if (_isDestroying || globalState.isExiting || isStarting) {
       return;
     }
     final socket = await socketCompleter.future;
@@ -246,8 +246,18 @@ class ClashService extends ClashHandlerInterface {
       final frame = FrameCodec.encode(message);
       socket.add(frame);
     } on SocketException catch (e) {
-      if (_isDestroying || globalState.isExiting) {
-        commonPrint.log('Ignore socket error during shutdown: $e');
+      if (_isDestroying || globalState.isExiting || isStarting) {
+        commonPrint.log(
+          'Ignored message send on closed socket during transition: $e',
+        );
+        return;
+      }
+      rethrow;
+    } on StateError catch (e) {
+      if (_isDestroying || globalState.isExiting || isStarting) {
+        commonPrint.log(
+          'Ignored message send on closed socket during transition: $e',
+        );
         return;
       }
       rethrow;

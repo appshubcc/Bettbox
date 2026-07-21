@@ -9,8 +9,8 @@ import 'package:bett_box/plugins/tile.dart';
 import 'package:bett_box/plugins/vpn.dart';
 import 'package:bett_box/state.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_displaymode/flutter_displaymode.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'application.dart';
 import 'clash/core.dart';
@@ -48,8 +48,8 @@ Future<void> main(List<String> args) async {
   PaintingBinding.instance.imageCache.maximumSizeBytes = 50 * 1024 * 1024;
 
   final version = await system.version;
-  await clashCore.preload();
   await globalState.initApp(version);
+  await clashCore.preload();
 
   try {
     await uiManager.initializeUI();

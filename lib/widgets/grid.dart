@@ -1,7 +1,8 @@
+import 'dart:math' as math;
+
 import 'package:bett_box/common/common.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'dart:math' as math;
 
 typedef WrapBuilder = Widget Function(Widget child);
 
@@ -227,7 +228,10 @@ class RenderGrid extends RenderBox
         childParentData,
         crossAxisCount,
       );
-      final crossAxisExtent = stride * crossAxisCellCount - crossAxisSpacing;
+      final crossAxisExtent = math.max(
+        0.0,
+        stride * crossAxisCellCount - crossAxisSpacing,
+      );
       final shouldFitContent = childParentData.mainAxisCellCount == null;
 
       double mainAxisExtent = 0;
@@ -242,9 +246,10 @@ class RenderGrid extends RenderBox
             : child.size.width;
       } else {
         final mainAxisCellCount = childParentData.mainAxisCellCount ?? 1;
-        mainAxisExtent =
-            (this.mainAxisExtent ?? stride) * mainAxisCellCount -
-            mainAxisSpacing;
+        mainAxisExtent = math.max(
+          0.0,
+          (this.mainAxisExtent ?? stride) * mainAxisCellCount - mainAxisSpacing,
+        );
         childParentData.realMainAxisExtent = mainAxisExtent;
         final childSize = mainAxis == Axis.vertical
             ? Size(crossAxisExtent, mainAxisExtent)

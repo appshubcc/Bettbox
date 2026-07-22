@@ -27,12 +27,22 @@ install: |
   mkdir -p %{buildroot}%{_datadir}/%{name}
   mkdir -p %{buildroot}%{_datadir}/applications
   mkdir -p %{buildroot}%{_datadir}/pixmaps
+  mkdir -p %{buildroot}%{_datadir}/icons/hicolor/symbolic/apps
   cp -r %{name}/* %{buildroot}%{_datadir}/%{name}
-  ln -s ../share/%{name}/%{name} %{buildroot}%{_bindir}/%{name}
+  ln -s %{_datadir}/%{name}/%{name} %{buildroot}%{_bindir}/%{name}
   cp -r %{name}.desktop %{buildroot}%{_datadir}/applications
   cp -r %{name}.png %{buildroot}%{_datadir}/pixmaps
-  chmod +sx %{buildroot}%{_datadir}/%{name}/BettboxCore
+  cp -r %{buildroot}%{_datadir}/%{name}/data/flutter_assets/assets/images/icon_monochrome.svg %{buildroot}%{_datadir}/icons/hicolor/symbolic/apps/bettbox-symbolic.svg
   update-mime-database %{_datadir}/mime &> /dev/null || :
+
+files: |
+  %defattr(-,root,root)
+  %attr(4755, root, root) %{_datadir}/%{name}/BettboxCore
+  %{_bindir}/%{name}
+  %{_datadir}/%{name}
+  %{_datadir}/applications/%{name}.desktop
+  %{_datadir}/pixmaps/%{name}.png
+  %{_datadir}/icons/hicolor/symbolic/apps
 
 attr: |
   %attr(4755, root, root) %{_datadir}/%{name}/BettboxCore

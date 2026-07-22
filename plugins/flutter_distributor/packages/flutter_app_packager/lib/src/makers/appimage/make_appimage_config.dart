@@ -3,6 +3,7 @@
 import 'dart:io';
 
 import 'package:flutter_app_packager/src/api/app_package_maker.dart';
+import 'package:flutter_app_packager/src/api/symbolic_icon.dart';
 
 class AppImageAction {
   AppImageAction({
@@ -38,6 +39,7 @@ class MakeAppImageConfig extends MakeConfig {
     this.categories = const [],
     this.actions = const [],
     this.include = const [],
+    this.iconsSymbolic,
     this.startupNotify = true,
     this.genericName = 'A Flutter Application',
   });
@@ -57,6 +59,7 @@ class MakeAppImageConfig extends MakeConfig {
             ),
           )
           .toList(),
+      iconsSymbolic: SymbolicIcon.fromJsonList(map['icons_symbolic']),
     );
   }
 
@@ -68,6 +71,7 @@ class MakeAppImageConfig extends MakeConfig {
   final String genericName;
   final String displayName;
   final List<String> include;
+  final List<SymbolicIcon>? iconsSymbolic;
 
   String get desktopFileContent {
     final fields = {

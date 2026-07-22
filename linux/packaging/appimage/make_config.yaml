@@ -1,6 +1,9 @@
 display_name: Bettbox
 
 icon: ./assets/images/icon.png
+icons_symbolic:
+  - name: bettbox-symbolic
+    source: ./assets/images/icon_monochrome.svg
 
 keywords:
   - Bettbox

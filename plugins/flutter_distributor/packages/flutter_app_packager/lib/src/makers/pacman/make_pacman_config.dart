@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter_app_packager/src/api/app_package_maker.dart';
+import 'package:flutter_app_packager/src/api/symbolic_icon.dart';
 
 // Ported from https://gist.github.com/Earnestly/bebad057f40a662b5cc3
 // format of make_config for pacman
@@ -120,6 +121,7 @@ class MakePacmanConfig extends MakeLinuxPackageConfig {
     this.conflicts,
     this.replaces,
     this.supportedMimeType,
+    this.iconsSymbolic,
   })  : _postinstallScripts = postinstallScripts ?? [],
         _postupgradeScripts = postupgradeScripts ?? [],
         _postremoveScripts = postuninstallScripts ?? [];
@@ -181,6 +183,7 @@ class MakePacmanConfig extends MakeLinuxPackageConfig {
       installedSize: map['installed_size'],
       icon: map['icon'],
       metainfo: map['metainfo'],
+      iconsSymbolic: SymbolicIcon.fromJsonList(map['icons_symbolic']),
     );
   }
 
@@ -208,6 +211,7 @@ class MakePacmanConfig extends MakeLinuxPackageConfig {
   List<String>? supportedMimeType;
   List<String>? actions;
   List<String>? categories;
+  List<SymbolicIcon>? iconsSymbolic;
 
   List<String> get postinstallScripts => [
         'ln -s /usr/share/$appBinaryName/$appBinaryName /usr/bin/$appBinaryName',

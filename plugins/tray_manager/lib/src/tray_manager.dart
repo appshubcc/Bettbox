@@ -158,11 +158,9 @@ class TrayManager {
 
     switch (defaultTargetPlatform) {
       case TargetPlatform.linux:
-        if (runningInSandbox()) {
-          // Pass the icon name as specified if running in a sandbox.
-          //
-          // This is required because when running in a sandbox, paths are not
-          // the same as seen by the app and the host system.
+        if (runningInSandbox() || !iconPath.contains(RegExp(r'[/\\]'))) {
+          // If iconPath is a plain name (no path separators), pass it as-is
+          // so it resolves through the system icon theme (XDG).
           arguments['iconPath'] = iconPath;
         }
         break;

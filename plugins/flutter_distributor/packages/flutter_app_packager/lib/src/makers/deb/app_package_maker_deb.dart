@@ -58,12 +58,19 @@ class AppPackageMakerDeb extends AppPackageMaker {
       packagingDirectory.path,
       'usr/share/icons/hicolor/256x256/apps',
     );
+    final symbolicDir = path.join(
+      packagingDirectory.path,
+      'usr/share/icons/hicolor/symbolic/apps',
+    );
     final mkdirProcessResult = await $('mkdir', [
       '-p',
       debianDir,
       path.join(packagingDirectory.path, 'usr/share', makeConfig.appBinaryName),
       applicationsDir,
       if (makeConfig.icon != null) ...[icon128Dir, icon256Dir],
+      if (makeConfig.iconsSymbolic != null &&
+          makeConfig.iconsSymbolic!.isNotEmpty)
+        symbolicDir,
     ]);
 
     if (mkdirProcessResult.exitCode != 0) throw MakeError();
@@ -86,6 +93,24 @@ class AppPackageMakerDeb extends AppPackageMaker {
           makeConfig.appBinaryName + path.extension(makeConfig.icon!),
         ),
       );
+    }
+
+    if (makeConfig.iconsSymbolic != null &&
+        makeConfig.iconsSymbolic!.isNotEmpty) {
+      for (final icon in makeConfig.iconsSymbolic!) {
+        final iconFile = File(icon.source);
+        if (!iconFile.existsSync()) {
+          throw MakeError(
+            "provided symbolic icon ${icon.source} path wasn't found",
+          );
+        }
+        await iconFile.copy(
+          path.join(
+            symbolicDir,
+            icon.name + path.extension(icon.source),
+          ),
+        );
+      }
     }
 
     // create & write the files got from makeConfig

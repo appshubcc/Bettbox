@@ -175,8 +175,8 @@ class Utils {
       return 'assets/images/icon_template.png';
     }
 
-    if (system.isLinux) {
-      return 'assets/images/icon.png';
+    if (system.isLinux && isStart) {
+      return 'assets/images/icon_monochrome.svg';
     }
 
     final suffix = system.isWindows ? 'ico' : 'png';

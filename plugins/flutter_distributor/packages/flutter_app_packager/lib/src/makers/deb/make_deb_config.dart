@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter_app_packager/src/api/app_package_maker.dart';
+import 'package:flutter_app_packager/src/api/symbolic_icon.dart';
 
 // format of make_config for deb
 /*
@@ -149,6 +150,7 @@ class MakeDebConfig extends MakeLinuxPackageConfig {
     this.replaces,
     this.conflicts,
     this.supportedMimeType,
+    this.iconsSymbolic,
   })  : _postinstallScripts = postinstallScripts ?? [],
         _postuninstallScripts = postuninstallScripts ?? [];
 
@@ -219,6 +221,7 @@ class MakeDebConfig extends MakeLinuxPackageConfig {
       startupNotify: map['startup_notify'],
       installedSize: map['installed_size'],
       icon: map['icon'],
+      iconsSymbolic: SymbolicIcon.fromJsonList(map['icons_symbolic']),
     );
   }
 
@@ -250,6 +253,7 @@ class MakeDebConfig extends MakeLinuxPackageConfig {
   List<String>? supportedMimeType;
   List<String>? actions;
   List<String>? categories;
+  List<SymbolicIcon>? iconsSymbolic;
 
   List<String> get postinstallScripts => [
         'ln -s /usr/share/$appBinaryName/$appBinaryName /usr/bin/$appBinaryName',

@@ -149,6 +149,33 @@ class AppPackageMakerAppImage extends AppPackageMaker {
         ),
       );
 
+      if (makeConfig.iconsSymbolic != null &&
+          makeConfig.iconsSymbolic!.isNotEmpty) {
+        final symbolicDir = path.join(
+          makeConfig.packagingDirectory.path,
+          '${makeConfig.appName}.AppDir/usr/share/icons/hicolor/symbolic/apps',
+        );
+        await $('mkdir', ['-p', symbolicDir]).then((value) {
+          if (value.exitCode != 0) {
+            throw MakeError(value.stderr as String);
+          }
+        });
+        for (final icon in makeConfig.iconsSymbolic!) {
+          final iconFile = File(icon.source);
+          if (!iconFile.existsSync()) {
+            throw MakeError(
+              "provided symbolic icon ${icon.source} path wasn't found",
+            );
+          }
+          await iconFile.copy(
+            path.join(
+              symbolicDir,
+              icon.name + path.extension(icon.source),
+            ),
+          );
+        }
+      }
+
       final defaultSharedObjects = [
         'libapp.so',
         'libflutter_linux_gtk.so',

@@ -352,7 +352,7 @@ std::optional<LRESULT> TrayManagerPlugin::HandleWindowProc(HWND hWnd,
     }
   } else if (message == WM_POWERBROADCAST) {
     if (wParam == PBT_APMRESUMESUSPEND || wParam == PBT_APMRESUMEAUTOMATIC || wParam == PBT_APMRESUMECRITICAL) {
-      if (tray_icon_setted) {
+      if (tray_icon_setted && nid.hWnd != nullptr && IsWindow(nid.hWnd)) {
         Shell_NotifyIcon(NIM_MODIFY, &nid);
       }
     }

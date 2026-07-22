@@ -297,25 +297,9 @@ Win32Window::MessageHandler(HWND hwnd,
         wparam == PBT_APMRESUMEAUTOMATIC ||
         wparam == PBT_APMRESUMECRITICAL)
     {
-      SetTimer(hwnd, kResumeTimerId, 1000, nullptr);
-    }
-    else if (wparam == PBT_APMSUSPEND)
-    {
-      KillTimer(hwnd, kResumeTimerId);
+      PostMessage(hwnd, WM_SIZE, SIZE_RESTORED, 0);
     }
     return TRUE;
-
-  case WM_TIMER:
-    if (wparam == kResumeTimerId)
-    {
-      KillTimer(hwnd, kResumeTimerId);
-      if (IsWindowVisible(hwnd) && !IsIconic(hwnd))
-      {
-        PostMessage(hwnd, WM_SIZE, SIZE_RESTORED, 0);
-      }
-      return 0;
-    }
-    break;
 
   }
 

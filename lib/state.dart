@@ -59,7 +59,6 @@ class GlobalState {
   bool _needsTaskRestart = false;
   Timer? _backgroundCleanupTimer;
   final Lock _scriptEvaluateLock = Lock();
-
   bool isInit = false;
 
   bool get isStart => startTime != null && startTime!.isBeforeNow;

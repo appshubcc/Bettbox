@@ -75,6 +75,21 @@ class MainActivity : FlutterActivity() {
 
     override fun shouldDestroyEngineWithHost(): Boolean = false
 
+    /**
+     * HyperOS can unregister Flutter's predictive-back callback after an
+     * Activity restore or a display-mode change. Always forward legacy back
+     * events to Flutter so the current route gets the first chance to pop.
+     */
+    @Deprecated("Deprecated in Java")
+    override fun onBackPressed() {
+        val engine = flutterEngine
+        if (engine != null) {
+            engine.navigationChannel.popRoute()
+        } else {
+            super.onBackPressed()
+        }
+    }
+
     override fun dispatchTouchEvent(ev: MotionEvent?): Boolean {
         return try {
             super.dispatchTouchEvent(ev)

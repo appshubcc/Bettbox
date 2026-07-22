@@ -256,26 +256,6 @@ class GlobalState {
 
     await appController.updateRunTime();
     await startUpdateTasks([appController.updateTraffic]);
-
-    if (system.isDesktop && clashService != null) {
-      final service = clashService;
-      if (service == null) return;
-      service
-          .checkCoreHealth()
-          .then((healthy) async {
-            if (healthy || service.isStarting) return;
-            if (appController.ref.read(
-              providers_state.isRestartingCoreProvider,
-            )) {
-              return;
-            }
-            commonPrint.log('Core connection error on resume, force-restart');
-            await appController.restartCore();
-          })
-          .catchError((e) {
-            commonPrint.log('Resume health check failed: $e');
-          });
-    }
   }
 
   void _scheduleBackgroundCleanup() {
@@ -682,7 +662,7 @@ class GlobalState {
       rawConfig['ntp'] = ntp.toJson();
     }
     if (system.isAndroid) {
-      rawConfig['ntp']['enable'] = false;
+      rawConfig['ntp']['write-to-system'] = false;
     }
     if (rawConfig['sniffer'] == null) {
       rawConfig['sniffer'] = {};

@@ -122,10 +122,17 @@ func handleDecryptAgeConfig(params *DecryptAgeConfigParams) string {
 func handleGetProxies() map[string]constant.Proxy {
 	runLock.Lock()
 	defer runLock.Unlock()
+	if !isInit {
+		return make(map[string]constant.Proxy)
+	}
 	return tunnel.Proxies()
 }
 
 func handleChangeProxy(data string, fn func(string string)) {
+	if !isInit {
+		fn("core not initialized")
+		return
+	}
 	runLock.Lock()
 	go func() {
 		defer runLock.Unlock()
@@ -213,7 +220,22 @@ func handleAsyncTestDelay(paramsString string, fn func(string)) {
 		ctx, cancel := context.WithTimeout(context.Background(), time.Millisecond*time.Duration(params.Timeout))
 		defer cancel()
 
-		proxy := tunnel.ProxiesWithProviders()[params.ProxyName]
+		var proxy constant.Proxy
+		var exist bool
+		if proxy, exist = tunnel.Proxies()[params.ProxyName]; !exist {
+			for _, provider := range tunnel.Providers() {
+				for _, p := range provider.Proxies() {
+					if p.Name() == params.ProxyName {
+						proxy = p
+						exist = true
+						break
+					}
+				}
+				if exist {
+					break
+				}
+			}
+		}
 
 		delayData := &Delay{
 			Name: params.ProxyName,
@@ -298,6 +320,9 @@ func handleCloseConnection(connectionId string) bool {
 func handleGetExternalProviders() string {
 	runLock.Lock()
 	defer runLock.Unlock()
+	if !isInit {
+		return "[]"
+	}
 	externalProviders = getExternalProvidersRaw()
 	eps := make([]ExternalProvider, 0)
 	for _, p := range externalProviders {
@@ -447,6 +472,9 @@ func handleGetMemory(fn func(value string)) {
 }
 
 func handleGetMode() string {
+	if !isInit {
+		return ""
+	}
 	return tunnel.Mode().String()
 }
 
@@ -475,6 +503,9 @@ func handleGetConfig(params *GetConfigParams) (*config.RawConfig, error) {
 }
 
 func handleFlushFakeIP() bool {
+	if !isInit {
+		return false
+	}
 	err := resolver.FlushFakeIP()
 	if err != nil {
 		log.Errorln("[APP] Flush FakeIP error: %v", err)
@@ -519,12 +550,26 @@ func handleSetupConfig(bytes []byte) string {
 }
 
 func handleSuspend(suspended bool) bool {
+	if !isInit {
+		return false
+	}
 	if suspended {
 		log.Infoln("[APP] Suspend mode enabled")
 		tunnel.OnSuspend()
 	} else {
 		log.Infoln("[APP] Resume from suspend")
 		tunnel.OnRunning()
+		if currentConfig != nil {
+			go func() {
+				runLock.Lock()
+				defer runLock.Unlock()
+				if !isRunning {
+					return
+				}
+				log.Infoln("[APP] Recreate TUN interface after resume")
+				listener.ReCreateTun(currentConfig.General.Tun, tunnel.Tunnel)
+			}()
+		}
 	}
 	return true
 }

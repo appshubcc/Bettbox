@@ -38,6 +38,9 @@ class TrackerInfoItem extends ConsumerWidget {
   final Function(String)? onClickKeyword;
   final Widget? trailing;
   final String detailTitle;
+  final int index;
+  final int count;
+  final bool reversed;
 
   const TrackerInfoItem({
     super.key,
@@ -45,6 +48,9 @@ class TrackerInfoItem extends ConsumerWidget {
     this.onClickKeyword,
     this.trailing,
     required this.detailTitle,
+    required this.index,
+    required this.count,
+    this.reversed = false,
   });
 
   static double get subTitleHeight {
@@ -113,6 +119,10 @@ class TrackerInfoItem extends ConsumerWidget {
         ),
       ],
     );
+    final chains = trackerInfo.chains;
+    final labelStyle = context.textTheme.bodySmall?.copyWith(
+      color: context.colorScheme.onSurfaceVariant,
+    );
     final subTitle = SizedBox(
       height: subTitleHeight,
       child: Row(
@@ -120,25 +130,24 @@ class TrackerInfoItem extends ConsumerWidget {
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Flexible(
-            child: ListView.separated(
-              separatorBuilder: (_, _) => SizedBox(width: 6),
-              padding: EdgeInsets.zero,
+          Expanded(
+            child: SingleChildScrollView(
               scrollDirection: Axis.horizontal,
-              itemCount: trackerInfo.chains.length,
-              itemBuilder: (_, index) {
-                final chain = trackerInfo.chains[index];
-                return CommonChip(
-                  label: chain,
-                  labelStyle: context.textTheme.bodySmall?.copyWith(
-                    color: context.colorScheme.onSurfaceVariant,
-                  ),
-                  onPressed: () {
-                    if (onClickKeyword == null) return;
-                    onClickKeyword!(chain);
-                  },
-                );
-              },
+              physics: const ClampingScrollPhysics(),
+              child: Row(
+                spacing: 6,
+                children: [
+                  for (final chain in chains)
+                    CommonChip(
+                      label: chain,
+                      labelStyle: labelStyle,
+                      onPressed: () {
+                        if (onClickKeyword == null) return;
+                        onClickKeyword!(chain);
+                      },
+                    ),
+                ],
+              ),
             ),
           ),
           ?trailing,
@@ -151,16 +160,18 @@ class TrackerInfoItem extends ConsumerWidget {
             onClick: onClickKeyword,
           )
         : null;
-    return RepaintBoundary(
-      child: ListItem(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-        onTap: () {
+    final listItem = ListItem(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      onTap: () {
         showExtend(
           context,
           builder: (_, type) {
             return AdaptiveSheetScaffold(
               type: type,
-              body: TrackerInfoDetailView(trackerInfo: trackerInfo, detailTitle: detailTitle),
+              body: TrackerInfoDetailView(
+                trackerInfo: trackerInfo,
+                detailTitle: detailTitle,
+              ),
               title: detailTitle,
             );
           },
@@ -183,6 +194,13 @@ class TrackerInfoItem extends ConsumerWidget {
           subTitle,
         ],
       ),
+    );
+    return RepaintBoundary(
+      child: ContinuousListItem(
+        index: index,
+        count: count,
+        reversed: reversed,
+        child: listItem,
       ),
     );
   }
@@ -291,7 +309,11 @@ class TrackerInfoDetailView extends ConsumerWidget {
   final TrackerInfo trackerInfo;
   final String detailTitle;
 
-  const TrackerInfoDetailView({super.key, required this.trackerInfo, required this.detailTitle});
+  const TrackerInfoDetailView({
+    super.key,
+    required this.trackerInfo,
+    required this.detailTitle,
+  });
 
   String _getRuleText(TrackerInfo info) {
     final rule = info.rule;
@@ -404,17 +426,17 @@ class TrackerInfoDetailView extends ConsumerWidget {
         desc: info.start.showFull,
       ),
       if (_getProgressText(info).isNotEmpty)
-        _buildItem(title: appLocalizations.progress, desc: _getProgressText(info)),
+        _buildItem(
+          title: appLocalizations.progress,
+          desc: _getProgressText(info),
+        ),
       _buildItem(
         title: appLocalizations.networkType,
         desc: info.metadata.network,
       ),
       _buildItem(title: appLocalizations.rule, desc: _getRuleText(info)),
       if (info.metadata.host.isNotEmpty)
-        _buildItem(
-          title: appLocalizations.host,
-          desc: info.metadata.host,
-        ),
+        _buildItem(title: appLocalizations.host, desc: info.metadata.host),
       if (_getSourceText(info).isNotEmpty)
         _buildItem(title: appLocalizations.source, desc: _getSourceText(info)),
       if (_getDestinationText(info).isNotEmpty)
@@ -433,7 +455,10 @@ class TrackerInfoDetailView extends ConsumerWidget {
       if (connections.any((e) => e.id == trackerInfo.id))
         _buildItem(
           title: appLocalizations.realTimeSpeed,
-          desc: Traffic(up: info.uploadSpeed, down: info.downloadSpeed).toString(),
+          desc: Traffic(
+            up: info.uploadSpeed,
+            down: info.downloadSpeed,
+          ).toString(),
         ),
       if (info.metadata.destinationGeoIP.isNotEmpty)
         _buildItem(

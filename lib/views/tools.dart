@@ -53,47 +53,6 @@ class _ToolViewState extends ConsumerState<ToolsView> {
     );
   }
 
-  Widget _buildNavigationMenu(List<NavigationItem> navigationItems) {
-    return Column(
-      children: [
-        for (final navigationItem in navigationItems) ...[
-          _buildNavigationMenuItem(navigationItem),
-          navigationItems.last != navigationItem
-              ? const Divider(height: 0)
-              : Container(),
-        ],
-      ],
-    );
-  }
-
-  List<Widget> _getOtherList(bool enableDeveloperMode) {
-    return generateSection(
-      title: appLocalizations.other,
-      items: [
-        _DisclaimerItem(),
-        if (enableDeveloperMode) _DeveloperItem(),
-        _InfoItem(),
-      ],
-    );
-  }
-
-  List<Widget> _getSettingList() {
-    return generateSection(
-      title: appLocalizations.settings,
-      items: [
-        _LocaleItem(),
-        _ThemeItem(),
-        _BackupItem(),
-        if (system.isDesktop) _HotkeyItem(),
-        if (system.isWindows) _LoopbackItem(),
-        if (system.isAndroid) _AccessItem(),
-        _ConfigItem(),
-        _OtherSettingItem(),
-        _SettingItem(),
-      ],
-    );
-  }
-
   Widget _buildModernSection(
     BuildContext context, {
     required String title,
@@ -119,7 +78,10 @@ class _ToolViewState extends ConsumerState<ToolsView> {
                       height: 1,
                       thickness: 1,
                       color: context.colorScheme.outlineVariant.withValues(
-                        alpha: context.colorScheme.brightness == Brightness.light ? 0.3 : 0.2,
+                        alpha:
+                            context.colorScheme.brightness == Brightness.light
+                            ? 0.3
+                            : 0.2,
                       ),
                       indent: 16,
                       endIndent: 16,
@@ -140,74 +102,45 @@ class _ToolViewState extends ConsumerState<ToolsView> {
         (state) => VM2(a: state.locale, b: state.developerMode),
       ),
     );
-    final classicTheme = ref.watch(
-      themeSettingProvider.select((state) => (state.classicTheme as dynamic) == true),
-    );
     final isMobileView = ref.watch(isMobileViewProvider);
 
-    final List<Widget> items;
-    if (classicTheme) {
-      items = [
-        Consumer(
-          builder: (_, ref, _) {
-            final state = ref.watch(moreToolsSelectorStateProvider);
-            if (state.navigationItems.isEmpty) {
-              return Container();
-            }
-            return Column(
-              children: [
-                ListHeader(title: appLocalizations.more),
-                _buildNavigationMenu(state.navigationItems),
-              ],
-            );
-          },
-        ),
-        ..._getSettingList(),
-        ..._getOtherList(vm2.b),
-      ];
-    } else {
-      items = [
-        Consumer(
-          builder: (_, ref, _) {
-            final state = ref.watch(moreToolsSelectorStateProvider);
-            if (state.navigationItems.isEmpty) {
-              return Container();
-            }
-            return _buildModernSection(
-              context,
-              title: appLocalizations.more,
-              items: state.navigationItems
-                  .map((item) => _buildNavigationMenuItem(item))
-                  .toList(),
-            );
-          },
-        ),
-        _buildModernSection(
-          context,
-          title: appLocalizations.settings,
-          items: [
-            _LocaleItem(),
-            _ThemeItem(),
-            _BackupItem(),
-            if (system.isDesktop) _HotkeyItem(),
-            if (system.isWindows) _LoopbackItem(),
-            if (system.isAndroid) _AccessItem(),
-            _ConfigItem(),
-            _OtherSettingItem(),
-            _SettingItem(),
-          ],
-        ),
-        _buildModernSection(
-          context,
-          title: appLocalizations.other,
-          items: [
-            _DisclaimerItem(),
-            if (vm2.b) _DeveloperItem(),
-            _InfoItem(),
-          ],
-        ),
-      ];
-    }
+    final items = [
+      Consumer(
+        builder: (_, ref, _) {
+          final state = ref.watch(moreToolsSelectorStateProvider);
+          if (state.navigationItems.isEmpty) {
+            return Container();
+          }
+          return _buildModernSection(
+            context,
+            title: appLocalizations.more,
+            items: state.navigationItems
+                .map((item) => _buildNavigationMenuItem(item))
+                .toList(),
+          );
+        },
+      ),
+      _buildModernSection(
+        context,
+        title: appLocalizations.settings,
+        items: [
+          _LocaleItem(),
+          _ThemeItem(),
+          _BackupItem(),
+          if (system.isDesktop) _HotkeyItem(),
+          if (system.isWindows) _LoopbackItem(),
+          if (system.isAndroid) _AccessItem(),
+          _ConfigItem(),
+          _OtherSettingItem(),
+          _SettingItem(),
+        ],
+      ),
+      _buildModernSection(
+        context,
+        title: appLocalizations.other,
+        items: [_DisclaimerItem(), if (vm2.b) _DeveloperItem(), _InfoItem()],
+      ),
+    ];
 
     return CommonScaffold(
       title: appLocalizations.tools,
@@ -217,11 +150,9 @@ class _ToolViewState extends ConsumerState<ToolsView> {
         itemBuilder: (_, index) => items[index],
         padding: EdgeInsets.only(
           bottom:
-              classicTheme
-                  ? 20
-                  : 20 +
-                      (isMobileView ? getFloatingBottomBarReserveHeight(context) : 0),
-          top: classicTheme ? 0 : 8,
+              20 +
+              (isMobileView ? getFloatingBottomBarReserveHeight(context) : 0),
+          top: 8,
         ),
       ),
     );

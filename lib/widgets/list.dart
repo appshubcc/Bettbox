@@ -4,8 +4,6 @@ import 'package:bett_box/models/models.dart';
 import 'package:bett_box/state.dart';
 import 'package:bett_box/widgets/open_container.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:bett_box/providers/providers.dart';
 
 import 'card.dart';
 import 'input.dart';
@@ -530,7 +528,7 @@ class ListHeader extends StatelessWidget {
   }
 }
 
-class SectionContainer extends ConsumerWidget {
+class SectionContainer extends StatelessWidget {
   final String? title;
   final List<Widget> items;
   final List<Widget>? actions;
@@ -547,12 +545,8 @@ class SectionContainer extends ConsumerWidget {
   });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final classicTheme = ref.watch(
-      themeSettingProvider.select((state) => (state.classicTheme as dynamic) == true),
-    );
-
-    if (classicTheme || plain) {
+  Widget build(BuildContext context) {
+    if (plain) {
       final genItems = separated
           ? items.separated(const Divider(height: 0))
           : items;
@@ -574,8 +568,7 @@ class SectionContainer extends ConsumerWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        if (title != null)
-          ListHeader(title: title!, actions: actions),
+        if (title != null) ListHeader(title: title!, actions: actions),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
           child: CommonCard(
@@ -590,7 +583,10 @@ class SectionContainer extends ConsumerWidget {
                       height: 1,
                       thickness: 1,
                       color: context.colorScheme.outlineVariant.withValues(
-                        alpha: context.colorScheme.brightness == Brightness.light ? 0.3 : 0.2,
+                        alpha:
+                            context.colorScheme.brightness == Brightness.light
+                            ? 0.3
+                            : 0.2,
                       ),
                       indent: 16,
                       endIndent: 16,
@@ -601,6 +597,66 @@ class SectionContainer extends ConsumerWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+class ContinuousListItem extends StatelessWidget {
+  final Widget child;
+  final int index;
+  final int count;
+  final bool reversed;
+
+  const ContinuousListItem({
+    super.key,
+    required this.child,
+    required this.index,
+    required this.count,
+    this.reversed = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final isFirst = reversed ? index == count - 1 : index == 0;
+    final isLast = reversed ? index == 0 : index == count - 1;
+    final dividerColor = context.colorScheme.outlineVariant.withValues(
+      alpha: context.colorScheme.brightness == Brightness.light ? 0.3 : 0.2,
+    );
+
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      decoration: BoxDecoration(
+        color: context.colorScheme.surfaceContainer,
+        borderRadius: BorderRadius.vertical(
+          top: isFirst ? const Radius.circular(20) : Radius.zero,
+          bottom: isLast ? const Radius.circular(20) : Radius.zero,
+        ),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final hasTightHeight = constraints.hasTightHeight;
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (hasTightHeight)
+                Expanded(
+                  child: Align(
+                    alignment: Alignment.center,
+                    child: child,
+                  ),
+                )
+              else
+                child,
+              Container(
+                height: 1,
+                margin: const EdgeInsets.symmetric(horizontal: 16),
+                color: isLast ? Colors.transparent : dividerColor,
+              ),
+            ],
+          );
+        },
+      ),
     );
   }
 }
@@ -658,20 +714,9 @@ List<Widget> generateInfoSection({
 }
 
 Widget generateListView(List<Widget> items) {
-  return Consumer(
-    builder: (context, ref, _) {
-      final classicTheme = ref.watch(
-        themeSettingProvider.select((state) => (state.classicTheme as dynamic) == true),
-      );
+  return Builder(
+    builder: (context) {
       final bottomPadding = MediaQuery.of(context).padding.bottom;
-
-      if (classicTheme) {
-        return ListView.builder(
-          itemCount: items.length,
-          itemBuilder: (_, index) => items[index],
-          padding: EdgeInsets.only(bottom: 16 + bottomPadding),
-        );
-      }
 
       final cleanItems = items.where((widget) => widget is! Divider).toList();
       if (cleanItems.isEmpty) return const SizedBox.shrink();
@@ -696,10 +741,7 @@ Widget generateListView(List<Widget> items) {
 
           return Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-            child: CommonCard(
-              type: CommonCardType.filled,
-              child: item,
-            ),
+            child: CommonCard(type: CommonCardType.filled, child: item),
           );
         },
       );

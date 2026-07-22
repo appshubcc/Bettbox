@@ -118,6 +118,7 @@ class InputDialog extends StatefulWidget {
   final AutovalidateMode? autovalidateMode;
   final bool? obscureText;
   final bool autofocus;
+  final bool delayedFocus;
 
   const InputDialog({
     super.key,
@@ -130,6 +131,7 @@ class InputDialog extends StatefulWidget {
     this.obscureText,
     this.labelText,
     this.autofocus = false,
+    this.delayedFocus = false,
     this.autovalidateMode = AutovalidateMode.onUserInteraction,
   });
 
@@ -141,6 +143,7 @@ class _InputDialogState extends State<InputDialog> {
   final _formKey = GlobalKey<FormState>();
 
   late TextEditingController textController;
+  FocusNode? _focusNode;
 
   String get value => widget.value;
 
@@ -152,6 +155,23 @@ class _InputDialogState extends State<InputDialog> {
   void initState() {
     super.initState();
     textController = TextEditingController(text: value);
+    if (widget.delayedFocus) {
+      _focusNode = FocusNode();
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Future.delayed(const Duration(milliseconds: 500), () {
+          if (mounted) {
+            _focusNode?.requestFocus();
+          }
+        });
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _focusNode?.dispose();
+    textController.dispose();
+    super.dispose();
   }
 
   Future<void> _handleUpdate() async {
@@ -198,7 +218,8 @@ class _InputDialogState extends State<InputDialog> {
           runSpacing: 16,
           children: [
             TextFormField(
-              autofocus: widget.autofocus,
+              autofocus: widget.autofocus && !widget.delayedFocus,
+              focusNode: _focusNode,
               obscureText: widget.obscureText ?? false,
               keyboardType: TextInputType.url,
               maxLines: widget.obscureText == true ? 1 : 5,

@@ -424,221 +424,127 @@ class _AccessViewState extends ConsumerState<AccessView>
         ? appLocalizations.accessControlAllowDesc
         : appLocalizations.accessControlNotAllowDesc;
 
-    final classicTheme = ref.watch(
-      themeSettingProvider.select((state) => (state.classicTheme as dynamic) == true),
-    );
-
     return Column(
       mainAxisSize: MainAxisSize.max,
       children: [
         Flexible(
           flex: 0,
-          child: classicTheme
-              ? ListItem.switchItem(
-                  title: Text(appLocalizations.appAccessControl),
-                  trailing: accessControl.enable ? _buildRefreshButton() : null,
-                  delegate: SwitchDelegate(
-                    value: accessControl.enable,
-                    onChanged: (enable) {
-                      ref
-                          .read(vpnSettingProvider.notifier)
-                          .updateState(
-                            (state) => state.copyWith.accessControl(enable: enable),
-                          );
-                    },
-                  ),
-                )
-              : Padding(
-                  padding: const EdgeInsets.only(left: 16, right: 16, top: 12),
-                  child: CommonCard(
-                    type: CommonCardType.filled,
-                    child: ListItem.switchItem(
-                      title: Text(appLocalizations.appAccessControl),
-                      trailing: accessControl.enable ? _buildRefreshButton() : null,
-                      delegate: SwitchDelegate(
-                        value: accessControl.enable,
-                        onChanged: (enable) {
-                          ref
-                              .read(vpnSettingProvider.notifier)
-                              .updateState(
-                                (state) => state.copyWith.accessControl(enable: enable),
-                              );
-                        },
-                      ),
-                    ),
-                  ),
+          child: Padding(
+            padding: const EdgeInsets.only(left: 16, right: 16, top: 12),
+            child: CommonCard(
+              type: CommonCardType.filled,
+              child: ListItem.switchItem(
+                title: Text(appLocalizations.appAccessControl),
+                trailing: accessControl.enable ? _buildRefreshButton() : null,
+                delegate: SwitchDelegate(
+                  value: accessControl.enable,
+                  onChanged: (enable) {
+                    ref
+                        .read(vpnSettingProvider.notifier)
+                        .updateState(
+                          (state) =>
+                              state.copyWith.accessControl(enable: enable),
+                        );
+                  },
                 ),
+              ),
+            ),
+          ),
         ),
-        classicTheme
-            ? const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16),
-                child: Divider(height: 12),
-              )
-            : const SizedBox(height: 12),
+        const SizedBox(height: 12),
         Flexible(
           child: DisabledMask(
             status: !accessControl.enable,
             child: Column(
               children: [
-                classicTheme
-                    ? ActivateBox(
-                        active: accessControl.enable,
-                        child: Padding(
-                          padding: const EdgeInsets.only(
-                            top: 4,
-                            bottom: 4,
-                            left: 16,
-                            right: 8,
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            mainAxisSize: MainAxisSize.max,
-                            children: [
-                              Expanded(
-                                child: IntrinsicHeight(
-                                  child: Column(
-                                    mainAxisSize: MainAxisSize.max,
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Expanded(
-                                        child: Row(
-                                          children: [
-                                            Flexible(
-                                              child: Text(
-                                                appLocalizations.selected,
-                                                style: Theme.of(context)
-                                                    .textTheme
-                                                    .labelLarge
-                                                    ?.copyWith(
-                                                      color: Theme.of(
-                                                        context,
-                                                      ).colorScheme.primary,
-                                                    ),
-                                              ),
-                                            ),
-                                            const Flexible(child: SizedBox(width: 8)),
-                                            Flexible(
-                                              child: Text(
-                                                '${valueList.length}',
-                                                style: Theme.of(context)
-                                                    .textTheme
-                                                    .labelLarge
-                                                    ?.copyWith(
-                                                      color: Theme.of(
-                                                        context,
-                                                      ).colorScheme.primary,
-                                                    ),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      Flexible(child: Text(describe)),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                              Row(
-                                mainAxisSize: MainAxisSize.min,
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                children: [
-                                  Flexible(child: _buildSearchButton()),
-                                  Flexible(
-                                    child: _buildSelectedAllButton(
-                                      isSelectedAll:
-                                          valueList.length == packageNameList.length,
-                                      allValueList: packageNameList,
-                                    ),
-                                  ),
-                                  Flexible(child: _buildSettingButton()),
-                                ],
-                              ),
-                            ],
-                          ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 5,
+                  ),
+                  child: CommonCard(
+                    type: CommonCardType.filled,
+                    child: ActivateBox(
+                      active: accessControl.enable,
+                      child: Padding(
+                        padding: const EdgeInsets.only(
+                          top: 4,
+                          bottom: 4,
+                          left: 16,
+                          right: 8,
                         ),
-                      )
-                    : Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
-                        child: CommonCard(
-                          type: CommonCardType.filled,
-                          child: ActivateBox(
-                            active: accessControl.enable,
-                            child: Padding(
-                              padding: const EdgeInsets.only(
-                                top: 4,
-                                bottom: 4,
-                                left: 16,
-                                right: 8,
-                              ),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                mainAxisSize: MainAxisSize.max,
-                                children: [
-                                  Expanded(
-                                    child: IntrinsicHeight(
-                                      child: Column(
-                                        mainAxisSize: MainAxisSize.max,
-                                        crossAxisAlignment: CrossAxisAlignment.start,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          mainAxisSize: MainAxisSize.max,
+                          children: [
+                            Expanded(
+                              child: IntrinsicHeight(
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.max,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Expanded(
+                                      child: Row(
                                         children: [
-                                          Expanded(
-                                            child: Row(
-                                              children: [
-                                                Flexible(
-                                                  child: Text(
-                                                    appLocalizations.selected,
-                                                    style: Theme.of(context)
-                                                        .textTheme
-                                                        .labelLarge
-                                                        ?.copyWith(
-                                                          color: Theme.of(
-                                                            context,
-                                                          ).colorScheme.primary,
-                                                        ),
+                                          Flexible(
+                                            child: Text(
+                                              appLocalizations.selected,
+                                              style: Theme.of(context)
+                                                  .textTheme
+                                                  .labelLarge
+                                                  ?.copyWith(
+                                                    color: Theme.of(
+                                                      context,
+                                                    ).colorScheme.primary,
                                                   ),
-                                                ),
-                                                const Flexible(child: SizedBox(width: 8)),
-                                                Flexible(
-                                                  child: Text(
-                                                    '${valueList.length}',
-                                                    style: Theme.of(context)
-                                                        .textTheme
-                                                        .labelLarge
-                                                        ?.copyWith(
-                                                          color: Theme.of(
-                                                            context,
-                                                          ).colorScheme.primary,
-                                                        ),
-                                                  ),
-                                                ),
-                                              ],
                                             ),
                                           ),
-                                          Flexible(child: Text(describe)),
+                                          const Flexible(
+                                            child: SizedBox(width: 8),
+                                          ),
+                                          Flexible(
+                                            child: Text(
+                                              '${valueList.length}',
+                                              style: Theme.of(context)
+                                                  .textTheme
+                                                  .labelLarge
+                                                  ?.copyWith(
+                                                    color: Theme.of(
+                                                      context,
+                                                    ).colorScheme.primary,
+                                                  ),
+                                            ),
+                                          ),
                                         ],
                                       ),
                                     ),
-                                  ),
-                                  Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    mainAxisAlignment: MainAxisAlignment.end,
-                                    children: [
-                                      Flexible(child: _buildSearchButton()),
-                                      Flexible(
-                                        child: _buildSelectedAllButton(
-                                          isSelectedAll:
-                                              valueList.length == packageNameList.length,
-                                          allValueList: packageNameList,
-                                        ),
-                                      ),
-                                      Flexible(child: _buildSettingButton()),
-                                    ],
-                                  ),
-                                ],
+                                    Flexible(child: Text(describe)),
+                                  ],
+                                ),
                               ),
                             ),
-                          ),
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                Flexible(child: _buildSearchButton()),
+                                Flexible(
+                                  child: _buildSelectedAllButton(
+                                    isSelectedAll:
+                                        valueList.length ==
+                                        packageNameList.length,
+                                    allValueList: packageNameList,
+                                  ),
+                                ),
+                                Flexible(child: _buildSettingButton()),
+                              ],
+                            ),
+                          ],
                         ),
                       ),
+                    ),
+                  ),
+                ),
                 Expanded(
                   flex: 1,
                   child: FutureBuilder(
@@ -654,66 +560,54 @@ class _AccessViewState extends ConsumerState<AccessView>
                           ? NullStatus(label: appLocalizations.noData)
                           : CommonScrollBar(
                               controller: _controller,
-                              child: classicTheme
-                                  ? ListView.builder(
-                                      controller: _controller,
-                                      itemCount: packages.length,
-                                      itemExtent: 72,
-                                      itemBuilder: (_, index) {
-                                        final package = packages[index];
-                                        return PackageListItem(
-                                          key: Key(package.packageName),
-                                          package: package,
-                                          value: valueList.contains(
-                                            package.packageName,
-                                          ),
-                                          isActive: accessControl.enable,
-                                          onChanged: (value) {
-                                            _handleSelected(
-                                              valueList,
-                                              package,
-                                              value,
-                                            );
-                                          },
-                                        );
-                                      },
-                                    )
-                                  : ListView.separated(
-                                      controller: _controller,
-                                      itemCount: packages.length,
-                                      padding: const EdgeInsets.only(bottom: 24, top: 4),
-                                      itemBuilder: (_, index) {
-                                        final package = packages[index];
-                                        return Padding(
-                                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                                          child: PackageListItem(
-                                            key: Key(package.packageName),
-                                            package: package,
-                                            value: valueList.contains(
-                                              package.packageName,
-                                            ),
-                                            isActive: accessControl.enable,
-                                            onChanged: (value) {
-                                              _handleSelected(
-                                                valueList,
-                                                package,
-                                                value,
-                                              );
-                                            },
-                                          ),
-                                        );
-                                      },
-                                      separatorBuilder: (context, _) => Padding(
-                                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                                        child: Divider(
-                                          height: 1,
-                                          thickness: 1,
-                                          color: context.colorScheme.outlineVariant.withValues(
-                                            alpha: context.colorScheme.brightness == Brightness.light ? 0.3 : 0.2,
-                                          ),
-                                        ),
-                                      ),
+                              child: ListView.separated(
+                                controller: _controller,
+                                itemCount: packages.length,
+                                padding: const EdgeInsets.only(
+                                  bottom: 24,
+                                  top: 4,
+                                ),
+                                itemBuilder: (_, index) {
+                                  final package = packages[index];
+                                  return Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 16,
                                     ),
+                                    child: PackageListItem(
+                                      key: Key(package.packageName),
+                                      package: package,
+                                      value: valueList.contains(
+                                        package.packageName,
+                                      ),
+                                      isActive: accessControl.enable,
+                                      onChanged: (value) {
+                                        _handleSelected(
+                                          valueList,
+                                          package,
+                                          value,
+                                        );
+                                      },
+                                    ),
+                                  );
+                                },
+                                separatorBuilder: (context, _) => Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                  ),
+                                  child: Divider(
+                                    height: 1,
+                                    thickness: 1,
+                                    color: context.colorScheme.outlineVariant
+                                        .withValues(
+                                          alpha:
+                                              context.colorScheme.brightness ==
+                                                  Brightness.light
+                                              ? 0.3
+                                              : 0.2,
+                                        ),
+                                  ),
+                                ),
+                              ),
                             );
                     },
                   ),
@@ -1122,19 +1016,20 @@ class _AccessControlPanelState extends ConsumerState<AccessControlPanel> {
       final data = await Clipboard.getData('text/plain');
       final text = data?.text;
       if (text == null) return;
-      
+
       AccessControl newAccessControl;
       try {
         newAccessControl = AccessControl.fromJson(json.decode(text));
       } catch (_) {
-        final packages = text.split('\n')
+        final packages = text
+            .split('\n')
             .map((e) => e.trim())
             .where((e) => e.isNotEmpty)
             .toList();
-            
+
         final currentState = ref.read(vpnSettingProvider).accessControl;
         final isAccept = currentState.mode == AccessControlMode.acceptSelected;
-        
+
         newAccessControl = currentState.copyWith(
           acceptList: isAccept ? packages : currentState.acceptList,
           rejectList: !isAccept ? packages : currentState.rejectList,
@@ -1144,9 +1039,7 @@ class _AccessControlPanelState extends ConsumerState<AccessControlPanel> {
       ref
           .read(vpnSettingProvider.notifier)
           .updateState(
-            (state) => state.copyWith(
-              accessControl: newAccessControl,
-            ),
+            (state) => state.copyWith(accessControl: newAccessControl),
           );
     });
     if (!mounted) return;

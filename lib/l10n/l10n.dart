@@ -1579,11 +1579,21 @@ class AppLocalizations {
     return Intl.message('Core', name: 'core', desc: '', args: []);
   }
 
-  /// `Tab Animation`
-  String get tabAnimation {
+  /// `Linkage Switch`
+  String get showStartSwitch {
     return Intl.message(
-      'Tab Animation',
-      name: 'tabAnimation',
+      'Linkage Switch',
+      name: 'showStartSwitch',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Display independent switch button on the homepage`
+  String get showStartSwitchDesc {
+    return Intl.message(
+      'Display independent switch button on the homepage',
+      name: 'showStartSwitchDesc',
       desc: '',
       args: [],
     );
@@ -2429,26 +2439,6 @@ class AppLocalizations {
     return Intl.message(
       'Only record proxy traffic',
       name: 'onlyStatisticsProxyDesc',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Classic Theme`
-  String get classicTheme {
-    return Intl.message(
-      'Classic Theme',
-      name: 'classicTheme',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Use a more classic and simple Flutter theme`
-  String get classicThemeDesc {
-    return Intl.message(
-      'Use a more classic and simple Flutter theme',
-      name: 'classicThemeDesc',
       desc: '',
       args: [],
     );
@@ -4494,16 +4484,6 @@ class AppLocalizations {
     return Intl.message(
       'Enable process matching',
       name: 'findProcessModeDesc',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Effective only in mobile view`
-  String get tabAnimationDesc {
-    return Intl.message(
-      'Effective only in mobile view',
-      name: 'tabAnimationDesc',
       desc: '',
       args: [],
     );

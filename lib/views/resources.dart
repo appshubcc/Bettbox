@@ -5,7 +5,6 @@ import 'package:bett_box/common/common.dart';
 import 'package:bett_box/models/models.dart';
 import 'package:bett_box/providers/config.dart';
 import 'package:bett_box/state.dart';
-import 'package:bett_box/enum/enum.dart';
 import 'package:bett_box/widgets/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -81,10 +80,6 @@ class _ResourcesViewState extends ConsumerState<ResourcesView> {
 
   @override
   Widget build(BuildContext context) {
-    final classicTheme = ref.watch(
-      themeSettingProvider.select((state) => (state.classicTheme as dynamic) == true),
-    );
-
     return CommonScaffold(
       title: appLocalizations.resources,
       actions: [
@@ -105,31 +100,14 @@ class _ResourcesViewState extends ConsumerState<ResourcesView> {
           },
         ),
       ],
-      body: classicTheme
-          ? ListView.separated(
-              itemBuilder: (_, index) {
-                final geoItem = geoItems[index];
-                return GeoDataListItem(geoItem: geoItem);
-              },
-              separatorBuilder: (BuildContext context, int index) {
-                return const Divider(height: 0);
-              },
-              itemCount: geoItems.length,
-            )
-          : ListView.builder(
-              padding: const EdgeInsets.only(bottom: 24, top: 8),
-              itemBuilder: (_, index) {
-                final geoItem = geoItems[index];
-                return Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
-                  child: CommonCard(
-                    type: CommonCardType.filled,
-                    child: GeoDataListItem(geoItem: geoItem),
-                  ),
-                );
-              },
-              itemCount: geoItems.length,
-            ),
+      body: ListView(
+        padding: const EdgeInsets.only(bottom: 24, top: 8),
+        children: [
+          ...generateSection(
+            items: geoItems.map((geoItem) => GeoDataListItem(geoItem: geoItem)),
+          ),
+        ],
+      ),
     );
   }
 }

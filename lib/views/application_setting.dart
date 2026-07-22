@@ -144,23 +144,24 @@ class HiddenItem extends ConsumerWidget {
   }
 }
 
-class AnimateTabItem extends ConsumerWidget {
-  const AnimateTabItem({super.key});
+
+class ShowStartSwitchItem extends ConsumerWidget {
+  const ShowStartSwitchItem({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final isAnimateToPage = ref.watch(
-      appSettingProvider.select((state) => state.isAnimateToPage),
+    final showStartSwitch = ref.watch(
+      appSettingProvider.select((state) => state.showStartSwitch),
     );
     return ListItem.switchItem(
-      title: Text(appLocalizations.tabAnimation),
-      subtitle: Text(appLocalizations.tabAnimationDesc),
+      title: Text(appLocalizations.showStartSwitch),
+      subtitle: Text(appLocalizations.showStartSwitchDesc),
       delegate: SwitchDelegate(
-        value: isAnimateToPage,
+        value: showStartSwitch,
         onChanged: (value) {
           ref
               .read(appSettingProvider.notifier)
-              .updateState((state) => state.copyWith(isAnimateToPage: value));
+              .updateState((state) => state.copyWith(showStartSwitch: value));
         },
       ),
     );
@@ -253,9 +254,8 @@ class ApplicationSettingView extends StatelessWidget {
       if (system.isDesktop) ...[
         if (system.isWindows || system.isLinux)
           const AlwaysShowTitleBarItem(),
-      ] else ...[
-        const AnimateTabItem(),
       ],
+      const ShowStartSwitchItem(),
       if (system.isAndroid) ...[NavBarHapticFeedbackItem()],
       CloseConnectionsItem(),
       UsageItem(),

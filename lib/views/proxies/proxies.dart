@@ -117,12 +117,9 @@ class _ProxiesViewState extends ConsumerState<ProxiesView> {
   Widget? _buildFAB() {
     if (!_isTab) return null;
     final isMobileView = ref.watch(isMobileViewProvider);
-    final classicTheme = ref.watch(
-      themeSettingProvider.select((state) => state.classicTheme),
-    );
     return Padding(
       padding: EdgeInsets.only(
-        bottom: isMobileView && !classicTheme
+        bottom: isMobileView
             ? getFloatingBottomBarFABReserveHeight(context)
             : 0,
       ),

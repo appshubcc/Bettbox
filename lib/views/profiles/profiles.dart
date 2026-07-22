@@ -113,12 +113,9 @@ class _ProfilesViewState extends ConsumerState<ProfilesView> {
 
   Widget _buildFAB() {
     final isMobileView = ref.watch(isMobileViewProvider);
-    final classicTheme = ref.watch(
-      themeSettingProvider.select((state) => state.classicTheme),
-    );
     return Padding(
       padding: EdgeInsets.only(
-        bottom: isMobileView && !classicTheme
+        bottom: isMobileView
             ? getFloatingBottomBarFABReserveHeight(context)
             : 0,
       ),
@@ -144,9 +141,6 @@ class _ProfilesViewState extends ConsumerState<ProfilesView> {
             profilesSelectorStateProvider,
           );
           final isMobileView = ref.watch(isMobileViewProvider);
-          final classicTheme = ref.watch(
-            themeSettingProvider.select((state) => state.classicTheme),
-          );
           if (profilesSelectorState.profiles.isEmpty) {
             return NullStatus(label: appLocalizations.nullProfileDesc);
           }
@@ -169,7 +163,7 @@ class _ProfilesViewState extends ConsumerState<ProfilesView> {
                             profilesSelectorState.profiles.length % columns == 0
                         ? 88
                         : 16) +
-                    (isMobileView && !classicTheme
+                    (isMobileView
                         ? getFloatingBottomBarReserveHeight(context)
                         : 0),
               ),

@@ -222,7 +222,7 @@ class _ScriptsViewState extends ConsumerState<ScriptsView> {
     return false;
   }
 
-  void _handleToEditor({Script? script, String? initialContent, String? url}) {
+  void _handleToEditor({Script? script, String? initialContent, String? url, bool delayedFocus = false}) {
     final title = script?.label ?? '';
     final raw = script?.content ?? initialContent ?? scriptTemplate;
     String? importedUrl = url ?? script?.url;
@@ -232,6 +232,7 @@ class _ScriptsViewState extends ConsumerState<ScriptsView> {
         titleEditable: true,
         title: title,
         supportRemoteDownload: true,
+        delayedFocus: delayedFocus,
         onUrlImport: (downloadedUrl) {
           importedUrl = downloadedUrl;
         },
@@ -260,7 +261,7 @@ class _ScriptsViewState extends ConsumerState<ScriptsView> {
 
     switch (option) {
       case ImportOption.code:
-        _handleToEditor();
+        _handleToEditor(delayedFocus: true);
       case ImportOption.url:
         await _handleUrlImport();
       case ImportOption.file:
@@ -274,6 +275,7 @@ class _ScriptsViewState extends ConsumerState<ScriptsView> {
         title: appLocalizations.importUrl,
         value: '',
         labelText: appLocalizations.url,
+        delayedFocus: true,
         validator: (value) {
           if (value == null || value.isEmpty) {
             return appLocalizations.emptyTip(appLocalizations.value);

@@ -107,11 +107,6 @@ class OutboundModeV2 extends StatelessWidget {
             final mode = ref.watch(
               patchClashConfigProvider.select((state) => state.mode),
             );
-            final classicTheme = ref.watch(
-              themeSettingProvider.select(
-                (state) => (state.classicTheme as dynamic) == true,
-              ),
-            );
             final thumbColor = switch (mode) {
               Mode.rule => context.colorScheme.secondaryContainer,
               Mode.global => globalState.theme.darken3PrimaryContainer,
@@ -128,7 +123,7 @@ class OutboundModeV2 extends StatelessWidget {
                         clipBehavior: Clip.antiAlias,
                         alignment: Alignment.center,
                         decoration: BoxDecoration(),
-                        height: classicTheme ? height - 16 : height - 18,
+                        height: height - 18,
                         child: Text(
                           Intl.message(item.name),
                           style: Theme.of(context).textTheme.titleSmall
@@ -143,12 +138,11 @@ class OutboundModeV2 extends StatelessWidget {
                     ),
                   ),
                 ),
-                padding: classicTheme
-                    ? const EdgeInsets.symmetric(horizontal: 8)
-                    : const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
-                thumbRadius: classicTheme
-                    ? const Radius.circular(8)
-                    : const Radius.circular(12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 9,
+                ),
+                thumbRadius: const Radius.circular(12),
                 groupValue: mode,
                 onValueChanged: (value) {
                   if (value == null) {

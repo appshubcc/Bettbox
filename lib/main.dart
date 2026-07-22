@@ -143,8 +143,6 @@ Future<void> _service(List<String> flags) async {
       return;
     }
 
-    _handleMainIpc(clashLibHandler);
-
     commonPrint.log('Executing ${bootStart ? "boot" : "quick"} start sequence');
     await ClashCore.initGeo();
     app.tip(appLocalizations.startVpn);

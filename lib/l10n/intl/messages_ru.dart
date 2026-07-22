@@ -233,10 +233,6 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "checking": MessageLookupByLibrary.simpleMessage("Проверка..."),
     "circle": MessageLookupByLibrary.simpleMessage("Круг"),
-    "classicTheme": MessageLookupByLibrary.simpleMessage("Классическая тема"),
-    "classicThemeDesc": MessageLookupByLibrary.simpleMessage(
-      "Использовать более классическую и простую тему Flutter",
-    ),
     "clearCacheDesc": MessageLookupByLibrary.simpleMessage(
       "Очистить кэш FakeIP и DNS?",
     ),
@@ -1010,6 +1006,12 @@ class MessageLookup extends MessageLookupByLibrary {
     "serviceRunning": MessageLookupByLibrary.simpleMessage("Служба запущена"),
     "settings": MessageLookupByLibrary.simpleMessage("Настройки"),
     "show": MessageLookupByLibrary.simpleMessage("Показать"),
+    "showStartSwitch": MessageLookupByLibrary.simpleMessage(
+      "Связанный переключатель",
+    ),
+    "showStartSwitchDesc": MessageLookupByLibrary.simpleMessage(
+      "Отображать отдельную кнопку переключения на главной странице",
+    ),
     "shrink": MessageLookupByLibrary.simpleMessage("Стандарт"),
     "silentLaunch": MessageLookupByLibrary.simpleMessage("Тихий запуск"),
     "silentLaunchDesc": MessageLookupByLibrary.simpleMessage(
@@ -1099,10 +1101,6 @@ class MessageLookup extends MessageLookupByLibrary {
       "Настроить системный прокси",
     ),
     "tab": MessageLookupByLibrary.simpleMessage("Вкладки"),
-    "tabAnimation": MessageLookupByLibrary.simpleMessage("Анимация вкладок"),
-    "tabAnimationDesc": MessageLookupByLibrary.simpleMessage(
-      "Работает только в мобильном режиме",
-    ),
     "tcpConcurrent": MessageLookupByLibrary.simpleMessage("TCP параллелизм"),
     "tcpConcurrentDesc": MessageLookupByLibrary.simpleMessage(
       "Разрешить параллельные TCP-соединения",

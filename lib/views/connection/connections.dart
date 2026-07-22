@@ -16,10 +16,7 @@ import 'item.dart';
 class ConnectionsView extends ConsumerStatefulWidget {
   final bool respectCurrentPage;
 
-  const ConnectionsView({
-    super.key,
-    this.respectCurrentPage = true,
-  });
+  const ConnectionsView({super.key, this.respectCurrentPage = true});
 
   @override
   ConsumerState<ConnectionsView> createState() => _ConnectionsViewState();
@@ -33,7 +30,8 @@ class _ConnectionsViewState extends ConsumerState<ConnectionsView>
 
   bool get _isForeground {
     final lifecycleState = WidgetsBinding.instance.lifecycleState;
-    return lifecycleState == null || lifecycleState == AppLifecycleState.resumed;
+    return lifecycleState == null ||
+        lifecycleState == AppLifecycleState.resumed;
   }
 
   @override
@@ -184,10 +182,6 @@ class _ConnectionsViewState extends ConsumerState<ConnectionsView>
 
   @override
   Widget build(BuildContext context) {
-    final classicTheme = ref.watch(
-      themeSettingProvider.select((state) => (state.classicTheme as dynamic) == true),
-    );
-
     return CommonScaffold(
       title: appLocalizations.connections,
       onKeywordsUpdate: _onKeywordsUpdate,
@@ -200,23 +194,30 @@ class _ConnectionsViewState extends ConsumerState<ConnectionsView>
         IconButton(
           onPressed: () async {
             final currentSortType = ref.read(connectionsSortProvider);
-            final selectedSortType = await globalState.showCommonDialog<ConnectionsSortType>(
-              child: OptionsDialog<ConnectionsSortType>(
-                title: appLocalizations.connectionsSort,
-                options: ConnectionsSortType.values,
-                value: currentSortType,
-                textBuilder: (sortType) {
-                  return switch (sortType) {
-                    ConnectionsSortType.defaultSort => appLocalizations.defaultSort,
-                    ConnectionsSortType.realTimeSpeed => appLocalizations.realTimeSpeed,
-                    ConnectionsSortType.totalTraffic => appLocalizations.totalTraffic,
-                    ConnectionsSortType.creationTime => appLocalizations.creationTime,
-                  };
-                },
-              ),
-            );
-            if (selectedSortType != null && selectedSortType != currentSortType) {
-              ref.read(connectionsSortProvider.notifier).state = selectedSortType;
+            final selectedSortType = await globalState
+                .showCommonDialog<ConnectionsSortType>(
+                  child: OptionsDialog<ConnectionsSortType>(
+                    title: appLocalizations.connectionsSort,
+                    options: ConnectionsSortType.values,
+                    value: currentSortType,
+                    textBuilder: (sortType) {
+                      return switch (sortType) {
+                        ConnectionsSortType.defaultSort =>
+                          appLocalizations.defaultSort,
+                        ConnectionsSortType.realTimeSpeed =>
+                          appLocalizations.realTimeSpeed,
+                        ConnectionsSortType.totalTraffic =>
+                          appLocalizations.totalTraffic,
+                        ConnectionsSortType.creationTime =>
+                          appLocalizations.creationTime,
+                      };
+                    },
+                  ),
+                );
+            if (selectedSortType != null &&
+                selectedSortType != currentSortType) {
+              ref.read(connectionsSortProvider.notifier).state =
+                  selectedSortType;
             }
           },
           icon: const Icon(Icons.sort),
@@ -237,74 +238,33 @@ class _ConnectionsViewState extends ConsumerState<ConnectionsView>
             controller: _scrollController,
             child: ListView.builder(
               controller: _scrollController,
-              padding: EdgeInsets.only(
-                bottom: classicTheme ? 0 : 16,
-                top: classicTheme ? 0 : 8,
-              ),
+              padding: const EdgeInsets.only(bottom: 16, top: 8),
               itemBuilder: (context, index) {
-                if (classicTheme) {
-                  if (index.isOdd) {
-                    return const Divider(height: 0);
-                  }
-                  final itemIndex = index ~/ 2;
-                  if (itemIndex >= connections.length) {
-                    return const SizedBox.shrink();
-                  }
-                  final trackerInfo = connections[itemIndex];
-                  return TrackerInfoItem(
-                    key: ValueKey(trackerInfo.id),
-                    trackerInfo: trackerInfo,
-                    onClickKeyword: (value) {
-                      context.commonScaffoldState?.addKeyword(value);
-                    },
-                    trailing: IconButton(
-                      padding: EdgeInsets.zero,
-                      visualDensity: VisualDensity.compact,
-                      style: const ButtonStyle(
-                        minimumSize: WidgetStatePropertyAll(Size.zero),
-                      ),
-                      icon: const Icon(Icons.block),
-                      onPressed: () => _handleBlockConnection(trackerInfo.id),
+                final trackerInfo = connections[index];
+                return TrackerInfoItem(
+                  key: ValueKey(trackerInfo.id),
+                  index: index,
+                  count: connections.length,
+                  trackerInfo: trackerInfo,
+                  onClickKeyword: (value) {
+                    context.commonScaffoldState?.addKeyword(value);
+                  },
+                  trailing: IconButton(
+                    padding: EdgeInsets.zero,
+                    visualDensity: VisualDensity.compact,
+                    style: const ButtonStyle(
+                      minimumSize: WidgetStatePropertyAll(Size.zero),
                     ),
-                    detailTitle: appLocalizations.details,
-                  );
-                } else {
-                  final trackerInfo = connections[index];
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                    child: CommonCard(
-                      type: CommonCardType.filled,
-                      child: TrackerInfoItem(
-                        key: ValueKey(trackerInfo.id),
-                        trackerInfo: trackerInfo,
-                        onClickKeyword: (value) {
-                          context.commonScaffoldState?.addKeyword(value);
-                        },
-                        trailing: IconButton(
-                          padding: EdgeInsets.zero,
-                          visualDensity: VisualDensity.compact,
-                          style: const ButtonStyle(
-                            minimumSize: WidgetStatePropertyAll(Size.zero),
-                          ),
-                          icon: const Icon(Icons.block),
-                          onPressed: () => _handleBlockConnection(trackerInfo.id),
-                        ),
-                        detailTitle: appLocalizations.details,
-                      ),
-                    ),
-                  );
-                }
+                    icon: const Icon(Icons.block),
+                    onPressed: () => _handleBlockConnection(trackerInfo.id),
+                  ),
+                  detailTitle: appLocalizations.details,
+                );
               },
               itemExtentBuilder: (index, _) {
-                if (classicTheme) {
-                  if (index.isOdd) {
-                    return 0;
-                  }
-                  return TrackerInfoItem.height;
-                }
-                return TrackerInfoItem.height + 8;
+                return TrackerInfoItem.height + 1;
               },
-              itemCount: classicTheme ? connections.length * 2 - 1 : connections.length,
+              itemCount: connections.length,
             ),
           );
         },

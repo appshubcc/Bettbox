@@ -161,10 +161,6 @@ class MessageLookup extends MessageLookupByLibrary {
     "checkUpdateError": MessageLookupByLibrary.simpleMessage("当前应用已经是最新版了"),
     "checking": MessageLookupByLibrary.simpleMessage("检测中..."),
     "circle": MessageLookupByLibrary.simpleMessage("圆环流转"),
-    "classicTheme": MessageLookupByLibrary.simpleMessage("经典主题"),
-    "classicThemeDesc": MessageLookupByLibrary.simpleMessage(
-      "使用更加经典质朴的Flutter主题",
-    ),
     "clearCacheDesc": MessageLookupByLibrary.simpleMessage(
       "是否需要清理FakeIP&DNS缓存？",
     ),
@@ -686,6 +682,8 @@ class MessageLookup extends MessageLookupByLibrary {
     "serviceRunning": MessageLookupByLibrary.simpleMessage("服务正在运行中"),
     "settings": MessageLookupByLibrary.simpleMessage("设置"),
     "show": MessageLookupByLibrary.simpleMessage("显示"),
+    "showStartSwitch": MessageLookupByLibrary.simpleMessage("联动开关"),
+    "showStartSwitchDesc": MessageLookupByLibrary.simpleMessage("首页显示独立的开关按钮"),
     "shrink": MessageLookupByLibrary.simpleMessage("紧凑"),
     "silentLaunch": MessageLookupByLibrary.simpleMessage("静默启动"),
     "silentLaunchDesc": MessageLookupByLibrary.simpleMessage("不打开软件直接在后台启动"),
@@ -747,8 +745,6 @@ class MessageLookup extends MessageLookupByLibrary {
     "systemProxy": MessageLookupByLibrary.simpleMessage("系统代理"),
     "systemProxyDesc": MessageLookupByLibrary.simpleMessage("设置系统代理"),
     "tab": MessageLookupByLibrary.simpleMessage("标签页"),
-    "tabAnimation": MessageLookupByLibrary.simpleMessage("切换动画"),
-    "tabAnimationDesc": MessageLookupByLibrary.simpleMessage("仅在部分移动视图中有效"),
     "tcpConcurrent": MessageLookupByLibrary.simpleMessage("TCP并发"),
     "tcpConcurrentDesc": MessageLookupByLibrary.simpleMessage("开启后允许TCP并发连接"),
     "testUrl": MessageLookupByLibrary.simpleMessage("测试链接"),

@@ -31,11 +31,6 @@ class GoogleBottomNavBar extends ConsumerWidget {
     final enableHapticFeedback = ref.watch(
       appSettingProvider.select((state) => state.enableNavBarHapticFeedback),
     );
-    final classicTheme = ref.watch(
-      themeSettingProvider.select(
-        (state) => (state.classicTheme as dynamic) == true,
-      ),
-    );
     final tabsList = navigationItems
         .map(
           (e) => GButton(
@@ -51,43 +46,6 @@ class GoogleBottomNavBar extends ConsumerWidget {
         HapticFeedback.selectionClick(); // Lighter haptic feedback
       }
       onTabChange(index);
-    }
-
-    if (classicTheme) {
-      return Container(
-        decoration: BoxDecoration(
-          color: context.colorScheme.surfaceContainer,
-          boxShadow: [
-            BoxShadow(
-              blurRadius: 20,
-              color: Colors.black.withValues(alpha: 0.15),
-            ),
-          ],
-        ),
-        child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 10),
-            child: GNav(
-              rippleColor: enableHapticFeedback
-                  ? context.colorScheme.onSurface.withValues(alpha: 0.15)
-                  : Colors
-                        .transparent, // Disabling ripple may disable haptic feedback
-              hoverColor: context.colorScheme.onSurface.withValues(alpha: 0.1),
-              haptic: enableHapticFeedback, // Control GNav haptic feedback
-              gap: 8,
-              activeColor: context.colorScheme.onSecondaryContainer,
-              iconSize: 24,
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-              duration: const Duration(milliseconds: 250),
-              tabBackgroundColor: context.colorScheme.secondaryContainer,
-              color: context.colorScheme.onSurfaceVariant,
-              tabs: tabsList,
-              selectedIndex: selectedIndex,
-              onTabChange: handleTabChange,
-            ),
-          ),
-        ),
-      );
     }
 
     return RepaintBoundary(

@@ -22,14 +22,7 @@ class _LogsViewState extends ConsumerState<LogsView> {
   @override
   void initState() {
     super.initState();
-    _scrollController = ScrollController();
-    final logs = globalState.appState.logs.list;
-    if (logs.isNotEmpty) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (!mounted || !_scrollController.hasClients) return;
-        _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
-      });
-    }
+    _scrollController = ReverseScrollController();
   }
 
   @override
@@ -44,14 +37,6 @@ class _LogsViewState extends ConsumerState<LogsView> {
 
   void _onKeywordsUpdate(List<String> keywords) {
     ref.read(logsKeywordsProvider.notifier).state = keywords;
-    _scrollToTop();
-  }
-
-  void _scrollToTop() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted || !_scrollController.hasClients) return;
-      _scrollController.jumpTo(0);
-    });
   }
 
   void _toggleAutoScroll() {
@@ -113,12 +98,6 @@ class _LogsViewState extends ConsumerState<LogsView> {
   Widget build(BuildContext context) {
     final logs = ref.watch(filteredLogsProvider);
     final hasLogs = logs.isNotEmpty;
-    final classicTheme = ref.watch(
-      themeSettingProvider.select(
-        (state) => (state.classicTheme as dynamic) == true,
-      ),
-    );
-
     return CommonScaffold(
       actions: [
         IconButton(
@@ -156,6 +135,7 @@ class _LogsViewState extends ConsumerState<LogsView> {
               onCancelToEnd: _cancelAutoScroll,
               controller: _scrollController,
               enable: _autoScrollToEnd,
+              reverse: true,
               dataSource: logs,
               child: CommonScrollBar(
                 controller: _scrollController,
@@ -166,48 +146,24 @@ class _LogsViewState extends ConsumerState<LogsView> {
                     reverse: true,
                     shrinkWrap: logs.length < 20,
                     controller: _scrollController,
-                    padding: EdgeInsets.only(
-                      bottom: classicTheme ? 0 : 16,
-                      top: classicTheme ? 0 : 8,
-                    ),
-                    itemBuilder: (context, index) {
-                      if (classicTheme) {
-                        if (index.isOdd) {
-                          return const Divider(height: 0);
-                        }
-                        final itemIndex = index ~/ 2;
-                        if (itemIndex >= logs.length) {
-                          return const SizedBox.shrink();
-                        }
-                        final log = logs[itemIndex];
-                        return LogItem(
-                          key: ValueKey(log.dateTime),
-                          log: log,
-                          onClick: (value) {
-                            context.commonScaffoldState?.addKeyword(value);
-                          },
-                        );
-                      } else {
-                        final log = logs[index];
-                        return Padding(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 4,
-                          ),
-                          child: CommonCard(
-                            type: CommonCardType.filled,
-                            child: LogItem(
-                              key: ValueKey(log.dateTime),
-                              log: log,
-                              onClick: (value) {
-                                context.commonScaffoldState?.addKeyword(value);
-                              },
-                            ),
-                          ),
-                        );
-                      }
+                    padding: const EdgeInsets.only(bottom: 16, top: 8),
+                    itemExtentBuilder: (index, _) {
+                      return LogItem.height + 1;
                     },
-                    itemCount: classicTheme ? logs.length * 2 - 1 : logs.length,
+                    itemBuilder: (context, index) {
+                      final log = logs[index];
+                      return LogItem(
+                        key: ValueKey(log.dateTime),
+                        index: index,
+                        count: logs.length,
+                        reversed: true,
+                        log: log,
+                        onClick: (value) {
+                          context.commonScaffoldState?.addKeyword(value);
+                        },
+                      );
+                    },
+                    itemCount: logs.length,
                   ),
                 ),
               ),
@@ -219,43 +175,68 @@ class _LogsViewState extends ConsumerState<LogsView> {
 class LogItem extends StatelessWidget {
   final Log log;
   final Function(String)? onClick;
+  final int index;
+  final int count;
+  final bool reversed;
 
-  const LogItem({super.key, required this.log, this.onClick});
+  static double get height {
+    final measure = globalState.measure;
+    return measure.bodyLargeHeight * 2 +
+        8 +
+        24 +
+        measure.labelMediumHeight +
+        16 +
+        16;
+  }
+
+  const LogItem({
+    super.key,
+    required this.log,
+    this.onClick,
+    required this.index,
+    required this.count,
+    this.reversed = false,
+  });
 
   @override
   Widget build(BuildContext context) {
     return RepaintBoundary(
-      child: ListItem(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-        onTap: () {
-          globalState.showCommonDialog(child: LogDetailDialog(log: log));
-        },
-        title: Text(
-          log.payload,
-          maxLines: 2,
-          overflow: TextOverflow.ellipsis,
-          style: context.textTheme.bodyLarge?.copyWith(
-            color: log.logLevel.color,
+      child: ContinuousListItem(
+        index: index,
+        count: count,
+        reversed: reversed,
+        child: ListItem(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+          onTap: () {
+            globalState.showCommonDialog(child: LogDetailDialog(log: log));
+          },
+          title: Text(
+            log.payload,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: context.textTheme.bodyLarge?.copyWith(
+              color: log.logLevel.color,
+            ),
           ),
-        ),
-        subtitle: Padding(
-          padding: const EdgeInsets.only(top: 10),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              CommonChip(
-                onPressed: () {
-                  onClick?.call(log.logLevel.name);
-                },
-                label: log.logLevel.name,
-              ),
-              Text(
-                log.dateTime,
-                style: context.textTheme.bodySmall?.copyWith(
-                  color: context.colorScheme.onSurface.opacity80,
+          subtitle: Padding(
+            padding: const EdgeInsets.only(top: 10),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                CommonChip(
+                  onPressed: () {
+                    onClick?.call(log.logLevel.name);
+                  },
+                  label: log.logLevel.name,
                 ),
-              ),
-            ],
+                Text(
+                  log.dateTime,
+                  style: context.textTheme.bodySmall?.copyWith(
+                    color: context.colorScheme.onSurface.opacity80,
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

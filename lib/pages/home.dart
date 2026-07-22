@@ -253,11 +253,13 @@ class _HomePageView extends ConsumerStatefulWidget {
 class _HomePageViewState extends ConsumerState<_HomePageView> {
   late PageController _pageController;
   late final ProviderSubscription<PageLabel> _pageLabelSubscription;
+  int _currentPageIndex = 0;
 
   @override
   initState() {
     super.initState();
-    _pageController = PageController(initialPage: _pageIndex);
+    _currentPageIndex = _pageIndex;
+    _pageController = PageController(initialPage: _currentPageIndex);
     _pageLabelSubscription = ref.listenManual(currentPageLabelProvider, (
       prev,
       next,
@@ -300,6 +302,15 @@ class _HomePageViewState extends ConsumerState<_HomePageView> {
       FocusManager.instance.primaryFocus?.unfocus();
     }
 
+    if (ref.read(isMobileViewProvider)) {
+      if (_currentPageIndex != index) {
+        setState(() {
+          _currentPageIndex = index;
+        });
+      }
+      return;
+    }
+
     _pageController.jumpToPage(index);
   }
 
@@ -317,6 +328,21 @@ class _HomePageViewState extends ConsumerState<_HomePageView> {
 
   @override
   Widget build(BuildContext context) {
+    if (ref.watch(isMobileViewProvider)) {
+      return AnimatedSwitcher(
+        duration: const Duration(milliseconds: 150),
+        switchInCurve: Curves.easeOutCubic,
+        switchOutCurve: Curves.easeInCubic,
+        transitionBuilder: (child, animation) {
+          return FadeTransition(opacity: animation, child: child);
+        },
+        child: KeyedSubtree(
+          key: ValueKey(widget.navigationItems[_currentPageIndex].label),
+          child: widget.pageBuilder(context, _currentPageIndex),
+        ),
+      );
+    }
+
     return PageView.builder(
       controller: _pageController,
       physics: const NeverScrollableScrollPhysics(),

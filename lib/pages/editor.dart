@@ -24,6 +24,7 @@ class EditorPage extends ConsumerStatefulWidget {
   final bool supportRemoteDownload;
   final bool titleEditable;
   final bool readOnly;
+  final bool delayedFocus;
   final Function(BuildContext context, String title, String content)? onSave;
   final Future<bool> Function(
     BuildContext context,
@@ -39,6 +40,7 @@ class EditorPage extends ConsumerStatefulWidget {
     required this.content,
     this.titleEditable = false,
     this.readOnly = false,
+    this.delayedFocus = false,
     this.onSave,
     this.onPop,
     this.onUrlImport,
@@ -64,6 +66,15 @@ class _EditorPageState extends ConsumerState<EditorPage> {
     _controller = CodeLineEditingController.fromText(widget.content);
     _findController = CodeFindController(_controller);
     _titleController = TextEditingController(text: widget.title);
+    if (widget.delayedFocus) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Future.delayed(const Duration(milliseconds: 500), () {
+          if (mounted) {
+            _focusNode.requestFocus();
+          }
+        });
+      });
+    }
     if (system.isDesktop) {
       return;
     }

@@ -325,6 +325,32 @@ class _ProxyGroupViewState extends ConsumerState<ProxyGroupView> {
 
   List<Proxy> proxies = [];
   String? testUrl;
+  List<Proxy>? _cachedSortedProxies;
+  ProxiesSortType? _lastSortType;
+  List<Proxy>? _lastProxies;
+  String? _lastTestUrl;
+
+  List<Proxy> _getSortedProxies() {
+    final group = widget.group;
+    final sortType = widget.sortType;
+    final proxies = group.all;
+    final testUrl = group.testUrl;
+    if (_cachedSortedProxies != null &&
+        _lastSortType == sortType &&
+        _lastTestUrl == testUrl &&
+        _lastProxies == proxies) {
+      return _cachedSortedProxies!;
+    }
+    _lastSortType = sortType;
+    _lastTestUrl = testUrl;
+    _lastProxies = proxies;
+    _cachedSortedProxies = globalState.appController.getSortProxies(
+      proxies: proxies,
+      sortType: sortType,
+      testUrl: testUrl,
+    );
+    return _cachedSortedProxies!;
+  }
 
   @override
   void initState() {
@@ -370,18 +396,16 @@ class _ProxyGroupViewState extends ConsumerState<ProxyGroupView> {
   Widget build(BuildContext context) {
     ref.watch(themeSettingProvider.select((state) => state.textScale));
     final isMobileView = ref.watch(isMobileViewProvider);
-    final classicTheme = ref.watch(
-      themeSettingProvider.select((state) => state.classicTheme),
-    );
-    final group = widget.group;
-    final proxies = group.all;
-    final sortedProxies = globalState.appController.getSortProxies(
-      proxies: proxies,
-      sortType: widget.sortType,
-      testUrl: group.testUrl,
-    );
-    this.proxies = sortedProxies;
-    testUrl = group.testUrl;
+    final sortedProxies = _getSortedProxies();
+    proxies = sortedProxies;
+    testUrl = widget.group.testUrl;
+    final baseBottom =
+        sortedProxies.isNotEmpty && sortedProxies.length % widget.columns == 0
+        ? 88.0
+        : 16.0;
+    final extra = isMobileView
+        ? getFloatingBottomBarReserveHeight(context)
+        : 0.0;
 
     return Align(
       alignment: Alignment.topCenter,
@@ -395,14 +419,7 @@ class _ProxyGroupViewState extends ConsumerState<ProxyGroupView> {
             top: 16,
             left: 16,
             right: 16,
-            bottom:
-                (sortedProxies.isNotEmpty &&
-                        sortedProxies.length % widget.columns == 0
-                    ? 88
-                    : 16) +
-                (isMobileView && !classicTheme
-                    ? getFloatingBottomBarReserveHeight(context)
-                    : 0),
+            bottom: baseBottom + extra,
           ),
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: widget.columns,
@@ -414,11 +431,11 @@ class _ProxyGroupViewState extends ConsumerState<ProxyGroupView> {
           itemBuilder: (_, index) {
             final proxy = sortedProxies[index];
             return ProxyCard(
-              testUrl: group.testUrl,
-              groupType: group.type,
+              testUrl: widget.group.testUrl,
+              groupType: widget.group.type,
               type: widget.cardType,
               proxy: proxy,
-              groupName: group.name,
+              groupName: widget.group.name,
             );
           },
         ),

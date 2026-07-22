@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:bett_box/clash/core.dart';
 import 'package:bett_box/common/common.dart';
 import 'package:bett_box/enum/enum.dart';
 import 'package:bett_box/manager/window_manager.dart';
@@ -167,7 +168,10 @@ class _AppStateManagerState extends ConsumerState<AppStateManager>
       await globalState.resumeForegroundUpdates();
       await globalState.appController.syncWakelockIfNeeded();
       _scheduleMissedUpdateCheck();
-      globalState.appController.updateGroupsDebounce();
+      final isInit = await clashCore.isInit;
+      if (isInit) {
+        globalState.appController.updateGroupsDebounce();
+      }
 
       final hasDetection = ref
           .read(dashboardStateProvider)

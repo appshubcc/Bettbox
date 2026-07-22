@@ -96,14 +96,18 @@ class _ProxyGroupsListState extends ConsumerState<_ProxyGroupsList> {
 
   double _getHeaderHeight() {
     final measure = globalState.measure;
-    final contentRowHeight = [40.0, measure.titleMediumHeight + 4 + measure.labelMediumHeight]
-        .reduce((a, b) => a > b ? a : b);
+    final contentRowHeight = [
+      40.0,
+      measure.titleMediumHeight + 4 + measure.labelMediumHeight,
+    ].reduce((a, b) => a > b ? a : b);
     return 28.0 + contentRowHeight;
   }
 
   void _scrollToSelected(String groupName) {
     if (!_scrollController.hasClients) return;
-    final selectedName = ref.read(getSelectedProxyNameProvider(groupName)).getSafeValue('');
+    final selectedName = ref
+        .read(getSelectedProxyNameProvider(groupName))
+        .getSafeValue('');
     if (selectedName.isEmpty) return;
 
     final headerHeight = _getHeaderHeight();
@@ -180,9 +184,6 @@ class _ProxyGroupsListState extends ConsumerState<_ProxyGroupsList> {
   @override
   Widget build(BuildContext context) {
     final isMobileView = ref.watch(isMobileViewProvider);
-    final classicTheme = ref.watch(
-      themeSettingProvider.select((state) => state.classicTheme),
-    );
     final flatItems = _buildFlatItems();
     final headerHeight = _getHeaderHeight();
     final itemHeight = getItemHeight(widget.cardType);
@@ -196,9 +197,7 @@ class _ProxyGroupsListState extends ConsumerState<_ProxyGroupsList> {
         padding: EdgeInsets.all(16).copyWith(
           bottom:
               16 +
-              (isMobileView && !classicTheme
-                  ? getFloatingBottomBarReserveHeight(context)
-                  : 0),
+              (isMobileView ? getFloatingBottomBarReserveHeight(context) : 0),
         ),
         itemCount: flatItems.length,
         itemExtentBuilder: (index, _) {
@@ -253,9 +252,7 @@ class _ProxyGroupsListState extends ConsumerState<_ProxyGroupsList> {
               padding: const EdgeInsets.only(bottom: 8),
               child: SizedBox(
                 height: itemHeight,
-                child: Row(
-                  children: rowChildren,
-                ),
+                child: Row(children: rowChildren),
               ),
             );
           }
@@ -293,9 +290,9 @@ class _GroupHeader extends ConsumerWidget {
       proxiesStyleSettingProvider.select((s) => s.iconMap),
     );
     final icon = _getIcon(iconStyle, iconMap);
-    final selectedProxyName = ref.watch(
-      getSelectedProxyNameProvider(group.name),
-    ).getSafeValue('');
+    final selectedProxyName = ref
+        .watch(getSelectedProxyNameProvider(group.name))
+        .getSafeValue('');
 
     final selectedProxyIcon = ref.watch(
       groupsProvider.select((groups) {
@@ -318,10 +315,7 @@ class _GroupHeader extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  EmojiText(
-                    group.name,
-                    style: context.textTheme.titleMedium,
-                  ),
+                  EmojiText(group.name, style: context.textTheme.titleMedium),
                   const SizedBox(height: 4),
                   Row(
                     children: [
@@ -406,10 +400,7 @@ class _GroupHeader extends ConsumerWidget {
           color: context.colorScheme.secondaryContainer,
         ),
         clipBehavior: Clip.antiAlias,
-        child: CommonTargetIcon(
-          src: icon,
-          size: iconSize - 12,
-        ),
+        child: CommonTargetIcon(src: icon, size: iconSize - 12),
       );
     }
     return Container(
@@ -417,10 +408,7 @@ class _GroupHeader extends ConsumerWidget {
       width: iconSize,
       height: iconSize,
       alignment: Alignment.center,
-      child: CommonTargetIcon(
-        src: icon,
-        size: iconSize - 8,
-      ),
+      child: CommonTargetIcon(src: icon, size: iconSize - 8),
     );
   }
 

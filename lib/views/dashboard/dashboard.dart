@@ -68,6 +68,9 @@ class _DashboardViewState extends ConsumerState<DashboardView> {
   }
 
   List<Widget> _buildActions() {
+    final showStartSwitch = ref.watch(
+      appSettingProvider.select((state) => state.showStartSwitch),
+    );
     return [
       _buildIsEdit((isEdit) {
         return isEdit
@@ -107,7 +110,7 @@ class _DashboardViewState extends ConsumerState<DashboardView> {
           ),
         ),
       ),
-      const _DashboardStartSwitch(),
+      if (showStartSwitch) const _DashboardStartSwitch(),
     ];
   }
 
@@ -176,9 +179,6 @@ class _DashboardViewState extends ConsumerState<DashboardView> {
     final columns = max(4 * ((dashboardState.viewWidth / 320).ceil()), 8);
     final spacing = 16.ap;
     final isMobileView = ref.watch(isMobileViewProvider);
-    final classicTheme = ref.watch(
-      themeSettingProvider.select((state) => state.classicTheme),
-    );
     final children = [
       ...dashboardState.dashboardWidgets
           .where(
@@ -206,9 +206,7 @@ class _DashboardViewState extends ConsumerState<DashboardView> {
           padding: EdgeInsets.all(16).copyWith(
             bottom:
                 16 +
-                (isMobileView && !classicTheme
-                    ? getFloatingBottomBarReserveHeight(context)
-                    : 0),
+                (isMobileView ? getFloatingBottomBarReserveHeight(context) : 0),
           ),
           child: _buildIsEdit((isEdit) {
             if (isEdit) {

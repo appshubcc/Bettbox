@@ -909,10 +909,10 @@ class AppLocalizations {
     );
   }
 
-  /// `Configure per-app proxy access`
+  /// `Configure per-app access allowlist/blocklist`
   String get accessControlDesc {
     return Intl.message(
-      'Configure per-app proxy access',
+      'Configure per-app access allowlist/blocklist',
       name: 'accessControlDesc',
       desc: '',
       args: [],
@@ -1989,6 +1989,16 @@ class AppLocalizations {
     );
   }
 
+  /// `HTTP proxy is generally not recommended on non-desktop platforms. Only enable this feature when necessary and you fully understand the implications.`
+  String get vpnSystemProxyConfirmDesc {
+    return Intl.message(
+      'HTTP proxy is generally not recommended on non-desktop platforms. Only enable this feature when necessary and you fully understand the implications.',
+      name: 'vpnSystemProxyConfirmDesc',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Set system proxy`
   String get systemProxyDesc {
     return Intl.message(
@@ -2714,10 +2724,10 @@ class AppLocalizations {
     );
   }
 
-  /// `Route all system traffic via VpnService`
+  /// `Route system traffic via VpnService`
   String get vpnEnableDesc {
     return Intl.message(
-      'Route all system traffic via VpnService',
+      'Route system traffic via VpnService',
       name: 'vpnEnableDesc',
       desc: '',
       args: [],

@@ -58,7 +58,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "accessControlAllowDesc": MessageLookupByLibrary.simpleMessage(
       "只允许选中的应用进入VPN",
     ),
-    "accessControlDesc": MessageLookupByLibrary.simpleMessage("配置应用访问代理"),
+    "accessControlDesc": MessageLookupByLibrary.simpleMessage("配置应用访问黑白名单"),
     "accessControlNotAllowDesc": MessageLookupByLibrary.simpleMessage(
       "选中的应用将被排除在VPN之外",
     ),
@@ -821,7 +821,10 @@ class MessageLookup extends MessageLookupByLibrary {
     "view": MessageLookupByLibrary.simpleMessage("查看"),
     "vpnDesc": MessageLookupByLibrary.simpleMessage("修改VPN相关设置"),
     "vpnEnableDesc": MessageLookupByLibrary.simpleMessage(
-      "通过VpnService自动路由系统所有流量",
+      "通过VpnService自动路由系统流量",
+    ),
+    "vpnSystemProxyConfirmDesc": MessageLookupByLibrary.simpleMessage(
+      "非桌面端通常不推荐使用HTTP代理，此功能仅建议您在必要且熟悉的情况下开启",
     ),
     "vpnSystemProxyDesc": MessageLookupByLibrary.simpleMessage(
       "为VpnService附加HTTP代理",

@@ -108,13 +108,22 @@ class VpnSystemProxyItem extends ConsumerWidget {
     );
     return ListItem.switchItem(
       title: Text(appLocalizations.systemProxy),
-      subtitle: Text(appLocalizations.systemProxyDesc),
+      subtitle: Text(appLocalizations.vpnSystemProxyDesc),
       delegate: SwitchDelegate(
         value: systemProxy,
         onChanged: (bool value) async {
+          if (value) {
+            final res = await globalState.showMessage(
+              message: TextSpan(
+                text: appLocalizations.vpnSystemProxyConfirmDesc,
+              ),
+            );
+            if (res != true) return;
+          }
           ref
               .read(vpnSettingProvider.notifier)
               .updateState((state) => state.copyWith(systemProxy: value));
+          await _handleNetworkConfigChange(ref);
         },
       ),
     );
@@ -226,7 +235,6 @@ class IcmpForwardingItem extends ConsumerWidget {
   }
 }
 
-
 class DnsHijackItem extends ConsumerWidget {
   const DnsHijackItem({super.key});
 
@@ -274,23 +282,23 @@ class EndpointIndependentNatItem extends ConsumerWidget {
       subtitle: Text(appLocalizations.endpointIndependentNatDesc),
       delegate: SwitchDelegate(
         value: endpointIndependentNat,
-      onChanged: (value) async {
-        if (value) {
-          final res = await globalState.showMessage(
-            title: appLocalizations.tip,
-            message: TextSpan(
-              text: appLocalizations.endpointIndependentNatConfirmDesc,
-            ),
-          );
-          if (res != true) return;
-        }
-        ref
-            .read(patchClashConfigProvider.notifier)
-            .updateState(
-              (state) => state.copyWith.tun(endpointIndependentNat: value),
+        onChanged: (value) async {
+          if (value) {
+            final res = await globalState.showMessage(
+              title: appLocalizations.tip,
+              message: TextSpan(
+                text: appLocalizations.endpointIndependentNatConfirmDesc,
+              ),
             );
-        await _handleNetworkConfigChange(ref);
-      },
+            if (res != true) return;
+          }
+          ref
+              .read(patchClashConfigProvider.notifier)
+              .updateState(
+                (state) => state.copyWith.tun(endpointIndependentNat: value),
+              );
+          await _handleNetworkConfigChange(ref);
+        },
       ),
     );
   }
@@ -537,7 +545,9 @@ class BypassPrivateRouteItem extends ConsumerWidget {
         onChanged: (value) async {
           ref
               .read(networkSettingProvider.notifier)
-              .updateState((state) => state.copyWith(bypassPrivateRoute: value));
+              .updateState(
+                (state) => state.copyWith(bypassPrivateRoute: value),
+              );
           await _handleNetworkConfigChange(ref);
         },
       ),
@@ -545,14 +555,12 @@ class BypassPrivateRouteItem extends ConsumerWidget {
   }
 }
 
-
-
 final networkItems = [
   if (system.isAndroid) const VPNItem(),
   if (system.isAndroid)
     ...generateSection(
       title: 'VPN',
-      items: [const AllowBypassItem()],
+      items: [const AllowBypassItem(), const VpnSystemProxyItem()],
     ),
   if (system.isDesktop)
     ...generateSection(

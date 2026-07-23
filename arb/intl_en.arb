@@ -650,6 +650,7 @@
   "agePublicKeyLabel": "Age Public Key",
   "generateFromPrivateKey": "Generate from Age private key",
   "ageKeyPairGeneratedSuccess": "X25519 Key pair generated, please keep it safe",
-  "agePrivateKeyRequired": "Please enter a correct Age private key first"
+  "agePrivateKeyRequired": "Please enter a correct Age private key first",
+  "lineWrap": "Wrap Lines"
 }
 

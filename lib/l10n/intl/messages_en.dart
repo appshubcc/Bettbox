@@ -600,6 +600,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "lightIconDesc": MessageLookupByLibrary.simpleMessage(
       "Manually switch light desktop app icon",
     ),
+    "lineWrap": MessageLookupByLibrary.simpleMessage("Wrap Lines"),
     "list": MessageLookupByLibrary.simpleMessage("List"),
     "listen": MessageLookupByLibrary.simpleMessage("Listen"),
     "local": MessageLookupByLibrary.simpleMessage("Local"),

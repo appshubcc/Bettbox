@@ -8,6 +8,7 @@ import 'package:bett_box/state.dart';
 import 'package:bett_box/widgets/widgets.dart';
 import 'package:code_forge/code_forge.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:re_highlight/languages/javascript.dart';
 import 'package:re_highlight/languages/yaml.dart';
@@ -16,6 +17,11 @@ import 'package:re_highlight/styles/atom-one-dark.dart';
 import 'package:re_highlight/styles/atom-one-light.dart';
 
 typedef EditorWidgetBuilder = Widget Function();
+
+const int _kLargeEditableLineThreshold = 2000;
+const Duration _kFindFocusDelay = Duration(milliseconds: 500);
+const Duration _kMinBusyDuration = Duration(milliseconds: 600);
+const double _kDefaultFindPanelHeight = 52;
 
 class EditorPage extends ConsumerStatefulWidget {
   final String title;
@@ -56,41 +62,53 @@ class EditorPage extends ConsumerStatefulWidget {
 
 class _EditorPageState extends ConsumerState<EditorPage> {
   late CodeForgeController _controller;
-  late FindController _findController;
+  late _EditorFindController _findController;
   late UndoRedoController _undoController;
   late TextEditingController _titleController;
   final _focusNode = FocusNode();
-  VoidCallback? _controllerListener;
+  bool _lineWrap = false;
+  late final int _lineCount;
+  bool _isLoading = true;
+  bool _isBusy = false;
+
+  bool get _disableSyntaxHighlight =>
+      widget.simple ||
+      (!widget.readOnly &&
+          !system.isDesktop &&
+          _lineCount > _kLargeEditableLineThreshold);
+
+  bool get _isLineWrapDisabled =>
+      !system.isDesktop && _lineCount > _kLargeEditableLineThreshold;
 
   @override
   void initState() {
     super.initState();
+    _lineCount = widget.content.split('\n').length;
     _controller = CodeForgeController();
     _controller.text = widget.content;
-    _controllerListener = () {
-      if (mounted) setState(() {});
-    };
-    _controller.addListener(_controllerListener!);
-    _findController = FindController(_controller);
+    _findController = _EditorFindController(_controller);
     _undoController = UndoRedoController();
     _titleController = TextEditingController(text: widget.title);
 
-    if (widget.delayedFocus) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        Future.delayed(const Duration(milliseconds: 500), () {
-          if (mounted) {
-            _focusNode.requestFocus();
-          }
+    final loadingStopwatch = Stopwatch()..start();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final elapsed = loadingStopwatch.elapsedMilliseconds;
+      final remaining = _kMinBusyDuration.inMilliseconds - elapsed;
+      if (remaining > 0) {
+        await Future.delayed(Duration(milliseconds: remaining));
+      }
+      if (mounted) setState(() => _isLoading = false);
+      if (widget.delayedFocus) {
+        Future.delayed(_kFindFocusDelay, () {
+          if (mounted) _focusNode.requestFocus();
         });
-      });
-    }
+      }
+    });
   }
 
   @override
   void dispose() {
-    if (_controllerListener != null) {
-      _controller.removeListener(_controllerListener!);
-    }
+    _controller.text = '';
     _findController.dispose();
     _undoController.dispose();
     _controller.dispose();
@@ -101,13 +119,45 @@ class _EditorPageState extends ConsumerState<EditorPage> {
 
   Widget _wrapTitleController(EditorWidgetBuilder builder) {
     return ListenableBuilder(
-      listenable: _titleController,
+      listenable: Listenable.merge([
+        _titleController,
+        _CodeForgeControllerListenable(_controller),
+      ]),
       builder: (_, _) => builder(),
     );
   }
 
   void _handleSearch() {
     _findController.isActive = true;
+  }
+
+  void _setBusy(bool value) {
+    if (!mounted) return;
+    setState(() => _isBusy = value);
+  }
+
+  Future<void> _withBusy(Future<void> Function() task) async {
+    _setBusy(true);
+    await SchedulerBinding.instance.endOfFrame;
+    if (!mounted) return;
+    final stopwatch = Stopwatch()..start();
+    try {
+      await task();
+    } finally {
+      final remaining =
+          _kMinBusyDuration.inMilliseconds - stopwatch.elapsedMilliseconds;
+      if (remaining > 0) {
+        await Future.delayed(Duration(milliseconds: remaining));
+      }
+      if (mounted) _setBusy(false);
+    }
+  }
+
+  Future<void> _toggleLineWrap() async {
+    await _withBusy(() async {
+      setState(() => _lineWrap = !_lineWrap);
+      await SchedulerBinding.instance.endOfFrame;
+    });
   }
 
   Future<void> _handleImport() async {
@@ -155,7 +205,7 @@ class _EditorPageState extends ConsumerState<EditorPage> {
   }
 
   Mode? _languageMode() {
-    if (widget.simple) return null;
+    if (_disableSyntaxHighlight) return null;
     final language = widget.languages.firstOrNull;
     switch (language) {
       case Language.yaml:
@@ -172,6 +222,33 @@ class _EditorPageState extends ConsumerState<EditorPage> {
     final isMobileView = ref.watch(isMobileViewProvider);
     final brightness = Theme.of(context).brightness;
     final readOnly = widget.readOnly || widget.simple;
+    final menuItems = <PopupMenuItemData>[
+      PopupMenuItemData(
+        icon: Icons.search,
+        label: appLocalizations.search,
+        onPressed: _handleSearch,
+      ),
+      PopupMenuItemData(
+        icon: Icons.undo,
+        label: appLocalizations.undo,
+        onPressed: _undoController.canUndo
+            ? () => _undoController.undo()
+            : null,
+      ),
+      PopupMenuItemData(
+        icon: Icons.redo,
+        label: appLocalizations.redo,
+        onPressed: _undoController.canRedo
+            ? () => _undoController.redo()
+            : null,
+      ),
+      PopupMenuItemData(
+        icon: _lineWrap ? Icons.check : Icons.wrap_text,
+        label: appLocalizations.lineWrap,
+        onPressed: _isLineWrapDisabled ? null : _toggleLineWrap,
+      ),
+    ];
+
     return CommonPopScope(
       onPop: () async {
         if (widget.onPop == null) {
@@ -187,125 +264,130 @@ class _EditorPageState extends ConsumerState<EditorPage> {
         }
         return false;
       },
-      child: CommonScaffold(
-        appBar: AppBar(
-          title: TextField(
-            enabled: widget.titleEditable && !readOnly,
-            controller: _titleController,
-            decoration: InputDecoration(
-              border: _NoInputBorder(),
-              hintText: appLocalizations.unnamed,
-            ),
-            style: context.textTheme.titleLarge,
-            autofocus: false,
-          ),
-          actions: genActions([
-            if (widget.onSave != null && !readOnly)
-              _wrapTitleController(
-                () => IconButton(
-                  onPressed:
-                      _controller.text != widget.content ||
-                          _titleController.text != widget.title
-                      ? () {
-                          widget.onSave!(
-                            context,
-                            _titleController.text,
-                            _controller.text,
+      child: Stack(
+        children: [
+          if (!_isLoading)
+            AbsorbPointer(
+              absorbing: _isBusy,
+              child: CommonScaffold(
+                appBar: AppBar(
+                  title: TextField(
+                    enabled: widget.titleEditable && !readOnly,
+                    controller: _titleController,
+                    decoration: InputDecoration(
+                      border: _NoInputBorder(),
+                      hintText: appLocalizations.unnamed,
+                    ),
+                    style: context.textTheme.titleLarge,
+                    autofocus: false,
+                  ),
+                  actions: genActions([
+                    if (widget.onSave != null && !readOnly)
+                      _wrapTitleController(
+                        () => IconButton(
+                          onPressed:
+                              _controller.text != widget.content ||
+                                  _titleController.text != widget.title
+                              ? () {
+                                  widget.onSave!(
+                                    context,
+                                    _titleController.text,
+                                    _controller.text,
+                                  );
+                                }
+                              : null,
+                          icon: const Icon(Icons.save_sharp),
+                        ),
+                      ),
+                    if (widget.supportRemoteDownload && !readOnly)
+                      IconButton(
+                        onPressed: _handleImport,
+                        icon: const Icon(Icons.arrow_downward),
+                      ),
+                    ListenableBuilder(
+                      listenable: _undoController,
+                      builder: (_, _) => CommonPopupBox(
+                        targetBuilder: (open) {
+                          return IconButton(
+                            onPressed: () {
+                              open(offset: const Offset(-20, 20));
+                            },
+                            icon: const Icon(Icons.more_vert),
                           );
-                        }
-                      : null,
-                  icon: const Icon(Icons.save_sharp),
+                        },
+                        popup: CommonPopupMenu(items: menuItems),
+                      ),
+                    ),
+                  ]),
                 ),
-              ),
-            if (widget.supportRemoteDownload && !readOnly)
-              IconButton(
-                onPressed: _handleImport,
-                icon: Icon(Icons.arrow_downward),
-              ),
-            if (readOnly)
-              IconButton(
-                onPressed: _handleSearch,
-                icon: const Icon(Icons.search),
-              )
-            else
-              ListenableBuilder(
-                listenable: _undoController,
-                builder: (_, _) => CommonPopupBox(
-                  targetBuilder: (open) {
-                    return IconButton(
-                      onPressed: () {
-                        open(offset: Offset(-20, 20));
-                      },
-                      icon: const Icon(Icons.more_vert),
-                    );
-                  },
-                  popup: CommonPopupMenu(
-                    items: [
-                      PopupMenuItemData(
-                        icon: Icons.search,
-                        label: appLocalizations.search,
-                        onPressed: _handleSearch,
-                      ),
-                      PopupMenuItemData(
-                        icon: Icons.undo,
-                        label: appLocalizations.undo,
-                        onPressed: _undoController.canUndo
-                            ? () => _undoController.undo()
-                            : null,
-                      ),
-                      PopupMenuItemData(
-                        icon: Icons.redo,
-                        label: appLocalizations.redo,
-                        onPressed: _undoController.canRedo
-                            ? () => _undoController.redo()
-                            : null,
-                      ),
-                    ],
+                body: RepaintBoundary(
+                  child: CodeForge(
+                    controller: _controller,
+                    focusNode: _focusNode,
+                    findController: _findController,
+                    undoController: _undoController,
+                    readOnly: readOnly,
+                    lineWrap: _lineWrap,
+                    enableFolding: !widget.simple && !_disableSyntaxHighlight,
+                    enableGuideLines: !widget.simple && !_disableSyntaxHighlight,
+                    enableGutter: true,
+                    enableGutterDivider: false,
+                    enableLocalSuggestions: false,
+                    enableKeyboardSuggestions: false,
+                    enableMagnifier: false,
+                    language: _languageMode(),
+                    editorTheme: brightness == Brightness.dark
+                        ? atomOneDarkTheme
+                        : atomOneLightTheme,
+                    textStyle: TextStyle(
+                      fontFamily: FontFamily.jetBrainsMono.value,
+                      fontSize: context.textTheme.bodyLarge?.fontSize?.ap,
+                    ),
+                    innerPadding: const EdgeInsets.only(right: 16),
+                    finderBuilder: (context, controller) => FindPanel(
+                      controller: controller,
+                      readOnly: readOnly,
+                      isMobileView: isMobileView,
+                    ),
+                    scrollbarDecoration: ScrollbarDecoration(
+                      showLineNumberIndicator: false,
+                      thumbVisibility: false,
+                      thickness: 8,
+                      thumbColor: context.colorScheme.onSurface.withAlpha(100),
+                    ),
                   ),
                 ),
               ),
-          ]),
-        ),
-        body: CodeForge(
-          controller: _controller,
-          focusNode: _focusNode,
-          findController: _findController,
-          undoController: _undoController,
-          readOnly: readOnly,
-          lineWrap: false,
-          enableFolding: !widget.simple,
-          enableGuideLines: !widget.simple,
-          enableGutter: true,
-          enableGutterDivider: false,
-          enableLocalSuggestions: false,
-          enableKeyboardSuggestions: false,
-          language: _languageMode(),
-          editorTheme: brightness == Brightness.dark
-              ? atomOneDarkTheme
-              : atomOneLightTheme,
-          textStyle: TextStyle(
-            fontFamily: FontFamily.jetBrainsMono.value,
-            fontSize: context.textTheme.bodyLarge?.fontSize?.ap,
-          ),
-          innerPadding: const EdgeInsets.only(right: 16),
-          finderBuilder: (context, controller) => FindPanel(
-            controller: controller,
-            readOnly: readOnly,
-            isMobileView: isMobileView,
-          ),
-          scrollbarDecoration: ScrollbarDecoration(
-            showLineNumberIndicator: false,
-            thumbVisibility: false,
-            thickness: 8,
-            thumbColor: context.colorScheme.onSurface.withAlpha(100),
-          ),
-        ),
+            ),
+          if (_isBusy || _isLoading)
+            Positioned.fill(
+              child: Container(
+                color: context.colorScheme.surface.withAlpha(200),
+                child: Center(
+                  child: CircularProgressIndicator(
+                    color: context.colorScheme.primary,
+                  ),
+                ),
+              ),
+            ),
+        ],
       ),
     );
   }
 }
 
-const double _kDefaultFindPanelHeight = 52;
+class _EditorFindController extends FindController {
+  _EditorFindController(super.codeController);
+
+  final ValueNotifier<bool> isOpenNotifier = ValueNotifier<bool>(false);
+
+  @override
+  set isActive(bool value) {
+    if (value == isActive) return;
+    super.isActive = value;
+    isOpenNotifier.value = value;
+  }
+}
 
 class FindPanel extends StatelessWidget implements PreferredSizeWidget {
   final FindController controller;
@@ -334,8 +416,8 @@ class FindPanel extends StatelessWidget implements PreferredSizeWidget {
       return const SizedBox(width: 0, height: 0);
     }
     return Container(
-      padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-      margin: EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+      margin: const EdgeInsets.only(bottom: 8),
       color: context.colorScheme.surface,
       alignment: Alignment.centerLeft,
       height: height,
@@ -352,10 +434,10 @@ class FindPanel extends StatelessWidget implements PreferredSizeWidget {
       children: [
         if (!isMobileView) ...[
           ConstrainedBox(
-            constraints: BoxConstraints(maxWidth: 360),
+            constraints: const BoxConstraints(maxWidth: 360),
             child: _buildFindInput(context),
           ),
-          SizedBox(width: 12),
+          const SizedBox(width: 12),
         ],
         Text(result, style: context.textTheme.bodyMedium),
         Expanded(
@@ -375,14 +457,14 @@ class FindPanel extends StatelessWidget implements PreferredSizeWidget {
                     : controller.next,
                 icon: Icons.arrow_downward,
               ),
-              SizedBox(width: 2),
+              const SizedBox(width: 2),
               IconButton.filledTonal(
                 visualDensity: VisualDensity.compact,
                 onPressed: () => controller.isActive = false,
-                style: ButtonStyle(
+                style: const ButtonStyle(
                   padding: WidgetStatePropertyAll(EdgeInsets.all(0)),
                 ),
-                icon: Icon(Icons.close, size: 16),
+                icon: const Icon(Icons.close, size: 16),
               ),
             ],
           ),
@@ -392,7 +474,7 @@ class FindPanel extends StatelessWidget implements PreferredSizeWidget {
     if (isMobileView) {
       return Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [bar, SizedBox(height: 4), _buildFindInput(context)],
+        children: [bar, const SizedBox(height: 4), _buildFindInput(context)],
       );
     }
     return bar;
@@ -430,7 +512,7 @@ class FindPanel extends StatelessWidget implements PreferredSizeWidget {
               isSelected: controller.isRegex,
               onPressed: controller.toggleRegex,
             ),
-            SizedBox(width: 4),
+            const SizedBox(width: 4),
           ],
         ),
       ],
@@ -447,7 +529,7 @@ class FindPanel extends StatelessWidget implements PreferredSizeWidget {
       maxLines: 1,
       focusNode: focusNode,
       style: context.textTheme.bodyMedium,
-      decoration: InputDecoration(
+      decoration: const InputDecoration(
         border: OutlineInputBorder(),
         contentPadding: EdgeInsets.symmetric(horizontal: 12),
       ),
@@ -472,12 +554,12 @@ class FindPanel extends StatelessWidget implements PreferredSizeWidget {
         child: isSelected
             ? IconButton.filledTonal(
                 onPressed: onPressed,
-                padding: EdgeInsets.all(2),
+                padding: const EdgeInsets.all(2),
                 icon: Text(text, style: context.textTheme.bodySmall),
               )
             : IconButton(
                 onPressed: onPressed,
-                padding: EdgeInsets.all(2),
+                padding: const EdgeInsets.all(2),
                 icon: Text(text, style: context.textTheme.bodySmall),
               ),
       ),
@@ -488,10 +570,25 @@ class FindPanel extends StatelessWidget implements PreferredSizeWidget {
     return IconButton(
       visualDensity: VisualDensity.compact,
       onPressed: onPressed,
-      style: ButtonStyle(padding: WidgetStatePropertyAll(EdgeInsets.all(0))),
+      style: const ButtonStyle(
+        padding: WidgetStatePropertyAll(EdgeInsets.all(0)),
+      ),
       icon: Icon(icon, size: 16),
     );
   }
+}
+
+class _CodeForgeControllerListenable extends Listenable {
+  _CodeForgeControllerListenable(this._controller);
+
+  final CodeForgeController _controller;
+
+  @override
+  void addListener(VoidCallback listener) => _controller.addListener(listener);
+
+  @override
+  void removeListener(VoidCallback listener) =>
+      _controller.removeListener(listener);
 }
 
 class _NoInputBorder extends InputBorder {

@@ -611,6 +611,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "lightIconDesc": MessageLookupByLibrary.simpleMessage(
       "Переключить на светлый стиль рабочего стола вручную",
     ),
+    "lineWrap": MessageLookupByLibrary.simpleMessage("Перенос строк"),
     "list": MessageLookupByLibrary.simpleMessage("Список"),
     "listen": MessageLookupByLibrary.simpleMessage("Прослушивание"),
     "local": MessageLookupByLibrary.simpleMessage("Локальное хранилище"),

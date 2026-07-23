@@ -241,7 +241,11 @@ class ProfileItem extends StatelessWidget {
           content: content,
           readOnly: true,
         );
-        BaseNavigator.push<String>(context, previewPage);
+        BaseNavigator.push<String>(
+          context,
+          previewPage,
+          maintainState: false,
+        );
       },
       needLoading: true,
       title: appLocalizations.tip,

@@ -178,7 +178,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "Резервное копирование",
     ),
     "backupAndRecoveryDesc": MessageLookupByLibrary.simpleMessage(
-      "Синхронизация данных через WebDAV или файл",
+      "Синхронизация данных через WebDAV или локально",
     ),
     "backupSuccess": MessageLookupByLibrary.simpleMessage(
       "Резервное копирование успешно",
@@ -1210,6 +1210,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "vpnDesc": MessageLookupByLibrary.simpleMessage("Настройки VPN"),
     "vpnEnableDesc": MessageLookupByLibrary.simpleMessage(
       "Автоматическая маршрутизация всего трафика через VpnService",
+    ),
+    "vpnSystemProxyConfirmDesc": MessageLookupByLibrary.simpleMessage(
+      "HTTP-прокси обычно не рекомендуется на мобильных платформах. Включайте эту функцию только при необходимости и если вы осознаёте возможные последствия.",
     ),
     "vpnSystemProxyDesc": MessageLookupByLibrary.simpleMessage(
       "Добавить HTTP-прокси к VPN",

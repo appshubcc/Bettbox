@@ -64,7 +64,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "Only route selected apps through VPN",
     ),
     "accessControlDesc": MessageLookupByLibrary.simpleMessage(
-      "Configure per-app proxy access",
+      "Configure per-app access allowlist/blocklist",
     ),
     "accessControlNotAllowDesc": MessageLookupByLibrary.simpleMessage(
       "Exclude selected apps from VPN",
@@ -1172,7 +1172,10 @@ class MessageLookup extends MessageLookupByLibrary {
     "view": MessageLookupByLibrary.simpleMessage("View"),
     "vpnDesc": MessageLookupByLibrary.simpleMessage("VPN-related settings"),
     "vpnEnableDesc": MessageLookupByLibrary.simpleMessage(
-      "Route all system traffic via VpnService",
+      "Route system traffic via VpnService",
+    ),
+    "vpnSystemProxyConfirmDesc": MessageLookupByLibrary.simpleMessage(
+      "HTTP proxy is generally not recommended on non-desktop platforms. Only enable this feature when necessary and you fully understand the implications.",
     ),
     "vpnSystemProxyDesc": MessageLookupByLibrary.simpleMessage(
       "Attach HTTP proxy to VpnService",

@@ -186,10 +186,6 @@ abstract class VpnProps with _$VpnProps {
     final props = json == null ? defaultVpnProps : VpnProps.fromJson(json);
     var safeProps = props;
 
-    if (system.isAndroid) {
-      safeProps = safeProps.copyWith(systemProxy: false);
-    }
-
     if (safeProps.smartAutoStop && safeProps.quickResponse) {
       safeProps = safeProps.copyWith(quickResponse: false);
     }

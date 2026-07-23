@@ -228,10 +228,9 @@ packages:
   code_forge:
     dependency: "direct main"
     description:
-      name: code_forge
-      sha256: "8466210e320370161ad9a228c854d38d0789ccf41120c43adc4c6fd4d670bc2d"
-      url: "https://pub.dev"
-    source: hosted
+      path: "plugins/code_forge"
+      relative: true
+    source: path
     version: "10.8.0"
   collection:
     dependency: "direct main"

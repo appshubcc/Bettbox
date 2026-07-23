@@ -413,6 +413,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "light": MessageLookupByLibrary.simpleMessage("浅色"),
     "lightIcon": MessageLookupByLibrary.simpleMessage("浅色图标"),
     "lightIconDesc": MessageLookupByLibrary.simpleMessage("手动切换浅色系桌面APP图标"),
+    "lineWrap": MessageLookupByLibrary.simpleMessage("自动换行"),
     "list": MessageLookupByLibrary.simpleMessage("列表"),
     "listen": MessageLookupByLibrary.simpleMessage("监听"),
     "local": MessageLookupByLibrary.simpleMessage("本地"),

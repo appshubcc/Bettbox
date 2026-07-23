@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:bett_box/common/common.dart';
@@ -16,6 +17,14 @@ import 'package:re_highlight/styles/atom-one-dark.dart';
 import 'package:re_highlight/styles/atom-one-light.dart';
 
 typedef EditorWidgetBuilder = Widget Function();
+
+const int _kLargeEditableLineThreshold = 2000;
+const int _kLargeReadonlyLineThreshold = 20000;
+const int _kMaxSearchMatches = 1000;
+const Duration _kSearchDebounce = Duration(milliseconds: 500);
+const Duration _kFindFocusDelay = Duration(milliseconds: 500);
+const Duration _kPageLoadingDelay = Duration(milliseconds: 500);
+const double _kDefaultFindPanelHeight = 52;
 
 class EditorPage extends ConsumerStatefulWidget {
   final String title;
@@ -56,34 +65,54 @@ class EditorPage extends ConsumerStatefulWidget {
 
 class _EditorPageState extends ConsumerState<EditorPage> {
   late CodeForgeController _controller;
-  late FindController _findController;
+  late _EditorFindController _findController;
   late UndoRedoController _undoController;
   late TextEditingController _titleController;
   final _focusNode = FocusNode();
   VoidCallback? _controllerListener;
+  String _lastControllerText = '';
+  bool _lineWrap = false;
+  late final int _lineCount;
+  bool _isLoading = true;
+
+  bool get _disableSyntaxHighlight =>
+      widget.simple ||
+      (!widget.readOnly && !system.isDesktop &&
+          _lineCount > _kLargeEditableLineThreshold);
+
+  bool get _hideReadOnlyActions =>
+      widget.readOnly &&
+      !system.isDesktop &&
+      _lineCount > _kLargeReadonlyLineThreshold;
 
   @override
   void initState() {
     super.initState();
+    _lineCount = widget.content.split('\n').length;
     _controller = CodeForgeController();
     _controller.text = widget.content;
+    _lastControllerText = widget.content;
     _controllerListener = () {
+      final text = _controller.text;
+      if (_lastControllerText == text) return;
+      _lastControllerText = text;
       if (mounted) setState(() {});
     };
     _controller.addListener(_controllerListener!);
-    _findController = FindController(_controller);
+    _findController = _EditorFindController(_controller);
     _undoController = UndoRedoController();
     _titleController = TextEditingController(text: widget.title);
 
-    if (widget.delayedFocus) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        Future.delayed(const Duration(milliseconds: 500), () {
-          if (mounted) {
-            _focusNode.requestFocus();
-          }
-        });
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Future.delayed(_kPageLoadingDelay, () {
+        if (mounted) setState(() => _isLoading = false);
       });
-    }
+      if (widget.delayedFocus) {
+        Future.delayed(const Duration(milliseconds: 500), () {
+          if (mounted) _focusNode.requestFocus();
+        });
+      }
+    });
   }
 
   @override
@@ -155,7 +184,7 @@ class _EditorPageState extends ConsumerState<EditorPage> {
   }
 
   Mode? _languageMode() {
-    if (widget.simple) return null;
+    if (_disableSyntaxHighlight) return null;
     final language = widget.languages.firstOrNull;
     switch (language) {
       case Language.yaml:
@@ -205,28 +234,36 @@ class _EditorPageState extends ConsumerState<EditorPage> {
                 () => IconButton(
                   onPressed:
                       _controller.text != widget.content ||
-                          _titleController.text != widget.title
-                      ? () {
-                          widget.onSave!(
-                            context,
-                            _titleController.text,
-                            _controller.text,
-                          );
-                        }
-                      : null,
+                              _titleController.text != widget.title
+                          ? () {
+                            widget.onSave!(
+                              context,
+                              _titleController.text,
+                              _controller.text,
+                            );
+                          }
+                          : null,
                   icon: const Icon(Icons.save_sharp),
                 ),
               ),
             if (widget.supportRemoteDownload && !readOnly)
               IconButton(
                 onPressed: _handleImport,
-                icon: Icon(Icons.arrow_downward),
+                icon: const Icon(Icons.arrow_downward),
               ),
             if (readOnly)
-              IconButton(
-                onPressed: _handleSearch,
-                icon: const Icon(Icons.search),
-              )
+              if (!_hideReadOnlyActions)
+                ...[
+                  IconButton(
+                    tooltip: appLocalizations.lineWrap,
+                    onPressed: () => setState(() => _lineWrap = !_lineWrap),
+                    icon: Icon(_lineWrap ? Icons.wrap_text : Icons.short_text),
+                  ),
+                  IconButton(
+                    onPressed: _handleSearch,
+                    icon: const Icon(Icons.search),
+                  ),
+                ]
             else
               ListenableBuilder(
                 listenable: _undoController,
@@ -260,55 +297,95 @@ class _EditorPageState extends ConsumerState<EditorPage> {
                             ? () => _undoController.redo()
                             : null,
                       ),
+                      PopupMenuItemData(
+                        icon: _lineWrap ? Icons.check : Icons.wrap_text,
+                        label: appLocalizations.lineWrap,
+                        onPressed: () => setState(() => _lineWrap = !_lineWrap),
+                      ),
                     ],
                   ),
                 ),
               ),
           ]),
         ),
-        body: CodeForge(
-          controller: _controller,
-          focusNode: _focusNode,
-          findController: _findController,
-          undoController: _undoController,
-          readOnly: readOnly,
-          lineWrap: false,
-          enableFolding: !widget.simple,
-          enableGuideLines: !widget.simple,
-          enableGutter: true,
-          enableGutterDivider: false,
-          enableLocalSuggestions: false,
-          enableKeyboardSuggestions: false,
-          language: _languageMode(),
-          editorTheme: brightness == Brightness.dark
-              ? atomOneDarkTheme
-              : atomOneLightTheme,
-          textStyle: TextStyle(
-            fontFamily: FontFamily.jetBrainsMono.value,
-            fontSize: context.textTheme.bodyLarge?.fontSize?.ap,
-          ),
-          innerPadding: const EdgeInsets.only(right: 16),
-          finderBuilder: (context, controller) => FindPanel(
-            controller: controller,
-            readOnly: readOnly,
-            isMobileView: isMobileView,
-          ),
-          scrollbarDecoration: ScrollbarDecoration(
-            showLineNumberIndicator: false,
-            thumbVisibility: false,
-            thickness: 8,
-            thumbColor: context.colorScheme.onSurface.withAlpha(100),
-          ),
-        ),
+        body: _isLoading
+            ? Center(
+                child: CircularProgressIndicator(
+                  color: context.colorScheme.primary,
+                ),
+              )
+            : RepaintBoundary(
+                child: CodeForge(
+                  controller: _controller,
+                  focusNode: _focusNode,
+                  findController: _findController,
+                  undoController: _undoController,
+                  readOnly: readOnly,
+                  lineWrap: _lineWrap,
+                  enableFolding: !widget.simple && !_disableSyntaxHighlight,
+                  enableGuideLines: !widget.simple && !_disableSyntaxHighlight,
+                  enableGutter: true,
+                  enableGutterDivider: false,
+                  enableLocalSuggestions: false,
+                  enableKeyboardSuggestions: false,
+                  enableMagnifier: false,
+                  language: _languageMode(),
+                  editorTheme: brightness == Brightness.dark
+                      ? atomOneDarkTheme
+                      : atomOneLightTheme,
+                  textStyle: TextStyle(
+                    fontFamily: FontFamily.jetBrainsMono.value,
+                    fontSize: context.textTheme.bodyLarge?.fontSize?.ap,
+                  ),
+                  innerPadding: const EdgeInsets.only(right: 16),
+                  finderBuilder: (context, controller) => FindPanel(
+                    controller: controller,
+                    codeController: _controller,
+                    readOnly: readOnly,
+                    isMobileView: isMobileView,
+                  ),
+                  scrollbarDecoration: ScrollbarDecoration(
+                    showLineNumberIndicator: false,
+                    thumbVisibility: false,
+                    thickness: 8,
+                    thumbColor: context.colorScheme.onSurface.withAlpha(100),
+                  ),
+                ),
+              ),
       ),
     );
   }
 }
 
-const double _kDefaultFindPanelHeight = 52;
+class _EditorFindController extends FindController {
+  _EditorFindController(super.codeController);
 
-class FindPanel extends StatelessWidget implements PreferredSizeWidget {
+  final ValueNotifier<bool> isOpenNotifier = ValueNotifier<bool>(false);
+
+  @override
+  set isActive(bool value) {
+    if (value == isActive) return;
+    super.isActive = value;
+    isOpenNotifier.value = value;
+  }
+
+  @override
+  void find(String query, {bool scrollToMatch = true}) {
+    // Search is handled by FindPanel to enforce debounce and match limits.
+  }
+}
+
+class _Match {
+  final int line;
+  final int start;
+  final int end;
+
+  const _Match(this.line, this.start, this.end);
+}
+
+class FindPanel extends StatefulWidget implements PreferredSizeWidget {
   final FindController controller;
+  final CodeForgeController codeController;
   final bool readOnly;
   final bool isMobileView;
   final double height;
@@ -316,6 +393,7 @@ class FindPanel extends StatelessWidget implements PreferredSizeWidget {
   const FindPanel({
     super.key,
     required this.controller,
+    required this.codeController,
     required this.readOnly,
     required this.isMobileView,
   }) : height =
@@ -325,37 +403,180 @@ class FindPanel extends StatelessWidget implements PreferredSizeWidget {
            8;
 
   @override
+  State<FindPanel> createState() => _FindPanelState();
+
+  @override
   Size get preferredSize =>
       Size(double.infinity, controller.isActive ? height : 0);
+}
+
+class _FindPanelState extends State<FindPanel> {
+  final TextEditingController _findInputController = TextEditingController();
+  final FocusNode _findInputFocusNode = FocusNode();
+  Timer? _debounceTimer;
+  bool _caseSensitive = false;
+  bool _isRegex = false;
+  List<_Match> _matches = [];
+  int _currentMatchIndex = -1;
+  bool _isTruncated = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _findInputController.addListener(_onFindInputChanged);
+    widget.controller.addListener(_onControllerChanged);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Future.delayed(_kFindFocusDelay, () {
+        if (mounted) _findInputFocusNode.requestFocus();
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    _debounceTimer?.cancel();
+    widget.controller.removeListener(_onControllerChanged);
+    _findInputController.removeListener(_onFindInputChanged);
+    _findInputFocusNode.dispose();
+    _findInputController.dispose();
+    super.dispose();
+  }
+
+  void _onControllerChanged() {
+    if (mounted) setState(() {});
+  }
+
+  void _onFindInputChanged() {
+    final query = _findInputController.text;
+    _debounceTimer?.cancel();
+    if (query.isEmpty) {
+      _clearSearch();
+      return;
+    }
+    _debounceTimer = Timer(_kSearchDebounce, () {
+      if (mounted) _performSearch(query);
+    });
+  }
+
+  void _clearSearch() {
+    setState(() {
+      _matches = [];
+      _currentMatchIndex = -1;
+      _isTruncated = false;
+    });
+    widget.codeController.searchHighlights = const [];
+  }
+
+  int _lineLength(String text, int start) {
+    final end = text.indexOf('\n', start);
+    return (end == -1 ? text.length : end + 1) - start;
+  }
+
+  void _performSearch(String query) {
+    final text = widget.codeController.text;
+    if (text.isEmpty) {
+      _clearSearch();
+      return;
+    }
+    final pattern = _isRegex ? query : RegExp.escape(query);
+    RegExp regExp;
+    try {
+      regExp = RegExp(pattern, caseSensitive: _caseSensitive, multiLine: true);
+    } catch (_) {
+      _clearSearch();
+      return;
+    }
+    final matches = regExp.allMatches(text).take(_kMaxSearchMatches + 1);
+    final result = <_Match>[];
+    var line = 0;
+    var lineStart = 0;
+    for (final match in matches) {
+      while (
+          match.start >= lineStart + _lineLength(text, lineStart)) {
+        lineStart += _lineLength(text, lineStart);
+        line++;
+      }
+      result.add(_Match(line, match.start, match.end));
+      if (result.length > _kMaxSearchMatches) {
+        result.removeLast();
+        setState(() {
+          _matches = result;
+          _currentMatchIndex = 0;
+          _isTruncated = true;
+        });
+        _scrollToCurrent();
+        return;
+      }
+    }
+    setState(() {
+      _matches = result;
+      _currentMatchIndex = result.isNotEmpty ? 0 : -1;
+      _isTruncated = false;
+    });
+    if (result.isNotEmpty) _scrollToCurrent();
+  }
+
+  void _scrollToCurrent() {
+    if (_currentMatchIndex < 0 || _currentMatchIndex >= _matches.length) return;
+    final match = _matches[_currentMatchIndex];
+    widget.codeController.scrollToLine(match.line);
+    widget.codeController.setSelectionSilently(
+      TextSelection.collapsed(offset: match.start),
+    );
+    widget.codeController.searchHighlights = [
+      SearchHighlight(
+        start: match.start,
+        end: match.end,
+        isCurrentMatch: true,
+      ),
+    ];
+  }
+
+  void _next() {
+    if (_matches.isEmpty) return;
+    setState(() {
+      _currentMatchIndex = (_currentMatchIndex + 1) % _matches.length;
+    });
+    _scrollToCurrent();
+  }
+
+  void _previous() {
+    if (_matches.isEmpty) return;
+    setState(() {
+      _currentMatchIndex =
+          (_currentMatchIndex - 1 + _matches.length) % _matches.length;
+    });
+    _scrollToCurrent();
+  }
 
   @override
   Widget build(BuildContext context) {
-    if (!controller.isActive) {
+    if (!widget.controller.isActive) {
       return const SizedBox(width: 0, height: 0);
     }
     return Container(
-      padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-      margin: EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+      margin: const EdgeInsets.only(bottom: 8),
       color: context.colorScheme.surface,
       alignment: Alignment.centerLeft,
-      height: height,
+      height: widget.height,
       child: _buildFindInputView(context),
     );
   }
 
   Widget _buildFindInputView(BuildContext context) {
-    final result = controller.matchCount == 0
+    final result = _matches.isEmpty
         ? appLocalizations.none
-        : '${controller.currentMatchIndex + 1}/${controller.matchCount}';
+        : '${_currentMatchIndex + 1}/${_isTruncated ? '$_kMaxSearchMatches+' : _matches.length}';
     final bar = Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        if (!isMobileView) ...[
+        if (!widget.isMobileView) ...[
           ConstrainedBox(
-            constraints: BoxConstraints(maxWidth: 360),
+            constraints: const BoxConstraints(maxWidth: 360),
             child: _buildFindInput(context),
           ),
-          SizedBox(width: 12),
+          const SizedBox(width: 12),
         ],
         Text(result, style: context.textTheme.bodyMedium),
         Expanded(
@@ -364,35 +585,31 @@ class FindPanel extends StatelessWidget implements PreferredSizeWidget {
             spacing: 8,
             children: [
               _buildIconButton(
-                onPressed: controller.matchCount == 0
-                    ? null
-                    : controller.previous,
+                onPressed: _matches.isEmpty ? null : _previous,
                 icon: Icons.arrow_upward,
               ),
               _buildIconButton(
-                onPressed: controller.matchCount == 0
-                    ? null
-                    : controller.next,
+                onPressed: _matches.isEmpty ? null : _next,
                 icon: Icons.arrow_downward,
               ),
-              SizedBox(width: 2),
+              const SizedBox(width: 2),
               IconButton.filledTonal(
                 visualDensity: VisualDensity.compact,
-                onPressed: () => controller.isActive = false,
-                style: ButtonStyle(
+                onPressed: () => widget.controller.isActive = false,
+                style: const ButtonStyle(
                   padding: WidgetStatePropertyAll(EdgeInsets.all(0)),
                 ),
-                icon: Icon(Icons.close, size: 16),
+                icon: const Icon(Icons.close, size: 16),
               ),
             ],
           ),
         ),
       ],
     );
-    if (isMobileView) {
+    if (widget.isMobileView) {
       return Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [bar, SizedBox(height: 4), _buildFindInput(context)],
+        children: [bar, const SizedBox(height: 4), _buildFindInput(context)],
       );
     }
     return bar;
@@ -405,14 +622,12 @@ class FindPanel extends StatelessWidget implements PreferredSizeWidget {
         _buildTextField(
           context: context,
           onSubmitted: () {
-            if (controller.matchCount == 0) {
-              return;
-            }
-            controller.next();
-            controller.findInputFocusNode.requestFocus();
+            if (_matches.isEmpty) return;
+            _next();
+            _findInputFocusNode.requestFocus();
           },
-          controller: controller.findInputController,
-          focusNode: controller.findInputFocusNode,
+          controller: _findInputController,
+          focusNode: _findInputFocusNode,
         ),
         Row(
           mainAxisAlignment: MainAxisAlignment.end,
@@ -421,16 +636,22 @@ class FindPanel extends StatelessWidget implements PreferredSizeWidget {
             _buildCheckText(
               context: context,
               text: 'Aa',
-              isSelected: controller.caseSensitive,
-              onPressed: controller.toggleCaseSensitive,
+              isSelected: _caseSensitive,
+              onPressed: () => setState(() {
+                _caseSensitive = !_caseSensitive;
+                _onFindInputChanged();
+              }),
             ),
             _buildCheckText(
               context: context,
               text: '.*',
-              isSelected: controller.isRegex,
-              onPressed: controller.toggleRegex,
+              isSelected: _isRegex,
+              onPressed: () => setState(() {
+                _isRegex = !_isRegex;
+                _onFindInputChanged();
+              }),
             ),
-            SizedBox(width: 4),
+            const SizedBox(width: 4),
           ],
         ),
       ],
@@ -447,13 +668,11 @@ class FindPanel extends StatelessWidget implements PreferredSizeWidget {
       maxLines: 1,
       focusNode: focusNode,
       style: context.textTheme.bodyMedium,
-      decoration: InputDecoration(
+      decoration: const InputDecoration(
         border: OutlineInputBorder(),
         contentPadding: EdgeInsets.symmetric(horizontal: 12),
       ),
-      onSubmitted: (_) {
-        onSubmitted();
-      },
+      onSubmitted: (_) => onSubmitted(),
       controller: controller,
     );
   }
@@ -472,12 +691,12 @@ class FindPanel extends StatelessWidget implements PreferredSizeWidget {
         child: isSelected
             ? IconButton.filledTonal(
                 onPressed: onPressed,
-                padding: EdgeInsets.all(2),
+                padding: const EdgeInsets.all(2),
                 icon: Text(text, style: context.textTheme.bodySmall),
               )
             : IconButton(
                 onPressed: onPressed,
-                padding: EdgeInsets.all(2),
+                padding: const EdgeInsets.all(2),
                 icon: Text(text, style: context.textTheme.bodySmall),
               ),
       ),
@@ -488,7 +707,9 @@ class FindPanel extends StatelessWidget implements PreferredSizeWidget {
     return IconButton(
       visualDensity: VisualDensity.compact,
       onPressed: onPressed,
-      style: ButtonStyle(padding: WidgetStatePropertyAll(EdgeInsets.all(0))),
+      style: const ButtonStyle(
+        padding: WidgetStatePropertyAll(EdgeInsets.all(0)),
+      ),
       icon: Icon(icon, size: 16),
     );
   }

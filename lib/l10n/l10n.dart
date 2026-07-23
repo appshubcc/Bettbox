@@ -5338,6 +5338,11 @@ class AppLocalizations {
       args: [],
     );
   }
+
+  /// `Wrap Lines`
+  String get lineWrap {
+    return Intl.message('Wrap Lines', name: 'lineWrap', desc: '', args: []);
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<AppLocalizations> {

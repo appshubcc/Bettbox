@@ -1,0 +1,64 @@
+name: code_forge
+description: "A sophisticated code editor package for flutter backed by rust backend."
+version: 10.8.0
+homepage: https://github.com/heckmon/code_forge
+
+environment:
+  sdk: ^3.12.2
+  flutter: ">=1.17.0"
+
+dependencies:
+  flutter:
+    sdk: flutter  
+  markdown_widget: ^2.3.2+8
+  re_highlight: ^0.0.3
+  web_socket_channel: ^3.0.3
+  flutter_colorpicker: ^1.1.0
+  vector_math: ^2.2.0
+  flutter_rust_bridge: ^2.12.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+  integration_test:
+    sdk: flutter
+
+flutter:
+  plugin:
+    platforms:
+      android:
+        ffiPlugin: true
+      ios:
+        ffiPlugin: true
+      linux:
+        ffiPlugin: true
+      macos:
+        ffiPlugin: true
+      windows:
+        ffiPlugin: true
+  fonts:
+    - family: Method
+      fonts:
+        - asset: assets/icons/method.ttf
+    - family: Variable
+      fonts:
+        - asset: assets/icons/variable.ttf
+    - family: Class
+      fonts:
+        - asset: assets/icons/class.ttf
+    - family: Struct
+      fonts:
+        - asset: assets/icons/struct.ttf
+    - family: Event
+      fonts:
+        - asset: assets/icons/event.ttf
+    - family: Operator
+      fonts:
+        - asset: assets/icons/operator.ttf
+    - family: Interface
+      fonts:
+        - asset: assets/icons/interface.ttf
+    - family: Field
+      fonts:
+        - asset: assets/icons/field.ttf

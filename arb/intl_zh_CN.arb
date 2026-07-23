@@ -651,6 +651,7 @@
   "agePublicKeyLabel": "Age 公钥",
   "generateFromPrivateKey": "从Age私钥生成",
   "ageKeyPairGeneratedSuccess": "已生成X25519密钥对, 请妥善保存",
-  "agePrivateKeyRequired": "请先输入正确的Age 私钥"
+  "agePrivateKeyRequired": "请先输入正确的Age 私钥",
+  "lineWrap": "自动换行"
 }
 

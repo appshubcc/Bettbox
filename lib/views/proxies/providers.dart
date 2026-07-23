@@ -82,50 +82,90 @@ class _ProvidersViewState extends ConsumerState<ProvidersView> {
     final providers = ref.watch(providersProvider);
     final proxyProviders = providers
         .where((item) => item.type == 'Proxy')
-        .map((item) => ProviderItem(key: ValueKey(item.name), provider: item));
+        .toList();
     final ruleProviders = providers
         .where((item) => item.type == 'Rule')
-        .map((item) => ProviderItem(key: ValueKey(item.name), provider: item));
-    final proxySection = generateSection(
-      title: appLocalizations.proxyProviders,
-      items: proxyProviders,
-      actions: [
-        IconButton(
-          onPressed: () => _updateProviders(type: 'Proxy'),
-          icon: const Icon(Icons.sync),
-          iconSize: 20,
-          splashRadius: 20,
-          padding: EdgeInsets.zero,
-          constraints: const BoxConstraints(),
+        .toList();
+    final sections = <({String title, List<ExternalProvider> providers, VoidCallback onSync})>[
+      if (proxyProviders.isNotEmpty)
+        (
+          title: appLocalizations.proxyProviders,
+          providers: proxyProviders,
+          onSync: () => _updateProviders(type: 'Proxy'),
         ),
-      ],
-    );
-    final ruleSection = generateSection(
-      title: appLocalizations.ruleProviders,
-      items: ruleProviders,
-      actions: [
-        IconButton(
-          onPressed: () => _updateProviders(type: 'Rule'),
-          icon: const Icon(Icons.sync),
-          iconSize: 20,
-          splashRadius: 20,
-          padding: EdgeInsets.zero,
-          constraints: const BoxConstraints(),
+      if (ruleProviders.isNotEmpty)
+        (
+          title: appLocalizations.ruleProviders,
+          providers: ruleProviders,
+          onSync: () => _updateProviders(type: 'Rule'),
         ),
-      ],
-    );
+    ];
+
     return RepaintBoundary(
       child: AdaptiveSheetScaffold(
         actions: [
           IconButton(
-            onPressed: () {
-              _updateProviders();
-            },
+            onPressed: _updateProviders,
             icon: const Icon(Icons.sync),
           ),
         ],
         type: widget.type,
-        body: generateListView([...proxySection, ...ruleSection]),
+        body: Builder(
+          builder: (context) {
+            final bottomPadding = MediaQuery.of(context).padding.bottom;
+            final itemCount = sections.fold<int>(
+              0,
+              (sum, section) => sum + 1 + section.providers.length,
+            );
+            return ListView.builder(
+              padding: EdgeInsets.only(bottom: 24 + bottomPadding, top: 12),
+              itemCount: itemCount,
+              itemBuilder: (context, index) {
+                var current = 0;
+                for (final section in sections) {
+                  if (index == current) {
+                    return ListHeader(
+                      title: section.title,
+                      padding: current == 0
+                          ? const EdgeInsets.only(
+                              left: 16,
+                              right: 8,
+                              top: 4,
+                              bottom: 8,
+                            )
+                          : null,
+                      actions: [
+                        IconButton(
+                          onPressed: section.onSync,
+                          icon: const Icon(Icons.sync),
+                          iconSize: 20,
+                          splashRadius: 20,
+                          padding: EdgeInsets.zero,
+                          constraints: const BoxConstraints(),
+                        ),
+                      ],
+                    );
+                  }
+                  current++;
+                  if (index < current + section.providers.length) {
+                    final providerIndex = index - current;
+                    final provider = section.providers[providerIndex];
+                    return ContinuousListItem(
+                      index: providerIndex,
+                      count: section.providers.length,
+                      child: ProviderItem(
+                        key: ValueKey(provider.name),
+                        provider: provider,
+                      ),
+                    );
+                  }
+                  current += section.providers.length;
+                }
+                return const SizedBox.shrink();
+              },
+            );
+          },
+        ),
         title: appLocalizations.providers,
       ),
     );
@@ -205,6 +245,7 @@ class ProviderItem extends StatelessWidget {
             readOnly: true,
             simple: provider.type == 'Rule',
           ),
+          maintainState: false,
         );
       },
       needLoading: true,

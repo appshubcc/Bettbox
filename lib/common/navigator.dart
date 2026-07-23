@@ -4,15 +4,29 @@ import 'package:bett_box/state.dart';
 import 'package:flutter/cupertino.dart';
 
 class BaseNavigator {
-  static Future<T?> push<T>(BuildContext context, Widget child) async {
+  static Future<T?> push<T>(
+    BuildContext context,
+    Widget child, {
+    bool maintainState = true,
+  }) async {
     if (globalState.appState.viewMode != ViewMode.mobile) {
       return await Navigator.of(
         context,
-      ).push<T>(CommonDesktopRoute(builder: (context) => child));
+      ).push<T>(
+        CommonDesktopRoute(
+          builder: (context) => child,
+          maintainState: maintainState,
+        ),
+      );
     }
     return await Navigator.of(
       context,
-    ).push<T>(_CleanCupertinoPageRoute(builder: (context) => child));
+    ).push<T>(
+      _CleanCupertinoPageRoute(
+        builder: (context) => child,
+        maintainState: maintainState,
+      ),
+    );
   }
 }
 
@@ -22,6 +36,7 @@ class _CleanCupertinoPageRoute<T> extends CupertinoPageRoute<T> {
     super.title,
     super.settings,
     super.fullscreenDialog,
+    super.maintainState,
   }) : super(allowSnapshotting: false);
 
   @override
@@ -31,7 +46,13 @@ class _CleanCupertinoPageRoute<T> extends CupertinoPageRoute<T> {
 class CommonDesktopRoute<T> extends PageRoute<T> {
   final Widget Function(BuildContext context) builder;
 
-  CommonDesktopRoute({required this.builder});
+  CommonDesktopRoute({
+    required this.builder,
+    this.maintainState = true,
+  });
+
+  @override
+  final bool maintainState;
 
   @override
   Color? get barrierColor => null;
@@ -52,9 +73,6 @@ class CommonDesktopRoute<T> extends PageRoute<T> {
       child: FadeTransition(opacity: animation, child: result),
     );
   }
-
-  @override
-  bool get maintainState => true;
 
   @override
   Duration get transitionDuration => Duration(milliseconds: 200);

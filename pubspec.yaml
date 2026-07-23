@@ -41,7 +41,8 @@ dependencies:
   win32: ^5.15.0
   ffi: ^2.2.0
   re_highlight: ^0.0.3
-  code_forge: ^10.8.0
+  code_forge:
+    path: plugins/code_forge
   archive: ^4.0.7
   lpinyin: ^2.0.3
   emoji_regex: ^0.0.5

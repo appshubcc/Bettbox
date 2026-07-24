@@ -737,6 +737,7 @@ class CodeForgeController implements DeltaTextInputClient {
   /// The position is clamped to valid bounds. Duplicate positions
   /// (including the primary cursor) are ignored.
   void addMultiCursor(int line, int character) {
+    if (_multiCursors.length >= 50) return;
     final clampedLine = line.clamp(0, lineCount - 1);
     final lineText = getLineText(clampedLine);
     final scalarLength = lineText.runes.length;
@@ -762,6 +763,21 @@ class CodeForgeController implements DeltaTextInputClient {
     _multiCursors.clear();
     multiCursorsChanged = true;
     notifyListeners();
+  }
+
+  void _deduplicateMultiCursors() {
+    if (_multiCursors.isEmpty) return;
+    final primaryLine = getLineAtOffset(selection.extentOffset);
+    final primaryChar =
+        selection.extentOffset - getLineStartOffset(primaryLine);
+
+    final beforeCount = _multiCursors.length;
+    _multiCursors.removeWhere(
+      (c) => c.line == primaryLine && c.character == primaryChar,
+    );
+    if (_multiCursors.length != beforeCount) {
+      multiCursorsChanged = true;
+    }
   }
 
   /// Moves every secondary cursor one character to the left.
@@ -2072,7 +2088,8 @@ class CodeForgeController implements DeltaTextInputClient {
   void copy() {
     final sel = selection;
     if (sel.start == sel.end) return;
-    final selectedText = text.substring(sel.start, sel.end);
+    _flushBuffer();
+    final selectedText = _rope.substring(sel.start, sel.end);
     Clipboard.setData(ClipboardData(text: selectedText));
   }
 
@@ -2083,7 +2100,8 @@ class CodeForgeController implements DeltaTextInputClient {
     if (readOnly) return;
     final sel = selection;
     if (sel.start == sel.end) return;
-    final selectedText = text.substring(sel.start, sel.end);
+    _flushBuffer();
+    final selectedText = _rope.substring(sel.start, sel.end);
     Clipboard.setData(ClipboardData(text: selectedText));
     replaceRange(sel.start, sel.end, '');
   }
@@ -2319,6 +2337,7 @@ class CodeForgeController implements DeltaTextInputClient {
     // wrong offset. _syncToConnection is internally guarded against active
     // compositions and suppressed regions, so this stays safe.
     _syncToConnection();
+    _deduplicateMultiCursors();
 
     notifyListeners();
   }
@@ -2351,6 +2370,7 @@ class CodeForgeController implements DeltaTextInputClient {
     _imeProjectionDirty = true;
 
     _syncToConnection();
+    _deduplicateMultiCursors();
     notifyListeners();
   }
 
@@ -2378,6 +2398,7 @@ class CodeForgeController implements DeltaTextInputClient {
     _imeProjectionDirty = true;
 
     _syncToConnection();
+    _deduplicateMultiCursors();
 
     notifyListeners();
   }
@@ -2410,21 +2431,18 @@ class CodeForgeController implements DeltaTextInputClient {
   /// Does nothing if the line is already at the top or if the controller is read-only.
   void moveLineUp() {
     if (readOnly) return;
+    _flushBuffer();
     final selection = this.selection;
-    final text = this.text;
     final selStart = selection.start;
     final selEnd = selection.end;
-    final lineStart = selStart > 0
-        ? text.lastIndexOf('\n', selStart - 1) + 1
-        : 0;
-    int lineEnd = text.indexOf('\n', selEnd);
-    if (lineEnd == -1) lineEnd = text.length;
+    final lineStart = _rope.findLineStart(selStart);
     if (lineStart == 0) return;
+    final lineEnd = _rope.findLineEnd(selEnd);
 
     final prevLineEnd = lineStart - 1;
-    final prevLineStart = text.lastIndexOf('\n', prevLineEnd - 1) + 1;
-    final prevLine = text.substring(prevLineStart, prevLineEnd);
-    final currentLines = text.substring(lineStart, lineEnd);
+    final prevLineStart = _rope.findLineStart(prevLineEnd);
+    final prevLine = _rope.substring(prevLineStart, prevLineEnd);
+    final currentLines = _rope.substring(lineStart, lineEnd);
 
     replaceRange(prevLineStart, lineEnd, '$currentLines\n$prevLine');
 
@@ -2444,20 +2462,18 @@ class CodeForgeController implements DeltaTextInputClient {
   /// Does nothing if the line is already at the bottom or if the controller is read-only.
   void moveLineDown() {
     if (readOnly) return;
+    _flushBuffer();
     final selection = this.selection;
-    final text = this.text;
     final selStart = selection.start;
     final selEnd = selection.end;
-    final lineStart = text.lastIndexOf('\n', selStart - 1) + 1;
-    int lineEnd = text.indexOf('\n', selEnd);
-    if (lineEnd == -1) lineEnd = text.length;
+    final lineStart = _rope.findLineStart(selStart);
+    final lineEnd = _rope.findLineEnd(selEnd);
     final nextLineStart = lineEnd + 1;
-    if (nextLineStart >= text.length) return;
-    int nextLineEnd = text.indexOf('\n', nextLineStart);
-    if (nextLineEnd == -1) nextLineEnd = text.length;
+    if (nextLineStart >= _rope.length) return;
+    final nextLineEnd = _rope.findLineEnd(nextLineStart);
 
-    final currentLines = text.substring(lineStart, lineEnd);
-    final nextLine = text.substring(nextLineStart, nextLineEnd);
+    final currentLines = _rope.substring(lineStart, lineEnd);
+    final nextLine = _rope.substring(nextLineStart, nextLineEnd);
 
     replaceRange(lineStart, nextLineEnd, '$nextLine\n$currentLines');
 
@@ -2477,22 +2493,20 @@ class CodeForgeController implements DeltaTextInputClient {
   /// Does nothing if the controller is read-only.
   void duplicateLine() {
     if (readOnly) return;
-    final text = this.text;
+    _flushBuffer();
     final selection = this.selection;
 
     if (selection.start != selection.end) {
-      final selectedText = text.substring(selection.start, selection.end);
+      final selectedText = _rope.substring(selection.start, selection.end);
       replaceRange(selection.end, selection.end, selectedText);
       setSelectionSilently(
         TextSelection.collapsed(offset: selection.end + selectedText.length),
       );
     } else {
       final caret = selection.extentOffset;
-      final prevNewline = (caret > 0) ? text.lastIndexOf('\n', caret - 1) : -1;
-      final nextNewline = text.indexOf('\n', caret);
-      final lineStart = prevNewline == -1 ? 0 : prevNewline + 1;
-      final lineEnd = nextNewline == -1 ? text.length : nextNewline;
-      final lineText = text.substring(lineStart, lineEnd);
+      final lineStart = _rope.findLineStart(caret);
+      final lineEnd = _rope.findLineEnd(caret);
+      final lineText = _rope.substring(lineStart, lineEnd);
 
       replaceRange(lineEnd, lineEnd, '\n$lineText');
       setSelectionSilently(TextSelection.collapsed(offset: lineEnd + 1));
@@ -3926,6 +3940,8 @@ class CodeForgeController implements DeltaTextInputClient {
 
     if (!_suppressImeSync) _imeComposingGlobal = TextRange.empty;
     final selectionBefore = _selection;
+    final multiCursorsBefore =
+        List<({int line, int character})>.from(_multiCursors);
     _flushBuffer();
     final safeStart = start.clamp(0, _rope.length);
     final safeEnd = end.clamp(safeStart, _rope.length);
@@ -3955,6 +3971,9 @@ class CodeForgeController implements DeltaTextInputClient {
         extentOffset: result.extentOffset.toInt(),
       );
       _selection = newSelection;
+      _shiftMultiCursors(safeStart, safeEnd, replacement.length);
+      final multiCursorsAfter =
+          List<({int line, int character})>.from(_multiCursors);
       dirtyLine = _rope.getLineAtOffset(safeStart);
       dirtyRegion = TextRange(
         start: safeStart,
@@ -3968,11 +3987,27 @@ class CodeForgeController implements DeltaTextInputClient {
           replacement,
           selectionBefore,
           _selection,
+          multiCursorsBefore: multiCursorsBefore,
+          multiCursorsAfter: multiCursorsAfter,
         );
       } else if (deletedText.isNotEmpty) {
-        _recordDeletion(safeStart, deletedText, selectionBefore, _selection);
+        _recordDeletion(
+          safeStart,
+          deletedText,
+          selectionBefore,
+          _selection,
+          multiCursorsBefore: multiCursorsBefore,
+          multiCursorsAfter: multiCursorsAfter,
+        );
       } else if (replacement.isNotEmpty) {
-        _recordInsertion(safeStart, replacement, selectionBefore, _selection);
+        _recordInsertion(
+          safeStart,
+          replacement,
+          selectionBefore,
+          _selection,
+          multiCursorsBefore: multiCursorsBefore,
+          multiCursorsAfter: multiCursorsAfter,
+        );
       }
 
       if (!supportsPullSemanticSync) {
@@ -3984,6 +4019,32 @@ class CodeForgeController implements DeltaTextInputClient {
     } finally {
       _suppressLspFallbackSync = false;
     }
+  }
+
+  void _shiftMultiCursors(int startOffset, int endOffset, int replacementLength) {
+    if (_multiCursors.isEmpty) return;
+    final deletedLength = endOffset - startOffset;
+    final delta = replacementLength - deletedLength;
+
+    final newCursors = <({int line, int character})>[];
+    for (final c in _multiCursors) {
+      final offset = _multiCursorToOffset(c);
+      if (offset < startOffset) {
+        newCursors.add(c);
+      } else if (offset >= endOffset) {
+        final newOffset = (offset + delta).clamp(0, _rope.length);
+        final newLine = _rope.getLineAtOffset(newOffset);
+        final newLineStart = _rope.getLineStartOffset(newLine);
+        newCursors.add(
+          (line: newLine, character: newOffset - newLineStart),
+        );
+      }
+    }
+    _multiCursors
+      ..clear()
+      ..addAll(newCursors);
+    _deduplicateMultiCursors();
+    multiCursorsChanged = true;
   }
 
   /// Search the document for occurrences of [word] and add highlight ranges.
@@ -4104,14 +4165,14 @@ class CodeForgeController implements DeltaTextInputClient {
   /// effects.
   void indent() {
     if (selection.baseOffset != selection.extentOffset) {
+      _flushBuffer();
       final selStart = selection.start;
       final selEnd = selection.end;
 
-      final lineStart = text.lastIndexOf('\n', selStart - 1) + 1;
-      int lineEnd = text.indexOf('\n', selEnd);
-      if (lineEnd == -1) lineEnd = text.length;
+      final lineStart = _rope.findLineStart(selStart);
+      final lineEnd = _rope.findLineEnd(selEnd);
 
-      final selectedBlock = text.substring(lineStart, lineEnd);
+      final selectedBlock = _rope.substring(lineStart, lineEnd);
       final indentedBlock = selectedBlock
           .split('\n')
           .map((line) => '$tabSpace$line')
@@ -4143,14 +4204,14 @@ class CodeForgeController implements DeltaTextInputClient {
   /// and selection without causing external selection side effects.
   void unindent() {
     if (selection.baseOffset != selection.extentOffset) {
+      _flushBuffer();
       final selStart = selection.start;
       final selEnd = selection.end;
 
-      final lineStart = text.lastIndexOf('\n', selStart - 1) + 1;
-      int lineEnd = text.indexOf('\n', selEnd);
-      if (lineEnd == -1) lineEnd = text.length;
+      final lineStart = _rope.findLineStart(selStart);
+      final lineEnd = _rope.findLineEnd(selEnd);
 
-      final selectedBlock = text.substring(lineStart, lineEnd);
+      final selectedBlock = _rope.substring(lineStart, lineEnd);
       final lines = selectedBlock.split('\n');
       final unindentedBlock = lines
           .map(
@@ -4181,12 +4242,11 @@ class CodeForgeController implements DeltaTextInputClient {
       replaceRange(lineStart, lineEnd, unindentedBlock);
       setSelectionSilently(newSelection);
     } else {
+      _flushBuffer();
       final caret = selection.start;
-      final prevNewline = text.lastIndexOf('\n', caret - 1);
-      final lineStart = prevNewline == -1 ? 0 : prevNewline + 1;
-      final nextNewline = text.indexOf('\n', caret);
-      final lineEnd = nextNewline == -1 ? text.length : nextNewline;
-      final line = text.substring(lineStart, lineEnd);
+      final lineStart = _rope.findLineStart(caret);
+      final lineEnd = _rope.findLineEnd(caret);
+      final line = _rope.substring(lineStart, lineEnd);
 
       int removeCount = 0;
       if (line.startsWith(tabSpace)) {
@@ -4332,11 +4392,11 @@ class CodeForgeController implements DeltaTextInputClient {
   }
 
   String getCurrentWordPrefix(String text, int offset) {
-    final safeOffset = offset.clamp(0, text.length);
     if (isBufferActive) {
       final lineText = bufferLineText ?? '';
-      final col = bufferCursorColumn;
-      if (col <= 0) return '';
+      final colScalar = bufferCursorColumn;
+      if (colScalar <= 0) return '';
+      final col = scalarToStringIndex(lineText, colScalar);
       if (col > lineText.length) return '';
       int i = col - 1;
       while (i >= 0) {
@@ -4351,7 +4411,9 @@ class CodeForgeController implements DeltaTextInputClient {
       return lineText.substring(start, col);
     }
 
-    if (safeOffset == 0) return '';
+    final safeOffsetScalar = offset.clamp(0, text.runes.length);
+    if (safeOffsetScalar == 0) return '';
+    final safeOffset = scalarToStringIndex(text, safeOffsetScalar);
     int i = safeOffset - 1;
     while (i >= 0) {
       final code = text.codeUnitAt(i);
@@ -4375,8 +4437,9 @@ class CodeForgeController implements DeltaTextInputClient {
         ? _bufferLineText!
         : _rope.getLineText(lineIndex);
 
-    final col = (safeOffset - lineStart).clamp(0, lineText.length);
-    if (col <= 0) return '';
+    final colScalar = (safeOffset - lineStart).clamp(0, lineText.runes.length);
+    if (colScalar <= 0) return '';
+    final col = scalarToStringIndex(lineText, colScalar);
 
     int i = col - 1;
     while (i >= 0) {
@@ -4986,8 +5049,10 @@ class CodeForgeController implements DeltaTextInputClient {
     String deleted,
     String inserted,
     TextSelection selBefore,
-    TextSelection selAfter,
-  ) {
+    TextSelection selAfter, {
+    List<({int line, int character})>? multiCursorsBefore,
+    List<({int line, int character})>? multiCursorsAfter,
+  }) {
     if (_undoController?.isUndoRedoInProgress ?? false) return;
     _recordEdit(
       ReplaceOperation(
@@ -4996,6 +5061,8 @@ class CodeForgeController implements DeltaTextInputClient {
         insertedText: inserted,
         selectionBefore: selBefore,
         selectionAfter: selAfter,
+        multiCursorsBefore: multiCursorsBefore,
+        multiCursorsAfter: multiCursorsAfter,
       ),
     );
     if (!_suppressLspFallbackSync) {

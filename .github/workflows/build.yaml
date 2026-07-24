@@ -176,7 +176,14 @@ jobs:
           FILE="${MOD_CACHE}/github.com/metacubex/sing-tun@${SING_TUN_VERSION}/tun_windows.go"
           echo "Patching ${FILE}"
           chmod +w "${FILE}"
-          perl -pi -e 's/inetIf\.ForwardingEnabled = true/inetIf.ForwardingEnabled = false/g' "${FILE}"
+      - name: Refresh CocoaPods (macOS)
+        if: matrix.platform == 'macos'
+        shell: bash
+        run: |
+          flutter pub get
+          cd macos
+          rm -rf Pods Podfile.lock
+          pod install --repo-update
 
       - name: Build Bettbox (Non-Windows)
         if: matrix.platform != 'windows'

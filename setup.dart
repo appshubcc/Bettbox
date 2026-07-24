@@ -747,6 +747,15 @@ class BuildCommand extends Command {
       case Target.macos:
         await _getMacosDependencies();
         await _setMacOSImpeller(!compatible);
+        await Build.exec(
+          Build.getExecutable('rm -rf Pods Podfile.lock'),
+          workingDirectory: 'macos',
+        );
+        await Build.exec(Build.getExecutable('flutter pub get'));
+        await Build.exec(
+          Build.getExecutable('pod install --repo-update'),
+          workingDirectory: 'macos',
+        );
         _buildDistributor(
           target: target,
           targets: 'dmg',

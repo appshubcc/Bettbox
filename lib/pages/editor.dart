@@ -83,6 +83,7 @@ class _EditorPageState extends ConsumerState<EditorPage> {
   @override
   void initState() {
     super.initState();
+    _lineWrap = !widget.readOnly;
     _lineCount = widget.content.split('\n').length;
     _controller = CodeForgeController();
     _controller.text = widget.content;

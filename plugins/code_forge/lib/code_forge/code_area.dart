@@ -595,6 +595,8 @@ class _CodeForgeState extends State<CodeForge> with TickerProviderStateMixin {
                 selection: _controller.selection,
               ),
         );
+      } else if (!_focusNode.hasFocus) {
+        _controller.clearMultiCursors();
       }
     });
 
@@ -793,7 +795,7 @@ class _CodeForgeState extends State<CodeForge> with TickerProviderStateMixin {
         enableSuggestions: widget.enableKeyboardSuggestions,
         inputType: widget.keyboardType,
         inputAction: TextInputAction.newline,
-        autocorrect: false,
+        autocorrect: true,
         viewId: View.of(context).viewId,
       ),
     );
@@ -11402,6 +11404,7 @@ class _CodeFieldRenderer extends RenderBox implements MouseTrackerAnnotation {
         _selectionTimer?.cancel();
         _selectionTimer = Timer(const Duration(milliseconds: 500), () {
           _selectWordAtOffset(textOffset);
+          contextMenuOffsetNotifier.value = localPosition;
         });
       } else {
         controller.focusNode?.requestFocus();
@@ -11411,7 +11414,13 @@ class _CodeFieldRenderer extends RenderBox implements MouseTrackerAnnotation {
         };
 
         _dragStartOffset = textOffset;
-        final isAltClick = HardwareKeyboard.instance.isAltPressed;
+        _pointerDownPosition = localPosition;
+        _isDragging = false;
+        _selectionActive = false;
+        selectionActiveNotifier.value = false;
+        final isAltClick = HardwareKeyboard.instance.isAltPressed &&
+            !HardwareKeyboard.instance.isControlPressed &&
+            !HardwareKeyboard.instance.isMetaPressed;
         _onetap.onTap = () {
           if (_openedLspActionFromBulbTap) {
             _openedLspActionFromBulbTap = false;
@@ -11520,10 +11529,22 @@ class _CodeFieldRenderer extends RenderBox implements MouseTrackerAnnotation {
           markNeedsPaint();
         }
       } else {
-        controller.selection = TextSelection(
-          baseOffset: _dragStartOffset!,
-          extentOffset: textOffset,
-        );
+        final delta = localPosition - (_pointerDownPosition ?? localPosition);
+        if (!_isDragging && delta.distance > 2) {
+          _isDragging = true;
+          _selectionActive = selectionActiveNotifier.value = true;
+        }
+
+        if (_selectionActive) {
+          final newSel = TextSelection(
+            baseOffset: _dragStartOffset!,
+            extentOffset: textOffset,
+          );
+          if (newSel != controller.selection) {
+            controller.selection = newSel;
+            markNeedsPaint();
+          }
+        }
       }
     }
 

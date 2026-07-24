@@ -737,6 +737,7 @@ class CodeForgeController implements DeltaTextInputClient {
   /// The position is clamped to valid bounds. Duplicate positions
   /// (including the primary cursor) are ignored.
   void addMultiCursor(int line, int character) {
+    if (_multiCursors.length >= 50) return;
     final clampedLine = line.clamp(0, lineCount - 1);
     final lineText = getLineText(clampedLine);
     final scalarLength = lineText.runes.length;
@@ -762,6 +763,21 @@ class CodeForgeController implements DeltaTextInputClient {
     _multiCursors.clear();
     multiCursorsChanged = true;
     notifyListeners();
+  }
+
+  void _deduplicateMultiCursors() {
+    if (_multiCursors.isEmpty) return;
+    final primaryLine = getLineAtOffset(selection.extentOffset);
+    final primaryChar =
+        selection.extentOffset - getLineStartOffset(primaryLine);
+
+    final beforeCount = _multiCursors.length;
+    _multiCursors.removeWhere(
+      (c) => c.line == primaryLine && c.character == primaryChar,
+    );
+    if (_multiCursors.length != beforeCount) {
+      multiCursorsChanged = true;
+    }
   }
 
   /// Moves every secondary cursor one character to the left.
@@ -2319,6 +2335,7 @@ class CodeForgeController implements DeltaTextInputClient {
     // wrong offset. _syncToConnection is internally guarded against active
     // compositions and suppressed regions, so this stays safe.
     _syncToConnection();
+    _deduplicateMultiCursors();
 
     notifyListeners();
   }
@@ -2351,6 +2368,7 @@ class CodeForgeController implements DeltaTextInputClient {
     _imeProjectionDirty = true;
 
     _syncToConnection();
+    _deduplicateMultiCursors();
     notifyListeners();
   }
 
@@ -2378,6 +2396,7 @@ class CodeForgeController implements DeltaTextInputClient {
     _imeProjectionDirty = true;
 
     _syncToConnection();
+    _deduplicateMultiCursors();
 
     notifyListeners();
   }
@@ -3926,6 +3945,8 @@ class CodeForgeController implements DeltaTextInputClient {
 
     if (!_suppressImeSync) _imeComposingGlobal = TextRange.empty;
     final selectionBefore = _selection;
+    final multiCursorsBefore =
+        List<({int line, int character})>.from(_multiCursors);
     _flushBuffer();
     final safeStart = start.clamp(0, _rope.length);
     final safeEnd = end.clamp(safeStart, _rope.length);
@@ -3955,6 +3976,9 @@ class CodeForgeController implements DeltaTextInputClient {
         extentOffset: result.extentOffset.toInt(),
       );
       _selection = newSelection;
+      _shiftMultiCursors(safeStart, safeEnd, replacement.length);
+      final multiCursorsAfter =
+          List<({int line, int character})>.from(_multiCursors);
       dirtyLine = _rope.getLineAtOffset(safeStart);
       dirtyRegion = TextRange(
         start: safeStart,
@@ -3968,11 +3992,27 @@ class CodeForgeController implements DeltaTextInputClient {
           replacement,
           selectionBefore,
           _selection,
+          multiCursorsBefore: multiCursorsBefore,
+          multiCursorsAfter: multiCursorsAfter,
         );
       } else if (deletedText.isNotEmpty) {
-        _recordDeletion(safeStart, deletedText, selectionBefore, _selection);
+        _recordDeletion(
+          safeStart,
+          deletedText,
+          selectionBefore,
+          _selection,
+          multiCursorsBefore: multiCursorsBefore,
+          multiCursorsAfter: multiCursorsAfter,
+        );
       } else if (replacement.isNotEmpty) {
-        _recordInsertion(safeStart, replacement, selectionBefore, _selection);
+        _recordInsertion(
+          safeStart,
+          replacement,
+          selectionBefore,
+          _selection,
+          multiCursorsBefore: multiCursorsBefore,
+          multiCursorsAfter: multiCursorsAfter,
+        );
       }
 
       if (!supportsPullSemanticSync) {
@@ -3984,6 +4024,32 @@ class CodeForgeController implements DeltaTextInputClient {
     } finally {
       _suppressLspFallbackSync = false;
     }
+  }
+
+  void _shiftMultiCursors(int startOffset, int endOffset, int replacementLength) {
+    if (_multiCursors.isEmpty) return;
+    final deletedLength = endOffset - startOffset;
+    final delta = replacementLength - deletedLength;
+
+    final newCursors = <({int line, int character})>[];
+    for (final c in _multiCursors) {
+      final offset = _multiCursorToOffset(c);
+      if (offset < startOffset) {
+        newCursors.add(c);
+      } else if (offset >= endOffset) {
+        final newOffset = (offset + delta).clamp(0, _rope.length);
+        final newLine = _rope.getLineAtOffset(newOffset);
+        final newLineStart = _rope.getLineStartOffset(newLine);
+        newCursors.add(
+          (line: newLine, character: newOffset - newLineStart),
+        );
+      }
+    }
+    _multiCursors
+      ..clear()
+      ..addAll(newCursors);
+    _deduplicateMultiCursors();
+    multiCursorsChanged = true;
   }
 
   /// Search the document for occurrences of [word] and add highlight ranges.
@@ -4986,8 +5052,10 @@ class CodeForgeController implements DeltaTextInputClient {
     String deleted,
     String inserted,
     TextSelection selBefore,
-    TextSelection selAfter,
-  ) {
+    TextSelection selAfter, {
+    List<({int line, int character})>? multiCursorsBefore,
+    List<({int line, int character})>? multiCursorsAfter,
+  }) {
     if (_undoController?.isUndoRedoInProgress ?? false) return;
     _recordEdit(
       ReplaceOperation(
@@ -4996,6 +5064,8 @@ class CodeForgeController implements DeltaTextInputClient {
         insertedText: inserted,
         selectionBefore: selBefore,
         selectionAfter: selAfter,
+        multiCursorsBefore: multiCursorsBefore,
+        multiCursorsAfter: multiCursorsAfter,
       ),
     );
     if (!_suppressLspFallbackSync) {

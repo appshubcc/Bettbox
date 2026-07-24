@@ -18,7 +18,7 @@ import 'package:re_highlight/styles/atom-one-light.dart';
 
 typedef EditorWidgetBuilder = Widget Function();
 
-const int _kLargeEditableLineThreshold = 2000;
+const int _kLargeEditableLineThreshold = 1000;
 const Duration _kFindFocusDelay = Duration(milliseconds: 500);
 const Duration _kMinBusyDuration = Duration(milliseconds: 600);
 const double _kDefaultFindPanelHeight = 52;
@@ -73,9 +73,7 @@ class _EditorPageState extends ConsumerState<EditorPage> {
 
   bool get _disableSyntaxHighlight =>
       widget.simple ||
-      (!widget.readOnly &&
-          !system.isDesktop &&
-          _lineCount > _kLargeEditableLineThreshold);
+      (!system.isDesktop && _lineCount > _kLargeEditableLineThreshold);
 
   bool get _isLineWrapDisabled =>
       !system.isDesktop && _lineCount > _kLargeEditableLineThreshold;
@@ -84,6 +82,7 @@ class _EditorPageState extends ConsumerState<EditorPage> {
   void initState() {
     super.initState();
     _lineCount = widget.content.split('\n').length;
+    _lineWrap = !widget.readOnly && !_isLineWrapDisabled;
     _controller = CodeForgeController();
     _controller.text = widget.content;
     _findController = _EditorFindController(_controller);

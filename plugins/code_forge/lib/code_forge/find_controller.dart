@@ -1,7 +1,18 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import 'controller.dart';
 import 'styling.dart';
+
+class _SearchMatch {
+  final int start;
+  final int end;
+  const _SearchMatch({required this.start, required this.end});
+}
+
+const int _kMaxSearchMatches = 1000;
+const Duration _kFindDebounce = Duration(milliseconds: 500);
 
 /// Controller for managing text search functionality in [CodeForge].
 ///
@@ -10,7 +21,7 @@ import 'styling.dart';
 class FindController extends ChangeNotifier {
   final CodeForgeController _codeController;
 
-  List<Match> _matches = [];
+  final List<_SearchMatch> _matches = [];
   int _currentMatchIndex = -1;
   bool _isRegex = false;
   bool _caseSensitive = false;
@@ -21,6 +32,8 @@ class FindController extends ChangeNotifier {
 
   String _lastText = '';
   VoidCallback? _controllerListener;
+  Timer? _findDebounceTimer;
+  bool _hasMoreMatches = false;
 
   final TextEditingController findInputController = TextEditingController();
   final TextEditingController replaceInputController = TextEditingController();
@@ -41,6 +54,7 @@ class FindController extends ChangeNotifier {
 
   @override
   void dispose() {
+    _findDebounceTimer?.cancel();
     if (_controllerListener != null) {
       _codeController.removeListener(_controllerListener!);
     }
@@ -61,6 +75,9 @@ class FindController extends ChangeNotifier {
 
   /// The number of matches found for the current query.
   int get matchCount => _matches.length;
+
+  /// Whether there are more matches beyond [_kMaxSearchMatches].
+  bool get hasMoreMatches => _hasMoreMatches;
 
   /// The current match index (0-based) or -1 if no match is selected.
   int get currentMatchIndex => _currentMatchIndex;
@@ -160,10 +177,18 @@ class FindController extends ChangeNotifier {
     _lastQuery = query;
 
     if (query.isEmpty) {
+      _findDebounceTimer?.cancel();
       _clearMatches();
       return;
     }
 
+    _findDebounceTimer?.cancel();
+    _findDebounceTimer = Timer(_kFindDebounce, () {
+      _performFind(query, scrollToMatch: scrollToMatch);
+    });
+  }
+
+  void _performFind(String query, {required bool scrollToMatch}) {
     final text = _codeController.text;
     String pattern = query;
 
@@ -182,15 +207,25 @@ class FindController extends ChangeNotifier {
         multiLine: true,
       );
 
-      _matches = regExp.allMatches(text).toList();
+      final utf16Matches = regExp.allMatches(text).toList();
+      _hasMoreMatches = utf16Matches.length > _kMaxSearchMatches;
+      final limitedMatches = _hasMoreMatches
+          ? utf16Matches.sublist(0, _kMaxSearchMatches)
+          : utf16Matches;
+
+      _matches
+        ..clear()
+        ..addAll(_batchConvertToScalar(text, limitedMatches));
     } catch (e) {
-      _matches = [];
+      _matches.clear();
+      _hasMoreMatches = false;
       _currentMatchIndex = -1;
       _updateHighlights();
       notifyListeners();
       return;
     }
     if (_matches.isEmpty) {
+      _hasMoreMatches = false;
       _currentMatchIndex = -1;
       _updateHighlights();
       notifyListeners();
@@ -217,6 +252,56 @@ class FindController extends ChangeNotifier {
       _scrollToCurrentMatch();
     }
     notifyListeners();
+  }
+
+  /// Batch-converts UTF-16 match offsets to scalar offsets in a single pass.
+  ///
+  /// This reduces complexity from O(N*M) to O(N+M) where N is text length and
+  /// M is match count, by scanning the text only once instead of per-match.
+  static List<_SearchMatch> _batchConvertToScalar(
+    String text,
+    List<RegExpMatch> utf16Matches,
+  ) {
+    if (utf16Matches.isEmpty) return const [];
+
+    final neededOffsets = <int>{};
+    for (final m in utf16Matches) {
+      neededOffsets.add(m.start);
+      neededOffsets.add(m.end);
+    }
+    final sortedOffsets = neededOffsets.toList()..sort();
+
+    final offsetToScalar = <int, int>{};
+    int utf16 = 0;
+    int scalar = 0;
+    int offsetIdx = 0;
+
+    while (offsetIdx < sortedOffsets.length && sortedOffsets[offsetIdx] <= utf16) {
+      offsetToScalar[sortedOffsets[offsetIdx]] = scalar;
+      offsetIdx++;
+    }
+
+    for (final rune in text.runes) {
+      if (offsetIdx >= sortedOffsets.length) break;
+      utf16 += rune > 0xFFFF ? 2 : 1;
+      scalar++;
+      while (offsetIdx < sortedOffsets.length && sortedOffsets[offsetIdx] <= utf16) {
+        offsetToScalar[sortedOffsets[offsetIdx]] = scalar;
+        offsetIdx++;
+      }
+    }
+
+    while (offsetIdx < sortedOffsets.length) {
+      offsetToScalar[sortedOffsets[offsetIdx]] = scalar;
+      offsetIdx++;
+    }
+
+    return utf16Matches
+        .map((m) => _SearchMatch(
+              start: offsetToScalar[m.start]!,
+              end: offsetToScalar[m.end]!,
+            ))
+        .toList();
   }
 
   /// Moves to the next match.
@@ -273,14 +358,15 @@ class FindController extends ChangeNotifier {
       final regExp = RegExp(pattern, caseSensitive: _caseSensitive);
       final newText = text.replaceAll(regExp, replaceInputController.text);
 
-      _codeController.replaceRange(0, text.length, newText);
+      _codeController.replaceRange(0, _codeController.length, newText);
     } catch (e) {
       debugPrint('FindController: Replace All failed. Error: $e');
     }
   }
 
   void _clearMatches() {
-    _matches = [];
+    _matches.clear();
+    _hasMoreMatches = false;
     _currentMatchIndex = -1;
     _codeController.searchHighlights = [];
     _codeController.searchHighlightsChanged = true;

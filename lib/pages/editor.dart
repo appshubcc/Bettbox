@@ -18,7 +18,8 @@ import 'package:re_highlight/styles/atom-one-light.dart';
 
 typedef EditorWidgetBuilder = Widget Function();
 
-const int _kLargeEditableLineThreshold = 2000;
+const int _kLargeEditableLineThresholdMobile = 1000;
+const int _kLargeEditableLineThresholdDesktop = 2000;
 const Duration _kFindFocusDelay = Duration(milliseconds: 500);
 const Duration _kMinBusyDuration = Duration(milliseconds: 600);
 const double _kDefaultFindPanelHeight = 52;
@@ -72,18 +73,19 @@ class _EditorPageState extends ConsumerState<EditorPage> {
   bool _isBusy = false;
 
   bool get _disableSyntaxHighlight =>
-      widget.simple ||
-      (!widget.readOnly &&
-          !system.isDesktop &&
-          _lineCount > _kLargeEditableLineThreshold);
+      widget.simple || _lineCount > _largeEditableLineThreshold;
 
-  bool get _isLineWrapDisabled =>
-      !system.isDesktop && _lineCount > _kLargeEditableLineThreshold;
+  bool get _isLineWrapDisabled => _lineCount > _largeEditableLineThreshold;
+
+  int get _largeEditableLineThreshold => system.isDesktop
+      ? _kLargeEditableLineThresholdDesktop
+      : _kLargeEditableLineThresholdMobile;
 
   @override
   void initState() {
     super.initState();
     _lineCount = widget.content.split('\n').length;
+    _lineWrap = !widget.readOnly && !_isLineWrapDisabled;
     _controller = CodeForgeController();
     _controller.text = widget.content;
     _findController = _EditorFindController(_controller);
@@ -431,7 +433,9 @@ class FindPanel extends StatelessWidget implements PreferredSizeWidget {
   Widget _buildFindInputView(BuildContext context) {
     final result = controller.matchCount == 0
         ? appLocalizations.none
-        : '${controller.currentMatchIndex + 1}/${controller.matchCount}';
+        : controller.hasMoreMatches
+            ? '${controller.currentMatchIndex + 1}/1000+'
+            : '${controller.currentMatchIndex + 1}/${controller.matchCount}';
     final bar = Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [

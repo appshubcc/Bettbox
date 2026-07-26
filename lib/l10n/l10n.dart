@@ -1884,6 +1884,16 @@ class AppLocalizations {
     return Intl.message('Search', name: 'search', desc: '', args: []);
   }
 
+  /// `Replace`
+  String get replace {
+    return Intl.message('Replace', name: 'replace', desc: '', args: []);
+  }
+
+  /// `Replace All`
+  String get replaceAll {
+    return Intl.message('Replace All', name: 'replaceAll', desc: '', args: []);
+  }
+
   /// `Allow Bypassing VPN`
   String get allowBypass {
     return Intl.message(

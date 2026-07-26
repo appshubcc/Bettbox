@@ -22,7 +22,6 @@ const int _kLargeEditableLineThresholdMobile = 1000;
 const int _kLargeEditableLineThresholdDesktop = 2000;
 const Duration _kFindFocusDelay = Duration(milliseconds: 500);
 const Duration _kMinBusyDuration = Duration(milliseconds: 600);
-const double _kDefaultFindPanelHeight = 52;
 
 class EditorPage extends ConsumerStatefulWidget {
   final String title;
@@ -130,6 +129,12 @@ class _EditorPageState extends ConsumerState<EditorPage> {
   }
 
   void _handleSearch() {
+    _findController.isReplaceMode = false;
+    _findController.isActive = true;
+  }
+
+  void _handleReplace() {
+    _findController.isReplaceMode = true;
     _findController.isActive = true;
   }
 
@@ -224,12 +229,20 @@ class _EditorPageState extends ConsumerState<EditorPage> {
     final isMobileView = ref.watch(isMobileViewProvider);
     final brightness = Theme.of(context).brightness;
     final readOnly = widget.readOnly || widget.simple;
+    final canReplace =
+        !readOnly && !_disableSyntaxHighlight && _languageMode() != null;
     final menuItems = <PopupMenuItemData>[
       PopupMenuItemData(
         icon: Icons.search,
         label: appLocalizations.search,
         onPressed: _handleSearch,
       ),
+      if (canReplace)
+        PopupMenuItemData(
+          icon: Icons.find_replace,
+          label: appLocalizations.replace,
+          onPressed: _handleReplace,
+        ),
       PopupMenuItemData(
         icon: Icons.undo,
         label: appLocalizations.undo,
@@ -398,93 +411,217 @@ class FindPanel extends StatelessWidget implements PreferredSizeWidget {
   final FindController controller;
   final bool readOnly;
   final bool isMobileView;
-  final double height;
 
   const FindPanel({
     super.key,
     required this.controller,
     required this.readOnly,
     required this.isMobileView,
-  }) : height =
-           (isMobileView
-               ? _kDefaultFindPanelHeight * 2
-               : _kDefaultFindPanelHeight) +
-           8;
+  });
 
   @override
-  Size get preferredSize =>
-      Size(double.infinity, controller.isActive ? height : 0);
+  Size get preferredSize {
+    if (!controller.isActive) return Size.zero;
+    final baseRows = isMobileView ? 2 : 1;
+    final totalRows =
+        baseRows + (!readOnly && controller.isReplaceMode ? 1 : 0);
+    final calculatedHeight = totalRows * 36.0 + (totalRows - 1) * 6.0 + 26.0;
+    return Size(double.infinity, calculatedHeight);
+  }
 
   @override
   Widget build(BuildContext context) {
     if (!controller.isActive) {
       return const SizedBox(width: 0, height: 0);
     }
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-      margin: const EdgeInsets.only(bottom: 8),
-      color: context.colorScheme.surface,
-      alignment: Alignment.centerLeft,
-      height: height,
-      child: _buildFindInputView(context),
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    return ListenableBuilder(
+      listenable: controller,
+      builder: (context, _) => Container(
+        margin: const EdgeInsets.fromLTRB(12, 4, 12, 6),
+        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+        decoration: BoxDecoration(
+          color: colorScheme.surfaceContainerHighest.withAlpha(220),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: colorScheme.outlineVariant.withAlpha(120),
+            width: 1,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withAlpha(20),
+              blurRadius: 8,
+              offset: const Offset(0, 3),
+            ),
+          ],
+        ),
+        child: _buildFindInputView(context),
+      ),
     );
   }
 
   Widget _buildFindInputView(BuildContext context) {
-    final result = controller.matchCount == 0
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final showReplace = !readOnly && controller.isReplaceMode;
+    final resultText = controller.matchCount == 0
         ? appLocalizations.none
         : controller.hasMoreMatches
             ? '${controller.currentMatchIndex + 1}/1000+'
             : '${controller.currentMatchIndex + 1}/${controller.matchCount}';
-    final bar = Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        if (!isMobileView) ...[
-          ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 360),
-            child: _buildFindInput(context),
+
+    final topBar = SizedBox(
+      height: 36,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          if (!isMobileView) ...[
+            ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 340),
+              child: _buildFindInput(context),
+            ),
+            const SizedBox(width: 10),
+          ],
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            decoration: BoxDecoration(
+              color: colorScheme.surfaceContainerHigh,
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(
+                color: colorScheme.outlineVariant.withAlpha(80),
+              ),
+            ),
+            child: Text(
+              resultText,
+              style: context.textTheme.labelMedium?.copyWith(
+                color: controller.matchCount == 0
+                    ? colorScheme.onSurfaceVariant.withAlpha(150)
+                    : colorScheme.primary,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
           ),
-          const SizedBox(width: 12),
-        ],
-        Text(result, style: context.textTheme.bodyMedium),
-        Expanded(
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            spacing: 8,
-            children: [
-              _buildIconButton(
-                onPressed: controller.matchCount == 0
-                    ? null
-                    : controller.previous,
-                icon: Icons.arrow_upward,
-              ),
-              _buildIconButton(
-                onPressed: controller.matchCount == 0
-                    ? null
-                    : controller.next,
-                icon: Icons.arrow_downward,
-              ),
-              const SizedBox(width: 2),
-              IconButton.filledTonal(
-                visualDensity: VisualDensity.compact,
-                onPressed: () => controller.isActive = false,
-                style: const ButtonStyle(
-                  padding: WidgetStatePropertyAll(EdgeInsets.all(0)),
+          Expanded(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              spacing: 6,
+              children: [
+                _buildIconButton(
+                  onPressed: controller.matchCount == 0
+                      ? null
+                      : controller.previous,
+                  icon: Icons.keyboard_arrow_up,
                 ),
-                icon: const Icon(Icons.close, size: 16),
-              ),
-            ],
+                _buildIconButton(
+                  onPressed: controller.matchCount == 0
+                      ? null
+                      : controller.next,
+                  icon: Icons.keyboard_arrow_down,
+                ),
+                if (isMobileView && showReplace) ...[
+                  _buildIconButton(
+                    onPressed: controller.matchCount == 0
+                        ? null
+                        : controller.replace,
+                    icon: Icons.find_replace,
+                    tooltip: appLocalizations.replace,
+                  ),
+                  _buildIconButton(
+                    onPressed: controller.matchCount == 0
+                        ? null
+                        : controller.replaceAll,
+                    icon: Icons.published_with_changes,
+                    tooltip: appLocalizations.replaceAll,
+                  ),
+                ],
+                if (!readOnly)
+                  _buildIconButton(
+                    onPressed: () => controller.toggleReplaceMode(),
+                    icon: controller.isReplaceMode
+                        ? Icons.unfold_less
+                        : Icons.unfold_more,
+                    tooltip: appLocalizations.replace,
+                  ),
+                const SizedBox(width: 2),
+                IconButton.filledTonal(
+                  visualDensity: VisualDensity.compact,
+                  onPressed: () => controller.isActive = false,
+                  style: ButtonStyle(
+                    backgroundColor: WidgetStatePropertyAll(
+                      colorScheme.errorContainer.withAlpha(160),
+                    ),
+                    foregroundColor: WidgetStatePropertyAll(
+                      colorScheme.onErrorContainer,
+                    ),
+                    padding: const WidgetStatePropertyAll(EdgeInsets.all(0)),
+                  ),
+                  icon: const Icon(Icons.close, size: 16),
+                ),
+              ],
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
+
     if (isMobileView) {
       return Column(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [bar, const SizedBox(height: 4), _buildFindInput(context)],
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          topBar,
+          const SizedBox(height: 6),
+          _buildFindInput(context),
+          if (showReplace) ...[
+            const SizedBox(height: 6),
+            _buildReplaceInput(context),
+          ],
+        ],
       );
     }
-    return bar;
+
+    if (showReplace) {
+      return Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          topBar,
+          const SizedBox(height: 6),
+          _buildReplaceRow(context),
+        ],
+      );
+    }
+
+    return topBar;
+  }
+
+  Widget _buildReplaceRow(BuildContext context) {
+    return SizedBox(
+      height: 36,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 340),
+            child: _buildReplaceInput(context),
+          ),
+          const SizedBox(width: 10),
+          _buildIconButton(
+            onPressed: controller.matchCount == 0 ? null : controller.replace,
+            icon: Icons.find_replace,
+            tooltip: appLocalizations.replace,
+          ),
+          _buildIconButton(
+            onPressed:
+                controller.matchCount == 0 ? null : controller.replaceAll,
+            icon: Icons.published_with_changes,
+            tooltip: appLocalizations.replaceAll,
+          ),
+        ],
+      ),
+    );
   }
 
   Stack _buildFindInput(BuildContext context) {
@@ -493,6 +630,8 @@ class FindPanel extends StatelessWidget implements PreferredSizeWidget {
       children: [
         _buildTextField(
           context: context,
+          hintText: appLocalizations.search,
+          prefixIcon: Icons.search,
           onSubmitted: () {
             if (controller.matchCount == 0) {
               return;
@@ -505,7 +644,7 @@ class FindPanel extends StatelessWidget implements PreferredSizeWidget {
         ),
         Row(
           mainAxisAlignment: MainAxisAlignment.end,
-          spacing: 8,
+          spacing: 6,
           children: [
             _buildCheckText(
               context: context,
@@ -526,24 +665,83 @@ class FindPanel extends StatelessWidget implements PreferredSizeWidget {
     );
   }
 
+  Widget _buildReplaceInput(BuildContext context) {
+    return _buildTextField(
+      context: context,
+      hintText: appLocalizations.replace,
+      prefixIcon: Icons.find_replace,
+      onSubmitted: () {
+        if (controller.matchCount == 0) return;
+        controller.replace();
+        controller.replaceInputFocusNode.requestFocus();
+      },
+      controller: controller.replaceInputController,
+      focusNode: controller.replaceInputFocusNode,
+    );
+  }
+
   Widget _buildTextField({
     required BuildContext context,
     required TextEditingController controller,
     required FocusNode focusNode,
     required VoidCallback onSubmitted,
+    String? hintText,
+    IconData? prefixIcon,
   }) {
-    return TextField(
-      maxLines: 1,
-      focusNode: focusNode,
-      style: context.textTheme.bodyMedium,
-      decoration: const InputDecoration(
-        border: OutlineInputBorder(),
-        contentPadding: EdgeInsets.symmetric(horizontal: 12),
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    return SizedBox(
+      height: 36,
+      child: TextField(
+        maxLines: 1,
+        focusNode: focusNode,
+        style: context.textTheme.bodyMedium,
+        decoration: InputDecoration(
+          isDense: true,
+          filled: true,
+          fillColor: colorScheme.surface,
+          prefixIcon: prefixIcon != null
+              ? Icon(
+                  prefixIcon,
+                  size: 16,
+                  color: colorScheme.onSurfaceVariant.withAlpha(160),
+                )
+              : null,
+          prefixIconConstraints: const BoxConstraints(
+            minWidth: 32,
+            minHeight: 36,
+          ),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8),
+            borderSide: BorderSide(
+              color: colorScheme.outlineVariant.withAlpha(100),
+            ),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8),
+            borderSide: BorderSide(
+              color: colorScheme.outlineVariant.withAlpha(100),
+            ),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8),
+            borderSide: BorderSide(
+              color: colorScheme.primary,
+              width: 1.5,
+            ),
+          ),
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+          hintText: hintText,
+          hintStyle: context.textTheme.bodyMedium?.copyWith(
+            color: colorScheme.onSurfaceVariant.withAlpha(120),
+          ),
+        ),
+        onSubmitted: (_) {
+          onSubmitted();
+        },
+        controller: controller,
       ),
-      onSubmitted: (_) {
-        onSubmitted();
-      },
-      controller: controller,
     );
   }
 
@@ -553,34 +751,54 @@ class FindPanel extends StatelessWidget implements PreferredSizeWidget {
     required bool isSelected,
     required VoidCallback onPressed,
   }) {
-    return SizedBox(
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    return Container(
       width: 28,
-      height: 28,
-      child: MouseRegion(
-        cursor: SystemMouseCursors.click,
-        child: isSelected
-            ? IconButton.filledTonal(
-                onPressed: onPressed,
-                padding: const EdgeInsets.all(2),
-                icon: Text(text, style: context.textTheme.bodySmall),
-              )
-            : IconButton(
-                onPressed: onPressed,
-                padding: const EdgeInsets.all(2),
-                icon: Text(text, style: context.textTheme.bodySmall),
-              ),
+      height: 24,
+      decoration: BoxDecoration(
+        color: isSelected
+            ? colorScheme.primaryContainer
+            : colorScheme.surfaceContainerHigh,
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(
+          color: isSelected
+              ? colorScheme.primary.withAlpha(120)
+              : colorScheme.outlineVariant.withAlpha(60),
+        ),
+      ),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(6),
+        onTap: onPressed,
+        child: Center(
+          child: Text(
+            text,
+            style: context.textTheme.labelSmall?.copyWith(
+              color: isSelected
+                  ? colorScheme.onPrimaryContainer
+                  : colorScheme.onSurfaceVariant,
+              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+            ),
+          ),
+        ),
       ),
     );
   }
 
-  Widget _buildIconButton({required IconData icon, VoidCallback? onPressed}) {
+  Widget _buildIconButton({
+    required IconData icon,
+    VoidCallback? onPressed,
+    String? tooltip,
+  }) {
     return IconButton(
       visualDensity: VisualDensity.compact,
       onPressed: onPressed,
+      tooltip: tooltip,
       style: const ButtonStyle(
-        padding: WidgetStatePropertyAll(EdgeInsets.all(0)),
+        padding: WidgetStatePropertyAll(EdgeInsets.all(6)),
+        minimumSize: WidgetStatePropertyAll(Size(28, 28)),
       ),
-      icon: Icon(icon, size: 16),
+      icon: Icon(icon, size: 18),
     );
   }
 }

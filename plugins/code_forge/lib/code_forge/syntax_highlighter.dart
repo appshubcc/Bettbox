@@ -630,10 +630,80 @@ class SyntaxHighlighter {
       if (_isTsxOrJsx && _looksLikeJsxTagLine(lineText)) {
         span = _applyJsxTagFallback(lineText, span);
       }
+      span = _applyRegexFallback(lineText, span);
       return span;
     } catch (e) {
       return TextSpan(text: lineText, style: baseTextStyle);
     }
+  }
+
+  TextSpan? _applyRegexFallback(String lineText, TextSpan? span) {
+    if (span == null || lineText.isEmpty) return span;
+
+    final regexpStyle = _resolvedTheme['regexp'] ?? _resolvedTheme['string'];
+    if (regexpStyle == null) return span;
+
+    final regexLiteralPattern = RegExp(
+      r'(^|[\s:=,({[\?])(\/(?![/*])(?:\\.|\[(?:\\.|[^\]\\])*\]|[^/\\[\n])+\/[a-z]*)',
+    );
+
+    final matches = regexLiteralPattern.allMatches(lineText).toList();
+    if (matches.isEmpty) return span;
+
+    final grammarSegments = <({String text, TextStyle? style})>[];
+    _flattenGrammarSpan(span, grammarSegments, baseTextStyle);
+
+    final ranges = <({int start, int end})>[];
+    for (final match in matches) {
+      final prefix = match.group(1) ?? '';
+      final regexStr = match.group(2);
+      if (regexStr == null || regexStr.isEmpty) continue;
+
+      final start = match.start + prefix.length;
+      final end = start + regexStr.length;
+
+      final existingStyle = _getStyleAtPosition(grammarSegments, start);
+      if (!_isStringOrCommentStyle(existingStyle)) {
+        ranges.add((
+          start: start.clamp(0, lineText.length),
+          end: end.clamp(0, lineText.length),
+        ));
+      }
+    }
+
+    if (ranges.isEmpty) return span;
+
+    final children = <TextSpan>[];
+    int currentPos = 0;
+
+    for (final range in ranges) {
+      if (range.start > currentPos) {
+        _addGrammarSegments(
+          children,
+          grammarSegments,
+          currentPos,
+          range.start,
+          lineText,
+        );
+      }
+      if (range.start < range.end) {
+        final regexText = lineText.substring(range.start, range.end);
+        children.add(TextSpan(text: regexText, style: regexpStyle));
+        currentPos = range.end;
+      }
+    }
+
+    if (currentPos < lineText.length) {
+      _addGrammarSegments(
+        children,
+        grammarSegments,
+        currentPos,
+        lineText.length,
+        lineText,
+      );
+    }
+
+    return TextSpan(children: children, style: baseTextStyle);
   }
 
   bool get _isTsxOrJsx {

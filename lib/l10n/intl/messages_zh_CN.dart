@@ -645,6 +645,8 @@ class MessageLookup extends MessageLookupByLibrary {
     "remoteRecoveryDesc": MessageLookupByLibrary.simpleMessage("通过WebDAV恢复数据"),
     "remove": MessageLookupByLibrary.simpleMessage("移除"),
     "rename": MessageLookupByLibrary.simpleMessage("重命名"),
+    "replace": MessageLookupByLibrary.simpleMessage("替换"),
+    "replaceAll": MessageLookupByLibrary.simpleMessage("全部替换"),
     "request": MessageLookupByLibrary.simpleMessage("请求"),
     "requests": MessageLookupByLibrary.simpleMessage("请求"),
     "requestsDesc": MessageLookupByLibrary.simpleMessage("查看最近请求记录"),

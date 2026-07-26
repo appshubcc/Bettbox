@@ -667,6 +667,8 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "remove": MessageLookupByLibrary.simpleMessage("移除"),
     "rename": MessageLookupByLibrary.simpleMessage("重新命名"),
+    "replace": MessageLookupByLibrary.simpleMessage("替換"),
+    "replaceAll": MessageLookupByLibrary.simpleMessage("全部替換"),
     "request": MessageLookupByLibrary.simpleMessage("請求"),
     "requests": MessageLookupByLibrary.simpleMessage("請求"),
     "requestsDesc": MessageLookupByLibrary.simpleMessage("查看最近請求記錄"),

@@ -226,6 +226,8 @@
   "country": "區域",
   "checkError": "檢測失敗",
   "search": "搜尋",
+  "replace": "替換",
+  "replaceAll": "全部替換",
   "allowBypass": "允許繞過 VPN",
   "allowBypassDesc": "開啟後部分應用程式可繞過 VPN",
   "externalController": "外部控制",

@@ -936,6 +936,8 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "remove": MessageLookupByLibrary.simpleMessage("Remove"),
     "rename": MessageLookupByLibrary.simpleMessage("Rename"),
+    "replace": MessageLookupByLibrary.simpleMessage("Replace"),
+    "replaceAll": MessageLookupByLibrary.simpleMessage("Replace All"),
     "request": MessageLookupByLibrary.simpleMessage("Request"),
     "requests": MessageLookupByLibrary.simpleMessage("Requests"),
     "requestsDesc": MessageLookupByLibrary.simpleMessage(

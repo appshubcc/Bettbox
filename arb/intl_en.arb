@@ -226,6 +226,8 @@
   "country": "Country",
   "checkError": "Check Failed",
   "search": "Search",
+  "replace": "Replace",
+  "replaceAll": "Replace All",
   "allowBypass": "Allow Bypassing VPN",
   "allowBypassDesc": "Allow specific apps to bypass VPN",
   "externalController": "External Controller",

@@ -11470,17 +11470,20 @@ class _CodeFieldRenderer extends RenderBox implements MouseTrackerAnnotation {
     }
 
     if (event is PointerDownEvent && event.buttons == kPrimaryButton) {
+      final extraPadding = isMobile ? 12.0 : 0.0;
+      final effectiveGutterWidth = _gutterWidth + extraPadding;
       final gutterClickArea = isRTL
-          ? localPosition.dx > size.width - _gutterWidth
-          : localPosition.dx < _gutterWidth;
+          ? localPosition.dx > size.width - effectiveGutterWidth
+          : localPosition.dx < effectiveGutterWidth;
 
-      if (enableFolding && enableGutter && gutterClickArea) {
+      if (enableGutter && gutterClickArea) {
         if (clickY < 0) return;
-        final clickedLine = _findVisibleLineByYPosition(clickY);
-
-        final foldRange = _getFoldRangeAtLine(clickedLine);
-        if (foldRange != null && foldRange.endIndex > foldRange.startIndex) {
-          _toggleFold(foldRange);
+        if (enableFolding) {
+          final clickedLine = _findVisibleLineByYPosition(clickY);
+          final foldRange = _getFoldRangeAtLine(clickedLine);
+          if (foldRange != null && foldRange.endIndex > foldRange.startIndex) {
+            _toggleFold(foldRange);
+          }
         }
         return;
       }

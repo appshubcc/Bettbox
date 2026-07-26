@@ -226,6 +226,8 @@
   "country": "Регион",
   "checkError": "Ошибка проверки",
   "search": "Поиск",
+  "replace": "Заменить",
+  "replaceAll": "Заменить все",
   "allowBypass": "Разрешить обход VPN",
   "allowBypassDesc": "Некоторые приложения смогут обходить VPN",
   "externalController": "Внешнее управление",

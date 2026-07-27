@@ -3,16 +3,30 @@ import 'dart:typed_data';
 
 import 'package:bett_box/common/common.dart';
 import 'package:bett_box/models/models.dart';
+import 'package:dio/dio.dart';
 import 'package:webdav_client/webdav_client.dart';
 
 class DAVClient {
   late Client client;
   Completer<bool> pingCompleter = Completer();
   late String fileName;
+  late final Uri _serverUri;
 
   DAVClient(DAV dav) {
     client = newClient(dav.uri, user: dav.user, password: dav.password);
     fileName = dav.fileName;
+    _serverUri = Uri.parse(dav.uri);
+    client.c.interceptors.add(
+      InterceptorsWrapper(
+        onRequest: (options, handler) {
+          if (!_hasSameOrigin(options.uri, _serverUri)) {
+            options.headers.remove('authorization');
+            options.headers.remove('Authorization');
+          }
+          handler.next(options);
+        },
+      ),
+    );
     client.setHeaders({'accept-charset': 'utf-8', 'Content-Type': 'text/xml'});
     // 增加超时时间以适应慢速网络
     client.setConnectTimeout(15000); // 15秒连接超时
@@ -70,11 +84,17 @@ class DAVClient {
         commonPrint.log('WebDAV mkdir warning: $e');
       }
 
-      // 下载文件
+      // 跨域重定向的 Authorization 会由请求拦截器移除。
       final data = await client.read(backupFile);
       commonPrint.log('WebDAV recovery successful: ${data.length} bytes');
       return data;
     }, operationName: 'recovery');
+  }
+
+  bool _hasSameOrigin(Uri left, Uri right) {
+    return left.scheme.toLowerCase() == right.scheme.toLowerCase() &&
+        left.host.toLowerCase() == right.host.toLowerCase() &&
+        left.port == right.port;
   }
 
   /// 重试机制：最多重试3次，指数退避

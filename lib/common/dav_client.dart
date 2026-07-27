@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:bett_box/common/common.dart';
 import 'package:bett_box/models/models.dart';
+import 'package:dio/dio.dart';
 import 'package:webdav_client/webdav_client.dart';
 
 class DAVClient {
@@ -13,6 +14,21 @@ class DAVClient {
   DAVClient(DAV dav) {
     client = newClient(dav.uri, user: dav.user, password: dav.password);
     fileName = dav.fileName;
+    client.c.interceptors.add(
+      InterceptorsWrapper(
+        onResponse: (response, handler) {
+          final challenges = response.headers['www-authenticate'];
+          if (response.statusCode == 401 &&
+              challenges != null &&
+              challenges.length > 1) {
+            // webdav_client reads this header through Headers.value(), which
+            // throws when servers such as DUFS advertise Digest and Basic.
+            response.headers.set('www-authenticate', challenges.join(', '));
+          }
+          handler.next(response);
+        },
+      ),
+    );
     client.setHeaders({'accept-charset': 'utf-8', 'Content-Type': 'text/xml'});
     // 增加超时时间以适应慢速网络
     client.setConnectTimeout(15000); // 15秒连接超时

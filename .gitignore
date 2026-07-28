@@ -41,6 +41,11 @@ migrate_working_dir/
 /specs/
 /dist/
 .test/
+# Unsupported generated iOS platform
+/ios/
+
+# Xcode project-local SwiftPM state; keep the workspace Package.resolved
+/macos/Runner.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/
 .vscode/*
 !.vscode/launch.json
 !.vscode/tasks.json

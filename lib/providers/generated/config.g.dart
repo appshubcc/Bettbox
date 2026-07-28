@@ -264,7 +264,7 @@ final proxiesStyleSettingProvider =
     );
 
 typedef _$ProxiesStyleSetting = AutoDisposeNotifier<ProxiesStyle>;
-String _$scriptStateHash() => r'dc958461c4af0e41a47baea4a4d984e5abc19a9c';
+String _$scriptStateHash() => r'0f89a5a4a691bd16c753d5520c9262716b6ffc45';
 
 /// See also [ScriptState].
 @ProviderFor(ScriptState)

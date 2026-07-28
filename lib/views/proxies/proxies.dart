@@ -10,7 +10,8 @@ import 'package:bett_box/widgets/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../profiles/scripts.dart' show showScriptCustomOptions;
+import '../profiles/scripts.dart'
+    show showGroupSwitchOptions, showScriptCustomOptions;
 import 'advanced_settings.dart';
 import 'setting.dart';
 import 'tab.dart';
@@ -36,7 +37,20 @@ class _ProxiesViewState extends ConsumerState<ProxiesView> {
     final profileOverride = ref.watch(
       currentProfileProvider.select((p) => p?.useScriptOverride ?? false),
     );
-    final hasCustom = scriptOn && compatible && profileOverride;
+    final hasScriptCustom = scriptOn && compatible && profileOverride;
+    final groups = ref.watch(groupsProvider);
+    final profile = ref.watch(currentProfileProvider);
+    final groupSwitches = profile?.groupSwitches ?? {};
+    final runtimeNonGlobal = groups.where((g) => g.name != 'GLOBAL').length;
+    final switchesNonGlobal =
+        groupSwitches.keys.where((k) => k != 'GLOBAL').length;
+    final nonGlobalCount =
+        switchesNonGlobal > runtimeNonGlobal
+            ? switchesNonGlobal
+            : runtimeNonGlobal;
+    final hasGroupCustom =
+        !scriptOn && profile != null && nonGlobalCount >= 4;
+    final hasCustom = hasScriptCustom || hasGroupCustom;
     return [
       if (_isTab)
         IconButton(
@@ -154,8 +168,14 @@ class _ProxiesViewState extends ConsumerState<ProxiesView> {
 
   Future<void> _handleCustomOptions() async {
     final script = ref.read(scriptStateProvider).currentScript;
-    if (script == null) return;
-    await showScriptCustomOptions(context, ref, script: script);
+    if (script != null) {
+      await showScriptCustomOptions(context, ref, script: script);
+      return;
+    }
+    final profileId = ref.read(currentProfileIdProvider);
+    if (profileId != null) {
+      await showGroupSwitchOptions(context, ref, profileId: profileId);
+    }
   }
 
   @override

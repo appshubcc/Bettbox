@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:bett_box/clash/clash.dart';
 import 'package:bett_box/common/common.dart';
 import 'package:bett_box/enum/enum.dart';
 import 'package:bett_box/models/models.dart';
@@ -576,36 +577,20 @@ class __ScriptCustomOptionsSheetState
     ref.read(scriptStateProvider.notifier).setScript(updatedScript);
     _dirty = false;
     if (mounted) setState(() => _isSaving = true);
-    final applyFuture = ref.read(scriptStateProvider).currentId == widget.script.id
-        ? globalState.appController.applyProfile(silence: true)
-        : Future.value();
-    await Future.wait([
-      applyFuture,
-      Future.delayed(_kMinLoadingDuration),
-    ]);
-    if (mounted) Navigator.of(context).pop();
-  }
-
-  Future<void> _handleSort() async {
-    final result = await showSheet<List<String>>(
-      context: context,
-      builder: (_, type) {
-        return _ReorderableKeysSheet(
-          type: type,
-          keys: _options.keys.toList(),
-          icons: widget.icons,
-        );
-      },
-    );
-    if (result == null) return;
-    final newOptions = <String, bool>{};
-    for (final key in result) {
-      newOptions[key] = _options[key] ?? true;
+    try {
+      final applyFuture = ref.read(scriptStateProvider).currentId == widget.script.id
+          ? globalState.appController.applyProfile(silence: true)
+          : Future.value();
+      await Future.wait([
+        applyFuture,
+        Future.delayed(_kMinLoadingDuration),
+      ]);
+    } finally {
+      if (mounted) {
+        setState(() => _isSaving = false);
+        Navigator.of(context).pop();
+      }
     }
-    setState(() {
-      _options = newOptions;
-      _dirty = true;
-    });
   }
 
   void _onOptionChanged(String key, bool value) {
@@ -618,6 +603,7 @@ class __ScriptCustomOptionsSheetState
   Future<bool> _confirmDiscard() async {
     if (_isSaving) return false;
     if (!_hasUnsavedChanges) return true;
+    var saved = false;
     final res = await globalState.showCommonDialog<bool>(
       child: CommonDialog(
         title: appLocalizations.saveChanges,
@@ -629,6 +615,7 @@ class __ScriptCustomOptionsSheetState
           FilledButton(
             onPressed: () async {
               Navigator.of(context).pop<bool>(true);
+              saved = true;
               await _handleSave();
             },
             child: Text(appLocalizations.save),
@@ -636,6 +623,7 @@ class __ScriptCustomOptionsSheetState
         ],
       ),
     );
+    if (saved) return false;
     return res ?? false;
   }
 
@@ -658,12 +646,6 @@ class __ScriptCustomOptionsSheetState
           type: widget.type,
           title: appLocalizations.customScriptOptions,
           actions: [
-            IconButton(
-              onPressed: _isSaving ? null : _handleSort,
-              icon: const Icon(Icons.sort),
-              iconSize: 26,
-              tooltip: appLocalizations.profilesSort,
-            ),
             IconButton(
               onPressed: (_dirty && !_isSaving) ? _handleSave : null,
               icon: const Icon(Icons.save),
@@ -712,7 +694,7 @@ class __ScriptCustomOptionsSheetState
                             );
                           },
                         ),
-                      ),
+                    ),
               ),
             ],
           ),
@@ -722,79 +704,300 @@ class __ScriptCustomOptionsSheetState
   }
 }
 
-class _ReorderableKeysSheet extends StatefulWidget {
-  final SheetType type;
-  final List<String> keys;
-  final Map<String, String> icons;
+Future<void> showGroupSwitchOptions(
+  BuildContext context,
+  WidgetRef ref, {
+  required String profileId,
+}) async {
+  await globalState.appController.safeRun(
+    silence: false,
+    needLoading: true,
+    () async {
+      final stopwatch = Stopwatch()..start();
+      final rawConfig = await globalState.getProfileConfig(profileId);
+      final rules = rawConfig['rules'] as List? ?? [];
+      final proxyGroups = rawConfig['proxy-groups'] as List? ?? [];
+      final mode = ref.read(patchClashConfigProvider).mode;
+      String? matchTarget;
+      for (final rule in rules) {
+        if (rule is String) {
+          final parsed = ParsedRule.parseString(rule);
+          if (parsed.ruleAction == RuleAction.MATCH &&
+              parsed.ruleTarget != null &&
+              parsed.ruleTarget!.isNotEmpty) {
+            matchTarget = parsed.ruleTarget;
+            break;
+          }
+        }
+      }
 
-  const _ReorderableKeysSheet({
+      final remaining =
+          _kMinLoadingDuration.inMilliseconds -
+          stopwatch.elapsedMilliseconds;
+      if (remaining > 0) {
+        await Future.delayed(Duration(milliseconds: remaining));
+      }
+
+      if (!context.mounted) return;
+
+      showExtend(
+        context,
+        builder: (_, type) {
+          return _GroupSwitchOptionsSheet(
+            type: type,
+            profileId: profileId,
+            matchTarget: matchTarget,
+            mode: mode,
+            groupNames: [
+              for (final g in proxyGroups)
+                if (g is Map && g['name'] is String) g['name'] as String,
+            ],
+          );
+        },
+      );
+    },
+  );
+}
+
+class _GroupSwitchOptionsSheet extends ConsumerStatefulWidget {
+  final SheetType type;
+  final String profileId;
+  final String? matchTarget;
+  final Mode mode;
+  final List<String> groupNames;
+
+  const _GroupSwitchOptionsSheet({
     required this.type,
-    required this.keys,
-    required this.icons,
+    required this.profileId,
+    required this.matchTarget,
+    required this.mode,
+    required this.groupNames,
   });
 
   @override
-  State<_ReorderableKeysSheet> createState() => _ReorderableKeysSheetState();
+  ConsumerState<_GroupSwitchOptionsSheet> createState() =>
+      _GroupSwitchOptionsSheetState();
 }
 
-class _ReorderableKeysSheetState extends State<_ReorderableKeysSheet> {
-  late List<String> keys;
+class _GroupSwitchOptionsSheetState
+    extends ConsumerState<_GroupSwitchOptionsSheet> {
+  late Map<String, bool> _options;
+  late Map<String, bool> _originalOptions;
+  late Set<String> _lockedGroups;
+  bool _dirty = false;
+  bool _isSaving = false;
 
   @override
   void initState() {
     super.initState();
-    keys = List.from(widget.keys);
+    final profile = ref.read(currentProfileProvider);
+    final groupSwitches = profile?.groupSwitches ?? {};
+    final isGlobalMode = widget.mode == Mode.global;
+
+    _options = {
+      for (final name in widget.groupNames)
+        if (isGlobalMode || name != 'GLOBAL')
+          name: groupSwitches[name] ?? true,
+    };
+    _originalOptions = Map<String, bool>.from(_options);
+    _lockedGroups = _computeLockedGroups();
+  }
+
+  Set<String> _computeLockedGroups() {
+    final locked = <String>{};
+    final firstNonGlobal = _options.keys.firstWhere(
+      (k) => k != 'GLOBAL',
+      orElse: () => '',
+    );
+    if (firstNonGlobal.isNotEmpty) {
+      locked.add(firstNonGlobal);
+    }
+    if (widget.mode == Mode.global && _options.containsKey('GLOBAL')) {
+      locked.add('GLOBAL');
+    }
+    final matchTarget = widget.matchTarget;
+    if (matchTarget != null && matchTarget.isNotEmpty) {
+      locked.add(matchTarget);
+    }
+    return locked;
+  }
+
+  bool get _hasUnsavedChanges => _dirty;
+
+  void _onOptionChanged(String key, bool value) {
+    setState(() {
+      _options[key] = value;
+      _dirty = true;
+    });
+  }
+
+  Future<bool> _confirmDiscard() async {
+    if (_isSaving) return false;
+    if (!_hasUnsavedChanges) return true;
+    var saved = false;
+    final res = await globalState.showCommonDialog<bool>(
+      child: CommonDialog(
+        title: appLocalizations.saveChanges,
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop<bool>(true),
+            child: Text(appLocalizations.cancel),
+          ),
+          FilledButton(
+            onPressed: () async {
+              Navigator.of(context).pop<bool>(true);
+              saved = true;
+              await _handleSave();
+            },
+            child: Text(appLocalizations.save),
+          ),
+        ],
+      ),
+    );
+    if (saved) return false;
+    return res ?? false;
+  }
+
+  Future<void> _handleSave() async {
+    if (_isSaving) return;
+    if (widget.profileId != ref.read(currentProfileIdProvider)) {
+      _dirty = false;
+      if (mounted) setState(() {});
+      return;
+    }
+
+    if (mounted) setState(() => _isSaving = true);
+
+    try {
+      final validOptions = {
+        for (final name in widget.groupNames) name: _options[name] ?? true,
+      };
+
+      ref.read(profilesProvider.notifier).updateProfile(
+        widget.profileId,
+        (state) => state.copyWith(groupSwitches: validOptions),
+      );
+
+      final patchConfig = ref.read(patchClashConfigProvider);
+      final rawConfig = await globalState.patchRawConfig(
+        patchConfig: patchConfig,
+      );
+
+      final configForValidation = Map<String, dynamic>.from(rawConfig);
+      if (configForValidation.containsKey('rule')) {
+        configForValidation['rules'] = configForValidation.remove('rule');
+      }
+
+      final message = await clashCore.validateConfig(
+        json.encode(configForValidation),
+      );
+
+      if (message.isNotEmpty) {
+        ref.read(profilesProvider.notifier).updateProfile(
+          widget.profileId,
+          (state) => state.copyWith(groupSwitches: _originalOptions),
+        );
+        if (mounted) {
+          await globalState.showMessage(
+            message: TextSpan(
+              text: '${appLocalizations.profileParseErrorDesc}: $message',
+            ),
+            cancelable: false,
+          );
+        }
+        return;
+      }
+
+      final applyFuture = globalState.appController.applyProfile(
+        silence: true,
+      );
+      await Future.wait([
+        applyFuture,
+        Future.delayed(_kMinLoadingDuration),
+      ]);
+
+      _dirty = false;
+      _originalOptions = Map<String, bool>.from(validOptions);
+    } finally {
+      if (mounted) {
+        setState(() => _isSaving = false);
+        Navigator.of(context).pop();
+      }
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return AdaptiveSheetScaffold(
-      type: widget.type,
-      actions: [
-        IconButton(
-          onPressed: () => Navigator.of(context).pop(keys),
-          icon: const Icon(Icons.save),
-        ),
-      ],
-      body: Padding(
-        padding: const EdgeInsets.only(bottom: 32, top: 16),
-        child: ReorderableListView.builder(
-          buildDefaultDragHandles: false,
-          padding: const EdgeInsets.symmetric(horizontal: 12),
-          // ignore: deprecated_member_use
-          onReorder: (oldIndex, newIndex) {
-            setState(() {
-              if (oldIndex < newIndex) newIndex -= 1;
-              final key = keys.removeAt(oldIndex);
-              keys.insert(newIndex, key);
-            });
-          },
-          itemBuilder: (_, index) {
-            final key = keys[index];
-            final iconUrl = widget.icons[key];
-            return Container(
-              key: Key(key),
-              padding: const EdgeInsets.symmetric(vertical: 4),
-              child: CommonCard(
-                type: CommonCardType.filled,
-                child: ListTile(
-                  contentPadding: const EdgeInsets.only(right: 16, left: 16),
-                  leading: iconUrl != null && iconUrl.isNotEmpty
-                      ? CommonTargetIcon(src: iconUrl, size: 24)
-                      : const Icon(Icons.alt_route),
-                  title: Text(key),
-                  trailing: ReorderableDragStartListener(
-                    index: index,
-                    child: const Icon(Icons.drag_handle),
-                  ),
+    final keys = _options.keys.toList();
+    return CommonPopScope(
+      onPop: _confirmDiscard,
+      child: AbsorbPointer(
+        absorbing: _isSaving,
+        child: AdaptiveSheetScaffold(
+          type: widget.type,
+          title: appLocalizations.customScriptOptions,
+          actions: [
+            IconButton(
+              onPressed: (_dirty && !_isSaving) ? _handleSave : null,
+              icon: const Icon(Icons.save),
+              tooltip: appLocalizations.save,
+            ),
+          ],
+          body: Column(
+            children: [
+              if (_isSaving)
+                LinearProgressIndicator(
+                  minHeight: 2,
+                  color: context.colorScheme.primary,
                 ),
+              Expanded(
+                child: keys.isEmpty
+                    ? NullStatus(label: appLocalizations.noStatusAvailable)
+                    : RepaintBoundary(
+                        child: ListView.builder(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 16,
+                          ),
+                          itemCount: keys.length,
+                          itemBuilder: (_, index) {
+                            final key = keys[index];
+                            final val = _options[key] ?? true;
+                            final locked = _lockedGroups.contains(key);
+                            return RepaintBoundary(
+                              child: Container(
+                                margin: const EdgeInsets.symmetric(
+                                  vertical: 4,
+                                ),
+                                child: CommonCard(
+                                  type: CommonCardType.filled,
+                                  child: ListTile(
+                                    contentPadding: const EdgeInsets.only(
+                                      left: 16,
+                                      right: 16,
+                                    ),
+                                    leading: const Icon(Icons.alt_route),
+                                    title: Text(key),
+                                    trailing: Switch(
+                                      value: val,
+                                      onChanged: locked
+                                          ? null
+                                          : (v) {
+                                              _onOptionChanged(key, v);
+                                            },
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
               ),
-            );
-          },
-          itemCount: keys.length,
+            ],
+          ),
         ),
       ),
-      title: appLocalizations.profilesSort,
     );
   }
 }

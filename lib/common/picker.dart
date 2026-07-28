@@ -12,13 +12,14 @@ class Picker {
     bool allowMultiple = true,
     List<String>? allowedExtensions,
   }) async {
+    final useCustom = !system.isAndroid &&
+        allowedExtensions != null &&
+        allowedExtensions.isNotEmpty;
     final filePickerResult = await FilePicker.platform.pickFiles(
       withData: withData,
       allowMultiple: allowMultiple,
-      allowedExtensions: allowedExtensions,
-      type: allowedExtensions != null && allowedExtensions.isNotEmpty
-          ? FileType.custom
-          : FileType.any,
+      allowedExtensions: useCustom ? allowedExtensions : null,
+      type: useCustom ? FileType.custom : FileType.any,
       initialDirectory: await appPath.downloadDirPath,
     );
     return filePickerResult?.files;
@@ -48,14 +49,15 @@ class Picker {
         name = '$name.${allowedExtensions.first}';
       }
     }
+    final useCustom = !system.isAndroid &&
+        allowedExtensions != null &&
+        allowedExtensions.isNotEmpty;
     final path = await FilePicker.platform.saveFile(
       fileName: name,
       initialDirectory: await appPath.downloadDirPath,
       bytes: system.isAndroid ? bytes : null,
-      allowedExtensions: allowedExtensions,
-      type: allowedExtensions != null && allowedExtensions.isNotEmpty
-          ? FileType.custom
-          : FileType.any,
+      allowedExtensions: useCustom ? allowedExtensions : null,
+      type: useCustom ? FileType.custom : FileType.any,
     );
     if (path == null) return null;
 

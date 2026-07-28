@@ -913,6 +913,33 @@ class GlobalState {
       }
     }
 
+    if (profile.groupSwitches.isNotEmpty &&
+        config.scriptProps.currentScript == null &&
+        rawConfig['proxy-groups'] is List) {
+      final disabledGroups = profile.groupSwitches.entries
+          .where((e) => !e.value)
+          .map((e) => e.key)
+          .toSet();
+      if (disabledGroups.isNotEmpty) {
+        final proxyGroups = rawConfig['proxy-groups'] as List;
+        proxyGroups.removeWhere((g) {
+          if (g is Map && g['name'] is String) {
+            return disabledGroups.contains(g['name']);
+          }
+          return false;
+        });
+        for (int i = 0; i < rules.length; i++) {
+          if (rules[i] is String) {
+            final parsed = ParsedRule.parseString(rules[i] as String);
+            if (parsed.ruleTarget != null &&
+                disabledGroups.contains(parsed.ruleTarget)) {
+              rules[i] = parsed.copyWith(ruleTarget: 'PASS').value;
+            }
+          }
+        }
+      }
+    }
+
     rawConfig['rule'] = rules;
     return rawConfig;
   }

@@ -63,6 +63,7 @@ abstract class Profile with _$Profile {
     bool isUpdating,
     @Default(true) bool useScriptOverride,
     String? ageSecretKey,
+    @JsonKey(name: 'group-switches') @Default({}) Map<String, bool> groupSwitches,
   }) = _Profile;
 
   factory Profile.fromJson(Map<String, Object?> json) =>

@@ -549,11 +549,31 @@ class AppLocalizations {
     );
   }
 
-  /// `Tray Click Behavior (Left and Right)`
+  /// `Tray Click Behavior`
   String get trayClickBehavior {
     return Intl.message(
-      'Tray Click Behavior (Left and Right)',
+      'Tray Click Behavior',
       name: 'trayClickBehavior',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Left Click`
+  String get leftClickBehavior {
+    return Intl.message(
+      'Left Click',
+      name: 'leftClickBehavior',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Right Click`
+  String get rightClickBehavior {
+    return Intl.message(
+      'Right Click',
+      name: 'rightClickBehavior',
       desc: '',
       args: [],
     );

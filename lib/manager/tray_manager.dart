@@ -35,15 +35,17 @@ class _TrayContainerState extends ConsumerState<TrayManager> with TrayListener {
     return widget.child;
   }
 
-  Future<void> _handleTrayIconClick() async {
+  Future<void> _handleTrayIconClick({required bool isRightClick}) async {
     final trayState = ref.read(trayStateProvider);
     final showHiddenItems = ref.read(
       proxiesStyleSettingProvider.select((state) => state.showHiddenItems),
     );
     final includeHiddenItems =
         system.isMacOS && !showHiddenItems && trayManager.isOptionKeyPressed;
-    if (includeHiddenItems ||
-        trayState.trayClickBehavior == TrayClickBehavior.showMenu) {
+    final clickBehavior = isRightClick
+        ? trayState.trayRightClickBehavior
+        : trayState.trayClickBehavior;
+    if (includeHiddenItems || clickBehavior == TrayClickBehavior.showMenu) {
       await globalState.appController.showTrayMenu(
         includeHiddenItems: includeHiddenItems,
       );
@@ -54,12 +56,12 @@ class _TrayContainerState extends ConsumerState<TrayManager> with TrayListener {
 
   @override
   void onTrayIconRightMouseDown() {
-    unawaited(_handleTrayIconClick());
+    unawaited(_handleTrayIconClick(isRightClick: true));
   }
 
   @override
   void onTrayIconMouseDown() {
-    unawaited(_handleTrayIconClick());
+    unawaited(_handleTrayIconClick(isRightClick: false));
   }
 
   @override

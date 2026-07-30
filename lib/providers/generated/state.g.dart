@@ -131,7 +131,7 @@ final proxyStateProvider = AutoDisposeProvider<ProxyState>.internal(
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef ProxyStateRef = AutoDisposeProviderRef<ProxyState>;
-String _$trayStateHash() => r'ce30aebfab2a6f6e4ecd9be4cd0bf4c2e9032c9c';
+String _$trayStateHash() => r'91de5c3b1542b94e012dbdc036101b8db555209c';
 
 /// See also [trayState].
 @ProviderFor(trayState)

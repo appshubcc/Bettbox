@@ -615,6 +615,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "key": MessageLookupByLibrary.simpleMessage("Ключ"),
     "language": MessageLookupByLibrary.simpleMessage("Язык"),
     "layout": MessageLookupByLibrary.simpleMessage("Ширина"),
+    "leftClickBehavior": MessageLookupByLibrary.simpleMessage("Левая кнопка"),
     "light": MessageLookupByLibrary.simpleMessage("Светлая"),
     "lightIcon": MessageLookupByLibrary.simpleMessage("Светлая иконка"),
     "lightIconDesc": MessageLookupByLibrary.simpleMessage(
@@ -991,6 +992,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "Изменения вступят в силу после перезапуска TUN",
     ),
     "retry": MessageLookupByLibrary.simpleMessage("Повторить"),
+    "rightClickBehavior": MessageLookupByLibrary.simpleMessage("Правая кнопка"),
     "rotatingCircle": MessageLookupByLibrary.simpleMessage("Вращающийся круг"),
     "ru": MessageLookupByLibrary.simpleMessage("Русский"),
     "rule": MessageLookupByLibrary.simpleMessage("Правила"),
@@ -1151,7 +1153,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "tproxyPort": MessageLookupByLibrary.simpleMessage("Порт Tproxy"),
     "trafficUsage": MessageLookupByLibrary.simpleMessage("Трафик"),
     "trayClickBehavior": MessageLookupByLibrary.simpleMessage(
-      "Действие левой и правой кнопок по трею",
+      "Действие при нажатии на трей",
     ),
     "trayIconInvert": MessageLookupByLibrary.simpleMessage(
       "Инвертировать значок трея",

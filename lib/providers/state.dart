@@ -229,6 +229,7 @@ TrayState trayState(Ref ref) {
     wakelockEnabled: wakelockEnabled,
     enableTraySpeed: vpnProps.enableTraySpeed,
     trayClickBehavior: vpnProps.trayClickBehavior,
+    trayRightClickBehavior: vpnProps.trayRightClickBehavior,
   );
 }
 

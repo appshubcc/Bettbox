@@ -604,6 +604,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "key": MessageLookupByLibrary.simpleMessage("Key"),
     "language": MessageLookupByLibrary.simpleMessage("Language"),
     "layout": MessageLookupByLibrary.simpleMessage("Layout"),
+    "leftClickBehavior": MessageLookupByLibrary.simpleMessage("Left Click"),
     "light": MessageLookupByLibrary.simpleMessage("Light"),
     "lightIcon": MessageLookupByLibrary.simpleMessage("Light Icon"),
     "lightIconDesc": MessageLookupByLibrary.simpleMessage(
@@ -974,6 +975,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "Restart TUN for changes to take effect",
     ),
     "retry": MessageLookupByLibrary.simpleMessage("Retry"),
+    "rightClickBehavior": MessageLookupByLibrary.simpleMessage("Right Click"),
     "rotatingCircle": MessageLookupByLibrary.simpleMessage("Rotating Circle"),
     "ru": MessageLookupByLibrary.simpleMessage("Russian"),
     "rule": MessageLookupByLibrary.simpleMessage("Rule"),
@@ -1126,7 +1128,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "tproxyPort": MessageLookupByLibrary.simpleMessage("Tproxy Port"),
     "trafficUsage": MessageLookupByLibrary.simpleMessage("Traffic Usage"),
     "trayClickBehavior": MessageLookupByLibrary.simpleMessage(
-      "Tray Click Behavior (Left and Right)",
+      "Tray Click Behavior",
     ),
     "trayIconInvert": MessageLookupByLibrary.simpleMessage("Invert Tray Icon"),
     "trayIconInvertDesc": MessageLookupByLibrary.simpleMessage(

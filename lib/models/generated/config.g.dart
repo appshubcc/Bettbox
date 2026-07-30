@@ -193,6 +193,12 @@ _VpnProps _$VpnPropsFromJson(Map<String, dynamic> json) => _VpnProps(
         json['trayClickBehavior'],
       ) ??
       TrayClickBehavior.showPanel,
+  trayRightClickBehavior:
+      $enumDecodeNullable(
+        _$TrayClickBehaviorEnumMap,
+        json['trayRightClickBehavior'],
+      ) ??
+      TrayClickBehavior.showMenu,
   alwaysShowTitleBar: json['alwaysShowTitleBar'] as bool? ?? true,
   quickResponse: json['quickResponse'] as bool? ?? true,
   accessControl: json['accessControl'] == null
@@ -215,6 +221,8 @@ Map<String, dynamic> _$VpnPropsToJson(_VpnProps instance) => <String, dynamic>{
   'excludeChina': instance.excludeChina,
   'enableTraySpeed': instance.enableTraySpeed,
   'trayClickBehavior': _$TrayClickBehaviorEnumMap[instance.trayClickBehavior]!,
+  'trayRightClickBehavior':
+      _$TrayClickBehaviorEnumMap[instance.trayRightClickBehavior]!,
   'alwaysShowTitleBar': instance.alwaysShowTitleBar,
   'quickResponse': instance.quickResponse,
   'accessControl': instance.accessControl,

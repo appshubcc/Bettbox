@@ -78,6 +78,8 @@ abstract class TrayState with _$TrayState {
     @Default({}) Map<String, int?> delays,
     @Default(false) bool enableTraySpeed,
     @Default(TrayClickBehavior.showPanel) TrayClickBehavior trayClickBehavior,
+    @Default(TrayClickBehavior.showMenu)
+    TrayClickBehavior trayRightClickBehavior,
   }) = _TrayState;
 }
 

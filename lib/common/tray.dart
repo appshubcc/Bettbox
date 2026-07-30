@@ -170,17 +170,15 @@ class Tray {
       for (final group in menuGroups) {
         List<MenuItem> subMenuItems = [];
 
-        final isTestingThisGroup = delayTestCoordinator.isTestingGroup(
-          group.name,
-        );
+        final isDelayTesting = delayTestCoordinator.isTesting;
 
         subMenuItems.add(
           MenuItem(
             key: 'persistent-delay-test',
-            label: isTestingThisGroup
+            label: isDelayTesting
                 ? '${appLocalizations.testing}...'
-                : appLocalizations.startTest,
-            disabled: delayTestCoordinator.isTesting,
+                : '⚡ ${appLocalizations.startTest}',
+            disabled: isDelayTesting,
             onClick: (_) => _testGroupDelay(group),
           ),
         );

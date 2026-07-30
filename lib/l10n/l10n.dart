@@ -2424,10 +2424,10 @@ class AppLocalizations {
     );
   }
 
-  /// `Other Contributors`
+  /// `Other Contributors (Random Order)`
   String get otherContributors {
     return Intl.message(
-      'Other Contributors',
+      'Other Contributors (Random Order)',
       name: 'otherContributors',
       desc: '',
       args: [],

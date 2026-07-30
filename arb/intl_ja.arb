@@ -301,7 +301,7 @@
   "proxyGroup": "プロキシグループ",
   "go": "移動",
   "externalLink": "外部リンク",
-  "otherContributors": "その他の貢献者",
+  "otherContributors": "その他の貢献者（ランダム順）",
   "autoCloseConnections": "接続の自動切断",
   "autoCloseConnectionsDesc": "ノード切り替え時に既存接続を自動切断",
   "onlyStatisticsProxy": "プロキシ通信のみ統計",

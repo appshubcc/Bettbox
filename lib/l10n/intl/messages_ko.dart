@@ -607,7 +607,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "openSettings": MessageLookupByLibrary.simpleMessage("설정 열기"),
     "options": MessageLookupByLibrary.simpleMessage("옵션"),
     "other": MessageLookupByLibrary.simpleMessage("기타"),
-    "otherContributors": MessageLookupByLibrary.simpleMessage("기타 기여자"),
+    "otherContributors": MessageLookupByLibrary.simpleMessage(
+      "기타 기여자 (무작위 정렬)",
+    ),
     "otherSettings": MessageLookupByLibrary.simpleMessage("향상된 도구"),
     "otherSettingsDesc": MessageLookupByLibrary.simpleMessage("향상된 도구 설정 수정"),
     "outboundMode": MessageLookupByLibrary.simpleMessage("아웃바운드 모드"),

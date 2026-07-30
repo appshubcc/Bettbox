@@ -301,7 +301,7 @@
   "proxyGroup": "프록시 그룹",
   "go": "이동",
   "externalLink": "외부 링크",
-  "otherContributors": "기타 기여자",
+  "otherContributors": "기타 기여자 (무작위 정렬)",
   "autoCloseConnections": "연결 자동 종료",
   "autoCloseConnectionsDesc": "노드 변경 시 기존 연결 자동 끊기",
   "onlyStatisticsProxy": "프록시 트래픽만 집계",

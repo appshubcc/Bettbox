@@ -757,7 +757,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "options": MessageLookupByLibrary.simpleMessage("گزینه‌ها"),
     "other": MessageLookupByLibrary.simpleMessage("سایر"),
     "otherContributors": MessageLookupByLibrary.simpleMessage(
-      "مشارکت‌کنندگان دیگر",
+      "مشارکت‌کنندگان دیگر (ترتیب تصادفی)",
     ),
     "otherSettings": MessageLookupByLibrary.simpleMessage("ابزارهای پیشرفته"),
     "otherSettingsDesc": MessageLookupByLibrary.simpleMessage(

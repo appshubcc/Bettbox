@@ -762,7 +762,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "options": MessageLookupByLibrary.simpleMessage("Опции"),
     "other": MessageLookupByLibrary.simpleMessage("Другое"),
     "otherContributors": MessageLookupByLibrary.simpleMessage(
-      "Другие участники",
+      "Другие участники (в случайном порядке)",
     ),
     "otherSettings": MessageLookupByLibrary.simpleMessage(
       "Расширенные инструменты",

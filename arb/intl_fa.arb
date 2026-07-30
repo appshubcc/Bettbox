@@ -301,7 +301,7 @@
   "proxyGroup": "گروه پروکسی",
   "go": "رفتن",
   "externalLink": "لینک خارجی",
-  "otherContributors": "مشارکت‌کنندگان دیگر",
+  "otherContributors": "مشارکت‌کنندگان دیگر (ترتیب تصادفی)",
   "autoCloseConnections": "بستن خودکار اتصالات",
   "autoCloseConnectionsDesc": "قطع خودکار اتصالات هنگام تغییر نود",
   "onlyStatisticsProxy": "آمار ترافیک پروکسی",

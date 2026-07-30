@@ -301,7 +301,7 @@
   "proxyGroup": "Proxy Group",
   "go": "Go",
   "externalLink": "External Link",
-  "otherContributors": "Other Contributors",
+  "otherContributors": "Other Contributors (Random Order)",
   "autoCloseConnections": "Auto-Close Connections",
   "autoCloseConnectionsDesc": "Close connections when switching nodes",
   "onlyStatisticsProxy": "Proxy Traffic Only",

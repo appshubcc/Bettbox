@@ -217,7 +217,8 @@ abstract class VpnProps with _$VpnProps {
     @Default(false) bool networkSpeedNotification,
     @Default(false) bool excludeChina,
     @Default(false) bool enableTraySpeed,
-    @Default(TrayClickBehavior.showPanel) TrayClickBehavior trayClickBehavior,
+    @Default(TrayClickBehavior.showPanel)
+    TrayClickBehavior trayLeftClickBehavior,
     @Default(TrayClickBehavior.showMenu)
     TrayClickBehavior trayRightClickBehavior,
     @Default(true) bool alwaysShowTitleBar,
@@ -234,13 +235,6 @@ abstract class VpnProps with _$VpnProps {
 
     if (safeProps.smartAutoStop && safeProps.quickResponse) {
       safeProps = safeProps.copyWith(quickResponse: false);
-    }
-
-    if (json?['trayEnhancement'] == false &&
-        safeProps.trayClickBehavior == TrayClickBehavior.showMenu) {
-      safeProps = safeProps.copyWith(
-        trayClickBehavior: TrayClickBehavior.showPanel,
-      );
     }
 
     return safeProps;

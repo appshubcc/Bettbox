@@ -44,7 +44,7 @@ class _TrayContainerState extends ConsumerState<TrayManager> with TrayListener {
         system.isMacOS && !showHiddenItems && trayManager.isOptionKeyPressed;
     final clickBehavior = isRightClick
         ? trayState.trayRightClickBehavior
-        : trayState.trayClickBehavior;
+        : trayState.trayLeftClickBehavior;
     if (includeHiddenItems || clickBehavior == TrayClickBehavior.showMenu) {
       await globalState.appController.showTrayMenu(
         includeHiddenItems: includeHiddenItems,

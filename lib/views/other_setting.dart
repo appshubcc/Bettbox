@@ -543,7 +543,7 @@ class TrayClickBehaviorItem extends ConsumerWidget {
         .read(vpnSettingProvider.notifier)
         .updateState(
           (state) => state.copyWith(
-            trayClickBehavior: result.leftBehavior,
+            trayLeftClickBehavior: result.leftBehavior,
             trayRightClickBehavior: result.rightBehavior,
           ),
         );
@@ -553,7 +553,7 @@ class TrayClickBehaviorItem extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final (leftBehavior, rightBehavior) = ref.watch(
       vpnSettingProvider.select(
-        (state) => (state.trayClickBehavior, state.trayRightClickBehavior),
+        (state) => (state.trayLeftClickBehavior, state.trayRightClickBehavior),
       ),
     );
     return ListItem(

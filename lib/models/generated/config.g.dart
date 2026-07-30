@@ -130,8 +130,8 @@ _AccessControl _$AccessControlFromJson(Map<String, dynamic> json) =>
       sort:
           $enumDecodeNullable(_$AccessSortTypeEnumMap, json['sort']) ??
           AccessSortType.none,
-      isFilterSystemApp: json['isFilterSystemApp'] as bool? ?? true,
-      isFilterNonInternetApp: json['isFilterNonInternetApp'] as bool? ?? true,
+      isFilterSystemApp: json['isFilterSystemApp'] as bool? ?? false,
+      isFilterNonInternetApp: json['isFilterNonInternetApp'] as bool? ?? false,
     );
 
 Map<String, dynamic> _$AccessControlToJson(_AccessControl instance) =>
@@ -438,7 +438,9 @@ _Config _$ConfigFromJson(Map<String, dynamic> json) => _Config(
       : WindowProps.fromJson(json['windowProps'] as Map<String, dynamic>?),
   patchClashConfig: json['patchClashConfig'] == null
       ? defaultClashConfig
-      : ClashConfig.fromJson(json['patchClashConfig'] as Map<String, dynamic>),
+      : ClashConfig.safeFormJson(
+          json['patchClashConfig'] as Map<String, Object?>?,
+        ),
   scriptProps: json['scriptProps'] == null
       ? const ScriptProps()
       : ScriptProps.fromJson(json['scriptProps'] as Map<String, dynamic>),

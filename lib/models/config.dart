@@ -51,8 +51,8 @@ const List<DashboardWidget> defaultDashboardWidgets = [
 ];
 
 const List<DashboardWidget> defaultAndroidDashboardWidgets = [
-  DashboardWidget.networkSpeed,
   DashboardWidget.outboundModeV2,
+  DashboardWidget.networkSpeed,
   DashboardWidget.trafficUsage,
   DashboardWidget.networkDetection,
   DashboardWidget.connectionsCount,
@@ -172,8 +172,8 @@ abstract class AccessControl with _$AccessControl {
     @Default([]) List<String> acceptList,
     @Default([]) List<String> rejectList,
     @Default(AccessSortType.none) AccessSortType sort,
-    @Default(true) bool isFilterSystemApp,
-    @Default(true) bool isFilterNonInternetApp,
+    @Default(false) bool isFilterSystemApp,
+    @Default(false) bool isFilterNonInternetApp,
   }) = _AccessControl;
 
   factory AccessControl.fromJson(Map<String, Object?> json) =>
@@ -359,7 +359,9 @@ abstract class Config with _$Config {
     @JsonKey(fromJson: ThemeProps.safeFromJson) required ThemeProps themeProps,
     @Default(defaultProxiesStyle) ProxiesStyle proxiesStyle,
     @Default(defaultWindowProps) WindowProps windowProps,
-    @Default(defaultClashConfig) ClashConfig patchClashConfig,
+    @JsonKey(fromJson: ClashConfig.safeFormJson)
+    @Default(defaultClashConfig)
+    ClashConfig patchClashConfig,
     @Default(ScriptProps()) ScriptProps scriptProps,
     @Default('') String nodeExcludeFilter,
     @Default(5000) int healthCheckTimeout,

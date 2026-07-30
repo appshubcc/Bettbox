@@ -128,7 +128,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "backup": MessageLookupByLibrary.simpleMessage("备份"),
     "backupAndRecovery": MessageLookupByLibrary.simpleMessage("备份与恢复"),
     "backupAndRecoveryDesc": MessageLookupByLibrary.simpleMessage(
-      "通过在线或本地文件同步数据",
+      "通过WebDAV或本地同步数据",
     ),
     "backupSuccess": MessageLookupByLibrary.simpleMessage("备份成功"),
     "basicConfig": MessageLookupByLibrary.simpleMessage("内核配置"),
@@ -196,6 +196,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "controlSecretDesc": MessageLookupByLibrary.simpleMessage(
       "RESTful API的访问密码",
     ),
+    "copiedPackageName": MessageLookupByLibrary.simpleMessage("已复制包名"),
     "copy": MessageLookupByLibrary.simpleMessage("复制"),
     "copyEnvVar": MessageLookupByLibrary.simpleMessage("复制环境变量"),
     "copyLink": MessageLookupByLibrary.simpleMessage("复制链接"),

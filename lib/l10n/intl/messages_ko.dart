@@ -144,7 +144,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "backup": MessageLookupByLibrary.simpleMessage("백업"),
     "backupAndRecovery": MessageLookupByLibrary.simpleMessage("백업 및 복구"),
     "backupAndRecoveryDesc": MessageLookupByLibrary.simpleMessage(
-      "클라우드 또는 로컬 파일로 데이터 동기화",
+      "WebDAV 또는 로컬로 데이터 동기화",
     ),
     "backupSuccess": MessageLookupByLibrary.simpleMessage("백업 성공"),
     "basicConfig": MessageLookupByLibrary.simpleMessage("코어 설정"),
@@ -227,6 +227,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "controlSecret": MessageLookupByLibrary.simpleMessage("제어 비밀번호"),
     "controlSecretDesc": MessageLookupByLibrary.simpleMessage(
       "RESTful API 접근 비밀번호",
+    ),
+    "copiedPackageName": MessageLookupByLibrary.simpleMessage(
+      "패키지 이름이 복사되었습니다",
     ),
     "copy": MessageLookupByLibrary.simpleMessage("복사"),
     "copyEnvVar": MessageLookupByLibrary.simpleMessage("환경 변수 복사"),

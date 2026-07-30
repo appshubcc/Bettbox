@@ -179,7 +179,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "Backup & Restore",
     ),
     "backupAndRecoveryDesc": MessageLookupByLibrary.simpleMessage(
-      "Sync data via WebDAV or local files",
+      "Sync data via WebDAV or locally",
     ),
     "backupSuccess": MessageLookupByLibrary.simpleMessage("Backup Successful"),
     "basicConfig": MessageLookupByLibrary.simpleMessage("Core Configuration"),
@@ -278,6 +278,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "controlSecret": MessageLookupByLibrary.simpleMessage("Control Secret"),
     "controlSecretDesc": MessageLookupByLibrary.simpleMessage(
       "RESTful API access password",
+    ),
+    "copiedPackageName": MessageLookupByLibrary.simpleMessage(
+      "Copied package name",
     ),
     "copy": MessageLookupByLibrary.simpleMessage("Copy"),
     "copyEnvVar": MessageLookupByLibrary.simpleMessage(

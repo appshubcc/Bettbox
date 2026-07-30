@@ -519,6 +519,7 @@
   "navConnections": "Связи",
   "navTools": "Еще",
   "copySuccess": "Скопировано",
+  "copiedPackageName": "Скопировано имя пакета",
   "success": "Успех",
   "copyLink": "Копировать ссылку",
   "exportFile": "Экспорт файла",

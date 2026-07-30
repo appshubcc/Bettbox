@@ -120,8 +120,13 @@ class GlobalState {
 
   Future<void> init() async {
     packageInfo = await PackageInfo.fromPlatform();
-    config =
-        await preferences.getConfig() ?? Config(themeProps: defaultThemeProps);
+    config = await preferences.getConfig() ??
+        Config(
+          themeProps: defaultThemeProps,
+          patchClashConfig: system.isAndroid
+              ? const ClashConfig(findProcessMode: FindProcessMode.always)
+              : defaultClashConfig,
+        );
     await globalState.migrateOldData(config);
     final locale =
         utils.getLocaleForString(config.appSetting.locale) ??

@@ -138,7 +138,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "backup": MessageLookupByLibrary.simpleMessage("バックアップ"),
     "backupAndRecovery": MessageLookupByLibrary.simpleMessage("バックアップと復元"),
     "backupAndRecoveryDesc": MessageLookupByLibrary.simpleMessage(
-      "クラウドまたはローカルファイルでデータを同期",
+      "WebDAVまたはローカルでデータを同期",
     ),
     "backupSuccess": MessageLookupByLibrary.simpleMessage("バックアップ成功"),
     "basicConfig": MessageLookupByLibrary.simpleMessage("カーネル設定"),
@@ -218,6 +218,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "controlSecretDesc": MessageLookupByLibrary.simpleMessage(
       "RESTful APIアクセスパスワード",
     ),
+    "copiedPackageName": MessageLookupByLibrary.simpleMessage("パッケージ名をコピーしました"),
     "copy": MessageLookupByLibrary.simpleMessage("コピー"),
     "copyEnvVar": MessageLookupByLibrary.simpleMessage("環境変数をコピー"),
     "copyLink": MessageLookupByLibrary.simpleMessage("リンクをコピー"),

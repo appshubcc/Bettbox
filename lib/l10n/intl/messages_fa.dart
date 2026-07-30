@@ -173,7 +173,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "پشتیبان‌گیری و بازیابی",
     ),
     "backupAndRecoveryDesc": MessageLookupByLibrary.simpleMessage(
-      "همگام‌سازی داده‌ها از طریق ابری یا فایل محلی",
+      "همگام‌سازی داده‌ها از طریق WebDAV یا محلی",
     ),
     "backupSuccess": MessageLookupByLibrary.simpleMessage(
       "پشتیبان‌گیری با موفقیت انجام شد",
@@ -276,6 +276,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "controlSecret": MessageLookupByLibrary.simpleMessage("رمز عبور کنترل"),
     "controlSecretDesc": MessageLookupByLibrary.simpleMessage(
       "رمز عبور دسترسی به RESTful API",
+    ),
+    "copiedPackageName": MessageLookupByLibrary.simpleMessage(
+      "نام پکیج کپی شد",
     ),
     "copy": MessageLookupByLibrary.simpleMessage("کپی"),
     "copyEnvVar": MessageLookupByLibrary.simpleMessage("کپی متغیرهای محیطی"),

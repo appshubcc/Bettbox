@@ -1684,10 +1684,10 @@ class AppLocalizations {
     );
   }
 
-  /// `Sync data via WebDAV or local files`
+  /// `Sync data via WebDAV or locally`
   String get backupAndRecoveryDesc {
     return Intl.message(
-      'Sync data via WebDAV or local files',
+      'Sync data via WebDAV or locally',
       name: 'backupAndRecoveryDesc',
       desc: '',
       args: [],
@@ -4254,6 +4254,16 @@ class AppLocalizations {
     return Intl.message(
       'Copy Successful',
       name: 'copySuccess',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Copied package name`
+  String get copiedPackageName {
+    return Intl.message(
+      'Copied package name',
+      name: 'copiedPackageName',
       desc: '',
       args: [],
     );

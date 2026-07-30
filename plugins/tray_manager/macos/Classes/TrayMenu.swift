@@ -7,8 +7,25 @@
 
 import AppKit
 
+private final class PersistentTrayMenuButton: NSButton {
+    var onPressedChanged: ((Bool) -> Void)?
+
+    override func mouseDown(with event: NSEvent) {
+        guard isEnabled else {
+            return
+        }
+        onPressedChanged?(true)
+        super.mouseDown(with: event)
+        onPressedChanged?(false)
+    }
+}
+
 private final class PersistentTrayMenuItemView: NSView {
-    private let button: NSButton
+    private let highlightView = NSVisualEffectView()
+    private let button: PersistentTrayMenuButton
+    private var isDisabled = false
+    private var isHovered = false
+    private var isPressed = false
     var onClick: (() -> Void)?
 
     init(label: String, disabled: Bool) {
@@ -16,7 +33,11 @@ private final class PersistentTrayMenuItemView: NSView {
         let labelWidth = (label as NSString).size(
             withAttributes: [.font: font]
         ).width
-        button = NSButton(title: label, target: nil, action: nil)
+        button = PersistentTrayMenuButton(
+            title: label,
+            target: nil,
+            action: nil
+        )
         super.init(
             frame: NSRect(
                 x: 0,
@@ -25,6 +46,15 @@ private final class PersistentTrayMenuItemView: NSView {
                 height: 24
             )
         )
+
+        highlightView.material = .selection
+        highlightView.blendingMode = .withinWindow
+        highlightView.state = .active
+        highlightView.isEmphasized = true
+        highlightView.isHidden = true
+        highlightView.frame = bounds.insetBy(dx: 5, dy: 1)
+        highlightView.autoresizingMask = [.width, .height]
+        addSubview(highlightView)
 
         button.isBordered = false
         button.font = font
@@ -35,6 +65,23 @@ private final class PersistentTrayMenuItemView: NSView {
         button.frame = bounds.insetBy(dx: 12, dy: 0)
         button.autoresizingMask = [.width, .height]
         addSubview(button)
+        button.onPressedChanged = { [weak self] isPressed in
+            self?.isPressed = isPressed
+            self?.updateAppearance()
+        }
+        addTrackingArea(
+            NSTrackingArea(
+                rect: .zero,
+                options: [
+                    .mouseEnteredAndExited,
+                    .activeAlways,
+                    .inVisibleRect,
+                    .enabledDuringMouseDrag,
+                ],
+                owner: self,
+                userInfo: nil
+            )
+        )
         update(label: label, disabled: disabled)
     }
 
@@ -43,11 +90,46 @@ private final class PersistentTrayMenuItemView: NSView {
     }
 
     func update(label: String, disabled: Bool) {
-        button.title = label
+        isDisabled = disabled
         button.isEnabled = !disabled
-        button.contentTintColor = disabled
-            ? NSColor.disabledControlTextColor
-            : NSColor.controlTextColor
+        button.title = label
+        updateAppearance()
+    }
+
+    override func mouseEntered(with event: NSEvent) {
+        isHovered = true
+        updateAppearance()
+    }
+
+    override func mouseExited(with event: NSEvent) {
+        isHovered = false
+        updateAppearance()
+    }
+
+    override func viewDidChangeEffectiveAppearance() {
+        super.viewDidChangeEffectiveAppearance()
+        updateAppearance()
+    }
+
+    private func updateAppearance() {
+        let isHighlighted = !isDisabled && (isHovered || isPressed)
+        highlightView.isHidden = !isHighlighted
+        let textColor: NSColor
+        if isDisabled {
+            textColor = .disabledControlTextColor
+        } else if isHighlighted {
+            textColor = .selectedMenuItemTextColor
+        } else {
+            textColor = .controlTextColor
+        }
+        button.attributedTitle = NSAttributedString(
+            string: button.title,
+            attributes: [
+                .font: button.font
+                    ?? NSFont.menuFont(ofSize: NSFont.systemFontSize),
+                .foregroundColor: textColor,
+            ]
+        )
     }
 
     @objc private func handleClick() {

@@ -9,9 +9,9 @@ import Cocoa
 
 public class TrayIcon: NSView {
     private static let inactiveColor = NSColor(
-        srgbRed: 134.0 / 255.0,
-        green: 138.0 / 255.0,
-        blue: 150.0 / 255.0,
+        srgbRed: 202.0 / 255.0,
+        green: 202.0 / 255.0,
+        blue: 202.0 / 255.0,
         alpha: 1
     )
     private static let speedFontSize: CGFloat = 9.5

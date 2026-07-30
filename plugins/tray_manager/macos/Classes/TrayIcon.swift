@@ -124,17 +124,29 @@ public class TrayIcon: NSView {
         let glyphHeight = font.ascender - font.descender
         let freeSpace = Self.speedLineHeight * 2 - button.bounds.height
         let baselineOffset = -(glyphHeight / 3) + freeSpace / 2
-        let attributedTitle = NSAttributedString(
-            string: title,
-            attributes: [
+        button.title = title
+        let attributedTitle = NSMutableAttributedString(
+            attributedString: button.attributedTitle
+        )
+        let fullRange = NSRange(
+            location: 0,
+            length: attributedTitle.length
+        )
+        attributedTitle.addAttributes(
+            [
                 .font: font,
-                .foregroundColor: active
-                    ? NSColor.controlTextColor
-                    : Self.inactiveColor,
                 .paragraphStyle: paragraphStyle,
                 .baselineOffset: baselineOffset,
-            ]
+            ],
+            range: fullRange
         )
+        if !active {
+            attributedTitle.addAttribute(
+                .foregroundColor,
+                value: Self.inactiveColor,
+                range: fullRange
+            )
+        }
 
         statusItem.length = max(
             ceil(attributedTitle.size().width) + Self.speedExtraWidth,
@@ -192,9 +204,9 @@ public class TrayIcon: NSView {
             return
         }
         if isActive {
+            button.contentTintColor = nil
             sourceImage.isTemplate = true
             button.image = sourceImage
-            button.contentTintColor = NSColor.controlTextColor
             return
         }
         button.image = tintedImage(sourceImage, color: Self.inactiveColor)

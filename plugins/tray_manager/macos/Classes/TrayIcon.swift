@@ -29,6 +29,7 @@ public class TrayIcon: NSView {
     
     var statusItem: NSStatusItem?
     private var lastSpeedTitle: String?
+    private var lastSpeedActive: Bool?
     
     public init() {
         super.init(frame: NSRect.zero)
@@ -72,13 +73,24 @@ public class TrayIcon: NSView {
             syncClickTargetFrame(button)
         }
         lastSpeedTitle = nil
+        lastSpeedActive = nil
     }
 
-    public func setSpeedTitle(upload: UInt64, download: UInt64) {
+    public func setActive(_ active: Bool) {
+        statusItem?.button?.contentTintColor = active
+            ? NSColor.controlTextColor
+            : NSColor.disabledControlTextColor
+    }
+
+    public func setSpeedTitle(
+        upload: UInt64,
+        download: UInt64,
+        active: Bool
+    ) {
         let uploadText = formatSpeed(upload)
         let downloadText = formatSpeed(download)
         let title = "\(leftPad(uploadText, width: 6))\n\(leftPad(downloadText, width: 6))"
-        if lastSpeedTitle == title {
+        if lastSpeedTitle == title && lastSpeedActive == active {
             return
         }
         guard let statusItem, let button = statusItem.button else {
@@ -105,7 +117,9 @@ public class TrayIcon: NSView {
             string: title,
             attributes: [
                 .font: font,
-                .foregroundColor: NSColor.controlTextColor,
+                .foregroundColor: active
+                    ? NSColor.controlTextColor
+                    : NSColor.disabledControlTextColor,
                 .paragraphStyle: paragraphStyle,
                 .baselineOffset: baselineOffset,
             ]
@@ -118,10 +132,12 @@ public class TrayIcon: NSView {
         button.attributedTitle = attributedTitle
         syncClickTargetFrame(button)
         lastSpeedTitle = title
+        lastSpeedActive = active
     }
 
     public func clearSpeedTitle() {
         lastSpeedTitle = nil
+        lastSpeedActive = nil
         statusItem?.length = NSStatusItem.variableLength
         if let button = statusItem?.button {
             button.attributedTitle = NSAttributedString(string: "")

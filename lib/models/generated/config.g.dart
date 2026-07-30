@@ -188,6 +188,12 @@ _VpnProps _$VpnPropsFromJson(Map<String, dynamic> json) => _VpnProps(
   excludeChina: json['excludeChina'] as bool? ?? false,
   trayEnhancement: json['trayEnhancement'] as bool? ?? false,
   enableTraySpeed: json['enableTraySpeed'] as bool? ?? false,
+  trayClickBehavior:
+      $enumDecodeNullable(
+        _$TrayClickBehaviorEnumMap,
+        json['trayClickBehavior'],
+      ) ??
+      TrayClickBehavior.showPanel,
   alwaysShowTitleBar: json['alwaysShowTitleBar'] as bool? ?? true,
   quickResponse: json['quickResponse'] as bool? ?? true,
   accessControl: json['accessControl'] == null
@@ -210,9 +216,15 @@ Map<String, dynamic> _$VpnPropsToJson(_VpnProps instance) => <String, dynamic>{
   'excludeChina': instance.excludeChina,
   'trayEnhancement': instance.trayEnhancement,
   'enableTraySpeed': instance.enableTraySpeed,
+  'trayClickBehavior': _$TrayClickBehaviorEnumMap[instance.trayClickBehavior]!,
   'alwaysShowTitleBar': instance.alwaysShowTitleBar,
   'quickResponse': instance.quickResponse,
   'accessControl': instance.accessControl,
+};
+
+const _$TrayClickBehaviorEnumMap = {
+  TrayClickBehavior.showPanel: 'showPanel',
+  TrayClickBehavior.showMenu: 'showMenu',
 };
 
 _NetworkProps _$NetworkPropsFromJson(Map<String, dynamic> json) =>

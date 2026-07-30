@@ -62,6 +62,9 @@ public class TrayManagerPlugin: NSObject, FlutterPlugin, NSMenuDelegate {
         case "setSpeedTitle":
             setSpeedTitle(call, result: result)
             break
+        case "setActive":
+            setActive(call, result: result)
+            break
         case "clearSpeedTitle":
             clearSpeedTitle(call, result: result)
             break
@@ -202,9 +205,20 @@ public class TrayManagerPlugin: NSObject, FlutterPlugin, NSMenuDelegate {
         let args = call.arguments as? [String: Any]
         let upload = (args?["upload"] as? NSNumber)?.uint64Value ?? 0
         let download = (args?["download"] as? NSNumber)?.uint64Value ?? 0
+        let active = args?["active"] as? Bool ?? true
 
-        trayIcon?.setSpeedTitle(upload: upload, download: download)
+        trayIcon?.setSpeedTitle(
+            upload: upload,
+            download: download,
+            active: active
+        )
 
+        result(true)
+    }
+
+    public func setActive(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+        let args = call.arguments as? [String: Any]
+        trayIcon?.setActive(args?["active"] as? Bool ?? true)
         result(true)
     }
 

@@ -1,5 +1,6 @@
 import 'package:bett_box/common/common.dart';
 import 'package:bett_box/common/network_matcher.dart';
+import 'package:bett_box/enum/enum.dart';
 import 'package:bett_box/plugins/app.dart';
 import 'package:bett_box/plugins/service.dart';
 import 'package:bett_box/providers/config.dart';
@@ -63,8 +64,7 @@ class SmartAutoStopSection extends ConsumerWidget {
                   ref
                       .read(vpnSettingProvider.notifier)
                       .updateState(
-                        (state) =>
-                            state.copyWith(smartAutoStopNetworks: value),
+                        (state) => state.copyWith(smartAutoStopNetworks: value),
                       );
                 }
               },
@@ -308,7 +308,8 @@ class BatteryOptimizationItem extends ConsumerStatefulWidget {
       _BatteryOptimizationItemState();
 }
 
-class _BatteryOptimizationItemState extends ConsumerState<BatteryOptimizationItem>
+class _BatteryOptimizationItemState
+    extends ConsumerState<BatteryOptimizationItem>
     with WidgetsBindingObserver {
   bool? _isIgnoring;
   bool _isWaitingForSettings = false;
@@ -446,7 +447,9 @@ class DisableQuicSection extends ConsumerWidget {
               onChanged: (bool value) async {
                 ref
                     .read(vpnSettingProvider.notifier)
-                    .updateState((state) => state.copyWith(excludeChina: value));
+                    .updateState(
+                      (state) => state.copyWith(excludeChina: value),
+                    );
                 globalState.appController.setupClashConfigDebounce();
               },
             ),
@@ -533,6 +536,71 @@ class TraySpeedItem extends ConsumerWidget {
   }
 }
 
+class TrayClickBehaviorItem extends ConsumerWidget {
+  const TrayClickBehaviorItem({super.key});
+
+  String _getDisplayText(TrayClickBehavior behavior) {
+    return switch (behavior) {
+      TrayClickBehavior.showPanel => appLocalizations.showPanel,
+      TrayClickBehavior.showMenu => appLocalizations.showMenu,
+    };
+  }
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final trayClickBehavior = ref.watch(
+      vpnSettingProvider.select((state) => state.trayClickBehavior),
+    );
+    return ListItem<TrayClickBehavior>.options(
+      title: Text(appLocalizations.trayClickBehavior),
+      subtitle: Text(_getDisplayText(trayClickBehavior)),
+      delegate: OptionsDelegate<TrayClickBehavior>(
+        title: appLocalizations.trayClickBehavior,
+        options: TrayClickBehavior.values,
+        value: trayClickBehavior,
+        textBuilder: _getDisplayText,
+        onChanged: (value) {
+          if (value == null) {
+            return;
+          }
+          ref
+              .read(vpnSettingProvider.notifier)
+              .updateState((state) => state.copyWith(trayClickBehavior: value));
+        },
+      ),
+    );
+  }
+}
+
+class TraySettingsView extends StatelessWidget {
+  const TraySettingsView({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return generateListView([
+      const TrayEnhancementItem(),
+      if (system.isMacOS) const TraySpeedItem(),
+      const TrayClickBehaviorItem(),
+    ]);
+  }
+}
+
+class TraySettingsItem extends StatelessWidget {
+  const TraySettingsItem({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return ListItem.next(
+      title: Text(appLocalizations.traySettings),
+      subtitle: Text(appLocalizations.traySettingsDesc),
+      delegate: NextDelegate(
+        title: appLocalizations.traySettings,
+        builder: (_) => const TraySettingsView(),
+      ),
+    );
+  }
+}
+
 class OtherSettingView extends ConsumerWidget {
   const OtherSettingView({super.key});
 
@@ -545,8 +613,7 @@ class OtherSettingView extends ConsumerWidget {
       const StoreFixItem(),
       const DisableQuicSection(),
       if (system.isAndroid) const NetworkSpeedNotificationItem(),
-      if (!system.isAndroid) const TrayEnhancementItem(),
-      if (system.isMacOS) const TraySpeedItem(),
+      if (!system.isAndroid) const TraySettingsItem(),
       if (system.isWindows) const HighPriorityItem(),
       if (system.isWindows) const NetworkFixItem(),
       if (system.isAndroid) const BatteryOptimizationItem(),

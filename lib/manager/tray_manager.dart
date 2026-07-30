@@ -1,4 +1,5 @@
 import 'package:bett_box/common/common.dart';
+import 'package:bett_box/enum/enum.dart';
 import 'package:bett_box/providers/state.dart';
 import 'package:bett_box/state.dart';
 import 'package:flutter/material.dart';
@@ -37,10 +38,14 @@ class _TrayContainerState extends ConsumerState<TrayManager> with TrayListener {
     trayManager.popUpContextMenu(bringAppToFront: true);
   }
 
-
   @override
-  onTrayIconMouseDown() {
-    window?.show();
+  void onTrayIconMouseDown() {
+    switch (ref.read(trayStateProvider).trayClickBehavior) {
+      case TrayClickBehavior.showPanel:
+        window?.show();
+      case TrayClickBehavior.showMenu:
+        trayManager.popUpContextMenu();
+    }
   }
 
   @override

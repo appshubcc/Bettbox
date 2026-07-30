@@ -218,6 +218,7 @@ abstract class VpnProps with _$VpnProps {
     @Default(false) bool excludeChina,
     @Default(false) bool trayEnhancement,
     @Default(false) bool enableTraySpeed,
+    @Default(TrayClickBehavior.showPanel) TrayClickBehavior trayClickBehavior,
     @Default(true) bool alwaysShowTitleBar,
     @Default(true) bool quickResponse,
     @Default(defaultAccessControl) AccessControl accessControl,

@@ -86,6 +86,8 @@ enum Mode { rule, global, direct }
 
 enum IpClickBehavior { privacyProtection, manualRefresh, switchDomestic }
 
+enum TrayClickBehavior { showPanel, showMenu }
+
 enum ViewMode { mobile, laptop, desktop }
 
 enum LogLevel { debug, info, warning, error, silent }
@@ -385,7 +387,6 @@ extension PageLabelExtension on PageLabel {
     }
   }
 }
-
 
 enum RuleAction {
   DOMAIN('DOMAIN'),

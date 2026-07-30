@@ -549,6 +549,46 @@ class AppLocalizations {
     );
   }
 
+  /// `Tray Settings`
+  String get traySettings {
+    return Intl.message(
+      'Tray Settings',
+      name: 'traySettings',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Configure the tray menu, speed display, and click behavior`
+  String get traySettingsDesc {
+    return Intl.message(
+      'Configure the tray menu, speed display, and click behavior',
+      name: 'traySettingsDesc',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Tray Click Behavior`
+  String get trayClickBehavior {
+    return Intl.message(
+      'Tray Click Behavior',
+      name: 'trayClickBehavior',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Show Panel`
+  String get showPanel {
+    return Intl.message('Show Panel', name: 'showPanel', desc: '', args: []);
+  }
+
+  /// `Show Menu`
+  String get showMenu {
+    return Intl.message('Show Menu', name: 'showMenu', desc: '', args: []);
+  }
+
   /// `Exclude China`
   String get excludeChina {
     return Intl.message(
@@ -2197,6 +2237,11 @@ class AppLocalizations {
   /// `Start Test`
   String get startTest {
     return Intl.message('Start Test', name: 'startTest', desc: '', args: []);
+  }
+
+  /// `Testing`
+  String get testing {
+    return Intl.message('Testing', name: 'testing', desc: '', args: []);
   }
 
   /// `Add Profile`

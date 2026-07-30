@@ -215,12 +215,19 @@ class TrayManager {
   Future<void> setSpeedTitle({
     required int upload,
     required int download,
+    bool active = true,
   }) async {
     final Map<String, dynamic> arguments = {
       'upload': upload,
       'download': download,
+      'active': active,
     };
     await _channel.invokeMethod('setSpeedTitle', arguments);
+  }
+
+  /// 设置 macOS 菜单栏图标是否处于正在接管系统流量的状态。
+  Future<void> setActive(bool active) async {
+    await _channel.invokeMethod('setActive', {'active': active});
   }
 
   /// 清除 macOS 菜单栏图标右侧的速率。

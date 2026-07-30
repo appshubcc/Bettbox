@@ -7,6 +7,54 @@
 
 import AppKit
 
+private final class PersistentTrayMenuItemView: NSView {
+    private let button: NSButton
+    var onClick: (() -> Void)?
+
+    init(label: String, disabled: Bool) {
+        let font = NSFont.menuFont(ofSize: NSFont.systemFontSize)
+        let labelWidth = (label as NSString).size(
+            withAttributes: [.font: font]
+        ).width
+        button = NSButton(title: label, target: nil, action: nil)
+        super.init(
+            frame: NSRect(
+                x: 0,
+                y: 0,
+                width: max(180, ceil(labelWidth) + 32),
+                height: 24
+            )
+        )
+
+        button.isBordered = false
+        button.font = font
+        button.alignment = .left
+        button.focusRingType = .none
+        button.target = self
+        button.action = #selector(handleClick)
+        button.frame = bounds.insetBy(dx: 12, dy: 0)
+        button.autoresizingMask = [.width, .height]
+        addSubview(button)
+        update(label: label, disabled: disabled)
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    func update(label: String, disabled: Bool) {
+        button.title = label
+        button.isEnabled = !disabled
+        button.contentTintColor = disabled
+            ? NSColor.disabledControlTextColor
+            : NSColor.controlTextColor
+    }
+
+    @objc private func handleClick() {
+        onClick?()
+    }
+}
+
 public class TrayMenu: NSMenu, NSMenuDelegate {
     public var onMenuItemClick:((NSMenuItem) -> Void)?
     
@@ -31,6 +79,7 @@ public class TrayMenu: NSMenu, NSMenuDelegate {
             
             let itemDict = item as! [String: Any]
             let id: Int = itemDict["id"] as! Int
+            let key: String = itemDict["key"] as? String ?? ""
             let type: String = itemDict["type"] as! String
             let label: String = itemDict["label"] as? String ?? ""
             let sublabel: String = itemDict["sublabel"] as? String ?? ""
@@ -50,6 +99,25 @@ public class TrayMenu: NSMenu, NSMenuDelegate {
             menuItem.isEnabled = !disabled
             menuItem.action = !disabled ? #selector(statusItemMenuButtonClicked) : nil
             menuItem.target = self
+
+            if key == "persistent-delay-test" {
+                let persistentView = PersistentTrayMenuItemView(
+                    label: label,
+                    disabled: disabled
+                )
+                persistentView.onClick = { [weak self] in
+                    guard
+                        let self,
+                        let clickedItem = self.item(withTag: id)
+                    else {
+                        return
+                    }
+                    self.statusItemMenuButtonClicked(clickedItem)
+                }
+                menuItem.view = persistentView
+                menuItem.action = nil
+                menuItem.target = nil
+            }
             
             switch (type) {
             case "separator":
@@ -107,6 +175,11 @@ public class TrayMenu: NSMenu, NSMenuDelegate {
                 menuItem.title = menuItemTitle(label, sublabel)
                 menuItem.isEnabled = !disabled
                 menuItem.action = !disabled ? #selector(statusItemMenuButtonClicked) : nil
+
+                if let persistentView = menuItem.view as? PersistentTrayMenuItemView {
+                    persistentView.update(label: label, disabled: disabled)
+                    menuItem.action = nil
+                }
                 
                 if let checkedValue = checked {
                     menuItem.state = checkedValue ? .on : .off

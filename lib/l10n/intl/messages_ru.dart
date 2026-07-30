@@ -1018,6 +1018,8 @@ class MessageLookup extends MessageLookupByLibrary {
     "serviceRunning": MessageLookupByLibrary.simpleMessage("Служба запущена"),
     "settings": MessageLookupByLibrary.simpleMessage("Настройки"),
     "show": MessageLookupByLibrary.simpleMessage("Показать"),
+    "showMenu": MessageLookupByLibrary.simpleMessage("Показать меню"),
+    "showPanel": MessageLookupByLibrary.simpleMessage("Показать панель"),
     "showStartSwitch": MessageLookupByLibrary.simpleMessage(
       "Связанный переключатель",
     ),
@@ -1118,6 +1120,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "Разрешить параллельные TCP-соединения",
     ),
     "testUrl": MessageLookupByLibrary.simpleMessage("URL теста"),
+    "testing": MessageLookupByLibrary.simpleMessage("Тестирование"),
     "textScale": MessageLookupByLibrary.simpleMessage("Масштаб текста"),
     "theme": MessageLookupByLibrary.simpleMessage("Тема"),
     "themeColor": MessageLookupByLibrary.simpleMessage("Цвет темы"),
@@ -1144,6 +1147,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "totalTraffic": MessageLookupByLibrary.simpleMessage("Общий трафик"),
     "tproxyPort": MessageLookupByLibrary.simpleMessage("Порт Tproxy"),
     "trafficUsage": MessageLookupByLibrary.simpleMessage("Трафик"),
+    "trayClickBehavior": MessageLookupByLibrary.simpleMessage(
+      "Действие при щелчке по трею",
+    ),
     "trayEnhancement": MessageLookupByLibrary.simpleMessage("Улучшение трея"),
     "trayEnhancementDesc": MessageLookupByLibrary.simpleMessage(
       "Управление группами прокси в контекстном меню трея",
@@ -1153,6 +1159,10 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "trayIconInvertDesc": MessageLookupByLibrary.simpleMessage(
       "Инвертировать цвет текущего значка в трее",
+    ),
+    "traySettings": MessageLookupByLibrary.simpleMessage("Настройки трея"),
+    "traySettingsDesc": MessageLookupByLibrary.simpleMessage(
+      "Настройка меню трея, отображения скорости и поведения щелчка",
     ),
     "tryManualRefresh": MessageLookupByLibrary.simpleMessage(
       "Обновите вручную",

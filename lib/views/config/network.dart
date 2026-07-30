@@ -159,18 +159,22 @@ class AutoSetSystemDnsItem extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, ref) {
-    final autoSetSystemDns = ref.watch(
-      networkSettingProvider.select((state) => state.autoSetSystemDns),
-    );
+    final autoSetSystemDnsState = ref.watch(autoSetSystemDnsStateProvider);
+    final canSetSystemDns = autoSetSystemDnsState.a;
+    final autoSetSystemDns = autoSetSystemDnsState.b;
     return ListItem.switchItem(
       title: Text(appLocalizations.autoSetSystemDns),
       delegate: SwitchDelegate(
         value: autoSetSystemDns,
-        onChanged: (bool value) async {
-          ref
-              .read(networkSettingProvider.notifier)
-              .updateState((state) => state.copyWith(autoSetSystemDns: value));
-        },
+        onChanged: canSetSystemDns
+            ? (bool value) async {
+                ref
+                    .read(networkSettingProvider.notifier)
+                    .updateState(
+                      (state) => state.copyWith(autoSetSystemDns: value),
+                    );
+              }
+            : null,
       ),
     );
   }

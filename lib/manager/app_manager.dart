@@ -73,9 +73,9 @@ class _AppStateManagerState extends ConsumerState<AppStateManager>
         return;
       }
       if (next.a == true && next.b == true) {
-        macOS?.updateDns(false);
+        await macOS?.updateDns(false);
       } else {
-        macOS?.updateDns(true);
+        await macOS?.updateDns(true);
       }
     });
     ref.listenManual(currentBrightnessProvider, (prev, next) {

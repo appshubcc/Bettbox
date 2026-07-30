@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:ffi';
 import 'dart:io';
 
@@ -12,6 +13,7 @@ import 'package:bett_box/state.dart';
 import 'package:bett_box/widgets/input.dart';
 import 'package:flutter/services.dart';
 import 'package:path/path.dart';
+import 'package:synchronized/synchronized.dart';
 
 class System {
   static System? _instance;
@@ -493,8 +495,9 @@ final windows = system.isWindows ? Windows() : null;
 
 class MacOS {
   static MacOS? _instance;
-
-  List<String>? originDns;
+  static const _dnsBackupFileName = 'macos_system_dns_backup.json';
+  static const _hijackDns = '223.5.5.5';
+  final Lock _dnsLock = Lock();
 
   MacOS._internal();
 
@@ -528,48 +531,122 @@ class MacOS {
           (line) => RegExp(r'^\(\d+\).*').hasMatch(line),
           orElse: () => '',
         );
-    final nameParts = serviceNameLine.trim().split(' ');
-    if (nameParts.length < 2) return null;
-    return nameParts[1];
+    final match = RegExp(
+      r'^\(\d+\)\s+(.+)$',
+    ).firstMatch(serviceNameLine.trim());
+    return match?.group(1)?.trim();
   }
 
   Future<List<String>?> get systemDns async {
     final deviceServiceName = await defaultServiceName;
     if (deviceServiceName == null) return null;
-
-    final result = await Process.run('networksetup', [
-      '-getdnsservers',
-      deviceServiceName,
-    ]);
-    final output = result.stdout.toString().trim();
-    originDns = output.startsWith("There aren't any DNS Servers set on")
-        ? []
-        : output.split('\n');
-    return originDns;
+    return _getSystemDns(deviceServiceName);
   }
 
-  Future<void> updateDns(bool restore) async {
+  Future<List<String>?> _getSystemDns(String serviceName) async {
+    final result = await Process.run('networksetup', [
+      '-getdnsservers',
+      serviceName,
+    ]);
+    if (result.exitCode != 0) {
+      commonPrint.log(
+        'Failed to get macOS system DNS: ${result.stderr.toString().trim()}',
+      );
+      return null;
+    }
+    final output = result.stdout.toString().trim();
+    return output.startsWith("There aren't any DNS Servers set on")
+        ? []
+        : output.split('\n');
+  }
+
+  Future<void> updateDns(bool restore) {
+    return _dnsLock.synchronized(() async {
+      if (restore) {
+        await _restoreDns();
+      } else {
+        await _setDns();
+      }
+    });
+  }
+
+  Future<void> _setDns() async {
+    // Restore a previous managed value first so repeated enable operations never
+    // overwrite the real system DNS backup with Bettbox's own hijack DNS.
+    if (!await _restoreDns()) return;
+
     final serviceName = await defaultServiceName;
     if (serviceName == null) return;
 
-    List<String>? nextDns;
-    if (restore) {
-      nextDns = originDns;
-    } else {
-      final currentDns = await systemDns;
-      if (currentDns == null) return;
-      const needAddDns = '223.5.5.5';
-      if (currentDns.contains(needAddDns)) return;
-      nextDns = List.from(currentDns)..add(needAddDns);
-    }
-    if (nextDns == null) return;
+    final currentDns = await _getSystemDns(serviceName);
+    if (currentDns == null || currentDns.contains(_hijackDns)) return;
 
-    await Process.run('networksetup', [
+    final backup = jsonEncode({
+      'serviceName': serviceName,
+      'servers': currentDns,
+    });
+    try {
+      final backupFile = await _dnsBackupFile;
+      await backupFile.parent.create(recursive: true);
+      final temporaryFile = File('${backupFile.path}.tmp');
+      await temporaryFile.writeAsString(backup, flush: true);
+      await temporaryFile.rename(backupFile.path);
+    } catch (e) {
+      commonPrint.log('Failed to persist the original macOS system DNS: $e');
+      return;
+    }
+
+    final result = await Process.run('networksetup', [
       '-setdnsservers',
       serviceName,
-      if (nextDns.isNotEmpty) ...nextDns,
-      if (nextDns.isEmpty) 'Empty',
+      ...currentDns,
+      _hijackDns,
     ]);
+    if (result.exitCode != 0) {
+      commonPrint.log(
+        'Failed to set macOS system DNS: ${result.stderr.toString().trim()}',
+      );
+    }
+  }
+
+  Future<bool> _restoreDns() async {
+    final backupFile = await _dnsBackupFile;
+    if (!await backupFile.exists()) return true;
+
+    try {
+      final rawBackup = await backupFile.readAsString();
+      final backup = jsonDecode(rawBackup) as Map<String, dynamic>;
+      final serviceName = backup['serviceName'] as String?;
+      final servers = (backup['servers'] as List?)
+          ?.whereType<String>()
+          .toList();
+      if (serviceName == null || serviceName.isEmpty || servers == null) {
+        throw const FormatException('Invalid macOS system DNS backup');
+      }
+
+      final result = await Process.run('networksetup', [
+        '-setdnsservers',
+        serviceName,
+        if (servers.isNotEmpty) ...servers,
+        if (servers.isEmpty) 'Empty',
+      ]);
+      if (result.exitCode != 0) {
+        commonPrint.log(
+          'Failed to restore macOS system DNS: '
+          '${result.stderr.toString().trim()}',
+        );
+        return false;
+      }
+      await backupFile.delete();
+      return true;
+    } catch (e) {
+      commonPrint.log('Failed to read macOS system DNS backup: $e');
+      return false;
+    }
+  }
+
+  Future<File> get _dnsBackupFile async {
+    return File(join(await appPath.homeDirPath, _dnsBackupFileName));
   }
 }
 

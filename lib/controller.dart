@@ -971,9 +971,6 @@ class AppController {
         await prefs?.setBool('is_tun_running', false);
       }
       await savePreferences();
-      if (macOS != null) {
-        await macOS!.updateDns(true);
-      }
       if (proxy != null) {
         await proxy!.stopProxy();
       }
@@ -984,6 +981,13 @@ class AppController {
     } catch (e) {
       commonPrint.log('handleExit error: $e');
     } finally {
+      if (macOS != null) {
+        try {
+          await macOS!.updateDns(true);
+        } catch (e) {
+          commonPrint.log('Failed to restore macOS system DNS on exit: $e');
+        }
+      }
       if (!exitLock.isCompleted) {
         exitLock.complete();
       }
@@ -1251,6 +1255,9 @@ class AppController {
           commonPrint.log('Recovery failed: $e');
         }
       }
+    }
+    if (system.isMacOS && !globalState.isStart) {
+      await macOS?.updateDns(true);
     }
     final hasProfile = _ref.read(currentProfileProvider) != null;
     final shouldStart =

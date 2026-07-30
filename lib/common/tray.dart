@@ -28,6 +28,11 @@ class Tray {
 
   bool _isTesting = false;
   String? _testingGroupId;
+  bool _traySpeedEnabled = false;
+  bool _isSpeedTitleVisible = false;
+  Traffic _lastTraffic = Traffic();
+  int? _lastDisplayedUpload;
+  int? _lastDisplayedDownload;
 
   void dispose() {
     _debounceTimer?.cancel();
@@ -43,6 +48,9 @@ class Tray {
     }
     if (force) {
       await trayManager.destroy();
+      _isSpeedTitleVisible = false;
+      _lastDisplayedUpload = null;
+      _lastDisplayedDownload = null;
     }
     await trayManager.setIcon(
       utils.getTrayIconPath(
@@ -101,12 +109,16 @@ class Tray {
     _isUpdating = true;
 
     try {
+      _traySpeedEnabled = trayState.enableTraySpeed;
       if (!silent && !Platform.isLinux) {
         await _updateSystemTray(
           brightness: trayState.brightness,
           isStart: trayState.isStart,
           force: focus,
         );
+      }
+      if (system.isMacOS) {
+        await _syncSpeedTitle(isStart: trayState.isStart);
       }
     List<MenuItem> menuItems = [];
     final showMenuItem = MenuItem(
@@ -296,6 +308,46 @@ class Tray {
         );
       }
     }
+  }
+
+  Future<void> updateSpeed(Traffic traffic) async {
+    _lastTraffic = traffic;
+    if (!system.isMacOS || !_traySpeedEnabled) {
+      return;
+    }
+    await _setSpeedTitle(traffic);
+  }
+
+  Future<void> _syncSpeedTitle({required bool isStart}) async {
+    if (!_traySpeedEnabled) {
+      if (!_isSpeedTitleVisible) {
+        return;
+      }
+      await trayManager.clearSpeedTitle();
+      _isSpeedTitleVisible = false;
+      _lastDisplayedUpload = null;
+      _lastDisplayedDownload = null;
+      return;
+    }
+
+    if (!isStart) {
+      _lastTraffic = Traffic();
+    }
+    await _setSpeedTitle(_lastTraffic);
+  }
+
+  Future<void> _setSpeedTitle(Traffic traffic) async {
+    final upload = traffic.up.value;
+    final download = traffic.down.value;
+    if (_isSpeedTitleVisible &&
+        _lastDisplayedUpload == upload &&
+        _lastDisplayedDownload == download) {
+      return;
+    }
+    await trayManager.setSpeedTitle(upload: upload, download: download);
+    _isSpeedTitleVisible = true;
+    _lastDisplayedUpload = upload;
+    _lastDisplayedDownload = download;
   }
 
   MenuItem _buildCopyEnvSubmenu(int port) {

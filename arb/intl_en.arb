@@ -59,6 +59,8 @@
   "alwaysShowTitleBarDesc": "Always show the title bar buttons in the top-right corner",
   "trayEnhancement": "Tray Enhancement",
   "trayEnhancementDesc": "Control proxy groups in the system tray context menu",
+  "enableTraySpeed": "Enable Tray Speed",
+  "enableTraySpeedDesc": "Show upload and download speeds next to the menu bar icon",
   "excludeChina": "Exclude China",
   "excludeChinaDesc": "Allow China QUIC traffic instead of blocking all",
   "fcmOptimization": "FCM Optimization",
@@ -657,4 +659,3 @@
   "agePrivateKeyRequired": "Please enter a correct Age private key first",
   "lineWrap": "Wrap Lines"
 }
-

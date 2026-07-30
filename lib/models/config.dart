@@ -217,6 +217,7 @@ abstract class VpnProps with _$VpnProps {
     @Default(false) bool networkSpeedNotification,
     @Default(false) bool excludeChina,
     @Default(false) bool trayEnhancement,
+    @Default(false) bool enableTraySpeed,
     @Default(true) bool alwaysShowTitleBar,
     @Default(true) bool quickResponse,
     @Default(defaultAccessControl) AccessControl accessControl,

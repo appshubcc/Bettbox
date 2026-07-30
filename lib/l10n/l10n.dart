@@ -529,6 +529,26 @@ class AppLocalizations {
     );
   }
 
+  /// `Enable Tray Speed`
+  String get enableTraySpeed {
+    return Intl.message(
+      'Enable Tray Speed',
+      name: 'enableTraySpeed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Show upload and download speeds next to the menu bar icon`
+  String get enableTraySpeedDesc {
+    return Intl.message(
+      'Show upload and download speeds next to the menu bar icon',
+      name: 'enableTraySpeedDesc',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Exclude China`
   String get excludeChina {
     return Intl.message(

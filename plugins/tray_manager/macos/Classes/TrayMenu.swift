@@ -10,12 +10,9 @@ import AppKit
 private final class PersistentTrayMenuItemView: NSView {
     private let highlightView = NSVisualEffectView()
     private let titleLabel = NSTextField(labelWithString: "")
-    private lazy var clickGesture = NSClickGestureRecognizer(
-        target: self,
-        action: #selector(handleClick)
-    )
     private var isDisabled = false
     private var isHovered = false
+    private var isPressed = false
     var onClick: (() -> Void)?
 
     init(label: String, disabled: Bool, width: CGFloat) {
@@ -49,7 +46,6 @@ private final class PersistentTrayMenuItemView: NSView {
         titleLabel.autoresizingMask = [.width, .height]
         addSubview(titleLabel)
 
-        addGestureRecognizer(clickGesture)
         addTrackingArea(
             NSTrackingArea(
                 rect: .zero,
@@ -72,9 +68,41 @@ private final class PersistentTrayMenuItemView: NSView {
 
     func update(label: String, disabled: Bool) {
         isDisabled = disabled
-        clickGesture.isEnabled = !disabled
+        if disabled {
+            isPressed = false
+        }
         titleLabel.stringValue = label
         updateAppearance()
+    }
+
+    override func mouseDown(with event: NSEvent) {
+        guard !isDisabled, contains(event) else {
+            return
+        }
+        isPressed = true
+        isHovered = true
+        updateAppearance()
+    }
+
+    override func mouseDragged(with event: NSEvent) {
+        guard isPressed else {
+            return
+        }
+        isHovered = contains(event)
+        updateAppearance()
+    }
+
+    override func mouseUp(with event: NSEvent) {
+        guard isPressed else {
+            return
+        }
+        let shouldTrigger = !isDisabled && contains(event)
+        isPressed = false
+        isHovered = contains(event)
+        updateAppearance()
+        if shouldTrigger {
+            onClick?()
+        }
     }
 
     override func mouseEntered(with event: NSEvent) {
@@ -113,11 +141,11 @@ private final class PersistentTrayMenuItemView: NSView {
         )
     }
 
-    @objc private func handleClick() {
-        guard !isDisabled else {
-            return
+    private func contains(_ event: NSEvent) -> Bool {
+        guard event.window === window else {
+            return false
         }
-        onClick?()
+        return bounds.contains(convert(event.locationInWindow, from: nil))
     }
 }
 

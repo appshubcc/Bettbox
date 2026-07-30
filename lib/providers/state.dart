@@ -12,6 +12,23 @@ import 'config.dart';
 
 part 'generated/state.g.dart';
 
+List<Group> getVisibleGroups({
+  required Mode mode,
+  required List<Group> groups,
+  required bool showHiddenItems,
+}) {
+  final modeGroups = switch (mode) {
+    Mode.direct => const <Group>[],
+    Mode.global => groups,
+    Mode.rule =>
+      groups.where((group) => group.name != GroupName.GLOBAL.name).toList(),
+  };
+  if (showHiddenItems) {
+    return modeGroups.toList();
+  }
+  return modeGroups.where((group) => group.hidden != true).toList();
+}
+
 @riverpod
 Config configState(Ref ref) {
   final themeProps = ref.watch(themeSettingProvider);
@@ -60,16 +77,15 @@ GroupsState currentGroupsState(Ref ref) {
     patchClashConfigProvider.select((state) => state.mode),
   );
   final groups = ref.watch(groupsProvider);
+  final showHiddenItems = ref.watch(
+    proxiesStyleSettingProvider.select((state) => state.showHiddenItems),
+  );
   return GroupsState(
-    value: switch (mode) {
-      Mode.direct => [],
-      Mode.global => groups.toList(),
-      Mode.rule =>
-        groups
-            .where((item) => item.hidden != true)
-            .where((element) => element.name != GroupName.GLOBAL.name)
-            .toList(),
-    },
+    value: getVisibleGroups(
+      mode: mode,
+      groups: groups,
+      showHiddenItems: showHiddenItems,
+    ),
   );
 }
 
@@ -186,6 +202,7 @@ TrayState trayState(Ref ref) {
   final clashConfig = ref.watch(patchClashConfigProvider);
   final appSetting = ref.watch(appSettingProvider);
   final groups = ref.watch(currentGroupsStateProvider).value;
+  final allGroups = ref.watch(groupsProvider);
   final brightness = ref.watch(systemBrightnessProvider);
   final vpnProps = ref.watch(vpnSettingProvider);
 
@@ -203,6 +220,11 @@ TrayState trayState(Ref ref) {
     locale: appSetting.locale,
     brightness: brightness,
     groups: groups,
+    allGroups: getVisibleGroups(
+      mode: clashConfig.mode,
+      groups: allGroups,
+      showHiddenItems: true,
+    ),
     selectedMap: selectedMap,
     wakelockEnabled: wakelockEnabled,
     enableTraySpeed: vpnProps.enableTraySpeed,

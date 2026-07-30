@@ -42,6 +42,10 @@ class TrayManager {
 
   bool get isMenuOpen => _isMenuOpen;
 
+  bool _isOptionKeyPressed = false;
+
+  bool get isOptionKeyPressed => _isOptionKeyPressed;
+
   Map<String, dynamic> _menuToJson(Menu menu) {
     return {
       'items': menu.items?.map(_menuItemToJson).toList(),
@@ -72,6 +76,9 @@ class TrayManager {
       return;
     }
 
+    final arguments = call.arguments;
+    _isOptionKeyPressed =
+        arguments is Map && arguments['optionKeyPressed'] == true;
     for (final TrayListener listener in _listeners) {
       switch (call.method) {
         case kEventOnTrayIconMouseDown:

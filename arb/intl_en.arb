@@ -64,6 +64,7 @@
   "trayClickBehavior": "Tray Click Behavior (Left and Right)",
   "showPanel": "Show Panel",
   "showMenu": "Show Menu",
+  "showHiddenItems": "Show Hidden Items",
   "excludeChina": "Exclude China",
   "excludeChinaDesc": "Allow China QUIC traffic instead of blocking all",
   "fcmOptimization": "FCM Optimization",

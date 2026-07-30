@@ -267,6 +267,7 @@ abstract class ProxiesStyle with _$ProxiesStyle {
     @Default(ProxiesIconStyle.none) ProxiesIconStyle iconStyle,
     @Default(ProxyCardType.shrink) ProxyCardType cardType,
     @Default(DelayAnimationType.none) DelayAnimationType delayAnimation,
+    @Default(false) bool showHiddenItems,
     @Default({}) Map<String, String> iconMap,
     @Default(250) int concurrencyLimit,
   }) = _ProxiesStyle;

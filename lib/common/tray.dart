@@ -111,6 +111,7 @@ class Tray {
     required TrayState trayState,
     bool focus = false,
     bool silent = false,
+    List<Group>? groupsOverride,
   }) async {
     if (_isUpdating) return;
     _isUpdating = true;
@@ -129,6 +130,7 @@ class Tray {
       if (system.isMacOS) {
         await _syncSpeedTitle(isStart: trayState.isStart);
       }
+      final menuGroups = groupsOverride ?? trayState.groups;
       List<MenuItem> menuItems = [];
       final showMenuItem = MenuItem(
         label: appLocalizations.show,
@@ -160,7 +162,7 @@ class Tray {
         );
       }
       menuItems.add(MenuItem.separator());
-      for (final group in trayState.groups) {
+      for (final group in menuGroups) {
         List<MenuItem> subMenuItems = [];
 
         final isTestingThisGroup = _isTesting && _testingGroupId == group.name;
@@ -216,7 +218,7 @@ class Tray {
           ),
         );
       }
-      if (trayState.groups.isNotEmpty) {
+      if (menuGroups.isNotEmpty) {
         menuItems.add(MenuItem.separator());
       }
       if (trayState.isStart) {
@@ -322,6 +324,23 @@ class Tray {
         );
       }
     }
+  }
+
+  Future<void> showContextMenu({
+    required TrayState trayState,
+    required bool includeHiddenItems,
+  }) async {
+    _debounceTimer?.cancel();
+    while (_isUpdating) {
+      await Future<void>.delayed(const Duration(milliseconds: 10));
+    }
+    await _doUpdate(
+      trayState: trayState,
+      groupsOverride: includeHiddenItems
+          ? trayState.allGroups
+          : trayState.groups,
+    );
+    await trayManager.popUpContextMenu();
   }
 
   Future<void> updateSpeed(Traffic traffic) async {

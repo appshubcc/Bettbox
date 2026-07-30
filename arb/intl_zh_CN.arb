@@ -64,6 +64,7 @@
   "trayClickBehavior": "托盘点击行为（左键与右键）",
   "showPanel": "显示面板",
   "showMenu": "显示菜单",
+  "showHiddenItems": "显示隐藏项",
   "excludeChina": "排除国内",
   "excludeChinaDesc": "放行中国QUIC流量而非全部禁用",
   "fcmOptimization": "FCM优化",

@@ -569,6 +569,16 @@ class AppLocalizations {
     return Intl.message('Show Menu', name: 'showMenu', desc: '', args: []);
   }
 
+  /// `Show Hidden Items`
+  String get showHiddenItems {
+    return Intl.message(
+      'Show Hidden Items',
+      name: 'showHiddenItems',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Exclude China`
   String get excludeChina {
     return Intl.message(

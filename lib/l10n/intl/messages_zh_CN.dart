@@ -690,6 +690,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "serviceRunning": MessageLookupByLibrary.simpleMessage("服务正在运行中"),
     "settings": MessageLookupByLibrary.simpleMessage("设置"),
     "show": MessageLookupByLibrary.simpleMessage("显示"),
+    "showHiddenItems": MessageLookupByLibrary.simpleMessage("显示隐藏项"),
     "showMenu": MessageLookupByLibrary.simpleMessage("显示菜单"),
     "showPanel": MessageLookupByLibrary.simpleMessage("显示面板"),
     "showStartSwitch": MessageLookupByLibrary.simpleMessage("联动开关"),

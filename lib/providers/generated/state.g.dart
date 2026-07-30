@@ -24,7 +24,7 @@ final configStateProvider = AutoDisposeProvider<Config>.internal(
 // ignore: unused_element
 typedef ConfigStateRef = AutoDisposeProviderRef<Config>;
 String _$currentGroupsStateHash() =>
-    r'bde3f468dc3a39b68c1d1f908c8a7f40896cb777';
+    r'f97e7d4a45fdbc18c23d2837224369193c6ad2e3';
 
 /// See also [currentGroupsState].
 @ProviderFor(currentGroupsState)
@@ -131,7 +131,7 @@ final proxyStateProvider = AutoDisposeProvider<ProxyState>.internal(
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef ProxyStateRef = AutoDisposeProviderRef<ProxyState>;
-String _$trayStateHash() => r'37e4f2a88ded2b847527f98727fe1962f969ef7a';
+String _$trayStateHash() => r'ce30aebfab2a6f6e4ecd9be4cd0bf4c2e9032c9c';
 
 /// See also [trayState].
 @ProviderFor(trayState)

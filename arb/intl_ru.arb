@@ -64,6 +64,7 @@
   "trayClickBehavior": "Действие левой и правой кнопок по трею",
   "showPanel": "Показать панель",
   "showMenu": "Показать меню",
+  "showHiddenItems": "Показывать скрытые элементы",
   "excludeChina": "Исключить Китай",
   "excludeChinaDesc": "Разрешить QUIC-трафик Китая вместо полной блокировки",
   "fcmOptimization": "Оптимизация FCM",

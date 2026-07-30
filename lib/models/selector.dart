@@ -72,6 +72,7 @@ abstract class TrayState with _$TrayState {
     required String? locale,
     required Brightness? brightness,
     required List<Group> groups,
+    required List<Group> allGroups,
     required SelectedMap selectedMap,
     @Default(false) bool wakelockEnabled,
     @Default({}) Map<String, int?> delays,

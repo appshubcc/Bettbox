@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:bett_box/common/common.dart';
 import 'package:bett_box/enum/enum.dart';
+import 'package:bett_box/providers/config.dart';
 import 'package:bett_box/providers/state.dart';
 import 'package:bett_box/state.dart';
 import 'package:flutter/material.dart';
@@ -32,10 +35,18 @@ class _TrayContainerState extends ConsumerState<TrayManager> with TrayListener {
     return widget.child;
   }
 
-  void _handleTrayIconClick() {
-    final behavior = ref.read(trayStateProvider).trayClickBehavior;
-    if (behavior == TrayClickBehavior.showMenu) {
-      trayManager.popUpContextMenu();
+  Future<void> _handleTrayIconClick() async {
+    final trayState = ref.read(trayStateProvider);
+    final showHiddenItems = ref.read(
+      proxiesStyleSettingProvider.select((state) => state.showHiddenItems),
+    );
+    final includeHiddenItems =
+        system.isMacOS && !showHiddenItems && trayManager.isOptionKeyPressed;
+    if (includeHiddenItems ||
+        trayState.trayClickBehavior == TrayClickBehavior.showMenu) {
+      await globalState.appController.showTrayMenu(
+        includeHiddenItems: includeHiddenItems,
+      );
       return;
     }
     window?.show();
@@ -43,12 +54,12 @@ class _TrayContainerState extends ConsumerState<TrayManager> with TrayListener {
 
   @override
   void onTrayIconRightMouseDown() {
-    _handleTrayIconClick();
+    unawaited(_handleTrayIconClick());
   }
 
   @override
   void onTrayIconMouseDown() {
-    _handleTrayIconClick();
+    unawaited(_handleTrayIconClick());
   }
 
   @override

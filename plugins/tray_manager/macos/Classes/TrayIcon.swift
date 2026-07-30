@@ -8,7 +8,12 @@
 import Cocoa
 
 public class TrayIcon: NSView {
-    private static let inactiveColor = NSColor.systemGray
+    private static let inactiveColor = NSColor(
+        srgbRed: 134.0 / 255.0,
+        green: 138.0 / 255.0,
+        blue: 150.0 / 255.0,
+        alpha: 1
+    )
     private static let speedFontSize: CGFloat = 9.5
     private static let speedLineHeight: CGFloat = 10
     private static let speedExtraWidth: CGFloat = 30
@@ -29,6 +34,8 @@ public class TrayIcon: NSView {
     public var onTrayIconRightMouseUp:(() -> Void)?
     
     var statusItem: NSStatusItem?
+    private var sourceImage: NSImage?
+    private var isActive = true
     private var lastSpeedTitle: String?
     private var lastSpeedActive: Bool?
     
@@ -47,8 +54,9 @@ public class TrayIcon: NSView {
     }
     
     public func setImage(_ image: NSImage, _ imagePosition: String) {
+        sourceImage = image
         if let button = statusItem?.button {
-            button.image = image
+            updateImageAppearance(button)
             setImagePosition(imagePosition)
             syncClickTargetFrame(button)
         }
@@ -62,6 +70,7 @@ public class TrayIcon: NSView {
     }
     
     public func removeImage() {
+        sourceImage = nil
         if let button = statusItem?.button {
             button.image = nil
             syncClickTargetFrame(button)
@@ -78,9 +87,10 @@ public class TrayIcon: NSView {
     }
 
     public func setActive(_ active: Bool) {
-        statusItem?.button?.contentTintColor = active
-            ? NSColor.controlTextColor
-            : Self.inactiveColor
+        isActive = active
+        if let button = statusItem?.button {
+            updateImageAppearance(button)
+        }
     }
 
     public func setSpeedTitle(
@@ -175,6 +185,36 @@ public class TrayIcon: NSView {
     private func leftPad(_ value: String, width: Int) -> String {
         let padding = max(0, width - value.count)
         return String(repeating: " ", count: padding) + value
+    }
+
+    private func updateImageAppearance(_ button: NSStatusBarButton) {
+        guard let sourceImage else {
+            return
+        }
+        if isActive {
+            sourceImage.isTemplate = true
+            button.image = sourceImage
+            button.contentTintColor = NSColor.controlTextColor
+            return
+        }
+        button.image = tintedImage(sourceImage, color: Self.inactiveColor)
+        button.contentTintColor = nil
+    }
+
+    private func tintedImage(_ image: NSImage, color: NSColor) -> NSImage {
+        let tintedImage = NSImage(size: image.size)
+        tintedImage.lockFocus()
+        color.setFill()
+        NSRect(origin: .zero, size: image.size).fill()
+        image.draw(
+            in: NSRect(origin: .zero, size: image.size),
+            from: .zero,
+            operation: .destinationIn,
+            fraction: 1
+        )
+        tintedImage.unlockFocus()
+        tintedImage.isTemplate = false
+        return tintedImage
     }
 
     private func syncClickTargetFrame(_ button: NSStatusBarButton) {

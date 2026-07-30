@@ -8,6 +8,7 @@
 import Cocoa
 
 public class TrayIcon: NSView {
+    private static let inactiveColor = NSColor.systemGray
     private static let speedFontSize: CGFloat = 9.5
     private static let speedLineHeight: CGFloat = 10
     private static let speedExtraWidth: CGFloat = 30
@@ -79,7 +80,7 @@ public class TrayIcon: NSView {
     public func setActive(_ active: Bool) {
         statusItem?.button?.contentTintColor = active
             ? NSColor.controlTextColor
-            : NSColor.disabledControlTextColor
+            : Self.inactiveColor
     }
 
     public func setSpeedTitle(
@@ -119,7 +120,7 @@ public class TrayIcon: NSView {
                 .font: font,
                 .foregroundColor: active
                     ? NSColor.controlTextColor
-                    : NSColor.disabledControlTextColor,
+                    : Self.inactiveColor,
                 .paragraphStyle: paragraphStyle,
                 .baselineOffset: baselineOffset,
             ]

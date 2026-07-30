@@ -509,26 +509,6 @@ class AppLocalizations {
     );
   }
 
-  /// `Tray Enhancement`
-  String get trayEnhancement {
-    return Intl.message(
-      'Tray Enhancement',
-      name: 'trayEnhancement',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Control proxy groups in the system tray context menu`
-  String get trayEnhancementDesc {
-    return Intl.message(
-      'Control proxy groups in the system tray context menu',
-      name: 'trayEnhancementDesc',
-      desc: '',
-      args: [],
-    );
-  }
-
   /// `Enable Tray Speed`
   String get enableTraySpeed {
     return Intl.message(
@@ -569,10 +549,10 @@ class AppLocalizations {
     );
   }
 
-  /// `Tray Click Behavior`
+  /// `Tray Click Behavior (Left and Right)`
   String get trayClickBehavior {
     return Intl.message(
-      'Tray Click Behavior',
+      'Tray Click Behavior (Left and Right)',
       name: 'trayClickBehavior',
       desc: '',
       args: [],

@@ -803,11 +803,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "totalTraffic": MessageLookupByLibrary.simpleMessage("傳輸總量"),
     "tproxyPort": MessageLookupByLibrary.simpleMessage("Tproxy 連接埠"),
     "trafficUsage": MessageLookupByLibrary.simpleMessage("流量統計"),
-    "trayClickBehavior": MessageLookupByLibrary.simpleMessage("托盤點擊行為"),
-    "trayEnhancement": MessageLookupByLibrary.simpleMessage("托盤增強"),
-    "trayEnhancementDesc": MessageLookupByLibrary.simpleMessage(
-      "在托盤區右鍵選單中控制代理組",
-    ),
+    "trayClickBehavior": MessageLookupByLibrary.simpleMessage("托盤點擊行為（左鍵與右鍵）"),
     "trayIconInvert": MessageLookupByLibrary.simpleMessage("托盤反轉"),
     "trayIconInvertDesc": MessageLookupByLibrary.simpleMessage(
       "針對目前托盤圖示顏色取反設定",

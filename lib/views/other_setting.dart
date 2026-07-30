@@ -488,30 +488,6 @@ class NetworkSpeedNotificationItem extends ConsumerWidget {
   }
 }
 
-class TrayEnhancementItem extends ConsumerWidget {
-  const TrayEnhancementItem({super.key});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final trayEnhancement = ref.watch(
-      vpnSettingProvider.select((state) => state.trayEnhancement),
-    );
-    return ListItem.switchItem(
-      title: Text(appLocalizations.trayEnhancement),
-      subtitle: Text(appLocalizations.trayEnhancementDesc),
-      delegate: SwitchDelegate(
-        value: trayEnhancement,
-        onChanged: (bool value) async {
-          ref
-              .read(vpnSettingProvider.notifier)
-              .updateState((state) => state.copyWith(trayEnhancement: value));
-          await globalState.appController.updateTray();
-        },
-      ),
-    );
-  }
-}
-
 class TraySpeedItem extends ConsumerWidget {
   const TraySpeedItem({super.key});
 
@@ -578,7 +554,6 @@ class TraySettingsView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return generateListView([
-      const TrayEnhancementItem(),
       if (system.isMacOS) const TraySpeedItem(),
       const TrayClickBehaviorItem(),
     ]);

@@ -1123,11 +1123,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "tproxyPort": MessageLookupByLibrary.simpleMessage("Tproxy Port"),
     "trafficUsage": MessageLookupByLibrary.simpleMessage("Traffic Usage"),
     "trayClickBehavior": MessageLookupByLibrary.simpleMessage(
-      "Tray Click Behavior",
-    ),
-    "trayEnhancement": MessageLookupByLibrary.simpleMessage("Tray Enhancement"),
-    "trayEnhancementDesc": MessageLookupByLibrary.simpleMessage(
-      "Control proxy groups in the system tray context menu",
+      "Tray Click Behavior (Left and Right)",
     ),
     "trayIconInvert": MessageLookupByLibrary.simpleMessage("Invert Tray Icon"),
     "trayIconInvertDesc": MessageLookupByLibrary.simpleMessage(

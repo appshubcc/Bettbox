@@ -75,7 +75,6 @@ abstract class TrayState with _$TrayState {
     required SelectedMap selectedMap,
     @Default(false) bool wakelockEnabled,
     @Default({}) Map<String, int?> delays,
-    @Default(true) bool trayEnhancement,
     @Default(false) bool enableTraySpeed,
     @Default(TrayClickBehavior.showPanel) TrayClickBehavior trayClickBehavior,
   }) = _TrayState;

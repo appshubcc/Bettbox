@@ -32,20 +32,23 @@ class _TrayContainerState extends ConsumerState<TrayManager> with TrayListener {
     return widget.child;
   }
 
+  void _handleTrayIconClick() {
+    final behavior = ref.read(trayStateProvider).trayClickBehavior;
+    if (behavior == TrayClickBehavior.showMenu) {
+      trayManager.popUpContextMenu();
+      return;
+    }
+    window?.show();
+  }
+
   @override
   void onTrayIconRightMouseDown() {
-    // ignore: deprecated_member_use
-    trayManager.popUpContextMenu(bringAppToFront: true);
+    _handleTrayIconClick();
   }
 
   @override
   void onTrayIconMouseDown() {
-    switch (ref.read(trayStateProvider).trayClickBehavior) {
-      case TrayClickBehavior.showPanel:
-        window?.show();
-      case TrayClickBehavior.showMenu:
-        trayManager.popUpContextMenu();
-    }
+    _handleTrayIconClick();
   }
 
   @override

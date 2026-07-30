@@ -1148,11 +1148,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "tproxyPort": MessageLookupByLibrary.simpleMessage("Порт Tproxy"),
     "trafficUsage": MessageLookupByLibrary.simpleMessage("Трафик"),
     "trayClickBehavior": MessageLookupByLibrary.simpleMessage(
-      "Действие при щелчке по трею",
-    ),
-    "trayEnhancement": MessageLookupByLibrary.simpleMessage("Улучшение трея"),
-    "trayEnhancementDesc": MessageLookupByLibrary.simpleMessage(
-      "Управление группами прокси в контекстном меню трея",
+      "Действие левой и правой кнопок по трею",
     ),
     "trayIconInvert": MessageLookupByLibrary.simpleMessage(
       "Инвертировать значок трея",

@@ -20,5 +20,14 @@ void main() {
         TrayClickBehavior.showMenu,
       );
     });
+
+    test('migrates the removed enhancement switch to showing the panel', () {
+      final props = VpnProps.safeFromJson({
+        'trayEnhancement': false,
+        'trayClickBehavior': TrayClickBehavior.showMenu.name,
+      });
+
+      expect(props.trayClickBehavior, TrayClickBehavior.showPanel);
+    });
   });
 }

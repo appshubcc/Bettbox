@@ -779,11 +779,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "totalTraffic": MessageLookupByLibrary.simpleMessage("传输总量"),
     "tproxyPort": MessageLookupByLibrary.simpleMessage("Tproxy端口"),
     "trafficUsage": MessageLookupByLibrary.simpleMessage("流量统计"),
-    "trayClickBehavior": MessageLookupByLibrary.simpleMessage("托盘点击行为"),
-    "trayEnhancement": MessageLookupByLibrary.simpleMessage("托盘增强"),
-    "trayEnhancementDesc": MessageLookupByLibrary.simpleMessage(
-      "在托盘区右键菜单中控制代理组",
-    ),
+    "trayClickBehavior": MessageLookupByLibrary.simpleMessage("托盘点击行为（左键与右键）"),
     "trayIconInvert": MessageLookupByLibrary.simpleMessage("托盘反转"),
     "trayIconInvertDesc": MessageLookupByLibrary.simpleMessage(
       "针对当前托盘图标颜色取反设置",

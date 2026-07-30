@@ -7,68 +7,49 @@
 
 import AppKit
 
-private final class PersistentTrayMenuButton: NSButton {
-    var onPressedChanged: ((Bool) -> Void)?
-
-    override func mouseDown(with event: NSEvent) {
-        guard isEnabled else {
-            return
-        }
-        onPressedChanged?(true)
-        super.mouseDown(with: event)
-        onPressedChanged?(false)
-    }
-}
-
 private final class PersistentTrayMenuItemView: NSView {
     private let highlightView = NSVisualEffectView()
-    private let button: PersistentTrayMenuButton
+    private let titleLabel = NSTextField(labelWithString: "")
+    private lazy var clickGesture = NSClickGestureRecognizer(
+        target: self,
+        action: #selector(handleClick)
+    )
     private var isDisabled = false
     private var isHovered = false
-    private var isPressed = false
     var onClick: (() -> Void)?
 
-    init(label: String, disabled: Bool) {
+    init(label: String, disabled: Bool, width: CGFloat) {
         let font = NSFont.menuFont(ofSize: NSFont.systemFontSize)
-        let labelWidth = (label as NSString).size(
-            withAttributes: [.font: font]
-        ).width
-        button = PersistentTrayMenuButton(
-            title: label,
-            target: nil,
-            action: nil
-        )
         super.init(
             frame: NSRect(
                 x: 0,
                 y: 0,
-                width: max(180, ceil(labelWidth) + 32),
-                height: 24
+                width: width,
+                height: 28
             )
         )
+        autoresizingMask = [.width]
 
         highlightView.material = .selection
         highlightView.blendingMode = .withinWindow
         highlightView.state = .active
         highlightView.isEmphasized = true
         highlightView.isHidden = true
-        highlightView.frame = bounds.insetBy(dx: 5, dy: 1)
+        highlightView.wantsLayer = true
+        highlightView.layer?.cornerRadius = 7
+        highlightView.layer?.masksToBounds = true
+        highlightView.frame = bounds.insetBy(dx: 4, dy: 2)
         highlightView.autoresizingMask = [.width, .height]
         addSubview(highlightView)
 
-        button.isBordered = false
-        button.font = font
-        button.alignment = .left
-        button.focusRingType = .none
-        button.target = self
-        button.action = #selector(handleClick)
-        button.frame = bounds.insetBy(dx: 12, dy: 0)
-        button.autoresizingMask = [.width, .height]
-        addSubview(button)
-        button.onPressedChanged = { [weak self] isPressed in
-            self?.isPressed = isPressed
-            self?.updateAppearance()
-        }
+        titleLabel.font = font
+        titleLabel.alignment = .left
+        titleLabel.lineBreakMode = .byTruncatingTail
+        titleLabel.frame = bounds.insetBy(dx: 14, dy: 5)
+        titleLabel.autoresizingMask = [.width, .height]
+        addSubview(titleLabel)
+
+        addGestureRecognizer(clickGesture)
         addTrackingArea(
             NSTrackingArea(
                 rect: .zero,
@@ -91,8 +72,8 @@ private final class PersistentTrayMenuItemView: NSView {
 
     func update(label: String, disabled: Bool) {
         isDisabled = disabled
-        button.isEnabled = !disabled
-        button.title = label
+        clickGesture.isEnabled = !disabled
+        titleLabel.stringValue = label
         updateAppearance()
     }
 
@@ -112,7 +93,7 @@ private final class PersistentTrayMenuItemView: NSView {
     }
 
     private func updateAppearance() {
-        let isHighlighted = !isDisabled && (isHovered || isPressed)
+        let isHighlighted = !isDisabled && isHovered
         highlightView.isHidden = !isHighlighted
         let textColor: NSColor
         if isDisabled {
@@ -122,10 +103,10 @@ private final class PersistentTrayMenuItemView: NSView {
         } else {
             textColor = .controlTextColor
         }
-        button.attributedTitle = NSAttributedString(
-            string: button.title,
+        titleLabel.attributedStringValue = NSAttributedString(
+            string: titleLabel.stringValue,
             attributes: [
-                .font: button.font
+                .font: titleLabel.font
                     ?? NSFont.menuFont(ofSize: NSFont.systemFontSize),
                 .foregroundColor: textColor,
             ]
@@ -133,6 +114,9 @@ private final class PersistentTrayMenuItemView: NSView {
     }
 
     @objc private func handleClick() {
+        guard !isDisabled else {
+            return
+        }
         onClick?()
     }
 }
@@ -151,11 +135,31 @@ public class TrayMenu: NSMenu, NSMenuDelegate {
     private func menuItemTitle(_ label: String, _ sublabel: String) -> String {
         return sublabel.isEmpty ? label : "\(label)\t\(sublabel)"
     }
+
+    private func preferredMenuWidth(_ items: [NSDictionary]) -> CGFloat {
+        let font = NSFont.menuFont(ofSize: NSFont.systemFontSize)
+        let maximumLabelWidth = items.reduce(CGFloat.zero) { width, item in
+            let itemDict = item as? [String: Any] ?? [:]
+            let type = itemDict["type"] as? String ?? ""
+            guard type != "separator" else {
+                return width
+            }
+            let label = itemDict["label"] as? String ?? ""
+            let sublabel = itemDict["sublabel"] as? String ?? ""
+            let title = menuItemTitle(label, sublabel)
+            let titleWidth = (title as NSString).size(
+                withAttributes: [.font: font]
+            ).width
+            return max(width, ceil(titleWidth))
+        }
+        return max(220, maximumLabelWidth + 56)
+    }
     
     public init(_ args: [String: Any]) {
         super.init(title: "")
         
         let items: [NSDictionary] = args["items"] as! [NSDictionary];
+        let menuWidth = preferredMenuWidth(items)
         for item in items {
             let menuItem: NSMenuItem
             
@@ -185,7 +189,8 @@ public class TrayMenu: NSMenu, NSMenuDelegate {
             if key == "persistent-delay-test" {
                 let persistentView = PersistentTrayMenuItemView(
                     label: label,
-                    disabled: disabled
+                    disabled: disabled,
+                    width: menuWidth
                 )
                 persistentView.onClick = { [weak self] in
                     guard

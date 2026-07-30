@@ -34,7 +34,10 @@ class _ProxiesViewState extends ConsumerState<ProxiesView> {
     );
     final (scriptOn, compatible) = ref.watch(
       scriptStateProvider.select(
-        (s) => (s.currentId != null, s.currentScript?.isCompatibleWithBettbox ?? false),
+        (s) => (
+          s.currentId != null,
+          s.currentScript?.isCompatibleWithBettbox ?? false,
+        ),
       ),
     );
     final profileOverride = ref.watch(
@@ -155,6 +158,9 @@ class _ProxiesViewState extends ConsumerState<ProxiesView> {
   Widget? _buildFAB() {
     if (!_isTab) return null;
     final isMobileView = ref.watch(isMobileViewProvider);
+    final currentGroupName = ref.watch(
+      proxiesTabControllerStateProvider.select((state) => state.b),
+    );
     return Padding(
       padding: EdgeInsets.only(
         bottom: isMobileView
@@ -162,6 +168,7 @@ class _ProxiesViewState extends ConsumerState<ProxiesView> {
             : 0,
       ),
       child: DelayTestButton(
+        groupName: currentGroupName ?? '',
         onClick: () async {
           await _proxiesTabKey.currentState?.delayTestCurrentGroup();
         },

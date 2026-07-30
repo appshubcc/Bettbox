@@ -356,11 +356,27 @@ class _GroupHeader extends ConsumerWidget {
                 onPressed: onScrollToSelected,
                 tooltip: 'Scroll to selected',
               ),
-              IconButton(
-                visualDensity: VisualDensity.compact,
-                icon: const Icon(Icons.network_ping),
-                onPressed: () => _delayTest(context),
-                tooltip: 'Delay test',
+              AnimatedBuilder(
+                animation: delayTestCoordinator,
+                builder: (_, _) {
+                  final isTestingThisGroup = delayTestCoordinator
+                      .isTestingGroup(group.name);
+                  return IconButton(
+                    visualDensity: VisualDensity.compact,
+                    icon: isTestingThisGroup
+                        ? const SizedBox.square(
+                            dimension: 18,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Icon(Icons.network_ping),
+                    onPressed: delayTestCoordinator.isTesting
+                        ? null
+                        : () => _delayTest(context),
+                    tooltip: isTestingThisGroup
+                        ? appLocalizations.testing
+                        : appLocalizations.startTest,
+                  );
+                },
               ),
             ],
             IconButton.filledTonal(
@@ -414,6 +430,6 @@ class _GroupHeader extends ConsumerWidget {
   }
 
   Future<void> _delayTest(BuildContext context) async {
-    await delayTest(group.all, group.testUrl);
+    await delayTest(group.all, testUrl: group.testUrl, groupName: group.name);
   }
 }

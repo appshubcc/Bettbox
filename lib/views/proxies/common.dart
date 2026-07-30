@@ -3,6 +3,35 @@ import 'package:bett_box/common/common.dart';
 import 'package:bett_box/enum/enum.dart';
 import 'package:bett_box/models/models.dart';
 import 'package:bett_box/state.dart';
+import 'package:flutter/foundation.dart';
+
+class DelayTestCoordinator extends ChangeNotifier {
+  String? _testingGroupName;
+
+  String? get testingGroupName => _testingGroupName;
+
+  bool get isTesting => _testingGroupName != null;
+
+  bool isTestingGroup(String groupName) => _testingGroupName == groupName;
+
+  Future<bool> run(String groupName, Future<void> Function() action) async {
+    if (isTesting) {
+      return false;
+    }
+
+    _testingGroupName = groupName;
+    notifyListeners();
+    try {
+      await action();
+      return true;
+    } finally {
+      _testingGroupName = null;
+      notifyListeners();
+    }
+  }
+}
+
+final delayTestCoordinator = DelayTestCoordinator();
 
 double get listHeaderHeight {
   final measure = globalState.measure;
@@ -14,7 +43,8 @@ double getItemHeight(ProxyCardType proxyCardType) {
   final baseHeight =
       16 + measure.bodyMediumHeight * 2 + measure.bodySmallHeight + 8 + 4;
   return switch (proxyCardType) {
-    ProxyCardType.expand => baseHeight - measure.bodySmallHeight + measure.labelSmallHeight * 2 + 4,
+    ProxyCardType.expand =>
+      baseHeight - measure.bodySmallHeight + measure.labelSmallHeight * 2 + 4,
     ProxyCardType.shrink => baseHeight,
     ProxyCardType.min => baseHeight - measure.bodyMediumHeight,
   };
@@ -63,45 +93,54 @@ String? _getProxyType(String proxyName) {
 }
 
 Future<void> delayTest(
-  List<Proxy> proxies, [
+  List<Proxy> proxies, {
   String? testUrl,
+  String? groupName,
   Future<void> Function()? onDelayUpdated,
-]) async {
-  final appController = globalState.appController;
-  final proxyNames = proxies
-      .where((proxy) => !_isNonTestableProxy(proxy))
-      .map((proxy) => proxy.name)
-      .toSet()
-      .toList();
-  final concurrencyLimit = globalState.config.proxiesStyle.concurrencyLimit;
+}) async {
+  Future<void> runTest() async {
+    final appController = globalState.appController;
+    final proxyNames = proxies
+        .where((proxy) => !_isNonTestableProxy(proxy))
+        .map((proxy) => proxy.name)
+        .toSet()
+        .toList();
+    final concurrencyLimit = globalState.config.proxiesStyle.concurrencyLimit;
 
-  // Create lazy task
-  final delayTasks = proxyNames.map((proxyName) {
-    return () async {
-      final state = appController.getProxyCardState(proxyName);
-      final url = appController.getRealTestUrl(
-        state.testUrl.getSafeValue(testUrl ?? ''),
-      );
-      final name = state.proxyName;
-      if (name.isEmpty ||
-          _isNonTestableProxyName(name) ||
-          _isNonTestableProxyType(_getProxyType(name) ?? '')) {
-        return;
-      }
-      // Set testing state
-      appController.setDelay(Delay(url: url, name: name, value: 0));
-      // Get and set delay
-      appController.setDelay(await clashCore.getDelay(url, name));
-      await onDelayUpdated?.call();
-    };
-  }).toList();
+    // Create lazy task
+    final delayTasks = proxyNames.map((proxyName) {
+      return () async {
+        final state = appController.getProxyCardState(proxyName);
+        final url = appController.getRealTestUrl(
+          state.testUrl.getSafeValue(testUrl ?? ''),
+        );
+        final name = state.proxyName;
+        if (name.isEmpty ||
+            _isNonTestableProxyName(name) ||
+            _isNonTestableProxyType(_getProxyType(name) ?? '')) {
+          return;
+        }
+        // Set testing state
+        appController.setDelay(Delay(url: url, name: name, value: 0));
+        // Get and set delay
+        appController.setDelay(await clashCore.getDelay(url, name));
+        await onDelayUpdated?.call();
+      };
+    }).toList();
 
-  // Execute tasks in batches
-  final batchedTasks = delayTasks.batch(concurrencyLimit);
-  for (final batchTasks in batchedTasks) {
-    await Future.wait(batchTasks.map((task) => task()));
+    // Execute tasks in batches
+    final batchedTasks = delayTasks.batch(concurrencyLimit);
+    for (final batchTasks in batchedTasks) {
+      await Future.wait(batchTasks.map((task) => task()));
+    }
+    appController.addSortNum();
   }
-  appController.addSortNum();
+
+  if (groupName == null || groupName.isEmpty) {
+    await runTest();
+    return;
+  }
+  await delayTestCoordinator.run(groupName, runTest);
 }
 
 double getScrollToSelectedOffset({

@@ -64,9 +64,12 @@ class _TrayContainerState extends ConsumerState<TrayManager> with TrayListener {
 
   @override
   void onTrayMenuItemClick(MenuItem menuItem) {
-    if (globalState.backgroundMode.value) {
-      globalState.appController.updateTray(false, false, true);
+    // 该刷新仅用于兼容 Linux 后台托盘首次回调。macOS 会自行实时更新菜单，
+    // 在这里重建菜单会与延迟测试的静默更新竞争。
+    if (!system.isLinux || !globalState.backgroundMode.value) {
+      return;
     }
+    unawaited(globalState.appController.updateTray(false, false, true));
   }
 
   @override

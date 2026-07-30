@@ -46,4 +46,27 @@ void main() {
     expect(coordinator.isTesting, isFalse);
     expect(coordinator.testingGroupName, isNull);
   });
+
+  test('notifies listeners when a group test starts and finishes', () async {
+    final coordinator = DelayTestCoordinator();
+    final started = Completer<void>();
+    final finish = Completer<void>();
+    final states = <String?>[];
+    coordinator.addListener(() {
+      states.add(coordinator.testingGroupName);
+    });
+
+    final run = coordinator.run('Global', () async {
+      started.complete();
+      await finish.future;
+    });
+    await started.future;
+
+    expect(states, ['Global']);
+
+    finish.complete();
+    await run;
+
+    expect(states, ['Global', null]);
+  });
 }

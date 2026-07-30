@@ -1396,8 +1396,23 @@ class _ToolViewState extends ConsumerState<ToolsView> {
 class _LocaleItem extends ConsumerWidget {
   const _LocaleItem();
 
-  static final List<Locale> _localeOptions =
-      AppLocalizations.delegate.supportedLocales;
+  static final List<Locale> _localeOptions = _getOrderedLocales();
+
+  static List<Locale> _getOrderedLocales() {
+    final priority = ['zh_CN', 'zh_TC', 'en', 'ru', 'fa', 'ja', 'ko'];
+    final locales = List<Locale>.from(AppLocalizations.delegate.supportedLocales);
+    locales.sort((a, b) {
+      final aKey = a.toString();
+      final bKey = b.toString();
+      final aIndex = priority.indexOf(aKey);
+      final bIndex = priority.indexOf(bKey);
+      if (aIndex != -1 && bIndex != -1) return aIndex.compareTo(bIndex);
+      if (aIndex != -1) return -1;
+      if (bIndex != -1) return 1;
+      return aKey.compareTo(bKey);
+    });
+    return locales;
+  }
 
   String _getLocaleString(Locale locale) {
     return Intl.message(locale.toString());

@@ -168,6 +168,9 @@ class AppController {
   Future<void> _updateStatus(bool isStart) async {
     if (isStart) {
       await _fastStart();
+      if (globalState.isStart && !_ref.read(runTimeProvider.notifier).isStart) {
+        _ref.read(runTimeProvider.notifier).value = 0;
+      }
     } else {
       await globalState.handleStop();
       clashCore.resetTraffic();

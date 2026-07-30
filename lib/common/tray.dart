@@ -144,7 +144,9 @@ class Tray {
             ? appLocalizations.stop
             : appLocalizations.start,
         onClick: (_) async {
-          globalState.appController.updateStart();
+          final appController = globalState.appController;
+          await appController.updateStatus(!trayState.isStart);
+          await appController.updateTray();
         },
         checked: false,
       );

@@ -310,7 +310,6 @@ class MessageLookup extends MessageLookupByLibrary {
     "edit": MessageLookupByLibrary.simpleMessage("編集"),
     "editTunnel": MessageLookupByLibrary.simpleMessage("転送編集"),
     "emptyTip": m3,
-    "en": MessageLookupByLibrary.simpleMessage("英語"),
     "enableCrashReport": MessageLookupByLibrary.simpleMessage("クラッシュ分析"),
     "enableCrashReportDesc": MessageLookupByLibrary.simpleMessage(
       "必要に応じてクラッシュログを送信",
@@ -348,7 +347,6 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "externalLink": MessageLookupByLibrary.simpleMessage("外部リンク"),
     "externalResources": MessageLookupByLibrary.simpleMessage("外部リソース"),
-    "fa": MessageLookupByLibrary.simpleMessage("ペルシア語"),
     "fadingCircle": MessageLookupByLibrary.simpleMessage("フェードサークル"),
     "fadingFour": MessageLookupByLibrary.simpleMessage("フェードフォースクエア"),
     "fakeIpFilterMode": MessageLookupByLibrary.simpleMessage("FakeIPフィルターモード"),
@@ -465,13 +463,11 @@ class MessageLookup extends MessageLookupByLibrary {
     "ipcidr": MessageLookupByLibrary.simpleMessage("IP / サブネットマスク"),
     "ipv6Desc": MessageLookupByLibrary.simpleMessage("IPv6トラフィックの受信を有効化"),
     "ipv6InboundDesc": MessageLookupByLibrary.simpleMessage("IPv6インバウンド通信を許可"),
-    "ja": MessageLookupByLibrary.simpleMessage("日本語"),
     "just": MessageLookupByLibrary.simpleMessage("たった今"),
     "keepAliveIntervalDesc": MessageLookupByLibrary.simpleMessage(
       "TCP Keep-Alive間隔",
     ),
     "key": MessageLookupByLibrary.simpleMessage("キー"),
-    "ko": MessageLookupByLibrary.simpleMessage("韓国語"),
     "language": MessageLookupByLibrary.simpleMessage("言語"),
     "layout": MessageLookupByLibrary.simpleMessage("レイアウト"),
     "light": MessageLookupByLibrary.simpleMessage("ライト"),
@@ -769,7 +765,6 @@ class MessageLookup extends MessageLookupByLibrary {
     "restartTip": MessageLookupByLibrary.simpleMessage("TUNの再起動後に有効化されます"),
     "retry": MessageLookupByLibrary.simpleMessage("再試行"),
     "rotatingCircle": MessageLookupByLibrary.simpleMessage("ローテーション"),
-    "ru": MessageLookupByLibrary.simpleMessage("ロシア語"),
     "rule": MessageLookupByLibrary.simpleMessage("ルール"),
     "ruleName": MessageLookupByLibrary.simpleMessage("ルール名"),
     "ruleProviders": MessageLookupByLibrary.simpleMessage("ルールプロバイダー"),
@@ -969,7 +964,5 @@ class MessageLookup extends MessageLookupByLibrary {
     "writeToSystem": MessageLookupByLibrary.simpleMessage("システムへ適用"),
     "writeToSystemDesc": MessageLookupByLibrary.simpleMessage("管理者権限が必要です"),
     "years": m14,
-    "zh_CN": MessageLookupByLibrary.simpleMessage("簡体字中国語"),
-    "zh_TC": MessageLookupByLibrary.simpleMessage("繁体字中国語"),
   };
 }

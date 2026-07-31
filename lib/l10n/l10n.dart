@@ -659,51 +659,6 @@ class AppLocalizations {
     return Intl.message('About', name: 'about', desc: '', args: []);
   }
 
-  /// `English`
-  String get en {
-    return Intl.message('English', name: 'en', desc: '', args: []);
-  }
-
-  /// `Persian`
-  String get fa {
-    return Intl.message('Persian', name: 'fa', desc: '', args: []);
-  }
-
-  /// `Japanese`
-  String get ja {
-    return Intl.message('Japanese', name: 'ja', desc: '', args: []);
-  }
-
-  /// `Korean`
-  String get ko {
-    return Intl.message('Korean', name: 'ko', desc: '', args: []);
-  }
-
-  /// `Russian`
-  String get ru {
-    return Intl.message('Russian', name: 'ru', desc: '', args: []);
-  }
-
-  /// `Simplified Chinese`
-  String get zh_CN {
-    return Intl.message(
-      'Simplified Chinese',
-      name: 'zh_CN',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Traditional Chinese`
-  String get zh_TC {
-    return Intl.message(
-      'Traditional Chinese',
-      name: 'zh_TC',
-      desc: '',
-      args: [],
-    );
-  }
-
   /// `Theme`
   String get theme {
     return Intl.message('Theme', name: 'theme', desc: '', args: []);

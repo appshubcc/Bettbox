@@ -270,7 +270,6 @@ class MessageLookup extends MessageLookupByLibrary {
     "edit": MessageLookupByLibrary.simpleMessage("编辑"),
     "editTunnel": MessageLookupByLibrary.simpleMessage("编辑转发"),
     "emptyTip": m3,
-    "en": MessageLookupByLibrary.simpleMessage("英语"),
     "enableCrashReport": MessageLookupByLibrary.simpleMessage("应用崩溃分析"),
     "enableCrashReportDesc": MessageLookupByLibrary.simpleMessage(
       "必要时上传应用崩溃日志",
@@ -306,7 +305,6 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "externalLink": MessageLookupByLibrary.simpleMessage("外部链接"),
     "externalResources": MessageLookupByLibrary.simpleMessage("外部资源"),
-    "fa": MessageLookupByLibrary.simpleMessage("波斯语"),
     "fadingCircle": MessageLookupByLibrary.simpleMessage("环影隐渐"),
     "fadingFour": MessageLookupByLibrary.simpleMessage("四方烁动"),
     "fakeIpFilterMode": MessageLookupByLibrary.simpleMessage("FakeIP过滤模式"),
@@ -407,11 +405,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "ipcidr": MessageLookupByLibrary.simpleMessage("IP/掩码"),
     "ipv6Desc": MessageLookupByLibrary.simpleMessage("开启后将可以接收IPv6流量"),
     "ipv6InboundDesc": MessageLookupByLibrary.simpleMessage("允许IPv6入站"),
-    "ja": MessageLookupByLibrary.simpleMessage("日语"),
     "just": MessageLookupByLibrary.simpleMessage("刚刚"),
     "keepAliveIntervalDesc": MessageLookupByLibrary.simpleMessage("TCP保持活动间隔"),
     "key": MessageLookupByLibrary.simpleMessage("键"),
-    "ko": MessageLookupByLibrary.simpleMessage("韩语"),
     "language": MessageLookupByLibrary.simpleMessage("语言"),
     "layout": MessageLookupByLibrary.simpleMessage("布局"),
     "light": MessageLookupByLibrary.simpleMessage("浅色"),
@@ -667,7 +663,6 @@ class MessageLookup extends MessageLookupByLibrary {
     "restartTip": MessageLookupByLibrary.simpleMessage("重启TUN后改变生效"),
     "retry": MessageLookupByLibrary.simpleMessage("重试"),
     "rotatingCircle": MessageLookupByLibrary.simpleMessage("单圆自转"),
-    "ru": MessageLookupByLibrary.simpleMessage("俄语"),
     "rule": MessageLookupByLibrary.simpleMessage("规则"),
     "ruleName": MessageLookupByLibrary.simpleMessage("规则名称"),
     "ruleProviders": MessageLookupByLibrary.simpleMessage("规则提供者"),
@@ -847,7 +842,5 @@ class MessageLookup extends MessageLookupByLibrary {
     "writeToSystem": MessageLookupByLibrary.simpleMessage("写入系统"),
     "writeToSystemDesc": MessageLookupByLibrary.simpleMessage("需要管理员权限"),
     "years": m14,
-    "zh_CN": MessageLookupByLibrary.simpleMessage("简体中文"),
-    "zh_TC": MessageLookupByLibrary.simpleMessage("繁体中文"),
   };
 }

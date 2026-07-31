@@ -385,7 +385,6 @@ class MessageLookup extends MessageLookupByLibrary {
     "edit": MessageLookupByLibrary.simpleMessage("ویرایش"),
     "editTunnel": MessageLookupByLibrary.simpleMessage("ویرایش هدایت"),
     "emptyTip": m3,
-    "en": MessageLookupByLibrary.simpleMessage("انگلیسی"),
     "enableCrashReport": MessageLookupByLibrary.simpleMessage("تحلیل خرابی‌ها"),
     "enableCrashReportDesc": MessageLookupByLibrary.simpleMessage(
       "ارسال گزارش خرابی در صورت لزوم",
@@ -431,7 +430,6 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "externalLink": MessageLookupByLibrary.simpleMessage("لینک خارجی"),
     "externalResources": MessageLookupByLibrary.simpleMessage("منابع خارجی"),
-    "fa": MessageLookupByLibrary.simpleMessage("فارسی"),
     "fadingCircle": MessageLookupByLibrary.simpleMessage("حلقه محوشونده"),
     "fadingFour": MessageLookupByLibrary.simpleMessage("چهار دایره محوشونده"),
     "fakeIpFilterMode": MessageLookupByLibrary.simpleMessage(
@@ -590,13 +588,11 @@ class MessageLookup extends MessageLookupByLibrary {
     "ipv6InboundDesc": MessageLookupByLibrary.simpleMessage(
       "ورودی IPv6 مجاز باشد",
     ),
-    "ja": MessageLookupByLibrary.simpleMessage("ژاپنی"),
     "just": MessageLookupByLibrary.simpleMessage("همین الان"),
     "keepAliveIntervalDesc": MessageLookupByLibrary.simpleMessage(
       "فاصله زمانی TCP Keep-Alive",
     ),
     "key": MessageLookupByLibrary.simpleMessage("کلید"),
-    "ko": MessageLookupByLibrary.simpleMessage("کره‌ای"),
     "language": MessageLookupByLibrary.simpleMessage("زبان"),
     "layout": MessageLookupByLibrary.simpleMessage("چیدمان"),
     "light": MessageLookupByLibrary.simpleMessage("روشن"),
@@ -996,7 +992,6 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "retry": MessageLookupByLibrary.simpleMessage("تلاش مجدد"),
     "rotatingCircle": MessageLookupByLibrary.simpleMessage("چرخش تک‌دایره"),
-    "ru": MessageLookupByLibrary.simpleMessage("روسی"),
     "rule": MessageLookupByLibrary.simpleMessage("قوانین"),
     "ruleName": MessageLookupByLibrary.simpleMessage("نام قانون"),
     "ruleProviders": MessageLookupByLibrary.simpleMessage(
@@ -1244,7 +1239,5 @@ class MessageLookup extends MessageLookupByLibrary {
       "نیازمند دسترسی مدیریت (Admin)",
     ),
     "years": m14,
-    "zh_CN": MessageLookupByLibrary.simpleMessage("چینی ساده‌شده"),
-    "zh_TC": MessageLookupByLibrary.simpleMessage("چینی سنتی"),
   };
 }

@@ -1397,6 +1397,15 @@ class _LocaleItem extends ConsumerWidget {
   const _LocaleItem();
 
   static final List<Locale> _localeOptions = _getOrderedLocales();
+  static const Map<String, String> _nativeLocaleNames = {
+    'zh_CN': '简体中文',
+    'zh_TC': '繁體中文',
+    'en': 'English',
+    'ru': 'Русский',
+    'fa': 'فارسی',
+    'ja': '日本語',
+    'ko': '한국어',
+  };
 
   static List<Locale> _getOrderedLocales() {
     final priority = ['zh_CN', 'zh_TC', 'en', 'ru', 'fa', 'ja', 'ko'];
@@ -1415,7 +1424,7 @@ class _LocaleItem extends ConsumerWidget {
   }
 
   String _getLocaleString(Locale locale) {
-    return Intl.message(locale.toString());
+    return _nativeLocaleNames[locale.toString()] ?? locale.toString();
   }
 
   @override
@@ -1428,7 +1437,7 @@ class _LocaleItem extends ConsumerWidget {
     return ListItem<Locale>.options(
       leading: const Icon(Icons.language_outlined),
       title: Text(appLocalizations.language),
-      subtitle: Text(Intl.message(currentLocale.toString())),
+      subtitle: Text(_getLocaleString(currentLocale)),
       delegate: OptionsDelegate(
         title: appLocalizations.language,
         options: _localeOptions,

@@ -276,7 +276,6 @@ class MessageLookup extends MessageLookupByLibrary {
     "edit": MessageLookupByLibrary.simpleMessage("編輯"),
     "editTunnel": MessageLookupByLibrary.simpleMessage("編輯轉發"),
     "emptyTip": m3,
-    "en": MessageLookupByLibrary.simpleMessage("英語"),
     "enableCrashReport": MessageLookupByLibrary.simpleMessage("應用崩潰分析"),
     "enableCrashReportDesc": MessageLookupByLibrary.simpleMessage(
       "必要時上傳應用崩潰日誌",
@@ -312,7 +311,6 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "externalLink": MessageLookupByLibrary.simpleMessage("外部連結"),
     "externalResources": MessageLookupByLibrary.simpleMessage("外部資源"),
-    "fa": MessageLookupByLibrary.simpleMessage("波斯語"),
     "fadingCircle": MessageLookupByLibrary.simpleMessage("環影隱漸"),
     "fadingFour": MessageLookupByLibrary.simpleMessage("四方爍動"),
     "fakeIpFilterMode": MessageLookupByLibrary.simpleMessage("FakeIP 過濾模式"),
@@ -419,11 +417,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "ipcidr": MessageLookupByLibrary.simpleMessage("IP / 遮罩"),
     "ipv6Desc": MessageLookupByLibrary.simpleMessage("開啟後將可以接收 IPv6 流量"),
     "ipv6InboundDesc": MessageLookupByLibrary.simpleMessage("允許 IPv6 入站"),
-    "ja": MessageLookupByLibrary.simpleMessage("日語"),
     "just": MessageLookupByLibrary.simpleMessage("剛剛"),
     "keepAliveIntervalDesc": MessageLookupByLibrary.simpleMessage("TCP 保持活動間隔"),
     "key": MessageLookupByLibrary.simpleMessage("鍵"),
-    "ko": MessageLookupByLibrary.simpleMessage("韓語"),
     "language": MessageLookupByLibrary.simpleMessage("語言"),
     "layout": MessageLookupByLibrary.simpleMessage("版面配置"),
     "light": MessageLookupByLibrary.simpleMessage("淺色"),
@@ -689,7 +685,6 @@ class MessageLookup extends MessageLookupByLibrary {
     "restartTip": MessageLookupByLibrary.simpleMessage("重啟TUN後改變生效"),
     "retry": MessageLookupByLibrary.simpleMessage("重試"),
     "rotatingCircle": MessageLookupByLibrary.simpleMessage("單圓自轉"),
-    "ru": MessageLookupByLibrary.simpleMessage("俄語"),
     "rule": MessageLookupByLibrary.simpleMessage("規則"),
     "ruleName": MessageLookupByLibrary.simpleMessage("規則名稱"),
     "ruleProviders": MessageLookupByLibrary.simpleMessage("規則提供者"),
@@ -873,7 +868,5 @@ class MessageLookup extends MessageLookupByLibrary {
     "writeToSystem": MessageLookupByLibrary.simpleMessage("寫入系統"),
     "writeToSystemDesc": MessageLookupByLibrary.simpleMessage("需要管理員權限"),
     "years": m14,
-    "zh_CN": MessageLookupByLibrary.simpleMessage("簡體中文"),
-    "zh_TC": MessageLookupByLibrary.simpleMessage("繁體中文"),
   };
 }

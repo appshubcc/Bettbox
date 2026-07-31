@@ -639,49 +639,57 @@ class PackageListItem extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final forceRefresh = ref.watch(forceRefreshIconProvider);
 
-    return ActivateBox(
-      active: isActive,
-      child: ListItem.checkbox(
-        leading: SizedBox(
-          width: 48,
-          height: 48,
-          child: FutureBuilder<Uint8List?>(
-            future: app.getPackageIcon(
-              package.packageName,
-              forceRefresh: forceRefresh,
-            ),
-            builder: (context, snapshot) {
-              if (snapshot.hasData && snapshot.data != null) {
-                final devicePixelRatio = MediaQuery.of(
-                  context,
-                ).devicePixelRatio;
-                final cacheSize = (48 * devicePixelRatio).ceil();
+    return GestureDetector(
+      onLongPress: () {
+        Clipboard.setData(ClipboardData(text: package.packageName));
+        globalState.showNotifier(
+          '${appLocalizations.copiedPackageName}: ${package.packageName}',
+        );
+      },
+      child: ActivateBox(
+        active: isActive,
+        child: ListItem.checkbox(
+          leading: SizedBox(
+            width: 48,
+            height: 48,
+            child: FutureBuilder<Uint8List?>(
+              future: app.getPackageIcon(
+                package.packageName,
+                forceRefresh: forceRefresh,
+              ),
+              builder: (context, snapshot) {
+                if (snapshot.hasData && snapshot.data != null) {
+                  final devicePixelRatio = MediaQuery.of(
+                    context,
+                  ).devicePixelRatio;
+                  final cacheSize = (48 * devicePixelRatio).ceil();
 
-                return Image.memory(
-                  snapshot.data!,
-                  gaplessPlayback: true,
-                  width: 48,
-                  height: 48,
-                  cacheWidth: cacheSize,
-                  cacheHeight: cacheSize,
-                  errorBuilder: (_, _, _) => _buildDefaultIcon(context),
-                );
-              }
-              return _buildDefaultIcon(context);
-            },
+                  return Image.memory(
+                    snapshot.data!,
+                    gaplessPlayback: true,
+                    width: 48,
+                    height: 48,
+                    cacheWidth: cacheSize,
+                    cacheHeight: cacheSize,
+                    errorBuilder: (_, _, _) => _buildDefaultIcon(context),
+                  );
+                }
+                return _buildDefaultIcon(context);
+              },
+            ),
           ),
+          title: Text(
+            package.label,
+            style: const TextStyle(overflow: TextOverflow.ellipsis),
+            maxLines: 1,
+          ),
+          subtitle: Text(
+            package.packageName,
+            style: const TextStyle(overflow: TextOverflow.ellipsis),
+            maxLines: 1,
+          ),
+          delegate: CheckboxDelegate(value: value, onChanged: onChanged),
         ),
-        title: Text(
-          package.label,
-          style: const TextStyle(overflow: TextOverflow.ellipsis),
-          maxLines: 1,
-        ),
-        subtitle: Text(
-          package.packageName,
-          style: const TextStyle(overflow: TextOverflow.ellipsis),
-          maxLines: 1,
-        ),
-        delegate: CheckboxDelegate(value: value, onChanged: onChanged),
       ),
     );
   }

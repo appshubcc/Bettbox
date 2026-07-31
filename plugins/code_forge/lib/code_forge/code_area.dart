@@ -4587,7 +4587,8 @@ class _CodeFieldRenderer extends RenderBox implements MouseTrackerAnnotation {
   int _semanticTokenRequestSerial = 0;
   double _cachedTotalHeight = 0.0;
   double _cachedWrapWidthForHeight = double.infinity;
-  String? _aiResponse, _lastProcessedText;
+  String? _aiResponse;
+  int _lastProcessedLength = -1;
   int _lastProcessedContentVersion = -1;
   TextSelection? _lastSelectionForAi;
   ui.Paragraph? _cachedMagnifiedParagraph;
@@ -4597,6 +4598,7 @@ class _CodeFieldRenderer extends RenderBox implements MouseTrackerAnnotation {
   int? _ghostTextAnchorLine, _highlightedLine;
   int _lastAppliedSemanticVersion = -1, _lastDocumentVersion = -1;
   bool _suspendBracketHighlight = false;
+  bool _lastCaretVisible = false;
   int _previousLineCount = 0;
   int _ghostTextLineCount = 0, _cachedLineCount = 0;
   int _virtualRemovedTotalLineCount = 0;
@@ -4752,18 +4754,18 @@ class _CodeFieldRenderer extends RenderBox implements MouseTrackerAnnotation {
     final currentDocVersion = h.documentVersion;
     if (currentDocVersion != _lastDocumentVersion) {
       _lastDocumentVersion = currentDocVersion;
-      _paragraphCache.clear();
-      _lineTextCache.clear();
+      // 行号键控的文本/段落缓存（_paragraphCache / _lineTextCache / _indentGuideCache /
+      // _lineIndentCache）已在 _onControllerChange 中按 editLine 做细粒度失效，这里不清空
+      // 以避免把"编辑行之前未变化行"的缓存也清掉。
+      // 这里仅清空"非行号键控"或"版本敏感但行号无关/构建开销低"的缓存。
       _lineWidthCache.clear();
       _lineHeightCache.clear();
       _bracketCache.clear();
-      _indentGuideCache.clear();
       _indentEndLineCache.clear();
       _diagnosticPathCache.clear();
       _searchHighlightCache.clear();
       _invalidateWrappedLayoutCache();
       _caretInfoCache.clear();
-      _lineIndentCache.clear();
     }
   }
 
@@ -5059,7 +5061,7 @@ class _CodeFieldRenderer extends RenderBox implements MouseTrackerAnnotation {
       markNeedsPaint();
     });
 
-    caretBlinkController.addListener(markNeedsPaint);
+    caretBlinkController.addListener(_onCaretBlink);
     controller.addListener(_onControllerChange);
 
     _lineHighlightAnimation = Tween<double>(begin: 0.55, end: 0.0).animate(
@@ -5499,6 +5501,16 @@ class _CodeFieldRenderer extends RenderBox implements MouseTrackerAnnotation {
     });
   }
 
+  /// 仅在 caret 可见性切换时重绘，避免每帧 markNeedsPaint
+  void _onCaretBlink() {
+    final caretVisible =
+        focusNode.hasFocus && caretBlinkController.value > 0.5;
+    if (caretVisible != _lastCaretVisible) {
+      _lastCaretVisible = caretVisible;
+      markNeedsPaint();
+    }
+  }
+
   void _onControllerChange() {
     if (controller.lspFoldRanges != _lastLspFoldRanges) {
       _lastLspFoldRanges = controller.lspFoldRanges;
@@ -5686,9 +5698,8 @@ class _CodeFieldRenderer extends RenderBox implements MouseTrackerAnnotation {
       _showBubble = false;
     }
 
-    final newText = controller.text;
-    final previousText = _lastProcessedText ?? newText;
-    final textChanged = newText != previousText;
+    final isFirstCall = _lastProcessedLength < 0;
+    final textChanged = !isFirstCall;
 
     if (textChanged) {
       _caretInfoCache.clear();
@@ -5696,14 +5707,16 @@ class _CodeFieldRenderer extends RenderBox implements MouseTrackerAnnotation {
       _pauseBracketHighlightDuringTyping();
     }
 
+    final newTextLength = controller.length;
     final dirtyRange = controller.dirtyRegion;
+
     if (dirtyRange != null) {
-      final safeEnd = dirtyRange.end.clamp(dirtyRange.start, newText.length);
-      final insertedText = newText.substring(dirtyRange.start, safeEnd);
-      final delta = newText.length - previousText.length;
+      final safeEnd = dirtyRange.end.clamp(dirtyRange.start, newTextLength);
+      final insertedText = controller.substring(dirtyRange.start, safeEnd);
+      final delta = newTextLength - _lastProcessedLength;
       final removedLength = max(insertedText.length - delta, 0);
       final oldEnd = dirtyRange.start + removedLength;
-      final deletedText = previousText.substring(dirtyRange.start, oldEnd);
+      final deletedText = controller.lastDeletedText;
       final editLine = controller.getLineAtOffset(dirtyRange.start);
 
       _syntaxHighlighter?.applyDocumentEdit(
@@ -5712,7 +5725,6 @@ class _CodeFieldRenderer extends RenderBox implements MouseTrackerAnnotation {
         oldEnd,
         insertedText,
         deletedText,
-        newText,
       );
 
       final invalidateFromLine = max(0, editLine);
@@ -5755,15 +5767,23 @@ class _CodeFieldRenderer extends RenderBox implements MouseTrackerAnnotation {
 
       final startInvalidation = insertionLine > 0 ? insertionLine - 1 : 0;
 
-      _lineTextCache.clear();
-      _lineWidthCache.clear();
-      _paragraphCache.clear();
-      _lineHeightCache.clear();
+      // insertionLine 本身内容已变，清除该行缓存
+      _lineTextCache.remove(insertionLine);
+      _lineWidthCache.remove(insertionLine);
+      _paragraphCache.remove(insertionLine);
+      _lineHeightCache.remove(insertionLine);
+      _lineIndentCache.remove(insertionLine);
+      // 对 insertionLine 之后的行号键控缓存做 key-shift（保留内容）
+      _shiftLineKeyedCache(_lineTextCache, insertionLine, lineDelta);
+      _shiftLineKeyedCache(_lineWidthCache, insertionLine, lineDelta);
+      _shiftLineKeyedCache(_paragraphCache, insertionLine, lineDelta);
+      _shiftLineKeyedCache(_lineHeightCache, insertionLine, lineDelta);
+      _shiftLineKeyedCache(_lineIndentCache, insertionLine, lineDelta);
+      // 内容包含行号或 key 非行号的缓存仍需全清
       _indentGuideCache.clear();
       _indentEndLineCache.clear();
       _diagnosticPathCache.clear();
       _searchHighlightCache.clear();
-      _lineIndentCache.clear();
       _bracketCache.clear();
       _syntaxHighlighter?.invalidateAll();
 
@@ -5891,14 +5911,12 @@ class _CodeFieldRenderer extends RenderBox implements MouseTrackerAnnotation {
       markNeedsPaint();
     }
 
-    final oldText = previousText;
     final cursorPosition = controller.selection.extentOffset.clamp(
       0,
       controller.length,
     );
-    final textBeforeCursor = newText.substring(0, cursorPosition);
 
-    if (_lastProcessedText == newText &&
+    if (!textChanged &&
         _aiResponse != null &&
         _aiResponse!.isNotEmpty &&
         _lastSelectionForAi != controller.selection) {
@@ -5909,7 +5927,7 @@ class _CodeFieldRenderer extends RenderBox implements MouseTrackerAnnotation {
     }
 
     final ghost = controller.ghostText;
-    if (_lastProcessedText == newText &&
+    if (!textChanged &&
         ghost != null &&
         !ghost.shouldPersist &&
         _lastSelectionForAi != controller.selection) {
@@ -5918,10 +5936,10 @@ class _CodeFieldRenderer extends RenderBox implements MouseTrackerAnnotation {
     _lastSelectionForAi = controller.selection;
 
     if (_aiResponse != null && _aiResponse!.isNotEmpty) {
-      final textLengthDiff = newText.length - oldText.length;
+      final textLengthDiff = newTextLength - _lastProcessedLength;
 
       if (textLengthDiff > 0 && cursorPosition >= textLengthDiff) {
-        final newlyTypedChars = textBeforeCursor.substring(
+        final newlyTypedChars = controller.substring(
           cursorPosition - textLengthDiff,
           cursorPosition,
         );
@@ -5956,10 +5974,10 @@ class _CodeFieldRenderer extends RenderBox implements MouseTrackerAnnotation {
 
     final ctrlGhost = controller.ghostText;
     if (ctrlGhost != null && !ctrlGhost.shouldPersist) {
-      final textLengthDiff = newText.length - oldText.length;
+      final textLengthDiff = newTextLength - _lastProcessedLength;
 
       if (textLengthDiff > 0 && cursorPosition >= textLengthDiff) {
-        final newlyTypedChars = textBeforeCursor.substring(
+        final newlyTypedChars = controller.substring(
           cursorPosition - textLengthDiff,
           cursorPosition,
         );
@@ -5989,14 +6007,11 @@ class _CodeFieldRenderer extends RenderBox implements MouseTrackerAnnotation {
       }
     }
 
-    if (focusNode.hasFocus &&
-        !_isFoldToggleInProgress &&
-        _lastProcessedText != newText) {
+    if (focusNode.hasFocus && !_isFoldToggleInProgress && textChanged) {
       _ensureCaretVisible();
     }
 
-    if (_lastProcessedText == newText) return;
-    _lastProcessedText = newText;
+    _lastProcessedLength = newTextLength;
     _lastProcessedContentVersion = currentContentVersion;
   }
 
@@ -6637,6 +6652,16 @@ class _CodeFieldRenderer extends RenderBox implements MouseTrackerAnnotation {
     } else {
       lineIndex = controller.getLineAtOffset(cursorOffset);
       lineStartOffset = controller.getLineStartOffset(lineIndex);
+      if (lineIndex > 0) {
+        final shouldMoveUp =
+            cursorOffset < lineStartOffset ||
+            (cursorOffset == lineStartOffset &&
+                controller.findLineEnd(cursorOffset - 1) == cursorOffset - 1);
+        if (shouldMoveUp) {
+          lineIndex -= 1;
+          lineStartOffset = controller.getLineStartOffset(lineIndex);
+        }
+      }
       _cachedCaretOffset = cursorOffset;
       _cachedCaretLine = lineIndex;
       _cachedCaretLineStart = lineStartOffset;
@@ -6756,8 +6781,18 @@ class _CodeFieldRenderer extends RenderBox implements MouseTrackerAnnotation {
     }
 
     final hasActiveFolds = _hasActiveFolds;
-    final lineIndex = controller.getLineAtOffset(cursorOffset);
-    final lineStartOffset = controller.getLineStartOffset(lineIndex);
+    var lineIndex = controller.getLineAtOffset(cursorOffset);
+    var lineStartOffset = controller.getLineStartOffset(lineIndex);
+    if (lineIndex > 0) {
+      final shouldMoveUp =
+          cursorOffset < lineStartOffset ||
+          (cursorOffset == lineStartOffset &&
+              controller.findLineEnd(cursorOffset - 1) == cursorOffset - 1);
+      if (shouldMoveUp) {
+        lineIndex -= 1;
+        lineStartOffset = controller.getLineStartOffset(lineIndex);
+      }
+    }
     final columnIndex = cursorOffset - lineStartOffset;
     final lineY = _getLineYOffset(lineIndex, hasActiveFolds);
     final lineText = controller.getLineText(lineIndex);
@@ -6968,7 +7003,15 @@ class _CodeFieldRenderer extends RenderBox implements MouseTrackerAnnotation {
     );
 
     final lineStartOffset = controller.getLineStartOffset(tappedLineIndex);
-    final absoluteOffset = lineStartOffset + scalarColumn;
+    var absoluteOffset = lineStartOffset + scalarColumn;
+
+    final nextLineIndex = tappedLineIndex + 1;
+    if (nextLineIndex < controller.lineCount) {
+      final nextLineStart = controller.getLineStartOffset(nextLineIndex);
+      if (absoluteOffset >= nextLineStart) {
+        absoluteOffset = nextLineStart - 1;
+      }
+    }
 
     return absoluteOffset.clamp(0, controller.length);
   }
@@ -9051,6 +9094,25 @@ class _CodeFieldRenderer extends RenderBox implements MouseTrackerAnnotation {
         Offset(screenGuideX, clampedYBottom),
         guidePaint,
       );
+    }
+  }
+
+  /// 对行号键控的缓存做 key-shift，保留 insertionLine 之前的缓存
+  void _shiftLineKeyedCache<T>(
+    Map<int, T> cache,
+    int insertionLine,
+    int delta,
+  ) {
+    if (delta == 0) return;
+    final entries = cache.entries.toList();
+    cache.clear();
+    for (final entry in entries) {
+      if (entry.key > insertionLine) {
+        final newKey = entry.key + delta;
+        if (newKey >= 0) cache[newKey] = entry.value;
+      } else {
+        cache[entry.key] = entry.value;
+      }
     }
   }
 

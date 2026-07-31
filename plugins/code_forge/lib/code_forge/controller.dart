@@ -642,6 +642,9 @@ class CodeForgeController implements DeltaTextInputClient {
   /// The range of text that has been modified and needs reprocessing.
   TextRange? dirtyRegion;
 
+  String lastInsertedText = '';
+  String lastDeletedText = '';
+
   /// Map of all fold ranges detected in the document, keyed by start line index.
   ///
   /// This map is automatically populated based on code structure
@@ -2146,6 +2149,32 @@ class CodeForgeController implements DeltaTextInputClient {
     return _cachedText!;
   }
 
+  String substring(int start, [int? end]) {
+    final textLength = length;
+    final safeStart = start.clamp(0, textLength);
+    final safeEnd = (end ?? textLength).clamp(safeStart, textLength);
+
+    if (_bufferLineIndex != null && _bufferDirty) {
+      final bufferStart = _bufferLineRopeStart;
+      final bufferEnd = bufferStart + _bufferLineText!.runes.length;
+      if (safeStart >= bufferStart && safeEnd <= bufferEnd) {
+        final utf16Start = scalarToStringIndex(
+          _bufferLineText!,
+          safeStart - bufferStart,
+        );
+        final utf16End = scalarToStringIndex(
+          _bufferLineText!,
+          safeEnd - bufferStart,
+        );
+        return _bufferLineText!.substring(utf16Start, utf16End);
+      }
+      if (safeEnd <= bufferStart || safeStart >= bufferEnd) {
+        return _rope.substring(safeStart, safeEnd);
+      }
+    }
+    return _rope.substring(safeStart, safeEnd);
+  }
+
   /// The total length of the document in characters.
   int get length {
     if (_bufferLineIndex != null && _bufferDirty) {
@@ -2292,6 +2321,8 @@ class CodeForgeController implements DeltaTextInputClient {
     _lastSentSelection = _selection;
     _imeProjectionDirty = true;
     dirtyRegion = TextRange(start: 0, end: newText.length);
+    lastInsertedText = newText;
+    lastDeletedText = '';
     _isTyping = false;
     _scheduleLspFullSync(newText);
     notifyListeners();
@@ -5005,6 +5036,8 @@ class CodeForgeController implements DeltaTextInputClient {
     List<({int line, int character})>? multiCursorsAfter,
   }) {
     if (_undoController?.isUndoRedoInProgress ?? false) return;
+    lastInsertedText = text;
+    lastDeletedText = '';
     _recordEdit(
       InsertOperation(
         offset: offset,
@@ -5029,6 +5062,8 @@ class CodeForgeController implements DeltaTextInputClient {
     List<({int line, int character})>? multiCursorsAfter,
   }) {
     if (_undoController?.isUndoRedoInProgress ?? false) return;
+    lastDeletedText = text;
+    lastInsertedText = '';
     _recordEdit(
       DeleteOperation(
         offset: offset,
@@ -5054,6 +5089,8 @@ class CodeForgeController implements DeltaTextInputClient {
     List<({int line, int character})>? multiCursorsAfter,
   }) {
     if (_undoController?.isUndoRedoInProgress ?? false) return;
+    lastInsertedText = inserted;
+    lastDeletedText = deleted;
     _recordEdit(
       ReplaceOperation(
         offset: offset,
@@ -5119,6 +5156,8 @@ class CodeForgeController implements DeltaTextInputClient {
     dirtyLine = null;
     lineStructureChanged = false;
     searchHighlightsChanged = false;
+    lastInsertedText = '';
+    lastDeletedText = '';
   }
 
   void _handleInsertion(

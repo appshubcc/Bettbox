@@ -142,7 +142,6 @@ class SyntaxHighlighter {
     int oldEnd,
     String insertedText,
     String deletedText,
-    String fullText,
   ) {
     _documentVersion++;
     final insertedLineBreaks = '\n'.allMatches(insertedText).length;
@@ -242,7 +241,6 @@ class SyntaxHighlighter {
       _isEditing = true;
     }
 
-    _lineSpanCache.clear();
     _version++;
   }
 

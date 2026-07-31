@@ -603,27 +603,26 @@ class __ScriptCustomOptionsSheetState
   Future<bool> _confirmDiscard() async {
     if (_isSaving) return false;
     if (!_hasUnsavedChanges) return true;
-    var saved = false;
     final res = await globalState.showCommonDialog<bool>(
       child: CommonDialog(
         title: appLocalizations.saveChanges,
         actions: [
           TextButton(
-            onPressed: () => Navigator.of(context).pop<bool>(true),
+            onPressed: () => globalState.navigatorKey.currentState?.pop(false),
             child: Text(appLocalizations.cancel),
           ),
           FilledButton(
-            onPressed: () async {
-              Navigator.of(context).pop<bool>(true);
-              saved = true;
-              await _handleSave();
-            },
+            onPressed: () =>
+                globalState.navigatorKey.currentState?.pop(true),
             child: Text(appLocalizations.save),
           ),
         ],
       ),
     );
-    if (saved) return false;
+    if (res == true) {
+      await _handleSave();
+      return false;
+    }
     return res ?? false;
   }
 
@@ -834,27 +833,26 @@ class _GroupSwitchOptionsSheetState
   Future<bool> _confirmDiscard() async {
     if (_isSaving) return false;
     if (!_hasUnsavedChanges) return true;
-    var saved = false;
     final res = await globalState.showCommonDialog<bool>(
       child: CommonDialog(
         title: appLocalizations.saveChanges,
         actions: [
           TextButton(
-            onPressed: () => Navigator.of(context).pop<bool>(true),
+            onPressed: () => globalState.navigatorKey.currentState?.pop(false),
             child: Text(appLocalizations.cancel),
           ),
           FilledButton(
-            onPressed: () async {
-              Navigator.of(context).pop<bool>(true);
-              saved = true;
-              await _handleSave();
-            },
+            onPressed: () =>
+                globalState.navigatorKey.currentState?.pop(true),
             child: Text(appLocalizations.save),
           ),
         ],
       ),
     );
-    if (saved) return false;
+    if (res == true) {
+      await _handleSave();
+      return false;
+    }
     return res ?? false;
   }
 

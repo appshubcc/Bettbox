@@ -734,9 +734,19 @@ class AppLocalizations {
     return Intl.message('English', name: 'en', desc: '', args: []);
   }
 
+  /// `Persian`
+  String get fa {
+    return Intl.message('Persian', name: 'fa', desc: '', args: []);
+  }
+
   /// `Japanese`
   String get ja {
     return Intl.message('Japanese', name: 'ja', desc: '', args: []);
+  }
+
+  /// `Korean`
+  String get ko {
+    return Intl.message('Korean', name: 'ko', desc: '', args: []);
   }
 
   /// `Russian`
@@ -1744,10 +1754,10 @@ class AppLocalizations {
     );
   }
 
-  /// `Sync data via WebDAV or local files`
+  /// `Sync data via WebDAV or locally`
   String get backupAndRecoveryDesc {
     return Intl.message(
-      'Sync data via WebDAV or local files',
+      'Sync data via WebDAV or locally',
       name: 'backupAndRecoveryDesc',
       desc: '',
       args: [],
@@ -2489,10 +2499,10 @@ class AppLocalizations {
     );
   }
 
-  /// `Other Contributors`
+  /// `Other Contributors (Random Order)`
   String get otherContributors {
     return Intl.message(
-      'Other Contributors',
+      'Other Contributors (Random Order)',
       name: 'otherContributors',
       desc: '',
       args: [],
@@ -4324,6 +4334,16 @@ class AppLocalizations {
     );
   }
 
+  /// `Copied package name`
+  String get copiedPackageName {
+    return Intl.message(
+      'Copied package name',
+      name: 'copiedPackageName',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Success`
   String get success {
     return Intl.message('Success', name: 'success', desc: '', args: []);
@@ -5456,6 +5476,9 @@ class AppLocalizationDelegate extends LocalizationsDelegate<AppLocalizations> {
   List<Locale> get supportedLocales {
     return const <Locale>[
       Locale.fromSubtags(languageCode: 'en'),
+      Locale.fromSubtags(languageCode: 'fa'),
+      Locale.fromSubtags(languageCode: 'ja'),
+      Locale.fromSubtags(languageCode: 'ko'),
       Locale.fromSubtags(languageCode: 'ru'),
       Locale.fromSubtags(languageCode: 'zh', countryCode: 'CN'),
       Locale.fromSubtags(languageCode: 'zh', countryCode: 'TC'),

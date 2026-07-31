@@ -740,12 +740,16 @@ abstract class ClashConfig with _$ClashConfig {
 
   factory ClashConfig.safeFormJson(Map<String, Object?>? json) {
     if (json == null) {
-      return defaultClashConfig;
+      return system.isAndroid
+          ? const ClashConfig(findProcessMode: FindProcessMode.always)
+          : defaultClashConfig;
     }
     try {
       return ClashConfig.fromJson(json);
     } catch (_) {
-      return defaultClashConfig;
+      return system.isAndroid
+          ? const ClashConfig(findProcessMode: FindProcessMode.always)
+          : defaultClashConfig;
     }
   }
 }

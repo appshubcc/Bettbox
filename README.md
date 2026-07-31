@@ -1,5 +1,5 @@
 <h4 align="right">
-  <strong>简体中文</strong> | <a href="README_en.md">English</a> | <a href="README_ru.md">Русский</a> | <a href="README_fa.md">فارسی</a> | <a href="README_ja.md">日本語</a> | <a href="README_ko.md">한국어</a>
+  <a href="README_zh.md">简体中文</a> | <strong>English</strong> | <a href="README_ru.md">Русский</a> | <a href="README_fa.md">فارسی</a> | <a href="README_ja.md">日本語</a> | <a href="README_ko.md">한국어</a>
 </h4>
 
 <h1 align="center">⚡ Bettbox</h1>
@@ -7,138 +7,151 @@
   <strong>Another Better Mihomo Client</strong>
 </p>
 
-**Bettbox 是一款使用Mihomo(Clash Meta)内核、基于FlClash早期版本进行重构的多平台网络调试及分流客户端**
+**Bettbox is a cross-platform network debugging and rule-based traffic splitting client powered by the Mihomo (Clash Meta) core and refactored from an early version of FlClash.**
 
-秉承“Better Experience更优体验”的原则，Bettbox在继承原版优秀界面的基础上，深度优化了诸多细节与实用功能/逻辑。设计目标: 前台流畅丝滑、后台省电无感，致力于成为体验更好、可长期稳定运行的 Mihomo 客户端
+Guided by the principle of "Better Experience", Bettbox inherits the original sleek UI while deeply refining key details and feature logic. Goal: silky-smooth animations in the foreground, zero-impact power saving in the background — a lightweight, rock-solid Mihomo client.
 
-**内核当前支持协议**：Shadowsocks ( R / 2022 / ShadowTLS / Restls )、Trojan、VMess、VLESS ( XHTTP / Reality )、Hysteria ( v1 / v2 )、TUIC、WireGuard、Tailscale、OpenVPN、SSH、AnyTLS、Mieru、Snell ( v1-v5 )、Masque、TrustTunnel、Sudoku、Gost-relay 以及 HTTP/Socks5 等。
+Bettbox stands for: Better Experience, Out of the box.
 
-Bettbox意为: Better Experience, Out of the box，卓越体验，亦开箱可用
-
-[![Latest Release](https://img.shields.io/github/v/release/appshubcc/Bettbox?style=for-the-badge&logo=github&color=238636&label=Release)](https://github.com/appshubcc/Bettbox/releases/latest) [![Core](https://img.shields.io/github/v/release/MetaCubeX/mihomo?style=for-the-badge&logo=go&logoColor=white&color=8A2BE2&label=Mihomo)](https://github.com/MetaCubeX/mihomo/releases/latest) [![Downloads](https://img.shields.io/github/downloads/appshubcc/Bettbox/total?style=for-the-badge&logo=github&color=007ec6)](https://github.com/appshubcc/Bettbox/releases) 
+[![Latest Release](https://img.shields.io/github/v/release/appshubcc/Bettbox?style=for-the-badge&logo=github&color=238636&label=Release)](https://github.com/appshubcc/Bettbox/releases/latest) [![Core](https://img.shields.io/github/v/release/MetaCubeX/mihomo?style=for-the-badge&logo=go&logoColor=white&color=8A2BE2&label=Mihomo)](https://github.com/MetaCubeX/mihomo/releases/latest)
 ---
-### ✈️ Telegram 社区交流
+### ✈️ Telegram Community
 
 </div>
 
 <div align="left">
 
-[![Telegram Group](https://img.shields.io/badge/Appshub-Chat-2CA5E0?style=for-the-badge&logo=telegram&logoColor=white)](https://t.me/appshub_chat) [![Telegram Channel](https://img.shields.io/badge/Appshub-Channel-2CA5E0?style=for-the-badge&logo=telegram&logoColor=white)](https://t.me/appshub_channel)
+[![Telegram Group](https://img.shields.io/badge/Bettbox-Chat-2CA5E0?style=for-the-badge&logo=telegram&logoColor=white)](https://t.me/appshub_chat) [![Telegram Channel](https://img.shields.io/badge/Bettbox-Channel-2CA5E0?style=for-the-badge&logo=telegram&logoColor=white)](https://t.me/appshub_channel)
 
 ---
-###   🛩️ 推荐链接
-### [良心云](https://xn--9kqz23b19z.com/#/register?code=VTnrQYAj)  〢  [一分机场](https://xn--4gqx1hgtfdmt.com/#/register?code=AuCiXprV)  〢  [赔钱机场](https://xn--mes358aby2apfg.com/register?code=z7TUZLmM&cover=sfw)
+### 🛩️ Recommended Services
+### Niche IEPL Dedicated Lines  丨  [BBXY (百变小樱)](https://www.bbxy01.com/v2/register?code=c09R)
 
-**简评** : ❚ 相对性价比不错，21元/1000GB/不限时套餐 值得推荐，群友反馈口碑尚可; 需要注意: 机场服务与Bettbox软件无直接关联，最终效果请自行判定
+### Direct Connections  丨  [Liangxinyun (良心云)](https://xn--9kqz23b19z.com/#/register?code=VTnrQYAj)  丨  [Yifen (一分机场)](https://xn--4gqx1hgtfdmt.com/#/register?code=AuCiXprV)  丨  [Peiqian (赔钱机场)](https://xn--mes358aby2apfg.com/register?code=z7TUZLmM&cover=sfw)
+
+**Notes**: ❚ ❚ Dedicated lines (with direct backup) offer higher stability, while direct connections supply huge bandwidth at low cost. Good community feedback. Note: These services are unaffiliated with Bettbox. Please assess performance on your own.
 
 ---
 
-## 🛠️ 安装与下载
+## 🛠️ Installation & Download
 
-请前往 **[[Releases]](https://github.com/appshubcc/Bettbox/releases)** 页面下载最新适合您平台和系统的安装包
+Please visit the **[[Releases]](https://github.com/appshubcc/Bettbox/releases)** page to download the latest package for your platform and system.
 
 
-* **全平台桌面端**: **Windows** (x64/arm64), **macOS** (Intel/Apple Silicon), **Linux** (x64/arm64)
-* **Android 端**: Android (ARMv8/ ARMv7/ x86_64/ Universal) 
-* **Android TV**: 已完整适配,可选ARMv7 32位
-* **鸿蒙 NEXT**: 请配合 [[卓易通]](https://harmonyos.cool/android-app) 使用
+* **All Desktop Platforms**: **Windows** (x64/arm64), **macOS** (Intel/Apple Silicon), **Linux** (x64/arm64)
+* **Android**: Android (ARMv8 / ARMv7 / x86_64 / Universal)
+* **Android TV**: Supported, optional ARMv7 32-bit
+* **HarmonyOS NEXT**: Compatible via [[ZhuoYiTong]](https://harmonyos.cool/android-app)
 
-**其他安装方式:**<br>
-**ArchLinux:** <code>yay -S bettbox-bin 或 paru -S bettbox-bin</code><br>
-**AMD64=v1:** <code>yay -S bettbox-compatible-bin 或 paru -S bettbox-compatible-bin</code>
+**Other Installation Methods:**<br>
+**ArchLinux:** <code>yay -S bettbox-bin</code> or <code>paru -S bettbox-bin</code><br>
+**AMD64=v1:** <code>yay -S bettbox-compatible-bin</code> or <code>paru -S bettbox-compatible-bin</code>
 
 ---
 </div>
 
-## 🚀 核心特性
+## 🚀 Core Features
 
-* **开箱即用**：稳定的权限处理与舒适的 TUN/VPN 体验，大量预置优化与细节，开箱即达可用状态。
-* **精雕细琢**：打磨每处 UI 与功能交互细节，前台高帧率动画流畅，移动端低能耗，桌面端低占用。
-* **安全守护**：内核紧跟 Mihomo 主线分支且积极适配最新特性，多平台保持严格的权限控制与校验。
-* **稳定容错**：优化多平台极端场景下的稳定性，内置YAML格式验证和提前预解析双重错误检测机制。
-* **性能优先**：桌面端原生 ARM64 架构支持，提供硬件分级和 Flutter 整体优化, 充分发挥硬件性能。
-* **增强工具**：首个多平台无感智能启停、Android端休眠支持、一键禁用QUIC、托盘菜单增强等等。
-* **可视化设置**：提供丰富参数的可视化调节界面，支持改动即时生效，无需繁琐修改配置。
-* **首页小组件**：内置多款精致 Widget 小组件，在首页直观掌控实时网速与全局运行状态。
-* **个性化定制**：支持丰富色彩主题、自定义图标/标题等，甚至还包含 10 种精美测速动画。
-* **设备兼容**：持续维护面向旧版系统及老旧硬件的 Compatible 兼容版本，延长设备使用周期。
-* **零隐私风险**：开源、无广告，全透明的 CI/CD 流程且接受全方位审计，杜绝后台隐私收集。
-* **社区导向**：我们会认真评估社区反馈，优先对待高质量的 Issue，你的声音不会无故被淹没。
+* **Out of the Box**: Reliable permission management and smooth TUN/VPN experience. Pre-optimized for instant use.
+* **Fine-Tuned UI**: Polished UI & interaction logic. High FPS animations, ultra-low mobile power draw, minimal desktop footprint.
+* **Security First**: Tracks Mihomo mainline closely with quick feature adoption and strict multi-platform permission verification.
+* **Rock-Solid Stability**: Edge-case handling for extreme scenarios with dual config checks for enterprise-grade reliability.
+* **Performance Focus**: Native desktop ARM64 support, hardware tiering, and full Flutter optimization to squeeze hardware performance.
+* **Smart Utilities**: First seamless multi-platform smart start/stop, Android sleep mode, one-click QUIC disable, rich tray menu.
+* **Visual Controls**: Intuitive UI controls with real-time application — no manual config editing needed.
+* **Home Widgets**: Elegant built-in widgets to track network speeds and running status at a glance.
+* **Personalization**: Rich color themes, custom icons/titles, and 10 dynamic speed-test animations.
+* **Open & Adaptable**: Traffic-splitting UI adaptation for all JS override scripts with visual toggle switches.
+* **Legacy Support**: Maintained Compatible builds for older OS and hardware to extend device lifecycles.
+* **Zero Privacy Risk**: Open-source, ad-free, transparent CI/CD, and fully auditable with zero background telemetry.
+* **Community Driven**: Active evaluation of community feedback and priority for quality issues. Your voice is heard.
 
 ---
 
-##  常见问题
+## ❓ FAQ
 
-1.  **安装启动及安全问题**：
-   - 安卓端设备，请检查**是否授予了充足的后台权限及满足最低系统要求**:Android 8.0+
-   - 桌面端旧设备，请检查系统平台架构**是否需要下载特定CPU等级的Compatible版本**
-   - **安全问题：Bettbox 项目完全开源透明，当前代码已通过 Signpath 基金会安全审计**
+1. **Installation, Startup & Security**:
+   - Android devices: **ensure sufficient background permissions are granted and system requirements are met**: Android 8.0+
+   - Older desktop devices: check if your system architecture **requires downloading a specific CPU-grade Compatible version**.
+   - **Security**: Bettbox is open-source and transparent with zero privacy uploads. Codebase has passed Signpath security audits.
 
-2.  **桌面端常见问题**：
-   - Windows管理员权限：Bettbox在安装时已提前处理，**无需手动再次授权**
-   - 无法开启TUN虚拟网卡：macOS和Linux**请确保输入正确密码给与权限授权**
-   - 其他报错：请提供Debug信息，并**确保没有冲突的代理软件或服务正在运行**
-   - 其他问题如持续存在，请提交ISSUE反馈
+2. **Desktop Common Issues**:
+   - Windows Admin Privileges: Handled automatically during installation — **no manual authorization required**.
+   - Unable to enable TUN adapter: On macOS/Linux, **ensure you enter the correct password for authorization**.
+   - Other errors: Please provide Debug info and **ensure no conflicting proxy software or services are running**.
+   - If issues persist, please submit an ISSUE for feedback.
 
-3.  **macOS安装教程**：
-   - 根据所属平台(Intel/Apple Silicon)下载完成后，双击打开 Bettbox-macos-xx.dmg 文件
-   - 将 Bettbox 图标拖拽至 Applications（应用程序）文件夹中即可完成安装
-   - **首次运行避开系统安全拦截**（由于当前暂未购买 Apple 开发者证书）：
-     - **推荐**：进入“应用程序”文件夹，**右键 Bettbox 图标**，选择 **“打开”**，在确认弹窗中再次点击 **“打开”** 即可
-     - **备选**：如果直接双击被阻止，请前往 Mac 系统“设置” -> “隐私与安全性”，找到 Bettbox 并点击 **“仍要打开”**
-   - 首次开启 TUN 模式时，系统会弹出密码授权窗口，请输入当前用户密码以允许 Bettbox 配置网络
-   - **如果提示“已损坏，打不开，移到废纸篓”**：
-     - 这是 macOS 针对未签名软件的安全机制误报。请打开终端（Terminal），运行以下命令以解除隔离：
+3. **macOS Installation Guide**:
+   - Download the build for your platform (Intel / Apple Silicon) and double-click `Bettbox-macos-xx.dmg`.
+   - Drag the Bettbox icon into the `Applications` folder to complete installation.
+   - **Bypass initial Gatekeeper blocks** ([as we currently do not purchase Apple Developer Certificates](https://support.apple.com/en-us/102445)):
+     - **Recommended**: Open `Applications`, **right-click Bettbox icon**, select **"Open"**, and click **"Open"** again in the prompt.
+     - **Alternative**: If double-click is blocked, go to Mac "System Settings" -> "Privacy & Security", find Bettbox and click **"Open Anyway"**.
+   - When enabling TUN mode for the first time, enter your Mac system password to allow Bettbox to configure network settings.
+   - **If prompted "is damaged and can't be opened. You should move it to the Trash"**:
+     - This is a false positive from macOS Gatekeeper for unsigned software. Open Terminal and run:
        ```bash
        xattr -d com.apple.quarantine /Applications/Bettbox.app
        ```
 
-4.  **无法导入订阅链接**：
-   - **请务必先尝试重置链接**，确保链接正常后再导入
-   - **确保导入的是Clash（Mihomo）格式**的订阅链接
-   - 其他问题如持续存在，请提交ISSUE反馈
+4. **Unable to Import Subscriptions**:
+   - **Please try resetting your link first** to ensure it is valid before importing.
+   - If issues persist, please submit an ISSUE for feedback.
 
-5.  **待持续完善补充..**
-
----
-
-##  开发构建
-
-以 Windows 为例：
-
-* 你需要一台 Windows 设备（系统 ≥ Windows 10）
-* 其他必要环境：Git，Visual Studio，Flutter 3.44.x，Golang，Inno Setup，Rust
-* flutter pub get (获取相关依赖)
-* dart .\setup.dart windows --arch amd64 --out core (仅构建Core核心)
-* dart .\setup.dart windows --arch amd64 --out app --compatible (可选兼容版本)
-* 构建完成后，最终产物位于 `dist/` 目录
+5. **To be continued...**
 
 ---
 
-### ☕ 赞助支持
+## 💻 Build & Development
 
-**如果您觉得这个项目对您有所帮助，可以通过以下方式赞助开发或使用上方的推荐链接：**
+Example for Windows:
 
-* TRON (TRC-20)：   <code>TCkTtZfF2WrciZLaJj3e1aqrh3zdTnCkDa</code>
-* EVM Compatible：  <code>0xF8B1B39431013359D83F38a4e403087624618E67</code>
-* Solana：  <code>C2YQPcKR2YmrPtBvkE13wckjgescUfMA5HzUioR4rQUd</code>
-* Bitcoin： <code>bc1qu950cl6035qvllmzk6cfw3l30j2lg3cq9n6g6h</code>
+* Requirements: Windows device (OS ≥ Windows 10)
+* Prerequisites: Git, Visual Studio, Flutter 3.44.x, Golang, Inno Setup, Rust
+* `flutter pub get` (fetch dependencies)
+* `dart .\setup.dart windows --arch amd64 --out core` (build Core only)
+* `dart .\setup.dart windows --arch amd64 --out app --compatible` (optional Compatible version)
+* Built artifacts will be located in the `dist/` directory.
+
+Custom Script UI Adaptation:
+
+* Taking AIsouler's **[MyClash Configuration Share](https://github.com/AIsouler/MyClash)** as an example, add the following line at the very top of your script to enable Bettbox's visual toggles directly:
+* <code>const Compatible_With_Bettbox = { ruleOptionsEnable: true };</code>
 
 ---
 
-##  致谢
+### ☕ Sponsorship
 
-**[FlClash GUI](https://github.com/chen08209/FlClash)** - **[Mihomo Core](https://github.com/MetaCubeX/mihomo)**
+**If you find this project helpful, you can sponsor development through the following methods or by using the recommended links above:**
 
-* Bettbox项目的 Windows 数字签名由 **[SignPath](https://signpath.io)** 提供，代码已通过安全审查
-* 衷心感谢 **SignPath 基金会 (SignPath Foundation)** 对开源社区的大力支持
+* TRON (TRC-20): <code>TCkTtZfF2WrciZLaJj3e1aqrh3zdTnCkDa</code>
+* EVM Compatible: <code>0xF8B1B39431013359D83F38a4e403087624618E67</code>
+* Solana: <code>C2YQPcKR2YmrPtBvkE13wckjgescUfMA5HzUioR4rQUd</code>
+* Bitcoin: <code>bc1qu950cl6035qvllmzk6cfw3l30j2lg3cq9n6g6h</code>
 
-其他开源项目参考(以时间排序)：
+---
+
+## ❤️ Acknowledgements
+
+<table>
+  <tr>
+    <td>
+      <img alt="SignPath" src="https://signpath.org/assets/favicon-50x50.png" />
+    </td>
+    <td>
+    Free code signing on Windows provided by <a href="https://signpath.io">SignPath.io</a>, certificate by <a href="https://signpath.org/">SignPath Foundation</a>
+    </td>
+  </tr>
+</table>
+
+**[FlClash GUI](https://github.com/chen08209/FlClash)** 〢 **[Mihomo Core](https://github.com/MetaCubeX/mihomo)**
+
+Thanks to all [Contributors](https://github.com/appshubcc/Bettbox/graphs/contributors) and open-source project references:
 
 [CMFA](https://github.com/MetaCubeX/ClashMetaForAndroid), [Sparkle](https://github.com/xishang0128/sparkle), [SFA](https://github.com/SagerNet/sing-box-for-android), [HUSI](https://github.com/xchacha20-poly1305/husi), [V2rayN](https://github.com/2dust/v2rayN)
 
 ---
 
-## 📄 开源协议
+## 📄 License
 
-GPL-3.0 license 开源协议
+GPL-3.0 License

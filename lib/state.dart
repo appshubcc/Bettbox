@@ -120,8 +120,13 @@ class GlobalState {
 
   Future<void> init() async {
     packageInfo = await PackageInfo.fromPlatform();
-    config =
-        await preferences.getConfig() ?? Config(themeProps: defaultThemeProps);
+    config = await preferences.getConfig() ??
+        Config(
+          themeProps: defaultThemeProps,
+          patchClashConfig: system.isAndroid
+              ? const ClashConfig(findProcessMode: FindProcessMode.always)
+              : defaultClashConfig,
+        );
     await globalState.migrateOldData(config);
     final locale =
         utils.getLocaleForString(config.appSetting.locale) ??
@@ -857,8 +862,11 @@ class GlobalState {
       rawConfig.remove('rule');
     }
 
+    final scriptActive = config.scriptProps.currentScript != null &&
+        profile.useScriptOverride;
+
     final overrideData = profile.overrideData;
-    if (overrideData.enable && config.scriptProps.currentScript == null) {
+    if (overrideData.enable && !scriptActive) {
       if (overrideData.rule.type == OverrideRuleType.override) {
         rules = overrideData.runningRule;
       } else {
@@ -915,7 +923,7 @@ class GlobalState {
     }
 
     if (profile.groupSwitches.isNotEmpty &&
-        config.scriptProps.currentScript == null &&
+        !scriptActive &&
         rawConfig['proxy-groups'] is List) {
       final disabledGroups = profile.groupSwitches.entries
           .where((e) => !e.value)

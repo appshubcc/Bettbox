@@ -115,7 +115,7 @@ Bettbox意为: Better Experience, Out of the box，卓越体验，亦开箱可�
 
 自定义脚本 UI 适配：
 
-* 以AIsouler的**[MyClash配置分享](https://github.com/AIsouler/MyClash)**为例，仅需要在首行添加以下声明，即可直接使用Bettbox内置的可视化开关。
+* 以AIsouler的[**MyClash配置分享**](https://github.com/AIsouler/MyClash)为例，仅需要在首行添加以下声明，即可直接使用Bettbox内置的可视化开关。
 * <code>const Compatible_With_Bettbox = { ruleOptionsEnable: true };</code>
 
 ---

@@ -94,7 +94,21 @@ func relayDnsPacket(ctx context.Context, payload []byte, target []byte, maxSize 
 		r.Truncate(maxSize)
 	}
 	r.Compress = true
-	return r.PackBuffer(target)
+	return packDnsMessage(r, target)
+}
+
+func packDnsMessage(msg *D.Msg, target []byte) ([]byte, error) {
+	data, err := msg.PackBuffer(target)
+	if err != nil {
+		return nil, err
+	}
+	// PackBuffer sizes its scratch space by the uncompressed message length and
+	// may allocate a new slice even when the compressed result fits in target.
+	// TUN DNS hijack callers send target, so copy the packed result back first.
+	if len(data) > 0 && len(data) <= len(target) && &data[0] != &target[0] {
+		data = target[:copy(target, data)]
+	}
+	return data, nil
 }
 
 // RelayDnsPacket will truncate udp message up to SafeDnsPacketSize

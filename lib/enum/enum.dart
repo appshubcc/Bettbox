@@ -388,6 +388,7 @@ extension PageLabelExtension on PageLabel {
   }
 }
 
+
 enum RuleAction {
   DOMAIN('DOMAIN'),
   DOMAIN_SUFFIX('DOMAIN-SUFFIX'),

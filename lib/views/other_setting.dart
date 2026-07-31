@@ -64,7 +64,8 @@ class SmartAutoStopSection extends ConsumerWidget {
                   ref
                       .read(vpnSettingProvider.notifier)
                       .updateState(
-                        (state) => state.copyWith(smartAutoStopNetworks: value),
+                        (state) =>
+                            state.copyWith(smartAutoStopNetworks: value),
                       );
                 }
               },
@@ -308,8 +309,7 @@ class BatteryOptimizationItem extends ConsumerStatefulWidget {
       _BatteryOptimizationItemState();
 }
 
-class _BatteryOptimizationItemState
-    extends ConsumerState<BatteryOptimizationItem>
+class _BatteryOptimizationItemState extends ConsumerState<BatteryOptimizationItem>
     with WidgetsBindingObserver {
   bool? _isIgnoring;
   bool _isWaitingForSettings = false;
@@ -447,9 +447,7 @@ class DisableQuicSection extends ConsumerWidget {
               onChanged: (bool value) async {
                 ref
                     .read(vpnSettingProvider.notifier)
-                    .updateState(
-                      (state) => state.copyWith(excludeChina: value),
-                    );
+                    .updateState((state) => state.copyWith(excludeChina: value));
                 globalState.appController.setupClashConfigDebounce();
               },
             ),

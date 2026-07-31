@@ -114,6 +114,9 @@ class AppController {
       _ref.read(isRestartingCoreProvider.notifier).state = true;
       try {
         await _restartCore();
+      } catch (err) {
+        _reportCoreRestartFailure(err);
+        rethrow;
       } finally {
         _ref.read(isRestartingCoreProvider.notifier).state = false;
       }
@@ -381,7 +384,8 @@ class AppController {
 
   Future<bool> _shouldUpdateDashboardTick() async {
     final lifecycleState = WidgetsBinding.instance.lifecycleState;
-    final isPinned = system.isDesktop &&
+    final isPinned =
+        system.isDesktop &&
         _ref.read(windowSettingProvider.select((s) => s.isPinned));
     if (!isPinned && lifecycleState != AppLifecycleState.resumed) return false;
 
@@ -652,9 +656,16 @@ class AppController {
   Future<void> handleChangeProfile({bool hardRestart = false}) {
     return _coreLifecycleLock.synchronized(() async {
       if (hardRestart) {
+        _ref.read(delayDataSourceProvider.notifier).value = {};
+        _ref.read(groupsProvider.notifier).value = [];
+        _ref.read(providersProvider.notifier).value = [];
+        globalState.computeHeightMapCache = {};
         _ref.read(isRestartingCoreProvider.notifier).state = true;
         try {
           await _restartCore();
+        } catch (err) {
+          _reportCoreRestartFailure(err);
+          rethrow;
         } finally {
           _ref.read(isRestartingCoreProvider.notifier).state = false;
         }
@@ -675,11 +686,15 @@ class AppController {
           globalState.showNotifier(err.toString());
         }
       }
-      _ref.read(logsProvider.notifier).value = FixedList(maxLength);
-      _ref.read(requestsProvider.notifier).value = FixedList(maxLength);
       globalState.computeHeightMapCache = {};
       addCheckIpNumDebounce();
     });
+  }
+
+  void _reportCoreRestartFailure(Object error) {
+    final message = error.formatError;
+    commonPrint.log('[Core] Restart failed: $message');
+    globalState.showNotifier('${appLocalizations.restartCoreTitle}: $message');
   }
 
   void updateBrightness() {
@@ -1090,8 +1105,17 @@ class AppController {
   Future<void> _initCore() async {
     final isInit = await clashCore.isInit;
     if (!isInit) {
-      await clashCore.init();
-      await clashCore.setState(globalState.getCoreState());
+      final initialized = await clashCore.init();
+      if (!initialized) {
+        throw StateError('Core initialization returned false');
+      }
+      final stateApplied = await clashCore.setState(globalState.getCoreState());
+      if (!stateApplied) {
+        throw StateError('Core state initialization returned false');
+      }
+      if (!await clashCore.isInit) {
+        throw StateError('Core did not confirm initialization');
+      }
     }
   }
 
@@ -1477,8 +1501,9 @@ class AppController {
       }
 
       if (successCount > 0) {
-        globalState.navigatorKey.currentState
-            ?.popUntil((route) => route.isFirst);
+        globalState.navigatorKey.currentState?.popUntil(
+          (route) => route.isFirst,
+        );
         toProfiles();
       }
     } finally {
@@ -2290,8 +2315,6 @@ class AppController {
     // Ensure current profile exists
     _ensureCurrentProfile(profiles);
   }
-
-
 
   Future<T?> safeRun<T>(
     FutureOr<T> Function() futureFunction, {

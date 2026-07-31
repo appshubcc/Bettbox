@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 
+import 'package:bett_box/clash/core_startup.dart';
 import 'package:bett_box/clash/interface.dart';
 import 'package:bett_box/common/common.dart';
 import 'package:bett_box/enum/enum.dart';
@@ -20,12 +21,14 @@ class ClashService extends ClashHandlerInterface {
 
   Completer<Socket> socketCompleter = Completer();
 
-  bool isStarting = false;
+  final CoreStartGuard _startGuard = CoreStartGuard();
+  bool get isStarting => _startGuard.isRunning;
   bool _isDestroying = false;
 
   Process? process;
 
   Completer<void>? _restartCompleter;
+  late final Future<void> _initialStartup;
 
   TransportType _transportType = TransportType.unixSocket;
   String? _socketPath;
@@ -37,7 +40,7 @@ class ClashService extends ClashHandlerInterface {
   }
 
   ClashService._internal() {
-    _initTransport();
+    _initialStartup = _initTransport();
   }
 
   Future<void> _initTransport() async {
@@ -53,8 +56,8 @@ class ClashService extends ClashHandlerInterface {
       commonPrint.log('Using TCP Socket on port: $_tcpPort');
     }
 
-    _initServer();
-    reStart();
+    unawaited(_initServer());
+    await reStart();
   }
 
   Future<void> _initServer() async {
@@ -99,6 +102,9 @@ class ClashService extends ClashHandlerInterface {
       (error, stack) {
         if (_isDestroying || globalState.isExiting) return;
         commonPrint.log(error.toString());
+        if (!serverCompleter.isCompleted) {
+          serverCompleter.completeError(error, stack);
+        }
         if (error is SocketException &&
             !_isDestroying &&
             !globalState.isExiting) {
@@ -132,98 +138,126 @@ class ClashService extends ClashHandlerInterface {
     }
   }
 
-  Future<void> _doRestart() async {
-    isStarting = true;
-    _isDestroying = false;
+  Future<void> _doRestart() {
+    return _startGuard.run(() async {
+      _isDestroying = false;
+      try {
+        await _destroySocket();
 
-    await _destroySocket();
+        process?.kill();
+        if (process != null) {
+          await process!.exitCode.timeout(
+            const Duration(seconds: 2),
+            onTimeout: () {
+              process?.kill(ProcessSignal.sigkill);
+              return -1;
+            },
+          );
+        }
+        process = null;
 
-    process?.kill();
-    if (process != null) {
-      await process!.exitCode.timeout(
-        const Duration(seconds: 2),
-        onTimeout: () {
-          process?.kill(ProcessSignal.sigkill);
-          return -1;
-        },
-      );
-    }
-    process = null;
+        socketCompleter = Completer();
 
-    socketCompleter = Completer();
+        final serverSocket = await serverCompleter.future;
 
-    final serverSocket = await serverCompleter.future;
+        final String arg;
+        if (_transportType == TransportType.unixSocket) {
+          arg = _socketPath!;
+        } else {
+          arg = '${serverSocket.port}';
+        }
 
-    final String arg;
-    if (_transportType == TransportType.unixSocket) {
-      arg = _socketPath!;
-    } else {
-      arg = '${serverSocket.port}';
-    }
+        final homeDirPath = await appPath.homeDirPath;
+        final environment = Map<String, String>.from(Platform.environment);
+        environment['SAFE_PATHS'] = homeDirPath;
 
-    final homeDirPath = await appPath.homeDirPath;
-    final environment = Map<String, String>.from(Platform.environment);
-    environment['SAFE_PATHS'] = homeDirPath;
-
-    if (system.isWindows) {
-      final serviceOk = await windows?.registerService() ?? false;
-      if (serviceOk) {
-        final started = await helperClient.startCore(
-          corePath: appPath.corePath,
-          arg: arg,
-          homeDir: homeDirPath,
-        );
-        if (started) {
-          await _waitForCoreReady();
-          isStarting = false;
-          if (system.isWindows && globalState.config.appSetting.enableHighPriority) {
-            unawaited(
-              helperClient
-                  .setProcessPriority(
-                    '${AppIdentity.coreExecutableName}.exe',
-                    true,
-                  )
-                  .catchError((e) {
-                    commonPrint.log('Failed to set core process priority: $e');
-                    return false;
-                  }),
+        if (system.isWindows) {
+          final serviceOk = await windows?.registerService() ?? false;
+          if (serviceOk) {
+            final started = await helperClient.startCore(
+              corePath: appPath.corePath,
+              arg: arg,
+              homeDir: homeDirPath,
+            );
+            if (started) {
+              await _waitForCoreReady();
+              _setHighPriority();
+              return;
+            }
+            commonPrint.log(
+              'Helper start core failed, falling back to normal mode',
             );
           }
-          return;
         }
-        commonPrint.log(
-          'Helper start core failed, falling back to normal mode',
-        );
-      }
-    }
 
-    process = await Process.start(appPath.corePath, [
-      arg,
-    ], environment: environment);
-    process?.stdout.listen((_) {});
-    process?.stderr.listen((e) {
-      final error = utf8.decode(e);
-      if (error.isNotEmpty) commonPrint.log(error);
+        process = await Process.start(appPath.corePath, [
+          arg,
+        ], environment: environment);
+        process?.stdout.listen((_) {});
+        process?.stderr.listen((e) {
+          final error = utf8.decode(e);
+          if (error.isNotEmpty) commonPrint.log(error);
+        });
+        await _waitForCoreReady();
+        _setHighPriority();
+      } catch (error, stackTrace) {
+        commonPrint.log('Core restart failed: $error');
+        try {
+          await _cleanupFailedCoreStart();
+        } catch (cleanupError) {
+          commonPrint.log(
+            'Failed to clean up Core after startup error: $cleanupError',
+          );
+        }
+        Error.throwWithStackTrace(error, stackTrace);
+      }
     });
-    await _waitForCoreReady();
-    isStarting = false;
-    if (system.isWindows && globalState.config.appSetting.enableHighPriority) {
-      unawaited(
-        helperClient
-            .setProcessPriority('${AppIdentity.coreExecutableName}.exe', true)
-            .catchError((e) {
-              commonPrint.log('Failed to set core process priority: $e');
-              return false;
-            }),
-      );
-    }
   }
 
   Future<void> _waitForCoreReady() async {
+    await waitForCoreReady(socketCompleter.future);
+  }
+
+  void _setHighPriority() {
+    if (!system.isWindows ||
+        !globalState.config.appSetting.enableHighPriority) {
+      return;
+    }
+    unawaited(
+      helperClient
+          .setProcessPriority('${AppIdentity.coreExecutableName}.exe', true)
+          .catchError((e) {
+            commonPrint.log('Failed to set core process priority: $e');
+            return false;
+          }),
+    );
+  }
+
+  Future<void> _cleanupFailedCoreStart() async {
+    _isDestroying = true;
     try {
-      await socketCompleter.future.timeout(const Duration(seconds: 5));
-    } catch (_) {
-      commonPrint.log('Core ready timeout after 5s');
+      if (system.isWindows) {
+        try {
+          await helperClient.stopCore().timeout(const Duration(seconds: 5));
+        } catch (error) {
+          commonPrint.log('Failed to stop Core after startup error: $error');
+        }
+      }
+      await _destroySocket();
+      process?.kill();
+      if (process != null) {
+        await process!.exitCode.timeout(
+          const Duration(seconds: 2),
+          onTimeout: () {
+            process?.kill(ProcessSignal.sigkill);
+            return -1;
+          },
+        );
+      }
+      process = null;
+      socketCompleter = Completer();
+    } finally {
+      _isDestroying = false;
     }
   }
 
@@ -293,6 +327,9 @@ class ClashService extends ClashHandlerInterface {
     return true;
   }
 
+  /// Checks IPC/control-plane health only.
+  ///
+  /// A true result does not prove that TUN or mixed-port traffic can pass.
   Future<bool> checkCoreHealth({
     Duration timeout = const Duration(seconds: 2),
   }) async {
@@ -311,7 +348,7 @@ class ClashService extends ClashHandlerInterface {
 
   @override
   Future<bool> preload() async {
-    await serverCompleter.future;
+    await _initialStartup;
     return true;
   }
 }

@@ -19,6 +19,22 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'controller.dart';
 import 'pages/pages.dart';
 
+bool shouldReconcileMacOSNetworkState({
+  required String? previousFingerprint,
+  required String currentFingerprint,
+  bool force = false,
+}) {
+  return force || previousFingerprint != currentFingerprint;
+}
+
+bool isMacOSNetworkRecoveryCurrent({
+  required bool mounted,
+  required int scheduledGeneration,
+  required int currentGeneration,
+}) {
+  return mounted && scheduledGeneration == currentGeneration;
+}
+
 class Application extends ConsumerStatefulWidget {
   const Application({super.key});
 
@@ -30,6 +46,11 @@ class ApplicationState extends ConsumerState<Application>
     with WidgetsBindingObserver {
   Timer? _autoUpdateGroupTaskTimer;
   Timer? _autoUpdateProfilesTaskTimer;
+  Timer? _networkChangeDebounceTimer;
+  int _networkChangeGeneration = 0;
+  bool _forceNextMacOSNetworkRecovery = false;
+  bool _macOSNetworkRecoveryReady = false;
+  String? _lastMacOSNetworkFingerprint;
 
   final _pageTransitionsTheme = const PageTransitionsTheme(
     builders: <TargetPlatform, PageTransitionsBuilder>{
@@ -54,6 +75,9 @@ class ApplicationState extends ConsumerState<Application>
     globalState.backgroundMode.addListener(_syncAutoUpdateTasks);
     _syncAutoUpdateTasks();
     globalState.appController = AppController(context, ref);
+    if (system.isMacOS) {
+      app.onSystemWake = _handleMacOSSystemWake;
+    }
     WidgetsBinding.instance.addPostFrameCallback((_) {
       unawaited(_initApp());
     });
@@ -71,6 +95,12 @@ class ApplicationState extends ConsumerState<Application>
       globalState.appController = AppController(currentContext, ref);
     }
     await globalState.appController.init();
+    if (system.isMacOS) {
+      final networkState = await macOS?.defaultNetworkState;
+      if (!mounted) return;
+      _lastMacOSNetworkFingerprint = networkState?.fingerprint;
+      _macOSNetworkRecoveryReady = true;
+    }
     try {
       await ExternalControl.start();
     } catch (e) {
@@ -133,6 +163,93 @@ class ApplicationState extends ConsumerState<Application>
     );
   }
 
+  void _handleConnectivityChanged(List<ConnectivityResult> results) {
+    if (!system.isMacOS) {
+      if (!results.contains(ConnectivityResult.vpn)) {
+        unawaited(clashCore.closeConnections());
+      }
+      globalState.appController.updateLocalIp();
+      globalState.appController.addCheckIpNumDebounce();
+      return;
+    }
+
+    unawaited(globalState.appController.updateLocalIp());
+    if (!_macOSNetworkRecoveryReady) return;
+    _scheduleMacOSNetworkRecovery();
+  }
+
+  void _handleMacOSSystemWake() {
+    if (!mounted || !system.isMacOS || !_macOSNetworkRecoveryReady) return;
+    commonPrint.log('macOS system wake detected; forcing TUN and DNS recovery');
+    _scheduleMacOSNetworkRecovery(force: true);
+  }
+
+  void _scheduleMacOSNetworkRecovery({bool force = false}) {
+    _forceNextMacOSNetworkRecovery |= force;
+    final generation = ++_networkChangeGeneration;
+    _networkChangeDebounceTimer?.cancel();
+    _networkChangeDebounceTimer = Timer(
+      const Duration(milliseconds: 500),
+      () => unawaited(_handleMacOSNetworkChange(generation)),
+    );
+  }
+
+  Future<void> _handleMacOSNetworkChange(int generation) async {
+    final networkState = await macOS?.waitForStableDefaultNetwork(
+      isCancelled: () => !isMacOSNetworkRecoveryCurrent(
+        mounted: mounted,
+        scheduledGeneration: generation,
+        currentGeneration: _networkChangeGeneration,
+      ),
+    );
+    if (networkState == null ||
+        !isMacOSNetworkRecoveryCurrent(
+          mounted: mounted,
+          scheduledGeneration: generation,
+          currentGeneration: _networkChangeGeneration,
+        )) {
+      return;
+    }
+
+    final force = _forceNextMacOSNetworkRecovery;
+    _forceNextMacOSNetworkRecovery = false;
+    if (!shouldReconcileMacOSNetworkState(
+      previousFingerprint: _lastMacOSNetworkFingerprint,
+      currentFingerprint: networkState.fingerprint,
+      force: force,
+    )) {
+      return;
+    }
+    try {
+      final recovered = await globalState.appController
+          .handleMacOSNetworkChange(
+            networkState,
+            isCancelled: () => !isMacOSNetworkRecoveryCurrent(
+              mounted: mounted,
+              scheduledGeneration: generation,
+              currentGeneration: _networkChangeGeneration,
+            ),
+          );
+      if (!recovered ||
+          !isMacOSNetworkRecoveryCurrent(
+            mounted: mounted,
+            scheduledGeneration: generation,
+            currentGeneration: _networkChangeGeneration,
+          )) {
+        _forceNextMacOSNetworkRecovery |= force;
+        return;
+      }
+      _lastMacOSNetworkFingerprint = networkState.fingerprint;
+    } catch (e) {
+      _forceNextMacOSNetworkRecovery |= force;
+      commonPrint.log('Failed to reconcile macOS network change: $e');
+      return;
+    }
+
+    unawaited(globalState.appController.updateLocalIp());
+    globalState.appController.addCheckIpNumDebounce();
+  }
+
   Widget _buildPlatformState(Widget child) {
     if (system.isDesktop) {
       return WindowManager(
@@ -152,21 +269,7 @@ class ApplicationState extends ConsumerState<Application>
     return AppStateManager(
       child: ClashManager(
         child: ConnectivityManager(
-          onConnectivityChanged: (results) async {
-            if (!results.contains(ConnectivityResult.vpn)) {
-              clashCore.closeConnections();
-            }
-            if (system.isMacOS) {
-              // Wait for DHCP and the default route to settle before moving the
-              // managed DNS from the previous network to the new one.
-              await Future.delayed(const Duration(seconds: 1));
-              if (!mounted) return;
-              final dnsState = ref.read(autoSetSystemDnsStateProvider);
-              await macOS?.updateDns(!(dnsState.a && dnsState.b));
-            }
-            globalState.appController.updateLocalIp();
-            globalState.appController.addCheckIpNumDebounce();
-          },
+          onConnectivityChanged: _handleConnectivityChanged,
           child: child,
         ),
       ),
@@ -257,11 +360,16 @@ class ApplicationState extends ConsumerState<Application>
 
   @override
   void dispose() {
+    if (system.isMacOS) {
+      app.onSystemWake = null;
+    }
     globalState.backgroundMode.removeListener(_syncAutoUpdateTasks);
     WidgetsBinding.instance.removeObserver(this);
     linkManager.destroy();
     _autoUpdateGroupTaskTimer?.cancel();
     _autoUpdateProfilesTaskTimer?.cancel();
+    _networkChangeDebounceTimer?.cancel();
+    _networkChangeGeneration++;
     ExternalControl.stop();
     if (!system.isAndroid && !globalState.isExiting) {
       unawaited(globalState.appController.handleExit());

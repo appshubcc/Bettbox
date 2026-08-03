@@ -9,23 +9,28 @@ class App {
   static App? _instance;
   late MethodChannel methodChannel;
   Function()? onExit;
+  FutureOr<void> Function()? onSystemWake;
 
   App._internal() {
     methodChannel = const MethodChannel('app');
-    methodChannel.setMethodCallHandler((call) async {
-      switch (call.method) {
-        case 'exit':
-          await onExit?.call();
-        case 'getText':
-          try {
-            return Intl.message(call.arguments as String);
-          } catch (_) {
-            return '';
-          }
-        default:
-          throw MissingPluginException();
-      }
-    });
+    methodChannel.setMethodCallHandler(handleMethodCall);
+  }
+
+  Future<dynamic> handleMethodCall(MethodCall call) async {
+    switch (call.method) {
+      case 'exit':
+        await onExit?.call();
+      case 'systemDidWake':
+        await onSystemWake?.call();
+      case 'getText':
+        try {
+          return Intl.message(call.arguments as String);
+        } catch (_) {
+          return '';
+        }
+      default:
+        throw MissingPluginException();
+    }
   }
 
   factory App() {

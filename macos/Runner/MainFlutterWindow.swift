@@ -5,6 +5,7 @@ import LaunchAtLogin
 
 class MainFlutterWindow: NSWindow {
     private var appMethodChannel: FlutterMethodChannel?
+    private var systemDidWakeObserver: NSObjectProtocol?
     
     override func awakeFromNib() {
         let flutterViewController = FlutterViewController()
@@ -31,6 +32,7 @@ class MainFlutterWindow: NSWindow {
         
         // Setup app method channel
         setupAppMethodChannel(flutterViewController: flutterViewController)
+        setupSystemWakeNotification()
         
         RegisterGeneratedPlugins(registry: flutterViewController)
         
@@ -40,6 +42,12 @@ class MainFlutterWindow: NSWindow {
         }
         
         super.awakeFromNib()
+    }
+
+    deinit {
+        if let observer = systemDidWakeObserver {
+            NSWorkspace.shared.notificationCenter.removeObserver(observer)
+        }
     }
     
     override public func order(_ place: NSWindow.OrderingMode, relativeTo otherWin: Int) {
@@ -73,6 +81,16 @@ class MainFlutterWindow: NSWindow {
             default:
                 result(FlutterMethodNotImplemented)
             }
+        }
+    }
+
+    private func setupSystemWakeNotification() {
+        systemDidWakeObserver = NSWorkspace.shared.notificationCenter.addObserver(
+            forName: NSWorkspace.didWakeNotification,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            self?.appMethodChannel?.invokeMethod("systemDidWake", arguments: nil)
         }
     }
     

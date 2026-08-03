@@ -30,6 +30,70 @@ import 'common/flclash_database_extractor.dart';
 import 'models/models.dart';
 import 'views/profiles/override_profile.dart';
 
+@visibleForTesting
+Future<bool> runMacOSTunStartup({
+  required Future<Result<bool>> Function() requestAdmin,
+  required Future<void> Function() restartCore,
+  required Future<void> Function() applyTunConfig,
+  required Future<void> Function() startListener,
+  required Future<void> Function() stopListener,
+}) async {
+  final result = await requestAdmin();
+  if (result.isError) {
+    return false;
+  }
+
+  if (result.needRestart) {
+    await restartCore();
+  }
+
+  await startListener();
+  try {
+    await applyTunConfig();
+  } catch (error, stackTrace) {
+    try {
+      await stopListener();
+    } catch (_) {}
+    Error.throwWithStackTrace(error, stackTrace);
+  }
+
+  return true;
+}
+
+@visibleForTesting
+Future<void> rebuildMacOSTunListener({
+  required Future<void> Function() disableTun,
+  required Future<void> Function() stopListener,
+  required Future<void> Function() repairNetwork,
+  required Future<void> Function() startListener,
+  required Future<void> Function() enableTun,
+  bool Function()? shouldResume,
+}) async {
+  var tunTemporarilyDisabled = false;
+  var listenerStopped = false;
+  try {
+    await disableTun();
+    tunTemporarilyDisabled = true;
+    await stopListener();
+    listenerStopped = true;
+    await repairNetwork();
+  } finally {
+    if (shouldResume?.call() ?? true) {
+      if (listenerStopped) {
+        try {
+          await startListener();
+        } finally {
+          if (tunTemporarilyDisabled) {
+            await enableTun();
+          }
+        }
+      } else if (tunTemporarilyDisabled) {
+        await enableTun();
+      }
+    }
+  }
+}
+
 class AppController {
   int? lastProfileModified;
 
@@ -47,6 +111,7 @@ class AppController {
   Timer? _updateGroupsRetryTimer;
   int _coreGeneration = 0;
   int _setupGeneration = 0;
+  int _macOSNetworkRecoveryGeneration = 0;
 
   AppController(this.context, WidgetRef ref) : _ref = ref;
 
@@ -165,7 +230,69 @@ class AppController {
   }
 
   Future<void> updateStatus(bool isStart) {
+    if (system.isMacOS && !isStart) {
+      _macOSNetworkRecoveryGeneration++;
+    }
     return _coreLifecycleLock.synchronized(() => _updateStatus(isStart));
+  }
+
+  Future<bool> handleMacOSNetworkChange(
+    MacOSNetworkState networkState, {
+    bool Function()? isCancelled,
+  }) {
+    if (!system.isMacOS) return Future.value(false);
+
+    final recoveryGeneration = _macOSNetworkRecoveryGeneration;
+
+    bool recoveryCancelled() {
+      return recoveryGeneration != _macOSNetworkRecoveryGeneration ||
+          isCancelled?.call() == true;
+    }
+
+    return _coreLifecycleLock.synchronized(() async {
+      if (recoveryCancelled()) return false;
+
+      final isStart = _ref.read(runTimeProvider.notifier).isStart;
+      final dnsState = _ref.read(autoSetSystemDnsStateProvider);
+      final shouldSetSystemDns = dnsState.a && dnsState.b;
+      final shouldRestartTunListener = isStart && dnsState.a;
+
+      Future<void> repairNetwork() async {
+        if (recoveryCancelled()) return;
+
+        if (isStart) {
+          await clashCore.closeConnections();
+        }
+        if (recoveryCancelled()) return;
+
+        await macOS?.updateDns(
+          !shouldSetSystemDns,
+          serviceName: networkState.serviceName,
+        );
+
+        if (!isStart || recoveryCancelled()) return;
+
+        await clashCore.flushDnsCache();
+        if (recoveryCancelled()) return;
+        await clashCore.flushFakeIP();
+      }
+
+      if (!shouldRestartTunListener) {
+        await repairNetwork();
+        return !recoveryCancelled();
+      }
+
+      commonPrint.log('Rebuilding macOS TUN after network change');
+      await rebuildMacOSTunListener(
+        disableTun: () => _applyCoreTunConfig(false, persist: false),
+        stopListener: clashCore.stopListener,
+        repairNetwork: repairNetwork,
+        startListener: clashCore.startListener,
+        enableTun: _updateClashConfig,
+        shouldResume: () => !recoveryCancelled(),
+      );
+      return !recoveryCancelled();
+    });
   }
 
   Future<void> _updateStatus(bool isStart) async {
@@ -192,34 +319,36 @@ class AppController {
     final isDesktop = system.isDesktop;
 
     if (isDesktop && patchConfig.tun.enable) {
-      await _quickSetupConfig(enableTun: false);
+      final setupResult = await _quickSetupConfig(enableTun: false);
+      if (system.isMacOS && setupResult != true) {
+        commonPrint.log('Fast start aborted: initial TUN setup failed');
+        return;
+      }
 
       if (system.isMacOS) {
         try {
-          final res = await _requestAdmin(true);
-          if (res.needRestart) {
-            await restartCore();
+          final started = await runMacOSTunStartup(
+            requestAdmin: () => _requestAdmin(true),
+            restartCore: restartCore,
+            applyTunConfig: _updateClashConfig,
+            startListener: clashCore.startListener,
+            stopListener: clashCore.stopListener,
+          );
+          if (!started) {
+            commonPrint.log(
+              'Fast start aborted: macOS TUN authorization failed',
+            );
             return;
           }
-          await globalState.handleStart([updateRunTime, updateTraffic]);
-          await updateProviders();
-          if (!res.isError) {
-            Future.microtask(() async {
-              try {
-                await _updateClashConfig();
-              } catch (e) {
-                commonPrint.log('FastStart macOS TUN update failed: $e');
-              }
-              _backgroundLoad();
-            });
-          } else {
-            _backgroundLoad();
-          }
-        } catch (e) {
-          commonPrint.log('FastStart macOS auth error: $e');
-          await globalState.handleStart([updateRunTime, updateTraffic]);
+          await globalState.handleStartWithActiveListener([
+            updateRunTime,
+            updateTraffic,
+          ]);
           await updateProviders();
           _backgroundLoad();
+        } catch (e) {
+          commonPrint.log('FastStart macOS TUN startup failed: $e');
+          rethrow;
         }
         _scheduleCheckIpRefresh();
         return;
@@ -583,14 +712,19 @@ class AppController {
       return;
     }
 
+    await _applyCoreTunConfig(realTunEnable);
+  }
+
+  Future<void> _applyCoreTunConfig(bool enable, {bool persist = true}) async {
+    final updateParams = _ref.read(updateParamsProvider);
     final message = await clashCore.updateConfig(
-      updateParams.copyWith.tun(enable: realTunEnable),
+      updateParams.copyWith.tun(enable: enable),
     );
     if (message.isNotEmpty) throw message;
 
-    if (system.isDesktop) {
+    if (persist && system.isDesktop) {
       final prefs = await preferences.sharedPreferencesCompleter.future;
-      await prefs?.setBool('is_tun_running', realTunEnable);
+      await prefs?.setBool('is_tun_running', enable);
     }
   }
 
@@ -967,6 +1101,9 @@ class AppController {
     final exitLock = Completer<void>();
     _exitLock = exitLock;
     globalState.isExiting = true;
+    if (system.isMacOS) {
+      _macOSNetworkRecoveryGeneration++;
+    }
 
     try {
       if (system.isDesktop) {

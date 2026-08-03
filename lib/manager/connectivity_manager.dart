@@ -1,6 +1,8 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:connectivity_plus_platform_interface/connectivity_plus_platform_interface.dart';
 import 'package:flutter/material.dart';
 
 class ConnectivityManager extends StatefulWidget {
@@ -18,12 +20,15 @@ class ConnectivityManager extends StatefulWidget {
 }
 
 class _ConnectivityManagerState extends State<ConnectivityManager> {
-  late StreamSubscription subscription;
+  late StreamSubscription<List<ConnectivityResult>> subscription;
 
   @override
   void initState() {
     super.initState();
-    subscription = Connectivity().onConnectivityChanged.listen((results) async {
+    final connectivityStream = Platform.isMacOS
+        ? ConnectivityPlatform.instance.onConnectivityChanged
+        : Connectivity().onConnectivityChanged;
+    subscription = connectivityStream.listen((results) {
       widget.onConnectivityChanged?.call(results);
     });
   }

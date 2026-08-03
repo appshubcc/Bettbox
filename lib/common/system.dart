@@ -493,6 +493,16 @@ class Windows {
 
 final windows = system.isWindows ? Windows() : null;
 
+class MacOSNetworkState {
+  final String serviceName;
+  final String fingerprint;
+
+  const MacOSNetworkState({
+    required this.serviceName,
+    required this.fingerprint,
+  });
+}
+
 class MacOS {
   static MacOS? _instance;
   static const _dnsBackupFileName = 'macos_system_dns_backup.json';
@@ -506,23 +516,45 @@ class MacOS {
     return _instance!;
   }
 
-  Future<String?> get defaultServiceName async {
+  Future<({String device, String gateway})?> _getDefaultRoute() async {
     final result = await Process.run('route', ['-n', 'get', 'default']);
-    final output = result.stdout.toString();
-    final deviceLine = output
-        .split('\n')
-        .firstWhere((s) => s.contains('interface:'), orElse: () => '');
-    final parts = deviceLine.trim().split(' ');
-    if (parts.length != 2) return null;
+    if (result.exitCode != 0) return null;
 
-    final device = parts[1];
+    final output = result.stdout.toString();
+    String? valueForKey(String key) {
+      final prefix = '$key:';
+      final line = output
+          .split('\n')
+          .map((line) => line.trim())
+          .firstWhere((line) => line.startsWith(prefix), orElse: () => '');
+      if (line.isEmpty) return null;
+      return line.substring(prefix.length).trim();
+    }
+
+    final device = valueForKey('interface');
+    final gateway = valueForKey('gateway');
+    if (device == null ||
+        device.isEmpty ||
+        gateway == null ||
+        gateway.isEmpty) {
+      return null;
+    }
+    return (device: device, gateway: gateway);
+  }
+
+  Future<String?> _getServiceNameForDevice(String device) async {
     final serviceResult = await Process.run('networksetup', [
       '-listnetworkserviceorder',
     ]);
+    if (serviceResult.exitCode != 0) return null;
+
     final serviceOutput = serviceResult.stdout.toString();
     final currentService = serviceOutput
         .split('\n\n')
-        .firstWhere((s) => s.contains('Device: $device'), orElse: () => '');
+        .firstWhere(
+          (section) => section.contains('Device: $device)'),
+          orElse: () => '',
+        );
     if (currentService.isEmpty) return null;
 
     final serviceNameLine = currentService
@@ -535,6 +567,101 @@ class MacOS {
       r'^\(\d+\)\s+(.+)$',
     ).firstMatch(serviceNameLine.trim());
     return match?.group(1)?.trim();
+  }
+
+  Future<String?> get defaultServiceName async {
+    final route = await _getDefaultRoute();
+    if (route == null) return null;
+    return _getServiceNameForDevice(route.device);
+  }
+
+  Future<MacOSNetworkState?> _getDefaultNetworkState() async {
+    final route = await _getDefaultRoute();
+    if (route == null) return null;
+
+    final serviceName = await _getServiceNameForDevice(route.device);
+    if (serviceName == null) return null;
+
+    final addressResult = await Process.run('ipconfig', [
+      'getifaddr',
+      route.device,
+    ]);
+    final address = addressResult.exitCode == 0
+        ? addressResult.stdout.toString().trim()
+        : '';
+    if (address.isEmpty) return null;
+
+    final summaryResult = await Process.run('ipconfig', [
+      'getsummary',
+      route.device,
+    ]);
+    final summary = summaryResult.exitCode == 0
+        ? summaryResult.stdout.toString()
+        : '';
+
+    String summaryValue(RegExp pattern) {
+      return pattern.firstMatch(summary)?.group(1)?.trim() ?? '';
+    }
+
+    final connectionId = summaryValue(
+      RegExp(r'^\s*ConnectionID\s*:\s*(.+)$', multiLine: true),
+    );
+    final dhcpServer = summaryValue(
+      RegExp(r'^\s*server_identifier \(ip\):\s*(.+)$', multiLine: true),
+    );
+    final dhcpDns = summaryValue(
+      RegExp(r'^\s*domain_name_server \(ip_mult\):\s*(.+)$', multiLine: true),
+    );
+    final fingerprint = [
+      route.device,
+      route.gateway,
+      serviceName,
+      address,
+      connectionId,
+      dhcpServer,
+      dhcpDns,
+    ].join('|');
+
+    return MacOSNetworkState(
+      serviceName: serviceName,
+      fingerprint: fingerprint,
+    );
+  }
+
+  Future<MacOSNetworkState?> get defaultNetworkState =>
+      _getDefaultNetworkState();
+
+  Future<MacOSNetworkState?> waitForStableDefaultNetwork({
+    Duration initialDelay = const Duration(seconds: 1),
+    Duration sampleInterval = const Duration(seconds: 1),
+    int maxAttempts = 5,
+    bool Function()? isCancelled,
+  }) async {
+    await Future.delayed(initialDelay);
+    MacOSNetworkState? previous;
+
+    for (var attempt = 0; attempt < maxAttempts; attempt++) {
+      if (isCancelled?.call() == true) return null;
+
+      final current = await _getDefaultNetworkState();
+      if (current != null &&
+          previous != null &&
+          current.fingerprint == previous.fingerprint) {
+        return current;
+      }
+      previous = current;
+
+      if (attempt < maxAttempts - 1) {
+        await Future.delayed(sampleInterval);
+      }
+    }
+
+    if (previous != null) {
+      commonPrint.log(
+        'macOS default network did not fully settle; using the latest state',
+      );
+    }
+    return previous;
   }
 
   Future<List<String>?> get systemDns async {
@@ -560,26 +687,29 @@ class MacOS {
         : output.split('\n');
   }
 
-  Future<void> updateDns(bool restore) {
+  Future<void> updateDns(bool restore, {String? serviceName}) {
     return _dnsLock.synchronized(() async {
       if (restore) {
         await _restoreDns();
       } else {
-        await _setDns();
+        await _setDns(serviceName);
       }
     });
   }
 
-  Future<void> _setDns() async {
+  Future<void> _setDns(String? targetServiceName) async {
     // Restore a previous managed value first so repeated enable operations never
     // overwrite the real system DNS backup with Bettbox's own hijack DNS.
     if (!await _restoreDns()) return;
 
-    final serviceName = await defaultServiceName;
+    final serviceName = targetServiceName ?? await defaultServiceName;
     if (serviceName == null) return;
 
     final currentDns = await _getSystemDns(serviceName);
-    if (currentDns == null || currentDns.contains(_hijackDns)) return;
+    if (currentDns == null ||
+        (currentDns.length == 1 && currentDns.single == _hijackDns)) {
+      return;
+    }
 
     final backup = jsonEncode({
       'serviceName': serviceName,
@@ -599,7 +729,6 @@ class MacOS {
     final result = await Process.run('networksetup', [
       '-setdnsservers',
       serviceName,
-      ...currentDns,
       _hijackDns,
     ]);
     if (result.exitCode != 0) {

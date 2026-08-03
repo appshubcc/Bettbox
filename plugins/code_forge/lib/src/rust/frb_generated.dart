@@ -141,7 +141,7 @@ abstract class RustLibApi extends BaseApi {
     required BigInt endLine,
   });
 
-  String crateApiRopeRopeBridgeCharAt({
+  int crateApiRopeRopeBridgeCharAt({
     required RopeBridge that,
     required BigInt position,
   });
@@ -725,7 +725,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       );
 
   @override
-  String crateApiRopeRopeBridgeCharAt({
+  int crateApiRopeRopeBridgeCharAt({
     required RopeBridge that,
     required BigInt position,
   }) {
@@ -741,7 +741,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 14)!;
         },
         codec: SseCodec(
-          decodeSuccessData: sse_decode_String,
+          decodeSuccessData: sse_decode_i_32,
           decodeErrorData: null,
         ),
         constMeta: kCrateApiRopeRopeBridgeCharAtConstMeta,
@@ -2833,7 +2833,7 @@ class RopeBridgeImpl extends RustOpaque implements RopeBridge {
     endLine: endLine,
   );
 
-  String charAt({required BigInt position}) => RustLib.instance.api
+  int charAt({required BigInt position}) => RustLib.instance.api
       .crateApiRopeRopeBridgeCharAt(that: this, position: position);
 
   BigInt charToLine({required BigInt charIdx}) => RustLib.instance.api

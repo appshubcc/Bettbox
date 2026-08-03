@@ -589,16 +589,6 @@ class AppLocalizations {
     return Intl.message('Show Menu', name: 'showMenu', desc: '', args: []);
   }
 
-  /// `Show Hidden Items`
-  String get showHiddenItems {
-    return Intl.message(
-      'Show Hidden Items',
-      name: 'showHiddenItems',
-      desc: '',
-      args: [],
-    );
-  }
-
   /// `Exclude China`
   String get excludeChina {
     return Intl.message(
@@ -5467,6 +5457,16 @@ class AppLocalizations {
   /// `Wrap Lines`
   String get lineWrap {
     return Intl.message('Wrap Lines', name: 'lineWrap', desc: '', args: []);
+  }
+
+  /// `Show Hidden Items`
+  String get showHiddenItems {
+    return Intl.message(
+      'Show Hidden Items',
+      name: 'showHiddenItems',
+      desc: '',
+      args: [],
+    );
   }
 }
 

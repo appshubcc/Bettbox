@@ -53,7 +53,8 @@ class CodeForgeController implements DeltaTextInputClient {
   Timer? _documentColorTimer, _foldRangesTimer, _documentHighlightTimer;
   Timer? _cclsRefreshTimer, _debounceTimer;
   Timer? _lspTypingTimer, _lspDocumentSyncTimer;
-  String? _cachedText, _bufferLineText, _openedFile, _pendingLspFullText;
+  String? _cachedText, _bufferLineText, _openedFile;
+  String Function()? _pendingLspFullText;
   String? _lastTypedCharacter;
   String _imeProjectionText = '', _previousValue = "";
   TextSelection? _lastSentSelection;
@@ -2324,7 +2325,7 @@ class CodeForgeController implements DeltaTextInputClient {
     lastInsertedText = newText;
     lastDeletedText = '';
     _isTyping = false;
-    _scheduleLspFullSync(newText);
+    _scheduleLspFullSync(() => newText);
     notifyListeners();
   }
 
@@ -2865,11 +2866,11 @@ class CodeForgeController implements DeltaTextInputClient {
     });
   }
 
-  void _scheduleLspFullSync(String content) {
+  void _scheduleLspFullSync(String Function() contentBuilder) {
     if (lspConfig == null || openedFile == null || !_lspReady) return;
 
     _pendingLspContentChanges.clear();
-    _pendingLspFullText = content;
+    _pendingLspFullText = contentBuilder;
     _lspDocumentSyncTimer?.cancel();
     _lspDocumentSyncTimer = Timer(_lspDocumentSyncDebounce, () {
       unawaited(_flushLspDocumentSync());
@@ -2885,7 +2886,7 @@ class CodeForgeController implements DeltaTextInputClient {
       return;
     }
 
-    final fullText = _pendingLspFullText;
+    final fullText = _pendingLspFullText?.call();
     final changes = List<Map<String, dynamic>>.from(_pendingLspContentChanges);
     _pendingLspContentChanges.clear();
     _pendingLspFullText = null;
@@ -3971,8 +3972,9 @@ class CodeForgeController implements DeltaTextInputClient {
 
     if (!_suppressImeSync) _imeComposingGlobal = TextRange.empty;
     final selectionBefore = _selection;
-    final multiCursorsBefore =
-        List<({int line, int character})>.from(_multiCursors);
+    final multiCursorsBefore = List<({int line, int character})>.from(
+      _multiCursors,
+    );
     _flushBuffer();
     final safeStart = start.clamp(0, _rope.length);
     final safeEnd = end.clamp(safeStart, _rope.length);
@@ -4003,8 +4005,9 @@ class CodeForgeController implements DeltaTextInputClient {
       );
       _selection = newSelection;
       _shiftMultiCursors(safeStart, safeEnd, replacement.length);
-      final multiCursorsAfter =
-          List<({int line, int character})>.from(_multiCursors);
+      final multiCursorsAfter = List<({int line, int character})>.from(
+        _multiCursors,
+      );
       dirtyLine = _rope.getLineAtOffset(safeStart);
       dirtyRegion = TextRange(
         start: safeStart,
@@ -4042,7 +4045,7 @@ class CodeForgeController implements DeltaTextInputClient {
       }
 
       if (!supportsPullSemanticSync) {
-        _scheduleLspFullSync(text);
+        _scheduleLspFullSync(() => text);
       }
 
       _invalidateImeSnapshotAndScheduleSync();
@@ -4052,7 +4055,11 @@ class CodeForgeController implements DeltaTextInputClient {
     }
   }
 
-  void _shiftMultiCursors(int startOffset, int endOffset, int replacementLength) {
+  void _shiftMultiCursors(
+    int startOffset,
+    int endOffset,
+    int replacementLength,
+  ) {
     if (_multiCursors.isEmpty) return;
     final deletedLength = endOffset - startOffset;
     final delta = replacementLength - deletedLength;
@@ -4066,9 +4073,7 @@ class CodeForgeController implements DeltaTextInputClient {
         final newOffset = (offset + delta).clamp(0, _rope.length);
         final newLine = _rope.getLineAtOffset(newOffset);
         final newLineStart = _rope.getLineStartOffset(newLine);
-        newCursors.add(
-          (line: newLine, character: newOffset - newLineStart),
-        );
+        newCursors.add((line: newLine, character: newOffset - newLineStart));
       }
     }
     _multiCursors
@@ -5009,7 +5014,7 @@ class CodeForgeController implements DeltaTextInputClient {
 
     _restoreMultiCursorsFromOperation(operation);
 
-    _scheduleLspFullSync(text);
+    _scheduleLspFullSync(() => text);
     _invalidateImeSnapshotAndScheduleSync();
     notifyListeners();
   }
@@ -5049,7 +5054,7 @@ class CodeForgeController implements DeltaTextInputClient {
       ),
     );
     if (!_suppressLspFallbackSync) {
-      _scheduleLspFullSync(this.text);
+      _scheduleLspFullSync(() => this.text);
     }
   }
 
@@ -5075,7 +5080,7 @@ class CodeForgeController implements DeltaTextInputClient {
       ),
     );
     if (!_suppressLspFallbackSync) {
-      _scheduleLspFullSync(this.text);
+      _scheduleLspFullSync(() => this.text);
     }
   }
 
@@ -5103,7 +5108,7 @@ class CodeForgeController implements DeltaTextInputClient {
       ),
     );
     if (!_suppressLspFallbackSync) {
-      _scheduleLspFullSync(text);
+      _scheduleLspFullSync(() => text);
     }
   }
 
@@ -5167,11 +5172,13 @@ class CodeForgeController implements DeltaTextInputClient {
   ) {
     if (_undoController?.isUndoRedoInProgress ?? false) return;
 
-    if (hasMultiCursors &&
-        insertedText.isNotEmpty &&
-        !insertedText.contains('\n')) {
-      insertAtAllCursors(insertedText);
-      return;
+    if (hasMultiCursors && insertedText.isNotEmpty) {
+      if (!insertedText.contains('\n')) {
+        insertAtAllCursors(insertedText);
+        return;
+      }
+      _multiCursors.clear();
+      multiCursorsChanged = true;
     }
 
     final selectionBefore = _selection;

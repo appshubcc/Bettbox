@@ -658,6 +658,7 @@
   "agePublicKeyLabel": "Age 公開鍵",
   "generateFromPrivateKey": "秘密鍵から生成",
   "ageKeyPairGeneratedSuccess": "X25519鍵ペアを生成しました。大切に保管してください",
-  "agePrivateKeyRequired": "正しい Age 秘密鍵を先に入力してください",
-  "lineWrap": "自動折り返し"
+  "agePrivateKeyRequired": "正しいAge秘密鍵を先に入力してください",
+  "lineWrap": "折り返し",
+  "showHiddenItems": "非表示項目を表示"
 }

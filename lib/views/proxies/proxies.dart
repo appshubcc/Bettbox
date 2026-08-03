@@ -120,8 +120,8 @@ class _ProxiesViewState extends ConsumerState<ProxiesView> {
             ),
             PopupMenuItemData(
               icon: showHiddenItems
-                  ? Icons.check_box
-                  : Icons.check_box_outline_blank,
+                  ? Icons.radio_button_checked
+                  : Icons.radio_button_unchecked,
               label: appLocalizations.showHiddenItems,
               onPressed: () {
                 ref

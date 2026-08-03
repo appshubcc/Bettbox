@@ -659,5 +659,6 @@
   "generateFromPrivateKey": "개인키에서 생성",
   "ageKeyPairGeneratedSuccess": "X25519 키 쌍이 생성되었습니다. 잘 보관하세요",
   "agePrivateKeyRequired": "올바른 Age 개인키를 먼저 입력하세요",
-  "lineWrap": "자동 줄바꿈"
+  "lineWrap": "자동 줄바꿈",
+  "showHiddenItems": "숨겨진 항목 표시"
 }

@@ -151,7 +151,9 @@ class Rope {
   }
 
   String charAt(int position) {
-    return _rope.charAt(position: BigInt.from(position));
+    final code = _rope.charAt(position: BigInt.from(position));
+    if (code < 0) return '';
+    return String.fromCharCode(code);
   }
 
   /// Mutable insert - modifies this rope in place

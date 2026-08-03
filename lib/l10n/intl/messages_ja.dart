@@ -92,7 +92,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "agePrivateKeyLabel": MessageLookupByLibrary.simpleMessage("Age 秘密鍵"),
     "agePrivateKeyRequired": MessageLookupByLibrary.simpleMessage(
-      "正しい Age 秘密鍵を先に入力してください",
+      "正しいAge秘密鍵を先に入力してください",
     ),
     "agePublicKeyLabel": MessageLookupByLibrary.simpleMessage("Age 公開鍵"),
     "ageSecretKeyInvalidValidationDesc": MessageLookupByLibrary.simpleMessage(
@@ -479,7 +479,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "lightIconDesc": MessageLookupByLibrary.simpleMessage(
       "デスクトップアプリのアイコンをライト系に切り替え",
     ),
-    "lineWrap": MessageLookupByLibrary.simpleMessage("自動折り返し"),
+    "lineWrap": MessageLookupByLibrary.simpleMessage("折り返し"),
     "list": MessageLookupByLibrary.simpleMessage("リスト"),
     "listen": MessageLookupByLibrary.simpleMessage("リスニング"),
     "local": MessageLookupByLibrary.simpleMessage("ローカル"),
@@ -793,6 +793,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "serviceRunning": MessageLookupByLibrary.simpleMessage("サービス稼働中"),
     "settings": MessageLookupByLibrary.simpleMessage("設定"),
     "show": MessageLookupByLibrary.simpleMessage("表示"),
+    "showHiddenItems": MessageLookupByLibrary.simpleMessage("非表示項目を表示"),
     "showStartSwitch": MessageLookupByLibrary.simpleMessage("単独スイッチ表示"),
     "showStartSwitchDesc": MessageLookupByLibrary.simpleMessage(
       "ホーム画面に独立したON/OFFボタンを表示",
@@ -891,10 +892,6 @@ class MessageLookup extends MessageLookupByLibrary {
     "totalTraffic": MessageLookupByLibrary.simpleMessage("総通信量"),
     "tproxyPort": MessageLookupByLibrary.simpleMessage("Tproxyポート"),
     "trafficUsage": MessageLookupByLibrary.simpleMessage("通信量統計"),
-    "trayEnhancement": MessageLookupByLibrary.simpleMessage("トレイ拡張"),
-    "trayEnhancementDesc": MessageLookupByLibrary.simpleMessage(
-      "トレイ右クリックメニューでプロキシグループを操作",
-    ),
     "trayIconInvert": MessageLookupByLibrary.simpleMessage("トレイアイコン反転"),
     "trayIconInvertDesc": MessageLookupByLibrary.simpleMessage(
       "現在のトレイアイコンの色を反転設定",

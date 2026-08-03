@@ -1,5 +1,5 @@
 <h4 align="right">
-  <a href="README_zh.md">简体中文</a> | <a href="README.md">English</a> | <strong>Русский</strong> | <a href="README_fa.md">فارسی</a> | <a href="README_ja.md">日本語</a> | <a href="README_ko.md">한국어</a>
+  <a href="README.md">简体中文</a> | <a href="README_en.md">English</a> | <strong>Русский</strong> | <a href="README_fa.md">فارسی</a> | <a href="README_ja.md">日本語</a> | <a href="README_ko.md">한국어</a>
 </h4>
 
 <h1 align="center">⚡ Bettbox</h1>
@@ -36,8 +36,8 @@
 * **HarmonyOS NEXT**: Совместимо при использовании с [[ZhuoYiTong]](https://harmonyos.cool/android-app)
 
 **Другие способы установки:**<br>
-**ArchLinux:** <code>yay -S bettbox-bin</code> или <code>paru -S bettbox-bin</code><br>
-**AMD64=v1:** <code>yay -S bettbox-compatible-bin</code> или <code>paru -S bettbox-compatible-bin</code>
+**ArchLinux:** <code>yay -S bettbox-bin или paru -S bettbox-bin</code> (поддерживается [lyj404](https://github.com/lyj404/bettbox-aur))<br>
+**AMD64=v1:** <code>yay -S bettbox-compatible-bin или paru -S bettbox-compatible-bin</code> (поддерживается [VillagerTom](https://github.com/VillagerTom))
 
 ---
 </div>

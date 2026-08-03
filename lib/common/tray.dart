@@ -37,11 +37,10 @@ class Tray {
   Tray() {
     delayTestCoordinator.addListener(_handleDelayTestStateChanged);
   }
-
   void dispose() {
+    delayTestCoordinator.removeListener(_handleDelayTestStateChanged);
     _debounceTimer?.cancel();
     _loadingTimer?.cancel();
-    delayTestCoordinator.removeListener(_handleDelayTestStateChanged);
   }
 
   Future _updateSystemTray({
@@ -562,34 +561,9 @@ class Tray {
       );
     } catch (e) {
       commonPrint.log('Delay test error: $e');
-      for (final proxy in testableProxies) {
-        final state = appController.getProxyCardState(proxy.name);
-        final name = state.proxyName;
-        if (name.isEmpty || _isNonTestableProxyName(name)) continue;
-        final url = appController.getRealTestUrl(
-          state.testUrl.getSafeValue(group.testUrl ?? ''),
-        );
-        appController.setDelay(Delay(url: url, name: name, value: -1));
-      }
     } finally {
       await appController.updateTray(false, true);
     }
-  }
-
-  bool _isNonTestableProxyName(String proxyName) {
-    final name = proxyName.toUpperCase();
-    if (name == 'REJECT' || name == 'REJECT-DROP' || name == 'PASS') {
-      return true;
-    }
-    final groups = globalState.appController.getCurrentGroups();
-    for (final group in groups) {
-      for (final proxy in group.all) {
-        if (proxy.name == proxyName) {
-          return proxy.type.toUpperCase() == 'REMATCH';
-        }
-      }
-    }
-    return false;
   }
 }
 

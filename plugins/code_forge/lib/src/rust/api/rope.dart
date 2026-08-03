@@ -18,7 +18,7 @@ abstract class RopeBridge implements RustOpaqueInterface {
     required BigInt endLine,
   });
 
-  String charAt({required BigInt position});
+  int charAt({required BigInt position});
 
   BigInt charToLine({required BigInt charIdx});
 

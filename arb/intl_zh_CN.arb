@@ -66,7 +66,6 @@
   "rightClickBehavior": "右键点击",
   "showPanel": "显示面板",
   "showMenu": "显示菜单",
-  "showHiddenItems": "显示隐藏项",
   "excludeChina": "排除国内",
   "excludeChinaDesc": "放行中国QUIC流量而非全部禁用",
   "fcmOptimization": "FCM优化",
@@ -668,5 +667,6 @@
   "generateFromPrivateKey": "从Age私钥生成",
   "ageKeyPairGeneratedSuccess": "已生成X25519密钥对, 请妥善保存",
   "agePrivateKeyRequired": "请先输入正确的Age 私钥",
-  "lineWrap": "自动换行"
+  "lineWrap": "自动换行",
+  "showHiddenItems": "显示隐藏项"
 }

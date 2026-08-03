@@ -1,5 +1,5 @@
 <h4 align="right">
-  <strong>简体中文</strong> | <a href="README.md">English</a> | <a href="README_ru.md">Русский</a> | <a href="README_fa.md">فارسی</a> | <a href="README_ja.md">日本語</a> | <a href="README_ko.md">한국어</a>
+  <strong>简体中文</strong> | <a href="README_en.md">English</a> | <a href="README_ru.md">Русский</a> | <a href="README_fa.md">فارسی</a> | <a href="README_ja.md">日本語</a> | <a href="README_ko.md">한국어</a>
 </h4>
 
 <h1 align="center">⚡ Bettbox</h1>
@@ -11,7 +11,7 @@
 
 秉承“Better Experience更优体验”的原则，Bettbox在继承原版优秀界面的基础上，深度优化了诸多细节与实用功能/逻辑。设计目标: 前台流畅丝滑、后台省电无感，致力于成为体验更好、以少量资源消耗即可持续稳定运行的 Mihomo 客户端
 
-Bettbox意为: Better Experience, Out of the box，卓越体验，亦开箱可用
+Bettbox意为: Better Experience, Out of the box，更好的体验，亦开箱可用
 
 [![Latest Release](https://img.shields.io/github/v/release/appshubcc/Bettbox?style=for-the-badge&logo=github&color=238636&label=Release)](https://github.com/appshubcc/Bettbox/releases/latest) [![Core](https://img.shields.io/github/v/release/MetaCubeX/mihomo?style=for-the-badge&logo=go&logoColor=white&color=8A2BE2&label=Mihomo)](https://github.com/MetaCubeX/mihomo/releases/latest)
 ---
@@ -24,12 +24,17 @@ Bettbox意为: Better Experience, Out of the box，卓越体验，亦开箱可�
 [![Telegram Group](https://img.shields.io/badge/Bettbox-Chat-2CA5E0?style=for-the-badge&logo=telegram&logoColor=white)](https://t.me/appshub_chat) [![Telegram Channel](https://img.shields.io/badge/Bettbox-Channel-2CA5E0?style=for-the-badge&logo=telegram&logoColor=white)](https://t.me/appshub_channel)
 
 ---
-###   🛩️ 推荐链接
-### 小众低调 专线机场  〢  [百变小樱](https://www.bbxy01.com/v2/register?code=c09R)
+###   🛩️ 推荐服务
+### 小众低调专线  〢  [百变小樱](https://www.bbxy01.com/v2/register?code=c09R)
 
+### Bettbox新用户独享：首充6.8折优惠码：bettbox68
+
+**简评** : ❚ ❚  老牌小众专线，海外团队运营多年，当前线路包括: 优化直连/BGP中转/IEPL专线
+
+--------------------------------
 ### 低价直连  〢  [良心云](https://xn--9kqz23b19z.com/#/register?code=VTnrQYAj)  〢  [一分机场](https://xn--4gqx1hgtfdmt.com/#/register?code=AuCiXprV)  〢  [赔钱机场](https://xn--mes358aby2apfg.com/register?code=z7TUZLmM&cover=sfw)
 
-**简评** : ❚ ❚ 专线(备用直连)机场线路更稳，直连机场量大管饱，群友反馈口碑尚可; 需要注意: 以上服务与Bettbox软件无直接关联，最终效果请自行判定
+**简评** : ❚ ❚  AWS&渠道机，跑路风险相对较低，量大管饱，1000G不限时套餐通常更有性价比
 
 ---
 
@@ -38,14 +43,17 @@ Bettbox意为: Better Experience, Out of the box，卓越体验，亦开箱可�
 请前往 **[[Releases]](https://github.com/appshubcc/Bettbox/releases)** 页面下载最新适合您平台和系统的安装包
 
 
-* **全平台桌面端**: **Windows** (x64/arm64), **macOS** (Intel/Apple Silicon), **Linux** (x64/arm64)
-* **Android 端**: Android (ARMv8/ ARMv7/ x86_64/ Universal) 
+* **全平台桌面端**:
+**Windows 8.1+**: (x64/arm64)
+**Linux Kernel 5.4++**: (x64/arm64)
+**macOS 10.15+**: (Intel/Apple Silicon)
+* **Android 8.0+**: Android (ARMv8/ ARMv7/ x86_64/ Universal)
 * **Android TV**: 已适配，可选 ARMv7 32位
 * **鸿蒙 NEXT**: 可配合 [[卓易通]](https://harmonyos.cool/android-app) 使用
 
 **其他安装方式:**<br>
-**ArchLinux:** <code>yay -S bettbox-bin 或 paru -S bettbox-bin</code><br>
-**AMD64=v1:** <code>yay -S bettbox-compatible-bin 或 paru -S bettbox-compatible-bin</code>
+**ArchLinux:** <code>yay -S bettbox-bin 或 paru -S bettbox-bin</code> (由[lyj404](https://github.com/lyj404/bettbox-aur)维护)<br>
+**AMD64=v1:** <code>yay -S bettbox-compatible-bin 或 paru -S bettbox-compatible-bin</code> (由[VillagerTom](https://github.com/VillagerTom)维护)
 
 ---
 </div>
@@ -56,12 +64,12 @@ Bettbox意为: Better Experience, Out of the box，卓越体验，亦开箱可�
 * **精雕细琢**：打磨每处 UI 与功能交互细节，前台高帧率动画流畅，移动端低能耗，桌面端低占用。
 * **安全守护**：内核紧跟 Mihomo 主线分支且积极适配最新特性，多平台保持严格的权限控制与校验。
 * **稳定容错**：优化多平台极端场景下的边界问题并内置双重配置检测验证，媲美企业级的使用稳定性。
-* **性能优先**：桌面端原生 ARM64 架构支持，提供硬件分级和 Flutter 整体优化, 榨干硬件性能。
+* **性能优先**：桌面端原生 ARM64 架构支持，提供硬件分级和 Flutter 以及原生优化，榨干硬件性能。
 * **增强工具**：首个多平台无感智能启停、Android端休眠支持、一键禁用QUIC、托盘菜单增强等等。
 * **可视化设置**：提供丰富参数的可视化调节界面，支持改动即时生效，无需繁琐修改配置。
 * **首页小组件**：内置多款精致 Widget 小组件，在首页直观掌控实时网速与全局运行状态。
 * **个性化定制**：支持丰富色彩主题、自定义图标/标题等，甚至还包含 10 种精美测速动画。
-* **开放包容**：提供所有JS覆写脚本可用的分流 UI 适配，以及自定义可用的可视化便捷开关。
+* **自定义适配**：提供首个JS覆写脚本可用的分流 UI 适配，以及自定义可用的可视化便捷开关。
 * **设备兼容**：持续维护面向旧版系统及老旧硬件的 Compatible 兼容版本，延长设备使用周期。
 * **零隐私风险**：开源、无广告，全透明的 CI/CD 流程且接受全方位审计，杜绝后台隐私收集。
 * **社区导向**：我们会认真评估社区反馈，优先对待高质量的 Issue，你的声音不会无故被淹没。
@@ -102,20 +110,22 @@ Bettbox意为: Better Experience, Out of the box，卓越体验，亦开箱可�
 
 ---
 
-##  开发构建
+##  开发构建及UI适配
 
-以 Windows 平台为例：
+以 Windows 平台构建为例：
 
 * 你需要一台 Windows 设备（系统 ≥ Windows 10）
 * 其他必要环境：Git，Visual Studio，Flutter 3.44.x，Golang，Inno Setup，Rust
+```bash
 * flutter pub get (获取相关依赖)
 * dart .\setup.dart windows --arch amd64 --out core (仅构建Core核心)
 * dart .\setup.dart windows --arch amd64 --out app --compatible (可选兼容版本)
 * 构建完成后，最终产物位于 `dist/` 目录
+```
 
 自定义脚本 UI 适配：
 
-* 以AIsouler的**[MyClash配置分享](https://github.com/AIsouler/MyClash)**为例，仅需要在首行添加以下声明，即可直接使用Bettbox内置的可视化开关。
+* Bettbox自v1.18.8版本起支持外置覆写脚本适配UI，例如以AIsouler的**[脚本/配置分享](https://github.com/AIsouler/MyClash)**为例，仅需要在脚本首行添加以下声明，即可直接使用Bettbox内置的可视化开关。
 * <code>const Compatible_With_Bettbox = { ruleOptionsEnable: true };</code>
 
 ---

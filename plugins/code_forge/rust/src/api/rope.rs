@@ -2,11 +2,23 @@ use ropey::Rope as RustRope;
 use std::sync::RwLock;
 use unicode_bidi::{bidi_class, BidiClass};
 
+use crate::api::editor::GuideBlock;
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum TextDirection {
     Ltr,
     Rtl,
     Mixed,
+}
+
+#[derive(Clone, Debug)]
+pub struct GuideCache {
+    pub len_chars: usize,
+    pub len_lines: usize,
+    pub first_visible: usize,
+    pub last_visible: usize,
+    pub tab_size: usize,
+    pub blocks: Vec<GuideBlock>,
 }
 
 #[derive(Clone, Copy, Debug)]
@@ -26,6 +38,9 @@ pub struct SelectionState {
 pub struct RopeBridge {
     pub(crate) rope: RwLock<RustRope>,
     selection: RwLock<SelectionState>,
+    pub(crate) guide_cache: RwLock<Option<GuideCache>>,
+    pub(crate) primary_direction_cache: RwLock<Option<(usize, usize, TextDirection)>>,
+    pub(crate) text_direction_cache: RwLock<Option<(usize, usize, TextDirection)>>,
 }
 
 impl RopeBridge {
@@ -37,6 +52,9 @@ impl RopeBridge {
                 base_offset: 0,
                 extent_offset: 0,
             }),
+            guide_cache: RwLock::new(None),
+            primary_direction_cache: RwLock::new(None),
+            text_direction_cache: RwLock::new(None),
         }
     }
 
@@ -177,12 +195,12 @@ impl RopeBridge {
     }
 
     #[flutter_rust_bridge::frb(sync)]
-    pub fn char_at(&self, position: usize) -> String {
+    pub fn char_at(&self, position: usize) -> i32 {
         let rope = self.rope.read().unwrap();
         if position >= rope.len_chars() {
-            return String::new();
+            return -1;
         }
-        rope.char(position).to_string()
+        rope.char(position) as u32 as i32
     }
     
     #[flutter_rust_bridge::frb(sync)]
@@ -195,6 +213,9 @@ impl RopeBridge {
         Self {
             rope: RwLock::new(self.rope.read().unwrap().clone()),
             selection: RwLock::new(*self.selection.read().unwrap()),
+            guide_cache: RwLock::new(None),
+            primary_direction_cache: RwLock::new(None),
+            text_direction_cache: RwLock::new(None),
         }
     }
 
@@ -228,9 +249,20 @@ impl RopeBridge {
     #[flutter_rust_bridge::frb(sync)]
     pub fn primary_direction(&self) -> TextDirection {
         let rope = self.rope.read().unwrap();
+        let len_chars = rope.len_chars();
+        let len_lines = rope.len_lines();
+        drop(rope);
+
+        if let Some((c, l, dir)) = *self.primary_direction_cache.read().unwrap() {
+            if c == len_chars && l == len_lines {
+                return dir;
+            }
+        }
+
+        let rope = self.rope.read().unwrap();
         let mut rtl_count = 0;
         let mut ltr_count = 0;
-        
+
         for c in rope.chars() {
             match direction_for_char(c) {
                 Some(TextDirection::Rtl) => rtl_count += 1,
@@ -238,22 +270,36 @@ impl RopeBridge {
                 _ => {}
             }
         }
-        
-        if rtl_count == 0 && ltr_count == 0 {
+
+        let result = if rtl_count == 0 && ltr_count == 0 {
             TextDirection::Ltr
         } else if rtl_count > ltr_count {
             TextDirection::Rtl
         } else {
             TextDirection::Ltr
-        }
+        };
+
+        *self.primary_direction_cache.write().unwrap() = Some((len_chars, len_lines, result));
+        result
     }
 
     #[flutter_rust_bridge::frb(sync)]
     pub fn text_direction(&self) -> TextDirection {
-        let rope: std::sync::RwLockReadGuard<'_, RustRope> = self.rope.read().unwrap();
+        let rope = self.rope.read().unwrap();
+        let len_chars = rope.len_chars();
+        let len_lines = rope.len_lines();
+        drop(rope);
+
+        if let Some((c, l, dir)) = *self.text_direction_cache.read().unwrap() {
+            if c == len_chars && l == len_lines {
+                return dir;
+            }
+        }
+
+        let rope = self.rope.read().unwrap();
         let mut has_rtl = false;
         let mut has_ltr = false;
-        
+
         for c in rope.chars() {
             match direction_for_char(c) {
                 Some(TextDirection::Rtl) => has_rtl = true,
@@ -261,13 +307,22 @@ impl RopeBridge {
                 _ => {}
             }
             if has_rtl && has_ltr {
-                return TextDirection::Mixed;
+                let result = TextDirection::Mixed;
+                *self.text_direction_cache.write().unwrap() = Some((len_chars, len_lines, result));
+                return result;
             }
         }
-        
-        if !has_rtl && !has_ltr { TextDirection::Ltr }
-        else if !has_rtl { TextDirection::Ltr }
-        else { TextDirection::Rtl }
+
+        let result = if !has_rtl && !has_ltr {
+            TextDirection::Ltr
+        } else if !has_rtl {
+            TextDirection::Ltr
+        } else {
+            TextDirection::Rtl
+        };
+
+        *self.text_direction_cache.write().unwrap() = Some((len_chars, len_lines, result));
+        result
     }
 
     #[flutter_rust_bridge::frb(sync)]

@@ -157,7 +157,9 @@ abstract class AppSettingProps with _$AppSettingProps {
         }
       }
     } else if (system.isAndroid) {
-      props = props.copyWith(mobileDashboardWidgets: defaultAndroidDashboardWidgets);
+      props = props.copyWith(
+        mobileDashboardWidgets: defaultAndroidDashboardWidgets,
+      );
     }
 
     return props.copyWith(minimizeOnExit: true, openLogs: true);
@@ -263,9 +265,9 @@ abstract class ProxiesStyle with _$ProxiesStyle {
     @Default(ProxiesIconStyle.none) ProxiesIconStyle iconStyle,
     @Default(ProxyCardType.shrink) ProxyCardType cardType,
     @Default(DelayAnimationType.none) DelayAnimationType delayAnimation,
-    @Default(false) bool showHiddenItems,
     @Default({}) Map<String, String> iconMap,
     @Default(250) int concurrencyLimit,
+    @Default(false) bool showHiddenItems,
   }) = _ProxiesStyle;
 
   factory ProxiesStyle.fromJson(Map<String, Object?>? json) =>

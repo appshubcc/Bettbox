@@ -1,5 +1,5 @@
 <h4 align="right">
-  <a href="README_zh.md">简体中文</a> | <a href="README.md">English</a> | <a href="README_ru.md">Русский</a> | <strong>فارسی</strong> | <a href="README_ja.md">日本語</a> | <a href="README_ko.md">한국어</a>
+  <a href="README.md">简体中文</a> | <a href="README_en.md">English</a> | <a href="README_ru.md">Русский</a> | <strong>فارسی</strong> | <a href="README_ja.md">日本語</a> | <a href="README_ko.md">한국어</a>
 </h4>
 
 <h1 align="center">⚡ Bettbox</h1>
@@ -36,8 +36,8 @@ Bettbox یعنی: Better Experience, Out of the box (تجربه برتر، آم�
 * **سیستم‌عامل HarmonyOS NEXT**: لطفاً همراه با برنامه [[ZhuoYiTong]](https://harmonyos.cool/android-app) استفاده کنید.
 
 **سایر روش‌های نصب:**<br>
-**آرچ لینوکس (ArchLinux):** <code>yay -S bettbox-bin</code> یا <code>paru -S bettbox-bin</code><br>
-**AMD64=v1:** <code>yay -S bettbox-compatible-bin</code> یا <code>paru -S bettbox-compatible-bin</code>
+**آرچ لینوکس (ArchLinux):** <code>yay -S bettbox-bin</code> یا <code>paru -S bettbox-bin</code> (نگهداری توسط [lyj404](https://github.com/lyj404/bettbox-aur))<br>
+**AMD64=v1:** <code>yay -S bettbox-compatible-bin</code> یا <code>paru -S bettbox-compatible-bin</code> (نگهداری توسط [VillagerTom](https://github.com/VillagerTom))
 
 ---
 </div>

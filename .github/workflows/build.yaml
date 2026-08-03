@@ -164,6 +164,10 @@ jobs:
           cd android
           flutter clean
 
+      - name: Disable Swift Package Manager (macOS)
+        if: matrix.platform == 'macos'
+        run: flutter config --no-enable-swift-package-manager
+
       - name: Patch for Windows
         if: matrix.platform == 'windows'
         shell: bash
@@ -204,10 +208,23 @@ jobs:
         if: matrix.platform == 'windows'
         shell: pwsh
         run: |
-          $isReleaseOrPre = ('${{ env.IS_STABLE }}' -eq 'true') -or ('${{ env.IS_PRERELEASE }}' -eq 'true')
-          $slug = if ($isReleaseOrPre) { "release-signing" } else { "test-signing" }
-          Write-Host "Setting SIGNING_POLICY_SLUG to $slug"
-          "SIGNING_POLICY_SLUG=$slug" | Out-File -FilePath $env:GITHUB_ENV -Append
+          $isStable = '${{ env.IS_STABLE }}' -eq 'true'
+          $isPre = '${{ env.IS_PRERELEASE }}' -eq 'true'
+
+          if ($isStable) {
+            $exePolicy = "release-signing"
+            $installerPolicy = "release-signing"
+          } elseif ($isPre) {
+            $exePolicy = "test-signing"
+            $installerPolicy = "release-signing"
+          } else {
+            $exePolicy = "test-signing"
+            $installerPolicy = "test-signing"
+          }
+          Write-Host "Setting EXE_SIGNING_POLICY_SLUG to $exePolicy"
+          Write-Host "Setting INSTALLER_SIGNING_POLICY_SLUG to $installerPolicy"
+          "EXE_SIGNING_POLICY_SLUG=$exePolicy" | Out-File -FilePath $env:GITHUB_ENV -Append
+          "INSTALLER_SIGNING_POLICY_SLUG=$installerPolicy" | Out-File -FilePath $env:GITHUB_ENV -Append
 
       - name: Build Core (Windows)
         if: matrix.platform == 'windows'
@@ -236,7 +253,7 @@ jobs:
           github-token: '${{ secrets.GITHUB_TOKEN }}'
           organization-id: '0d3f8e8e-3f4d-4ac8-ab3f-d6c5c110ab0d'
           project-slug: 'Bettbox'
-          signing-policy-slug: '${{ env.SIGNING_POLICY_SLUG }}'
+          signing-policy-slug: '${{ env.EXE_SIGNING_POLICY_SLUG }}'
           github-artifact-id: '${{ steps.upload-core.outputs.artifact-id }}'
           wait-for-completion: true
           output-artifact-directory: 'libclash/windows'
@@ -268,7 +285,7 @@ jobs:
           github-token: '${{ secrets.GITHUB_TOKEN }}'
           organization-id: '0d3f8e8e-3f4d-4ac8-ab3f-d6c5c110ab0d'
           project-slug: 'Bettbox'
-          signing-policy-slug: '${{ env.SIGNING_POLICY_SLUG }}'
+          signing-policy-slug: '${{ env.EXE_SIGNING_POLICY_SLUG }}'
           github-artifact-id: '${{ steps.upload-helper.outputs.artifact-id }}'
           wait-for-completion: true
           output-artifact-directory: 'libclash/windows'
@@ -316,7 +333,7 @@ jobs:
           github-token: '${{ secrets.GITHUB_TOKEN }}'
           organization-id: '0d3f8e8e-3f4d-4ac8-ab3f-d6c5c110ab0d'
           project-slug: 'Bettbox'
-          signing-policy-slug: '${{ env.SIGNING_POLICY_SLUG }}'
+          signing-policy-slug: '${{ env.EXE_SIGNING_POLICY_SLUG }}'
           github-artifact-id: '${{ steps.upload-bettbox.outputs.artifact-id }}'
           wait-for-completion: true
           output-artifact-directory: 'build/windows/${{ matrix.arch == ''arm64'' && ''arm64'' || ''x64'' }}/runner/Release'
@@ -355,7 +372,7 @@ jobs:
           github-token: '${{ secrets.GITHUB_TOKEN }}'
           organization-id: '0d3f8e8e-3f4d-4ac8-ab3f-d6c5c110ab0d'
           project-slug: 'Bettbox'
-          signing-policy-slug: '${{ env.SIGNING_POLICY_SLUG }}'
+          signing-policy-slug: '${{ env.INSTALLER_SIGNING_POLICY_SLUG }}'
           github-artifact-id: '${{ steps.upload-installer.outputs.artifact-id }}'
           wait-for-completion: true
           output-artifact-directory: 'dist'

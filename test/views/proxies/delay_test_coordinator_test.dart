@@ -16,11 +16,10 @@ void main() {
     await firstStarted.future;
 
     expect(coordinator.isTesting, isTrue);
-    expect(coordinator.isTestingGroup('Fallback'), isTrue);
-    expect(coordinator.isTestingGroup('Proxy'), isFalse);
+    expect(coordinator.testingGroupName, 'Fallback');
 
     var secondExecuted = false;
-    final secondResult = await coordinator.run('Proxy', () async {
+    final secondResult = await coordinator.run('Other', () async {
       secondExecuted = true;
     });
 

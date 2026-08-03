@@ -151,7 +151,7 @@ private final class PersistentTrayMenuItemView: NSView {
 
 public class TrayMenu: NSMenu, NSMenuDelegate {
     public var onMenuItemClick:((NSMenuItem) -> Void)?
-    
+
     public override init(title: String) {
         super.init(title: title)
     }
@@ -185,12 +185,12 @@ public class TrayMenu: NSMenu, NSMenuDelegate {
     
     public init(_ args: [String: Any]) {
         super.init(title: "")
-        
+
         let items: [NSDictionary] = args["items"] as! [NSDictionary];
         let menuWidth = preferredMenuWidth(items)
         for item in items {
             let menuItem: NSMenuItem
-            
+
             let itemDict = item as! [String: Any]
             let id: Int = itemDict["id"] as! Int
             let key: String = itemDict["key"] as? String ?? ""
@@ -200,7 +200,7 @@ public class TrayMenu: NSMenu, NSMenuDelegate {
             let toolTip: String = itemDict["toolTip"] as? String ?? ""
             let checked: Bool? = itemDict["checked"] as? Bool
             let disabled: Bool = itemDict["disabled"] as? Bool ?? true
-            
+
             if (type == "separator") {
                 menuItem = NSMenuItem.separator()
             } else {
@@ -241,18 +241,17 @@ public class TrayMenu: NSMenu, NSMenuDelegate {
                 if let submenuDict = itemDict["submenu"] as? NSDictionary {
                     let submenu = TrayMenu(submenuDict as! [String : Any])
                     submenu.onMenuItemClick = { [weak self] (menuItem: NSMenuItem) in
-                        guard let strongSelf = self else { return }
-                        strongSelf.statusItemMenuButtonClicked(menuItem)
+                        self?.onMenuItemClick!(menuItem)
                     }
-                    self.setSubmenu(submenu, for: menuItem)
+                    menuItem.submenu = submenu
                 }
                 break
             case "checkbox":
-                if (checked == nil) {
-                    menuItem.state = .mixed
-                } else {
-                    menuItem.state = checked! ? .on : .off
+                if let checkedValue = checked {
+                    menuItem.state = checkedValue ? .on : .off
                 }
+                break
+            case "normal":
                 break
             default:
                 break
@@ -262,47 +261,51 @@ public class TrayMenu: NSMenu, NSMenuDelegate {
         self.delegate = self
     }
     
-    @objc func statusItemMenuButtonClicked(_ sender: Any?) {
-        if (sender is NSMenuItem && onMenuItemClick != nil) {
-            let menuItem = sender as! NSMenuItem
-            self.onMenuItemClick!(menuItem)
-        }
+    public func menuWillOpen(_ menu: NSMenu) {
+        TrayManagerPlugin.instance.channel?.invokeMethod("onMenuOpen", arguments: nil)
     }
-    
-    // NSMenuDelegate
-    
-    public func menuDidClose(_ menu: NSMenu) {
-        
-    }
-    
-    public func updateMenuItems(_ args: [String: Any]) {
-        let items: [NSDictionary] = args["items"] as! [NSDictionary];
-        
-        for (index, item) in items.enumerated() {
-            if index < self.items.count {
-                let menuItem = self.items[index]
-                let itemDict = item as! [String: Any]
-                let label: String = itemDict["label"] as? String ?? ""
-                let sublabel: String = itemDict["sublabel"] as? String ?? ""
-                let disabled: Bool = itemDict["disabled"] as? Bool ?? false
-                let checked: Bool? = itemDict["checked"] as? Bool
-                
-                menuItem.title = menuItemTitle(label, sublabel)
-                menuItem.isEnabled = !disabled
-                menuItem.action = !disabled ? #selector(statusItemMenuButtonClicked) : nil
 
-                if let persistentView = menuItem.view as? PersistentTrayMenuItemView {
+    public func menuDidClose(_ menu: NSMenu) {
+        TrayManagerPlugin.instance.channel?.invokeMethod("onMenuClose", arguments: nil)
+    }
+
+    @objc func statusItemMenuButtonClicked(_ sender: NSMenuItem) {
+        self.onMenuItemClick!(sender)
+    }
+
+    public func update(_ args: [String: Any]) {
+        let items: [NSDictionary] = args["items"] as! [NSDictionary];
+
+        for item in items {
+            let itemDict = item as! [String: Any]
+            let id: Int = itemDict["id"] as! Int
+            let type: String = itemDict["type"] as! String
+            let label: String = itemDict["label"] as? String ?? ""
+            let sublabel: String = itemDict["sublabel"] as? String ?? ""
+            let checked: Bool? = itemDict["checked"] as? Bool
+            let disabled: Bool = itemDict["disabled"] as? Bool ?? true
+
+            let menuItem = self.item(withTag: id)
+
+            if (menuItem != nil) {
+                menuItem!.title = menuItemTitle(label, sublabel)
+                menuItem!.isEnabled = !disabled
+                menuItem!.action = !disabled ? #selector(statusItemMenuButtonClicked) : nil
+
+                if let persistentView = menuItem!.view as? PersistentTrayMenuItemView {
                     persistentView.update(label: label, disabled: disabled)
-                    menuItem.action = nil
+                    menuItem!.action = nil
                 }
-                
+
                 if let checkedValue = checked {
-                    menuItem.state = checkedValue ? .on : .off
+                    menuItem!.state = checkedValue ? .on : .off
                 }
                 
-                if let submenuDict = itemDict["submenu"] as? NSDictionary,
-                   let submenu = menuItem.submenu as? TrayMenu {
-                    submenu.updateMenuItems(submenuDict as! [String : Any])
+                if (type == "submenu") {
+                    if let submenuDict = itemDict["submenu"] as? NSDictionary {
+                        let submenu = menuItem!.submenu as? TrayMenu
+                        submenu?.update(submenuDict as! [String : Any])
+                    }
                 }
             }
         }

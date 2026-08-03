@@ -57,18 +57,20 @@ class Request {
       }
     }
 
-    Options? options;
+    final headers = <String, dynamic>{
+      'Connection': 'close',
+    };
     if (userInfo != null && userInfo.isNotEmpty) {
       final auth = base64Encode(utf8.encode(userInfo));
-      options = Options(
-        responseType: responseType,
-        headers: {'Authorization': 'Basic $auth'},
-      );
+      headers['Authorization'] = 'Basic $auth';
     }
 
     final response = await _clashDio.get(
       requestUrl,
-      options: options ?? Options(responseType: responseType),
+      options: Options(
+        responseType: responseType,
+        headers: headers,
+      ),
     );
     return response;
   }

@@ -101,7 +101,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "کلید خصوصی Age",
     ),
     "agePrivateKeyRequired": MessageLookupByLibrary.simpleMessage(
-      "لطفاً ابتدا کلید خصوصی معتبر Age را وارد کنید",
+      "لطفا ابتدا کلید خصوصی Age صحیح را وارد کنید",
     ),
     "agePublicKeyLabel": MessageLookupByLibrary.simpleMessage("کلید عمومی Age"),
     "ageSecretKeyInvalidValidationDesc": MessageLookupByLibrary.simpleMessage(
@@ -604,7 +604,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "lightIconDesc": MessageLookupByLibrary.simpleMessage(
       "تغییر آیکون برنامه به تم روشن",
     ),
-    "lineWrap": MessageLookupByLibrary.simpleMessage("شکستن خودکار خطوط"),
+    "lineWrap": MessageLookupByLibrary.simpleMessage("شکستن خطوط"),
     "list": MessageLookupByLibrary.simpleMessage("فهرست"),
     "listen": MessageLookupByLibrary.simpleMessage("شنود"),
     "local": MessageLookupByLibrary.simpleMessage("محلی"),
@@ -1030,6 +1030,9 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "settings": MessageLookupByLibrary.simpleMessage("تنظیمات"),
     "show": MessageLookupByLibrary.simpleMessage("نمایش"),
+    "showHiddenItems": MessageLookupByLibrary.simpleMessage(
+      "نمایش موارد پنهان",
+    ),
     "showStartSwitch": MessageLookupByLibrary.simpleMessage("دکمه کلید سوئیچ"),
     "showStartSwitchDesc": MessageLookupByLibrary.simpleMessage(
       "نمایش دکمه مستقل روشن/خاموش در صفحه اصلی",
@@ -1148,10 +1151,6 @@ class MessageLookup extends MessageLookupByLibrary {
     "totalTraffic": MessageLookupByLibrary.simpleMessage("مجموع ترافیک"),
     "tproxyPort": MessageLookupByLibrary.simpleMessage("پورت Tproxy"),
     "trafficUsage": MessageLookupByLibrary.simpleMessage("مصرف ترافیک"),
-    "trayEnhancement": MessageLookupByLibrary.simpleMessage("ارتقای منوی سینی"),
-    "trayEnhancementDesc": MessageLookupByLibrary.simpleMessage(
-      "مدیریت گروه‌ها از منوی راست‌کلیک تسک‌بار",
-    ),
     "trayIconInvert": MessageLookupByLibrary.simpleMessage(
       "معکوس‌سازی آیکون تسک‌بار",
     ),

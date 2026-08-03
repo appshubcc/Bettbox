@@ -794,8 +794,7 @@ class _CodeForgeState extends State<CodeForge> with TickerProviderStateMixin {
       TextInputConfiguration(
         readOnly: widget.readOnly,
         enableDeltaModel: true,
-        enableSuggestions:
-            widget.enableKeyboardSuggestions && !widget.readOnly,
+        enableSuggestions: widget.enableKeyboardSuggestions && !widget.readOnly,
         inputType: widget.keyboardType,
         inputAction: TextInputAction.newline,
         autocorrect: false,
@@ -1193,8 +1192,8 @@ class _CodeForgeState extends State<CodeForge> with TickerProviderStateMixin {
           Offset anchorAbove = offset;
           Offset anchorBelow = Offset(offset.dx, offset.dy + 40);
           if (hasSelection) {
-            final renderObject =
-                _codeFieldKey.currentContext?.findRenderObject();
+            final renderObject = _codeFieldKey.currentContext
+                ?.findRenderObject();
             if (renderObject is _CodeFieldRenderer) {
               final rects = renderObject.getSelectionHandleRects();
               final startRect = rects.startHandle;
@@ -1202,18 +1201,14 @@ class _CodeForgeState extends State<CodeForge> with TickerProviderStateMixin {
               final lineHeight = rects.lineHeight;
               if (startRect != null && endRect != null && lineHeight > 0) {
                 final handleRadius = (lineHeight / 2).clamp(6.0, 12.0);
-                final centerX =
-                    (startRect.center.dx + endRect.center.dx) / 2;
-                final minY =
-                    startRect.center.dy < endRect.center.dy
-                        ? startRect.center.dy
-                        : endRect.center.dy;
-                final maxY =
-                    startRect.center.dy > endRect.center.dy
-                        ? startRect.center.dy
-                        : endRect.center.dy;
-                anchorAbove =
-                    Offset(centerX, minY - lineHeight - handleRadius);
+                final centerX = (startRect.center.dx + endRect.center.dx) / 2;
+                final minY = startRect.center.dy < endRect.center.dy
+                    ? startRect.center.dy
+                    : endRect.center.dy;
+                final maxY = startRect.center.dy > endRect.center.dy
+                    ? startRect.center.dy
+                    : endRect.center.dy;
+                anchorAbove = Offset(centerX, minY - lineHeight - handleRadius);
                 anchorBelow = Offset(centerX, maxY - handleRadius);
               }
             }
@@ -4514,6 +4509,9 @@ class _CodeFieldRenderer extends RenderBox implements MouseTrackerAnnotation {
   List<double> _wrappedLineYPrefixSum = const [];
   int _wrappedPrefixSumVersion = 0;
   int _lastBuiltPrefixSumVersion = -1;
+  List<double> _visibleLineYPrefixSum = const [];
+  int _visiblePrefixSumVersion = 0;
+  int _lastBuiltVisiblePrefixSumVersion = -1;
   final Map<
     int,
     ({int lineIndex, int columnIndex, Offset offset, double height})
@@ -4754,12 +4752,11 @@ class _CodeFieldRenderer extends RenderBox implements MouseTrackerAnnotation {
     final currentDocVersion = h.documentVersion;
     if (currentDocVersion != _lastDocumentVersion) {
       _lastDocumentVersion = currentDocVersion;
-      // 行号键控的文本/段落缓存（_paragraphCache / _lineTextCache / _indentGuideCache /
-      // _lineIndentCache）已在 _onControllerChange 中按 editLine 做细粒度失效，这里不清空
-      // 以避免把"编辑行之前未变化行"的缓存也清掉。
-      // 这里仅清空"非行号键控"或"版本敏感但行号无关/构建开销低"的缓存。
+      // Line-keyed caches (_paragraphCache, _lineTextCache, _indentGuideCache,
+      // _lineIndentCache, _lineHeightCache) are already invalidated by range in
+      // _onControllerChange. Only clear caches that are NOT line-keyed or are
+      // version-sensitive but cheap to rebuild.
       _lineWidthCache.clear();
-      _lineHeightCache.clear();
       _bracketCache.clear();
       _indentEndLineCache.clear();
       _diagnosticPathCache.clear();
@@ -5501,10 +5498,8 @@ class _CodeFieldRenderer extends RenderBox implements MouseTrackerAnnotation {
     });
   }
 
-  /// 仅在 caret 可见性切换时重绘，避免每帧 markNeedsPaint
   void _onCaretBlink() {
-    final caretVisible =
-        focusNode.hasFocus && caretBlinkController.value > 0.5;
+    final caretVisible = focusNode.hasFocus && caretBlinkController.value > 0.5;
     if (caretVisible != _lastCaretVisible) {
       _lastCaretVisible = caretVisible;
       markNeedsPaint();
@@ -5737,6 +5732,10 @@ class _CodeFieldRenderer extends RenderBox implements MouseTrackerAnnotation {
       _searchHighlightCache.clear();
       _caretInfoCache.clear();
       _lineIndentCache.removeWhere((line, _) => line >= invalidateFromLine);
+
+      if (insertedText.contains('\n') || deletedText.contains('\n')) {
+        _lineHeightCache.clear();
+      }
     }
 
     final newLineCount = controller.lineCount;
@@ -5767,20 +5766,17 @@ class _CodeFieldRenderer extends RenderBox implements MouseTrackerAnnotation {
 
       final startInvalidation = insertionLine > 0 ? insertionLine - 1 : 0;
 
-      // insertionLine 本身内容已变，清除该行缓存
       _lineTextCache.remove(insertionLine);
       _lineWidthCache.remove(insertionLine);
       _paragraphCache.remove(insertionLine);
       _lineHeightCache.remove(insertionLine);
       _lineIndentCache.remove(insertionLine);
-      // 对 insertionLine 之后的行号键控缓存做 key-shift（保留内容）
-      _shiftLineKeyedCache(_lineTextCache, insertionLine, lineDelta);
+            _shiftLineKeyedCache(_lineTextCache, insertionLine, lineDelta);
       _shiftLineKeyedCache(_lineWidthCache, insertionLine, lineDelta);
       _shiftLineKeyedCache(_paragraphCache, insertionLine, lineDelta);
       _shiftLineKeyedCache(_lineHeightCache, insertionLine, lineDelta);
       _shiftLineKeyedCache(_lineIndentCache, insertionLine, lineDelta);
-      // 内容包含行号或 key 非行号的缓存仍需全清
-      _indentGuideCache.clear();
+            _indentGuideCache.clear();
       _indentEndLineCache.clear();
       _diagnosticPathCache.clear();
       _searchHighlightCache.clear();
@@ -6559,67 +6555,20 @@ class _CodeFieldRenderer extends RenderBox implements MouseTrackerAnnotation {
       return (y / _lineHeight).floor().clamp(0, lineCount - 1);
     }
 
-    if (!lineWrap && !hasActiveFolds && hasVirtualBlocks) {
-      final blocks = controller.virtualRemovedBlocks;
-      double currentY = 0;
-      int blockIdx = 0;
-      for (int i = 0; i < lineCount; i++) {
-        while (blockIdx < blocks.length &&
-            blocks[blockIdx].afterLine == i - 1) {
-          final blockHeight = blocks[blockIdx].lineCount * _lineHeight;
-          if (currentY + blockHeight > y) {
-            return i.clamp(0, lineCount - 1);
-          }
-          currentY += blockHeight;
-          blockIdx++;
-        }
-        if (currentY + _lineHeight > y) {
-          return i;
-        }
-        currentY += _lineHeight;
-      }
-      return lineCount - 1;
-    }
+    _ensureVisibleLinePrefixSum();
+    final sum = _visibleLineYPrefixSum;
+    if (sum.length <= 1) return 0;
 
-    if (!lineWrap && hasActiveFolds) {
-      _ensureFoldedLineCacheValid();
-      int lo = 0, hi = lineCount - 1;
-      while (lo < hi) {
-        final mid = (lo + hi) >> 1;
-        final foldedBefore = _countFoldedLinesBefore(mid + 1);
-        final midYEnd = ((mid + 1) - foldedBefore) * _lineHeight;
-        if (midYEnd <= y) {
-          lo = mid + 1;
-        } else {
-          hi = mid;
-        }
+    int lo = 0, hi = sum.length - 1;
+    while (lo < hi) {
+      final mid = (lo + hi) >> 1;
+      if (sum[mid] <= y) {
+        lo = mid + 1;
+      } else {
+        hi = mid;
       }
-      while (lo < lineCount && _foldedLineIndices.contains(lo)) {
-        lo++;
-      }
-      return lo.clamp(0, lineCount - 1);
     }
-
-    double currentY = 0;
-    final blocks = controller.virtualRemovedBlocks;
-    int blockIdx = 0;
-    for (int i = 0; i < lineCount; i++) {
-      if (hasActiveFolds && _isLineFolded(i)) continue;
-      while (blockIdx < blocks.length && blocks[blockIdx].afterLine == i - 1) {
-        final blockHeight = blocks[blockIdx].lineCount * _lineHeight;
-        if (currentY + blockHeight > y) {
-          return i.clamp(0, lineCount - 1);
-        }
-        currentY += blockHeight;
-        blockIdx++;
-      }
-      final lineHeight = _getWrappedLineHeight(i);
-      if (currentY + lineHeight > y) {
-        return i;
-      }
-      currentY += lineHeight;
-    }
-    return lineCount - 1;
+    return (lo - 1).clamp(0, lineCount - 1);
   }
 
   ({int lineIndex, int columnIndex, Offset offset, double height})
@@ -7019,11 +6968,11 @@ class _CodeFieldRenderer extends RenderBox implements MouseTrackerAnnotation {
   Offset getCaretOffset() => _getCaretInfo().offset;
 
   ({Rect? startHandle, Rect? endHandle, double lineHeight})
-      getSelectionHandleRects() => (
-        startHandle: _startHandleRect,
-        endHandle: _endHandleRect,
-        lineHeight: _lineHeight,
-      );
+  getSelectionHandleRects() => (
+    startHandle: _startHandleRect,
+    endHandle: _endHandleRect,
+    lineHeight: _lineHeight,
+  );
 
   void _updateImeGeometry() {
     final conn = controller.connection;
@@ -7477,14 +7426,19 @@ class _CodeFieldRenderer extends RenderBox implements MouseTrackerAnnotation {
 
     if (lineWrap && lineCount > 0) {
       final lastLineHeight = _getWrappedLineHeight(lineCount - 1);
-      _extraBottomPadding =
-          max(lastLineHeight + _lineHeight * 2, _lineHeight * 3.5);
+      _extraBottomPadding = max(
+        lastLineHeight + _lineHeight * 2,
+        _lineHeight * 3.5,
+      );
     } else {
       _extraBottomPadding = max(_lineHeight * 3.5, 80.0);
     }
 
     final computedContentHeight =
-        visibleHeight + (innerPadding?.top ?? 0) + _totalVirtualExtraHeight + _extraBottomPadding;
+        visibleHeight +
+        (innerPadding?.top ?? 0) +
+        _totalVirtualExtraHeight +
+        _extraBottomPadding;
     final contentHeight = max(
       computedContentHeight,
       constraints.maxHeight.isFinite
@@ -7573,11 +7527,10 @@ class _CodeFieldRenderer extends RenderBox implements MouseTrackerAnnotation {
 
   void _invalidateWrappedLayoutCache() {
     _wrappedPrefixSumVersion++;
+    _visiblePrefixSumVersion++;
     _lineOffsetCache.clear();
   }
 
-  /// 惰性构建 lineWrap 模式下的 Y 前缀和数组（仅用于无折叠场景）。
-  /// prefixSum[i] = 第 i 行顶部 Y 坐标，prefixSum[lineCount] = 总高度。
   void _ensureWrappedPrefixSum() {
     if (_lastBuiltPrefixSumVersion == _wrappedPrefixSumVersion) return;
     _lastBuiltPrefixSumVersion = _wrappedPrefixSumVersion;
@@ -7593,7 +7546,46 @@ class _CodeFieldRenderer extends RenderBox implements MouseTrackerAnnotation {
     _wrappedLineYPrefixSum = sum;
   }
 
-  /// 二分查找第一个 Y 顶部 >= viewTop 的行（lineWrap 无折叠场景）。
+  void _ensureVisibleLinePrefixSum() {
+    if (_lastBuiltVisiblePrefixSumVersion == _visiblePrefixSumVersion) return;
+    _lastBuiltVisiblePrefixSumVersion = _visiblePrefixSumVersion;
+
+    final lineCount = controller.lineCount;
+    final sum = List<double>.filled(lineCount + 1, 0.0);
+    if (lineCount == 0) {
+      _visibleLineYPrefixSum = sum;
+      return;
+    }
+
+    final hasActiveFolds = _hasActiveFolds;
+    final hasVirtualBlocks = _virtualRemovedTotalLineCount > 0;
+
+    if (!hasActiveFolds && !hasVirtualBlocks) {
+      _ensureWrappedPrefixSum();
+      _visibleLineYPrefixSum = _wrappedLineYPrefixSum;
+      return;
+    }
+
+    final blocks = controller.virtualRemovedBlocks;
+    int blockIdx = 0;
+    double acc = 0.0;
+
+    for (int i = 0; i < lineCount; i++) {
+      sum[i] = acc;
+      if (hasActiveFolds && _isLineFolded(i)) continue;
+      if (hasVirtualBlocks) {
+        while (blockIdx < blocks.length &&
+            blocks[blockIdx].afterLine == i - 1) {
+          acc += blocks[blockIdx].lineCount * _lineHeight;
+          blockIdx++;
+        }
+      }
+      acc += lineWrap ? _getWrappedLineHeight(i) : _lineHeight;
+    }
+    sum[lineCount] = acc;
+    _visibleLineYPrefixSum = sum;
+  }
+
   int _findFirstVisibleWrappedLine(double viewTop) {
     _ensureWrappedPrefixSum();
     final sum = _wrappedLineYPrefixSum;
@@ -7608,16 +7600,14 @@ class _CodeFieldRenderer extends RenderBox implements MouseTrackerAnnotation {
         hi = mid;
       }
     }
-    // lo 是第一个 sum[lo] >= viewTop 的行，可见行应该是 lo-1（其底部可能仍可见）
     if (lo > 0) lo--;
     return lo.clamp(0, sum.length - 2);
   }
 
   double _getLineYOffset(int targetLine, bool hasActiveFolds) {
-    // lineWrap 无折叠：直接查前缀和 O(1)
-    if (lineWrap && !hasActiveFolds) {
-      _ensureWrappedPrefixSum();
-      final sum = _wrappedLineYPrefixSum;
+    if (lineWrap) {
+      _ensureVisibleLinePrefixSum();
+      final sum = _visibleLineYPrefixSum;
       if (targetLine >= 0 && targetLine < sum.length) {
         return sum[targetLine];
       }
@@ -7630,18 +7620,12 @@ class _CodeFieldRenderer extends RenderBox implements MouseTrackerAnnotation {
     }
 
     double y;
-    if (!lineWrap && !hasActiveFolds) {
+    if (!hasActiveFolds) {
       y = targetLine * _lineHeight;
-    } else if (!lineWrap && hasActiveFolds) {
+    } else {
       _ensureFoldedLineCacheValid();
       final foldedBefore = _countFoldedLinesBefore(targetLine);
       y = (targetLine - foldedBefore) * _lineHeight;
-    } else {
-      y = 0;
-      for (int i = 0; i < targetLine; i++) {
-        if (hasActiveFolds && _isLineFolded(i)) continue;
-        y += _getWrappedLineHeight(i);
-      }
     }
     _lineOffsetCache[cacheKey] = y;
     return y;
@@ -7730,7 +7714,6 @@ class _CodeFieldRenderer extends RenderBox implements MouseTrackerAnnotation {
       }
       lastVisibleLine = lo.clamp(0, lineCount - 1);
     } else if (!hasActiveFolds) {
-      // lineWrap 无折叠：使用前缀和二分查找 O(log N)
       _ensureWrappedPrefixSum();
       final sum = _wrappedLineYPrefixSum;
       if (sum.length <= 1 || lineCount == 0) {
@@ -7752,32 +7735,29 @@ class _CodeFieldRenderer extends RenderBox implements MouseTrackerAnnotation {
         lastVisibleLine = lastVisibleLine.clamp(0, lineCount - 1);
       }
     } else {
-      // lineWrap + 折叠：仍走线性扫描（折叠场景较少，保持原逻辑）
-      double currentY = 0;
-      firstVisibleLine = 0;
-      lastVisibleLine = lineCount - 1;
-      firstVisibleLineY = 0;
+      _ensureVisibleLinePrefixSum();
+      final sum = _visibleLineYPrefixSum;
+      if (sum.length <= 1 || lineCount == 0) {
+        firstVisibleLine = 0;
+        lastVisibleLine = 0;
+        firstVisibleLineY = 0;
+      } else {
+        firstVisibleLine = _findVisibleLineByYPosition(viewTop).clamp(
+          0,
+          lineCount - 1,
+        );
+        firstVisibleLineY = sum[firstVisibleLine];
 
-      for (int i = 0; i < lineCount; i++) {
-        if (hasActiveFolds && _isLineFolded(i)) continue;
-        final lineHeight = _getWrappedLineHeight(i);
-        if (currentY + lineHeight > viewTop) {
-          firstVisibleLine = i;
-          firstVisibleLineY = currentY;
-          break;
-        }
-        currentY += lineHeight;
-      }
-
-      currentY = firstVisibleLineY;
-      for (int i = firstVisibleLine; i < lineCount; i++) {
-        if (hasActiveFolds && _isLineFolded(i)) continue;
-        final lineHeight = _getWrappedLineHeight(i);
-        currentY += lineHeight;
-        if (currentY >= viewBottom) {
+        lastVisibleLine = firstVisibleLine;
+        for (int i = firstVisibleLine; i < lineCount; i++) {
+          if (hasActiveFolds && _isLineFolded(i)) continue;
+          if (sum[i + 1] >= viewBottom) {
+            lastVisibleLine = i;
+            break;
+          }
           lastVisibleLine = i;
-          break;
         }
+        lastVisibleLine = lastVisibleLine.clamp(0, lineCount - 1);
       }
     }
 
@@ -7897,7 +7877,7 @@ class _CodeFieldRenderer extends RenderBox implements MouseTrackerAnnotation {
           _lineTextCache[i] = lineText;
         }
 
-        if (_paragraphCache.containsKey(i) && !isRTL) {
+        if (_paragraphCache.containsKey(i)) {
           paragraph = _paragraphCache[i]!;
         } else {
           paragraph = _buildHighlightedParagraph(
@@ -7905,9 +7885,7 @@ class _CodeFieldRenderer extends RenderBox implements MouseTrackerAnnotation {
             lineText,
             width: paragraphWidth,
           );
-          if (!isRTL) {
-            _paragraphCache[i] = paragraph;
-          }
+          _paragraphCache[i] = paragraph;
 
           if (lineWrap) {
             _lineHeightCache[i] = paragraph.height;
@@ -9097,7 +9075,6 @@ class _CodeFieldRenderer extends RenderBox implements MouseTrackerAnnotation {
     }
   }
 
-  /// 对行号键控的缓存做 key-shift，保留 insertionLine 之前的缓存
   void _shiftLineKeyedCache<T>(
     Map<int, T> cache,
     int insertionLine,
@@ -11534,7 +11511,9 @@ class _CodeFieldRenderer extends RenderBox implements MouseTrackerAnnotation {
       } else if (_endHandleRect?.contains(position) == true) {
         isHit = true;
       } else if (_normalHandle != null) {
-        if (_normalHandle!.inflate(_kCaretHandleHitPadding).contains(position)) {
+        if (_normalHandle!
+            .inflate(_kCaretHandleHitPadding)
+            .contains(position)) {
           isHit = true;
         }
       }
@@ -11720,7 +11699,9 @@ class _CodeFieldRenderer extends RenderBox implements MouseTrackerAnnotation {
         };
 
         if (controller.selection.start != controller.selection.end) {
-          final startHit = _startHandleRect?.inflate(_kSelectionHandleHitPadding);
+          final startHit = _startHandleRect?.inflate(
+            _kSelectionHandleHitPadding,
+          );
           final endHit = _endHandleRect?.inflate(_kSelectionHandleHitPadding);
           if (startHit?.contains(localPosition) ?? false) {
             _draggingStartHandle = true;
@@ -11768,6 +11749,14 @@ class _CodeFieldRenderer extends RenderBox implements MouseTrackerAnnotation {
         });
       } else {
         controller.focusNode?.requestFocus();
+        final isAltClickNow =
+            HardwareKeyboard.instance.isAltPressed &&
+            !HardwareKeyboard.instance.isControlPressed &&
+            !HardwareKeyboard.instance.isMetaPressed;
+        if (!isAltClickNow) {
+          controller.clearMultiCursors();
+          controller.selection = TextSelection.collapsed(offset: textOffset);
+        }
         _dtap.addPointer(event);
         _dtap.onDoubleTap = () {
           final freshOffset = _getTextOffsetFromPosition(contentPosition);
@@ -11779,9 +11768,6 @@ class _CodeFieldRenderer extends RenderBox implements MouseTrackerAnnotation {
         _isDragging = false;
         _selectionActive = false;
         selectionActiveNotifier.value = false;
-        final isAltClick = HardwareKeyboard.instance.isAltPressed &&
-            !HardwareKeyboard.instance.isControlPressed &&
-            !HardwareKeyboard.instance.isMetaPressed;
         _onetap.onTap = () {
           if (_openedLspActionFromBulbTap) {
             _openedLspActionFromBulbTap = false;
@@ -11798,17 +11784,21 @@ class _CodeFieldRenderer extends RenderBox implements MouseTrackerAnnotation {
             lspActionNotifier.value = null;
             lspActionOffsetNotifier.value = null;
           }
-        };
 
-        if (isAltClick) {
-          final line = controller.getLineAtOffset(textOffset);
-          final lineStart = controller.getLineStartOffset(line);
-          final character = textOffset - lineStart;
-          controller.addMultiCursor(line, character);
-        } else {
-          controller.clearMultiCursors();
-          controller.selection = TextSelection.collapsed(offset: textOffset);
-        }
+          final isAltClickNow =
+              HardwareKeyboard.instance.isAltPressed &&
+              !HardwareKeyboard.instance.isControlPressed &&
+              !HardwareKeyboard.instance.isMetaPressed;
+          if (isAltClickNow) {
+            final line = controller.getLineAtOffset(textOffset);
+            final lineStart = controller.getLineStartOffset(line);
+            final character = textOffset - lineStart;
+            controller.addMultiCursor(line, character);
+          } else {
+            controller.clearMultiCursors();
+            controller.selection = TextSelection.collapsed(offset: textOffset);
+          }
+        };
       }
     }
 
@@ -11930,8 +11920,6 @@ class _CodeFieldRenderer extends RenderBox implements MouseTrackerAnnotation {
         return;
       }
 
-      // PointerCancelEvent 表示手势被系统抢占（如侧滑返回），不应触发选区变更或键盘
-      // 只有真正的 PointerUpEvent（tap）才设置 collapsed selection
       if (event is PointerUpEvent &&
           !_isDragging &&
           isMobile &&
@@ -11988,14 +11976,12 @@ class _CodeFieldRenderer extends RenderBox implements MouseTrackerAnnotation {
     if (scalarLength == 0) return;
 
     int target = offset.clamp(0, scalarLength - 1);
-    bool isBoundary(int scalar) =>
-        _isWordBoundary(String.fromCharCode(scalar));
+    bool isBoundary(int scalar) => _isWordBoundary(String.fromCharCode(scalar));
 
     if (isBoundary(runes[target])) {
       if (target > 0 && !isBoundary(runes[target - 1])) {
         target = target - 1;
-      } else if (target < scalarLength - 1 &&
-          !isBoundary(runes[target + 1])) {
+      } else if (target < scalarLength - 1 && !isBoundary(runes[target + 1])) {
         target = target + 1;
       }
     }

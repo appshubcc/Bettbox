@@ -1,5 +1,5 @@
 <h4 align="right">
-  <a href="README_zh.md">简体中文</a> | <a href="README.md">English</a> | <a href="README_ru.md">Русский</a> | <a href="README_fa.md">فارسی</a> | <a href="README_ja.md">日本語</a> | <strong>한국어</strong>
+  <a href="README.md">简体中文</a> | <a href="README_en.md">English</a> | <a href="README_ru.md">Русский</a> | <a href="README_fa.md">فارسی</a> | <a href="README_ja.md">日本語</a> | <strong>한국어</strong>
 </h4>
 
 <h1 align="center">⚡ Bettbox</h1>
@@ -36,8 +36,8 @@ Bettbox: Better Experience, Out of the box (뛰어난 경험, 설치 즉시 사�
 * **HarmonyOS NEXT**: [[卓易通]](https://harmonyos.cool/android-app) 프로그램과 함께 사용하십시오.
 
 **기타 설치 방법:**<br>
-**ArchLinux:** <code>yay -S bettbox-bin</code> 또는 <code>paru -S bettbox-bin</code><br>
-**AMD64=v1:** <code>yay -S bettbox-compatible-bin</code> 또는 <code>paru -S bettbox-compatible-bin</code>
+**ArchLinux:** <code>yay -S bettbox-bin 또는 paru -S bettbox-bin</code> ([lyj404](https://github.com/lyj404/bettbox-aur) 관리)<br>
+**AMD64=v1:** <code>yay -S bettbox-compatible-bin 또는 paru -S bettbox-compatible-bin</code> ([VillagerTom](https://github.com/VillagerTom) 관리)
 
 ---
 </div>

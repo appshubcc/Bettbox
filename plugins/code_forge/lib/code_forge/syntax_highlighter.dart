@@ -30,10 +30,10 @@ class HighlightedLine {
 
 class _SpanData {
   final String text;
-  final String? scope;
+  final TextStyle? style;
   final List<_SpanData> children;
 
-  _SpanData(this.text, this.scope, [this.children = const []]);
+  _SpanData(this.text, this.style, [this.children = const []]);
 }
 
 class SyntaxHighlighter {
@@ -60,6 +60,8 @@ class SyntaxHighlighter {
   Future<void>? _preHighlightInFlight;
   int _preHighlightInFlightVersion = -1, _version = 0, _documentVersion = 0;
   bool _isEditing = false;
+  final Map<int, bool> _blockCommentCache = {};
+  int _blockCommentCacheVersion = -1;
 
   SyntaxHighlighter({
     required this.language,
@@ -583,11 +585,20 @@ class SyntaxHighlighter {
     final getLineText = this.getLineText;
     if (getLineText == null) return false;
 
+    if (_blockCommentCacheVersion != _documentVersion) {
+      _blockCommentCache.clear();
+      _blockCommentCacheVersion = _documentVersion;
+    }
+
+    final cached = _blockCommentCache[lineIndex];
+    if (cached != null) return cached;
+
     final startLine = (lineIndex - _blockCommentLookbackLimit).clamp(
       0,
       lineIndex,
     );
 
+    bool result = false;
     for (int i = lineIndex; i >= startLine; i--) {
       final text = getLineText(i);
       if (text.isEmpty) continue;
@@ -605,16 +616,21 @@ class SyntaxHighlighter {
             pos = afterOpen + 2;
             continue;
           }
-          return i != lineIndex;
+          result = i != lineIndex;
+          _blockCommentCache[lineIndex] = result;
+          return result;
         }
 
         if (closeIdx >= 0 && (openIdx < 0 || closeIdx < openIdx)) {
-          return i == lineIndex;
+          result = i == lineIndex;
+          _blockCommentCache[lineIndex] = result;
+          return result;
         }
       }
     }
 
-    return false;
+    _blockCommentCache[lineIndex] = result;
+    return result;
   }
 
   TextSpan? _highlightLine(String lineText) {
@@ -1012,9 +1028,7 @@ class SyntaxHighlighter {
   TextSpan? _spanDataToTextSpan(_SpanData? data) {
     if (data == null) return null;
 
-    final style = data.scope != null
-        ? _resolvedTheme[data.scope]
-        : baseTextStyle;
+    final style = data.style ?? baseTextStyle;
 
     if (data.children.isEmpty) {
       return TextSpan(text: data.text, style: style);
@@ -1129,7 +1143,5 @@ _SpanData _textSpanToSpanData(TextSpan span) {
     }
   }
 
-  String? scope;
-
-  return _SpanData(span.text ?? '', scope, children);
+  return _SpanData(span.text ?? '', span.style, children);
 }

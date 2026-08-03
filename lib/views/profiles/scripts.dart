@@ -623,7 +623,7 @@ class __ScriptCustomOptionsSheetState
       await _handleSave();
       return false;
     }
-    return res ?? false;
+    return res == false;
   }
 
   bool _isValidIconUrl(String? url) {
@@ -853,7 +853,7 @@ class _GroupSwitchOptionsSheetState
       await _handleSave();
       return false;
     }
-    return res ?? false;
+    return res == false;
   }
 
   Future<void> _handleSave() async {

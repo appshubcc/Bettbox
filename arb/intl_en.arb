@@ -66,7 +66,6 @@
   "rightClickBehavior": "Right Click",
   "showPanel": "Show Panel",
   "showMenu": "Show Menu",
-  "showHiddenItems": "Show Hidden Items",
   "excludeChina": "Exclude China",
   "excludeChinaDesc": "Allow China QUIC traffic instead of blocking all",
   "fcmOptimization": "FCM Optimization",
@@ -667,5 +666,6 @@
   "generateFromPrivateKey": "Generate from Age private key",
   "ageKeyPairGeneratedSuccess": "X25519 Key pair generated, please keep it safe",
   "agePrivateKeyRequired": "Please enter a correct Age private key first",
-  "lineWrap": "Wrap Lines"
+  "lineWrap": "Wrap Lines",
+  "showHiddenItems": "Show Hidden Items"
 }

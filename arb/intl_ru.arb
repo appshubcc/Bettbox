@@ -66,7 +66,6 @@
   "rightClickBehavior": "Правая кнопка",
   "showPanel": "Показать панель",
   "showMenu": "Показать меню",
-  "showHiddenItems": "Показывать скрытые элементы",
   "excludeChina": "Исключить Китай",
   "excludeChinaDesc": "Разрешить QUIC-трафик Китая вместо полной блокировки",
   "fcmOptimization": "Оптимизация FCM",
@@ -670,5 +669,6 @@
   "generateFromPrivateKey": "Создать из закрытого ключа",
   "ageKeyPairGeneratedSuccess": "Пара ключей X25519 создана, сохраните её в надёжном месте",
   "agePrivateKeyRequired": "Пожалуйста, сначала введите корректный закрытый ключ Age",
-  "lineWrap": "Перенос строк"
+  "lineWrap": "Перенос строк",
+  "showHiddenItems": "Показать скрытые"
 }

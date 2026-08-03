@@ -476,11 +476,25 @@ pub fn guides_compute_viewport(
 
     let rope_lock = _rope.rope.read().unwrap();
     let total_lines = rope_lock.len_lines();
+    let len_chars = rope_lock.len_chars();
+    drop(rope_lock);
 
     if total_lines == 0 {
         return Vec::new();
     }
 
+    if let Some(cache) = _rope.guide_cache.read().unwrap().as_ref() {
+        if cache.len_chars == len_chars
+            && cache.len_lines == total_lines
+            && cache.first_visible == _first_visible
+            && cache.last_visible == _last_visible
+            && cache.tab_size == _tab_size
+        {
+            return cache.blocks.clone();
+        }
+    }
+
+    let rope_lock = _rope.rope.read().unwrap();
     let first = _first_visible.min(total_lines.saturating_sub(1));
     let last = _last_visible.min(total_lines.saturating_sub(1));
     let scan_start = if first > scan_back_limit { first - scan_back_limit } else { 0 };
@@ -683,6 +697,16 @@ pub fn guides_compute_viewport(
         });
     }
 
+    drop(rope_lock);
+    *_rope.guide_cache.write().unwrap() = Some(crate::api::rope::GuideCache {
+        len_chars,
+        len_lines: total_lines,
+        first_visible: _first_visible,
+        last_visible: _last_visible,
+        tab_size: _tab_size,
+        blocks: blocks.clone(),
+    });
+
     blocks
 }
 
@@ -725,10 +749,9 @@ fn find_matching_bracket_in_rope(rope: &RustRope, target_offset: usize) -> Optio
         if target_offset == 0 {
             return None;
         }
-        let mut idx = target_offset;
-        while idx > 0 {
-            idx -= 1;
-            let ch = rope.char(idx);
+        let prefix = rope.slice(0..target_offset).to_string();
+        for (i, ch) in prefix.chars().rev().enumerate() {
+            let idx = target_offset - 1 - i;
             if ch == start_ch {
                 depth += 1;
             } else if ch == matcher {

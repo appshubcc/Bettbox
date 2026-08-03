@@ -658,6 +658,7 @@
   "agePublicKeyLabel": "کلید عمومی Age",
   "generateFromPrivateKey": "تولید از کلید خصوصی",
   "ageKeyPairGeneratedSuccess": "جفت کلید X25519 با موفقیت ساخته شد. لطفاً آن را ذخیره کنید",
-  "agePrivateKeyRequired": "لطفاً ابتدا کلید خصوصی معتبر Age را وارد کنید",
-  "lineWrap": "شکستن خودکار خطوط"
+  "agePrivateKeyRequired": "لطفا ابتدا کلید خصوصی Age صحیح را وارد کنید",
+  "lineWrap": "شکستن خطوط",
+  "showHiddenItems": "نمایش موارد پنهان"
 }

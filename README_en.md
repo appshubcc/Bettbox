@@ -1,5 +1,5 @@
 <h4 align="right">
-  <a href="README_zh.md">简体中文</a> | <strong>English</strong> | <a href="README_ru.md">Русский</a> | <a href="README_fa.md">فارسی</a> | <a href="README_ja.md">日本語</a> | <a href="README_ko.md">한국어</a>
+  <a href="README.md">简体中文</a> | <strong>English</strong> | <a href="README_ru.md">Русский</a> | <a href="README_fa.md">فارسی</a> | <a href="README_ja.md">日本語</a> | <a href="README_ko.md">한국어</a>
 </h4>
 
 <h1 align="center">⚡ Bettbox</h1>
@@ -24,12 +24,17 @@ Bettbox stands for: Better Experience, Out of the box.
 [![Telegram Group](https://img.shields.io/badge/Bettbox-Chat-2CA5E0?style=for-the-badge&logo=telegram&logoColor=white)](https://t.me/appshub_chat) [![Telegram Channel](https://img.shields.io/badge/Bettbox-Channel-2CA5E0?style=for-the-badge&logo=telegram&logoColor=white)](https://t.me/appshub_channel)
 
 ---
-### 🛩️ Recommended Services
-### Niche IEPL Dedicated Lines  丨  [BBXY (百变小樱)](https://www.bbxy01.com/v2/register?code=c09R)
+###   🛩️ 推荐服务
+### 小众低调专线  〢  [百变小樱](https://www.bbxy01.com/v2/register?code=c09R)
 
-### Direct Connections  丨  [Liangxinyun (良心云)](https://xn--9kqz23b19z.com/#/register?code=VTnrQYAj)  丨  [Yifen (一分机场)](https://xn--4gqx1hgtfdmt.com/#/register?code=AuCiXprV)  丨  [Peiqian (赔钱机场)](https://xn--mes358aby2apfg.com/register?code=z7TUZLmM&cover=sfw)
+### Bettbox新用户独享：首充6.8折优惠码：bettbox68
 
-**Notes**: ❚ ❚ Dedicated lines (with direct backup) offer higher stability, while direct connections supply huge bandwidth at low cost. Good community feedback. Note: These services are unaffiliated with Bettbox. Please assess performance on your own.
+**简评** : ❚ ❚  老牌小众专线，海外团队运营多年，当前线路包括: 优化直连/BGP中转/IEPL专线
+
+--------------------------------
+### 低价直连  〢  [良心云](https://xn--9kqz23b19z.com/#/register?code=VTnrQYAj)  〢  [一分机场](https://xn--4gqx1hgtfdmt.com/#/register?code=AuCiXprV)  〢  [赔钱机场](https://xn--mes358aby2apfg.com/register?code=z7TUZLmM&cover=sfw)
+
+**简评** : ❚ ❚  AWS&渠道机，跑路风险相对较低，量大管饱，1000G不限时套餐通常更有性价比
 
 ---
 

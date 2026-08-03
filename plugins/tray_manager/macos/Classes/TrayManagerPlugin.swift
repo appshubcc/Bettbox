@@ -22,6 +22,8 @@ extension NSRect {
 }
 
 public class TrayManagerPlugin: NSObject, FlutterPlugin, NSMenuDelegate {
+    static let instance = TrayManagerPlugin()
+
     var channel: FlutterMethodChannel!
     
     var trayIcon: TrayIcon?
@@ -34,7 +36,7 @@ public class TrayManagerPlugin: NSObject, FlutterPlugin, NSMenuDelegate {
     
     public static func register(with registrar: FlutterPluginRegistrar) {
         let channel = FlutterMethodChannel(name: "tray_manager", binaryMessenger: registrar.messenger)
-        let instance = TrayManagerPlugin()
+        let instance = TrayManagerPlugin.instance
         instance.channel = channel
         registrar.addMethodCallDelegate(instance, channel: channel)
     }
@@ -250,7 +252,7 @@ public class TrayManagerPlugin: NSObject, FlutterPlugin, NSMenuDelegate {
         let shouldKeepOpen = keepMenuOpen && _isMenuOpen
         
         if (shouldKeepOpen && trayMenu != nil) {
-            trayMenu?.updateMenuItems(args["menu"] as! [String: Any])
+            trayMenu?.update(args["menu"] as! [String: Any])
         } else {
             trayMenu = TrayMenu(args["menu"] as! [String: Any])
             trayMenu?.onMenuItemClick = { [weak self] (menuItem: NSMenuItem) in

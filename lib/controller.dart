@@ -114,6 +114,9 @@ class AppController {
       _ref.read(isRestartingCoreProvider.notifier).state = true;
       try {
         await _restartCore();
+      } catch (err) {
+        _reportCoreRestartFailure(err);
+        rethrow;
       } finally {
         _ref.read(isRestartingCoreProvider.notifier).state = false;
       }
@@ -666,6 +669,9 @@ class AppController {
         _ref.read(isRestartingCoreProvider.notifier).state = true;
         try {
           await _restartCore();
+        } catch (err) {
+          _reportCoreRestartFailure(err);
+          rethrow;
         } finally {
           _ref.read(isRestartingCoreProvider.notifier).state = false;
         }
@@ -691,6 +697,12 @@ class AppController {
       globalState.computeHeightMapCache = {};
       addCheckIpNumDebounce();
     });
+  }
+
+  void _reportCoreRestartFailure(Object error) {
+    final message = error.formatError;
+    commonPrint.log('[Core] Restart failed: $message');
+    globalState.showNotifier('${appLocalizations.restartCoreTitle}: $message');
   }
 
   void updateBrightness() {

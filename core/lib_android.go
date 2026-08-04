@@ -123,6 +123,11 @@ func handleStartTun(fd int, callback unsafe.Pointer) {
 	now := time.Now()
 	runTime = &now
 	if fd != 0 {
+		if currentConfig == nil {
+			log.Warnln("[APP] handleStartTun called before setupConfig")
+			handleStopTun()
+			return
+		}
 		handler := &TunHandler{
 			callback: callback,
 			limit:    semaphore.NewWeighted(4),
@@ -168,6 +173,10 @@ func removeTunHook() {
 func handleGetAndroidVpnOptions() string {
 	tunLock.Lock()
 	defer tunLock.Unlock()
+	if currentConfig == nil {
+		log.Warnln("[APP] handleGetAndroidVpnOptions called before setupConfig")
+		return ""
+	}
 	ipv6Address := ""
 	if currentConfig.General.IPv6 {
 		ipv6Address = state.DefaultIpv6Address

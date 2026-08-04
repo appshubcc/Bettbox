@@ -72,8 +72,9 @@ class _HotKeyManagerState extends ConsumerState<HotKeyManager> {
   Shortcuts _buildShortcuts(Widget child) {
     return Shortcuts(
       shortcuts: {
-        utils.controlSingleActivator(LogicalKeyboardKey.keyW):
-            CloseWindowIntent(),
+        if (!system.isMacOS)
+          utils.controlSingleActivator(LogicalKeyboardKey.keyW):
+              CloseWindowIntent(),
       },
       child: Actions(
         actions: {

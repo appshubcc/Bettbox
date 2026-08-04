@@ -154,10 +154,12 @@ public class TrayMenu: NSMenu, NSMenuDelegate {
 
     public override init(title: String) {
         super.init(title: title)
+        autoenablesItems = false
     }
     
     required init(coder: NSCoder) {
         super.init(coder: coder)
+        autoenablesItems = false
     }
 
     private func menuItemTitle(_ label: String, _ sublabel: String) -> String {
@@ -185,6 +187,7 @@ public class TrayMenu: NSMenu, NSMenuDelegate {
     
     public init(_ args: [String: Any]) {
         super.init(title: "")
+        autoenablesItems = false
 
         let items: [NSDictionary] = args["items"] as! [NSDictionary];
         let menuWidth = preferredMenuWidth(items)
@@ -206,7 +209,7 @@ public class TrayMenu: NSMenu, NSMenuDelegate {
             } else {
                 menuItem = NSMenuItem()
             }
-            
+
             menuItem.tag = id
             menuItem.title = menuItemTitle(label, sublabel)
             menuItem.toolTip = toolTip
@@ -233,7 +236,7 @@ public class TrayMenu: NSMenu, NSMenuDelegate {
                 menuItem.action = nil
                 menuItem.target = nil
             }
-            
+
             switch (type) {
             case "separator":
                 break
@@ -276,36 +279,43 @@ public class TrayMenu: NSMenu, NSMenuDelegate {
     public func update(_ args: [String: Any]) {
         let items: [NSDictionary] = args["items"] as! [NSDictionary];
 
-        for item in items {
+        guard items.count == self.items.count else {
+            return
+        }
+
+        for (index, item) in items.enumerated() {
             let itemDict = item as! [String: Any]
-            let id: Int = itemDict["id"] as! Int
             let type: String = itemDict["type"] as! String
             let label: String = itemDict["label"] as? String ?? ""
             let sublabel: String = itemDict["sublabel"] as? String ?? ""
+            let toolTip: String = itemDict["toolTip"] as? String ?? ""
             let checked: Bool? = itemDict["checked"] as? Bool
             let disabled: Bool = itemDict["disabled"] as? Bool ?? true
 
-            let menuItem = self.item(withTag: id)
+            let menuItem = self.items[index]
+            let expectsSeparator = type == "separator"
+            guard menuItem.isSeparatorItem == expectsSeparator else {
+                return
+            }
 
-            if (menuItem != nil) {
-                menuItem!.title = menuItemTitle(label, sublabel)
-                menuItem!.isEnabled = !disabled
-                menuItem!.action = !disabled ? #selector(statusItemMenuButtonClicked) : nil
+            menuItem.title = menuItemTitle(label, sublabel)
+            menuItem.toolTip = toolTip
+            menuItem.isEnabled = !disabled
+            menuItem.action = !disabled ? #selector(statusItemMenuButtonClicked) : nil
 
-                if let persistentView = menuItem!.view as? PersistentTrayMenuItemView {
-                    persistentView.update(label: label, disabled: disabled)
-                    menuItem!.action = nil
-                }
+            if let persistentView = menuItem.view as? PersistentTrayMenuItemView {
+                persistentView.update(label: label, disabled: disabled)
+                menuItem.action = nil
+            }
 
-                if let checkedValue = checked {
-                    menuItem!.state = checkedValue ? .on : .off
-                }
-                
-                if (type == "submenu") {
-                    if let submenuDict = itemDict["submenu"] as? NSDictionary {
-                        let submenu = menuItem!.submenu as? TrayMenu
-                        submenu?.update(submenuDict as! [String : Any])
-                    }
+            if let checkedValue = checked {
+                menuItem.state = checkedValue ? .on : .off
+            }
+
+            if (type == "submenu") {
+                if let submenuDict = itemDict["submenu"] as? NSDictionary {
+                    let submenu = menuItem.submenu as? TrayMenu
+                    submenu?.update(submenuDict as! [String : Any])
                 }
             }
         }

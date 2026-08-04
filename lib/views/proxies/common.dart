@@ -33,6 +33,45 @@ class DelayTestCoordinator extends ChangeNotifier {
 
 final delayTestCoordinator = DelayTestCoordinator();
 
+@immutable
+class DelayTestTarget {
+  final String name;
+  final String url;
+
+  const DelayTestTarget({required this.name, required this.url});
+
+  @override
+  bool operator ==(Object other) {
+    return other is DelayTestTarget && other.name == name && other.url == url;
+  }
+
+  @override
+  int get hashCode => Object.hash(name, url);
+}
+
+class DelayTestRequestPool {
+  final Map<DelayTestTarget, Future<Delay>> _pendingRequests = {};
+
+  int get pendingCount => _pendingRequests.length;
+
+  Future<Delay> run(DelayTestTarget target, Future<Delay> Function() action) {
+    final pendingRequest = _pendingRequests[target];
+    if (pendingRequest != null) {
+      return pendingRequest;
+    }
+
+    final request = action();
+    _pendingRequests[target] = request;
+    return request.whenComplete(() {
+      if (identical(_pendingRequests[target], request)) {
+        _pendingRequests.remove(target);
+      }
+    });
+  }
+}
+
+final _delayTestRequestPool = DelayTestRequestPool();
+
 double get listHeaderHeight {
   final measure = globalState.measure;
   return 20 + measure.titleMediumHeight + 4 + measure.bodyMediumHeight;
@@ -60,11 +99,18 @@ Future<void> proxyDelayTest(Proxy proxy, [String? testUrl]) async {
   if (state.proxyName.isEmpty) {
     return;
   }
-  // Set testing state
-  appController.setDelay(Delay(url: url, name: state.proxyName, value: 0));
-  // Get and set delay
-  appController.setDelay(await clashCore.getDelay(url, state.proxyName));
+  await _testProxyDelay(DelayTestTarget(name: state.proxyName, url: url));
   appController.addSortNum();
+}
+
+Future<Delay> _testProxyDelay(DelayTestTarget target) {
+  return _delayTestRequestPool.run(target, () async {
+    final appController = globalState.appController;
+    appController.setDelay(Delay(url: target.url, name: target.name, value: 0));
+    final delay = await clashCore.getDelay(target.url, target.name);
+    appController.setDelay(delay);
+    return delay;
+  });
 }
 
 bool _isNonTestableProxyName(String proxyName) {
@@ -100,30 +146,29 @@ Future<void> delayTest(
 }) async {
   Future<void> runTest() async {
     final appController = globalState.appController;
-    final proxyNames = proxies
-        .where((proxy) => !_isNonTestableProxy(proxy))
-        .map((proxy) => proxy.name)
-        .toSet()
-        .toList();
+    final targets = <DelayTestTarget>{};
+    for (final proxy in proxies) {
+      if (_isNonTestableProxy(proxy)) {
+        continue;
+      }
+      final state = appController.getProxyCardState(proxy.name);
+      final url = appController.getRealTestUrl(
+        state.testUrl.getSafeValue(testUrl ?? ''),
+      );
+      final name = state.proxyName;
+      if (name.isEmpty ||
+          _isNonTestableProxyName(name) ||
+          _isNonTestableProxyType(_getProxyType(name) ?? '')) {
+        continue;
+      }
+      targets.add(DelayTestTarget(name: name, url: url));
+    }
     final concurrencyLimit = globalState.config.proxiesStyle.concurrencyLimit;
 
-    // Create lazy task
-    final delayTasks = proxyNames.map((proxyName) {
+    // 按实际节点和实际测试地址创建任务，避免多个代理组别名重复测速。
+    final delayTasks = targets.map((target) {
       return () async {
-        final state = appController.getProxyCardState(proxyName);
-        final url = appController.getRealTestUrl(
-          state.testUrl.getSafeValue(testUrl ?? ''),
-        );
-        final name = state.proxyName;
-        if (name.isEmpty ||
-            _isNonTestableProxyName(name) ||
-            _isNonTestableProxyType(_getProxyType(name) ?? '')) {
-          return;
-        }
-        // Set testing state
-        appController.setDelay(Delay(url: url, name: name, value: 0));
-        // Get and set delay
-        appController.setDelay(await clashCore.getDelay(url, name));
+        await _testProxyDelay(target);
         await onDelayUpdated?.call();
       };
     }).toList();

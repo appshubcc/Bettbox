@@ -19,6 +19,29 @@ const kEventOnTrayMenuItemClick = 'onTrayMenuItemClick';
 
 enum TrayIconPosition { left, right }
 
+@visibleForTesting
+class TrayMenuOpenState {
+  int _depth = 0;
+
+  bool get isOpen => _depth > 0;
+
+  int get depth => _depth;
+
+  void open() {
+    _depth += 1;
+  }
+
+  void close() {
+    if (_depth > 0) {
+      _depth -= 1;
+    }
+  }
+
+  void reset() {
+    _depth = 0;
+  }
+}
+
 class TrayManager {
   TrayManager._() {
     _channel.setMethodCallHandler(_methodCallHandler);
@@ -38,9 +61,9 @@ class TrayManager {
 
   Menu? _menu;
 
-  bool _isMenuOpen = false;
+  final TrayMenuOpenState _menuOpenState = TrayMenuOpenState();
 
-  bool get isMenuOpen => _isMenuOpen;
+  bool get isMenuOpen => _menuOpenState.isOpen;
 
   bool _isOptionKeyPressed = false;
 
@@ -69,10 +92,10 @@ class TrayManager {
 
   Future<void> _methodCallHandler(MethodCall call) async {
     if (call.method == 'onMenuOpen') {
-      _isMenuOpen = true;
+      _menuOpenState.open();
       return;
     } else if (call.method == 'onMenuClose') {
-      _isMenuOpen = false;
+      _menuOpenState.close();
       return;
     }
 
@@ -131,6 +154,7 @@ class TrayManager {
 
   // Destroys the tray icon immediately.
   Future<void> destroy() async {
+    _menuOpenState.reset();
     await _channel.invokeMethod('destroy');
   }
 
@@ -249,7 +273,7 @@ class TrayManager {
     bool keepMenuOpen = false,
     Brightness? brightness,
   }) async {
-    final bool willKeepOpen = keepMenuOpen && _isMenuOpen;
+    final bool willKeepOpen = keepMenuOpen && isMenuOpen;
     if (!willKeepOpen) {
       _menu = menu;
     }

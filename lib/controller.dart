@@ -67,7 +67,7 @@ Future<void> rebuildMacOSTunListener({
   required Future<void> Function() repairNetwork,
   required Future<void> Function() startListener,
   required Future<void> Function() enableTun,
-  bool Function()? shouldResume,
+  bool Function()? isLifecycleCancelled,
 }) async {
   var tunTemporarilyDisabled = false;
   var listenerStopped = false;
@@ -78,7 +78,9 @@ Future<void> rebuildMacOSTunListener({
     listenerStopped = true;
     await repairNetwork();
   } finally {
-    if (shouldResume?.call() ?? true) {
+    // Once teardown has started, a newer network event must not leave the
+    // listener or TUN disabled. Only an explicit stop/exit may keep them off.
+    if (!(isLifecycleCancelled?.call() ?? false)) {
       if (listenerStopped) {
         try {
           await startListener();
@@ -244,9 +246,12 @@ class AppController {
 
     final recoveryGeneration = _macOSNetworkRecoveryGeneration;
 
+    bool lifecycleCancelled() {
+      return recoveryGeneration != _macOSNetworkRecoveryGeneration;
+    }
+
     bool recoveryCancelled() {
-      return recoveryGeneration != _macOSNetworkRecoveryGeneration ||
-          isCancelled?.call() == true;
+      return lifecycleCancelled() || isCancelled?.call() == true;
     }
 
     return _coreLifecycleLock.synchronized(() async {
@@ -289,7 +294,7 @@ class AppController {
         repairNetwork: repairNetwork,
         startListener: clashCore.startListener,
         enableTun: _updateClashConfig,
-        shouldResume: () => !recoveryCancelled(),
+        isLifecycleCancelled: lifecycleCancelled,
       );
       return !recoveryCancelled();
     });

@@ -166,20 +166,43 @@ void main() {
       expect(events, ['disable', 'stop', 'enable']);
     });
 
+    test(
+      'restores listener and TUN when a newer network event supersedes repair',
+      () async {
+        final events = <String>[];
+        var networkRequestSuperseded = false;
+
+        await rebuildMacOSTunListener(
+          disableTun: () async => events.add('disable'),
+          stopListener: () async => events.add('stop'),
+          repairNetwork: () async {
+            events.add('repair');
+            networkRequestSuperseded = true;
+          },
+          startListener: () async => events.add('start'),
+          enableTun: () async => events.add('enable'),
+          isLifecycleCancelled: () => false,
+        );
+
+        expect(networkRequestSuperseded, isTrue);
+        expect(events, ['disable', 'stop', 'repair', 'start', 'enable']);
+      },
+    );
+
     test('does not reenable TUN after a manual stop takes priority', () async {
       final events = <String>[];
-      var shouldResume = true;
+      var lifecycleCancelled = false;
 
       await rebuildMacOSTunListener(
         disableTun: () async => events.add('disable'),
         stopListener: () async {
           events.add('stop');
-          shouldResume = false;
+          lifecycleCancelled = true;
         },
         repairNetwork: () async => events.add('repair'),
         startListener: () async => events.add('start'),
         enableTun: () async => events.add('enable'),
-        shouldResume: () => shouldResume,
+        isLifecycleCancelled: () => lifecycleCancelled,
       );
 
       expect(events, ['disable', 'stop', 'repair']);

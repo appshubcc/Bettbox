@@ -171,6 +171,9 @@ class AppController {
   Future<void> _updateStatus(bool isStart) async {
     if (isStart) {
       await _fastStart();
+      if (globalState.isStart && !_ref.read(runTimeProvider.notifier).isStart) {
+        _ref.read(runTimeProvider.notifier).value = 0;
+      }
     } else {
       await globalState.handleStop();
       clashCore.resetTraffic();
@@ -1427,9 +1430,8 @@ class AppController {
         ageSecretKey: ageSecretKey,
       ).update();
       if (globalState.navigatorKey.currentState?.canPop() ?? false) {
-        globalState.navigatorKey.currentState?.popUntil(
-          (route) => route.isFirst,
-        );
+        globalState.navigatorKey.currentState
+            ?.popUntil((route) => route.isFirst);
       }
       toProfiles();
       await addProfile(profile);
@@ -1489,8 +1491,9 @@ class AppController {
       }
 
       if (successCount > 0) {
-        globalState.navigatorKey.currentState
-            ?.popUntil((route) => route.isFirst);
+        globalState.navigatorKey.currentState?.popUntil(
+          (route) => route.isFirst,
+        );
         toProfiles();
       }
     } finally {

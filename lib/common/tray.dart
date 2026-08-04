@@ -128,7 +128,9 @@ class Tray {
     final startMenuItem = MenuItem.checkbox(
       label: trayState.isStart ? appLocalizations.stop : appLocalizations.start,
       onClick: (_) async {
-        globalState.appController.updateStart();
+        final appController = globalState.appController;
+        await appController.updateStatus(!trayState.isStart);
+        await appController.updateTray();
       },
       checked: false,
     );
@@ -179,6 +181,7 @@ class Tray {
 
           subMenuItems.add(
             MenuItem.checkbox(
+              key: 'proxy-item:${proxy.name}',
               label: proxy.name,
               sublabel: _formatProxySublabel(delay),
               checked: group.getCurrentSelectedName(trayState.selectedMap[group.name] ?? '') == proxy.name,
@@ -245,7 +248,15 @@ class Tray {
       MenuItem(
         label: appLocalizations.restartCoreTitle,
         onClick: (_) async {
-          await globalState.appController.restartCore();
+          final appController = globalState.appController;
+          try {
+            await appController.restartCore();
+          } finally {
+            await appController.syncDesktopRuntimeState(
+              preferCurrentState: true,
+            );
+            await appController.updateTray();
+          }
         },
       ),
     ];

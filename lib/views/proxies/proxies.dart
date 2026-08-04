@@ -155,6 +155,9 @@ class _ProxiesViewState extends ConsumerState<ProxiesView> {
   Widget? _buildFAB() {
     if (!_isTab) return null;
     final isMobileView = ref.watch(isMobileViewProvider);
+    final currentGroupName = ref.watch(
+      proxiesTabControllerStateProvider.select((state) => state.b),
+    );
     return Padding(
       padding: EdgeInsets.only(
         bottom: isMobileView
@@ -162,6 +165,7 @@ class _ProxiesViewState extends ConsumerState<ProxiesView> {
             : 0,
       ),
       child: DelayTestButton(
+        groupName: currentGroupName ?? '',
         onClick: () async {
           await _proxiesTabKey.currentState?.delayTestCurrentGroup();
         },

@@ -66,6 +66,10 @@ private final class PersistentTrayMenuItemView: NSView {
         fatalError("init(coder:) has not been implemented")
     }
 
+    override func acceptsFirstMouse(for event: NSEvent?) -> Bool {
+        true
+    }
+
     func update(label: String, disabled: Bool) {
         isDisabled = disabled
         if disabled {
@@ -211,6 +215,7 @@ public class TrayMenu: NSMenu, NSMenuDelegate {
             }
 
             menuItem.tag = id
+            menuItem.representedObject = key.isEmpty ? nil : key
             menuItem.title = menuItemTitle(label, sublabel)
             menuItem.toolTip = toolTip
             menuItem.isEnabled = !disabled
@@ -285,6 +290,7 @@ public class TrayMenu: NSMenu, NSMenuDelegate {
 
         for (index, item) in items.enumerated() {
             let itemDict = item as! [String: Any]
+            let key: String = itemDict["key"] as? String ?? ""
             let type: String = itemDict["type"] as! String
             let label: String = itemDict["label"] as? String ?? ""
             let sublabel: String = itemDict["sublabel"] as? String ?? ""
@@ -292,7 +298,17 @@ public class TrayMenu: NSMenu, NSMenuDelegate {
             let checked: Bool? = itemDict["checked"] as? Bool
             let disabled: Bool = itemDict["disabled"] as? Bool ?? true
 
-            let menuItem = self.items[index]
+            let menuItem: NSMenuItem
+            if key.isEmpty {
+                menuItem = self.items[index]
+            } else {
+                guard let keyedItem = self.items.first(where: {
+                    ($0.representedObject as? String) == key
+                }) else {
+                    return
+                }
+                menuItem = keyedItem
+            }
             let expectsSeparator = type == "separator"
             guard menuItem.isSeparatorItem == expectsSeparator else {
                 return

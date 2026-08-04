@@ -57,8 +57,11 @@
   "networkSpeedNotificationDesc": "Показывать текущую скорость в панели уведомлений",
   "alwaysShowTitleBar": "Кнопки заголовка",
   "alwaysShowTitleBarDesc": "Всегда показывать кнопки в правом верхнем углу",
-  "trayEnhancement": "Улучшение трея",
-  "trayEnhancementDesc": "Управление группами прокси в контекстном меню трея",
+  "trayClickBehavior": "Действие при нажатии на значок",
+  "leftClickBehavior": "Левая кнопка",
+  "rightClickBehavior": "Правая кнопка",
+  "showPanel": "Показать панель",
+  "showMenu": "Показать меню",
   "excludeChina": "Исключить Китай",
   "excludeChinaDesc": "Разрешить QUIC-трафик Китая вместо полной блокировки",
   "fcmOptimization": "Оптимизация FCM",
@@ -657,4 +660,3 @@
   "lineWrap": "Перенос строк",
   "showHiddenItems": "Показать скрытые"
 }
-

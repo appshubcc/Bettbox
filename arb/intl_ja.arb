@@ -57,8 +57,6 @@
   "networkSpeedNotificationDesc": "通知バーに通信速度とサブスク情報を表示",
   "alwaysShowTitleBar": "タイトルボタン",
   "alwaysShowTitleBarDesc": "右上タイトルバーのボタンを常に表示",
-  "trayEnhancement": "トレイ拡張",
-  "trayEnhancementDesc": "トレイ右クリックメニューでプロキシグループを操作",
   "excludeChina": "中国通信を除外",
   "excludeChinaDesc": "全無効化せずに中国のQUIC通信を許可",
   "fcmOptimization": "FCM最適化",

@@ -57,8 +57,6 @@
   "networkSpeedNotificationDesc": "نمایش سرعت شبکه و اشتراک در نوار اعلان",
   "alwaysShowTitleBar": "دکمه‌های عنوان",
   "alwaysShowTitleBarDesc": "نمایش همیشگی دکمه‌های نوار عنوان بالا سمت راست",
-  "trayEnhancement": "ارتقای منوی سینی",
-  "trayEnhancementDesc": "مدیریت گروه‌ها از منوی راست‌کلیک تسک‌بار",
   "excludeChina": "استثنای چین",
   "excludeChinaDesc": "مجاز ساختن ترافیک QUIC چین به جای مسدودی کامل",
   "fcmOptimization": "بهینه‌سازی FCM",

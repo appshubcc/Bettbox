@@ -1146,10 +1146,6 @@ class MessageLookup extends MessageLookupByLibrary {
     "totalTraffic": MessageLookupByLibrary.simpleMessage("مجموع ترافیک"),
     "tproxyPort": MessageLookupByLibrary.simpleMessage("پورت Tproxy"),
     "trafficUsage": MessageLookupByLibrary.simpleMessage("مصرف ترافیک"),
-    "trayEnhancement": MessageLookupByLibrary.simpleMessage("ارتقای منوی سینی"),
-    "trayEnhancementDesc": MessageLookupByLibrary.simpleMessage(
-      "مدیریت گروه‌ها از منوی راست‌کلیک تسک‌بار",
-    ),
     "trayIconInvert": MessageLookupByLibrary.simpleMessage(
       "معکوس‌سازی آیکون تسک‌بار",
     ),

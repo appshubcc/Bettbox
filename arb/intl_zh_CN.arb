@@ -57,8 +57,11 @@
   "networkSpeedNotificationDesc": "在通知栏显示当前网速和订阅信息",
   "alwaysShowTitleBar": "标题按钮",
   "alwaysShowTitleBarDesc": "始终显示右上角的标题栏按钮",
-  "trayEnhancement": "托盘增强",
-  "trayEnhancementDesc": "在托盘区右键菜单中控制代理组",
+  "trayClickBehavior": "托盘点击行为",
+  "leftClickBehavior": "左键点击",
+  "rightClickBehavior": "右键点击",
+  "showPanel": "显示面板",
+  "showMenu": "显示菜单",
   "excludeChina": "排除国内",
   "excludeChinaDesc": "放行中国QUIC流量而非全部禁用",
   "fcmOptimization": "FCM优化",
@@ -655,4 +658,3 @@
   "lineWrap": "自动换行",
   "showHiddenItems": "显示隐藏项"
 }
-

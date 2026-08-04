@@ -901,10 +901,6 @@ class MessageLookup extends MessageLookupByLibrary {
     "totalTraffic": MessageLookupByLibrary.simpleMessage("전체 전송량"),
     "tproxyPort": MessageLookupByLibrary.simpleMessage("Tproxy 포트"),
     "trafficUsage": MessageLookupByLibrary.simpleMessage("트래픽 사용량"),
-    "trayEnhancement": MessageLookupByLibrary.simpleMessage("트레이 기능 향상"),
-    "trayEnhancementDesc": MessageLookupByLibrary.simpleMessage(
-      "시스템 트레이 우클릭 메뉴에서 프록시 그룹 제어",
-    ),
     "trayIconInvert": MessageLookupByLibrary.simpleMessage("트레이 아이콘 반전"),
     "trayIconInvertDesc": MessageLookupByLibrary.simpleMessage(
       "현재 트레이 아이콘 색상 반전 설정",

@@ -199,6 +199,7 @@ class Tray {
 
           subMenuItems.add(
             MenuItem.checkbox(
+              key: 'proxy-item:${proxy.name}',
               label: proxy.name,
               sublabel: _formatProxySublabel(delay),
               checked:

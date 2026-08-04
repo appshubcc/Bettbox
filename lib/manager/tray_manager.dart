@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:bett_box/common/common.dart';
+import 'package:bett_box/providers/config.dart';
 import 'package:bett_box/providers/state.dart';
 import 'package:bett_box/state.dart';
 import 'package:flutter/material.dart';
@@ -31,15 +34,35 @@ class _TrayContainerState extends ConsumerState<TrayManager> with TrayListener {
     return widget.child;
   }
 
+  bool get _shouldTemporarilyShowHiddenItems {
+    if (!system.isMacOS || !trayManager.isOptionKeyPressed) {
+      return false;
+    }
+    return !ref.read(
+      proxiesStyleSettingProvider.select((state) => state.showHiddenItems),
+    );
+  }
+
   @override
   void onTrayIconRightMouseDown() {
+    if (_shouldTemporarilyShowHiddenItems) {
+      unawaited(
+        globalState.appController.showTrayMenu(includeHiddenItems: true),
+      );
+      return;
+    }
     // ignore: deprecated_member_use
     trayManager.popUpContextMenu(bringAppToFront: true);
   }
 
-
   @override
-  onTrayIconMouseDown() {
+  void onTrayIconMouseDown() {
+    if (_shouldTemporarilyShowHiddenItems) {
+      unawaited(
+        globalState.appController.showTrayMenu(includeHiddenItems: true),
+      );
+      return;
+    }
     window?.show();
   }
 

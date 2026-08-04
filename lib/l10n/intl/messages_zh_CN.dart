@@ -275,6 +275,10 @@ class MessageLookup extends MessageLookupByLibrary {
       "必要时上传应用崩溃日志",
     ),
     "enableOverride": MessageLookupByLibrary.simpleMessage("启用覆写"),
+    "enableTraySpeed": MessageLookupByLibrary.simpleMessage("启用托盘速率"),
+    "enableTraySpeedDesc": MessageLookupByLibrary.simpleMessage(
+      "在菜单栏图标右侧显示上传和下载速率",
+    ),
     "endpointIndependentNat": MessageLookupByLibrary.simpleMessage("NAT增强"),
     "endpointIndependentNatConfirmDesc": MessageLookupByLibrary.simpleMessage(
       "启用 Endpoint-Independent NAT 功能，性能可能会略有下降，此功能仅建议您在必要且熟悉的情况下开启",

@@ -59,6 +59,8 @@
   "alwaysShowTitleBarDesc": "始終顯示右上角的標題欄按鈕",
   "trayEnhancement": "托盤增強",
   "trayEnhancementDesc": "在托盤區右鍵選單中控制代理組",
+  "enableTraySpeed": "啟用托盤速率",
+  "enableTraySpeedDesc": "在選單列圖示右側顯示上傳和下載速率",
   "excludeChina": "排除國內",
   "excludeChinaDesc": "放行中國QUIC流量而非全部禁用",
   "fcmOptimization": "FCM 優化",
@@ -655,4 +657,3 @@
   "lineWrap": "自動換行",
   "showHiddenItems": "顯示隱藏項"
 }
-

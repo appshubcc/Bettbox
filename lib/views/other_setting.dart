@@ -509,6 +509,30 @@ class TrayEnhancementItem extends ConsumerWidget {
   }
 }
 
+class TraySpeedItem extends ConsumerWidget {
+  const TraySpeedItem({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final enableTraySpeed = ref.watch(
+      vpnSettingProvider.select((state) => state.enableTraySpeed),
+    );
+    return ListItem.switchItem(
+      title: Text(appLocalizations.enableTraySpeed),
+      subtitle: Text(appLocalizations.enableTraySpeedDesc),
+      delegate: SwitchDelegate(
+        value: enableTraySpeed,
+        onChanged: (bool value) async {
+          ref
+              .read(vpnSettingProvider.notifier)
+              .updateState((state) => state.copyWith(enableTraySpeed: value));
+          await globalState.appController.updateTray();
+        },
+      ),
+    );
+  }
+}
+
 class OtherSettingView extends ConsumerWidget {
   const OtherSettingView({super.key});
 
@@ -522,6 +546,7 @@ class OtherSettingView extends ConsumerWidget {
       const DisableQuicSection(),
       if (system.isAndroid) const NetworkSpeedNotificationItem(),
       if (!system.isAndroid) const TrayEnhancementItem(),
+      if (system.isMacOS) const TraySpeedItem(),
       if (system.isWindows) const HighPriorityItem(),
       if (system.isWindows) const NetworkFixItem(),
       if (system.isAndroid) const BatteryOptimizationItem(),

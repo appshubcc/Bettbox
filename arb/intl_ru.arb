@@ -59,6 +59,8 @@
   "alwaysShowTitleBarDesc": "Всегда показывать кнопки в правом верхнем углу",
   "trayEnhancement": "Улучшение трея",
   "trayEnhancementDesc": "Управление группами прокси в контекстном меню трея",
+  "enableTraySpeed": "Показывать скорость в трее",
+  "enableTraySpeedDesc": "Показывать скорость отдачи и загрузки рядом со значком в строке меню",
   "excludeChina": "Исключить Китай",
   "excludeChinaDesc": "Разрешить QUIC-трафик Китая вместо полной блокировки",
   "fcmOptimization": "Оптимизация FCM",
@@ -657,4 +659,3 @@
   "lineWrap": "Перенос строк",
   "showHiddenItems": "Показать скрытые"
 }
-

@@ -45,7 +45,7 @@ SPEC CHECKSUMS:
   FlutterMacOS: d0db08ddef1a9af05a5ec4b724367152bb0500b1
   HotKey: e96d8a2ddbf4591131e2bb3f54e69554d90cdca6
   hotkey_manager_macos: a4317849af96d2430fa89944d3c58977ca089fbe
-  tray_manager: a104b5c81b578d83f3c3d0f40a997c8b10810166
+  tray_manager: 9064e219c56d75c476e46b9a21182087930baf90
   window_ext: 4afef727fe428b30c68ce800ba92e890fd329f63
 
 PODFILE CHECKSUM: 9ebaf0ce3d369aaa26a9ea0e159195ed94724cf3

@@ -404,8 +404,12 @@ class AppController {
     final networkSpeedNotification =
         system.isAndroid &&
         _ref.read(vpnSettingProvider).networkSpeedNotification;
+    final enableTraySpeed =
+        system.isMacOS && _ref.read(vpnSettingProvider).enableTraySpeed;
 
-    if (!shouldUpdateDashboard && !networkSpeedNotification) {
+    if (!shouldUpdateDashboard &&
+        !networkSpeedNotification &&
+        !enableTraySpeed) {
       return;
     }
 
@@ -419,6 +423,10 @@ class AppController {
 
     if (shouldUpdateDashboard) {
       _ref.read(trafficsProvider.notifier).addTraffic(traffic);
+    }
+
+    if (enableTraySpeed) {
+      await tray.updateSpeed(traffic);
     }
 
     if (networkSpeedNotification) {

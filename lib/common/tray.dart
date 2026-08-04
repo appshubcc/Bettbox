@@ -26,8 +26,6 @@ class Tray {
   int _loadingFrame = 0;
   final List<String> _loadingFrames = ['.', '..', '...'];
 
-
-
   Tray() {
     delayTestCoordinator.addListener(_handleDelayTestStateChanged);
   }
@@ -36,6 +34,14 @@ class Tray {
     if (system.isAndroid) return;
     unawaited(globalState.appController.updateTray(false, true));
   }
+
+  bool _traySpeedEnabled = false;
+  bool _trayTrafficActive = false;
+  bool _isSpeedTitleVisible = false;
+  Traffic _lastTraffic = Traffic();
+  int? _lastDisplayedUpload;
+  int? _lastDisplayedDownload;
+  bool? _lastDisplayedActive;
 
   void dispose() {
     delayTestCoordinator.removeListener(_handleDelayTestStateChanged);
@@ -52,6 +58,10 @@ class Tray {
     }
     if (force) {
       await trayManager.destroy();
+      _isSpeedTitleVisible = false;
+      _lastDisplayedUpload = null;
+      _lastDisplayedDownload = null;
+      _lastDisplayedActive = null;
     }
     await trayManager.setIcon(
       utils.getTrayIconPath(
@@ -64,6 +74,9 @@ class Tray {
       ),
       isTemplate: system.isMacOS,
     );
+    if (system.isMacOS) {
+      await trayManager.setActive(isStart);
+    }
     if (!Platform.isLinux) {
       await trayManager.setToolTip(appName);
     }
@@ -110,12 +123,18 @@ class Tray {
     _isUpdating = true;
 
     try {
+      _traySpeedEnabled = trayState.enableTraySpeed;
+      _trayTrafficActive =
+          trayState.isStart && (trayState.systemProxy || trayState.tunEnable);
       if (!silent && !Platform.isLinux) {
         await _updateSystemTray(
           brightness: trayState.brightness,
-          isStart: trayState.isStart,
+          isStart: _trayTrafficActive,
           force: focus,
         );
+      }
+      if (system.isMacOS) {
+        await _syncSpeedTitle(isStart: trayState.isStart);
       }
     List<MenuItem> menuItems = [];
     final showMenuItem = MenuItem(
@@ -307,6 +326,53 @@ class Tray {
         );
       }
     }
+  }
+
+  Future<void> updateSpeed(Traffic traffic) async {
+    _lastTraffic = traffic;
+    if (!system.isMacOS || !_traySpeedEnabled) {
+      return;
+    }
+    await _setSpeedTitle(traffic);
+  }
+
+  Future<void> _syncSpeedTitle({required bool isStart}) async {
+    if (!_traySpeedEnabled) {
+      if (!_isSpeedTitleVisible) {
+        return;
+      }
+      await trayManager.clearSpeedTitle();
+      _isSpeedTitleVisible = false;
+      _lastDisplayedUpload = null;
+      _lastDisplayedDownload = null;
+      _lastDisplayedActive = null;
+      return;
+    }
+
+    if (!isStart) {
+      _lastTraffic = Traffic();
+    }
+    await _setSpeedTitle(_lastTraffic);
+  }
+
+  Future<void> _setSpeedTitle(Traffic traffic) async {
+    final upload = traffic.up.value;
+    final download = traffic.down.value;
+    if (_isSpeedTitleVisible &&
+        _lastDisplayedUpload == upload &&
+        _lastDisplayedDownload == download &&
+        _lastDisplayedActive == _trayTrafficActive) {
+      return;
+    }
+    await trayManager.setSpeedTitle(
+      upload: upload,
+      download: download,
+      active: _trayTrafficActive,
+    );
+    _isSpeedTitleVisible = true;
+    _lastDisplayedUpload = upload;
+    _lastDisplayedDownload = download;
+    _lastDisplayedActive = _trayTrafficActive;
   }
 
   MenuItem _buildCopyEnvSubmenu(int port) {

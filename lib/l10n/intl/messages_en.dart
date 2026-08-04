@@ -398,6 +398,12 @@ class MessageLookup extends MessageLookupByLibrary {
       "Upload crash logs when needed",
     ),
     "enableOverride": MessageLookupByLibrary.simpleMessage("Enable Override"),
+    "enableTraySpeed": MessageLookupByLibrary.simpleMessage(
+      "Enable Tray Speed",
+    ),
+    "enableTraySpeedDesc": MessageLookupByLibrary.simpleMessage(
+      "Show upload and download speeds next to the menu bar icon",
+    ),
     "endpointIndependentNat": MessageLookupByLibrary.simpleMessage(
       "NAT Enhancement",
     ),

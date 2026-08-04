@@ -401,6 +401,12 @@ class MessageLookup extends MessageLookupByLibrary {
     "enableOverride": MessageLookupByLibrary.simpleMessage(
       "Включить переопределение",
     ),
+    "enableTraySpeed": MessageLookupByLibrary.simpleMessage(
+      "Показывать скорость в трее",
+    ),
+    "enableTraySpeedDesc": MessageLookupByLibrary.simpleMessage(
+      "Показывать скорость отдачи и загрузки рядом со значком в строке меню",
+    ),
     "endpointIndependentNat": MessageLookupByLibrary.simpleMessage(
       "Улучшенный NAT",
     ),

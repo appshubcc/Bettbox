@@ -76,6 +76,7 @@ abstract class TrayState with _$TrayState {
     @Default(false) bool wakelockEnabled,
     @Default({}) Map<String, int?> delays,
     @Default(true) bool trayEnhancement,
+    @Default(false) bool enableTraySpeed,
   }) = _TrayState;
 }
 

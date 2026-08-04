@@ -207,10 +207,11 @@ class GlobalState {
     }
     render?.pause();
 
-    final networkSpeedNotification =
-        system.isAndroid &&
-        appController.ref.read(vpnSettingProvider).networkSpeedNotification;
-    if (!networkSpeedNotification) {
+    final vpnProps = appController.ref.read(vpnSettingProvider);
+    final keepTrafficUpdates =
+        (system.isAndroid && vpnProps.networkSpeedNotification) ||
+        (system.isMacOS && vpnProps.enableTraySpeed);
+    if (!keepTrafficUpdates) {
       stopUpdateTasks();
     }
 

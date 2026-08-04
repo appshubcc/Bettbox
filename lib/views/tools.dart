@@ -619,6 +619,16 @@ class _ToolViewState extends ConsumerState<ToolsView> {
         ),
       ),
       _SearchItem(
+        title: appLocalizations.enableTraySpeed,
+        subtitle: appLocalizations.enableTraySpeedDesc,
+        category: otherSettingsCategory,
+        onTap: (context, _) => _pushPage(
+          context,
+          appLocalizations.otherSettings,
+          const OtherSettingView(),
+        ),
+      ),
+      _SearchItem(
         title: appLocalizations.highPriority,
         subtitle: appLocalizations.highPriorityDesc,
         category: otherSettingsCategory,

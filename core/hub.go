@@ -18,6 +18,7 @@ import (
 	"github.com/metacubex/mihomo/adapter/outboundgroup"
 	"github.com/metacubex/mihomo/common/observable"
 	"github.com/metacubex/mihomo/common/utils"
+	"github.com/metacubex/mihomo/common/yaml"
 	"github.com/metacubex/mihomo/component/age"
 	"github.com/metacubex/mihomo/component/mmdb"
 	"github.com/metacubex/mihomo/component/resolver"
@@ -432,10 +433,21 @@ func handleParseExternalProviderContent(providerName string, fn func(value strin
 	go func() {
 		runLock.Lock()
 		p, exist := getExternalProvidersRaw()[providerName]
+		rawConfig := currentRawConfig
 		runLock.Unlock()
 
 		if !exist {
 			fn("external provider does not exist")
+			return
+		}
+
+		if p.VehicleType() == cp.Inline {
+			buf, err := marshalInlineProviderContent(rawConfig, providerName)
+			if err != nil {
+				fn(err.Error())
+				return
+			}
+			fn(string(buf))
 			return
 		}
 
@@ -463,6 +475,23 @@ func handleParseExternalProviderContent(providerName string, fn func(value strin
 
 		fn(string(buf))
 	}()
+}
+
+func marshalInlineProviderContent(rawConfig *config.RawConfig, providerName string) ([]byte, error) {
+	if rawConfig == nil {
+		return nil, fmt.Errorf("provider content is empty")
+	}
+
+	rawProvider, exist := rawConfig.ProxyProvider[providerName]
+	if !exist {
+		return nil, fmt.Errorf("provider content is empty")
+	}
+	payload, exist := rawProvider["payload"]
+	if !exist {
+		return nil, fmt.Errorf("provider content is empty")
+	}
+
+	return yaml.Marshal(map[string]any{"proxies": payload})
 }
 
 func handleStartLog() {

@@ -30,11 +30,12 @@ import (
 )
 
 var (
-	currentConfig *config.Config
-	version       = 0
-	isRunning     = false
-	runLock       sync.Mutex
-	mBatch, _     = batch.New[bool](context.Background(), batch.WithConcurrencyNum[bool](50))
+	currentConfig    *config.Config
+	currentRawConfig *config.RawConfig
+	version          = 0
+	isRunning        = false
+	runLock          sync.Mutex
+	mBatch, _        = batch.New[bool](context.Background(), batch.WithConcurrencyNum[bool](50))
 )
 
 type ExternalProviders []ExternalProvider
@@ -318,6 +319,7 @@ func setupConfig(params *SetupParams) error {
 	if err != nil {
 		return err
 	}
+	currentRawConfig = params.Config
 	hub.ApplyConfig(currentConfig)
 	patchSelectGroup(params.SelectedMap)
 	updateListeners()

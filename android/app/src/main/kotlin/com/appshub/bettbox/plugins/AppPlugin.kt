@@ -3,6 +3,7 @@ package com.appshub.bettbox.plugins
 import android.Manifest
 import android.app.Activity
 import android.app.ActivityManager
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.pm.ApplicationInfo
@@ -267,8 +268,23 @@ class AppPlugin : FlutterPlugin, MethodChannel.MethodCallHandler, ActivityAware 
             "isAndroidTV" -> {
                 result.success(isAndroidTV())
             }
+            "openFcmDiagnostics" -> {
+                result.success(openFcmDiagnostics())
+            }
             else -> result.notImplemented()
         }
+    }
+
+    private fun openFcmDiagnostics(): Boolean {
+        val context = BettboxApplication.getAppContext()
+        val intent = Intent().apply {
+            component = ComponentName("com.google.android.gms", "com.google.android.gms.gcm.GcmDiagnostics")
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
+        return runCatching {
+            context.startActivity(intent)
+            true
+        }.getOrElse { false }
     }
 
     private fun openFile(path: String) {

@@ -9,10 +9,7 @@ void main() {
   test('caps delay-test concurrency below the core queue limit', () {
     expect(normalizeDelayTestConcurrency(0), 1);
     expect(normalizeDelayTestConcurrency(16), 16);
-    expect(
-      normalizeDelayTestConcurrency(250),
-      maxDelayTestConcurrencyLimit,
-    );
+    expect(normalizeDelayTestConcurrency(250), maxDelayTestConcurrencyLimit);
   });
 
   test('shares testing state and rejects overlapping group tests', () async {
@@ -112,5 +109,38 @@ void main() {
     );
 
     expect({first, second}, hasLength(2));
+  });
+
+  test('keeps only safe error categories for failed delay tests', () {
+    final diagnostics = DelayTestDiagnostics();
+    const target = DelayTestTarget(
+      name: 'resolved-proxy',
+      url: 'https://example.com/generate_204',
+    );
+
+    diagnostics.update(
+      const Delay(
+        name: 'resolved-proxy',
+        url: 'https://example.com/generate_204',
+        value: -1,
+      ),
+      error: 'dns',
+    );
+    expect(diagnostics.errorFor(target), 'dns');
+    expect(getDelayErrorLabel(diagnostics.errorFor(target)), 'DNS error');
+
+    diagnostics.update(
+      const Delay(
+        name: 'resolved-proxy',
+        url: 'https://example.com/generate_204',
+        value: 120,
+      ),
+    );
+    expect(diagnostics.errorFor(target), isNull);
+  });
+
+  test('maps a local bridge timeout without leaving a pending result', () {
+    expect(getDelayErrorLabel('client_timeout'), 'Timeout');
+    expect(getDelayErrorLabel('client_error'), 'Test failed');
   });
 }

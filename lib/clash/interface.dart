@@ -210,10 +210,7 @@ abstract class ClashHandlerInterface with ClashInterface {
 
   @override
   FutureOr<String> validateConfig(String data, {String? ageSecretKey}) {
-    final params = {
-      'data': data,
-      'age-secret-key': ageSecretKey ?? '',
-    };
+    final params = {'data': data, 'age-secret-key': ageSecretKey ?? ''};
     return invoke<String>(
       method: ActionMethod.validateConfig,
       data: json.encode(params),
@@ -222,10 +219,7 @@ abstract class ClashHandlerInterface with ClashInterface {
 
   @override
   FutureOr<String> decryptAgeConfig(String data, String ageSecretKey) {
-    final params = {
-      'data': data,
-      'age-secret-key': ageSecretKey,
-    };
+    final params = {'data': data, 'age-secret-key': ageSecretKey};
     return invoke<String>(
       method: ActionMethod.decryptAgeConfig,
       data: json.encode(params),
@@ -243,10 +237,7 @@ abstract class ClashHandlerInterface with ClashInterface {
 
   @override
   Future<Result> getConfig(String path, {String? ageSecretKey}) async {
-    final params = {
-      'path': path,
-      'age-secret-key': ageSecretKey ?? '',
-    };
+    final params = {'path': path, 'age-secret-key': ageSecretKey ?? ''};
     final res = await invoke<Result>(
       method: ActionMethod.getConfig,
       data: json.encode(params),
@@ -404,7 +395,12 @@ abstract class ClashHandlerInterface with ClashInterface {
       data: json.encode(delayParams),
       timeout: httpTimeoutDuration + delayTestBridgeGraceDuration,
       onTimeout: () {
-        return json.encode(Delay(name: proxyName, value: -1, url: url));
+        return json.encode({
+          'name': proxyName,
+          'value': -1,
+          'url': url,
+          'error': 'client_timeout',
+        });
       },
     );
   }
@@ -436,14 +432,14 @@ abstract class ClashHandlerInterface with ClashInterface {
 
   @override
   Future<Map<String, String>> generateAgeKeyPair() async {
-    final res = await invoke<Map>(
-      method: ActionMethod.generateAgeKeyPair,
-    );
+    final res = await invoke<Map>(method: ActionMethod.generateAgeKeyPair);
     return res.map((key, value) => MapEntry(key.toString(), value.toString()));
   }
 
   @override
-  Future<Result<String>> convertAgeSecretKeyToPublicKey(String secretKey) async {
+  Future<Result<String>> convertAgeSecretKeyToPublicKey(
+    String secretKey,
+  ) async {
     final res = await invoke<Result>(
       method: ActionMethod.convertAgeSecretKeyToPublicKey,
       data: secretKey,

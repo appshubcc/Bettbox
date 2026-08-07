@@ -143,6 +143,7 @@ type Delay struct {
 	Url   string `json:"url"`
 	Name  string `json:"name"`
 	Value int32  `json:"value"`
+	Error string `json:"error,omitempty"`
 }
 
 type Message struct {

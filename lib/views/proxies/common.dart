@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:bett_box/clash/clash.dart';
 import 'package:bett_box/common/common.dart';
 import 'package:bett_box/enum/enum.dart';
@@ -33,6 +35,28 @@ class DelayTestCoordinator extends ChangeNotifier {
 }
 
 final delayTestCoordinator = DelayTestCoordinator();
+
+class DelayTestDiagnostics extends ChangeNotifier {
+  final Map<DelayTestTarget, String> _errors = {};
+
+  String? errorFor(DelayTestTarget target) => _errors[target];
+
+  void update(Delay delay, {String? error}) {
+    final target = DelayTestTarget(name: delay.name, url: delay.url);
+    final failed = delay.value != null && delay.value! <= 0;
+    if (!failed || error == null || error.isEmpty) {
+      if (_errors.remove(target) != null) {
+        notifyListeners();
+      }
+      return;
+    }
+    if (_errors[target] == error) return;
+    _errors[target] = error;
+    notifyListeners();
+  }
+}
+
+final delayTestDiagnostics = DelayTestDiagnostics();
 
 @immutable
 class DelayTestTarget {
@@ -83,7 +107,8 @@ double getItemHeight(ProxyCardType proxyCardType) {
   final baseHeight =
       16 + measure.bodyMediumHeight * 2 + measure.bodySmallHeight + 8 + 4;
   return switch (proxyCardType) {
-    ProxyCardType.expand => baseHeight - measure.bodySmallHeight + measure.labelSmallHeight * 2 + 4,
+    ProxyCardType.expand =>
+      baseHeight - measure.bodySmallHeight + measure.labelSmallHeight * 2 + 4,
     ProxyCardType.shrink => baseHeight,
     ProxyCardType.min => baseHeight - measure.bodyMediumHeight,
   };
@@ -106,11 +131,37 @@ Future<void> proxyDelayTest(Proxy proxy, [String? testUrl]) async {
 Future<Delay> _testProxyDelay(DelayTestTarget target) {
   return _delayTestRequestPool.run(target, () async {
     final appController = globalState.appController;
-    appController.setDelay(Delay(url: target.url, name: target.name, value: 0));
-    final delay = await clashCore.getDelay(target.url, target.name);
+    final pendingDelay = Delay(url: target.url, name: target.name, value: 0);
+    delayTestDiagnostics.update(pendingDelay);
+    appController.setDelay(pendingDelay);
+    late final Delay delay;
+    String? error;
+    try {
+      final result = await clashCore.getDelay(target.url, target.name);
+      delay = result.delay;
+      error = result.error;
+    } on TimeoutException {
+      delay = Delay(url: target.url, name: target.name, value: -1);
+      error = 'client_timeout';
+    } catch (_) {
+      delay = Delay(url: target.url, name: target.name, value: -1);
+      error = 'client_error';
+    }
+    delayTestDiagnostics.update(delay, error: error);
     appController.setDelay(delay);
     return delay;
   });
+}
+
+String getDelayErrorLabel(String? error) {
+  return switch (error) {
+    'dns' => 'DNS error',
+    'network' => 'Connection error',
+    'proxy_not_found' => 'Proxy unavailable',
+    'cancelled' => 'Cancelled',
+    'timeout' || 'client_timeout' => 'Timeout',
+    _ => 'Test failed',
+  };
 }
 
 bool _isNonTestableProxyName(String proxyName) {

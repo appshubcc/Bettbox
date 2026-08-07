@@ -12,6 +12,13 @@ import 'package:bett_box/state.dart';
 import 'package:flutter/services.dart';
 import 'package:path/path.dart';
 
+class DelayTestResult {
+  const DelayTestResult({required this.delay, this.error});
+
+  final Delay delay;
+  final String? error;
+}
+
 class ClashCore {
   static ClashCore? _instance;
   late ClashHandlerInterface clashInterface;
@@ -39,7 +46,12 @@ class ClashCore {
     if (!await homeDir.exists()) {
       await homeDir.create(recursive: true);
     }
-    const geoFileNameList = [mmdbFileName, geoSiteFileName, asnFileName, bundleMRSFileName];
+    const geoFileNameList = [
+      mmdbFileName,
+      geoSiteFileName,
+      asnFileName,
+      bundleMRSFileName,
+    ];
     try {
       for (final geoFileName in geoFileNameList) {
         final geoFile = File(join(homePath, geoFileName));
@@ -132,18 +144,21 @@ class ClashCore {
           return GroupTypeExtension.valueList.contains(proxy?['type']);
         }),
       ];
-      final groupsRaw = groupNames.map((groupName) {
-        final proxyData = allProxies[groupName] as Map?;
-        if (proxyData == null) return null;
-        final group = Map<String, dynamic>.from(
-          proxyData.cast<String, dynamic>(),
-        );
-        group['all'] = ((group['all'] ?? []) as List)
-            .map((name) => allProxies[name])
-            .whereType<Map<String, dynamic>>()
-            .toList();
-        return group;
-      }).whereType<Map<String, dynamic>>().toList();
+      final groupsRaw = groupNames
+          .map((groupName) {
+            final proxyData = allProxies[groupName] as Map?;
+            if (proxyData == null) return null;
+            final group = Map<String, dynamic>.from(
+              proxyData.cast<String, dynamic>(),
+            );
+            group['all'] = ((group['all'] ?? []) as List)
+                .map((name) => allProxies[name])
+                .whereType<Map<String, dynamic>>()
+                .toList();
+            return group;
+          })
+          .whereType<Map<String, dynamic>>()
+          .toList();
       return groupsRaw.map((e) => Group.fromJson(e)).toList();
     });
   }
@@ -254,22 +269,46 @@ class ClashCore {
     await clashInterface.stopListener();
   }
 
-  Future<Delay> getDelay(String url, String proxyName) async {
+  Future<DelayTestResult> getDelay(String url, String proxyName) async {
     final data = await clashInterface.asyncTestDelay(url, proxyName);
     if (data.isEmpty) {
       throw Exception('Empty delay response');
     }
     try {
-      return Delay.fromJson(json.decode(data));
+      final response = json.decode(data) as Map<String, dynamic>;
+      return DelayTestResult(
+        delay: Delay.fromJson(response),
+        error: _safeDelayError(response['error']),
+      );
     } catch (e) {
       commonPrint.log('Failed to parse delay: $e');
       rethrow;
     }
   }
 
-  Future<Map<String, dynamic>> getConfig(String id, {String? ageSecretKey}) async {
+  String? _safeDelayError(Object? value) {
+    return switch (value) {
+      'timeout' ||
+      'cancelled' ||
+      'dns' ||
+      'network' ||
+      'proxy_not_found' ||
+      'failed' ||
+      'client_timeout' ||
+      'client_error' => value as String,
+      _ => null,
+    };
+  }
+
+  Future<Map<String, dynamic>> getConfig(
+    String id, {
+    String? ageSecretKey,
+  }) async {
     final profilePath = await appPath.getProfilePath(id);
-    final res = await clashInterface.getConfig(profilePath, ageSecretKey: ageSecretKey);
+    final res = await clashInterface.getConfig(
+      profilePath,
+      ageSecretKey: ageSecretKey,
+    );
     if (res.isSuccess) {
       return res.data as Map<String, dynamic>;
     } else {

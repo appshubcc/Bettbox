@@ -1,10 +1,20 @@
 import 'dart:async';
 
+import 'package:bett_box/common/common.dart';
 import 'package:bett_box/models/models.dart';
 import 'package:bett_box/views/proxies/common.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  test('caps delay-test concurrency below the core queue limit', () {
+    expect(normalizeDelayTestConcurrency(0), 1);
+    expect(normalizeDelayTestConcurrency(16), 16);
+    expect(
+      normalizeDelayTestConcurrency(250),
+      maxDelayTestConcurrencyLimit,
+    );
+  });
+
   test('shares testing state and rejects overlapping group tests', () async {
     final coordinator = DelayTestCoordinator();
 

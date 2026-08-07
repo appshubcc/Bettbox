@@ -402,7 +402,7 @@ abstract class ClashHandlerInterface with ClashInterface {
     return invoke<String>(
       method: ActionMethod.asyncTestDelay,
       data: json.encode(delayParams),
-      timeout: Duration(milliseconds: 6000),
+      timeout: httpTimeoutDuration + delayTestBridgeGraceDuration,
       onTimeout: () {
         return json.encode(Delay(name: proxyName, value: -1, url: url));
       },

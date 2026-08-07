@@ -612,6 +612,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "key": MessageLookupByLibrary.simpleMessage("Ключ"),
     "language": MessageLookupByLibrary.simpleMessage("Язык"),
     "layout": MessageLookupByLibrary.simpleMessage("Ширина"),
+    "leftClickBehavior": MessageLookupByLibrary.simpleMessage("Левая кнопка"),
     "light": MessageLookupByLibrary.simpleMessage("Светлая"),
     "lightIcon": MessageLookupByLibrary.simpleMessage("Светлая иконка"),
     "lightIconDesc": MessageLookupByLibrary.simpleMessage(
@@ -988,6 +989,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "Изменения вступят в силу после перезапуска TUN",
     ),
     "retry": MessageLookupByLibrary.simpleMessage("Повторить"),
+    "rightClickBehavior": MessageLookupByLibrary.simpleMessage("Правая кнопка"),
     "rotatingCircle": MessageLookupByLibrary.simpleMessage("Вращающийся круг"),
     "rule": MessageLookupByLibrary.simpleMessage("Правила"),
     "ruleName": MessageLookupByLibrary.simpleMessage("Имя правила"),
@@ -1015,6 +1017,8 @@ class MessageLookup extends MessageLookupByLibrary {
     "settings": MessageLookupByLibrary.simpleMessage("Настройки"),
     "show": MessageLookupByLibrary.simpleMessage("Показать"),
     "showHiddenItems": MessageLookupByLibrary.simpleMessage("Показать скрытые"),
+    "showMenu": MessageLookupByLibrary.simpleMessage("Показать меню"),
+    "showPanel": MessageLookupByLibrary.simpleMessage("Показать панель"),
     "showStartSwitch": MessageLookupByLibrary.simpleMessage(
       "Связанный переключатель",
     ),
@@ -1115,6 +1119,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "Разрешить параллельные TCP-соединения",
     ),
     "testUrl": MessageLookupByLibrary.simpleMessage("URL теста"),
+    "testingDelay": MessageLookupByLibrary.simpleMessage("Тестирование"),
     "textScale": MessageLookupByLibrary.simpleMessage("Масштаб текста"),
     "theme": MessageLookupByLibrary.simpleMessage("Тема"),
     "themeColor": MessageLookupByLibrary.simpleMessage("Цвет темы"),
@@ -1141,9 +1146,8 @@ class MessageLookup extends MessageLookupByLibrary {
     "totalTraffic": MessageLookupByLibrary.simpleMessage("Общий трафик"),
     "tproxyPort": MessageLookupByLibrary.simpleMessage("Порт Tproxy"),
     "trafficUsage": MessageLookupByLibrary.simpleMessage("Трафик"),
-    "trayEnhancement": MessageLookupByLibrary.simpleMessage("Улучшение трея"),
-    "trayEnhancementDesc": MessageLookupByLibrary.simpleMessage(
-      "Управление группами прокси в контекстном меню трея",
+    "trayClickBehavior": MessageLookupByLibrary.simpleMessage(
+      "Действие при нажатии на значок",
     ),
     "trayIconInvert": MessageLookupByLibrary.simpleMessage(
       "Инвертировать значок трея",

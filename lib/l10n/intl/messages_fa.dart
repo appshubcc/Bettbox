@@ -599,6 +599,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "key": MessageLookupByLibrary.simpleMessage("کلید"),
     "language": MessageLookupByLibrary.simpleMessage("زبان"),
     "layout": MessageLookupByLibrary.simpleMessage("چیدمان"),
+    "leftClickBehavior": MessageLookupByLibrary.simpleMessage("کلیک چپ"),
     "light": MessageLookupByLibrary.simpleMessage("روشن"),
     "lightIcon": MessageLookupByLibrary.simpleMessage("آیکون روشن"),
     "lightIconDesc": MessageLookupByLibrary.simpleMessage(
@@ -995,6 +996,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "تغییرات پس از راه‌اندازی مجدد TUN اعمال می‌شود",
     ),
     "retry": MessageLookupByLibrary.simpleMessage("تلاش مجدد"),
+    "rightClickBehavior": MessageLookupByLibrary.simpleMessage("کلیک راست"),
     "rotatingCircle": MessageLookupByLibrary.simpleMessage("چرخش تک‌دایره"),
     "rule": MessageLookupByLibrary.simpleMessage("قوانین"),
     "ruleName": MessageLookupByLibrary.simpleMessage("نام قانون"),
@@ -1032,6 +1034,8 @@ class MessageLookup extends MessageLookupByLibrary {
     "showHiddenItems": MessageLookupByLibrary.simpleMessage(
       "نمایش موارد پنهان",
     ),
+    "showMenu": MessageLookupByLibrary.simpleMessage("نمایش منو"),
+    "showPanel": MessageLookupByLibrary.simpleMessage("نمایش پنل"),
     "showStartSwitch": MessageLookupByLibrary.simpleMessage("دکمه کلید سوئیچ"),
     "showStartSwitchDesc": MessageLookupByLibrary.simpleMessage(
       "نمایش دکمه مستقل روشن/خاموش در صفحه اصلی",
@@ -1124,6 +1128,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "اجازه به اتصال‌های همزمان TCP",
     ),
     "testUrl": MessageLookupByLibrary.simpleMessage("آدرس تست"),
+    "testingDelay": MessageLookupByLibrary.simpleMessage("در حال آزمایش"),
     "textScale": MessageLookupByLibrary.simpleMessage("مقیاس متن"),
     "theme": MessageLookupByLibrary.simpleMessage("پوسته"),
     "themeColor": MessageLookupByLibrary.simpleMessage("رنگ پوسته"),
@@ -1150,9 +1155,8 @@ class MessageLookup extends MessageLookupByLibrary {
     "totalTraffic": MessageLookupByLibrary.simpleMessage("مجموع ترافیک"),
     "tproxyPort": MessageLookupByLibrary.simpleMessage("پورت Tproxy"),
     "trafficUsage": MessageLookupByLibrary.simpleMessage("مصرف ترافیک"),
-    "trayEnhancement": MessageLookupByLibrary.simpleMessage("ارتقای منوی سینی"),
-    "trayEnhancementDesc": MessageLookupByLibrary.simpleMessage(
-      "مدیریت گروه‌ها از منوی راست‌کلیک تسک‌بار",
+    "trayClickBehavior": MessageLookupByLibrary.simpleMessage(
+      "رفتار کلیک سینی",
     ),
     "trayIconInvert": MessageLookupByLibrary.simpleMessage(
       "معکوس‌سازی آیکون تسک‌بار",

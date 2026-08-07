@@ -75,7 +75,6 @@ abstract class TrayState with _$TrayState {
     required SelectedMap selectedMap,
     @Default(false) bool wakelockEnabled,
     @Default({}) Map<String, int?> delays,
-    @Default(true) bool trayEnhancement,
     @Default(false) bool enableTraySpeed,
   }) = _TrayState;
 }
@@ -173,16 +172,20 @@ extension PackageListSelectorStateExt on PackageListSelectorState {
     final existingPackageNames = packages.map((e) => e.packageName).toSet();
     final packageNameRegex = RegExp(r'^[a-zA-Z0-9_]+(\.[a-zA-Z0-9_]+)+$');
     final manualPackages = selectedList
-        .where((pkg) =>
-            !existingPackageNames.contains(pkg) &&
-            packageNameRegex.hasMatch(pkg))
-        .map((pkg) => Package(
-              packageName: pkg,
-              label: '[Manual]',
-              system: false,
-              internet: true,
-              lastUpdateTime: 0,
-            ));
+        .where(
+          (pkg) =>
+              !existingPackageNames.contains(pkg) &&
+              packageNameRegex.hasMatch(pkg),
+        )
+        .map(
+          (pkg) => Package(
+            packageName: pkg,
+            label: '[Manual]',
+            system: false,
+            internet: true,
+            lastUpdateTime: 0,
+          ),
+        );
 
     final combined = [...filtered, ...manualPackages];
     return combined
@@ -208,7 +211,8 @@ extension PackageListSelectorStateExt on PackageListSelectorState {
 }
 
 @freezed
-abstract class ProxiesListHeaderSelectorState with _$ProxiesListHeaderSelectorState {
+abstract class ProxiesListHeaderSelectorState
+    with _$ProxiesListHeaderSelectorState {
   const factory ProxiesListHeaderSelectorState({
     required double offset,
     required int currentIndex,

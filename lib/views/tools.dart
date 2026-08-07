@@ -609,8 +609,7 @@ class _ToolViewState extends ConsumerState<ToolsView> {
         ),
       ),
       _SearchItem(
-        title: appLocalizations.trayEnhancement,
-        subtitle: appLocalizations.trayEnhancementDesc,
+        title: appLocalizations.trayClickBehavior,
         category: otherSettingsCategory,
         onTap: (context, _) => _pushPage(
           context,
@@ -1419,7 +1418,9 @@ class _LocaleItem extends ConsumerWidget {
 
   static List<Locale> _getOrderedLocales() {
     final priority = ['zh_CN', 'zh_TC', 'en', 'ru', 'fa', 'ja', 'ko'];
-    final locales = List<Locale>.from(AppLocalizations.delegate.supportedLocales);
+    final locales = List<Locale>.from(
+      AppLocalizations.delegate.supportedLocales,
+    );
     locales.sort((a, b) {
       final aKey = a.toString();
       final bKey = b.toString();

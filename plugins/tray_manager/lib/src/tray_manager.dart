@@ -42,6 +42,46 @@ class TrayMenuOpenState {
   }
 }
 
+@visibleForTesting
+bool reuseOpenMenuItemIds(Menu current, Menu next) {
+  final currentItems = current.items ?? const <MenuItem>[];
+  final nextItems = next.items ?? const <MenuItem>[];
+  if (currentItems.length != nextItems.length) {
+    return false;
+  }
+
+  final keyedCurrentItems = <String, MenuItem>{};
+  for (final item in currentItems) {
+    final key = item.key;
+    if (key != null && key.isNotEmpty) {
+      if (keyedCurrentItems.containsKey(key)) return false;
+      keyedCurrentItems[key] = item;
+    }
+  }
+
+  for (var index = 0; index < nextItems.length; index++) {
+    final nextItem = nextItems[index];
+    final key = nextItem.key;
+    final currentItem = key != null && key.isNotEmpty
+        ? keyedCurrentItems[key]
+        : currentItems[index].key == null || currentItems[index].key!.isEmpty
+            ? currentItems[index]
+            : null;
+    if (currentItem == null || currentItem.type != nextItem.type) {
+      return false;
+    }
+    if ((currentItem.submenu == null) != (nextItem.submenu == null)) {
+      return false;
+    }
+    if (currentItem.submenu != null &&
+        !reuseOpenMenuItemIds(currentItem.submenu!, nextItem.submenu!)) {
+      return false;
+    }
+    nextItem.id = currentItem.id;
+  }
+  return true;
+}
+
 class TrayManager {
   TrayManager._() {
     _channel.setMethodCallHandler(_methodCallHandler);
@@ -267,9 +307,12 @@ class TrayManager {
     Brightness? brightness,
   }) async {
     final bool willKeepOpen = keepMenuOpen && isMenuOpen;
-    if (!willKeepOpen) {
-      _menu = menu;
+    if (willKeepOpen) {
+      if (_menu == null || !reuseOpenMenuItemIds(_menu!, menu)) {
+        return;
+      }
     }
+    _menu = menu;
     final Map<String, dynamic> arguments = {
       'menu': _menuToJson(menu),
       'keepMenuOpen': willKeepOpen,

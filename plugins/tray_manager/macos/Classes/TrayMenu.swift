@@ -153,6 +153,199 @@ private final class PersistentTrayMenuItemView: NSView {
     }
 }
 
+private final class AlignedTrayMenuItemView: NSView {
+    private let highlightView = NSVisualEffectView()
+    private let checkmarkLabel = NSTextField(labelWithString: "")
+    private let titleLabel = NSTextField(labelWithString: "")
+    private let detailLabel = NSTextField(labelWithString: "")
+    private let detailWidth: CGFloat
+    private var isDisabled = false
+    private var isHovered = false
+    private var isPressed = false
+    var onClick: (() -> Void)?
+
+    init(
+        label: String,
+        detail: String,
+        checked: Bool,
+        disabled: Bool,
+        width: CGFloat,
+        detailWidth: CGFloat
+    ) {
+        self.detailWidth = detailWidth
+        let font = NSFont.menuFont(ofSize: NSFont.systemFontSize)
+        super.init(frame: NSRect(x: 0, y: 0, width: width, height: 24))
+        autoresizingMask = [.width]
+
+        highlightView.material = .selection
+        highlightView.blendingMode = .withinWindow
+        highlightView.state = .active
+        highlightView.isEmphasized = true
+        highlightView.isHidden = true
+        highlightView.wantsLayer = true
+        highlightView.layer?.cornerRadius = 6
+        highlightView.layer?.masksToBounds = true
+        addSubview(highlightView)
+
+        for textLabel in [checkmarkLabel, titleLabel, detailLabel] {
+            textLabel.font = font
+            textLabel.lineBreakMode = .byTruncatingTail
+            addSubview(textLabel)
+        }
+        checkmarkLabel.alignment = .center
+        titleLabel.alignment = .left
+        detailLabel.alignment = .right
+
+        addTrackingArea(
+            NSTrackingArea(
+                rect: .zero,
+                options: [
+                    .mouseEnteredAndExited,
+                    .activeAlways,
+                    .inVisibleRect,
+                    .enabledDuringMouseDrag,
+                ],
+                owner: self,
+                userInfo: nil
+            )
+        )
+        update(
+            label: label,
+            detail: detail,
+            checked: checked,
+            disabled: disabled
+        )
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    override func acceptsFirstMouse(for event: NSEvent?) -> Bool {
+        true
+    }
+
+    override func layout() {
+        super.layout()
+        highlightView.frame = bounds.insetBy(dx: 4, dy: 1)
+
+        let verticalInset: CGFloat = 3
+        let contentHeight = max(0, bounds.height - verticalInset * 2)
+        checkmarkLabel.frame = NSRect(
+            x: 8,
+            y: verticalInset,
+            width: 16,
+            height: contentHeight
+        )
+        let titleX: CGFloat = 30
+        let resolvedDetailWidth = max(48, detailWidth)
+        let detailX = max(titleX, bounds.width - 14 - resolvedDetailWidth)
+        titleLabel.frame = NSRect(
+            x: titleX,
+            y: verticalInset,
+            width: max(0, detailX - titleX - 10),
+            height: contentHeight
+        )
+        detailLabel.frame = NSRect(
+            x: detailX,
+            y: verticalInset,
+            width: resolvedDetailWidth,
+            height: contentHeight
+        )
+    }
+
+    func update(
+        label: String,
+        detail: String,
+        checked: Bool,
+        disabled: Bool
+    ) {
+        isDisabled = disabled
+        if disabled {
+            isPressed = false
+        }
+        checkmarkLabel.stringValue = checked ? "✓" : ""
+        titleLabel.stringValue = label
+        detailLabel.stringValue = detail
+        updateAppearance()
+    }
+
+    override func mouseDown(with event: NSEvent) {
+        guard !isDisabled, contains(event) else {
+            return
+        }
+        isPressed = true
+        isHovered = true
+        updateAppearance()
+    }
+
+    override func mouseDragged(with event: NSEvent) {
+        guard isPressed else {
+            return
+        }
+        isHovered = contains(event)
+        updateAppearance()
+    }
+
+    override func mouseUp(with event: NSEvent) {
+        guard isPressed else {
+            return
+        }
+        let shouldTrigger = !isDisabled && contains(event)
+        isPressed = false
+        isHovered = contains(event)
+        updateAppearance()
+        if shouldTrigger {
+            onClick?()
+        }
+    }
+
+    override func mouseEntered(with event: NSEvent) {
+        isHovered = true
+        updateAppearance()
+    }
+
+    override func mouseExited(with event: NSEvent) {
+        isHovered = false
+        updateAppearance()
+    }
+
+    override func viewDidChangeEffectiveAppearance() {
+        super.viewDidChangeEffectiveAppearance()
+        updateAppearance()
+    }
+
+    private func updateAppearance() {
+        let isHighlighted = !isDisabled && isHovered
+        highlightView.isHidden = !isHighlighted
+        let textColor: NSColor
+        if isDisabled {
+            textColor = .disabledControlTextColor
+        } else if isHighlighted {
+            textColor = .selectedMenuItemTextColor
+        } else {
+            textColor = .controlTextColor
+        }
+        for textLabel in [checkmarkLabel, titleLabel, detailLabel] {
+            textLabel.attributedStringValue = NSAttributedString(
+                string: textLabel.stringValue,
+                attributes: [
+                    .font: textLabel.font
+                        ?? NSFont.menuFont(ofSize: NSFont.systemFontSize),
+                    .foregroundColor: textColor,
+                ]
+            )
+        }
+    }
+
+    private func contains(_ event: NSEvent) -> Bool {
+        guard event.window === window else {
+            return false
+        }
+        return bounds.contains(convert(event.locationInWindow, from: nil))
+    }
+}
+
 public class TrayMenu: NSMenu, NSMenuDelegate {
     public var onMenuItemClick:((NSMenuItem) -> Void)?
     
@@ -170,23 +363,48 @@ public class TrayMenu: NSMenu, NSMenuDelegate {
         return sublabel.isEmpty ? label : "\(label)\t\(sublabel)"
     }
 
-    private func preferredMenuWidth(_ items: [NSDictionary]) -> CGFloat {
+    private func preferredMenuLayout(
+        _ items: [NSDictionary]
+    ) -> (width: CGFloat, detailWidth: CGFloat) {
         let font = NSFont.menuFont(ofSize: NSFont.systemFontSize)
-        let maximumLabelWidth = items.reduce(CGFloat.zero) { width, item in
+        var maximumLabelWidth = CGFloat.zero
+        var maximumDetailWidth = CGFloat.zero
+        var hasAlignedItems = false
+        for item in items {
             let itemDict = item as? [String: Any] ?? [:]
             let type = itemDict["type"] as? String ?? ""
             guard type != "separator" else {
-                return width
+                continue
             }
+            let key = itemDict["key"] as? String ?? ""
             let label = itemDict["label"] as? String ?? ""
             let sublabel = itemDict["sublabel"] as? String ?? ""
-            let title = menuItemTitle(label, sublabel)
-            let titleWidth = (title as NSString).size(
+            let labelWidth = (label as NSString).size(
                 withAttributes: [.font: font]
             ).width
-            return max(width, ceil(titleWidth))
+            maximumLabelWidth = max(maximumLabelWidth, ceil(labelWidth))
+            if key.hasPrefix("proxy-item:") {
+                hasAlignedItems = true
+                let detailTextWidth = (sublabel as NSString).size(
+                    withAttributes: [.font: font]
+                ).width
+                maximumDetailWidth = max(
+                    maximumDetailWidth,
+                    ceil(detailTextWidth)
+                )
+            }
         }
-        return max(220, maximumLabelWidth + 56)
+        let detailWidth = hasAlignedItems
+            ? max(48, maximumDetailWidth)
+            : CGFloat.zero
+        let horizontalSpacing: CGFloat = hasAlignedItems ? 84 : 56
+        return (
+            width: max(
+                220,
+                maximumLabelWidth + detailWidth + horizontalSpacing
+            ),
+            detailWidth: detailWidth
+        )
     }
     
     public init(_ args: [String: Any]) {
@@ -194,7 +412,9 @@ public class TrayMenu: NSMenu, NSMenuDelegate {
         autoenablesItems = false
 
         let items: [NSDictionary] = args["items"] as! [NSDictionary];
-        let menuWidth = preferredMenuWidth(items)
+        let menuLayout = preferredMenuLayout(items)
+        let menuWidth = menuLayout.width
+        minimumWidth = menuWidth
         for item in items {
             let menuItem: NSMenuItem
             
@@ -240,12 +460,36 @@ public class TrayMenu: NSMenu, NSMenuDelegate {
                 menuItem.view = persistentView
                 menuItem.action = nil
                 menuItem.target = nil
+            } else if key.hasPrefix("proxy-item:") {
+                let alignedView = AlignedTrayMenuItemView(
+                    label: label,
+                    detail: sublabel,
+                    checked: checked ?? false,
+                    disabled: disabled,
+                    width: menuWidth,
+                    detailWidth: menuLayout.detailWidth
+                )
+                alignedView.onClick = { [weak self] in
+                    guard
+                        let self,
+                        let clickedItem = self.item(withTag: id)
+                    else {
+                        return
+                    }
+                    self.statusItemMenuButtonClicked(clickedItem)
+                    self.cancelTracking()
+                }
+                menuItem.view = alignedView
+                menuItem.action = nil
+                menuItem.target = nil
             }
 
             switch (type) {
             case "separator":
                 break
             case "submenu":
+                menuItem.action = nil
+                menuItem.target = nil
                 if let submenuDict = itemDict["submenu"] as? NSDictionary {
                     let submenu = TrayMenu(submenuDict as! [String : Any])
                     submenu.onMenuItemClick = { [weak self] (menuItem: NSMenuItem) in
@@ -322,6 +566,14 @@ public class TrayMenu: NSMenu, NSMenuDelegate {
             if let persistentView = menuItem.view as? PersistentTrayMenuItemView {
                 persistentView.update(label: label, disabled: disabled)
                 menuItem.action = nil
+            } else if let alignedView = menuItem.view as? AlignedTrayMenuItemView {
+                alignedView.update(
+                    label: label,
+                    detail: sublabel,
+                    checked: checked ?? false,
+                    disabled: disabled
+                )
+                menuItem.action = nil
             }
 
             if let checkedValue = checked {
@@ -329,6 +581,8 @@ public class TrayMenu: NSMenu, NSMenuDelegate {
             }
 
             if (type == "submenu") {
+                menuItem.action = nil
+                menuItem.target = nil
                 if let submenuDict = itemDict["submenu"] as? NSDictionary {
                     let submenu = menuItem.submenu as? TrayMenu
                     submenu?.update(submenuDict as! [String : Any])

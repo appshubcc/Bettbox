@@ -119,6 +119,7 @@ class Tray {
     required TrayState trayState,
     bool focus = false,
     bool silent = false,
+    List<Group>? groupsOverride,
     bool prepareContextMenu = false,
   }) async {
     if (_isUpdating) return;
@@ -174,7 +175,8 @@ class Tray {
         );
       }
       menuItems.add(MenuItem.separator());
-      for (final group in trayState.groups) {
+      final menuGroups = groupsOverride ?? trayState.groups;
+      for (final group in menuGroups) {
         List<MenuItem> subMenuItems = [];
 
         final isTestingThisGroup = delayTestCoordinator.isTestingGroup(
@@ -234,7 +236,7 @@ class Tray {
           ),
         );
       }
-      if (trayState.groups.isNotEmpty) {
+      if (menuGroups.isNotEmpty) {
         menuItems.add(MenuItem.separator());
       }
       if (trayState.isStart) {
@@ -346,19 +348,11 @@ class Tray {
           trayState: pending!,
           focus: pendingFocus,
           silent: pendingSilent,
+          groupsOverride: groupsOverride,
           prepareContextMenu: prepareContextMenu,
         );
       }
     }
-  }
-
-  Future<void> showContextMenu({required TrayState trayState}) async {
-    _debounceTimer?.cancel();
-    while (_isUpdating) {
-      await Future<void>.delayed(const Duration(milliseconds: 10));
-    }
-    await _doUpdate(trayState: trayState, prepareContextMenu: true);
-    await trayManager.popUpContextMenu();
   }
 
   Future<void> updateSpeed(Traffic traffic) async {
@@ -406,6 +400,22 @@ class Tray {
     _lastDisplayedUpload = upload;
     _lastDisplayedDownload = download;
     _lastDisplayedActive = _trayTrafficActive;
+  }
+
+  Future<void> showContextMenu({
+    required TrayState trayState,
+    required List<Group> groups,
+  }) async {
+    _debounceTimer?.cancel();
+    while (_isUpdating) {
+      await Future<void>.delayed(const Duration(milliseconds: 10));
+    }
+    await _doUpdate(
+      trayState: trayState,
+      groupsOverride: groups,
+      prepareContextMenu: true,
+    );
+    await trayManager.popUpContextMenu();
   }
 
   MenuItem _buildCopyEnvSubmenu(int port) {

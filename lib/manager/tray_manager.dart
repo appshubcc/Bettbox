@@ -35,6 +35,15 @@ class _TrayContainerState extends ConsumerState<TrayManager> with TrayListener {
     return widget.child;
   }
 
+  bool get _shouldTemporarilyShowHiddenItems {
+    if (!system.isMacOS || !trayManager.isOptionKeyPressed) {
+      return false;
+    }
+    return !ref.read(
+      proxiesStyleSettingProvider.select((state) => state.showHiddenItems),
+    );
+  }
+
   Future<void> _handleTrayIconClick({required bool isRightClick}) async {
     if (!system.isMacOS) {
       if (isRightClick) {
@@ -43,6 +52,10 @@ class _TrayContainerState extends ConsumerState<TrayManager> with TrayListener {
       } else {
         window?.show();
       }
+      return;
+    }
+    if (_shouldTemporarilyShowHiddenItems) {
+      await globalState.appController.showTrayMenu(includeHiddenItems: true);
       return;
     }
     final vpnProps = ref.read(vpnSettingProvider);

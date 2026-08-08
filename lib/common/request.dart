@@ -57,9 +57,7 @@ class Request {
       }
     }
 
-    final headers = <String, dynamic>{
-      'Connection': 'close',
-    };
+    final headers = <String, dynamic>{'Connection': 'close'};
     if (userInfo != null && userInfo.isNotEmpty) {
       final auth = base64Encode(utf8.encode(userInfo));
       headers['Authorization'] = 'Basic $auth';
@@ -67,10 +65,7 @@ class Request {
 
     final response = await _clashDio.get(
       requestUrl,
-      options: Options(
-        responseType: responseType,
-        headers: headers,
-      ),
+      options: Options(responseType: responseType, headers: headers),
     );
     return response;
   }
@@ -153,6 +148,18 @@ class Request {
         connectTimeout: effectiveTimeout,
       ),
     );
+    if (system.isAndroid) {
+      // Android VPN/TUN already captures this socket. Bypassing the local
+      // Mixed port prevents IP detection from depending on a second local
+      // listener when another Bettbox instance owns the preferred port.
+      dio.httpClientAdapter = IOHttpClientAdapter(
+        createHttpClient: () {
+          final client = HttpClient();
+          client.findProxy = (_) => 'DIRECT';
+          return client;
+        },
+      );
+    }
 
     final Completer<Result<IpInfo?>> resultCompleter = Completer();
     int failureCount = 0;

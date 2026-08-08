@@ -180,9 +180,7 @@ ProxyState proxyState(Ref ref) {
       (state) => VM2(a: state.systemProxy, b: state.bypassDomain),
     ),
   );
-  final mixedPort = ref.watch(
-    patchClashConfigProvider.select((state) => state.mixedPort),
-  );
+  final mixedPort = globalState.effectiveMixedPort;
   return ProxyState(
     isStart: isStart,
     systemProxy: vm2.a,

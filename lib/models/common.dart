@@ -457,8 +457,10 @@ class IpInfo {
       }
     }
 
-    if (ip != null && countryCode != null) {
-      return IpInfo(ip: ip, countryCode: countryCode);
+    if (ip != null && ip.isNotEmpty) {
+      // The IP is still useful when a trace endpoint omits the optional
+      // location field or returns it in a format that cannot be mapped.
+      return IpInfo(ip: ip, countryCode: countryCode ?? '');
     }
 
     throw const FormatException('invalid cloudflare trace format');
@@ -541,8 +543,12 @@ abstract class Result<T> with _$Result<T> {
     @Default(false) bool needRestart,
   }) = _Result;
 
-  factory Result.success(T data, {bool needRestart = false}) =>
-      Result(data: data, type: ResultType.success, message: '', needRestart: needRestart);
+  factory Result.success(T data, {bool needRestart = false}) => Result(
+    data: data,
+    type: ResultType.success,
+    message: '',
+    needRestart: needRestart,
+  );
 
   factory Result.error(String message) =>
       Result(data: null, type: ResultType.error, message: message);
@@ -564,7 +570,11 @@ abstract class Script with _$Script {
     @JsonKey(name: 'custom-options') Map<String, bool>? customOptions,
   }) = _Script;
 
-  factory Script.create({required String label, required String content, String? url}) {
+  factory Script.create({
+    required String label,
+    required String content,
+    String? url,
+  }) {
     return Script(id: utils.uuidV4, label: label, content: content, url: url);
   }
 

@@ -37,10 +37,7 @@ class ProxyCard extends StatelessWidget {
   static final Map<String, bool> _emojiMatchCache = {};
 
   static bool _hasEmoji(String name) {
-    return _emojiMatchCache.putIfAbsent(
-      name,
-      () => _emojiRegex.hasMatch(name),
-    );
+    return _emojiMatchCache.putIfAbsent(name, () => _emojiRegex.hasMatch(name));
   }
 
   final String groupName;
@@ -89,7 +86,7 @@ class ProxyCard extends StatelessWidget {
             return const SizedBox(height: 0, width: 0);
           }
 
-          if (delay == 0) {
+          if (delay == delayTestingValue) {
             return SizedBox(
               height: measure.labelSmallHeight,
               width: measure.labelSmallHeight,
@@ -116,13 +113,17 @@ class ProxyCard extends StatelessWidget {
             );
           }
 
+          final label = delay > 0 ? '$delay ms' : delayFailureLabel(delay);
           return GestureDetector(
             onTap: _handleTestCurrentDelay,
-            child: Text(
-              delay > 0 ? '$delay ms' : 'Timeout',
-              style: context.textTheme.labelSmall?.copyWith(
-                overflow: TextOverflow.ellipsis,
-                color: utils.getDelayColor(delay),
+            child: Tooltip(
+              message: delay > 0 ? appLocalizations.delay : label,
+              child: Text(
+                label,
+                style: context.textTheme.labelSmall?.copyWith(
+                  overflow: TextOverflow.ellipsis,
+                  color: utils.getDelayColor(delay),
+                ),
               ),
             ),
           );
@@ -181,10 +182,7 @@ class ProxyCard extends StatelessWidget {
 
     Widget wrapPadding(Widget child) {
       if (showComputedMark) {
-        return Padding(
-          padding: const EdgeInsets.only(right: 28),
-          child: child,
-        );
+        return Padding(padding: const EdgeInsets.only(right: 28), child: child);
       }
       return child;
     }
@@ -212,17 +210,15 @@ class ProxyCard extends StatelessWidget {
 
   bool _isSelectedProxy(WidgetRef ref) {
     return ref.watch(
-      getSelectedProxyNameProvider(groupName).select(
-        (name) => name == proxy.name,
-      ),
+      getSelectedProxyNameProvider(
+        groupName,
+      ).select((name) => name == proxy.name),
     );
   }
 
   bool _isComputedMatch(WidgetRef ref) {
     return ref.watch(
-      getProxyNameProvider(groupName).select(
-        (name) => name == proxy.name,
-      ),
+      getProxyNameProvider(groupName).select((name) => name == proxy.name),
     );
   }
 
@@ -273,8 +269,8 @@ class ProxyCard extends StatelessWidget {
     return Consumer(
       builder: (_, ref, child) {
         final isSelected = _isSelectedProxy(ref);
-        final isComputedMatch = groupType.isComputedSelected &&
-            _isComputedMatch(ref);
+        final isComputedMatch =
+            groupType.isComputedSelected && _isComputedMatch(ref);
         final proxyNameWidget = _buildProxyNameWithIcon(
           context,
           ref,
@@ -339,15 +335,14 @@ class ProxyCard extends StatelessWidget {
                               child: TooltipText(
                                 text: Text(
                                   proxy.type,
-                                  style: context.textTheme.bodySmall
-                                      ?.copyWith(
-                                        overflow: TextOverflow.ellipsis,
-                                        color: context
-                                            .textTheme
-                                            .bodySmall
-                                            ?.color
-                                            ?.opacity80,
-                                      ),
+                                  style: context.textTheme.bodySmall?.copyWith(
+                                    overflow: TextOverflow.ellipsis,
+                                    color: context
+                                        .textTheme
+                                        .bodySmall
+                                        ?.color
+                                        ?.opacity80,
+                                  ),
                                 ),
                               ),
                             ),

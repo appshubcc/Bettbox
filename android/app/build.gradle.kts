@@ -54,6 +54,13 @@ android {
             isMinifyEnabled = false
             applicationIdSuffix = ".debug"
         }
+        getByName("profile") {
+            // Keep the test package separate from the official release while
+            // using Flutter's AOT/profile runtime instead of debug JIT.
+            applicationIdSuffix = ".test"
+            versionNameSuffix = "-test"
+            signingConfig = signingConfigs.getByName("debug")
+        }
         release {
             isMinifyEnabled = true
             isDebuggable = false

@@ -24,7 +24,44 @@ final baseInfoEdgeInsets = EdgeInsets.symmetric(
 
 final defaultTextScaleFactor =
     WidgetsBinding.instance.platformDispatcher.textScaleFactor;
-const httpTimeoutDuration = Duration(milliseconds: 5000);
+// URL tests are used for high-latency and UDP-based proxy protocols too.
+// Keep the core deadline below the bridge deadline so a completed core result
+// is never discarded by the Dart side first.
+const httpTimeoutDuration = Duration(seconds: 10);
+const delayTestBridgeGraceDuration = Duration(seconds: 1);
+
+const delayTestingValue = 0;
+const delayTimeoutValue = -1;
+const delayProxyNotFoundValue = -2;
+const delayDnsFailureValue = -3;
+const delayTlsFailureValue = -4;
+const delayHttpFailureValue = -5;
+const delayConnectFailureValue = -6;
+const delayUnknownFailureValue = -7;
+const delayBridgeTimeoutValue = -8;
+
+String delayFailureLabel(int value) {
+  return switch (value) {
+    delayTimeoutValue => 'Timeout',
+    delayProxyNotFoundValue => 'Unavailable',
+    delayDnsFailureValue => 'DNS',
+    delayTlsFailureValue => 'TLS',
+    delayHttpFailureValue => 'HTTP',
+    delayConnectFailureValue => 'Connect',
+    delayBridgeTimeoutValue => 'App timeout',
+    _ => 'Failed',
+  };
+}
+
+// The core accepts up to 50 concurrent tests. A lower client-side limit avoids
+// queueing requests past the per-request bridge timeout on mobile networks.
+const defaultDelayTestConcurrencyLimit = 16;
+const maxDelayTestConcurrencyLimit = 32;
+
+int normalizeDelayTestConcurrency(int configuredLimit) {
+  return configuredLimit.clamp(1, maxDelayTestConcurrencyLimit).toInt();
+}
+
 const moreDuration = Duration(milliseconds: 100);
 const animateDuration = Duration(milliseconds: 100);
 const midDuration = Duration(milliseconds: 200);
@@ -69,7 +106,7 @@ double getFloatingBottomBarFABReserveHeight(BuildContext context) {
   return 84.0 - min(viewBottom, 12.0);
 }
 
-const defaultTestUrl = 'https://www.apple.com/library/test/success.html';
+const defaultTestUrl = 'https://www.gstatic.com/generate_204';
 
 // Preset test URLs
 const presetTestUrls = [

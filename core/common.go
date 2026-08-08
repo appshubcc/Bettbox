@@ -304,14 +304,7 @@ func setupConfig(params *SetupParams) error {
 		}
 	}
 
-	constant.DefaultTestURL = params.TestURL
-	if params.OverrideTestUrl && params.Config != nil {
-		if params.Config.ProxyGroup != nil {
-			for _, group := range params.Config.ProxyGroup {
-				group["url"] = params.TestURL
-			}
-		}
-	}
+	applyTestURLOverride(params)
 
 	var err error
 	currentConfig, err = config.ParseRawConfig(params.Config)
@@ -324,6 +317,28 @@ func setupConfig(params *SetupParams) error {
 	runtime.GC()
 	debug.FreeOSMemory()
 	return nil
+}
+
+func applyTestURLOverride(params *SetupParams) {
+	constant.DefaultTestURL = params.TestURL
+	if !params.OverrideTestUrl || params.Config == nil {
+		return
+	}
+
+	for _, group := range params.Config.ProxyGroup {
+		group["url"] = params.TestURL
+	}
+
+	// Keep provider health checks aligned with the test URL selected in the
+	// app. Only update an existing health-check section: an override must not
+	// enable health checks for providers that did not opt into them.
+	for _, provider := range params.Config.ProxyProvider {
+		healthCheck, ok := provider["health-check"].(map[string]any)
+		if !ok {
+			continue
+		}
+		healthCheck["url"] = params.TestURL
+	}
 }
 
 func UnmarshalJson(data []byte, v any) error {

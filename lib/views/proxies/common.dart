@@ -83,7 +83,8 @@ double getItemHeight(ProxyCardType proxyCardType) {
   final baseHeight =
       16 + measure.bodyMediumHeight * 2 + measure.bodySmallHeight + 8 + 4;
   return switch (proxyCardType) {
-    ProxyCardType.expand => baseHeight - measure.bodySmallHeight + measure.labelSmallHeight * 2 + 4,
+    ProxyCardType.expand =>
+      baseHeight - measure.bodySmallHeight + measure.labelSmallHeight * 2 + 4,
     ProxyCardType.shrink => baseHeight,
     ProxyCardType.min => baseHeight - measure.bodyMediumHeight,
   };
@@ -106,7 +107,9 @@ Future<void> proxyDelayTest(Proxy proxy, [String? testUrl]) async {
 Future<Delay> _testProxyDelay(DelayTestTarget target) {
   return _delayTestRequestPool.run(target, () async {
     final appController = globalState.appController;
-    appController.setDelay(Delay(url: target.url, name: target.name, value: 0));
+    appController.setDelay(
+      Delay(url: target.url, name: target.name, value: delayTestingValue),
+    );
     final delay = await clashCore.getDelay(target.url, target.name);
     appController.setDelay(delay);
     return delay;
@@ -163,7 +166,9 @@ Future<void> delayTest(
       }
       targets.add(DelayTestTarget(name: name, url: url));
     }
-    final concurrencyLimit = globalState.config.proxiesStyle.concurrencyLimit;
+    final concurrencyLimit = normalizeDelayTestConcurrency(
+      globalState.config.proxiesStyle.concurrencyLimit,
+    );
 
     // 按实际节点和实际测试地址创建任务，避免多个代理组别名重复测速。
     final delayTasks = targets.map((target) {

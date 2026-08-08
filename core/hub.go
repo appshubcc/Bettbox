@@ -5,6 +5,7 @@ import (
 	"context"
 	"core/state"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net"
 	"os"
@@ -12,6 +13,7 @@ import (
 	"runtime/debug"
 	"sort"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/metacubex/mihomo/adapter"
@@ -245,7 +247,7 @@ func handleAsyncTestDelay(paramsString string, fn func(string)) {
 		}
 
 		if proxy == nil {
-			delayData.Value = -1
+			delayData.Value = delayFailureProxyNotFound
 			data, _ := json.Marshal(delayData)
 			fn(string(data))
 			return false, nil
@@ -260,7 +262,7 @@ func handleAsyncTestDelay(paramsString string, fn func(string)) {
 
 		delay, err := proxy.URLTest(ctx, testUrl, expectedStatus)
 		if err != nil || delay == 0 {
-			delayData.Value = -1
+			delayData.Value = delayFailureValue(err)
 			data, _ := json.Marshal(delayData)
 			fn(string(data))
 			return false, nil
@@ -271,6 +273,55 @@ func handleAsyncTestDelay(paramsString string, fn func(string)) {
 		fn(string(data))
 		return false, nil
 	})
+}
+
+const (
+	delayFailureTimeout       int32 = -1
+	delayFailureProxyNotFound int32 = -2
+	delayFailureDNS           int32 = -3
+	delayFailureTLS           int32 = -4
+	delayFailureHTTP          int32 = -5
+	delayFailureConnect       int32 = -6
+	delayFailureUnknown       int32 = -7
+)
+
+// delayFailureValue returns a stable, non-sensitive category for the UI.
+// Do not return raw errors here: they can include hostnames or credentials.
+func delayFailureValue(err error) int32 {
+	if err == nil {
+		return delayFailureUnknown
+	}
+	if errors.Is(err, context.DeadlineExceeded) {
+		return delayFailureTimeout
+	}
+	var networkErr net.Error
+	if errors.As(err, &networkErr) && networkErr.Timeout() {
+		return delayFailureTimeout
+	}
+
+	message := strings.ToLower(err.Error())
+	switch {
+	case strings.Contains(message, "no such host"),
+		strings.Contains(message, "dns"),
+		strings.Contains(message, "lookup"):
+		return delayFailureDNS
+	case strings.Contains(message, "tls"),
+		strings.Contains(message, "x509"),
+		strings.Contains(message, "certificate"),
+		strings.Contains(message, "handshake"):
+		return delayFailureTLS
+	case strings.Contains(message, "status"),
+		strings.Contains(message, "http"):
+		return delayFailureHTTP
+	case strings.Contains(message, "connect"),
+		strings.Contains(message, "connection"),
+		strings.Contains(message, "network is unreachable"),
+		strings.Contains(message, "no route"),
+		strings.Contains(message, "refused"):
+		return delayFailureConnect
+	default:
+		return delayFailureUnknown
+	}
 }
 
 func handleGetConnections() string {

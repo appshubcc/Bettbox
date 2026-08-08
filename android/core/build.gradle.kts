@@ -49,10 +49,16 @@ dependencies {
 }
 
 val copyNativeLibs by tasks.register<Copy>("copyNativeLibs") {
+    val nativeLibsSource = file("../../libclash/android")
     doFirst {
+        check(nativeLibsSource.isDirectory && nativeLibsSource.walkTopDown().any {
+            it.isFile && it.name == "libclash.so"
+        }) {
+            "Android core library is missing. Generate libclash before packaging the APK."
+        }
         delete("src/main/jniLibs")
     }
-    from("../../libclash/android")
+    from(nativeLibsSource)
     into("src/main/jniLibs")
 }
 

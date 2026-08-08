@@ -23,6 +23,8 @@ import 'package:synchronized/synchronized.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'common/common.dart';
+import 'common/local_port.dart';
+import 'common/runtime_config_overrides.dart';
 import 'controller.dart';
 import 'models/models.dart';
 
@@ -59,6 +61,8 @@ class GlobalState {
   Timer? _backgroundCleanupTimer;
   final Lock _scriptEvaluateLock = Lock();
   bool isInit = false;
+  int? _runtimeMixedPort;
+  int? _runtimeMixedPortPreference;
 
   bool get isStart => startTime != null && startTime!.isBeforeNow;
 
@@ -120,7 +124,8 @@ class GlobalState {
 
   Future<void> init() async {
     packageInfo = await PackageInfo.fromPlatform();
-    config = await preferences.getConfig() ??
+    config =
+        await preferences.getConfig() ??
         Config(
           themeProps: defaultThemeProps,
           patchClashConfig: system.isAndroid
@@ -140,6 +145,34 @@ class GlobalState {
   bool get isAndroidTV => _isAndroidTV ?? false;
 
   String get ua => config.patchClashConfig.globalUa ?? packageInfo.ua;
+
+  int get effectiveMixedPort =>
+      _runtimeMixedPort ?? config.patchClashConfig.mixedPort;
+
+  Future<int> resolveMixedPort(int preferred, {required bool allowLan}) async {
+    if (!system.isAndroid || preferred <= 0) return preferred;
+    if (_runtimeMixedPortPreference == preferred && _runtimeMixedPort != null) {
+      return _runtimeMixedPort!;
+    }
+
+    final resolved = await findAvailableLocalPort(
+      preferred,
+      allowLan: allowLan,
+    );
+    _runtimeMixedPortPreference = preferred;
+    _runtimeMixedPort = resolved;
+    if (resolved != preferred) {
+      commonPrint.log(
+        '[Mixed] Port $preferred is busy; using local port $resolved',
+      );
+    }
+    return resolved;
+  }
+
+  void resetRuntimeMixedPort() {
+    _runtimeMixedPort = null;
+    _runtimeMixedPortPreference = null;
+  }
 
   Future<void> startUpdateTasks([UpdateTasks? tasks]) async {
     if (tasks != null) {
@@ -339,6 +372,7 @@ class GlobalState {
     } else {
       await clashCore.stopListener();
     }
+    resetRuntimeMixedPort();
     if (!includeVpnService) {
       stopUpdateTasks();
       return;
@@ -463,10 +497,7 @@ class GlobalState {
                       color: Theme.of(context).colorScheme.surface,
                       borderRadius: BorderRadius.circular(28),
                       boxShadow: const [
-                        BoxShadow(
-                          blurRadius: 10,
-                          color: Colors.black12,
-                        ),
+                        BoxShadow(blurRadius: 10, color: Colors.black12),
                       ],
                     ),
                     child: const Column(
@@ -599,7 +630,10 @@ class GlobalState {
     rawConfig['port'] = 0;
     rawConfig['socks-port'] = 0;
     rawConfig['keep-alive-interval'] = realPatchConfig.keepAliveInterval;
-    rawConfig['mixed-port'] = realPatchConfig.mixedPort;
+    rawConfig['mixed-port'] = await resolveMixedPort(
+      realPatchConfig.mixedPort,
+      allowLan: realPatchConfig.allowLan,
+    );
     rawConfig['port'] = realPatchConfig.port;
     rawConfig['socks-port'] = realPatchConfig.socksPort;
     rawConfig['redir-port'] = realPatchConfig.redirPort;
@@ -768,6 +802,7 @@ class GlobalState {
 
     final nodeExcludeFilter = globalState.config.nodeExcludeFilter;
     final healthCheckTimeout = globalState.config.healthCheckTimeout;
+    applyProviderHealthCheckTimeoutOverride(rawConfig, healthCheckTimeout);
     if ((nodeExcludeFilter.isNotEmpty || healthCheckTimeout != 5000) &&
         rawConfig['proxy-groups'] is List) {
       RegExp? filterRegex;
@@ -862,8 +897,8 @@ class GlobalState {
       rawConfig.remove('rule');
     }
 
-    final scriptActive = config.scriptProps.currentScript != null &&
-        profile.useScriptOverride;
+    final scriptActive =
+        config.scriptProps.currentScript != null && profile.useScriptOverride;
 
     final overrideData = profile.overrideData;
     if (overrideData.enable && !scriptActive) {
@@ -1150,9 +1185,11 @@ class DetectionState {
   }
 
   void tryStartCheck() {
-    if (!state.value.isLoading &&
-        state.value.ipInfo == null &&
-        (_preIsStart == null || state.value.errorMessage != null)) {
+    final isFirstAttempt = _requestId == 0;
+    if (isFirstAttempt ||
+        (!state.value.isLoading &&
+            state.value.ipInfo == null &&
+            (_preIsStart == null || state.value.errorMessage != null))) {
       startCheck();
     }
   }

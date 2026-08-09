@@ -4,8 +4,10 @@ import android.app.UiModeManager
 import android.content.Context
 import android.content.pm.PackageManager
 import android.content.res.Configuration
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import android.view.HapticFeedbackConstants
 import android.view.MotionEvent
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.appshub.bettbox.plugins.AppPlugin
@@ -17,6 +19,7 @@ import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.embedding.engine.FlutterEngineGroup
 import io.flutter.embedding.engine.FlutterEngineCache
 import io.flutter.embedding.engine.dart.DartExecutor
+import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugins.GeneratedPluginRegistrant
 
 class MainActivity : FlutterActivity() {
@@ -70,7 +73,37 @@ class MainActivity : FlutterActivity() {
             }
         }
 
+        setupHapticsChannel(flutterEngine)
+
         GlobalState.flutterEngine = flutterEngine
+    }
+
+    private fun setupHapticsChannel(flutterEngine: FlutterEngine) {
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "code_forge/haptics")
+            .setMethodCallHandler { call, result ->
+                val decorView = window?.decorView
+                if (decorView == null) {
+                    result.notImplemented()
+                    return@setMethodCallHandler
+                }
+                when (call.method) {
+                    "handleMove" -> {
+                        decorView.performHapticFeedback(
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                                HapticFeedbackConstants.TEXT_HANDLE_MOVE
+                            } else {
+                                HapticFeedbackConstants.LONG_PRESS
+                            }
+                        )
+                        result.success(null)
+                    }
+                    "longPress" -> {
+                        decorView.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
+                        result.success(null)
+                    }
+                    else -> result.notImplemented()
+                }
+            }
     }
 
     override fun shouldDestroyEngineWithHost(): Boolean = false

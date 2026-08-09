@@ -395,9 +395,13 @@ class CodeForgeController implements DeltaTextInputClient {
           final line = getLineAtOffset(cursorPosition);
           final lineStartOffset = getLineStartOffset(line);
           if (cursorPosition - 1 >= currentText.length) return;
-          final character = cursorPosition - lineStartOffset;
+          final lineText = getLineText(line);
+          final character =
+              scalarToStringIndex(lineText, cursorPosition - lineStartOffset);
           final prefix = getCurrentWordPrefix(currentText, cursorPosition);
-          final triggerChar = currentText[cursorPosition - 1];
+          final triggerIndex =
+              scalarToStringIndex(currentText, cursorPosition - 1);
+          final triggerChar = currentText[triggerIndex];
           final isTriggerChar = _isCompletionTriggerChar(triggerChar);
           final isAlphaChar = _isAlpha(triggerChar);
 
@@ -583,6 +587,10 @@ class CodeForgeController implements DeltaTextInputClient {
         lspConfig != null &&
         lspConfig!.isInitialized &&
         openedFile != null) {
+      _lspDocumentSyncTimer?.cancel();
+      _lspDocumentSyncTimer = null;
+      _pendingLspContentChanges.clear();
+      _pendingLspFullText = null;
       (() async {
         await _openDocumentInLsp(previousFile: previousFile);
       })();
@@ -1429,9 +1437,11 @@ class CodeForgeController implements DeltaTextInputClient {
   /// ```
   Future<void> fetchDocumentColors() async {
     if (lspConfig == null || openedFile == null) return;
+    final file = openedFile!;
 
     try {
-      final response = await lspConfig!.getDocumentColor(openedFile!);
+      final response = await lspConfig!.getDocumentColor(file);
+      if (_isDisposed || openedFile != file) return;
       final result = response['result'];
 
       if (result is List) {
@@ -1478,13 +1488,15 @@ class CodeForgeController implements DeltaTextInputClient {
   /// ```
   Future<void> fetchDocumentHighlights(int line, int character) async {
     if (lspConfig == null || openedFile == null) return;
+    final file = openedFile!;
 
     try {
       final result = await lspConfig!.getDocumentHighlight(
-        openedFile!,
+        file,
         line,
         character,
       );
+      if (_isDisposed || openedFile != file) return;
 
       if (result.isNotEmpty) {
         _documentHighlights = result
@@ -1533,9 +1545,11 @@ class CodeForgeController implements DeltaTextInputClient {
   /// ```
   Future<void> fetchLSPFoldRanges() async {
     if (lspConfig == null || openedFile == null) return;
+    final file = openedFile!;
 
     try {
-      final response = await lspConfig!.getLSPFoldRanges(openedFile!);
+      final response = await lspConfig!.getLSPFoldRanges(file);
+      if (_isDisposed || openedFile != file) return;
       final result = response['result'];
 
       if (result is List && result.isNotEmpty) {
@@ -2806,7 +2820,7 @@ class CodeForgeController implements DeltaTextInputClient {
 
     final clampedLine = line.clamp(0, lineCount - 1);
     final lineText = getLineText(clampedLine);
-    final clampedChar = character.clamp(0, lineText.length);
+    final clampedChar = character.clamp(0, lineText.runes.length);
     final offset = getLineStartOffset(clampedLine) + clampedChar;
 
     replaceRange(offset, offset, text);
@@ -2876,10 +2890,15 @@ class CodeForgeController implements DeltaTextInputClient {
   }
 
   Map<String, dynamic> _lspPositionForOffset(int offset) {
-    final safeOffset = offset.clamp(0, _rope.length);
+    final safeOffset = offset.clamp(0, length);
     final line = getLineAtOffset(safeOffset);
     final lineStart = getLineStartOffset(line);
-    return {'line': line, 'character': safeOffset - lineStart};
+    final lineText = getLineText(line);
+    final colScalar = (safeOffset - lineStart).clamp(0, lineText.runes.length);
+    return {
+      'line': line,
+      'character': scalarToStringIndex(lineText, colScalar),
+    };
   }
 
   Map<String, dynamic> _lspRangeForOffsets(int start, int end) {
@@ -3114,6 +3133,7 @@ class CodeForgeController implements DeltaTextInputClient {
 
     _applyLingeringSelectionDeletion(replacement);
     _finishImeMirrorUpdate(value);
+    _endImeCompositionUndoGroupIfIdle();
     final composingEnded = _imeComposition == null;
     _suppressImeSync = false;
     if (composingEnded) _syncToConnection();
@@ -3134,6 +3154,7 @@ class CodeForgeController implements DeltaTextInputClient {
     _reconcileCommittedToDocument(value);
     _applyLingeringSelectionDeletion(replacement);
     _finishImeMirrorUpdate(value);
+    _endImeCompositionUndoGroupIfIdle();
     final composingEnded = _imeComposition == null;
     _suppressImeSync = false;
     if (composingEnded) _syncToConnection();
@@ -3510,7 +3531,7 @@ class CodeForgeController implements DeltaTextInputClient {
 
     String charToDelete;
     if (_bufferLineIndex != null && _bufferDirty) {
-      final bufferEnd = _bufferLineRopeStart + _bufferLineText!.length;
+      final bufferEnd = _bufferLineRopeStart + _bufferLineText!.runes.length;
       if (deleteOffset >= _bufferLineRopeStart && deleteOffset < bufferEnd) {
         charToDelete = _bufferLineText![deleteOffset - _bufferLineRopeStart];
       } else {
@@ -3537,7 +3558,7 @@ class CodeForgeController implements DeltaTextInputClient {
     }
 
     if (_bufferLineIndex != null && _bufferDirty) {
-      final bufferEnd = _bufferLineRopeStart + _bufferLineText!.length;
+      final bufferEnd = _bufferLineRopeStart + _bufferLineText!.runes.length;
 
       if (deleteOffset >= _bufferLineRopeStart && deleteOffset < bufferEnd) {
         final localOffset = deleteOffset - _bufferLineRopeStart;
@@ -3699,7 +3720,7 @@ class CodeForgeController implements DeltaTextInputClient {
 
     String charToDelete;
     if (_bufferLineIndex != null && _bufferDirty) {
-      final bufferEnd = _bufferLineRopeStart + _bufferLineText!.length;
+      final bufferEnd = _bufferLineRopeStart + _bufferLineText!.runes.length;
       if (deleteOffset >= _bufferLineRopeStart && deleteOffset < bufferEnd) {
         charToDelete = _bufferLineText![deleteOffset - _bufferLineRopeStart];
       } else {
@@ -3724,7 +3745,7 @@ class CodeForgeController implements DeltaTextInputClient {
     }
 
     if (_bufferLineIndex != null && _bufferDirty) {
-      final bufferEnd = _bufferLineRopeStart + _bufferLineText!.length;
+      final bufferEnd = _bufferLineRopeStart + _bufferLineText!.runes.length;
 
       if (deleteOffset >= _bufferLineRopeStart && deleteOffset < bufferEnd) {
         final localOffset = deleteOffset - _bufferLineRopeStart;
@@ -4588,12 +4609,14 @@ class CodeForgeController implements DeltaTextInputClient {
             final start = e['range']?['start'];
             final end = e['range']?['end'];
             if (start == null || end == null) continue;
-            final startOffset =
-                getLineStartOffset(start['line'] as int) +
-                (start['character'] as int);
-            final endOffset =
-                getLineStartOffset(end['line'] as int) +
-                (end['character'] as int);
+            final startLine = start['line'] as int;
+            final startChar = start['character'] as int;
+            final endLine = end['line'] as int;
+            final endChar = end['character'] as int;
+            final startOffset = getLineStartOffset(startLine) +
+                utf16ToScalarOffset(getLineText(startLine), startChar);
+            final endOffset = getLineStartOffset(endLine) +
+                utf16ToScalarOffset(getLineText(endLine), endChar);
             final newText = e['newText'] as String? ?? '';
             converted.add({
               'start': startOffset,
@@ -4636,12 +4659,14 @@ class CodeForgeController implements DeltaTextInputClient {
                 final start = e['range']?['start'];
                 final end = e['range']?['end'];
                 if (start == null || end == null) continue;
-                final int startOffset =
-                    getLineStartOffset(start['line'] as int) +
-                    (start['character'] as int);
-                final int endOffset =
-                    getLineStartOffset(end['line'] as int) +
-                    (end['character'] as int);
+                final startLine = start['line'] as int;
+                final startChar = start['character'] as int;
+                final endLine = end['line'] as int;
+                final endChar = end['character'] as int;
+                final int startOffset = getLineStartOffset(startLine) +
+                    utf16ToScalarOffset(getLineText(startLine), startChar);
+                final int endOffset = getLineStartOffset(endLine) +
+                    utf16ToScalarOffset(getLineText(endLine), endChar);
                 final String newText = e['newText'] as String? ?? '';
                 converted.add({
                   'start': startOffset,
@@ -4680,12 +4705,14 @@ class CodeForgeController implements DeltaTextInputClient {
           final start = item['range']?['start'];
           final end = item['range']?['end'];
           if (start == null || end == null) return;
-          final startOffset =
-              getLineStartOffset(start['line'] as int) +
-              (start['character'] as int);
-          final endOffset =
-              getLineStartOffset(end['line'] as int) +
-              (end['character'] as int);
+          final startLine = start['line'] as int;
+          final startChar = start['character'] as int;
+          final endLine = end['line'] as int;
+          final endChar = end['character'] as int;
+          final startOffset = getLineStartOffset(startLine) +
+              utf16ToScalarOffset(getLineText(startLine), startChar);
+          final endOffset = getLineStartOffset(endLine) +
+              utf16ToScalarOffset(getLineText(endLine), endChar);
           final newText = item['newText'] as String? ?? '';
           converted.add({
             'start': startOffset,
@@ -4723,7 +4750,9 @@ class CodeForgeController implements DeltaTextInputClient {
       final cursorPosition = selection.extentOffset;
       final line = getLineAtOffset(cursorPosition);
       final lineStartOffset = getLineStartOffset(line);
-      final character = cursorPosition - lineStartOffset;
+      final lineText = getLineText(line);
+      final character =
+          scalarToStringIndex(lineText, cursorPosition - lineStartOffset);
       signatureNotifier.value = await lspConfig!.getSignatureHelp(
         openedFile!,
         line,
@@ -4736,7 +4765,7 @@ class CodeForgeController implements DeltaTextInputClient {
   int _multiCursorToOffset(({int line, int character}) cursor) {
     final clampedLine = cursor.line.clamp(0, lineCount - 1);
     final lineText = getLineText(clampedLine);
-    final clampedChar = cursor.character.clamp(0, lineText.length);
+    final clampedChar = cursor.character.clamp(0, lineText.runes.length);
     return getLineStartOffset(clampedLine) + clampedChar;
   }
 
@@ -5314,9 +5343,38 @@ class CodeForgeController implements DeltaTextInputClient {
       final isSingleNewline = actualInsertedText == '\n';
 
       if (isSingleNewline) {
-        final currentText = text;
-        final textBeforeCursor = currentText.substring(0, offset);
-        final textAfterCursor = currentText.substring(offset);
+        final String textBeforeCursor;
+        final String textAfterCursor;
+        if (_bufferLineIndex != null && _bufferDirty) {
+          final bufferEnd = _bufferLineRopeStart + _bufferLineText!.runes.length;
+          if (offset >= _bufferLineRopeStart && offset <= bufferEnd) {
+            final localOffset = offset - _bufferLineRopeStart;
+            final utf16Local = scalarToStringIndex(
+              _bufferLineText!,
+              localOffset,
+            );
+            final ropeBeforeLine = _rope.substring(0, _bufferLineRopeStart);
+            textBeforeCursor =
+                ropeBeforeLine + _bufferLineText!.substring(0, utf16Local);
+            final ropeAfterLine = _rope.substring(
+              (_bufferLineRopeStart + _bufferLineOriginalLength).clamp(
+                0,
+                _rope.length,
+              ),
+              _rope.length,
+            );
+            textAfterCursor =
+                _bufferLineText!.substring(utf16Local) + ropeAfterLine;
+          } else {
+            final currentText = text;
+            textBeforeCursor = currentText.substring(0, offset);
+            textAfterCursor = currentText.substring(offset);
+          }
+        } else {
+          final currentText = text;
+          textBeforeCursor = currentText.substring(0, offset);
+          textAfterCursor = currentText.substring(offset);
+        }
         final lines = textBeforeCursor.split('\n');
 
         if (lines.isNotEmpty) {
@@ -5382,7 +5440,7 @@ class CodeForgeController implements DeltaTextInputClient {
     if (actualInsertedText.length == 2 &&
         actualInsertedText[0] != actualInsertedText[1]) {
       if (_bufferLineIndex != null && _bufferDirty) {
-        final bufferEnd = _bufferLineRopeStart + _bufferLineText!.length;
+        final bufferEnd = _bufferLineRopeStart + _bufferLineText!.runes.length;
 
         if (offset >= _bufferLineRopeStart && offset <= bufferEnd) {
           final localOffset = offset - _bufferLineRopeStart;
@@ -5452,7 +5510,7 @@ class CodeForgeController implements DeltaTextInputClient {
     }
 
     if (_bufferLineIndex != null && _bufferDirty) {
-      final bufferEnd = _bufferLineRopeStart + _bufferLineText!.length;
+      final bufferEnd = _bufferLineRopeStart + _bufferLineText!.runes.length;
 
       if (offset >= _bufferLineRopeStart && offset <= bufferEnd) {
         final localOffset = offset - _bufferLineRopeStart;
@@ -5464,6 +5522,7 @@ class CodeForgeController implements DeltaTextInputClient {
               _bufferLineText!.substring(utf16Local);
           _selection = actualSelection;
           _currentVersion++;
+          dirtyLine = _bufferLineIndex;
 
           bufferNeedsRepaint = true;
 
@@ -5477,6 +5536,7 @@ class CodeForgeController implements DeltaTextInputClient {
           _invalidateImeSnapshotAndScheduleSync();
 
           _scheduleFlush();
+          notifyListeners();
           return;
         }
       }
@@ -5535,7 +5595,7 @@ class CodeForgeController implements DeltaTextInputClient {
     final deleteLen = range.end - range.start;
 
     if (_bufferLineIndex != null && _bufferDirty) {
-      final bufferEnd = _bufferLineRopeStart + _bufferLineText!.length;
+      final bufferEnd = _bufferLineRopeStart + _bufferLineText!.runes.length;
 
       if (range.start >= _bufferLineRopeStart && range.end <= bufferEnd) {
         final localStart = range.start - _bufferLineRopeStart;

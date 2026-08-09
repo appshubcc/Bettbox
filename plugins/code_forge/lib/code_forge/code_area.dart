@@ -24,6 +24,8 @@ const int kExactWrappedHeightThreshold = 100000;
 const int kWrappedHeightSampleSize = 64;
 const double _kSelectionHandleHitPadding = 20.0;
 const double _kCaretHandleHitPadding = 24.0;
+const double _kMobileHandleDragSlop = 8.0;
+const MethodChannel _hapticsChannel = MethodChannel('code_forge/haptics');
 const String _wordCharPattern =
     r'[\w\u0600-\u06FF\u08A0-\u08FF\u0590-\u05FF'
     r'\u3040-\u309F\u30A0-\u30FF\u3400-\u4DBF\u4E00-\u9FFF\uAC00-\uD7AF\uF900-\uFAFF]';
@@ -365,6 +367,11 @@ class _CodeForgeState extends State<CodeForge> with TickerProviderStateMixin {
   late final VoidCallback _isHoveringPopupListener, _selectedSuggestionListener;
   late final VoidCallback _snippetSuggestionsListener, _snippetNotifierListener;
   late bool _readOnly;
+  late final bool _ownsController;
+  late final bool _ownsFindController;
+  late final bool _ownsUndoRedoController;
+  late final bool _ownsHorizontalScrollController;
+  late final bool _ownsVerticalScrollController;
   final ValueNotifier<Offset> _offsetNotifier = ValueNotifier(Offset(0, 0));
   final ValueNotifier<Offset?> _lspActionOffsetNotifier = ValueNotifier(null);
   final ValueNotifier<int> _scrollbarLineNumberIndicator = ValueNotifier(1);
@@ -390,6 +397,7 @@ class _CodeForgeState extends State<CodeForge> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
+    _ownsController = widget.controller == null;
     _controller = widget.controller ?? CodeForgeController();
 
     _controller.getFloatingCursorStartPosition = () {
@@ -409,11 +417,14 @@ class _CodeForgeState extends State<CodeForge> with TickerProviderStateMixin {
     };
 
     _findController = widget.findController ?? FindController(_controller);
+    _ownsFindController = widget.findController == null;
     _controller.focusNode = widget.focusNode ?? FocusNode();
     _focusNode = _controller.focusNode!;
     _hscrollController =
         widget.horizontalScrollController ?? ScrollController();
     _vscrollController = widget.verticalScrollController ?? ScrollController();
+    _ownsHorizontalScrollController = widget.horizontalScrollController == null;
+    _ownsVerticalScrollController = widget.verticalScrollController == null;
     _editorTheme = widget.editorTheme ?? lightfairTheme;
     _language = widget.language ?? Mode();
     _suggestionNotifier = _controller.suggestionsNotifier;
@@ -431,6 +442,7 @@ class _CodeForgeState extends State<CodeForge> with TickerProviderStateMixin {
     _controller.userCodeAction = _fetchCodeActionsForCurrentPosition;
     _selectionStyle = widget.selectionStyle ?? CodeSelectionStyle();
     _undoRedoController = widget.undoController ?? UndoRedoController();
+    _ownsUndoRedoController = widget.undoController == null;
     _filePath = widget.filePath;
     _readOnly = widget.readOnly;
     _deleteFoldRangeOnDeletingFirstLine =
@@ -595,6 +607,7 @@ class _CodeForgeState extends State<CodeForge> with TickerProviderStateMixin {
           _controller.connection = _connection;
         }
         if (!_isMobile) _connection!.show();
+        _controller.clearMultiCursors();
         _connection!.setEditingState(
           _controller.currentTextEditingValue ??
               TextEditingValue(
@@ -777,7 +790,7 @@ class _CodeForgeState extends State<CodeForge> with TickerProviderStateMixin {
       _updateScrollbarLineNumberIndicator();
       if (widget.autoFocus) {
         _focusNode.requestFocus();
-      } else {
+      } else if (!_isMobile) {
         _connection = _attachImeConnection();
 
         _connection!.setEditingState(
@@ -994,6 +1007,8 @@ class _CodeForgeState extends State<CodeForge> with TickerProviderStateMixin {
         );
       }
 
+      if (!mounted) return;
+
       if (diagnosticMessage.isEmpty && hoverMessage.isEmpty) {
         _hoverNotifier.value = null;
         _hoverContentNotifier.value = null;
@@ -1072,6 +1087,11 @@ class _CodeForgeState extends State<CodeForge> with TickerProviderStateMixin {
     _hoverTimer?.cancel();
     _hoverRequestTimer?.cancel();
     _semanticTokenTimer?.cancel();
+    if (_ownsFindController) _findController.dispose();
+    if (_ownsUndoRedoController) _undoRedoController.dispose();
+    if (_ownsHorizontalScrollController) _hscrollController.dispose();
+    if (_ownsVerticalScrollController) _vscrollController.dispose();
+    if (_ownsController) _controller.dispose();
     super.dispose();
   }
 
@@ -4582,6 +4602,7 @@ class _CodeFieldRenderer extends RenderBox implements MouseTrackerAnnotation {
   bool _longPressSelected = false;
   bool _draggingStartHandle = false, _draggingEndHandle = false;
   bool _showBubble = false, _draggingCHandle = false, _readOnly;
+  int? _lastHandleHapticOffset;
   bool _openedLspActionFromBulbTap = false;
   bool _isGutterPointer = false;
   bool _isDeferringLayout = false, _hasCachedHeight = false;
@@ -6696,14 +6717,18 @@ class _CodeFieldRenderer extends RenderBox implements MouseTrackerAnnotation {
       if (snapBack) {
         // step back until we're not a low surrogate
         int i = index - 1;
-        while (i > 0 && s.codeUnitAt(i) >= 0xDC00 && s.codeUnitAt(i) <= 0xDFFF) {
+        while (i > 0 &&
+            s.codeUnitAt(i) >= 0xDC00 &&
+            s.codeUnitAt(i) <= 0xDFFF) {
           i--;
         }
         return i;
       } else {
         // step forward until we're not a low surrogate
         int i = index + 1;
-        while (i < len && s.codeUnitAt(i) >= 0xDC00 && s.codeUnitAt(i) <= 0xDFFF) {
+        while (i < len &&
+            s.codeUnitAt(i) >= 0xDC00 &&
+            s.codeUnitAt(i) <= 0xDFFF) {
           i++;
         }
         return i;
@@ -8304,8 +8329,16 @@ class _CodeFieldRenderer extends RenderBox implements MouseTrackerAnnotation {
             final previewEnd = (utf16Caret + 10).clamp(0, lineText.length);
             final rawPreviewStart = max(0, previewStart - 10);
             final rawPreviewEnd = min(lineText.length, previewEnd);
-            final safeStart = _safeUtf16Bound(lineText, rawPreviewStart, snapBack: true);
-            final safeEnd = _safeUtf16Bound(lineText, rawPreviewEnd, snapBack: false);
+            final safeStart = _safeUtf16Bound(
+              lineText,
+              rawPreviewStart,
+              snapBack: true,
+            );
+            final safeEnd = _safeUtf16Bound(
+              lineText,
+              rawPreviewEnd,
+              snapBack: false,
+            );
             final previewText = lineText.substring(safeStart, safeEnd);
 
             ui.Paragraph zoomParagraph;
@@ -8337,24 +8370,33 @@ class _CodeFieldRenderer extends RenderBox implements MouseTrackerAnnotation {
               size.width * 0.6,
             );
             final zoomBoxHeight = zoomParagraph.height + 12;
-            final localCaretIndex = (utf16Caret - safeStart).clamp(0, previewText.length);
-            
+            final localCaretIndex = (utf16Caret - safeStart).clamp(
+              0,
+              previewText.length,
+            );
+
             double caretDx = 0.0;
             if (localCaretIndex < previewText.length) {
-              final boxes = zoomParagraph.getBoxesForRange(localCaretIndex, localCaretIndex + 1);
+              final boxes = zoomParagraph.getBoxesForRange(
+                localCaretIndex,
+                localCaretIndex + 1,
+              );
               if (boxes.isNotEmpty) {
                 caretDx = boxes.first.left;
               }
             }
             if (caretDx == 0.0 && localCaretIndex > 0) {
-              final prevBoxes = zoomParagraph.getBoxesForRange(localCaretIndex - 1, localCaretIndex);
+              final prevBoxes = zoomParagraph.getBoxesForRange(
+                localCaretIndex - 1,
+                localCaretIndex,
+              );
               if (prevBoxes.isNotEmpty) {
                 caretDx = prevBoxes.last.right;
               }
             }
 
             final double paragraphX = handleX - caretDx;
-            final double idealZoomBoxX = isRTL 
+            final double idealZoomBoxX = isRTL
                 ? paragraphX + 10000.0 + 8.0 - zoomBoxWidth
                 : paragraphX - 8.0;
 
@@ -8400,7 +8442,7 @@ class _CodeFieldRenderer extends RenderBox implements MouseTrackerAnnotation {
 
             canvas.save();
             canvas.clipRect(rrect.outerRect);
-            
+
             canvas.drawParagraph(
               zoomParagraph,
               Offset(paragraphX, zoomBoxY + 6),
@@ -8439,7 +8481,6 @@ class _CodeFieldRenderer extends RenderBox implements MouseTrackerAnnotation {
         if (_endHandleRect != null) {
           canvas.drawRRect(rightRect, handlePaint);
         }
-
       }
     }
 
@@ -11530,21 +11571,27 @@ class _CodeFieldRenderer extends RenderBox implements MouseTrackerAnnotation {
             final endLine = editRange['end']['line'] as int;
             final endChar = editRange['end']['character'] as int;
 
-            final startOffset =
-                controller.getLineStartOffset(startLine) + startChar;
-            final endOffset = controller.getLineStartOffset(endLine) + endChar;
+            final startOffset = controller.getLineStartOffset(startLine) +
+                CodeForgeController.utf16ToScalarOffset(
+                    controller.getLineText(startLine), startChar);
+            final endOffset = controller.getLineStartOffset(endLine) +
+                CodeForgeController.utf16ToScalarOffset(
+                    controller.getLineText(endLine), endChar);
 
             controller.replaceRange(startOffset, endOffset, newText);
           }
         } else {
           final label = presentation['label'] as String?;
           if (label != null) {
+            final lineText = controller.getLineText(docColor.line);
             final startOffset =
                 controller.getLineStartOffset(docColor.line) +
-                docColor.startColumn;
+                CodeForgeController.utf16ToScalarOffset(
+                    lineText, docColor.startColumn);
             final endOffset =
                 controller.getLineStartOffset(docColor.line) +
-                docColor.endColumn;
+                CodeForgeController.utf16ToScalarOffset(
+                    lineText, docColor.endColumn);
 
             controller.replaceRange(startOffset, endOffset, label);
           }
@@ -11603,6 +11650,32 @@ class _CodeFieldRenderer extends RenderBox implements MouseTrackerAnnotation {
   @override
   bool hitTestSelf(Offset position) => true;
 
+  Future<void> _hapticHandleMove() async {
+    if (!Platform.isAndroid && !Platform.isIOS) return;
+    if (Platform.isAndroid) {
+      try {
+        await _hapticsChannel.invokeMethod('handleMove');
+      } catch (_) {
+        HapticFeedback.selectionClick();
+      }
+    } else {
+      HapticFeedback.selectionClick();
+    }
+  }
+
+  Future<void> _hapticLongPress() async {
+    if (!Platform.isAndroid && !Platform.isIOS) return;
+    if (Platform.isAndroid) {
+      try {
+        await _hapticsChannel.invokeMethod('longPress');
+      } catch (_) {
+        HapticFeedback.heavyImpact();
+      }
+    } else {
+      HapticFeedback.mediumImpact();
+    }
+  }
+
   @override
   void handleEvent(PointerEvent event, covariant BoxHitTestEntry entry) {
     final localPosition = event.localPosition;
@@ -11650,6 +11723,7 @@ class _CodeFieldRenderer extends RenderBox implements MouseTrackerAnnotation {
       _draggingStartHandle = false;
       _draggingEndHandle = false;
       _draggingCHandle = false;
+      _lastHandleHapticOffset = null;
       _isDragging = false;
       _longPressSelected = false;
       _cachedMagnifiedParagraph = null;
@@ -11734,6 +11808,7 @@ class _CodeFieldRenderer extends RenderBox implements MouseTrackerAnnotation {
         _draggingCHandle = false;
         _draggingStartHandle = false;
         _draggingEndHandle = false;
+        _lastHandleHapticOffset = null;
 
         _dtap.onDoubleTap = () {
           final freshOffset = _getTextOffsetFromPosition(contentPosition);
@@ -11776,6 +11851,7 @@ class _CodeFieldRenderer extends RenderBox implements MouseTrackerAnnotation {
             _selectionActive = selectionActiveNotifier.value = true;
             _pointerDownPosition = localPosition;
             _dragStartOffset = controller.selection.end;
+            _onetap.onTap = null;
             markNeedsPaint();
             return;
           }
@@ -11784,6 +11860,7 @@ class _CodeFieldRenderer extends RenderBox implements MouseTrackerAnnotation {
             _selectionActive = selectionActiveNotifier.value = true;
             _pointerDownPosition = localPosition;
             _dragStartOffset = controller.selection.start;
+            _onetap.onTap = null;
             markNeedsPaint();
             return;
           }
@@ -11792,9 +11869,9 @@ class _CodeFieldRenderer extends RenderBox implements MouseTrackerAnnotation {
           if (expandedHandle.contains(localPosition)) {
             _draggingCHandle = true;
             _selectionActive = selectionActiveNotifier.value = true;
-            _dragStartOffset = textOffset;
-            controller.selection = TextSelection.collapsed(offset: textOffset);
+            _dragStartOffset = controller.selection.extentOffset;
             _pointerDownPosition = localPosition;
+            _onetap.onTap = null;
             return;
           }
         }
@@ -11812,7 +11889,7 @@ class _CodeFieldRenderer extends RenderBox implements MouseTrackerAnnotation {
           final freshPos = contentPosition;
           final freshOffset = _getTextOffsetFromPosition(freshPos);
           _selectWordAtOffset(freshOffset);
-          HapticFeedback.selectionClick();
+          unawaited(_hapticLongPress());
           _longPressSelected = true;
           WidgetsBinding.instance.addPostFrameCallback((_) {
             contextMenuOffsetNotifier.value = localPosition;
@@ -11901,7 +11978,12 @@ class _CodeFieldRenderer extends RenderBox implements MouseTrackerAnnotation {
       if (isMobile) {
         if (_draggingCHandle) {
           final handleRadius = (_lineHeight / 2).clamp(6.0, 12.0);
-          final handleOffset = (_lineHeight / 2) + handleRadius;
+          final handleOffset = _lineHeight + handleRadius;
+          if ((localPosition - (_pointerDownPosition ?? localPosition))
+                  .distance <
+              _kMobileHandleDragSlop) {
+            return;
+          }
           final adjustedContentPosition = Offset(
             contentPosition.dx,
             contentPosition.dy - handleOffset,
@@ -11913,13 +11995,23 @@ class _CodeFieldRenderer extends RenderBox implements MouseTrackerAnnotation {
             offset: adjustedTextOffset,
           );
           _showBubble = true;
+          if (adjustedTextOffset != _lastHandleHapticOffset) {
+            _lastHandleHapticOffset = adjustedTextOffset;
+            unawaited(_hapticHandleMove());
+          }
           markNeedsLayout();
           markNeedsPaint();
           return;
         }
 
         if (_draggingStartHandle || _draggingEndHandle) {
-          final handleOffset = _lineHeight;
+          final handleRadius = (_lineHeight / 2).clamp(6.0, 12.0);
+          final handleOffset = _lineHeight + handleRadius;
+          if ((localPosition - (_pointerDownPosition ?? localPosition))
+                  .distance <
+              _kMobileHandleDragSlop) {
+            return;
+          }
           final adjustedContentPosition = Offset(
             contentPosition.dx,
             contentPosition.dy - handleOffset,
@@ -11927,27 +12019,30 @@ class _CodeFieldRenderer extends RenderBox implements MouseTrackerAnnotation {
           final adjustedTextOffset = _getTextOffsetFromPosition(
             adjustedContentPosition,
           );
-          final base = controller.selection.start;
-          final extent = controller.selection.end;
+          final anchor = _dragStartOffset!;
 
           if (_draggingStartHandle) {
             controller.selection = TextSelection(
               baseOffset: adjustedTextOffset,
-              extentOffset: extent,
+              extentOffset: anchor,
             );
-            if (adjustedTextOffset > extent) {
+            if (adjustedTextOffset > anchor) {
               _draggingStartHandle = false;
               _draggingEndHandle = true;
             }
           } else {
             controller.selection = TextSelection(
-              baseOffset: base,
+              baseOffset: anchor,
               extentOffset: adjustedTextOffset,
             );
-            if (adjustedTextOffset < base) {
+            if (adjustedTextOffset < anchor) {
               _draggingEndHandle = false;
               _draggingStartHandle = true;
             }
+          }
+          if (adjustedTextOffset != _lastHandleHapticOffset) {
+            _lastHandleHapticOffset = adjustedTextOffset;
+            unawaited(_hapticHandleMove());
           }
           markNeedsLayout();
           markNeedsPaint();
@@ -12015,6 +12110,7 @@ class _CodeFieldRenderer extends RenderBox implements MouseTrackerAnnotation {
         _draggingStartHandle = false;
         _draggingEndHandle = false;
         _draggingCHandle = false;
+        _lastHandleHapticOffset = null;
         _pointerDownPosition = null;
         _dragStartOffset = null;
         _isDragging = false;
@@ -12038,6 +12134,7 @@ class _CodeFieldRenderer extends RenderBox implements MouseTrackerAnnotation {
       _draggingStartHandle = false;
       _draggingEndHandle = false;
       _draggingCHandle = false;
+      _lastHandleHapticOffset = null;
       _pointerDownPosition = null;
       _dragStartOffset = null;
       _selectionTimer?.cancel();
@@ -12119,11 +12216,18 @@ class _CodeFieldRenderer extends RenderBox implements MouseTrackerAnnotation {
     if (offset < 0) return {'line': 0, 'character': 0};
     if (offset >= controller.length) {
       final last = controller.lineCount - 1;
-      return {'line': last, 'character': controller.getLineText(last).length};
+      final lastLineText = controller.getLineText(last);
+      return {'line': last, 'character': lastLineText.length};
     }
     final line = controller.getLineAtOffset(offset);
     final startOffset = controller.getLineStartOffset(line);
-    return {'line': line, 'character': offset - startOffset};
+    final lineText = controller.getLineText(line);
+    final colScalar = (offset - startOffset).clamp(0, lineText.runes.length);
+    return {
+      'line': line,
+      'character':
+          CodeForgeController.scalarToStringIndex(lineText, colScalar),
+    };
   }
 
   @override

@@ -9,6 +9,7 @@ import 'package:bett_box/widgets/widgets.dart';
 import 'package:code_forge/code_forge.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:re_highlight/languages/javascript.dart';
 import 'package:re_highlight/languages/yaml.dart';
@@ -138,6 +139,17 @@ class _EditorPageState extends ConsumerState<EditorPage> {
   void _handleReplace() {
     _findController.isReplaceMode = true;
     _findController.isActive = true;
+  }
+
+  void _handleSave(BuildContext context) {
+    if (widget.onSave == null) return;
+    if (widget.readOnly || widget.simple) return;
+    if (_isLoading) return;
+    if (_controller.text == widget.content &&
+        _titleController.text == widget.title) {
+      return;
+    }
+    widget.onSave!(context, _titleController.text, _controller.text);
   }
 
   void _setBusy(bool value) {
@@ -281,114 +293,127 @@ class _EditorPageState extends ConsumerState<EditorPage> {
         }
         return false;
       },
-      child: AbsorbPointer(
-        absorbing: _isBusy || _isLoading,
-        child: CommonScaffold(
-          appBar: AppBar(
-            title: TextField(
-              enabled: widget.titleEditable && !readOnly,
-              controller: _titleController,
-              decoration: InputDecoration(
-                border: _NoInputBorder(),
-                hintText: appLocalizations.unnamed,
+      child: CallbackShortcuts(
+        bindings: readOnly
+            ? const {}
+            : {
+                const SingleActivator(
+                  LogicalKeyboardKey.keyS,
+                  control: true,
+                ): () =>
+                    _handleSave(context),
+                const SingleActivator(
+                  LogicalKeyboardKey.keyS,
+                  meta: true,
+                ): () =>
+                    _handleSave(context),
+              },
+        child: AbsorbPointer(
+          absorbing: _isBusy || _isLoading,
+          child: CommonScaffold(
+            appBar: AppBar(
+              title: TextField(
+                enabled: widget.titleEditable && !readOnly,
+                controller: _titleController,
+                decoration: InputDecoration(
+                  border: _NoInputBorder(),
+                  hintText: appLocalizations.unnamed,
+                ),
+                style: context.textTheme.titleLarge,
+                autofocus: false,
               ),
-              style: context.textTheme.titleLarge,
-              autofocus: false,
+              actions: genActions([
+                if (widget.onSave != null && !readOnly)
+                  _wrapTitleController(
+                    () => IconButton(
+                      onPressed:
+                          !_isLoading &&
+                              (_controller.text != widget.content ||
+                                  _titleController.text != widget.title)
+                          ? () => _handleSave(context)
+                          : null,
+                      icon: const Icon(Icons.save_sharp),
+                    ),
+                  ),
+                if (widget.supportRemoteDownload && !readOnly)
+                  IconButton(
+                    onPressed: _isLoading ? null : _handleImport,
+                    icon: const Icon(Icons.arrow_downward),
+                  ),
+                ListenableBuilder(
+                  listenable: _undoController,
+                  builder: (_, _) => CommonPopupBox(
+                    targetBuilder: (open) {
+                      return IconButton(
+                        onPressed: _isLoading
+                            ? null
+                            : () {
+                                open(offset: const Offset(-20, 20));
+                              },
+                        icon: const Icon(Icons.more_vert),
+                      );
+                    },
+                    popup: CommonPopupMenu(items: menuItems),
+                  ),
+                ),
+              ]),
             ),
-            actions: genActions([
-              if (widget.onSave != null && !readOnly)
-                _wrapTitleController(
-                  () => IconButton(
-                    onPressed:
-                        !_isLoading &&
-                                (_controller.text != widget.content ||
-                                    _titleController.text != widget.title)
-                            ? () {
-                                widget.onSave!(
-                                  context,
-                                  _titleController.text,
-                                  _controller.text,
-                                );
-                              }
-                            : null,
-                    icon: const Icon(Icons.save_sharp),
-                  ),
-                ),
-              if (widget.supportRemoteDownload && !readOnly)
-                IconButton(
-                  onPressed: _isLoading ? null : _handleImport,
-                  icon: const Icon(Icons.arrow_downward),
-                ),
-              ListenableBuilder(
-                listenable: _undoController,
-                builder: (_, _) => CommonPopupBox(
-                  targetBuilder: (open) {
-                    return IconButton(
-                      onPressed: _isLoading
-                          ? null
-                          : () {
-                              open(offset: const Offset(-20, 20));
-                            },
-                      icon: const Icon(Icons.more_vert),
-                    );
-                  },
-                  popup: CommonPopupMenu(items: menuItems),
-                ),
-              ),
-            ]),
-          ),
-          body: Stack(
-            children: [
-              if (!_isLoading)
-                RepaintBoundary(
-                  child: CodeForge(
-                    controller: _controller,
-                    focusNode: _focusNode,
-                    findController: _findController,
-                    undoController: _undoController,
-                    readOnly: readOnly,
-                    lineWrap: _lineWrap,
-                    enableFolding: !widget.simple && !_disableSyntaxHighlight,
-                    enableGuideLines: !widget.simple && !_disableSyntaxHighlight,
-                    enableGutter: true,
-                    enableGutterDivider: false,
-                    enableLocalSuggestions: false,
-                    enableKeyboardSuggestions: false,
-                    enableMagnifier: true,
-                    language: _languageMode(),
-                    editorTheme: brightness == Brightness.dark
-                        ? atomOneDarkTheme
-                        : atomOneLightTheme,
-                    textStyle: TextStyle(
-                      fontFamily: FontFamily.jetBrainsMono.value,
-                      fontSize: context.textTheme.bodyLarge?.fontSize?.ap,
-                    ),
-                    innerPadding: const EdgeInsets.only(right: 16),
-                    finderBuilder: (context, controller) => FindPanel(
-                      controller: controller,
+            body: Stack(
+              children: [
+                if (!_isLoading)
+                  RepaintBoundary(
+                    child: CodeForge(
+                      controller: _controller,
+                      focusNode: _focusNode,
+                      findController: _findController,
+                      undoController: _undoController,
                       readOnly: readOnly,
-                      isMobileView: isMobileView,
-                    ),
-                    scrollbarDecoration: ScrollbarDecoration(
-                      showLineNumberIndicator: false,
-                      thumbVisibility: false,
-                      thickness: 8,
-                      thumbColor: context.colorScheme.onSurface.withAlpha(100),
-                    ),
-                  ),
-                ),
-              if (_isBusy || _isLoading)
-                Positioned.fill(
-                  child: Container(
-                    color: context.colorScheme.surface.withAlpha(200),
-                    child: Center(
-                      child: CircularProgressIndicator(
-                        color: context.colorScheme.primary,
+                      lineWrap: _lineWrap,
+                      enableFolding: !widget.simple && !_disableSyntaxHighlight,
+                      enableGuideLines:
+                          !widget.simple && !_disableSyntaxHighlight,
+                      enableGutter: true,
+                      enableGutterDivider: false,
+                      enableLocalSuggestions: false,
+                      enableKeyboardSuggestions: false,
+                      enableMagnifier: true,
+                      language: _languageMode(),
+                      editorTheme: brightness == Brightness.dark
+                          ? atomOneDarkTheme
+                          : atomOneLightTheme,
+                      textStyle: TextStyle(
+                        fontFamily: FontFamily.jetBrainsMono.value,
+                        fontSize: context.textTheme.bodyLarge?.fontSize?.ap,
+                      ),
+                      innerPadding: const EdgeInsets.only(right: 16),
+                      finderBuilder: (context, controller) => FindPanel(
+                        controller: controller,
+                        readOnly: readOnly,
+                        isMobileView: isMobileView,
+                      ),
+                      scrollbarDecoration: ScrollbarDecoration(
+                        showLineNumberIndicator: false,
+                        thumbVisibility: false,
+                        thickness: 8,
+                        thumbColor: context.colorScheme.onSurface.withAlpha(
+                          100,
+                        ),
                       ),
                     ),
                   ),
-                ),
-            ],
+                if (_isBusy || _isLoading)
+                  Positioned.fill(
+                    child: Container(
+                      color: context.colorScheme.surface.withAlpha(200),
+                      child: Center(
+                        child: CircularProgressIndicator(
+                          color: context.colorScheme.primary,
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
           ),
         ),
       ),
@@ -471,8 +496,8 @@ class FindPanel extends StatelessWidget implements PreferredSizeWidget {
     final resultText = controller.matchCount == 0
         ? appLocalizations.none
         : controller.hasMoreMatches
-            ? '${controller.currentMatchIndex + 1}/1000+'
-            : '${controller.currentMatchIndex + 1}/${controller.matchCount}';
+        ? '${controller.currentMatchIndex + 1}/1000+'
+        : '${controller.currentMatchIndex + 1}/${controller.matchCount}';
 
     final topBar = SizedBox(
       height: 36,
@@ -616,8 +641,9 @@ class FindPanel extends StatelessWidget implements PreferredSizeWidget {
             tooltip: appLocalizations.replace,
           ),
           _buildIconButton(
-            onPressed:
-                controller.matchCount == 0 ? null : controller.replaceAll,
+            onPressed: controller.matchCount == 0
+                ? null
+                : controller.replaceAll,
             icon: Icons.published_with_changes,
             tooltip: appLocalizations.replaceAll,
           ),
@@ -727,13 +753,12 @@ class FindPanel extends StatelessWidget implements PreferredSizeWidget {
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(8),
-            borderSide: BorderSide(
-              color: colorScheme.primary,
-              width: 1.5,
-            ),
+            borderSide: BorderSide(color: colorScheme.primary, width: 1.5),
           ),
-          contentPadding:
-              const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 10,
+            vertical: 8,
+          ),
           hintText: hintText,
           hintStyle: context.textTheme.bodyMedium?.copyWith(
             color: colorScheme.onSurfaceVariant.withAlpha(120),

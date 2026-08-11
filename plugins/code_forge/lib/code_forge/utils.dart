@@ -309,6 +309,14 @@ class CodeForgeKeyboardShortcuts {
   /// Creates mutlicursor to the same column and upward rows/lines.
   final ShortcutActivator extendMutliCursorUpward;
 
+  /// Toggle line comment on selected lines or current line.
+  /// Defaults to `Ctrl + /`
+  final ShortcutActivator toggleComment;
+
+  /// Toggle block comment on selected lines or current selection (VS Code style Shift + Alt + A / Ctrl + Shift + /).
+  /// Defaults to `Shift + Alt + A`
+  final ShortcutActivator toggleBlockComment;
+
   const CodeForgeKeyboardShortcuts({
     this.duplicate = const SingleActivator(
       LogicalKeyboardKey.keyD,
@@ -419,6 +427,15 @@ class CodeForgeKeyboardShortcuts {
       alt: true,
       shift: true,
     ),
+    this.toggleComment = const SingleActivator(
+      LogicalKeyboardKey.slash,
+      control: true,
+    ),
+    this.toggleBlockComment = const SingleActivator(
+      LogicalKeyboardKey.keyA,
+      alt: true,
+      shift: true,
+    ),
   });
 }
 
@@ -441,4 +458,3 @@ class CustomContextMenu {
     required this.onPress,
   });
 }
-

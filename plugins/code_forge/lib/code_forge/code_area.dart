@@ -1857,6 +1857,57 @@ class _CodeForgeState extends State<CodeForge> with TickerProviderStateMixin {
                                                   return KeyEventResult.handled;
                                                 }
 
+                                                final isCmdOrCtrl =
+                                                    HardwareKeyboard
+                                                        .instance
+                                                        .isControlPressed ||
+                                                    HardwareKeyboard
+                                                        .instance
+                                                        .isMetaPressed;
+                                                final isShiftPressed =
+                                                    HardwareKeyboard
+                                                        .instance
+                                                        .isShiftPressed;
+
+                                                if (shrtCt.toggleComment
+                                                        .accepts(
+                                                          event,
+                                                          HardwareKeyboard
+                                                              .instance,
+                                                        ) ||
+                                                    (event is KeyDownEvent &&
+                                                        isCmdOrCtrl &&
+                                                        !isShiftPressed &&
+                                                        event.logicalKey ==
+                                                            LogicalKeyboardKey
+                                                                .slash)) {
+                                                  if (!_readOnly) {
+                                                    _controller.toggleComment();
+                                                    _commonKeyFunctions();
+                                                  }
+                                                  return KeyEventResult.handled;
+                                                }
+
+                                                if (shrtCt.toggleBlockComment
+                                                        .accepts(
+                                                          event,
+                                                          HardwareKeyboard
+                                                              .instance,
+                                                        ) ||
+                                                    (event is KeyDownEvent &&
+                                                        isCmdOrCtrl &&
+                                                        isShiftPressed &&
+                                                        event.logicalKey ==
+                                                            LogicalKeyboardKey
+                                                                .slash)) {
+                                                  if (!_readOnly) {
+                                                    _controller
+                                                        .toggleBlockComment();
+                                                    _commonKeyFunctions();
+                                                  }
+                                                  return KeyEventResult.handled;
+                                                }
+
                                                 if (shrtCt.deletWordBackward
                                                     .accepts(
                                                       event,
@@ -12032,7 +12083,6 @@ class _CodeFieldRenderer extends RenderBox implements MouseTrackerAnnotation {
             _lastHandleHapticOffset = adjustedTextOffset;
             unawaited(_hapticHandleMove());
           }
-          markNeedsLayout();
           markNeedsPaint();
           return;
         }
@@ -12077,7 +12127,6 @@ class _CodeFieldRenderer extends RenderBox implements MouseTrackerAnnotation {
             _lastHandleHapticOffset = adjustedTextOffset;
             unawaited(_hapticHandleMove());
           }
-          markNeedsLayout();
           markNeedsPaint();
           return;
         }

@@ -396,11 +396,15 @@ class CodeForgeController implements DeltaTextInputClient {
           final lineStartOffset = getLineStartOffset(line);
           if (cursorPosition - 1 >= currentText.length) return;
           final lineText = getLineText(line);
-          final character =
-              scalarToStringIndex(lineText, cursorPosition - lineStartOffset);
+          final character = scalarToStringIndex(
+            lineText,
+            cursorPosition - lineStartOffset,
+          );
           final prefix = getCurrentWordPrefix(currentText, cursorPosition);
-          final triggerIndex =
-              scalarToStringIndex(currentText, cursorPosition - 1);
+          final triggerIndex = scalarToStringIndex(
+            currentText,
+            cursorPosition - 1,
+          );
           final triggerChar = currentText[triggerIndex];
           final isTriggerChar = _isCompletionTriggerChar(triggerChar);
           final isAlphaChar = _isAlpha(triggerChar);
@@ -882,7 +886,10 @@ class CodeForgeController implements DeltaTextInputClient {
       final cursorLine = cursor.line.clamp(0, lineCount - 1);
       if (cursorLine >= lineCount - 1) {
         final lastLineText = getLineText(lineCount - 1);
-        updated.add((line: lineCount - 1, character: lastLineText.runes.length));
+        updated.add((
+          line: lineCount - 1,
+          character: lastLineText.runes.length,
+        ));
         continue;
       }
       final foldAtCurrent = getFoldRangeAtCurrentLine(cursorLine);
@@ -903,7 +910,10 @@ class CodeForgeController implements DeltaTextInputClient {
       }
       if (targetLine >= lineCount) {
         final lastLineText = getLineText(lineCount - 1);
-        updated.add((line: lineCount - 1, character: lastLineText.runes.length));
+        updated.add((
+          line: lineCount - 1,
+          character: lastLineText.runes.length,
+        ));
         continue;
       }
       final nextLineText = getLineText(targetLine);
@@ -2631,6 +2641,266 @@ class CodeForgeController implements DeltaTextInputClient {
       replaceRange(lineEnd, lineEnd, '\n$lineText');
       setSelectionSilently(TextSelection.collapsed(offset: lineEnd + 1));
     }
+  }
+
+  /// Toggles line comment on selected lines or current line (VS Code style Ctrl + /).
+  ///
+  /// Automatically adapts between `# ` (YAML) and `// ` (JS) based on language id or file extension.
+  bool get _isJsLikeFile {
+    final id = lspConfig?.languageId.toLowerCase().trim();
+    if (id != null) {
+      return id == 'javascript' ||
+          id == 'js' ||
+          id == 'typescript' ||
+          id == 'ts' ||
+          id == 'tsx' ||
+          id == 'jsx';
+    }
+    final f = openedFile?.toLowerCase() ?? '';
+    return f.endsWith('.js') ||
+        f.endsWith('.mjs') ||
+        f.endsWith('.cjs') ||
+        f.endsWith('.ts') ||
+        f.endsWith('.tsx') ||
+        f.endsWith('.jsx');
+  }
+
+  void toggleComment({String? commentPrefix}) {
+    if (readOnly) return;
+    _flushBuffer();
+
+    final compound = _undoController?.beginCompoundOperation();
+
+    final targetLines = <int>{};
+
+    final selStart = selection.start.clamp(0, _rope.length);
+    final selEnd = selection.end.clamp(0, _rope.length);
+    int pStartLine = getLineAtOffset(selStart);
+    int pEndLine = getLineAtOffset(selEnd);
+    if (selEnd > selStart &&
+        pEndLine > pStartLine &&
+        selEnd == getLineStartOffset(pEndLine)) {
+      pEndLine--;
+    }
+    for (int l = pStartLine; l <= pEndLine; l++) {
+      targetLines.add(l);
+    }
+
+    for (final cursor in _multiCursors) {
+      final l = cursor.line.clamp(0, lineCount - 1);
+      targetLines.add(l);
+    }
+
+    final sortedLines = targetLines.toList()..sort();
+    if (sortedLines.isEmpty) {
+      compound?.end();
+      return;
+    }
+
+    final isJs = _isJsLikeFile;
+    bool allCommented = true;
+    int nonEmptyCount = 0;
+
+    for (final lineIdx in sortedLines) {
+      final lineText = getLineText(lineIdx);
+      final trimmed = lineText.trimLeft();
+      if (trimmed.isEmpty) continue;
+      nonEmptyCount++;
+
+      if (!trimmed.startsWith('#') && !trimmed.startsWith('//')) {
+        allCommented = false;
+      }
+    }
+
+    if (nonEmptyCount == 0) {
+      allCommented = false;
+    }
+
+    final String effectivePrefix = commentPrefix ?? (isJs ? '// ' : '# ');
+
+    int primaryStartShift = 0;
+    int primaryEndShift = 0;
+
+    final isReversedSelection = selection.extentOffset < selection.baseOffset;
+    final primarySelMin = selStart;
+    final primarySelMax = selEnd;
+
+    for (final lineIdx in sortedLines.reversed) {
+      final lineStart = getLineStartOffset(lineIdx);
+      final lineText = getLineText(lineIdx);
+
+      final leadingLen = lineText.length - lineText.trimLeft().length;
+
+      if (allCommented) {
+        final afterSpace = lineText.substring(leadingLen);
+        String? prefixToRemove;
+        if (afterSpace.startsWith('// ')) {
+          prefixToRemove = '// ';
+        } else if (afterSpace.startsWith('//')) {
+          prefixToRemove = '//';
+        } else if (afterSpace.startsWith('# ')) {
+          prefixToRemove = '# ';
+        } else if (afterSpace.startsWith('#')) {
+          prefixToRemove = '#';
+        }
+
+        if (prefixToRemove != null) {
+          final removeStart = lineStart + leadingLen;
+          final removeEnd = removeStart + prefixToRemove.length;
+          final pLen = prefixToRemove.length;
+          replaceRange(removeStart, removeEnd, '', preserveOldCursor: true);
+
+          if (lineIdx == pStartLine && primarySelMin > removeStart) {
+            primaryStartShift -= pLen.clamp(0, primarySelMin - removeStart);
+          } else if (lineIdx < pStartLine) {
+            primaryStartShift -= pLen;
+          }
+
+          if (lineIdx == pEndLine && primarySelMax > removeStart) {
+            primaryEndShift -= pLen.clamp(0, primarySelMax - removeStart);
+          } else if (lineIdx < pEndLine) {
+            primaryEndShift -= pLen;
+          }
+        }
+      } else {
+        final insertPos = lineStart + leadingLen;
+        final pLen = effectivePrefix.length;
+        replaceRange(
+          insertPos,
+          insertPos,
+          effectivePrefix,
+          preserveOldCursor: true,
+        );
+
+        if (lineIdx == pStartLine && primarySelMin >= insertPos) {
+          primaryStartShift += pLen;
+        } else if (lineIdx < pStartLine) {
+          primaryStartShift += pLen;
+        }
+
+        if (lineIdx == pEndLine && primarySelMax >= insertPos) {
+          primaryEndShift += pLen;
+        } else if (lineIdx < pEndLine) {
+          primaryEndShift += pLen;
+        }
+      }
+    }
+
+    final newStart = (primarySelMin + primaryStartShift).clamp(0, _rope.length);
+    final newEnd = (primarySelMax + primaryEndShift).clamp(0, _rope.length);
+
+    if (isReversedSelection) {
+      _selection = TextSelection(baseOffset: newEnd, extentOffset: newStart);
+    } else {
+      _selection = TextSelection(baseOffset: newStart, extentOffset: newEnd);
+    }
+
+    compound?.end();
+    notifyListeners();
+  }
+
+  /// Toggles block comment (`/* ... */` or `/** ... */`) on current selection or active line.
+  void toggleBlockComment({String blockStart = '/*', String blockEnd = '*/'}) {
+    if (readOnly) return;
+    _flushBuffer();
+
+    final compound = _undoController?.beginCompoundOperation();
+
+    final selStart = selection.start.clamp(0, _rope.length);
+    final selEnd = selection.end.clamp(0, _rope.length);
+
+    if (selStart != selEnd) {
+      final selectedText = _rope.substring(selStart, selEnd);
+      final trimmed = selectedText.trim();
+
+      if ((trimmed.startsWith('/*') || trimmed.startsWith('/**')) &&
+          trimmed.endsWith('*/')) {
+        final firstCommentIndex = selectedText.indexOf('/*');
+        final lastCommentIndex = selectedText.lastIndexOf('*/');
+
+        if (firstCommentIndex != -1 &&
+            lastCommentIndex != -1 &&
+            lastCommentIndex > firstCommentIndex) {
+          final isDocComment = selectedText.startsWith(
+            '/**',
+            firstCommentIndex,
+          );
+          final startLen = isDocComment ? 3 : 2;
+
+          replaceRange(
+            selStart + lastCommentIndex,
+            selStart + lastCommentIndex + 2,
+            '',
+            preserveOldCursor: true,
+          );
+          replaceRange(
+            selStart + firstCommentIndex,
+            selStart + firstCommentIndex + startLen,
+            '',
+            preserveOldCursor: true,
+          );
+
+          _selection = TextSelection(
+            baseOffset: selStart,
+            extentOffset: (selEnd - startLen - 2).clamp(selStart, _rope.length),
+          );
+        }
+      } else {
+        final prefix = '$blockStart ';
+        final suffix = ' $blockEnd';
+
+        replaceRange(selEnd, selEnd, suffix, preserveOldCursor: true);
+        replaceRange(selStart, selStart, prefix, preserveOldCursor: true);
+
+        _selection = TextSelection(
+          baseOffset: selStart,
+          extentOffset: selEnd + prefix.length + suffix.length,
+        );
+      }
+    } else {
+      final caret = selStart;
+      final lineIdx = getLineAtOffset(caret);
+      final lineStart = getLineStartOffset(lineIdx);
+      final lineText = getLineText(lineIdx);
+      final trimmed = lineText.trim();
+
+      if ((trimmed.startsWith('/*') || trimmed.startsWith('/**')) &&
+          trimmed.endsWith('*/')) {
+        final firstCommentIndex = lineText.indexOf('/*');
+        final lastCommentIndex = lineText.lastIndexOf('*/');
+        if (firstCommentIndex != -1 &&
+            lastCommentIndex != -1 &&
+            lastCommentIndex > firstCommentIndex) {
+          final isDocComment = lineText.startsWith('/**', firstCommentIndex);
+          final startLen = isDocComment ? 3 : 2;
+
+          replaceRange(
+            lineStart + lastCommentIndex,
+            lineStart + lastCommentIndex + 2,
+            '',
+            preserveOldCursor: true,
+          );
+          replaceRange(
+            lineStart + firstCommentIndex,
+            lineStart + firstCommentIndex + startLen,
+            '',
+            preserveOldCursor: true,
+          );
+
+          _selection = TextSelection.collapsed(
+            offset: (caret - startLen).clamp(lineStart, _rope.length),
+          );
+        }
+      } else {
+        final prefix = '$blockStart ';
+        final suffix = ' $blockEnd';
+        replaceRange(caret, caret, '$prefix$suffix', preserveOldCursor: true);
+        _selection = TextSelection.collapsed(offset: caret + prefix.length);
+      }
+    }
+
+    compound?.end();
+    notifyListeners();
   }
 
   void _maybeAcquireFocusForInput() {
@@ -4650,9 +4920,11 @@ class CodeForgeController implements DeltaTextInputClient {
             final startChar = start['character'] as int;
             final endLine = end['line'] as int;
             final endChar = end['character'] as int;
-            final startOffset = getLineStartOffset(startLine) +
+            final startOffset =
+                getLineStartOffset(startLine) +
                 utf16ToScalarOffset(getLineText(startLine), startChar);
-            final endOffset = getLineStartOffset(endLine) +
+            final endOffset =
+                getLineStartOffset(endLine) +
                 utf16ToScalarOffset(getLineText(endLine), endChar);
             final newText = e['newText'] as String? ?? '';
             converted.add({
@@ -4700,9 +4972,11 @@ class CodeForgeController implements DeltaTextInputClient {
                 final startChar = start['character'] as int;
                 final endLine = end['line'] as int;
                 final endChar = end['character'] as int;
-                final int startOffset = getLineStartOffset(startLine) +
+                final int startOffset =
+                    getLineStartOffset(startLine) +
                     utf16ToScalarOffset(getLineText(startLine), startChar);
-                final int endOffset = getLineStartOffset(endLine) +
+                final int endOffset =
+                    getLineStartOffset(endLine) +
                     utf16ToScalarOffset(getLineText(endLine), endChar);
                 final String newText = e['newText'] as String? ?? '';
                 converted.add({
@@ -4746,9 +5020,11 @@ class CodeForgeController implements DeltaTextInputClient {
           final startChar = start['character'] as int;
           final endLine = end['line'] as int;
           final endChar = end['character'] as int;
-          final startOffset = getLineStartOffset(startLine) +
+          final startOffset =
+              getLineStartOffset(startLine) +
               utf16ToScalarOffset(getLineText(startLine), startChar);
-          final endOffset = getLineStartOffset(endLine) +
+          final endOffset =
+              getLineStartOffset(endLine) +
               utf16ToScalarOffset(getLineText(endLine), endChar);
           final newText = item['newText'] as String? ?? '';
           converted.add({
@@ -4788,8 +5064,10 @@ class CodeForgeController implements DeltaTextInputClient {
       final line = getLineAtOffset(cursorPosition);
       final lineStartOffset = getLineStartOffset(line);
       final lineText = getLineText(line);
-      final character =
-          scalarToStringIndex(lineText, cursorPosition - lineStartOffset);
+      final character = scalarToStringIndex(
+        lineText,
+        cursorPosition - lineStartOffset,
+      );
       signatureNotifier.value = await lspConfig!.getSignatureHelp(
         openedFile!,
         line,
@@ -5379,7 +5657,8 @@ class CodeForgeController implements DeltaTextInputClient {
         final String textBeforeCursor;
         final String textAfterCursor;
         if (_bufferLineIndex != null && _bufferDirty) {
-          final bufferEnd = _bufferLineRopeStart + _bufferLineText!.runes.length;
+          final bufferEnd =
+              _bufferLineRopeStart + _bufferLineText!.runes.length;
           if (offset >= _bufferLineRopeStart && offset <= bufferEnd) {
             final localOffset = offset - _bufferLineRopeStart;
             final utf16Local = scalarToStringIndex(

@@ -24,8 +24,6 @@ class AccessView extends ConsumerStatefulWidget {
 
 class _AccessViewState extends ConsumerState<AccessView>
     with WidgetsBindingObserver {
-  List<String> acceptList = [];
-  List<String> rejectList = [];
   late ScrollController _controller;
   final Completer<void> _completer = Completer<void>();
   bool _requestedPackageListPermission = false;
@@ -36,7 +34,6 @@ class _AccessViewState extends ConsumerState<AccessView>
   @override
   void initState() {
     super.initState();
-    _updateInitList();
     _controller = ScrollController();
     WidgetsBinding.instance.addObserver(this);
     _checkPermissionAndLoadPackages(interactive: true);
@@ -244,28 +241,11 @@ class _AccessViewState extends ConsumerState<AccessView>
     super.dispose();
   }
 
-  void _updateInitList() {
-    acceptList = globalState.config.vpnProps.accessControl.acceptList;
-    rejectList = globalState.config.vpnProps.accessControl.rejectList;
-  }
-
   Widget _buildSearchButton() {
     return IconButton(
       tooltip: appLocalizations.search,
       onPressed: () {
-        showSearch(
-          context: context,
-          delegate: AccessControlSearchDelegate(
-            acceptList: acceptList,
-            rejectList: rejectList,
-          ),
-        ).then((_) {
-          if (mounted) {
-            setState(() {
-              _updateInitList();
-            });
-          }
-        });
+        showSearch(context: context, delegate: AccessControlSearchDelegate());
       },
       icon: const Icon(Icons.search),
     );
@@ -295,12 +275,6 @@ class _AccessViewState extends ConsumerState<AccessView>
             ref.read(forceRefreshIconProvider.notifier).state = false;
           }
         }, needLoading: true);
-
-        if (mounted) {
-          setState(() {
-            _updateInitList();
-          });
-        }
       },
       icon: const Icon(Icons.sync),
     );
@@ -316,6 +290,9 @@ class _AccessViewState extends ConsumerState<AccessView>
     return IconButton(
       tooltip: tooltip,
       onPressed: () {
+        final isAcceptMode =
+            ref.read(vpnSettingProvider).accessControl.mode ==
+            AccessControlMode.acceptSelected;
         ref.read(vpnSettingProvider.notifier).updateState((state) {
           final isAccept =
               state.accessControl.mode == AccessControlMode.acceptSelected;
@@ -331,6 +308,9 @@ class _AccessViewState extends ConsumerState<AccessView>
             };
           }
         });
+        if (isAcceptMode && isSelectedAll) {
+          _removeTorPackages(allValueList);
+        }
       },
       icon: isSelectedAll
           ? const Icon(Icons.deselect)
@@ -368,6 +348,7 @@ class _AccessViewState extends ConsumerState<AccessView>
             rejectList: rejectList,
           ),
         );
+    _retainTorPackages(acceptList);
   }
 
   Widget _buildSettingButton() {
@@ -392,11 +373,16 @@ class _AccessViewState extends ConsumerState<AccessView>
     );
   }
 
-  void _handleSelected(List<String> valueList, Package package, bool? value) {
+  void _handleSelected(Package package, bool? value) {
+    final accessControl = ref.read(vpnSettingProvider).accessControl;
+    final valueList = accessControl.currentList.toList();
     if (value == true) {
-      valueList.add(package.packageName);
+      if (!valueList.contains(package.packageName)) {
+        valueList.add(package.packageName);
+      }
     } else {
       valueList.remove(package.packageName);
+      _removeTorPackages([package.packageName]);
     }
     ref.read(vpnSettingProvider.notifier).updateState((state) {
       return switch (state.accessControl.mode ==
@@ -407,141 +393,177 @@ class _AccessViewState extends ConsumerState<AccessView>
     });
   }
 
+  void _handleTorSelected(Package package, bool? value) {
+    final accessControl = ref.read(vpnSettingProvider).accessControl;
+    if (!accessControl.enable ||
+        accessControl.mode != AccessControlMode.acceptSelected ||
+        !accessControl.acceptList.contains(package.packageName)) {
+      return;
+    }
+
+    ref.read(torSettingProvider.notifier).updateState((state) {
+      final packages = state.appPackages.toList();
+      if (value == true) {
+        if (!packages.contains(package.packageName)) {
+          packages.add(package.packageName);
+        }
+      } else {
+        packages.remove(package.packageName);
+      }
+      return state.copyWith(appPackages: packages);
+    });
+  }
+
+  void _removeTorPackages(Iterable<String> packageNames) {
+    final names = packageNames.toSet();
+    if (names.isEmpty) return;
+    ref.read(torSettingProvider.notifier).updateState((state) {
+      final packages = state.appPackages
+          .where((packageName) => !names.contains(packageName))
+          .toList();
+      return packages.length == state.appPackages.length
+          ? state
+          : state.copyWith(appPackages: packages);
+    });
+  }
+
+  void _retainTorPackages(Iterable<String> packageNames) {
+    final names = packageNames.toSet();
+    ref.read(torSettingProvider.notifier).updateState((state) {
+      final packages = state.appPackages
+          .where((packageName) => names.contains(packageName))
+          .toList();
+      return packages.length == state.appPackages.length
+          ? state
+          : state.copyWith(appPackages: packages);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(packageListSelectorStateProvider);
     final accessControl = state.accessControl;
     final accessControlMode = accessControl.mode;
-    final packages = state.getSortList(
-      accessControlMode == AccessControlMode.acceptSelected
-          ? acceptList
-          : rejectList,
+    final torPackages = ref.watch(
+      torSettingProvider.select((state) => state.appPackages),
     );
+    final packages = state.getProxySortList(torPackages);
     final currentList = accessControl.currentList;
+    final torEnabled = ref.watch(
+      torSettingProvider.select((state) => state.enable),
+    );
+    final showTorOption =
+        torEnabled && accessControlMode == AccessControlMode.acceptSelected;
     final packageNameList = packages.map((e) => e.packageName).toList();
     final valueList = currentList.intersection(packageNameList);
     final describe = accessControlMode == AccessControlMode.acceptSelected
         ? appLocalizations.accessControlAllowDesc
         : appLocalizations.accessControlNotAllowDesc;
-
     return Column(
       mainAxisSize: MainAxisSize.max,
       children: [
         Flexible(
           flex: 0,
-          child: Padding(
-            padding: const EdgeInsets.only(left: 16, right: 16, top: 12),
-            child: CommonCard(
-              type: CommonCardType.filled,
-              child: ListItem.switchItem(
-                title: Text(appLocalizations.appAccessControl),
-                trailing: accessControl.enable ? _buildRefreshButton() : null,
-                delegate: SwitchDelegate(
-                  value: accessControl.enable,
-                  onChanged: (enable) {
-                    ref
-                        .read(vpnSettingProvider.notifier)
-                        .updateState(
-                          (state) =>
-                              state.copyWith.accessControl(enable: enable),
-                        );
-                  },
-                ),
-              ),
+          child: ListItem.switchItem(
+            title: Text(appLocalizations.appAccessControl),
+            trailing: accessControl.enable ? _buildRefreshButton() : null,
+            delegate: SwitchDelegate(
+              value: accessControl.enable,
+              onChanged: (enable) {
+                ref
+                    .read(vpnSettingProvider.notifier)
+                    .updateState(
+                      (state) => state.copyWith.accessControl(enable: enable),
+                    );
+                if (!enable) {
+                  _removeTorPackages(ref.read(torSettingProvider).appPackages);
+                }
+              },
             ),
           ),
         ),
-        const SizedBox(height: 12),
+        const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16),
+          child: Divider(height: 12),
+        ),
         Flexible(
           child: DisabledMask(
             status: !accessControl.enable,
             child: Column(
               children: [
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 5,
-                  ),
-                  child: CommonCard(
-                    type: CommonCardType.filled,
-                    child: ActivateBox(
-                      active: accessControl.enable,
-                      child: Padding(
-                        padding: const EdgeInsets.only(
-                          top: 4,
-                          bottom: 4,
-                          left: 16,
-                          right: 8,
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          mainAxisSize: MainAxisSize.max,
-                          children: [
-                            Expanded(
-                              child: IntrinsicHeight(
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.max,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Expanded(
-                                      child: Row(
-                                        children: [
-                                          Flexible(
-                                            child: Text(
-                                              appLocalizations.selected,
-                                              style: Theme.of(context)
-                                                  .textTheme
-                                                  .labelLarge
-                                                  ?.copyWith(
-                                                    color: Theme.of(
-                                                      context,
-                                                    ).colorScheme.primary,
-                                                  ),
-                                            ),
-                                          ),
-                                          const Flexible(
-                                            child: SizedBox(width: 8),
-                                          ),
-                                          Flexible(
-                                            child: Text(
-                                              '${valueList.length}',
-                                              style: Theme.of(context)
-                                                  .textTheme
-                                                  .labelLarge
-                                                  ?.copyWith(
-                                                    color: Theme.of(
-                                                      context,
-                                                    ).colorScheme.primary,
-                                                  ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    Flexible(child: Text(describe)),
-                                  ],
-                                ),
-                              ),
-                            ),
-                            Row(
-                              mainAxisSize: MainAxisSize.min,
-                              mainAxisAlignment: MainAxisAlignment.end,
+                ActivateBox(
+                  active: accessControl.enable,
+                  child: Padding(
+                    padding: const EdgeInsets.only(
+                      top: 4,
+                      bottom: 4,
+                      left: 16,
+                      right: 8,
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      mainAxisSize: MainAxisSize.max,
+                      children: [
+                        Expanded(
+                          child: IntrinsicHeight(
+                            child: Column(
+                              mainAxisSize: MainAxisSize.max,
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Flexible(child: _buildSearchButton()),
-                                Flexible(
-                                  child: _buildSelectedAllButton(
-                                    isSelectedAll:
-                                        valueList.length ==
-                                        packageNameList.length,
-                                    allValueList: packageNameList,
+                                Expanded(
+                                  child: Row(
+                                    children: [
+                                      Flexible(
+                                        child: Text(
+                                          appLocalizations.selected,
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .labelLarge
+                                              ?.copyWith(
+                                                color: Theme.of(
+                                                  context,
+                                                ).colorScheme.primary,
+                                              ),
+                                        ),
+                                      ),
+                                      const Flexible(child: SizedBox(width: 8)),
+                                      Flexible(
+                                        child: Text(
+                                          '${valueList.length}',
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .labelLarge
+                                              ?.copyWith(
+                                                color: Theme.of(
+                                                  context,
+                                                ).colorScheme.primary,
+                                              ),
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
-                                Flexible(child: _buildSettingButton()),
+                                Flexible(child: Text(describe)),
                               ],
                             ),
+                          ),
+                        ),
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            Flexible(child: _buildSearchButton()),
+                            Flexible(
+                              child: _buildSelectedAllButton(
+                                isSelectedAll:
+                                    valueList.length == packageNameList.length,
+                                allValueList: packageNameList,
+                              ),
+                            ),
+                            Flexible(child: _buildSettingButton()),
                           ],
                         ),
-                      ),
+                      ],
                     ),
                   ),
                 ),
@@ -560,53 +582,34 @@ class _AccessViewState extends ConsumerState<AccessView>
                           ? NullStatus(label: appLocalizations.noData)
                           : CommonScrollBar(
                               controller: _controller,
-                              child: ListView.separated(
+                              child: ListView.builder(
                                 controller: _controller,
                                 itemCount: packages.length,
-                                padding: const EdgeInsets.only(
-                                  bottom: 24,
-                                  top: 4,
-                                ),
+                                itemExtent: 72,
                                 itemBuilder: (_, index) {
                                   final package = packages[index];
-                                  return Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 16,
+                                  return PackageListItem(
+                                    key: Key(package.packageName),
+                                    package: package,
+                                    value: valueList.contains(
+                                      package.packageName,
                                     ),
-                                    child: PackageListItem(
-                                      key: Key(package.packageName),
-                                      package: package,
-                                      value: valueList.contains(
-                                        package.packageName,
-                                      ),
-                                      isActive: accessControl.enable,
-                                      onChanged: (value) {
-                                        _handleSelected(
-                                          valueList,
-                                          package,
-                                          value,
-                                        );
-                                      },
+                                    torValue: torPackages.contains(
+                                      package.packageName,
                                     ),
+                                    showTorOption: showTorOption,
+                                    torEnabled:
+                                        showTorOption &&
+                                        valueList.contains(package.packageName),
+                                    isActive: accessControl.enable,
+                                    onChanged: (value) {
+                                      _handleSelected(package, value);
+                                    },
+                                    onTorChanged: (value) {
+                                      _handleTorSelected(package, value);
+                                    },
                                   );
                                 },
-                                separatorBuilder: (context, _) => Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 16,
-                                  ),
-                                  child: Divider(
-                                    height: 1,
-                                    thickness: 1,
-                                    color: context.colorScheme.outlineVariant
-                                        .withValues(
-                                          alpha:
-                                              context.colorScheme.brightness ==
-                                                  Brightness.light
-                                              ? 0.3
-                                              : 0.2,
-                                        ),
-                                  ),
-                                ),
                               ),
                             );
                     },
@@ -621,74 +624,163 @@ class _AccessViewState extends ConsumerState<AccessView>
   }
 }
 
-class PackageListItem extends ConsumerWidget {
+class PackageListItem extends ConsumerStatefulWidget {
   final Package package;
   final bool value;
+  final bool torValue;
+  final bool showTorOption;
+  final bool torEnabled;
   final bool isActive;
   final void Function(bool?) onChanged;
+  final void Function(bool?)? onTorChanged;
 
   const PackageListItem({
     super.key,
     required this.package,
     required this.value,
+    this.torValue = false,
+    this.showTorOption = false,
+    this.torEnabled = false,
     required this.isActive,
     required this.onChanged,
+    this.onTorChanged,
   });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<PackageListItem> createState() => _PackageListItemState();
+}
+
+class _PackageListItemState extends ConsumerState<PackageListItem> {
+  late bool _value;
+  late bool _torValue;
+  late bool _forceRefresh;
+  late Future<Uint8List?> _iconFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _value = widget.value;
+    _torValue = widget.torValue;
+    _forceRefresh = false;
+    _iconFuture = app.getPackageIcon(widget.package.packageName);
+  }
+
+  @override
+  void didUpdateWidget(covariant PackageListItem oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.value != widget.value) {
+      _value = widget.value;
+    }
+    if (oldWidget.torValue != widget.torValue) {
+      _torValue = widget.torValue;
+    }
+    if (oldWidget.package.packageName != widget.package.packageName) {
+      _iconFuture = app.getPackageIcon(
+        widget.package.packageName,
+        forceRefresh: _forceRefresh,
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final forceRefresh = ref.watch(forceRefreshIconProvider);
+    if (_forceRefresh != forceRefresh) {
+      _forceRefresh = forceRefresh;
+      _iconFuture = app.getPackageIcon(
+        widget.package.packageName,
+        forceRefresh: forceRefresh,
+      );
+    }
 
-    return GestureDetector(
-      onLongPress: () {
-        Clipboard.setData(ClipboardData(text: package.packageName));
-        globalState.showNotifier(
-          '${appLocalizations.copiedPackageName}: ${package.packageName}',
-        );
-      },
-      child: ActivateBox(
-        active: isActive,
-        child: ListItem.checkbox(
-          leading: SizedBox(
-            width: 48,
-            height: 48,
-            child: FutureBuilder<Uint8List?>(
-              future: app.getPackageIcon(
-                package.packageName,
-                forceRefresh: forceRefresh,
+    return ActivateBox(
+      active: widget.isActive,
+      child: ListItem(
+        leading: SizedBox(
+          width: 48,
+          height: 48,
+          child: FutureBuilder<Uint8List?>(
+            future: _iconFuture,
+            builder: (context, snapshot) {
+              if (snapshot.hasData && snapshot.data != null) {
+                final devicePixelRatio = MediaQuery.of(
+                  context,
+                ).devicePixelRatio;
+                final cacheSize = (48 * devicePixelRatio).ceil();
+
+                return Image.memory(
+                  snapshot.data!,
+                  gaplessPlayback: true,
+                  width: 48,
+                  height: 48,
+                  cacheWidth: cacheSize,
+                  cacheHeight: cacheSize,
+                  errorBuilder: (_, _, _) => _buildDefaultIcon(context),
+                );
+              }
+              return _buildDefaultIcon(context);
+            },
+          ),
+        ),
+        title: Text(
+          widget.package.label,
+          style: const TextStyle(overflow: TextOverflow.ellipsis),
+          maxLines: 1,
+        ),
+        subtitle: Text(
+          widget.package.packageName,
+          style: const TextStyle(overflow: TextOverflow.ellipsis),
+          maxLines: 1,
+        ),
+        onTap: widget.isActive
+            ? () {
+                final value = !_value;
+                setState(() {
+                  _value = value;
+                  if (!value) _torValue = false;
+                });
+                widget.onChanged(value);
+              }
+            : null,
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (widget.showTorOption)
+              Tooltip(
+                message: 'Tor',
+                child: IconButton(
+                  visualDensity: VisualDensity.compact,
+                  onPressed: widget.isActive && widget.torEnabled
+                      ? () {
+                          final value = !_torValue;
+                          setState(() => _torValue = value);
+                          widget.onTorChanged?.call(value);
+                        }
+                      : null,
+                  icon: Icon(
+                    _torValue ? Icons.shield : Icons.shield_outlined,
+                    size: 22,
+                    color: _torValue
+                        ? context.colorScheme.primary
+                        : context.colorScheme.onSurfaceVariant.withValues(
+                            alpha: widget.torEnabled ? 0.75 : 0.38,
+                          ),
+                  ),
+                ),
               ),
-              builder: (context, snapshot) {
-                if (snapshot.hasData && snapshot.data != null) {
-                  final devicePixelRatio = MediaQuery.of(
-                    context,
-                  ).devicePixelRatio;
-                  final cacheSize = (48 * devicePixelRatio).ceil();
-
-                  return Image.memory(
-                    snapshot.data!,
-                    gaplessPlayback: true,
-                    width: 48,
-                    height: 48,
-                    cacheWidth: cacheSize,
-                    cacheHeight: cacheSize,
-                    errorBuilder: (_, _, _) => _buildDefaultIcon(context),
-                  );
-                }
-                return _buildDefaultIcon(context);
-              },
+            Padding(
+              padding: const EdgeInsets.only(right: 8),
+              child: Icon(
+                _value ? Icons.check_circle_rounded : Icons.circle_outlined,
+                size: 24,
+                color: _value
+                    ? context.colorScheme.primary
+                    : context.colorScheme.onSurfaceVariant.withValues(
+                        alpha: 0.6,
+                      ),
+              ),
             ),
-          ),
-          title: Text(
-            package.label,
-            style: const TextStyle(overflow: TextOverflow.ellipsis),
-            maxLines: 1,
-          ),
-          subtitle: Text(
-            package.packageName,
-            style: const TextStyle(overflow: TextOverflow.ellipsis),
-            maxLines: 1,
-          ),
-          delegate: CheckboxDelegate(value: value, onChanged: onChanged),
+          ],
         ),
       ),
     );
@@ -710,14 +802,6 @@ class PackageListItem extends ConsumerWidget {
 }
 
 class AccessControlSearchDelegate extends SearchDelegate {
-  List<String> acceptList = [];
-  List<String> rejectList = [];
-
-  AccessControlSearchDelegate({
-    required this.acceptList,
-    required this.rejectList,
-  });
-
   @override
   List<Widget>? buildActions(BuildContext context) {
     return [
@@ -745,16 +829,16 @@ class AccessControlSearchDelegate extends SearchDelegate {
     );
   }
 
-  void _handleSelected(
-    WidgetRef ref,
-    List<String> valueList,
-    Package package,
-    bool? value,
-  ) {
+  void _handleSelected(WidgetRef ref, Package package, bool? value) {
+    final accessControl = ref.read(vpnSettingProvider).accessControl;
+    final valueList = accessControl.currentList.toList();
     if (value == true) {
-      valueList.add(package.packageName);
+      if (!valueList.contains(package.packageName)) {
+        valueList.add(package.packageName);
+      }
     } else {
       valueList.remove(package.packageName);
+      _removeTorPackages(ref, [package.packageName]);
     }
     ref.read(vpnSettingProvider.notifier).updateState((state) {
       return switch (state.accessControl.mode ==
@@ -765,6 +849,40 @@ class AccessControlSearchDelegate extends SearchDelegate {
     });
   }
 
+  void _handleTorSelected(WidgetRef ref, Package package, bool? value) {
+    final accessControl = ref.read(vpnSettingProvider).accessControl;
+    if (!accessControl.enable ||
+        accessControl.mode != AccessControlMode.acceptSelected ||
+        !accessControl.acceptList.contains(package.packageName)) {
+      return;
+    }
+
+    ref.read(torSettingProvider.notifier).updateState((state) {
+      final packages = state.appPackages.toList();
+      if (value == true) {
+        if (!packages.contains(package.packageName)) {
+          packages.add(package.packageName);
+        }
+      } else {
+        packages.remove(package.packageName);
+      }
+      return state.copyWith(appPackages: packages);
+    });
+  }
+
+  void _removeTorPackages(WidgetRef ref, Iterable<String> packageNames) {
+    final names = packageNames.toSet();
+    if (names.isEmpty) return;
+    ref.read(torSettingProvider.notifier).updateState((state) {
+      final packages = state.appPackages
+          .where((packageName) => !names.contains(packageName))
+          .toList();
+      return packages.length == state.appPackages.length
+          ? state
+          : state.copyWith(appPackages: packages);
+    });
+  }
+
   Widget _packageList() {
     final lowQuery = query.toLowerCase();
     return Consumer(
@@ -772,17 +890,23 @@ class AccessControlSearchDelegate extends SearchDelegate {
         final vm3 = ref.watch(
           packageListSelectorStateProvider.select(
             (state) => VM3(
-              a: state.getSortList(
-                state.accessControl.mode == AccessControlMode.acceptSelected
-                    ? acceptList
-                    : rejectList,
-              ),
+              a: state,
               b: state.accessControl.enable,
               c: state.accessControl.currentList,
             ),
           ),
         );
-        final packages = vm3.a;
+        final packageState = vm3.a;
+        final accessControlMode = ref.watch(
+          vpnSettingProvider.select((state) => state.accessControl.mode),
+        );
+        final torPackages = ref.watch(
+          torSettingProvider.select((state) => state.appPackages),
+        );
+        final torEnabled = ref.watch(
+          torSettingProvider.select((state) => state.enable),
+        );
+        final packages = packageState.getProxySortList(torPackages);
 
         // Search filter (inside Consumer, auto-responds to query changes)
         final queryPackages = query.isEmpty
@@ -799,6 +923,8 @@ class AccessControlSearchDelegate extends SearchDelegate {
         final currentList = vm3.c;
         final packageNameList = packages.map((e) => e.packageName).toList();
         final valueList = currentList.intersection(packageNameList);
+        final showTorOption =
+            torEnabled && accessControlMode == AccessControlMode.acceptSelected;
 
         return DisabledMask(
           status: !isAccessControl,
@@ -811,9 +937,16 @@ class AccessControlSearchDelegate extends SearchDelegate {
                 key: Key(package.packageName),
                 package: package,
                 value: valueList.contains(package.packageName),
+                torValue: torPackages.contains(package.packageName),
+                showTorOption: showTorOption,
+                torEnabled:
+                    showTorOption && valueList.contains(package.packageName),
                 isActive: isAccessControl,
                 onChanged: (value) {
-                  _handleSelected(ref, valueList, package, value);
+                  _handleSelected(ref, package, value);
+                },
+                onTorChanged: (value) {
+                  _handleTorSelected(ref, package, value);
                 },
               );
             },
@@ -874,7 +1007,6 @@ class _AccessControlPanelState extends ConsumerState<AccessControlPanel> {
 
   List<Widget> _buildModeSetting() {
     return generateSection(
-      plain: true,
       title: appLocalizations.mode,
       items: [
         SingleChildScrollView(
@@ -902,6 +1034,15 @@ class _AccessControlPanelState extends ConsumerState<AccessControlPanel> {
                               (state) =>
                                   state.copyWith.accessControl(mode: item),
                             );
+                        if (item != AccessControlMode.acceptSelected) {
+                          ref
+                              .read(torSettingProvider.notifier)
+                              .updateState(
+                                (state) => state.appPackages.isEmpty
+                                    ? state
+                                    : state.copyWith(appPackages: []),
+                              );
+                        }
                       },
                     ),
                 ],
@@ -915,7 +1056,6 @@ class _AccessControlPanelState extends ConsumerState<AccessControlPanel> {
 
   List<Widget> _buildSortSetting() {
     return generateSection(
-      plain: true,
       title: appLocalizations.sort,
       items: [
         SingleChildScrollView(
@@ -956,7 +1096,6 @@ class _AccessControlPanelState extends ConsumerState<AccessControlPanel> {
 
   List<Widget> _buildSourceSetting() {
     return generateSection(
-      plain: true,
       title: appLocalizations.source,
       items: [
         SingleChildScrollView(
@@ -1029,28 +1168,41 @@ class _AccessControlPanelState extends ConsumerState<AccessControlPanel> {
       try {
         newAccessControl = AccessControl.fromJson(json.decode(text));
       } catch (_) {
-        final packageNameRegex = RegExp(r'^[a-zA-Z0-9_]+(\.[a-zA-Z0-9_]+)+$');
         final packages = text
-            .split(RegExp(r'[\n,\s]+'))
+            .split('\n')
             .map((e) => e.trim())
-            .where((e) => packageNameRegex.hasMatch(e))
+            .where((e) => e.isNotEmpty)
             .toList();
 
         final currentState = ref.read(vpnSettingProvider).accessControl;
         final isAccept = currentState.mode == AccessControlMode.acceptSelected;
-        final currentList =
-            isAccept ? currentState.acceptList : currentState.rejectList;
-        final newList = {...currentList, ...packages}.toList();
 
         newAccessControl = currentState.copyWith(
-          acceptList: isAccept ? newList : currentState.acceptList,
-          rejectList: !isAccept ? newList : currentState.rejectList,
+          acceptList: isAccept ? packages : currentState.acceptList,
+          rejectList: !isAccept ? packages : currentState.rejectList,
         );
       }
 
-      ref.read(vpnSettingProvider.notifier).updateState(
+      ref
+          .read(vpnSettingProvider.notifier)
+          .updateState(
             (state) => state.copyWith(accessControl: newAccessControl),
           );
+      ref.read(torSettingProvider.notifier).updateState((state) {
+        if (!newAccessControl.enable ||
+            newAccessControl.mode != AccessControlMode.acceptSelected) {
+          return state.appPackages.isEmpty
+              ? state
+              : state.copyWith(appPackages: []);
+        }
+        final acceptPackages = newAccessControl.acceptList.toSet();
+        final packages = state.appPackages
+            .where((packageName) => acceptPackages.contains(packageName))
+            .toList();
+        return packages.length == state.appPackages.length
+            ? state
+            : state.copyWith(appPackages: packages);
+      });
     });
     if (!mounted) return;
     Navigator.of(context).pop();
@@ -1058,7 +1210,6 @@ class _AccessControlPanelState extends ConsumerState<AccessControlPanel> {
 
   List<Widget> _buildActionSetting() {
     return generateSection(
-      plain: true,
       title: appLocalizations.action,
       items: [
         Padding(

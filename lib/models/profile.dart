@@ -63,13 +63,19 @@ abstract class Profile with _$Profile {
     bool isUpdating,
     @Default(true) bool useScriptOverride,
     String? ageSecretKey,
-    @JsonKey(name: 'group-switches') @Default({}) Map<String, bool> groupSwitches,
+    @JsonKey(name: 'group-switches')
+    @Default({})
+    Map<String, bool> groupSwitches,
   }) = _Profile;
 
   factory Profile.fromJson(Map<String, Object?> json) =>
       _$ProfileFromJson(json);
 
-  factory Profile.normal({String? label, String url = '', String? ageSecretKey}) {
+  factory Profile.normal({
+    String? label,
+    String url = '',
+    String? ageSecretKey,
+  }) {
     return Profile(
       label: label,
       url: url,
@@ -143,7 +149,7 @@ extension ProfileExtension on Profile {
     final isExists = await check();
     if (!isExists) {
       if (url.isNotEmpty) {
-        await update();
+        await update(validate: false);
       }
     }
   }
@@ -190,13 +196,17 @@ extension ProfileExtension on Profile {
       } catch (_) {}
     }
     if (validate) {
-      final message =
-          await clashCore.validateConfig(content, ageSecretKey: ageSecretKey);
+      final message = await clashCore.validateConfig(
+        content,
+        ageSecretKey: ageSecretKey,
+      );
       if (message.isNotEmpty) {
         final patched = utils.patchValidateConfig(content);
         if (patched != content) {
-          final patchedMessage =
-              await clashCore.validateConfig(patched, ageSecretKey: ageSecretKey);
+          final patchedMessage = await clashCore.validateConfig(
+            patched,
+            ageSecretKey: ageSecretKey,
+          );
           if (patchedMessage.isEmpty) {
             content = patched;
           } else {
@@ -223,13 +233,18 @@ extension ProfileExtension on Profile {
         }
       } catch (_) {}
     }
-    final message =
-        await clashCore.validateConfig(content, ageSecretKey: ageSecretKey);
+    content = utils.patchValidateConfig(content);
+    final message = await clashCore.validateConfig(
+      content,
+      ageSecretKey: ageSecretKey,
+    );
     if (message.isNotEmpty) {
       final patched = utils.patchValidateConfig(content);
       if (patched != content) {
-        final patchedMessage =
-            await clashCore.validateConfig(patched, ageSecretKey: ageSecretKey);
+        final patchedMessage = await clashCore.validateConfig(
+          patched,
+          ageSecretKey: ageSecretKey,
+        );
         if (patchedMessage.isEmpty) {
           content = patched;
         } else {

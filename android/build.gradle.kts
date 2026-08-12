@@ -3,6 +3,7 @@ allprojects {
     repositories {
         google()
         mavenCentral()
+        maven { url = uri("https://raw.githubusercontent.com/guardianproject/gpmaven/master") }
     }
 }
 
@@ -15,6 +16,18 @@ subprojects {
 }
 subprojects {
     project.evaluationDependsOn(":app")
+    configurations.all {
+        resolutionStrategy {
+            eachDependency {
+                if (requested.group == "androidx.datastore") {
+                    useVersion("1.1.2")
+                }
+                if (requested.group == "androidx.profileinstaller" && requested.name == "profileinstaller") {
+                    useVersion("1.4.1")
+                }
+            }
+        }
+    }
 }
 
 tasks.register<Delete>("clean") {

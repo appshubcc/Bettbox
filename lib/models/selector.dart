@@ -205,10 +205,48 @@ extension PackageListSelectorStateExt on PackageListSelectorState {
           return 0;
         });
   }
+
+  List<Package> getProxySortList(Iterable<String> torPackageNames) {
+    final sortedPackages = getSortList(accessControl.currentList);
+    if (!accessControl.enable) return sortedPackages;
+
+    final selectedPackages = accessControl.currentList.toSet();
+    final torPackages = torPackageNames.toSet();
+    final tor = <Package>[];
+    final vpn = <Package>[];
+    final direct = <Package>[];
+
+    for (final package in sortedPackages) {
+      final packageName = package.packageName;
+      final usesVpn = switch (accessControl.mode) {
+        AccessControlMode.acceptSelected => selectedPackages.contains(
+          packageName,
+        ),
+        AccessControlMode.rejectSelected => !selectedPackages.contains(
+          packageName,
+        ),
+      };
+      final usesTor =
+          accessControl.mode == AccessControlMode.acceptSelected &&
+          usesVpn &&
+          torPackages.contains(packageName);
+
+      if (usesTor) {
+        tor.add(package);
+      } else if (usesVpn) {
+        vpn.add(package);
+      } else {
+        direct.add(package);
+      }
+    }
+
+    return [...tor, ...vpn, ...direct];
+  }
 }
 
 @freezed
-abstract class ProxiesListHeaderSelectorState with _$ProxiesListHeaderSelectorState {
+abstract class ProxiesListHeaderSelectorState
+    with _$ProxiesListHeaderSelectorState {
   const factory ProxiesListHeaderSelectorState({
     required double offset,
     required int currentIndex,

@@ -57,6 +57,23 @@ class VpnSetting extends _$VpnSetting with AutoDisposeNotifierMixin {
 }
 
 @riverpod
+class TorSetting extends _$TorSetting with AutoDisposeNotifierMixin {
+  @override
+  TorProps build() {
+    return globalState.config.torProps;
+  }
+
+  @override
+  onUpdate(value) {
+    globalState.config = globalState.config.copyWith(torProps: value);
+  }
+
+  void updateState(TorProps Function(TorProps state) builder) {
+    state = builder(state);
+  }
+}
+
+@riverpod
 class NetworkSetting extends _$NetworkSetting with AutoDisposeNotifierMixin {
   @override
   NetworkProps build() {
@@ -403,4 +420,3 @@ class HealthCheckTimeout extends _$HealthCheckTimeout
     state = builder(state);
   }
 }
-

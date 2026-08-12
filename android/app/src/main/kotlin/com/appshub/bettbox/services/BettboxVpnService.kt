@@ -133,6 +133,10 @@ class BettboxVpnService : VpnService(), BaseServiceInterface {
                     runCatching { addDisallowedApplication(it) }
                 }
             }
+        } ?: runCatching {
+            addDisallowedApplication(packageName)
+        }.onFailure {
+            Log.w(TAG, "Failed to exclude own package from VPN: ${it.message}")
         }
 
         setSession("Bettbox")

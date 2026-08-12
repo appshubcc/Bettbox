@@ -5,6 +5,8 @@ export 'network_speed_small.dart';
 export 'outbound_mode.dart';
 export 'quick_options.dart';
 export 'traffic_usage.dart';
+export 'tor_traffic_usage.dart';
+export 'tor_status.dart';
 export 'memory_info.dart';
 export 'start_button.dart';
 export 'connections_count.dart';

@@ -10,6 +10,7 @@ import 'package:bett_box/enum/enum.dart';
 import 'package:bett_box/l10n/l10n.dart';
 import 'package:bett_box/plugins/app.dart';
 import 'package:bett_box/plugins/service.dart';
+import 'package:bett_box/plugins/tor.dart';
 import 'package:bett_box/providers/providers.dart';
 import 'package:bett_box/providers/state.dart' as providers_state;
 
@@ -23,6 +24,7 @@ import 'package:synchronized/synchronized.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'common/common.dart';
+import 'common/tor_config_transformer.dart';
 import 'controller.dart';
 import 'models/models.dart';
 
@@ -120,7 +122,8 @@ class GlobalState {
 
   Future<void> init() async {
     packageInfo = await PackageInfo.fromPlatform();
-    config = await preferences.getConfig() ??
+    config =
+        await preferences.getConfig() ??
         Config(
           themeProps: defaultThemeProps,
           patchClashConfig: system.isAndroid
@@ -298,6 +301,7 @@ class GlobalState {
     } else {
       await clashCore.startListener();
     }
+    await _syncTorForStart();
     if (includeVpnService) {
       await service?.startVpn();
     }
@@ -310,6 +314,31 @@ class GlobalState {
       await service?.setQuickResponse(conflictFreeQuickResponse);
     }
     await startUpdateTasks(tasks);
+  }
+
+  Future<void> _syncTorForStart() async {
+    if (!system.isAndroid) return;
+    if (!config.torProps.enable) {
+      await _stopTorIfNeeded();
+      return;
+    }
+    try {
+      await const TorControl().start(
+        torProps: config.torProps,
+        upstreamSocksPort: config.patchClashConfig.mixedPort,
+      );
+    } catch (e) {
+      commonPrint.log('Tor start failed: $e');
+    }
+  }
+
+  Future<void> _stopTorIfNeeded() async {
+    if (!system.isAndroid) return;
+    try {
+      await const TorControl().stop();
+    } catch (e) {
+      commonPrint.log('Tor stop failed: $e');
+    }
   }
 
   Future updateStartTime() async {
@@ -333,6 +362,7 @@ class GlobalState {
   }
 
   Future handleStop([bool includeVpnService = true]) async {
+    await _stopTorIfNeeded();
     startTime = null;
     if (system.isAndroid && isService) {
       await clashLibHandler?.stopListener();
@@ -463,10 +493,7 @@ class GlobalState {
                       color: Theme.of(context).colorScheme.surface,
                       borderRadius: BorderRadius.circular(28),
                       boxShadow: const [
-                        BoxShadow(
-                          blurRadius: 10,
-                          color: Colors.black12,
-                        ),
+                        BoxShadow(blurRadius: 10, color: Colors.black12),
                       ],
                     ),
                     child: const Column(
@@ -865,7 +892,8 @@ class GlobalState {
       rawConfig.remove('rule');
     }
 
-    final scriptActive = config.scriptProps.currentScript != null &&
+    final scriptActive =
+        config.scriptProps.currentScript != null &&
         targetProfile.useScriptOverride;
 
     final overrideData = targetProfile.overrideData;
@@ -951,6 +979,13 @@ class GlobalState {
         }
       }
     }
+
+    rules = const TorConfigTransformer().transform(
+      rawConfig: rawConfig,
+      rules: rules,
+      torProps: config.torProps,
+      accessControl: config.vpnProps.accessControl,
+    );
 
     rawConfig['rule'] = rules;
     return rawConfig;
@@ -1191,6 +1226,19 @@ class DetectionState {
     );
   }
 
+  void _retryWhileStarted(
+    int requestId, {
+    Duration delay = const Duration(seconds: 10),
+  }) {
+    Future.delayed(delay, () {
+      if (requestId != _requestId) return;
+      if (globalState.appState.runTime == null) return;
+      if (state.value.ipInfo == null && !state.value.isLoading) {
+        startCheck(immediate: true);
+      }
+    });
+  }
+
   Future<void> _checkIp() async {
     final appState = globalState.appState;
 
@@ -1218,7 +1266,9 @@ class DetectionState {
       ipInfo: isStateChanged ? null : state.value.ipInfo,
     );
 
-    final timeout = const Duration(seconds: 5);
+    final timeout = isStart
+        ? const Duration(seconds: 8)
+        : const Duration(seconds: 5);
 
     final res = isStart
         ? await request.checkIp(cancelToken: _cancelToken, timeout: timeout)
@@ -1241,6 +1291,9 @@ class DetectionState {
     } else {
       _isFirstLaunch = false;
       _handleResponse(res);
+      if (isStart && (res.isError || res.data == null)) {
+        _retryWhileStarted(requestId);
+      }
     }
   }
 }

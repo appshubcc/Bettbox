@@ -4,6 +4,7 @@ import android.os.SystemClock
 import com.appshub.bettbox.plugins.AppPlugin
 import com.appshub.bettbox.plugins.ServicePlugin
 import com.appshub.bettbox.plugins.TilePlugin
+import com.appshub.bettbox.plugins.TorPlugin
 import com.appshub.bettbox.plugins.VpnPlugin
 import io.flutter.FlutterInjector
 import io.flutter.embedding.engine.FlutterEngine
@@ -207,7 +208,7 @@ object GlobalState {
             
             serviceEngine = app.engineGroup.createAndRunEngine(options).apply {
                 GeneratedPluginRegistrant.registerWith(this)
-                listOf(VpnPlugin, AppPlugin(), TilePlugin(), ServicePlugin()).forEach { plugin ->
+                listOf(VpnPlugin, AppPlugin(), TilePlugin(), ServicePlugin(), TorPlugin()).forEach { plugin ->
                     if (plugins.get(plugin.javaClass) == null) {
                         plugins.add(plugin)
                     }

@@ -374,8 +374,11 @@ class _EditorPageState extends ConsumerState<EditorPage> {
                           !widget.simple && !_disableSyntaxHighlight,
                       enableGutter: true,
                       enableGutterDivider: false,
-                      enableLocalSuggestions: false,
-                      enableKeyboardSuggestions: false,
+                      enableLocalSuggestions: true,
+                      enableKeyboardSuggestions: true,
+                      customCodeSnippets: _buildCustomSnippets(
+                        widget.languages,
+                      ),
                       enableMagnifier: true,
                       language: _languageMode(),
                       languageId: switch (widget.languages.firstOrNull) {
@@ -933,4 +936,148 @@ class _ImportOptionsDialogState extends State<_ImportOptionsDialog> {
       ),
     );
   }
+}
+
+List<CustomCodeSnippet>? _buildCustomSnippets(List<Language> languages) {
+  final lang = languages.firstOrNull;
+  if (lang == Language.yaml) {
+    return [
+      CustomCodeSnippet(
+        label: 'proxy-groups',
+        value:
+            'proxy-groups:\n  - name: \n    type: select\n    proxies:\n      - DIRECT',
+        cursorLocations: const {24},
+      ),
+      CustomCodeSnippet(
+        label: 'url-test',
+        value:
+            'proxy-groups:\n  - name: \n    type: url-test\n    proxies:\n      - DIRECT\n    url: https://www.gstatic.com/generate_204\n    interval: 300\n    tolerance: 50',
+        cursorLocations: const {24},
+      ),
+      CustomCodeSnippet(
+        label: 'fallback',
+        value:
+            'proxy-groups:\n  - name: \n    type: fallback\n    proxies:\n      - DIRECT\n    url: https://www.gstatic.com/generate_204\n    interval: 300',
+        cursorLocations: const {24},
+      ),
+      CustomCodeSnippet(
+        label: 'load-balance',
+        value:
+            'proxy-groups:\n  - name: \n    type: load-balance\n    proxies:\n      - DIRECT\n    url: https://www.gstatic.com/generate_204\n    interval: 300\n    strategy: round-robin',
+        cursorLocations: const {24},
+      ),
+      CustomCodeSnippet(
+        label: 'proxy-providers',
+        value:
+            'proxy-providers:\n  provider:\n    type: http\n    url: \'\'\n    interval: 86400\n    path: ./provider.yaml\n    health-check:\n      enable: true\n      url: https://www.gstatic.com/generate_204\n      interval: 600',
+        cursorLocations: const {55},
+      ),
+      CustomCodeSnippet(
+        label: 'rule-providers',
+        value:
+            'rule-providers:\n  provider:\n    type: http\n    behavior: domain\n    format: mrs\n    interval: 86400\n    url: \'\'\n    path: ./ruleset.mrs',
+        cursorLocations: const {110},
+      ),
+      CustomCodeSnippet(
+        label: 'proxies',
+        value: 'proxies:\n  - name: \n    type: direct',
+        cursorLocations: const {19},
+      ),
+      CustomCodeSnippet(
+        label: 'dns',
+        value:
+            'dns:\n  enable: true\n  ipv6: true\n  enhanced-mode: fake-ip\n  fake-ip-range: 198.18.0.1/16\n  nameserver:\n    - https://dns.alidns.com/dns-query',
+        cursorLocations: const {15},
+      ),
+      CustomCodeSnippet(
+        label: 'tun',
+        value:
+            'tun:\n  enable: true\n  stack: system\n  auto-route: true\n  strict-route: true\n  auto-detect-interface: true',
+        cursorLocations: const {15},
+      ),
+      CustomCodeSnippet(
+        label: 'rules',
+        value: 'rules:\n  - ',
+        cursorLocations: const {11},
+      ),
+      CustomCodeSnippet(
+        label: 'dialer-proxy',
+        value: 'dialer-proxy: ',
+        cursorLocations: const {14},
+      ),
+      CustomCodeSnippet(
+        label: 'tolerance',
+        value: 'tolerance: 50',
+        cursorLocations: const {11},
+      ),
+      CustomCodeSnippet(
+        label: 'REJECT-DROP',
+        value: 'REJECT-DROP',
+        cursorLocations: const {11},
+      ),
+      CustomCodeSnippet(
+        label: 'RULE-SET',
+        value: 'RULE-SET,',
+        cursorLocations: const {9},
+      ),
+      CustomCodeSnippet(
+        label: 'DOMAIN-SUFFIX',
+        value: 'DOMAIN-SUFFIX,',
+        cursorLocations: const {14},
+      ),
+      CustomCodeSnippet(
+        label: 'DOMAIN-KEYWORD',
+        value: 'DOMAIN-KEYWORD,',
+        cursorLocations: const {15},
+      ),
+      CustomCodeSnippet(
+        label: 'IP-CIDR',
+        value: 'IP-CIDR,',
+        cursorLocations: const {8},
+      ),
+      CustomCodeSnippet(
+        label: 'GEOIP',
+        value: 'GEOIP,',
+        cursorLocations: const {6},
+      ),
+      CustomCodeSnippet(
+        label: 'GEOSITE',
+        value: 'GEOSITE,',
+        cursorLocations: const {8},
+      ),
+    ];
+  } else if (lang == Language.javaScript) {
+    return [
+      CustomCodeSnippet(
+        label: 'main',
+        value: 'function main(config) {\n  \n  return config;\n}',
+        cursorLocations: const {27},
+      ),
+      CustomCodeSnippet(
+        label: 'ruleOptionsEnable',
+        value:
+            'const ruleOptionsEnable = {\n  AI: true,\n  Media: true,\n  Google: true,\n  Microsoft: true,\n  Apple: true,\n  Telegram: true,\n};',
+        cursorLocations: const {31},
+      ),
+      CustomCodeSnippet(
+        label: 'filterProxies',
+        value:
+            'const proxies = config.proxies || [];\nconst filtered = proxies.filter(p => !/test/.test(p.name));',
+        cursorLocations: const {82},
+      ),
+      CustomCodeSnippet(
+        label: 'unshiftRule',
+        value:
+            'if (config.rules) {\n  config.rules.unshift(\'RULE-SET,private,DIRECT\');\n}',
+        cursorLocations: const {47},
+      ),
+      CustomCodeSnippet(
+        label: 'addProxyGroup',
+        value:
+            'if (config[\'proxy-groups\']) {\n  config[\'proxy-groups\'].push({\n    name: \'\',\n    type: \'select\',\n    proxies: [\'DIRECT\'],\n  });\n}',
+        cursorLocations: const {60},
+      ),
+    ];
+  }
+  return null;
 }

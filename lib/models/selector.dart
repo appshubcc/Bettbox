@@ -76,6 +76,7 @@ abstract class TrayState with _$TrayState {
     @Default(false) bool wakelockEnabled,
     @Default({}) Map<String, int?> delays,
     @Default(true) bool trayEnhancement,
+    @Default(false) bool enableTraySpeed,
   }) = _TrayState;
 }
 
@@ -168,7 +169,23 @@ extension PackageListSelectorStateExt on PackageListSelectorState {
 
   List<Package> getSortList(List<String> selectedList) {
     final sort = accessControl.sort;
-    return list
+    final filtered = list;
+    final existingPackageNames = packages.map((e) => e.packageName).toSet();
+    final packageNameRegex = RegExp(r'^[a-zA-Z0-9_]+(\.[a-zA-Z0-9_]+)+$');
+    final manualPackages = selectedList
+        .where((pkg) =>
+            !existingPackageNames.contains(pkg) &&
+            packageNameRegex.hasMatch(pkg))
+        .map((pkg) => Package(
+              packageName: pkg,
+              label: '[Manual]',
+              system: false,
+              internet: true,
+              lastUpdateTime: 0,
+            ));
+
+    final combined = [...filtered, ...manualPackages];
+    return combined
         .sorted((a, b) {
           return switch (sort) {
             AccessSortType.none => 0,
@@ -250,7 +267,7 @@ abstract class ProxyState with _$ProxyState {
   const factory ProxyState({
     required bool isStart,
     required bool systemProxy,
-    required List<String> bassDomain,
+    required List<String> bypassDomain,
     required int port,
   }) = _ProxyState;
 }

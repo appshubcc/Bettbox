@@ -51,6 +51,7 @@ type Hysteria2RealmOption struct {
 	// for ServerURL
 	SNI            string   `inbound:"sni,omitempty"`
 	SkipCertVerify bool     `inbound:"skip-cert-verify,omitempty"`
+	NameCertVerify string   `inbound:"name-cert-verify,omitempty"`
 	Fingerprint    string   `inbound:"fingerprint,omitempty"`
 	Certificate    string   `inbound:"certificate,omitempty"`
 	PrivateKey     string   `inbound:"private-key,omitempty"`
@@ -67,6 +68,7 @@ func (o Hysteria2RealmOption) Build() LC.Hysteria2RealmOption {
 		STUNServers:    o.STUNServers,
 		SNI:            o.SNI,
 		SkipCertVerify: o.SkipCertVerify,
+		NameCertVerify: o.NameCertVerify,
 		Fingerprint:    o.Fingerprint,
 		Certificate:    o.Certificate,
 		PrivateKey:     o.PrivateKey,

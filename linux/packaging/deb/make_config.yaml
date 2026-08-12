@@ -27,3 +27,18 @@ categories:
   - Network
 
 startup_notify: true
+startup_wm_class: com.appshub.bettbox
+
+postinstall_scripts:
+  - |
+    CORE_PATH="/usr/share/Bettbox/BettboxCore"
+    if [ -f "$CORE_PATH" ]; then
+      chown root:root "$CORE_PATH" 2>/dev/null || true
+      chmod +sx "$CORE_PATH" 2>/dev/null || true
+    fi
+postuninstall_scripts:
+  - |
+    CORE_PATH="/usr/share/Bettbox/BettboxCore"
+    if [ -f "$CORE_PATH" ]; then
+      chmod -s "$CORE_PATH" 2>/dev/null || true
+    fi

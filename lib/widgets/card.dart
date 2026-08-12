@@ -80,7 +80,7 @@ class CommonCard extends StatelessWidget {
     this.onPressed,
     this.onLongPress,
     this.selectWidget,
-    this.radius = 12,
+    this.radius,
     required this.child,
     this.padding,
     this.enterAnimated = false,
@@ -96,7 +96,7 @@ class CommonCard extends StatelessWidget {
   final EdgeInsets? padding;
   final Info? info;
   final CommonCardType type;
-  final double radius;
+  final double? radius;
 
   // final WidgetStateProperty<Color?>? backgroundColor;
   // final WidgetStateProperty<BorderSide?>? borderSide;
@@ -137,6 +137,7 @@ class CommonCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final actualRadius = radius ?? 20.0;
     var childWidget = child;
 
     if (info != null) {
@@ -159,13 +160,16 @@ class CommonCard extends StatelessWidget {
       childWidget = Stack(children: children);
     }
 
+    final isInteractive = onPressed != null || onLongPress != null;
     final card = OutlinedButton(
       onLongPress: onLongPress,
-      clipBehavior: Clip.antiAlias,
+      clipBehavior: Clip.hardEdge,
       style: ButtonStyle(
         padding: const WidgetStatePropertyAll(EdgeInsets.zero),
         shape: WidgetStatePropertyAll(
-          RoundedRectangleBorder(borderRadius: BorderRadius.circular(radius)),
+          RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(actualRadius),
+          ),
         ),
         iconColor: WidgetStatePropertyAll(context.colorScheme.primary),
         iconSize: WidgetStateProperty.all(20),
@@ -175,6 +179,8 @@ class CommonCard extends StatelessWidget {
         side: WidgetStateProperty.resolveWith(
           (states) => getBorderSide(context, states),
         ),
+        minimumSize: WidgetStatePropertyAll(isInteractive ? null : Size.zero),
+        tapTargetSize: isInteractive ? null : MaterialTapTargetSize.shrinkWrap,
       ),
       onPressed: onPressed,
       child: childWidget,

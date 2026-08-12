@@ -9,8 +9,10 @@ import (
 	N "github.com/metacubex/mihomo/common/net"
 	"github.com/metacubex/mihomo/common/structure"
 	C "github.com/metacubex/mihomo/constant"
+	"github.com/metacubex/mihomo/transport/jls"
+	"github.com/metacubex/mihomo/transport/restls"
+	"github.com/metacubex/mihomo/transport/shadowtls"
 	obfs "github.com/metacubex/mihomo/transport/simple-obfs"
-	shadowtls "github.com/metacubex/mihomo/transport/sing-shadowtls"
 	"github.com/metacubex/mihomo/transport/snell"
 )
 
@@ -21,6 +23,8 @@ type Snell struct {
 	pool            *snell.Pool
 	obfsOption      *simpleObfsOption
 	shadowTLSOption *shadowtls.ShadowTLSOption
+	restlsConfig    *restls.Config
+	jlsConfig       *jls.ClientConfig
 	version         int
 	reuse           bool
 }
@@ -48,6 +52,16 @@ func (s *Snell) streamConnContext(ctx context.Context, c net.Conn) (*snell.Snell
 		c = obfs.NewHTTPObfs(c, s.obfsOption.Host, port)
 	case shadowtls.Mode:
 		c, err = shadowtls.NewShadowTLS(ctx, c, s.shadowTLSOption)
+		if err != nil {
+			return nil, err
+		}
+	case restls.Mode:
+		c, err = restls.NewRestls(ctx, c, s.restlsConfig)
+		if err != nil {
+			return nil, err
+		}
+	case jls.Mode:
+		c, err = jls.NewClient(ctx, c, s.jlsConfig)
 		if err != nil {
 			return nil, err
 		}
@@ -161,6 +175,8 @@ func NewSnell(option SnellOption) (*Snell, error) {
 	}
 
 	var shadowTLSOpt *shadowtls.ShadowTLSOption
+	var restlsConfig *restls.Config
+	var jlsConfig *jls.ClientConfig
 	switch obfsOption.Mode {
 	case "tls", "http", "":
 		break
@@ -180,6 +196,7 @@ func NewSnell(option SnellOption) (*Snell, error) {
 			PrivateKey:        opt.PrivateKey,
 			ClientFingerprint: option.ClientFingerprint,
 			SkipCertVerify:    opt.SkipCertVerify,
+			NameCertVerify:    opt.NameCertVerify,
 			Version:           opt.Version,
 		}
 
@@ -188,6 +205,38 @@ func NewSnell(option SnellOption) (*Snell, error) {
 		} else {
 			shadowTLSOpt.ALPN = shadowtls.DefaultALPN
 		}
+	case restls.Mode:
+		opt := &restlsOption{}
+		if err := decoder.Decode(option.ObfsOpts, opt); err != nil {
+			return nil, fmt.Errorf("snell %s initialize restls-plugin error: %w", addr, err)
+		}
+
+		var err error
+		restlsConfig, err = restls.NewRestlsConfig(opt.Host, opt.Password, opt.VersionHint, opt.RestlsScript, option.ClientFingerprint)
+		if err != nil {
+			return nil, fmt.Errorf("snell %s initialize restls-plugin error: %w", addr, err)
+		}
+		restlsConfig.InsecureSkipVerify = opt.SkipCertVerify
+		if opt.Fingerprint != "" {
+			if err = restls.SetFingerprint(restlsConfig, opt.Fingerprint, opt.NameCertVerify); err != nil {
+				return nil, fmt.Errorf("snell %s initialize restls-plugin error: %w", addr, err)
+			}
+		} else if opt.NameCertVerify != "" {
+			restls.SetNameCertVerify(restlsConfig, opt.NameCertVerify)
+		}
+		restlsConfig.ForceTLS12 = opt.ForceTLS12
+	case jls.Mode:
+		opt := &jlsOption{}
+		if err := decoder.Decode(option.ObfsOpts, opt); err != nil {
+			return nil, fmt.Errorf("snell %s initialize jls-plugin error: %w", addr, err)
+		}
+
+		var err error
+		jlsConfig, err = jls.NewClientConfig(opt.Host, opt.Username, opt.Password, opt.ALPN)
+		if err != nil {
+			return nil, fmt.Errorf("snell %s initialize jls-plugin error: %w", addr, err)
+		}
+		jlsConfig.ClientFingerprint = option.ClientFingerprint
 	default:
 		return nil, fmt.Errorf("snell %s obfs mode error: %s", addr, obfsOption.Mode)
 	}
@@ -228,6 +277,8 @@ func NewSnell(option SnellOption) (*Snell, error) {
 		psk:             psk,
 		obfsOption:      obfsOption,
 		shadowTLSOption: shadowTLSOpt,
+		restlsConfig:    restlsConfig,
+		jlsConfig:       jlsConfig,
 		version:         option.Version,
 		reuse:           reuse,
 	}

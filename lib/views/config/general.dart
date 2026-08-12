@@ -608,107 +608,103 @@ class ExternalControllerItem extends ConsumerWidget {
         (state) => state.externalController == ExternalControllerStatus.open,
       ),
     );
-    return ListItem.switchItem(
-      leading: const Icon(Icons.api_outlined),
-      title: Text(appLocalizations.externalController),
-      subtitle: Text(appLocalizations.externalControllerDesc),
-      delegate: SwitchDelegate(
-        value: hasExternalController,
-        onChanged: (bool value) async {
-          if (value) {
-            // Auto-generate 8-digit password when enabling external controller
-            final newSecret = utils.generateSecret();
-            ref
-                .read(patchClashConfigProvider.notifier)
-                .updateState(
-                  (state) => state.copyWith(
-                    externalController: ExternalControllerStatus.open,
-                    secret: newSecret,
-                  ),
-                );
-            // Apply config
-            await globalState.appController.applyProfile();
-          } else {
-            // Disable external controller
-            ref
-                .read(patchClashConfigProvider.notifier)
-                .updateState(
-                  (state) => state.copyWith(
-                    externalController: ExternalControllerStatus.close,
-                  ),
-                );
-            // Apply config
-            await globalState.appController.applyProfile();
-          }
-        },
-      ),
-    );
-  }
-}
+    final secret = hasExternalController
+        ? ref.watch(patchClashConfigProvider.select((state) => state.secret)) ??
+            ''
+        : '';
 
-class ControlSecretItem extends ConsumerWidget {
-  const ControlSecretItem({super.key});
-
-  @override
-  Widget build(BuildContext context, ref) {
-    final hasExternalController = ref.watch(
-      patchClashConfigProvider.select(
-        (state) => state.externalController == ExternalControllerStatus.open,
-      ),
-    );
-
-    // Only show when external controller is enabled
-    if (!hasExternalController) {
-      return const SizedBox.shrink();
-    }
-
-    final secret =
-        ref.watch(patchClashConfigProvider.select((state) => state.secret)) ??
-        '';
-
-    return ListItem(
-      leading: const Icon(Icons.password_outlined),
-      title: Text(appLocalizations.controlSecret),
-      subtitle: Text(
-        secret.isEmpty ? appLocalizations.controlSecretDesc : secret,
-      ),
-      trailing: secret.isNotEmpty
-          ? Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                IconButton(
-                  icon: const Icon(Icons.open_in_new),
-                  tooltip: appLocalizations.onlinePanel,
-                  onPressed: () async {
-                    final uri = Uri.parse(
-                      'http://127.0.0.1:9090/ui/#/setup?hostname=127.0.0.1&port=9090&secret=$secret',
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        ListItem.switchItem(
+          leading: const Icon(Icons.api_outlined),
+          title: Text(appLocalizations.externalController),
+          subtitle: Text(appLocalizations.externalControllerDesc),
+          delegate: SwitchDelegate(
+            value: hasExternalController,
+            onChanged: (bool value) async {
+              if (value) {
+                final newSecret = utils.generateSecret();
+                ref
+                    .read(patchClashConfigProvider.notifier)
+                    .updateState(
+                      (state) => state.copyWith(
+                        externalController: ExternalControllerStatus.open,
+                        secret: newSecret,
+                      ),
                     );
-                    if (await canLaunchUrl(uri)) {
-                      await launchUrl(
-                        uri,
-                        mode: LaunchMode.externalApplication,
-                      );
-                    }
-                  },
-                ),
-                IconButton(
-                  icon: const Icon(Icons.copy),
-                  tooltip: appLocalizations.copy,
-                  onPressed: () {
-                    Clipboard.setData(ClipboardData(text: secret));
-                    if (context.mounted) {
-                      context.showSnackBar(appLocalizations.secretCopied);
-                    }
-                  },
-                ),
-              ],
-            )
-          : null,
-      onTap: () async {
-        await globalState.showCommonDialog(
-          child: _SecretDialog(currentSecret: secret),
-        );
-      },
+                await globalState.appController.applyProfile();
+              } else {
+                ref
+                    .read(patchClashConfigProvider.notifier)
+                    .updateState(
+                      (state) => state.copyWith(
+                        externalController: ExternalControllerStatus.close,
+                      ),
+                    );
+                await globalState.appController.applyProfile();
+              }
+            },
+          ),
+        ),
+        if (hasExternalController) ...[
+          Divider(
+            height: 1,
+            thickness: 1,
+            color: context.colorScheme.outlineVariant.withValues(
+              alpha: context.colorScheme.brightness == Brightness.light
+                  ? 0.3
+                  : 0.2,
+            ),
+            indent: 16,
+            endIndent: 16,
+          ),
+          ListItem(
+            leading: const Icon(Icons.password_outlined),
+            title: Text(appLocalizations.controlSecret),
+            subtitle: Text(
+              secret.isEmpty ? appLocalizations.controlSecretDesc : secret,
+            ),
+            trailing: secret.isNotEmpty
+                ? Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.open_in_new),
+                        tooltip: appLocalizations.onlinePanel,
+                        onPressed: () async {
+                          final uri = Uri.parse(
+                            'http://127.0.0.1:9090/ui/#/setup?hostname=127.0.0.1&port=9090&secret=$secret',
+                          );
+                          if (await canLaunchUrl(uri)) {
+                            await launchUrl(
+                              uri,
+                              mode: LaunchMode.externalApplication,
+                            );
+                          }
+                        },
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.copy),
+                        tooltip: appLocalizations.copy,
+                        onPressed: () {
+                          Clipboard.setData(ClipboardData(text: secret));
+                          if (context.mounted) {
+                            context.showSnackBar(appLocalizations.secretCopied);
+                          }
+                        },
+                      ),
+                    ],
+                  )
+                : null,
+            onTap: () async {
+              await globalState.showCommonDialog(
+                child: _SecretDialog(currentSecret: secret),
+              );
+            },
+          ),
+        ],
+      ],
     );
   }
 }
@@ -786,7 +782,6 @@ final generalItems = <Widget>[
   TcpConcurrentItem(),
   GeodataLoaderItem(),
   ExternalControllerItem(),
-  ControlSecretItem(),
 ].separated(const Divider(height: 0)).toList();
 
 class _PortDialog extends ConsumerStatefulWidget {

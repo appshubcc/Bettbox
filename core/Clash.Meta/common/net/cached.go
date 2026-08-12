@@ -28,7 +28,9 @@ func (c *CachedConn) Read(b []byte) (n int, err error) {
 
 func (c *CachedConn) ReadCached() *buf.Buffer { // call in sing/common/bufio.Copy
 	if len(c.data) > 0 {
-		return buf.As(c.data)
+		data := c.data
+		c.data = nil
+		return buf.As(data)
 	}
 	return nil
 }

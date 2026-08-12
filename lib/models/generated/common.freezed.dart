@@ -4728,7 +4728,7 @@ as bool,
 /// @nodoc
 mixin _$Script {
 
- String get id; String get label; String get content; String? get url;
+ String get id; String get label; String get content; String? get url;@JsonKey(name: 'custom-options') Map<String, bool>? get customOptions;
 /// Create a copy of Script
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -4741,16 +4741,16 @@ $ScriptCopyWith<Script> get copyWith => _$ScriptCopyWithImpl<Script>(this as Scr
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Script&&(identical(other.id, id) || other.id == id)&&(identical(other.label, label) || other.label == label)&&(identical(other.content, content) || other.content == content)&&(identical(other.url, url) || other.url == url));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Script&&(identical(other.id, id) || other.id == id)&&(identical(other.label, label) || other.label == label)&&(identical(other.content, content) || other.content == content)&&(identical(other.url, url) || other.url == url)&&const DeepCollectionEquality().equals(other.customOptions, customOptions));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,label,content,url);
+int get hashCode => Object.hash(runtimeType,id,label,content,url,const DeepCollectionEquality().hash(customOptions));
 
 @override
 String toString() {
-  return 'Script(id: $id, label: $label, content: $content, url: $url)';
+  return 'Script(id: $id, label: $label, content: $content, url: $url, customOptions: $customOptions)';
 }
 
 
@@ -4761,7 +4761,7 @@ abstract mixin class $ScriptCopyWith<$Res>  {
   factory $ScriptCopyWith(Script value, $Res Function(Script) _then) = _$ScriptCopyWithImpl;
 @useResult
 $Res call({
- String id, String label, String content, String? url
+ String id, String label, String content, String? url,@JsonKey(name: 'custom-options') Map<String, bool>? customOptions
 });
 
 
@@ -4778,13 +4778,14 @@ class _$ScriptCopyWithImpl<$Res>
 
 /// Create a copy of Script
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? label = null,Object? content = null,Object? url = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? label = null,Object? content = null,Object? url = freezed,Object? customOptions = freezed,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,label: null == label ? _self.label : label // ignore: cast_nullable_to_non_nullable
 as String,content: null == content ? _self.content : content // ignore: cast_nullable_to_non_nullable
 as String,url: freezed == url ? _self.url : url // ignore: cast_nullable_to_non_nullable
-as String?,
+as String?,customOptions: freezed == customOptions ? _self.customOptions : customOptions // ignore: cast_nullable_to_non_nullable
+as Map<String, bool>?,
   ));
 }
 
@@ -4869,10 +4870,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String label,  String content,  String? url)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String label,  String content,  String? url, @JsonKey(name: 'custom-options')  Map<String, bool>? customOptions)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Script() when $default != null:
-return $default(_that.id,_that.label,_that.content,_that.url);case _:
+return $default(_that.id,_that.label,_that.content,_that.url,_that.customOptions);case _:
   return orElse();
 
 }
@@ -4890,10 +4891,10 @@ return $default(_that.id,_that.label,_that.content,_that.url);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String label,  String content,  String? url)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String label,  String content,  String? url, @JsonKey(name: 'custom-options')  Map<String, bool>? customOptions)  $default,) {final _that = this;
 switch (_that) {
 case _Script():
-return $default(_that.id,_that.label,_that.content,_that.url);case _:
+return $default(_that.id,_that.label,_that.content,_that.url,_that.customOptions);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -4910,10 +4911,10 @@ return $default(_that.id,_that.label,_that.content,_that.url);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String label,  String content,  String? url)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String label,  String content,  String? url, @JsonKey(name: 'custom-options')  Map<String, bool>? customOptions)?  $default,) {final _that = this;
 switch (_that) {
 case _Script() when $default != null:
-return $default(_that.id,_that.label,_that.content,_that.url);case _:
+return $default(_that.id,_that.label,_that.content,_that.url,_that.customOptions);case _:
   return null;
 
 }
@@ -4925,13 +4926,22 @@ return $default(_that.id,_that.label,_that.content,_that.url);case _:
 @JsonSerializable()
 
 class _Script implements Script {
-  const _Script({required this.id, required this.label, required this.content, this.url});
+  const _Script({required this.id, required this.label, required this.content, this.url, @JsonKey(name: 'custom-options') final  Map<String, bool>? customOptions}): _customOptions = customOptions;
   factory _Script.fromJson(Map<String, dynamic> json) => _$ScriptFromJson(json);
 
 @override final  String id;
 @override final  String label;
 @override final  String content;
 @override final  String? url;
+ final  Map<String, bool>? _customOptions;
+@override@JsonKey(name: 'custom-options') Map<String, bool>? get customOptions {
+  final value = _customOptions;
+  if (value == null) return null;
+  if (_customOptions is EqualUnmodifiableMapView) return _customOptions;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableMapView(value);
+}
+
 
 /// Create a copy of Script
 /// with the given fields replaced by the non-null parameter values.
@@ -4946,16 +4956,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Script&&(identical(other.id, id) || other.id == id)&&(identical(other.label, label) || other.label == label)&&(identical(other.content, content) || other.content == content)&&(identical(other.url, url) || other.url == url));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Script&&(identical(other.id, id) || other.id == id)&&(identical(other.label, label) || other.label == label)&&(identical(other.content, content) || other.content == content)&&(identical(other.url, url) || other.url == url)&&const DeepCollectionEquality().equals(other._customOptions, _customOptions));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,label,content,url);
+int get hashCode => Object.hash(runtimeType,id,label,content,url,const DeepCollectionEquality().hash(_customOptions));
 
 @override
 String toString() {
-  return 'Script(id: $id, label: $label, content: $content, url: $url)';
+  return 'Script(id: $id, label: $label, content: $content, url: $url, customOptions: $customOptions)';
 }
 
 
@@ -4966,7 +4976,7 @@ abstract mixin class _$ScriptCopyWith<$Res> implements $ScriptCopyWith<$Res> {
   factory _$ScriptCopyWith(_Script value, $Res Function(_Script) _then) = __$ScriptCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String label, String content, String? url
+ String id, String label, String content, String? url,@JsonKey(name: 'custom-options') Map<String, bool>? customOptions
 });
 
 
@@ -4983,13 +4993,14 @@ class __$ScriptCopyWithImpl<$Res>
 
 /// Create a copy of Script
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? label = null,Object? content = null,Object? url = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? label = null,Object? content = null,Object? url = freezed,Object? customOptions = freezed,}) {
   return _then(_Script(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,label: null == label ? _self.label : label // ignore: cast_nullable_to_non_nullable
 as String,content: null == content ? _self.content : content // ignore: cast_nullable_to_non_nullable
 as String,url: freezed == url ? _self.url : url // ignore: cast_nullable_to_non_nullable
-as String?,
+as String?,customOptions: freezed == customOptions ? _self._customOptions : customOptions // ignore: cast_nullable_to_non_nullable
+as Map<String, bool>?,
   ));
 }
 

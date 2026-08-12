@@ -91,11 +91,13 @@ class ClashCore {
     return await clashInterface.setupConfig(setupParams);
   }
 
-  Future<List<Group>> getProxiesGroups() async {
+  Future<List<Group>> getProxiesGroups({
+    List<ExternalProvider>? preloadedProviders,
+  }) async {
     final proxies = await clashInterface.getProxies();
     if (proxies.isEmpty) return [];
 
-    final providers = await getExternalProviders();
+    final providers = preloadedProviders ?? await getExternalProviders();
 
     return Isolate.run<List<Group>>(() {
       final allProxies = Map<String, dynamic>.from(proxies);
@@ -177,8 +179,8 @@ class ClashCore {
     clashInterface.closeConnection(id);
   }
 
-  void closeConnections() {
-    clashInterface.closeConnections();
+  Future<void> closeConnections() async {
+    await clashInterface.closeConnections();
   }
 
   void resetConnections() {
@@ -238,6 +240,10 @@ class ClashCore {
 
   Future<String> updateExternalProvider({required String providerName}) async {
     return clashInterface.updateExternalProvider(providerName);
+  }
+
+  Future<String> parseExternalProviderContent(String providerName) {
+    return clashInterface.parseExternalProviderContent(providerName);
   }
 
   Future<void> startListener() async {

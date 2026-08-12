@@ -10,12 +10,6 @@ import 'package:window_manager/window_manager.dart';
 class Window {
   Future<void> init() async {
     final props = globalState.config.windowProps;
-    final acquire = await singleInstanceLock.acquire();
-    if (!acquire) {
-      commonPrint.log('SingleInstanceLock: another instance detected or lock failed, exiting');
-      await Future.delayed(const Duration(milliseconds: 100));
-      exit(0);
-    }
     if (system.isWindows) {
       protocol.register('clash');
       protocol.register('clashmeta');
@@ -27,6 +21,7 @@ class Window {
       minimumSize: const Size(380, 400),
     );
     await windowManager.setTitleBarStyle(TitleBarStyle.hidden);
+    await windowManager.setAlwaysOnTop(props.isPinned);
     if (!system.isMacOS) {
       final left = props.left ?? 0;
       final top = props.top ?? 0;

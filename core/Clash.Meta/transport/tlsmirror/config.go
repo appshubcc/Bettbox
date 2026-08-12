@@ -19,6 +19,7 @@ type ClientConfig struct {
 
 	ServerName         string
 	SkipCertVerify     bool
+	NameCertVerify     string
 	ALPN               []string
 	Fingerprint        string
 	Certificate        string

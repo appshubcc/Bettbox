@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:bett_box/clash/clash.dart';
 import 'package:bett_box/common/common.dart';
+import 'package:bett_box/plugins/app.dart';
 import 'package:bett_box/state.dart';
 import 'package:bett_box/widgets/widgets.dart';
 import 'package:flutter/material.dart';
@@ -79,67 +80,112 @@ class _FcmStatusState extends State<FcmStatus> {
     }
   }
 
+  Future<void> _showFcmInfoDialog(BuildContext context) async {
+    await globalState.showCommonDialog<void>(
+      child: CommonDialog(
+        title: 'FCM',
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context, rootNavigator: true).pop();
+            },
+            child: Text(appLocalizations.confirm),
+          ),
+        ],
+        child: Text(appLocalizations.fcmTip),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return RepaintBoundary(
       child: SizedBox(
         height: getWidgetHeight(1),
         child: CommonCard(
-          info: const Info(iconData: Icons.cloud_outlined, label: 'FCM'),
-          onPressed: () async {
-            // Show info dialog
-            await globalState.showCommonDialog<void>(
-              child: CommonDialog(
-                title: 'FCM',
-                actions: [
-                  TextButton(
-                    onPressed: () {
-                      Navigator.of(context, rootNavigator: true).pop();
-                    },
-                    child: Text(appLocalizations.confirm),
-                  ),
-                ],
-                child: Text(appLocalizations.fcmTip),
-              ),
-            );
-          },
-          child: Container(
-            padding: baseInfoEdgeInsets.copyWith(top: 0),
-            child: Align(
-              alignment: Alignment.bottomLeft,
-              child: ValueListenableBuilder<FcmStatusData>(
-                valueListenable: _fcmStatusNotifier,
-                builder: (_, status, _) {
-                  if (status.isConnected && status.minutes != null) {
-                    return Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.baseline,
-                      textBaseline: TextBaseline.alphabetic,
-                      children: [
-                        Text(
-                          '${status.minutes}',
-                          style: context.textTheme.bodyLarge?.toLight
-                              .adjustSize(2),
+          onLongPress: system.isAndroid ? () => app.openFcmDiagnostics() : null,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Container(
+                height: globalState.measure.titleMediumHeight + 16,
+                padding: baseInfoEdgeInsets.copyWith(bottom: 0),
+                child: Row(
+                  mainAxisSize: MainAxisSize.max,
+                  children: [
+                    Icon(
+                      Icons.cloud_outlined,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+                    const SizedBox(width: 8),
+                    Flexible(
+                      flex: 1,
+                      child: TooltipText(
+                        text: Text(
+                          'FCM',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                            color: context.colorScheme.onSurfaceVariant,
+                          ),
                         ),
-                        const SizedBox(width: 4),
-                        Text(
-                          ' Minutes',
-                          style: context.textTheme.bodyMedium?.toLight
-                              .adjustSize(0),
-                        ),
-                      ],
-                    );
-                  } else {
-                    return Text(
-                      appLocalizations.noStatusAvailable,
-                      style: context.textTheme.bodyMedium?.toLight.adjustSize(
-                        0,
                       ),
-                    );
-                  }
-                },
+                    ),
+                    const SizedBox(width: 2),
+                    AspectRatio(
+                      aspectRatio: 1,
+                      child: IconButton(
+                        padding: EdgeInsets.zero,
+                        onPressed: () => _showFcmInfoDialog(context),
+                        icon: Icon(
+                          size: 16.ap,
+                          Icons.info_outline,
+                          color: context.colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
+              Container(
+                padding: baseInfoEdgeInsets.copyWith(top: 0),
+                child: Align(
+                  alignment: Alignment.bottomLeft,
+                  child: ValueListenableBuilder<FcmStatusData>(
+                    valueListenable: _fcmStatusNotifier,
+                    builder: (_, status, _) {
+                      if (status.isConnected && status.minutes != null) {
+                        return Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.baseline,
+                          textBaseline: TextBaseline.alphabetic,
+                          children: [
+                            Text(
+                              '${status.minutes}',
+                              style: context.textTheme.bodyLarge?.toLight
+                                  .adjustSize(2),
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              ' Minutes',
+                              style: context.textTheme.bodyMedium?.toLight
+                                  .adjustSize(0),
+                            ),
+                          ],
+                        );
+                      } else {
+                        return Text(
+                          appLocalizations.noStatusAvailable,
+                          style: context.textTheme.bodyMedium?.toLight.adjustSize(
+                            0,
+                          ),
+                        );
+                      }
+                    },
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       ),

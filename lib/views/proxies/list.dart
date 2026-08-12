@@ -28,6 +28,7 @@ class ProxiesListView extends ConsumerWidget {
       columns: state.columns,
       cardType: state.proxyCardType,
       sortType: state.proxiesSortType,
+      sortNum: state.sortNum,
       currentUnfoldSet: state.currentUnfoldSet,
     );
   }
@@ -38,6 +39,7 @@ class _ProxyGroupsList extends ConsumerStatefulWidget {
   final int columns;
   final ProxyCardType cardType;
   final ProxiesSortType sortType;
+  final num sortNum;
   final Set<String> currentUnfoldSet;
 
   const _ProxyGroupsList({
@@ -45,6 +47,7 @@ class _ProxyGroupsList extends ConsumerStatefulWidget {
     required this.columns,
     required this.cardType,
     required this.sortType,
+    required this.sortNum,
     required this.currentUnfoldSet,
   });
 
@@ -96,14 +99,18 @@ class _ProxyGroupsListState extends ConsumerState<_ProxyGroupsList> {
 
   double _getHeaderHeight() {
     final measure = globalState.measure;
-    final contentRowHeight = [40.0, measure.titleMediumHeight + 4 + measure.labelMediumHeight]
-        .reduce((a, b) => a > b ? a : b);
-    return 24.0 + contentRowHeight;
+    final contentRowHeight = [
+      40.0,
+      measure.titleMediumHeight + 4 + measure.labelMediumHeight,
+    ].reduce((a, b) => a > b ? a : b);
+    return 28.0 + contentRowHeight;
   }
 
   void _scrollToSelected(String groupName) {
     if (!_scrollController.hasClients) return;
-    final selectedName = ref.read(getSelectedProxyNameProvider(groupName)).getSafeValue('');
+    final selectedName = ref
+        .read(getSelectedProxyNameProvider(groupName))
+        .getSafeValue('');
     if (selectedName.isEmpty) return;
 
     final headerHeight = _getHeaderHeight();
@@ -179,17 +186,21 @@ class _ProxyGroupsListState extends ConsumerState<_ProxyGroupsList> {
 
   @override
   Widget build(BuildContext context) {
+    final isMobileView = ref.watch(isMobileViewProvider);
     final flatItems = _buildFlatItems();
     final headerHeight = _getHeaderHeight();
     final itemHeight = getItemHeight(widget.cardType);
 
     return CommonScrollBar(
       controller: _scrollController,
-      thumbVisibility: true,
-      trackVisibility: true,
       child: ListView.builder(
+        key: const PageStorageKey<String>('proxies_list'),
         controller: _scrollController,
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(16).copyWith(
+          bottom:
+              16 +
+              (isMobileView ? getFloatingBottomBarReserveHeight(context) : 0),
+        ),
         itemCount: flatItems.length,
         itemExtentBuilder: (index, _) {
           return flatItems[index].getHeight(headerHeight, itemHeight);
@@ -243,9 +254,7 @@ class _ProxyGroupsListState extends ConsumerState<_ProxyGroupsList> {
               padding: const EdgeInsets.only(bottom: 8),
               child: SizedBox(
                 height: itemHeight,
-                child: Row(
-                  children: rowChildren,
-                ),
+                child: Row(children: rowChildren),
               ),
             );
           }
@@ -279,19 +288,13 @@ class _GroupHeader extends ConsumerWidget {
     final iconStyle = ref.watch(
       proxiesStyleSettingProvider.select((s) => s.iconStyle),
     );
-    final iconMap = ref.watch(
-      proxiesStyleSettingProvider.select((s) => s.iconMap),
-    );
-    final icon = _getIcon(iconStyle, iconMap);
-    final selectedProxyName = ref.watch(
-      getSelectedProxyNameProvider(group.name),
-    ).getSafeValue('');
+    final icon = ref.watch(proxyIconProvider(group.name));
+    final selectedProxyName = ref
+        .watch(getSelectedProxyNameProvider(group.name))
+        .getSafeValue('');
 
     final selectedProxyIcon = ref.watch(
-      groupsProvider.select((groups) {
-        if (selectedProxyName.isEmpty) return '';
-        return groups.getGroup(selectedProxyName)?.icon ?? '';
-      }),
+      proxyIconProvider(selectedProxyName),
     );
 
     return CommonCard(
@@ -308,10 +311,7 @@ class _GroupHeader extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  EmojiText(
-                    group.name,
-                    style: context.textTheme.titleMedium,
-                  ),
+                  EmojiText(group.name, style: context.textTheme.titleMedium),
                   const SizedBox(height: 4),
                   Row(
                     children: [
@@ -351,11 +351,25 @@ class _GroupHeader extends ConsumerWidget {
                 onPressed: onScrollToSelected,
                 tooltip: 'Scroll to selected',
               ),
-              IconButton(
-                visualDensity: VisualDensity.compact,
-                icon: const Icon(Icons.network_ping),
-                onPressed: () => _delayTest(context),
-                tooltip: 'Delay test',
+              AnimatedBuilder(
+                animation: delayTestCoordinator,
+                builder: (_, _) {
+                  final isTestingThisGroup = delayTestCoordinator
+                      .isTestingGroup(group.name);
+                  return IconButton(
+                    visualDensity: VisualDensity.compact,
+                    icon: isTestingThisGroup
+                        ? const SizedBox.square(
+                            dimension: 18,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Icon(Icons.network_ping),
+                    onPressed: delayTestCoordinator.isTesting
+                        ? null
+                        : () => _delayTest(context),
+                    tooltip: appLocalizations.startTest,
+                  );
+                },
               ),
             ],
             IconButton.filledTonal(
@@ -367,18 +381,6 @@ class _GroupHeader extends ConsumerWidget {
         ),
       ),
     );
-  }
-
-  String _getIcon(ProxiesIconStyle style, Map<String, String> iconMap) {
-    if (style == ProxiesIconStyle.none) return '';
-    for (final entry in iconMap.entries) {
-      try {
-        if (RegExp(entry.key).hasMatch(group.name)) {
-          return entry.value;
-        }
-      } catch (_) {}
-    }
-    return group.icon;
   }
 
   Widget _buildIcon(BuildContext context, ProxiesIconStyle style, String icon) {
@@ -396,10 +398,7 @@ class _GroupHeader extends ConsumerWidget {
           color: context.colorScheme.secondaryContainer,
         ),
         clipBehavior: Clip.antiAlias,
-        child: CommonTargetIcon(
-          src: icon,
-          size: iconSize - 12,
-        ),
+        child: CommonTargetIcon(src: icon, size: iconSize - 12),
       );
     }
     return Container(
@@ -407,14 +406,11 @@ class _GroupHeader extends ConsumerWidget {
       width: iconSize,
       height: iconSize,
       alignment: Alignment.center,
-      child: CommonTargetIcon(
-        src: icon,
-        size: iconSize - 8,
-      ),
+      child: CommonTargetIcon(src: icon, size: iconSize - 8),
     );
   }
 
   Future<void> _delayTest(BuildContext context) async {
-    await delayTest(group.all, group.testUrl);
+    await delayTest(group.all, testUrl: group.testUrl, groupName: group.name);
   }
 }

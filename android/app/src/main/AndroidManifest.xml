@@ -26,13 +26,17 @@
     <application
         android:name=".BettboxApplication"
         android:hardwareAccelerated="true"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@mipmap/ic_launcher_light"
+        android:roundIcon="@mipmap/ic_launcher_round_light"
         android:label="Bettbox"
         android:banner="@drawable/tv_banner"
-        android:enableOnBackInvokedCallback="true">
+        android:enableOnBackInvokedCallback="false">
         <activity
             android:name="com.appshub.bettbox.MainActivity"
-            android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
+            android:icon="@mipmap/ic_launcher_light"
+            android:roundIcon="@mipmap/ic_launcher_round_light"
+            android:alwaysRetainTaskState="true"
+            android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode|colorMode"
             android:exported="true"
             android:hardwareAccelerated="true"
             android:launchMode="singleTop"
@@ -66,13 +70,41 @@
             </intent-filter>
         </activity>
 
-        <!-- Light icon alias -->
+        <!-- Light icon alias (kept for legacy user compatibility) -->
         <activity-alias
             android:name="com.appshub.bettbox.MainActivityLight"
             android:enabled="false"
             android:exported="true"
             android:icon="@mipmap/ic_launcher_light"
             android:roundIcon="@mipmap/ic_launcher_round_light"
+            android:targetActivity="com.appshub.bettbox.MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE_PREFERENCES" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:scheme="clash" android:host="install-config" />
+                <data android:scheme="clashmeta" android:host="install-config" />
+                <data android:scheme="bettbox" android:host="install-config" />
+            </intent-filter>
+        </activity-alias>
+
+        <!-- Dark icon alias — disabled by default -->
+        <activity-alias
+            android:name="com.appshub.bettbox.MainActivityDark"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_launcher"
+            android:roundIcon="@mipmap/ic_launcher_round"
             android:targetActivity="com.appshub.bettbox.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

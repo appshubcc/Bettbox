@@ -6,6 +6,7 @@ import 'package:bett_box/common/common.dart';
 import 'package:bett_box/models/common.dart';
 import 'package:bett_box/models/core.dart';
 import 'package:bett_box/models/profile.dart';
+import 'package:bett_box/pages/editor.dart';
 import 'package:bett_box/providers/app.dart';
 import 'package:bett_box/state.dart';
 import 'package:bett_box/widgets/widgets.dart';
@@ -28,7 +29,9 @@ class _ProvidersViewState extends ConsumerState<ProvidersView> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      globalState.appController.updateProviders();
+      if (ref.read(providersProvider).isEmpty) {
+        globalState.appController.updateProviders();
+      }
     });
   }
 
@@ -70,6 +73,7 @@ class _ProvidersViewState extends ConsumerState<ProvidersView> {
               TextSpan(text: message, style: titleMedium),
           ],
         ),
+        cancelable: false,
       );
     }
   }
@@ -79,50 +83,92 @@ class _ProvidersViewState extends ConsumerState<ProvidersView> {
     final providers = ref.watch(providersProvider);
     final proxyProviders = providers
         .where((item) => item.type == 'Proxy')
-        .map((item) => ProviderItem(provider: item));
+        .toList();
     final ruleProviders = providers
         .where((item) => item.type == 'Rule')
-        .map((item) => ProviderItem(provider: item));
-    final proxySection = generateSection(
-      title: appLocalizations.proxyProviders,
-      items: proxyProviders,
-      actions: [
-        IconButton(
-          onPressed: () => _updateProviders(type: 'Proxy'),
-          icon: const Icon(Icons.sync),
-          iconSize: 20,
-          splashRadius: 20,
-          padding: EdgeInsets.zero,
-          constraints: const BoxConstraints(),
+        .toList();
+    final sections = <({String title, List<ExternalProvider> providers, VoidCallback onSync})>[
+      if (proxyProviders.isNotEmpty)
+        (
+          title: appLocalizations.proxyProviders,
+          providers: proxyProviders,
+          onSync: () => _updateProviders(type: 'Proxy'),
         ),
-      ],
-    );
-    final ruleSection = generateSection(
-      title: appLocalizations.ruleProviders,
-      items: ruleProviders,
-      actions: [
-        IconButton(
-          onPressed: () => _updateProviders(type: 'Rule'),
-          icon: const Icon(Icons.sync),
-          iconSize: 20,
-          splashRadius: 20,
-          padding: EdgeInsets.zero,
-          constraints: const BoxConstraints(),
+      if (ruleProviders.isNotEmpty)
+        (
+          title: appLocalizations.ruleProviders,
+          providers: ruleProviders,
+          onSync: () => _updateProviders(type: 'Rule'),
         ),
-      ],
-    );
-    return AdaptiveSheetScaffold(
-      actions: [
-        IconButton(
-          onPressed: () {
-            _updateProviders();
+    ];
+
+    return RepaintBoundary(
+      child: AdaptiveSheetScaffold(
+        actions: [
+          IconButton(
+            onPressed: _updateProviders,
+            icon: const Icon(Icons.sync),
+          ),
+        ],
+        type: widget.type,
+        body: Builder(
+          builder: (context) {
+            final bottomPadding = MediaQuery.of(context).padding.bottom;
+            final itemCount = sections.fold<int>(
+              0,
+              (sum, section) => sum + 1 + section.providers.length,
+            );
+            return ListView.builder(
+              padding: EdgeInsets.only(bottom: 24 + bottomPadding, top: 12),
+              itemCount: itemCount,
+              itemBuilder: (context, index) {
+                var current = 0;
+                for (final section in sections) {
+                  if (index == current) {
+                    return ListHeader(
+                      title: section.title,
+                      padding: current == 0
+                          ? const EdgeInsets.only(
+                              left: 16,
+                              right: 8,
+                              top: 4,
+                              bottom: 8,
+                            )
+                          : null,
+                      actions: [
+                        IconButton(
+                          onPressed: section.onSync,
+                          icon: const Icon(Icons.sync),
+                          iconSize: 20,
+                          splashRadius: 20,
+                          padding: EdgeInsets.zero,
+                          constraints: const BoxConstraints(),
+                        ),
+                      ],
+                    );
+                  }
+                  current++;
+                  if (index < current + section.providers.length) {
+                    final providerIndex = index - current;
+                    final provider = section.providers[providerIndex];
+                    return ContinuousListItem(
+                      index: providerIndex,
+                      count: section.providers.length,
+                      child: ProviderItem(
+                        key: ValueKey(provider.name),
+                        provider: provider,
+                      ),
+                    );
+                  }
+                  current += section.providers.length;
+                }
+                return const SizedBox.shrink();
+              },
+            );
           },
-          icon: const Icon(Icons.sync),
         ),
-      ],
-      type: widget.type,
-      body: generateListView([...proxySection, ...ruleSection]),
-      title: appLocalizations.providers,
+        title: appLocalizations.providers,
+      ),
     );
   }
 }
@@ -175,17 +221,65 @@ class ProviderItem extends StatelessWidget {
     }
   }
 
+  Future<void> _handleViewProviderContent(BuildContext context) async {
+    await globalState.appController.safeRun(
+      () async {
+        final path = provider.path;
+        String content = '';
+        if (path != null && path.isNotEmpty && !path.endsWith('.mrs')) {
+          final file = File(path);
+          if (await file.exists()) {
+            try {
+              content = await file.readAsString();
+            } catch (_) {}
+          }
+        }
+        if (content.isEmpty) {
+          content = await clashCore.parseExternalProviderContent(provider.name);
+        }
+        if (!context.mounted) return;
+        BaseNavigator.push(
+          context,
+          EditorPage(
+            title: '${appLocalizations.view} - ${provider.name}',
+            content: content,
+            readOnly: true,
+            simple: provider.type == 'Rule',
+          ),
+          maintainState: false,
+        );
+      },
+      needLoading: true,
+      title: appLocalizations.tip,
+    );
+  }
+
   String _buildProviderDesc() {
-    final baseInfo = provider.updateAt.lastUpdateTimeDesc;
-    final trafficInfo = _buildTrafficInfoText(provider.subscriptionInfo);
-    final infoText = trafficInfo == null
-        ? baseInfo
-        : '$trafficInfo  ·  $baseInfo';
+    final updateTimeText = provider.updateAt.lastUpdateTimeDesc;
+    final subInfo = provider.subscriptionInfo;
+    String infoText;
+    if (subInfo == null) {
+      infoText = updateTimeText;
+    } else {
+      final trafficText = _buildTrafficInfoText(subInfo);
+      final expireText = _getExpireText(subInfo);
+      infoText = trafficText == null
+          ? '$expireText - $updateTimeText'
+          : '$trafficText · $expireText - $updateTimeText';
+    }
     final count = provider.count;
-    return switch (count == 0) {
-      true => infoText,
-      false => '$infoText  ·  $count${appLocalizations.entries}',
-    };
+    return count == 0
+        ? infoText
+        : '$infoText · $count${appLocalizations.entries}';
+  }
+
+  String _getExpireText(SubscriptionInfo subscriptionInfo) {
+    if (subscriptionInfo.expire == 0) {
+      return appLocalizations.infiniteTime;
+    }
+    return DateTime.fromMillisecondsSinceEpoch(
+      subscriptionInfo.expire * 1000,
+    ).show;
   }
 
   String? _buildTrafficInfoText(SubscriptionInfo? subscriptionInfo) {
@@ -229,6 +323,11 @@ class ProviderItem extends StatelessWidget {
                 avatar: const Icon(Icons.upload),
                 label: appLocalizations.upload,
                 onPressed: _handleSideLoadProvider,
+              ),
+              CommonChip(
+                avatar: const Icon(Icons.visibility),
+                label: appLocalizations.view,
+                onPressed: () => _handleViewProviderContent(context),
               ),
               if (provider.vehicleType == 'HTTP')
                 provider.isUpdating

@@ -24,10 +24,7 @@ pub mod named_pipe {
                     if first_instance {
                         return Err(e.into());
                     }
-                    crate::ops::logs::log_message(format!(
-                        "Failed to create pipe instance: {}",
-                        e
-                    ));
+                    crate::ops::logs::log_message(format!("Failed to create pipe instance: {}", e));
                     tokio::time::sleep(std::time::Duration::from_millis(100)).await;
                     continue;
                 }

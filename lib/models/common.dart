@@ -584,6 +584,7 @@ abstract class Script with _$Script {
     required String label,
     required String content,
     String? url,
+    @JsonKey(name: 'custom-options') Map<String, bool>? customOptions,
   }) = _Script;
 
   factory Script.create({
@@ -595,4 +596,11 @@ abstract class Script with _$Script {
   }
 
   factory Script.fromJson(Map<String, Object?> json) => _$ScriptFromJson(json);
+}
+
+extension ScriptExt on Script {
+  bool get isCompatibleWithBettbox {
+    final head = content.length > 2000 ? content.substring(0, 2000) : content;
+    return head.contains('Compatible_With_Bettbox');
+  }
 }

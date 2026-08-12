@@ -9,8 +9,8 @@ import (
 
 const (
 	packedProtectedPrefixBytes = 14
-	packedIOBufferSize         = 64 * 1024
-	packedDecodeBufferSize     = 96 * 1024
+	packedIOBufferSize         = 32 * 1024
+	packedDecodeBufferSize     = 32 * 1024
 )
 
 // PackedConn encodes traffic with the packed Sudoku layout while preserving
@@ -265,7 +265,10 @@ func (pc *PackedConn) Write(p []byte) (int, error) {
 
 	if len(out) > 0 {
 		pc.writeBuf = out[:0]
-		return len(p), writeFull(pc.Conn, out)
+		if _, err := pc.Conn.Write(out); err != nil {
+			return len(p), err
+		}
+		return len(p), nil
 	}
 	pc.writeBuf = out[:0]
 	return len(p), nil
@@ -293,21 +296,8 @@ func (pc *PackedConn) Flush() error {
 
 	if len(out) > 0 {
 		pc.writeBuf = out[:0]
-		return writeFull(pc.Conn, out)
-	}
-	return nil
-}
-
-func writeFull(w io.Writer, b []byte) error {
-	for len(b) > 0 {
-		n, err := w.Write(b)
-		if err != nil {
-			return err
-		}
-		if n == 0 {
-			return io.ErrShortWrite
-		}
-		b = b[n:]
+		_, err := pc.Conn.Write(out)
+		return err
 	}
 	return nil
 }

@@ -68,6 +68,9 @@ class _DashboardViewState extends ConsumerState<DashboardView> {
   }
 
   List<Widget> _buildActions() {
+    final showStartSwitch = ref.watch(
+      appSettingProvider.select((state) => state.showStartSwitch),
+    );
     return [
       _buildIsEdit((isEdit) {
         return isEdit
@@ -107,7 +110,7 @@ class _DashboardViewState extends ConsumerState<DashboardView> {
           ),
         ),
       ),
-      const _DashboardStartSwitch(),
+      if (showStartSwitch) const _DashboardStartSwitch(),
     ];
   }
 
@@ -165,7 +168,15 @@ class _DashboardViewState extends ConsumerState<DashboardView> {
       ref
           .read(appSettingProvider.notifier)
           .updateState(
-            (state) => state.copyWith(dashboardWidgets: dashboardWidgets),
+            (state) => system.isAndroid
+                ? state.copyWith(
+                    mobileDashboardWidgets: dashboardWidgets,
+                    dashboardWidgets: dashboardWidgets,
+                  )
+                : state.copyWith(
+                    desktopDashboardWidgets: dashboardWidgets,
+                    dashboardWidgets: dashboardWidgets,
+                  ),
           );
     });
   }
@@ -175,6 +186,7 @@ class _DashboardViewState extends ConsumerState<DashboardView> {
     final dashboardState = ref.watch(dashboardStateProvider);
     final columns = max(4 * ((dashboardState.viewWidth / 320).ceil()), 8);
     final spacing = 16.ap;
+    final isMobileView = ref.watch(isMobileViewProvider);
     final children = [
       ...dashboardState.dashboardWidgets
           .where(
@@ -199,7 +211,11 @@ class _DashboardViewState extends ConsumerState<DashboardView> {
       body: Align(
         alignment: Alignment.topCenter,
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16).copyWith(bottom: 16),
+          padding: EdgeInsets.all(16).copyWith(
+            bottom:
+                16 +
+                (isMobileView ? getFloatingBottomBarReserveHeight(context) : 0),
+          ),
           child: _buildIsEdit((isEdit) {
             if (isEdit) {
               return SystemBackBlock(

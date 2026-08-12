@@ -1,5 +1,7 @@
 import 'package:bett_box/common/common.dart';
 import 'package:bett_box/enum/enum.dart';
+import 'dart:async';
+
 import 'package:bett_box/models/models.dart';
 import 'package:bett_box/providers/app.dart';
 import 'package:bett_box/widgets/fade_box.dart';
@@ -52,6 +54,7 @@ class CommonScaffoldState extends State<CommonScaffold> {
   final ValueNotifier<Widget?> _floatingActionButton = ValueNotifier(null);
   final ValueNotifier<List<String>> _keywordsNotifier = ValueNotifier([]);
   final _textController = TextEditingController();
+  final _searchFocusNode = FocusNode();
 
   bool get _isSearch {
     return _appBarState.value.searchState?.query != null;
@@ -134,16 +137,19 @@ class CommonScaffoldState extends State<CommonScaffold> {
       _handleClearInput();
       return;
     }
+    _searchFocusNode.unfocus();
     _updateSearchState((state) => state?.copyWith(query: null));
   }
 
   void _handleExitSearching() {
+    _searchFocusNode.unfocus();
     _handleClearInput();
     _updateSearchState((state) => state?.copyWith(query: null));
   }
 
   @override
   void dispose() {
+    _searchFocusNode.dispose();
     _appBarState.dispose();
     _textController.dispose();
     _floatingActionButton.dispose();
@@ -184,7 +190,7 @@ class CommonScaffoldState extends State<CommonScaffold> {
   Widget _buildTitle(AppBarSearchState? startState) {
     return _isSearch
         ? TextField(
-            autofocus: true,
+            focusNode: _searchFocusNode,
             controller: _textController,
             style: context.textTheme.titleLarge,
             onChanged: (value) {
@@ -214,6 +220,12 @@ class CommonScaffoldState extends State<CommonScaffold> {
         IconButton(
           onPressed: () {
             _updateSearchState((state) => state?.copyWith(query: ''));
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              Future.delayed(const Duration(milliseconds: 150), () {
+                if (!mounted || !_isSearch) return;
+                _searchFocusNode.requestFocus();
+              });
+            });
           },
           icon: Icon(Icons.search),
         ),
@@ -288,6 +300,8 @@ class CommonScaffoldState extends State<CommonScaffold> {
   Widget build(BuildContext context) {
     assert(widget.appBar != null || widget.title != null);
     final body = SafeArea(
+      top: false,
+      bottom: false,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

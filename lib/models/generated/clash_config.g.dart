@@ -170,7 +170,7 @@ _Tun _$TunFromJson(Map<String, dynamic> json) => _Tun(
   device: json['device'] as String? ?? tunDeviceName,
   autoRoute: json['auto-route'] as bool? ?? false,
   stack:
-      $enumDecodeNullable(_$TunStackEnumMap, json['stack']) ?? TunStack.system,
+      $enumDecodeNullable(_$TunStackEnumMap, json['stack']) ?? TunStack.mixed,
   dnsHijack:
       (json['dns-hijack'] as List<dynamic>?)
           ?.map((e) => e as String)
@@ -188,7 +188,7 @@ _Tun _$TunFromJson(Map<String, dynamic> json) => _Tun(
       const [],
   strictRoute: json['strict-route'] as bool? ?? false,
   disableIcmpForwarding: json['disable-icmp-forwarding'] as bool? ?? true,
-  mtu: (json['mtu'] as num?)?.toInt() ?? 4064,
+  mtu: (json['mtu'] as num?)?.toInt() ?? 9000,
   endpointIndependentNat: json['endpoint-independent-nat'] as bool? ?? false,
 );
 

@@ -246,14 +246,3 @@ func DecodeKIPServerHelloPayload(payload []byte) (*KIPServerHello, error) {
 	h.SelectedFeats = binary.BigEndian.Uint32(payload[off : off+4])
 	return &h, nil
 }
-
-func writeFull(w io.Writer, b []byte) error {
-	for len(b) > 0 {
-		n, err := w.Write(b)
-		if err != nil {
-			return err
-		}
-		b = b[n:]
-	}
-	return nil
-}

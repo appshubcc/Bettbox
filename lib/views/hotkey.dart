@@ -37,11 +37,9 @@ class HotKeyView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
-      itemCount: HotAction.values.length,
-      itemBuilder: (_, index) {
-        final hotAction = HotAction.values[index];
-        return Consumer(
+    final items = [
+      for (final hotAction in HotAction.values)
+        Consumer(
           builder: (_, ref, _) {
             final hotKeyAction = ref.watch(getHotKeyActionProvider(hotAction));
             return ListItem(
@@ -59,9 +57,9 @@ class HotKeyView extends StatelessWidget {
               },
             );
           },
-        );
-      },
-    );
+        )
+    ];
+    return generateListView(items);
   }
 }
 
@@ -128,6 +126,7 @@ class _HotKeyRecorderState extends State<HotKeyRecorder> {
       globalState.showMessage(
         title: appLocalizations.tip,
         message: TextSpan(text: appLocalizations.inputCorrectHotkey),
+        cancelable: false,
       );
       return;
     }
@@ -144,6 +143,7 @@ class _HotKeyRecorderState extends State<HotKeyRecorder> {
       globalState.showMessage(
         title: appLocalizations.tip,
         message: TextSpan(text: appLocalizations.hotkeyConflict),
+        cancelable: false,
       );
       return;
     }

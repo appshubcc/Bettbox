@@ -111,6 +111,13 @@ func ParseProxy(mapping map[string]any, options ...ProxyOption) (C.Proxy, error)
 			break
 		}
 		proxy, err = outbound.NewTuic(*tuicOption)
+	case "shadowquic":
+		shadowQuicOption := &outbound.ShadowQuicOption{BasicOption: basicOption}
+		err = decoder.Decode(mapping, shadowQuicOption)
+		if err != nil {
+			break
+		}
+		proxy, err = outbound.NewShadowQuic(*shadowQuicOption)
 	case "gost-relay":
 		relayOption := &outbound.GostRelayOption{BasicOption: basicOption}
 		err = decoder.Decode(mapping, relayOption)

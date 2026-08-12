@@ -10,9 +10,10 @@ import (
 	N "github.com/metacubex/mihomo/common/net"
 	C "github.com/metacubex/mihomo/constant"
 	LC "github.com/metacubex/mihomo/listener/config"
-	"github.com/metacubex/mihomo/listener/inner"
+	"github.com/metacubex/mihomo/listener/jls"
+	"github.com/metacubex/mihomo/listener/restls"
+	"github.com/metacubex/mihomo/listener/shadowtls"
 	"github.com/metacubex/mihomo/listener/sing"
-	"github.com/metacubex/mihomo/transport/restls"
 	"github.com/metacubex/mihomo/transport/shadowsocks/core"
 	obfs "github.com/metacubex/mihomo/transport/simple-obfs"
 	"github.com/metacubex/mihomo/transport/socks5"
@@ -25,7 +26,6 @@ type Listener struct {
 	udpListeners []*UDPListener
 	pickCipher   core.Cipher
 	handler      *sing.ListenerHandler
-	resTLS       *restls.ServerConfig
 	simpleObfs   func(net.Conn) net.Conn
 }
 
@@ -50,15 +50,38 @@ func New(config LC.ShadowsocksServer, lc C.InboundListenConfig, tunnel C.Tunnel,
 	sl := &Listener{config: config, pickCipher: pickCipher, handler: h}
 	_listener = sl
 
+	securityModes := make([]string, 0, 3)
+	if config.ShadowTLS.Enable {
+		securityModes = append(securityModes, "shadow-tls")
+	}
 	if config.ResTLS.Enable {
-		sl.resTLS = &restls.ServerConfig{
-			ServerHostname: config.ResTLS.Dest,
-			Password:       config.ResTLS.Password,
-			RestlsScript:   config.ResTLS.RestlsScript,
-			MinRecordLen:   config.ResTLS.MinRecordLen,
-			DialContext: func(ctx context.Context, network, address string) (net.Conn, error) {
-				return inner.HandleTcp(tunnel, address, config.ResTLS.Proxy)
-			},
+		securityModes = append(securityModes, "res-tls")
+	}
+	if config.JLSConfig.Enable {
+		securityModes = append(securityModes, "jls")
+	}
+	if len(securityModes) > 1 {
+		return nil, fmt.Errorf("security modes are mutually exclusive: %s", strings.Join(securityModes, ", "))
+	}
+
+	var shadowTLSBuilder *shadowtls.Builder
+	if config.ShadowTLS.Enable {
+		shadowTLSBuilder, err = shadowtls.New(config.ShadowTLS, tunnel)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	var restlsBuilder *restls.Builder
+	if config.ResTLS.Enable {
+		restlsBuilder = restls.New(config.ResTLS, tunnel)
+	}
+
+	var jlsBuilder *jls.Builder
+	if config.JLSConfig.Enable {
+		jlsBuilder, err = jls.New(config.JLSConfig, tunnel)
+		if err != nil {
+			return nil, err
 		}
 	}
 
@@ -89,6 +112,13 @@ func New(config LC.ShadowsocksServer, lc C.InboundListenConfig, tunnel C.Tunnel,
 		l, err := lc.Listen(context.Background(), "tcp", addr)
 		if err != nil {
 			return nil, err
+		}
+		if shadowTLSBuilder != nil {
+			l = shadowTLSBuilder.NewListener(l)
+		} else if restlsBuilder != nil {
+			l = restlsBuilder.NewListener(l)
+		} else if jlsBuilder != nil {
+			l = jlsBuilder.NewListener(l)
 		}
 		sl.listeners = append(sl.listeners, l)
 
@@ -141,13 +171,12 @@ func (l *Listener) AddrList() (addrList []net.Addr) {
 }
 
 func (l *Listener) HandleConn(conn net.Conn, tunnel C.Tunnel, additions ...inbound.Addition) {
-	if l.resTLS != nil {
-		c, err := restls.Server(context.TODO(), conn, l.resTLS)
-		if err != nil {
-			_ = conn.Close()
-			return
-		}
-		conn = c
+	user, loaded := shadowtls.UserFromConn(conn)
+	if jlsUser, jlsLoaded := jls.UserFromConn(conn); jlsLoaded {
+		user, loaded = jlsUser, true
+	}
+	if loaded {
+		additions = append(append([]inbound.Addition(nil), additions...), inbound.WithInUser(user))
 	}
 	if l.simpleObfs != nil {
 		conn = l.simpleObfs(conn)

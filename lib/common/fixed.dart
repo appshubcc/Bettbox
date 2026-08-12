@@ -5,6 +5,7 @@ typedef ValueCallback<T> = T Function();
 class FixedList<T> {
   final int maxLength;
   final List<T> _list;
+  List<T>? _cachedList;
 
   FixedList(this.maxLength, {List<T>? list})
     : _list = (list ?? [])..truncate(maxLength);
@@ -12,13 +13,15 @@ class FixedList<T> {
   void add(T item) {
     _list.add(item);
     _list.truncate(maxLength);
+    _cachedList = null;
   }
 
   void clear() {
     _list.clear();
+    _cachedList = null;
   }
 
-  List<T> get list => List.unmodifiable(_list);
+  List<T> get list => _cachedList ??= List.unmodifiable(_list);
 
   int get length => _list.length;
 

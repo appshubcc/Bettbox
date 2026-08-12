@@ -40,6 +40,7 @@ class ScrollToEndBox<T> extends StatefulWidget {
   final List<T> dataSource;
   final Widget child;
   final bool enable;
+  final bool reverse;
   final VoidCallback? onCancelToEnd;
 
   const ScrollToEndBox({
@@ -49,6 +50,7 @@ class ScrollToEndBox<T> extends StatefulWidget {
     required this.dataSource,
     this.onCancelToEnd,
     this.enable = true,
+    this.reverse = false,
   });
 
   @override
@@ -64,9 +66,10 @@ class _ScrollToEndBoxState<T> extends State<ScrollToEndBox<T>> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (mounted && widget.controller.hasClients) {
         final pos = widget.controller.position;
-        if (pos.pixels != pos.maxScrollExtent) {
+        final end = widget.reverse ? pos.maxScrollExtent : pos.minScrollExtent;
+        if (pos.pixels != end) {
           await widget.controller.animateTo(
-            pos.maxScrollExtent,
+            end,
             duration: kThemeAnimationDuration,
             curve: Curves.easeOut,
           );
@@ -85,21 +88,23 @@ class _ScrollToEndBoxState<T> extends State<ScrollToEndBox<T>> {
       _handleTryToEnd().then((_) => _isFastToEnd = false);
       return;
     }
-    if (widget.enable && !_equals.equals(oldWidget.dataSource, widget.dataSource)) {
+    if (widget.enable &&
+        !_equals.equals(oldWidget.dataSource, widget.dataSource)) {
       _handleTryToEnd();
     }
   }
 
   @override
-  Widget build(BuildContext context) => NotificationListener<UserScrollNotification>(
-    onNotification: (n) {
-      if (!_isFastToEnd && widget.onCancelToEnd != null) {
-        widget.onCancelToEnd!();
-      }
-      return false;
-    },
-    child: widget.child,
-  );
+  Widget build(BuildContext context) =>
+      NotificationListener<UserScrollNotification>(
+        onNotification: (n) {
+          if (!_isFastToEnd && widget.onCancelToEnd != null) {
+            widget.onCancelToEnd!();
+          }
+          return false;
+        },
+        child: widget.child,
+      );
 }
 
 class CacheItemExtentListView extends StatefulWidget {
@@ -127,7 +132,8 @@ class CacheItemExtentListView extends StatefulWidget {
   });
 
   @override
-  State<CacheItemExtentListView> createState() => _CacheItemExtentListViewState();
+  State<CacheItemExtentListView> createState() =>
+      _CacheItemExtentListViewState();
 }
 
 class _CacheItemExtentListViewState extends State<CacheItemExtentListView> {
@@ -138,8 +144,12 @@ class _CacheItemExtentListViewState extends State<CacheItemExtentListView> {
   }
 
   void _updateCache() {
-    globalState.computeHeightMapCache[widget.tag]?.updateMaxLength(widget.itemCount);
-    globalState.computeHeightMapCache[widget.tag] ??= FixedMap(widget.itemCount);
+    globalState.computeHeightMapCache[widget.tag]?.updateMaxLength(
+      widget.itemCount,
+    );
+    globalState.computeHeightMapCache[widget.tag] ??= FixedMap(
+      widget.itemCount,
+    );
   }
 
   @override
@@ -194,8 +204,12 @@ class _CacheItemExtentSliverReorderableListState
   }
 
   void _updateCache() {
-    globalState.computeHeightMapCache[widget.tag]?.updateMaxLength(widget.itemCount);
-    globalState.computeHeightMapCache[widget.tag] ??= FixedMap(widget.itemCount);
+    globalState.computeHeightMapCache[widget.tag]?.updateMaxLength(
+      widget.itemCount,
+    );
+    globalState.computeHeightMapCache[widget.tag] ??= FixedMap(
+      widget.itemCount,
+    );
   }
 
   @override
@@ -204,10 +218,11 @@ class _CacheItemExtentSliverReorderableListState
     return SliverReorderableList(
       itemBuilder: widget.itemBuilder,
       itemCount: widget.itemCount,
-      itemExtentBuilder: (index, _) => globalState.computeHeightMapCache[widget.tag]?.updateCacheValue(
-        widget.keyBuilder(index),
-        () => widget.itemExtentBuilder(index),
-      ),
+      itemExtentBuilder: (index, _) =>
+          globalState.computeHeightMapCache[widget.tag]?.updateCacheValue(
+            widget.keyBuilder(index),
+            () => widget.itemExtentBuilder(index),
+          ),
       // ignore: deprecated_member_use
       onReorder: widget.onReorder,
       proxyDecorator: widget.proxyDecorator,

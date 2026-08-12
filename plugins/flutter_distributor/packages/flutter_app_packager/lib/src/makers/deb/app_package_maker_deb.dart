@@ -115,6 +115,14 @@ class AppPackageMakerDeb extends AppPackageMaker {
       '${packagingDirectory.path}/usr/share/${makeConfig.appBinaryName}/',
     ]);
 
+    // Preserve setuid bit on the core binary when packaging as root/fakeroot.
+    final coreFile = File(
+      '${packagingDirectory.path}/usr/share/${makeConfig.appBinaryName}/BettboxCore',
+    );
+    if (coreFile.existsSync()) {
+      await $('chmod', ['+sx', coreFile.path]);
+    }
+
     ProcessResult processResult = await $('dpkg-deb', [
       '--build',
       '--root-owner-group',

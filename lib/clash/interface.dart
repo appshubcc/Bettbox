@@ -55,6 +55,8 @@ mixin ClashInterface {
 
   Future<String> updateExternalProvider(String providerName);
 
+  FutureOr<String> parseExternalProviderContent(String providerName);
+
   FutureOr<String> getTraffic();
 
   FutureOr<String> getTotalTraffic();
@@ -324,6 +326,14 @@ abstract class ClashHandlerInterface with ClashInterface {
       method: ActionMethod.updateExternalProvider,
       data: providerName,
       timeout: Duration(minutes: 1),
+    );
+  }
+
+  @override
+  Future<String> parseExternalProviderContent(String providerName) {
+    return invoke<String>(
+      method: ActionMethod.parseExternalProviderContent,
+      data: providerName,
     );
   }
 

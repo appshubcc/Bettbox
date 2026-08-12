@@ -29,7 +29,9 @@ class Logs extends _$Logs with AutoDisposeNotifierMixin {
   }
 
   void addLog(Log value) {
-    state = state.copyWith()..add(value);
+    Future.microtask(() {
+      state = state.copyWith()..add(value);
+    });
   }
 
   @override
@@ -80,7 +82,9 @@ class Requests extends _$Requests with AutoDisposeNotifierMixin {
   }
 
   void addRequest(TrackerInfo value) {
-    state = state.copyWith()..add(value);
+    Future.microtask(() {
+      state = state.copyWith()..add(value);
+    });
   }
 
   void clearRequests() {
@@ -452,7 +456,7 @@ class IsSmartStopped extends _$IsSmartStopped {
 final connectionsProvider = StateProvider<List<TrackerInfo>>((ref) => []);
 final connectionsSearchProvider = StateProvider<String>((ref) => '');
 final connectionsKeywordsProvider = StateProvider<List<String>>((ref) => []);
-final connectionsSortProvider = StateProvider<ConnectionsSortType>((ref) => ConnectionsSortType.defaultSort);
+final connectionsSortProvider = StateProvider<ConnectionsSortType>((ref) => ConnectionsSortType.creationTime);
 
 final filteredConnectionsProvider = Provider<List<TrackerInfo>>((ref) {
   final connections = ref.watch(connectionsProvider);

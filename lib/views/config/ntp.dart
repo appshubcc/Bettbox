@@ -228,27 +228,19 @@ class NtpIntervalItem extends ConsumerWidget {
   }
 }
 
-class NtpOptions extends StatelessWidget {
-  const NtpOptions({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: generateSection(
-        title: appLocalizations.options,
-        items: [
-          const NtpStatusItem(),
-          const WriteToSystemItem(),
-          const NtpServerItem(),
-          const NtpPortItem(),
-          const NtpIntervalItem(),
-        ],
-      ),
-    );
-  }
-}
-
-const ntpItems = <Widget>[OverrideNtpItem(), NtpOptions()];
+final ntpItems = <Widget>[
+  const OverrideNtpItem(),
+  ...generateSection(
+    title: appLocalizations.options,
+    items: const [
+      NtpStatusItem(),
+      WriteToSystemItem(),
+      NtpServerItem(),
+      NtpPortItem(),
+      NtpIntervalItem(),
+    ],
+  ),
+];
 
 class NtpListView extends ConsumerWidget {
   const NtpListView({super.key});

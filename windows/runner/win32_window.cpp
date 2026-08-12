@@ -140,10 +140,11 @@ Win32Window::~Win32Window()
 
 bool Win32Window::Create(const std::wstring &title,
                          const Point &origin,
-                         const Size &size)
+                         const Size &size,
+                         bool activate_existing)
 {
 
-  if (SendAppLinkToInstance(title))
+  if (activate_existing && SendAppLinkToInstance(title))
   {
     return false;
   }
@@ -206,7 +207,7 @@ bool Win32Window::SendAppLinkToInstance(const std::wstring &title)
       break;
     }
 
-    SetWindowPos(0, HWND_TOP, 0, 0, 0, 0, SWP_SHOWWINDOW | SWP_NOSIZE | SWP_NOMOVE);
+    SetWindowPos(hwnd, HWND_TOP, 0, 0, 0, 0, SWP_SHOWWINDOW | SWP_NOSIZE | SWP_NOMOVE);
     SetForegroundWindow(hwnd);
 
     // Window has been found, don't create another one.
@@ -290,6 +291,15 @@ Win32Window::MessageHandler(HWND hwnd,
   case WM_DWMCOLORIZATIONCOLORCHANGED:
     UpdateTheme(hwnd);
     return 0;
+
+  case WM_POWERBROADCAST:
+    if (wparam == PBT_APMRESUMESUSPEND ||
+        wparam == PBT_APMRESUMEAUTOMATIC ||
+        wparam == PBT_APMRESUMECRITICAL)
+    {
+      PostMessage(hwnd, WM_SIZE, SIZE_RESTORED, 0);
+    }
+    return TRUE;
 
   }
 

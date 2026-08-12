@@ -62,9 +62,10 @@ func Dial(ctx context.Context, rawConn net.Conn, cfg ClientConfig) (*Conn, error
 			InsecureSkipVerify: cfg.SkipCertVerify,
 			NextProtos:         cfg.ALPN,
 		},
-		Fingerprint: cfg.Fingerprint,
-		Certificate: cfg.Certificate,
-		PrivateKey:  cfg.PrivateKey,
+		Fingerprint:    cfg.Fingerprint,
+		NameCertVerify: cfg.NameCertVerify,
+		Certificate:    cfg.Certificate,
+		PrivateKey:     cfg.PrivateKey,
 	})
 	if err != nil {
 		_ = hidden.Close()

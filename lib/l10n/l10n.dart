@@ -529,6 +529,26 @@ class AppLocalizations {
     );
   }
 
+  /// `Network Speed`
+  String get enableTraySpeed {
+    return Intl.message(
+      'Network Speed',
+      name: 'enableTraySpeed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Display upload and download rates in the menu bar`
+  String get enableTraySpeedDesc {
+    return Intl.message(
+      'Display upload and download rates in the menu bar',
+      name: 'enableTraySpeedDesc',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Exclude China`
   String get excludeChina {
     return Intl.message(
@@ -657,41 +677,6 @@ class AppLocalizations {
   /// `About`
   String get about {
     return Intl.message('About', name: 'about', desc: '', args: []);
-  }
-
-  /// `English`
-  String get en {
-    return Intl.message('English', name: 'en', desc: '', args: []);
-  }
-
-  /// `Japanese`
-  String get ja {
-    return Intl.message('Japanese', name: 'ja', desc: '', args: []);
-  }
-
-  /// `Russian`
-  String get ru {
-    return Intl.message('Russian', name: 'ru', desc: '', args: []);
-  }
-
-  /// `Simplified Chinese`
-  String get zh_CN {
-    return Intl.message(
-      'Simplified Chinese',
-      name: 'zh_CN',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Traditional Chinese`
-  String get zh_TC {
-    return Intl.message(
-      'Traditional Chinese',
-      name: 'zh_TC',
-      desc: '',
-      args: [],
-    );
   }
 
   /// `Theme`
@@ -909,10 +894,10 @@ class AppLocalizations {
     );
   }
 
-  /// `Configure per-app proxy access`
+  /// `Configure per-app access allowlist/blocklist`
   String get accessControlDesc {
     return Intl.message(
-      'Configure per-app proxy access',
+      'Configure per-app access allowlist/blocklist',
       name: 'accessControlDesc',
       desc: '',
       args: [],
@@ -1579,11 +1564,21 @@ class AppLocalizations {
     return Intl.message('Core', name: 'core', desc: '', args: []);
   }
 
-  /// `Tab Animation`
-  String get tabAnimation {
+  /// `Linkage Switch`
+  String get showStartSwitch {
     return Intl.message(
-      'Tab Animation',
-      name: 'tabAnimation',
+      'Linkage Switch',
+      name: 'showStartSwitch',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Display independent switch button on the homepage`
+  String get showStartSwitchDesc {
+    return Intl.message(
+      'Display independent switch button on the homepage',
+      name: 'showStartSwitchDesc',
       desc: '',
       args: [],
     );
@@ -1664,10 +1659,10 @@ class AppLocalizations {
     );
   }
 
-  /// `Sync data via WebDAV or local files`
+  /// `Sync data via WebDAV or locally`
   String get backupAndRecoveryDesc {
     return Intl.message(
-      'Sync data via WebDAV or local files',
+      'Sync data via WebDAV or locally',
       name: 'backupAndRecoveryDesc',
       desc: '',
       args: [],
@@ -1874,6 +1869,16 @@ class AppLocalizations {
     return Intl.message('Search', name: 'search', desc: '', args: []);
   }
 
+  /// `Replace`
+  String get replace {
+    return Intl.message('Replace', name: 'replace', desc: '', args: []);
+  }
+
+  /// `Replace All`
+  String get replaceAll {
+    return Intl.message('Replace All', name: 'replaceAll', desc: '', args: []);
+  }
+
   /// `Allow Bypassing VPN`
   String get allowBypass {
     return Intl.message(
@@ -1974,6 +1979,16 @@ class AppLocalizations {
     return Intl.message(
       'Attach HTTP proxy to VpnService',
       name: 'vpnSystemProxyDesc',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `HTTP proxy is generally not recommended on non-desktop platforms. Only enable this feature when necessary and you fully understand the implications.`
+  String get vpnSystemProxyConfirmDesc {
+    return Intl.message(
+      'HTTP proxy is generally not recommended on non-desktop platforms. Only enable this feature when necessary and you fully understand the implications.',
+      name: 'vpnSystemProxyConfirmDesc',
       desc: '',
       args: [],
     );
@@ -2384,10 +2399,10 @@ class AppLocalizations {
     );
   }
 
-  /// `Other Contributors`
+  /// `Other Contributors (Random Order)`
   String get otherContributors {
     return Intl.message(
-      'Other Contributors',
+      'Other Contributors (Random Order)',
       name: 'otherContributors',
       desc: '',
       args: [],
@@ -2704,10 +2719,10 @@ class AppLocalizations {
     );
   }
 
-  /// `Route all system traffic via VpnService`
+  /// `Route system traffic via VpnService`
   String get vpnEnableDesc {
     return Intl.message(
-      'Route all system traffic via VpnService',
+      'Route system traffic via VpnService',
       name: 'vpnEnableDesc',
       desc: '',
       args: [],
@@ -4219,6 +4234,16 @@ class AppLocalizations {
     );
   }
 
+  /// `Copied package name`
+  String get copiedPackageName {
+    return Intl.message(
+      'Copied package name',
+      name: 'copiedPackageName',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Success`
   String get success {
     return Intl.message('Success', name: 'success', desc: '', args: []);
@@ -4479,16 +4504,6 @@ class AppLocalizations {
     );
   }
 
-  /// `Effective only in mobile view`
-  String get tabAnimationDesc {
-    return Intl.message(
-      'Effective only in mobile view',
-      name: 'tabAnimationDesc',
-      desc: '',
-      args: [],
-    );
-  }
-
   /// `Haptic Feedback`
   String get navBarHapticFeedback {
     return Intl.message(
@@ -4689,6 +4704,21 @@ class AppLocalizations {
     return Intl.message(
       'Invert the current tray icon color',
       name: 'trayIconInvertDesc',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Dark Icon`
+  String get darkIcon {
+    return Intl.message('Dark Icon', name: 'darkIcon', desc: '', args: []);
+  }
+
+  /// `Manually switch dark desktop app icon`
+  String get darkIconDesc {
+    return Intl.message(
+      'Manually switch dark desktop app icon',
+      name: 'darkIconDesc',
       desc: '',
       args: [],
     );
@@ -5144,6 +5174,16 @@ class AppLocalizations {
     return Intl.message('Custom', name: 'custom', desc: '', args: []);
   }
 
+  /// `Custom Rule Switch`
+  String get customScriptOptions {
+    return Intl.message(
+      'Custom Rule Switch',
+      name: 'customScriptOptions',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Wakelock`
   String get wakelock {
     return Intl.message('Wakelock', name: 'wakelock', desc: '', args: []);
@@ -5159,10 +5199,10 @@ class AppLocalizations {
     );
   }
 
-  /// `TUN requires admin privileges. Please run as Administrator.`
+  /// `Enabling the TUN virtual network adapter requires Administrator or ROOT privileges.`
   String get tunEnableRequireAdmin {
     return Intl.message(
-      'TUN requires admin privileges. Please run as Administrator.',
+      'Enabling the TUN virtual network adapter requires Administrator or ROOT privileges.',
       name: 'tunEnableRequireAdmin',
       desc: '',
       args: [],
@@ -5338,6 +5378,21 @@ class AppLocalizations {
       args: [],
     );
   }
+
+  /// `Wrap Lines`
+  String get lineWrap {
+    return Intl.message('Wrap Lines', name: 'lineWrap', desc: '', args: []);
+  }
+
+  /// `Show Hidden Items`
+  String get showHiddenItems {
+    return Intl.message(
+      'Show Hidden Items',
+      name: 'showHiddenItems',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<AppLocalizations> {
@@ -5346,6 +5401,9 @@ class AppLocalizationDelegate extends LocalizationsDelegate<AppLocalizations> {
   List<Locale> get supportedLocales {
     return const <Locale>[
       Locale.fromSubtags(languageCode: 'en'),
+      Locale.fromSubtags(languageCode: 'fa'),
+      Locale.fromSubtags(languageCode: 'ja'),
+      Locale.fromSubtags(languageCode: 'ko'),
       Locale.fromSubtags(languageCode: 'ru'),
       Locale.fromSubtags(languageCode: 'zh', countryCode: 'CN'),
       Locale.fromSubtags(languageCode: 'zh', countryCode: 'TC'),

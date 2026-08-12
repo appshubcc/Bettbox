@@ -67,6 +67,7 @@ type MasqueOption struct {
 	UDP              bool   `proxy:"udp,omitempty"`
 	HandshakeTimeout int    `proxy:"handshake-timeout,omitempty"`
 	SkipCertVerify   bool   `proxy:"skip-cert-verify,omitempty"`
+	NameCertVerify   string `proxy:"name-cert-verify,omitempty"` // placeholder; MASQUE does not verify certificate names
 	Network          string `proxy:"network,omitempty"`
 
 	CongestionController string `proxy:"congestion-controller,omitempty"`

@@ -46,12 +46,27 @@ class BettboxVpnService : VpnService(), BaseServiceInterface {
     @Volatile
     private var lastNotificationText: String? = null
 
+    @Volatile
+    private var pendingSpeedProfile: String? = null
+
+    @Volatile
+    private var pendingSpeedInfo: String? = null
+
     override fun onCreate() {
         super.onCreate()
         GlobalState.initServiceEngine()
 
         unlockReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context?, intent: Intent?) {
+                when (intent?.action) {
+                    Intent.ACTION_SCREEN_OFF -> {
+                        GlobalState.getCurrentVPNPlugin()?.notifyScreenStateChanged(false)
+                        return
+                    }
+                    Intent.ACTION_SCREEN_ON -> {
+                        GlobalState.getCurrentVPNPlugin()?.notifyScreenStateChanged(true)
+                    }
+                }
                 lastNotificationText = null
                 resetNotificationBuilder()
                 CoroutineScope(Dispatchers.Main).launch {
@@ -62,6 +77,7 @@ class BettboxVpnService : VpnService(), BaseServiceInterface {
         val filter = IntentFilter().apply {
             addAction(Intent.ACTION_USER_PRESENT)
             addAction(Intent.ACTION_SCREEN_ON)
+            addAction(Intent.ACTION_SCREEN_OFF)
         }
         registerReceiver(unlockReceiver, filter, if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) Context.RECEIVER_NOT_EXPORTED else 0)
 
@@ -110,8 +126,12 @@ class BettboxVpnService : VpnService(), BaseServiceInterface {
 
         options.accessControl.takeIf { it.enable }?.let { ac ->
             when (ac.mode) {
-                AccessControlMode.acceptSelected -> (ac.acceptList + packageName).distinct().forEach { addAllowedApplication(it) }
-                AccessControlMode.rejectSelected -> ac.rejectList.distinct().forEach { addDisallowedApplication(it) }
+                AccessControlMode.acceptSelected -> (ac.acceptList + packageName).forEach {
+                    runCatching { addAllowedApplication(it) }
+                }
+                AccessControlMode.rejectSelected -> (ac.rejectList - packageName).forEach {
+                    runCatching { addDisallowedApplication(it) }
+                }
             }
         } ?: runCatching {
             addDisallowedApplication(packageName)
@@ -192,8 +212,7 @@ class BettboxVpnService : VpnService(), BaseServiceInterface {
     @SuppressLint("ForegroundServiceType")
     override suspend fun startForeground() {
         ensureNotificationChannel()
-        val title:
-        String
+        val title: String
         val content: String
         if (GlobalState.isSmartStopped) {
             title = getString(R.string.core_suspended)
@@ -224,14 +243,26 @@ class BettboxVpnService : VpnService(), BaseServiceInterface {
             .setTicker(combinedText)
             .build()
 
-        if (!hasStartedForeground) {
+        val isFirstTime = !hasStartedForeground
+        if (isFirstTime) {
             hasStartedForeground = true
         }
+
+        val pendingProfile = pendingSpeedProfile
+        val pendingSpeed = pendingSpeedInfo
+        if (isFirstTime && isSpeedNotificationEnabled && pendingProfile != null && pendingSpeed != null) {
+            updateNotificationSpeed(pendingProfile, pendingSpeed)
+            return
+        }
+
         this.startForeground(notification, useSpecialType = !GlobalState.isSmartStopped)
     }
 
     @SuppressLint("ForegroundServiceType")
     internal suspend fun updateNotificationSpeed(profileName: String, speedInfo: String) {
+        pendingSpeedProfile = profileName
+        pendingSpeedInfo = speedInfo
+
         val powerManager = getSystemService(Context.POWER_SERVICE) as? PowerManager
         if (powerManager?.isInteractive == false) {
             return

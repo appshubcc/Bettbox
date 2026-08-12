@@ -51,6 +51,24 @@ const repository = 'appshubcc/Bettbox';
 const defaultExternalController = '127.0.0.1:9090';
 const maxMobileWidth = 600;
 const maxLaptopWidth = 840;
+double getFloatingBottomBarReserveHeight(BuildContext context) {
+  final mediaQuery = MediaQuery.of(context);
+  final viewBottom = max(
+    mediaQuery.viewPadding.bottom,
+    mediaQuery.padding.bottom,
+  );
+  return 84.0 + (viewBottom > 12 ? viewBottom - 12 : 0);
+}
+
+double getFloatingBottomBarFABReserveHeight(BuildContext context) {
+  final mediaQuery = MediaQuery.of(context);
+  final viewBottom = max(
+    mediaQuery.viewPadding.bottom,
+    mediaQuery.padding.bottom,
+  );
+  return 84.0 - min(viewBottom, 12.0);
+}
+
 const defaultTestUrl = 'https://www.apple.com/library/test/success.html';
 
 // Preset test URLs

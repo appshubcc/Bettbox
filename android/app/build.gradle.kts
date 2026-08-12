@@ -67,6 +67,12 @@ android {
             useLegacyPackaging = true
         }
     }
+
+    applicationVariants.all {
+        outputs.all {
+            (this as? com.android.build.gradle.internal.api.ApkVariantOutputImpl)?.versionCodeOverride = flutter.versionCode
+        }
+    }
 }
 
 flutter {

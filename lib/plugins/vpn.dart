@@ -30,6 +30,11 @@ class Vpn {
             listener.onDnsChanged(call.arguments as String);
           }
           break;
+        case 'screenStateChanged':
+          globalState.appState = globalState.appState.copyWith(
+            isScreenOn: call.arguments as bool,
+          );
+          break;
         default:
       }
     });

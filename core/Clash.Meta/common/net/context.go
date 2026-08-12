@@ -37,3 +37,25 @@ func SetupContextForConn(ctx context.Context, conn net.Conn) (done func(*error))
 		}
 	}
 }
+
+// RelayContext copies between left and right bidirectionally.
+// If ctx is canceled, both connections are closed to interrupt pending I/O.
+func RelayContext(ctx context.Context, leftConn, rightConn net.Conn) error {
+	if ctx.Done() == nil {
+		Relay(leftConn, rightConn)
+		return nil
+	}
+
+	done := make(chan struct{})
+	stop := contextutils.AfterFunc(ctx, func() {
+		_ = leftConn.Close()
+		_ = rightConn.Close()
+		close(done)
+	})
+	Relay(leftConn, rightConn)
+	if !stop() {
+		<-done
+		return ctx.Err()
+	}
+	return nil
+}

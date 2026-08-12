@@ -279,7 +279,7 @@ func NewTransport(dialFn DialFn, tlsConfig *vmess.TLSConfig, gunCfg *Config) *Tr
 			return nil, err
 		}
 
-		if tlsConfig.Reality == nil && tlsConfig.TLSMirror == nil { // reality and tlsmirror don't return the negotiated ALPN
+		if tlsConfig.ShadowTLS == nil && tlsConfig.Restls == nil && tlsConfig.Reality == nil && tlsConfig.TLSMirror == nil { // shadowtls, restls, reality and tlsmirror don't return the negotiated ALPN
 			state := tlsC.GetTLSConnectionState(conn)
 			if p := state.NegotiatedProtocol; p != Http2NextProtoTLS {
 				_ = conn.Close()

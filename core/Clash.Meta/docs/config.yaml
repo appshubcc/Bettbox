@@ -379,6 +379,7 @@ proxies: # socks5
     # certificate: ./client.crt # 证书 PEM 格式，或者 证书的路径
     # private-key: ./client.key # 证书对应的私钥 PEM 格式，或者私钥路径
     # skip-cert-verify: true
+    # name-cert-verify: example.com # 仅修改证书 DNSName 校验目标，不修改 SNI
     # udp: true
     # ip-version: ipv6
 
@@ -391,6 +392,7 @@ proxies: # socks5
     # password: password
     # tls: true # https
     # skip-cert-verify: true
+    # name-cert-verify: example.com # 仅修改证书 DNSName 校验目标，不修改 SNI
     # sni: custom.com
     # fingerprint: xxxx # 配置指纹将实现 SSL Pining 效果, 可使用 openssl x509 -noout -fingerprint -sha256 -inform pem -in yourcert.pem 获取
     # 下面两项如果填写则开启 mTLS（需要同时填写）
@@ -408,7 +410,7 @@ proxies: # socks5
     # udp: true # support UDP on version 3/4/5
     # reuse: false # v4/5 only
     # obfs-opts:
-    #   mode: http # or tls/shadow-tls
+    #   mode: http # or tls/shadow-tls/restls/jls
 
   - name: "snell-shadow-tls"
     type: snell
@@ -425,6 +427,32 @@ proxies: # socks5
       password: "shadow_tls_password"
       version: 2 # support 1/2/3
       alpn: ["h2","http/1.1"]
+
+  - name: "snell-restls"
+    type: snell
+    server: server
+    port: 44046
+    psk: yourpsk
+    # version: 4 # support 1/2/3/4/5
+    # client-fingerprint: chrome
+    obfs-opts:
+      mode: restls
+      host: bing.com
+      password: "restls_password"
+      version-hint: tls13
+
+  - name: "snell-jls"
+    type: snell
+    server: server
+    port: 44046
+    psk: yourpsk
+    # version: 4 # support 1/2/3/4/5
+    # client-fingerprint: chrome
+    obfs-opts:
+      mode: jls
+      host: bing.com
+      username: jls-user
+      password: "jls_password"
 
   # Shadowsocks
   # cipher支持:
@@ -489,6 +517,7 @@ proxies: # socks5
       #   config: AEn+DQBFKwAgACABWIHUGj4u+PIggYXcR5JF0gYk3dCRioBW8uJq9H4mKAAIAAEAAQABAANAEnB1YmxpYy50bHMtZWNoLmRldgAA
       #   # query-server-name: xxx.com # 可选项，不为空时用于指定通过dns解析时的域名
       # skip-cert-verify: true
+      # name-cert-verify: example.com # 仅修改证书 DNSName 校验目标，不修改 SNI
       # host: bing.com
       # path: "/"
       # mux: true
@@ -526,11 +555,26 @@ proxies: # socks5
       # certificate: ./client.crt # 证书 PEM 格式，或者 证书的路径
       # private-key: ./client.key # 证书对应的私钥 PEM 格式，或者私钥路径
       # skip-cert-verify: true
+      # name-cert-verify: example.com # 仅修改证书 DNSName 校验目标，不修改 SNI
       # host: bing.com
       # path: "/"
       # mux: true
       # headers:
       #   custom: value
+
+  - name: "ss-jls"
+    type: ss
+    server: server
+    port: 443
+    cipher: chacha20-ietf-poly1305
+    password: "password"
+    plugin: jls
+    client-fingerprint: chrome
+    plugin-opts:
+      host: "www.example.com"
+      username: "jls-user"
+      password: "jls-password"
+      # alpn: [h2, http/1.1]
 
   - name: "gost-relay-hop"
     type: gost-relay
@@ -549,6 +593,7 @@ proxies: # socks5
     # certificate: ./client.crt
     # private-key: ./client.key
     # skip-cert-verify: true
+    # name-cert-verify: example.com # 仅修改证书 DNSName 校验目标，不修改 SNI
 
   - name: "ss6-gost-relay"
     type: ss
@@ -677,8 +722,9 @@ proxies: # socks5
     # private-key: ./client.key # 证书对应的私钥 PEM 格式，或者私钥路径
     # client-fingerprint: chrome    # Available: "chrome","firefox","safari","ios","random", currently only support TLS transport in TCP/GRPC/WS/HTTP for VLESS/Vmess and trojan.
     # skip-cert-verify: true
+    # name-cert-verify: example.com # 仅修改证书 DNSName 校验目标，不修改 SNI
     # servername: example.com # priority over wss host
-    # 如果填写 tlsmirror-opts 则开启 tlsmirror（当 tls: true 时）。tlsmirror 的 TLS 载体会使用同一出站中的 `servername`、`alpn`、`skip-cert-verify`、`fingerprint`、`certificate`、`private-key`、`client-fingerprint` 和 `ech-opts` 配置；`servername` 为空时使用 `server`。
+    # 如果填写 tlsmirror-opts 则开启 tlsmirror（当 tls: true 时）。tlsmirror 的 TLS 载体会使用同一出站中的 `servername`、`alpn`、`skip-cert-verify`、`name-cert-verify`、`fingerprint`、`certificate`、`private-key`、`client-fingerprint` 和 `ech-opts` 配置；`servername` 为空时使用 `server`。
     # tlsmirror-opts:
     #   primary-key: MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY= # 必填，32 字节主密钥的 base64 编码
     #   explicit-nonce-ciphersuites: [156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 49195, 49196, 49197, 49198, 49199, 49200, 49201, 49202, 49290, 49291, 49293, 49316, 49317, 49318, 49319, 49320, 49321, 49322, 49323, 49324, 49325, 49326, 49327, 52392, 52393, 52394, 52395, 52396, 52397, 52398] # TLS 1.2 载体使用显式 nonce 的加密套件
@@ -709,6 +755,17 @@ proxies: # socks5
     #   # 如果config为空则通过dns解析，不为空则通过该值指定，格式为经过base64编码的ech参数（dig +short TYPE65 tls-ech.dev）
     #   config: AEn+DQBFKwAgACABWIHUGj4u+PIggYXcR5JF0gYk3dCRioBW8uJq9H4mKAAIAAEAAQABAANAEnB1YmxpYy50bHMtZWNoLmRldgAA
     #   # query-server-name: xxx.com # 可选项，不为空时用于指定通过dns解析时的域名
+    # shadow-tls-opts: # 需要 tls: true；使用 servername 作为 ShadowTLS SNI
+    #   version: 3 # 支持 v1/v2/v3；留空时默认为 v2
+    #   password: shadow-tls-password
+    # restls-opts: # 需要 tls: true；使用 servername 作为 Restls SNI
+    #   password: restls-password
+    #   version-hint: tls13 # 可选值：tls12、tls13
+    #   # restls-script: ""
+    # jls-opts: # 需要 tls: true；使用 servername 作为 JLS SNI
+    #   username: jls-user
+    #   password: jls-password
+    # reality-opts: ...
     # ws-opts:
       # path: /path
       # headers:
@@ -816,6 +873,7 @@ proxies: # socks5
     # private-key: ./client.key # 证书对应的私钥 PEM 格式，或者私钥路径
     servername: example.com
     # skip-cert-verify: true
+    # name-cert-verify: example.com # 仅修改证书 DNSName 校验目标，不修改 SNI
     grpc-opts:
       grpc-service-name: "example"
       # grpc-user-agent: "grpc-go/1.36.0"
@@ -834,6 +892,7 @@ proxies: # socks5
     network: tcp
     servername: example.com # AKA SNI
     # skip-cert-verify: true
+    # name-cert-verify: example.com # 仅修改证书 DNSName 校验目标，不修改 SNI
     # 下面两项如果填写则开启 mTLS（需要同时填写）
     # certificate: ./client.crt # 证书 PEM 格式，或者 证书的路径
     # private-key: ./client.key # 证书对应的私钥 PEM 格式，或者私钥路径
@@ -844,6 +903,17 @@ proxies: # socks5
     #   # 如果config为空则通过dns解析，不为空则通过该值指定，格式为经过base64编码的ech参数（dig +short TYPE65 tls-ech.dev）
     #   config: AEn+DQBFKwAgACABWIHUGj4u+PIggYXcR5JF0gYk3dCRioBW8uJq9H4mKAAIAAEAAQABAANAEnB1YmxpYy50bHMtZWNoLmRldgAA
     #   # query-server-name: xxx.com # 可选项，不为空时用于指定通过dns解析时的域名
+    # shadow-tls-opts: # 需要 tls: true；使用 servername 作为 ShadowTLS SNI
+    #   version: 3 # 支持 v1/v2/v3；留空时默认为 v2
+    #   password: shadow-tls-password
+    # restls-opts: # 需要 tls: true；使用 servername 作为 Restls SNI
+    #   password: restls-password
+    #   version-hint: tls13 # 可选值：tls12、tls13
+    #   # restls-script: ""
+    # jls-opts: # 需要 tls: true；使用 servername 作为 JLS SNI
+    #   username: jls-user
+    #   password: jls-password
+    # reality-opts: ...
 
   - name: "vless-vision"
     type: vless
@@ -860,6 +930,7 @@ proxies: # socks5
     # private-key: ./client.key # 证书对应的私钥 PEM 格式，或者私钥路径
     # fingerprint: xxxx # 配置指纹将实现 SSL Pining 效果, 可使用 openssl x509 -noout -fingerprint -sha256 -inform pem -in yourcert.pem 获取
     # skip-cert-verify: true
+    # name-cert-verify: example.com # 仅修改证书 DNSName 校验目标，不修改 SNI
 
   - name: "vless-encryption"
     type: vless
@@ -908,6 +979,7 @@ proxies: # socks5
     udp: true
     flow:
     # skip-cert-verify: true
+    # name-cert-verify: example.com # 仅修改证书 DNSName 校验目标，不修改 SNI
     client-fingerprint: chrome
     servername: testingcf.jsdelivr.net
     grpc-opts:
@@ -934,6 +1006,7 @@ proxies: # socks5
     # client-fingerprint: random # Available: "chrome","firefox","safari","random","none"
     servername: example.com # priority over wss host
     # skip-cert-verify: true
+    # name-cert-verify: example.com # 仅修改证书 DNSName 校验目标，不修改 SNI
     # fingerprint: xxxx # 配置指纹将实现 SSL Pining 效果, 可使用 openssl x509 -noout -fingerprint -sha256 -inform pem -in yourcert.pem 获取
     # 下面两项如果填写则开启 mTLS（需要同时填写）
     # certificate: ./client.crt # 证书 PEM 格式，或者 证书的路径
@@ -957,6 +1030,7 @@ proxies: # socks5
     # ech-opts: ...
     # reality-opts: ...
     # skip-cert-verify: false
+    # name-cert-verify: example.com # 仅修改证书 DNSName 校验目标，不修改 SNI
     # fingerprint: ...
     # certificate: ...
     # private-key: ...
@@ -1012,8 +1086,12 @@ proxies: # socks5
       #   tls: true
       #   alpn: ...
       #   ech-opts: ...
+      #   shadow-tls-opts: ...
+      #   restls-opts: ...
+      #   jls-opts: ...
       #   reality-opts: ...
       #   skip-cert-verify: false
+      #   name-cert-verify: example.com # 仅修改证书 DNSName 校验目标，不修改 SNI
       #   fingerprint: ...
       #   certificate: ...
       #   private-key: ...
@@ -1038,6 +1116,7 @@ proxies: # socks5
     #   - h2
     #   - http/1.1
     # skip-cert-verify: true
+    # name-cert-verify: example.com # 仅修改证书 DNSName 校验目标，不修改 SNI
     # ss-opts: # like trojan-go's `shadowsocks` config
     #   enabled: false
     #   method: aes-128-gcm # aes-128-gcm/aes-256-gcm/chacha20-ietf-poly1305
@@ -1047,6 +1126,17 @@ proxies: # socks5
     #   # 如果config为空则通过dns解析，不为空则通过该值指定，格式为经过base64编码的ech参数（dig +short TYPE65 tls-ech.dev）
     #   config: AEn+DQBFKwAgACABWIHUGj4u+PIggYXcR5JF0gYk3dCRioBW8uJq9H4mKAAIAAEAAQABAANAEnB1YmxpYy50bHMtZWNoLmRldgAA
     #   # query-server-name: xxx.com # 可选项，不为空时用于指定通过dns解析时的域名
+    # shadow-tls-opts: # 使用 sni 作为 ShadowTLS SNI
+    #   version: 3 # 支持 v1/v2/v3；留空时默认为 v2
+    #   password: shadow-tls-password
+    # restls-opts: # 使用 sni 作为 Restls SNI
+    #   password: restls-password
+    #   version-hint: tls13 # 可选值：tls12、tls13
+    #   # restls-script: ""
+    # jls-opts: # 使用 sni 作为 JLS SNI
+    #   username: jls-user
+    #   password: jls-password
+    # reality-opts: ...
 
   - name: trojan-grpc
     server: server
@@ -1056,6 +1146,7 @@ proxies: # socks5
     network: grpc
     sni: example.com
     # skip-cert-verify: true
+    # name-cert-verify: example.com # 仅修改证书 DNSName 校验目标，不修改 SNI
     # fingerprint: xxxx # 配置指纹将实现 SSL Pining 效果, 可使用 openssl x509 -noout -fingerprint -sha256 -inform pem -in yourcert.pem 获取
     # 下面两项如果填写则开启 mTLS（需要同时填写）
     # certificate: ./client.crt # 证书 PEM 格式，或者 证书的路径
@@ -1077,6 +1168,7 @@ proxies: # socks5
     network: ws
     sni: example.com
     # skip-cert-verify: true
+    # name-cert-verify: example.com # 仅修改证书 DNSName 校验目标，不修改 SNI
     # fingerprint: xxxx # 配置指纹将实现 SSL Pining 效果, 可使用 openssl x509 -noout -fingerprint -sha256 -inform pem -in yourcert.pem 获取
     # 下面两项如果填写则开启 mTLS（需要同时填写）
     # certificate: ./client.crt # 证书 PEM 格式，或者 证书的路径
@@ -1099,6 +1191,7 @@ proxies: # socks5
     # udp: true
     # sni: example.com # aka server name
     # skip-cert-verify: true
+    # name-cert-verify: example.com # 仅修改证书 DNSName 校验目标，不修改 SNI
     # fingerprint: xxxx # 配置指纹将实现 SSL Pining 效果, 可使用 openssl x509 -noout -fingerprint -sha256 -inform pem -in yourcert.pem 获取
     # 下面两项如果填写则开启 mTLS（需要同时填写）
     # certificate: ./client.crt # 证书 PEM 格式，或者 证书的路径
@@ -1124,6 +1217,7 @@ proxies: # socks5
     #   config: AEn+DQBFKwAgACABWIHUGj4u+PIggYXcR5JF0gYk3dCRioBW8uJq9H4mKAAIAAEAAQABAANAEnB1YmxpYy50bHMtZWNoLmRldgAA
     #   # query-server-name: xxx.com # 可选项，不为空时用于指定通过dns解析时的域名
     # skip-cert-verify: false
+    # name-cert-verify: example.com # 仅修改证书 DNSName 校验目标，不修改 SNI
     # recv-window-conn: 12582912
     # recv-window: 52428800
     # disable-mtu-discovery: false
@@ -1156,6 +1250,7 @@ proxies: # socks5
     #   config: AEn+DQBFKwAgACABWIHUGj4u+PIggYXcR5JF0gYk3dCRioBW8uJq9H4mKAAIAAEAAQABAANAEnB1YmxpYy50bHMtZWNoLmRldgAA
     #   # query-server-name: xxx.com # 可选项，不为空时用于指定通过dns解析时的域名
     # skip-cert-verify: false
+    # name-cert-verify: example.com # 仅修改证书 DNSName 校验目标，不修改 SNI
     # fingerprint: xxxx # 配置指纹将实现 SSL Pining 效果, 可使用 openssl x509 -noout -fingerprint -sha256 -inform pem -in yourcert.pem 获取
     # 下面两项如果填写则开启 mTLS（需要同时填写）
     # certificate: ./client.crt # 证书 PEM 格式，或者 证书的路径
@@ -1171,9 +1266,11 @@ proxies: # socks5
     #     - stun.nextcloud.com:3478
     #     - stun.sip.us:3478
     #     - global.stun.twilio.com:3478
-    #   # 下面支持填写针对server-url的TLS配置(sni, skip-cert-verify, fingerprint, certificate, private-key, alpn)
+    #   # 下面支持填写针对server-url的TLS配置(sni, skip-cert-verify, name-cert-verify, fingerprint, certificate, private-key, alpn)
     #   # skip-cert-verify： false
+    #   # name-cert-verify: example.com # 仅修改证书 DNSName 校验目标，不修改 SNI
     #   # ......
+    # handshake-timeout: 30 # 单位为秒；配置后握手时不受外层连接超时影响；默认值为 0，表示仅使用外层连接超时
     ###quic-go特殊配置项，不要随意修改除非你知道你在干什么###
     # initial-stream-receive-window： 8388608
     # max-stream-receive-window： 8388608
@@ -1263,6 +1360,8 @@ proxies: # socks5
     proto: udp # udp/tcp，默认 udp
     # dev: tun # 目前仅支持 tun，默认 tun
     # cipher: AES-128-GCM # 支持 AES-128-GCM / AES-192-GCM / AES-256-GCM / AES-128-CBC / AES-192-CBC / AES-256-CBC / CHACHA20-POLY1305，默认 AES-128-GCM；AES-CBC 会按 AES-128-CBC 处理
+    # data-ciphers: [AES-256-GCM, AES-128-GCM] # 数据通道 cipher 协商列表，发送 IV_CIPHERS 给服务端；服务端 push 的 cipher 列表与本地列表取交集，取第一个匹配项
+    # data-ciphers-fallback: AES-128-CBC # 协商失败时的回退 cipher（对应 --data-ciphers-fallback）
     # auth: SHA256 # 支持 MD5 / SHA1 / SHA256 / SHA384 / SHA512，默认 SHA256；AEAD cipher 会忽略 auth
     # comp-lzo: "no" # 可选值："yes", "no", "adaptive"
     # username / password: auth-user-pass 模式（与下方 cert+key 二选一，不能都不填）
@@ -1283,12 +1382,24 @@ proxies: # socks5
       -----BEGIN PRIVATE KEY-----
       MIIE...example
       -----END PRIVATE KEY-----
-    # 从 .ovpn 中复制 <tls-crypt></tls-crypt> 内的内容，不需要保留 <tls-crypt> 标签；没有 tls-crypt 的配置可省略
+    # 从 .ovpn 中复制 <tls-auth></tls-auth> 内的内容，不需要保留 <tls-auth> 标签；与 tls-crypt 互斥
+    # tls-auth: |
+    #   -----BEGIN OpenVPN Static key V1-----
+    #   00000000000000000000000000000000
+    #   ...
+    #   -----END OpenVPN Static key V1-----
+    # key-direction: "1" # tls-auth 使用，支持 "1" 或 "0"；如果不填或为空字符串，则为双向模式（bidirectional）
+    # 从 .ovpn 中复制 <tls-crypt></tls-crypt> 内的内容，不需要保留 <tls-crypt> 标签；没有 tls-crypt 的配置可省略；与 tls-auth / tls-crypt-v2 互斥
     # tls-crypt: |
     #   -----BEGIN OpenVPN Static key V1-----
     #   00000000000000000000000000000000
     #   ...
     #   -----END OpenVPN Static key V1-----
+    # 从 .ovpn 中复制 <tls-crypt-v2></tls-crypt-v2> 内的内容；tls-crypt-v2 使用独立客户端密钥（PEM 内含 256 字节密钥 + wrapped key）；与 tls-auth / tls-crypt 互斥
+    # tls-crypt-v2: |
+    #   -----BEGIN OpenVPN tls-crypt-v2 client key-----
+    #   AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8...
+    #   -----END OpenVPN tls-crypt-v2 client key-----
     # peer-info: # 透传给服务端的 peer-info 键值对，追加在内置 IV_VER/IV_PROTO/IV_CIPHERS 之后；用于服务端基于 peer-info 做准入决策
     #   IV_HWADDR: "52:54:00:ff:72:87"
     #   UV_DEVICE_ID: "laptop-001"
@@ -1377,6 +1488,7 @@ proxies: # socks5
     # max-udp-relay-packet-size: 1500
     # fast-open: true
     # skip-cert-verify: true
+    # name-cert-verify: example.com # 仅修改证书 DNSName 校验目标，不修改 SNI
     # max-open-streams: 20 # default 100, too many open streams may hurt performance
     # sni: example.com
     # ech-opts:
@@ -1389,6 +1501,30 @@ proxies: # socks5
     # 警告，与原版 tuic 不兼容！！！
     # udp-over-stream: false
     # udp-over-stream-version: 1
+
+  # shadowquic
+  - name: shadowquic
+    server: www.example.com
+    port: 10443
+    type: shadowquic
+    username: username
+    password: password
+    # sni: example.com
+    # alpn: [h3]
+    # quic-versions: [v1] # support v1/v2, default v1
+    # udp-over-stream: false # UDP over stream, default false
+    # zero-rtt: false # 官方 server 的 0-RTT 路径可能在 JLS 认证完成前读取用户状态（已确认影响 v0.3.11）；使用官方 server 如果遇到不通或断联情况，请在服务端关闭 zero-rtt
+    # keep-alive-interval: 10000
+    # congestion-controller: bbr # Available: "cubic", "new_reno", "bbr". Default: "cubic"
+    # up: 100 Mbps # enables brutal negotiation via a mihomo private extension; client upload speed; falls back to congestion-controller when unsupported
+    # down: 100 Mbps # enables brutal negotiation via a mihomo private extension; requested client download speed, capped by listener up; falls back to congestion-controller when unsupported
+    # cwnd: 10 # default: 32
+    # bbr-profile: "" # Available: "standard", "conservative", "aggressive". Default: "standard"
+    # max-datagram-frame-size: 1400
+    # max-open-streams: 1024
+    # recv-window-conn: 0
+    # recv-window: 0
+    # disable-mtu-discovery: false
 
   # ShadowsocksR
   # The supported ciphers (encryption methods): all stream ciphers in ss
@@ -1448,6 +1584,7 @@ proxies: # socks5
     table-type: prefer_ascii    # 可选值：prefer_ascii、prefer_entropy、up_ascii_down_entropy、up_entropy_down_ascii
     # custom-table: xpxvvpvv    # 可选，自定义字节布局，必须包含2个x、2个p、4个v，可随意组合；只对 entropy 方向生效
     # custom-tables: ["xpxvvpvv", "vxpvxvvp"] # 可选，自定义字节布局列表（x/v/p），非空时覆盖 custom-table
+    # multiplex: "off" # 可选：off（默认）、auto（仅复用 HTTPMask 底层连接）、on（在原始 TCP 或 HTTPMask 上启用 Sudoku 单会话多目标 mux）
     # 推荐：使用 httpmask 对象统一管理 HTTPMask 相关字段：
     httpmask:
       disable: false # true 禁用所有 HTTP 伪装/隧道
@@ -1455,7 +1592,7 @@ proxies: # socks5
       # tls: true # 可选：按需开启 HTTPS/WSS
       # host: "" # 可选：覆盖 Host/SNI（支持 example.com 或 example.com:443）；仅在 mode 为 stream/poll/auto/ws 时生效
       # path-root: "" # 可选：HTTP 隧道端点一级路径前缀（双方需一致），例如 "aabbcc" 或 "/aabbcc/" => /aabbcc/session、/aabbcc/stream、/aabbcc/api/v1/upload、/aabbcc/ws
-      # multiplex: "off" # 可选字符串：off（默认）、auto（复用底层 HTTP 连接，减少建链 RTT）、on（Sudoku mux 单隧道多目标；仅在 mode=stream/poll/auto 生效；ws 强制 off）
+      # multiplex: "off" # 兼容旧配置；设置时优先于顶层 multiplex
     enable-pure-downlink: false # 可选：false=带宽优化下行；true=纯 Sudoku 下行
 
   # anytls
@@ -1474,6 +1611,17 @@ proxies: # socks5
     #   - h2
     #   - http/1.1
     # skip-cert-verify: true
+    # name-cert-verify: example.com # 仅修改证书 DNSName 校验目标，不修改 SNI
+    # shadow-tls-opts: # 使用 sni 作为 ShadowTLS SNI
+    #   version: 3 # 支持 v1/v2/v3；留空时默认为 v2
+    #   password: shadow-tls-password
+    # restls-opts: # 使用 sni 作为 Restls SNI
+    #   password: restls-password
+    #   version-hint: tls13 # 可选值：tls12、tls13
+    #   # restls-script: ""
+    # jls-opts: # 使用 sni 作为 JLS SNI
+    #   username: jls-user
+    #   password: jls-password
 
   # trusttunnel
   - name: trusttunnel
@@ -1489,6 +1637,7 @@ proxies: # socks5
     # alpn:
     #   - h2
     # skip-cert-verify: true
+    # name-cert-verify: example.com # 仅修改证书 DNSName 校验目标，不修改 SNI
     ### quic options
     # quic: true # 默认为false
     # congestion-controller: bbr
@@ -1611,6 +1760,7 @@ proxy-providers:
       # expected-status: 204 # 当健康检查返回状态码与期望值不符时，认为节点不可用
     override: # 覆写节点加载时的一些配置项
       skip-cert-verify: true
+      name-cert-verify: example.com # 仅修改证书 DNSName 校验目标，不修改 SNI
       udp: true
       # down: "50 Mbps"
       # up: "10 Mbps"
@@ -1626,6 +1776,54 @@ proxy-providers:
       #     target: "TEST"
       #   - pattern: "IPLC-(.*?)倍"
       #     target: "iplc x $1"
+      # # 这是 yq v4 风格的配置覆盖子集。数组项按顺序执行，且晚于上面的固定字段覆盖。
+      # # 路径：.、.name、."a.b"、.["a.b"]、.items[0]、.items[-1]。[] 可以遍历数组或 mapping。
+      # # 读取缺失路径或穿过标量时返回 null。赋值会创建缺失的 mapping 和非负数组索引，但不会穿过标量更新。
+      # # 赋值：=、|=、+=、-=、*=。删除：del(.field)、del(.a, .b)。
+      # # 值：null（或 ~）、布尔值、十进制/十六进制整数、浮点数、双引号字符串、数组及双引号键的 mapping。
+      # # 负号只用于十进制整数和浮点数。浮点数支持科学计数法。
+      # # 字符串按 yq 规则解码 \n、\"、\\；其他反斜杠序列保留原文。
+      # # 数组会收集每一项的全部结果。mapping 的 value 为零结果时省略 key，多结果时保留最后一个。
+      # # 运算：+、-、*、/、%、==、!=、<、<=、>、>=、and、or、//（默认值）。
+      # # + 可拼接字符串/数组或浅合并 mapping；* 可做数乘、字符串重复、数组替换或深合并 mapping；/ 可分割字符串。
+      # # 流：管道 |、逗号 union、select。使用 [...] 将零到多个结果收集为数组。
+      # # 字符串支持 "[\(.type)] \(.name)" 形式的插值。插值表达式有多个结果时使用第一个。
+      # # 字符串外的 # 会忽略该数组项中的后续表达式内容。
+      # # 查询函数：length、keys、has(key/index)、contains(value)、select(condition)。字符串 length 按 UTF-8 字节数计算。
+      # # 数组函数：reverse、sort、unique、flatten([depth])、any、all。
+      # # 转换函数：map、map_values、filter、to_entries、from_entries、with_entries、any_c、all_c。
+      # # map/filter/map_values 支持数组或 mapping。with_entries 只支持 mapping，any_c/all_c 只支持数组。
+      # # map/filter 返回数组，map_values 保持输入集合类型。to_entries(null) 不产生结果。
+      # # from_entries 只接受具有字符串 key 的 entries 数组。
+      # # 字符串函数：test(pattern[, "g"])、sub(pattern, replacement)、split(separator)、join(separator)、upcase、downcase、trim。
+      # # split(null) 不产生结果，join 只接受数组。
+      # # 类型函数：tostring、tonumber、type、not。tonumber 支持十进制、0x 十六进制、0o 八进制和浮点字符串。
+      # override-expr:
+      #   - '.name = "[provider1] " + .name'                   # 普通赋值
+      #   - '.plugin-opts.mode = "tls"'                        # 自动创建缺失的 mapping
+      #   - '.alpn[] |= upcase'                                # 更新数组中的每一项
+      #   - 'del(.skip-cert-verify)'                           # 删除字段
+      #   - '.name = (.name | trim | upcase)'                  # 赋值右侧的管道需加括号
+      #   - '.name = "[\(.type)] \(.name):\(.port)"'           # 字符串插值
+      #   - '(select(.port == 443) | .tls) = true'             # 条件不匹配时不修改
+      #   - '.tags |= (unique | sort)'                         # 去重后排序
+      #   - '.names = [.servers[] | select(.enabled) | .name]' # 收集多个结果
+      #   - '.servers |= map(select(.enabled))'                # 筛选数组
+      #   - '.options |= with_entries(.key |= upcase)'         # 转换 mapping
+      #   - '. | with_entries(.key |= upcase)'                 # 整体过滤结果仍须为 mapping
+      # # 每一项最终必须恰好产生一个 mapping。未收集的多结果及 del(.) 不受支持。
+      # # 赋值右侧使用管道或 and/or 时必须加括号。from_entries 只接受字符串 key。
+      # # sort 只支持标量数组。any/all 只支持无参数形式。
+      # # ==/!= 按 yq 的标量文本值比较，不对数组或 mapping 做结构化比较。
+      # # <、<=、>、>= 只支持数字、字符串和 null。只有 false 和 null 按假值处理。
+      # # 普通函数参数不得产生多个结果；map/filter 等接收表达式的函数允许参数产生结果流。
+      # # 函数参数可使用逗号或分号分隔。
+      # # 求值采用值语义。越界读取不会扩展源数组，右侧的 flatten/map_values 也不会隐式修改源路径。
+      # # 需要修改源路径时请使用 |=。右侧没有结果时保留目标原值，不会自动创建 null。
+      # # mapping 流、keys 和 entries 转换按 key 排序，因为 map[string]any 不保留 YAML key 顺序。
+      # # 不支持的语言功能：变量（as/$x）、reduce、动态路径（.[$key]）、递归下降（..）。
+      # # 不支持的外部功能：多文档、文件/环境访问、YAML tag/样式/注释处理、yq CLI 参数。
+      # # 未在上面列出的 yq 语法、运算符和函数也不受支持。条件分支可改用 select 后串联多个赋值。
 
   provider2:
     type: inline
@@ -1842,6 +2040,17 @@ listeners:
     #   restls-script: ""
     #   min-record-len: 0
     #   proxy: ""
+    #   rate-limit: 0 # fallback 双向转发限速，单位 bit/s；0 表示不限速
+    # jls-config: # 仅封装 TCP；JLS 认证失败或普通 TLS 连接会透明回落到 dest
+    #   enable: false
+    #   users:
+    #     - username: jls-user
+    #       password: jls-password
+    #   dest: www.example.com:443
+    #   # sni: www.example.com # 留空时从 dest 推导
+    #   # alpn: [h2, http/1.1]
+    #   # proxy: ""
+    #   # rate-limit: 0 # 转发限速，单位 bit/s，0 表示不限速
     # kcp-tun:
     #   enable: false
     #   key: it's a secrect # pre-shared secret between client and server
@@ -1889,6 +2098,18 @@ listeners:
     #       password: password
     #   handshake:
     #     dest: test.com:443
+    # res-tls:
+    #   enable: false
+    #   dest: test.com:443
+    #   password: restls-password
+    #   rate-limit: 0 # fallback 双向转发限速，单位 bit/s；0 表示不限速
+    # jls-config:
+    #   enable: false
+    #   users:
+    #     - username: jls-user
+    #       password: jls-password
+    #   dest: test.com:443
+    ## shadow-tls, res-tls and jls-config are mutually exclusive
     # rule: sub-rule-name1
     # proxy: proxy
 
@@ -1947,6 +2168,34 @@ listeners:
     #   madSJjYQIf9o1N5GXjkW4DEEeb17qMxHdwMdNnwADAABAAEAAQACAAEAAwAIdGVz
     #   dC5jb20AAA==
     #   -----END ECH KEYS-----
+    # jls-config: # JLS 替代普通 TLS；未认证连接回落到 dest
+    #   enable: true
+    #   users:
+    #     - username: jls-user
+    #       password: jls-password
+    #   dest: www.example.com:443
+    #   # sni: www.example.com # 留空时从 dest 推导
+    #   # alpn: [h2, http/1.1]
+    #   # proxy: ""
+    #   # rate-limit: 0 # fallback 转发限速，单位 bit/s；0 表示不限速
+    # shadow-tls:
+    #   enable: true
+    #   version: 3 # 支持 v1/v2/v3
+    #   # password: shadow-tls-password # v2 配置项
+    #   users: # v3 配置项
+    #     - name: shadow-tls-user
+    #       password: shadow-tls-password
+    #   handshake:
+    #     dest: www.example.com:443
+    #     # proxy: ""
+    # res-tls:
+    #   enable: true
+    #   dest: www.example.com:443
+    #   password: restls-password
+    #   # restls-script: ""
+    #   # min-record-len: 0
+    #   # proxy: ""
+    #   # rate-limit: 0 # fallback 双向转发限速，单位 bit/s；0 表示不限速
     # 如果填写reality-config则开启reality（注意不可与certificate和private-key同时填写）
     # reality-config:
     #   dest: test.com:443
@@ -2011,6 +2260,37 @@ listeners:
     #  alpn:
     #    - h3
     #  max-udp-relay-packet-size: 1500
+
+  - name: shadowquic-in-1
+    type: shadowquic
+    port: 10822 # 支持使用ports格式，例如200,302 or 200,204,401-429,501-503
+    listen: 0.0.0.0
+    # routing-mark: 0 # 为监听socket设置routing-mark（仅支持linux）
+    # rule: sub-rule-name1 # 默认使用 rules，如果未找到 sub-rule 则直接使用 rules
+    # proxy: proxy # 如果不为空则直接将该入站流量交由指定 proxy 处理 (当 proxy 不为空时，这里的 proxy 名称必须合法，否则会出错)
+    users:
+      - username: username
+        password: password
+    jls-upstream:
+      addr: www.example.com:443 # 未通过 JLS 认证的连接将转发到该 QUIC 伪装上游
+      # sni: example.com # JLS 伪装目标 SNI，留空时从 addr 推导
+      # proxy: proxy # 伪装上游使用的代理
+      # rate-limit: 0 # 转发限速，单位 bit/s，0 表示不限速
+    # alpn:
+    #   - h3
+    # quic-versions: [v1] # 本机支持的 QUIC 版本；支持 v1/v2
+    # zero-rtt: true
+    # congestion-controller: bbr # Available: "cubic", "new_reno", "bbr". Default: "cubic"
+    # up: 100 Mbps # enables brutal negotiation via a mihomo private extension; server upload/client download speed cap; falls back to congestion-controller when unsupported
+    # down: 100 Mbps # enables brutal negotiation via a mihomo private extension; requested server download/client upload speed; falls back to congestion-controller when unsupported
+    # ignore-client-bandwidth: false # for brutal; ignore outbound down and use listener down/auto instead
+    # cwnd: 10 # default: 32
+    # bbr-profile: "" # Available: "standard", "conservative", "aggressive". Default: "standard"
+    # max-idle-time: 30000
+    # max-datagram-frame-size: 1400
+    # recv-window-conn: 0
+    # recv-window: 0
+    # disable-mtu-discovery: false
 
   - name: tunnel-in-1
     type: tunnel
@@ -2085,6 +2365,16 @@ listeners:
     #   madSJjYQIf9o1N5GXjkW4DEEeb17qMxHdwMdNnwADAABAAEAAQACAAEAAwAIdGVz
     #   dC5jb20AAA==
     #   -----END ECH KEYS-----
+    # jls-config: # JLS 替代普通 TLS；未认证连接回落到 dest
+    #   enable: true
+    #   users:
+    #     - username: jls-user
+    #       password: jls-password
+    #   dest: www.example.com:443
+    #   # sni: www.example.com # 留空时从 dest 推导
+    #   # alpn: [h2, http/1.1]
+    #   # proxy: ""
+    #   # rate-limit: 0 # fallback 转发限速，单位 bit/s；0 表示不限速
     # 如果填写reality-config则开启reality（注意不可与certificate和private-key同时填写）
     reality-config:
       dest: test.com:443
@@ -2103,7 +2393,25 @@ listeners:
         after-bytes: 0 # 传输指定字节后开始限速
         bytes-per-sec: 0 # 基准速率（字节/秒）
         burst-bytes-per-sec: 0 # 突发速率（字节/秒），大于 bytesPerSec 时生效
-    ### 注意，对于vless listener, 如果 "allow-insecure" 不为 true, 至少需要填写 “certificate和private-key” 或 “reality-config” 或 “decryption” 的其中一项 ###
+    # shadow-tls:
+    #   enable: true
+    #   version: 3 # 支持 v1/v2/v3
+    #   # password: shadow-tls-password # v2 配置项
+    #   users: # v3 配置项
+    #     - name: shadow-tls-user
+    #       password: shadow-tls-password
+    #   handshake:
+    #     dest: www.example.com:443
+    #     # proxy: ""
+    # res-tls:
+    #   enable: true
+    #   dest: www.example.com:443
+    #   password: restls-password
+    #   # restls-script: ""
+    #   # min-record-len: 0
+    #   # proxy: ""
+    #   # rate-limit: 0 # fallback 双向转发限速，单位 bit/s；0 表示不限速
+    ### 注意，对于vless listener, 如果 "allow-insecure" 不为 true, 至少需要填写 “certificate和private-key” 或 “shadow-tls” 或 “res-tls” 或 “jls-config” 或 “reality-config” 或 “decryption” 的其中一项 ###
     # allow-insecure: false # 是否允许不开启tls加密（注意：仅用于有 nginx, caddy 前置的情况）
 
   - name: anytls-in-1
@@ -2114,7 +2422,7 @@ listeners:
     users:
       username1: password1
       username2: password2
-    # "certificate" and "private-key" are required
+    # "shadow-tls"、"res-tls" 和 "jls-config" 均未启用且 "allow-insecure" 不为 true 时，必须填写 "certificate" 和 "private-key"；启用 ShadowTLS、ResTLS 或 JLS 时不要填写
     certificate: ./server.crt # 证书 PEM 格式，或者 证书的路径
     private-key: ./server.key
     # 下面两项为mTLS配置项，如果client-auth-type设置为 "verify-if-given" 或 "require-and-verify" 则client-auth-cert必须不为空
@@ -2127,7 +2435,35 @@ listeners:
     #   madSJjYQIf9o1N5GXjkW4DEEeb17qMxHdwMdNnwADAABAAEAAQACAAEAAwAIdGVz
     #   dC5jb20AAA==
     #   -----END ECH KEYS-----
-    ### 注意，anytls listener, 如果 "allow-insecure" 不为 true, 必须填写 “certificate和private-key” ###
+    # shadow-tls:
+    #   enable: true
+    #   version: 3 # 支持 v1/v2/v3
+    #   # password: shadow-tls-password # v2 配置项
+    #   users: # v3 配置项
+    #     - name: shadow-tls-user
+    #       password: shadow-tls-password
+    #   handshake:
+    #     dest: www.example.com:443
+    #     # proxy: ""
+    # res-tls:
+    #   enable: true
+    #   dest: www.example.com:443
+    #   password: restls-password
+    #   # restls-script: ""
+    #   # min-record-len: 0
+    #   # proxy: ""
+    #   # rate-limit: 0 # fallback 双向转发限速，单位 bit/s；0 表示不限速
+    # jls-config: # JLS 替代普通 TLS；未认证连接回落到 dest
+    #   enable: true
+    #   users:
+    #     - username: jls-user
+    #       password: jls-password
+    #   dest: www.example.com:443
+    #   # sni: www.example.com # 留空时从 dest 推导
+    #   # alpn: [h2, http/1.1]
+    #   # proxy: ""
+    #   # rate-limit: 0 # fallback 转发限速，单位 bit/s；0 表示不限速
+    ### 注意，anytls listener, 如果 "allow-insecure" 不为 true, 至少需要填写 “certificate和private-key” 或 “shadow-tls” 或 “res-tls” 或 “jls-config” 的其中一项 ###
     # allow-insecure: false # 是否允许不开启tls加密（注意：仅用于有 nginx, caddy 前置的情况）
     # padding-scheme: "" # https://github.com/anytls/anytls-go/blob/main/docs/protocol.md#cmdupdatepaddingscheme
 
@@ -2194,6 +2530,34 @@ listeners:
     #   madSJjYQIf9o1N5GXjkW4DEEeb17qMxHdwMdNnwADAABAAEAAQACAAEAAwAIdGVz
     #   dC5jb20AAA==
     #   -----END ECH KEYS-----
+    # shadow-tls:
+    #   enable: true
+    #   version: 3 # 支持 v1/v2/v3
+    #   # password: shadow-tls-password # v2 配置项
+    #   users: # v3 配置项
+    #     - name: shadow-tls-user
+    #       password: shadow-tls-password
+    #   handshake:
+    #     dest: www.example.com:443
+    #     # proxy: ""
+    # res-tls:
+    #   enable: true
+    #   dest: www.example.com:443
+    #   password: restls-password
+    #   # restls-script: ""
+    #   # min-record-len: 0
+    #   # proxy: ""
+    #   # rate-limit: 0 # fallback 双向转发限速，单位 bit/s；0 表示不限速
+    # jls-config: # JLS 替代普通 TLS；未认证连接回落到 dest
+    #   enable: true
+    #   users:
+    #     - username: jls-user
+    #       password: jls-password
+    #   dest: www.example.com:443
+    #   # sni: www.example.com # 留空时从 dest 推导
+    #   # alpn: [h2, http/1.1]
+    #   # proxy: ""
+    #   # rate-limit: 0 # fallback 转发限速，单位 bit/s；0 表示不限速
     # 如果填写reality-config则开启reality（注意不可与certificate和private-key同时填写）
     # reality-config:
     #   dest: test.com:443
@@ -2216,7 +2580,7 @@ listeners:
     #   enabled: false
     #   method: aes-128-gcm # aes-128-gcm/aes-256-gcm/chacha20-ietf-poly1305
     #   password: "example"
-    ### 注意，对于trojan listener, 如果 "allow-insecure" 不为 true, 至少需要填写 “certificate和private-key” 或 “reality-config” 或 “ss-option” 的其中一项 ###
+    ### 注意，对于trojan listener, 如果 "allow-insecure" 不为 true, 至少需要填写 “certificate和private-key” 或 “shadow-tls” 或 “res-tls” 或 “jls-config” 或 “reality-config” 或 “ss-option” 的其中一项 ###
     # allow-insecure: false # 是否允许不开启tls加密（注意：仅用于有 nginx, caddy 前置的情况）
 
   - name: hysteria2-in-1
@@ -2267,8 +2631,9 @@ listeners:
     #      - stun.sip.us:3478
     #      - global.stun.twilio.com:3478
     #    # proxy: DIRECT # 设置server-url通过哪个代理进行连接
-    #    # 下面支持填写针对server-url的TLS配置(sni, skip-cert-verify, fingerprint, certificate, private-key, alpn)
+    #    # 下面支持填写针对server-url的TLS配置(sni, skip-cert-verify, name-cert-verify, fingerprint, certificate, private-key, alpn)
     #    # skip-cert-verify： false
+    #    # name-cert-verify: example.com # 仅修改证书 DNSName 校验目标，不修改 SNI
     #    # ......
 
   # 注意，这是用于自建hysteria2入站和出站中realm-opts中server-url的HTTP/HTTPS服务器，请勿混淆

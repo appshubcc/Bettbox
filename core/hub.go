@@ -1,11 +1,13 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"core/state"
 	"encoding/json"
 	"fmt"
 	"net"
+	"os"
 	"runtime"
 	"runtime/debug"
 	"sort"
@@ -26,6 +28,7 @@ import (
 	"github.com/metacubex/mihomo/hub/executor"
 	"github.com/metacubex/mihomo/listener"
 	"github.com/metacubex/mihomo/log"
+	rulesProvider "github.com/metacubex/mihomo/rules/provider"
 	"github.com/metacubex/mihomo/tunnel"
 	"github.com/metacubex/mihomo/tunnel/statistic"
 	"sync"
@@ -66,10 +69,6 @@ func handleStopListener() bool {
 	defer runLock.Unlock()
 	isRunning = false
 	listener.StopListener()
-	go func() {
-		runtime.GC()
-		debug.FreeOSMemory()
-	}()
 	return true
 }
 
@@ -79,7 +78,7 @@ func handleGetIsInit() bool {
 
 func handleForceGc(forceFreeOSMemory bool) {
 	go func() {
-		log.Infoln("[APP] Request force GC", forceFreeOSMemory)
+		log.Infoln("[APP] Request force GC, forceFreeOSMemory=%t", forceFreeOSMemory)
 		runtime.GC()
 		if forceFreeOSMemory {
 			debug.FreeOSMemory()
@@ -126,10 +125,17 @@ func handleDecryptAgeConfig(params *DecryptAgeConfigParams) string {
 func handleGetProxies() map[string]constant.Proxy {
 	runLock.Lock()
 	defer runLock.Unlock()
+	if !isInit {
+		return make(map[string]constant.Proxy)
+	}
 	return tunnel.Proxies()
 }
 
 func handleChangeProxy(data string, fn func(string string)) {
+	if !isInit {
+		fn("core not initialized")
+		return
+	}
 	runLock.Lock()
 	go func() {
 		defer runLock.Unlock()
@@ -217,7 +223,22 @@ func handleAsyncTestDelay(paramsString string, fn func(string)) {
 		ctx, cancel := context.WithTimeout(context.Background(), time.Millisecond*time.Duration(params.Timeout))
 		defer cancel()
 
-		proxy := tunnel.ProxiesWithProviders()[params.ProxyName]
+		var proxy constant.Proxy
+		var exist bool
+		if proxy, exist = tunnel.Proxies()[params.ProxyName]; !exist {
+			for _, provider := range tunnel.Providers() {
+				for _, p := range provider.Proxies() {
+					if p.Name() == params.ProxyName {
+						proxy = p
+						exist = true
+						break
+					}
+				}
+				if exist {
+					break
+				}
+			}
+		}
 
 		delayData := &Delay{
 			Name: params.ProxyName,
@@ -302,6 +323,9 @@ func handleCloseConnection(connectionId string) bool {
 func handleGetExternalProviders() string {
 	runLock.Lock()
 	defer runLock.Unlock()
+	if !isInit {
+		return "[]"
+	}
 	externalProviders = getExternalProvidersRaw()
 	eps := make([]ExternalProvider, 0)
 	for _, p := range externalProviders {
@@ -404,6 +428,43 @@ func handleSideLoadExternalProvider(providerName string, data []byte, fn func(va
 	}()
 }
 
+func handleParseExternalProviderContent(providerName string, fn func(value string)) {
+	go func() {
+		runLock.Lock()
+		p, exist := getExternalProvidersRaw()[providerName]
+		runLock.Unlock()
+
+		if !exist {
+			fn("external provider does not exist")
+			return
+		}
+
+		ep, err := toExternalProvider(p)
+		if err != nil || ep.Path == "" {
+			fn("provider path is empty")
+			return
+		}
+
+		buf, err := os.ReadFile(ep.Path)
+		if err != nil {
+			fn(fmt.Sprintf("read file error: %v", err))
+			return
+		}
+
+		// RuleProvider 的缓存文件可能是 zstd 压缩的 MRS 二进制格式（无扩展名），
+		// 直接尝试解码；失败则视为普通文本
+		if rp, ok := p.(cp.RuleProvider); ok {
+			var out bytes.Buffer
+			if err := rulesProvider.ConvertToMrs(buf, rp.Behavior(), cp.MrsRule, &out); err == nil {
+				fn(out.String())
+				return
+			}
+		}
+
+		fn(string(buf))
+	}()
+}
+
 func handleStartLog() {
 	if logSubscriber != nil {
 		log.UnSubscribe(logSubscriber)
@@ -451,6 +512,9 @@ func handleGetMemory(fn func(value string)) {
 }
 
 func handleGetMode() string {
+	if !isInit {
+		return ""
+	}
 	return tunnel.Mode().String()
 }
 
@@ -479,6 +543,9 @@ func handleGetConfig(params *GetConfigParams) (*config.RawConfig, error) {
 }
 
 func handleFlushFakeIP() bool {
+	if !isInit {
+		return false
+	}
 	err := resolver.FlushFakeIP()
 	if err != nil {
 		log.Errorln("[APP] Flush FakeIP error: %v", err)
@@ -523,6 +590,9 @@ func handleSetupConfig(bytes []byte) string {
 }
 
 func handleSuspend(suspended bool) bool {
+	if !isInit {
+		return false
+	}
 	if suspended {
 		log.Infoln("[APP] Suspend mode enabled")
 		tunnel.OnSuspend()

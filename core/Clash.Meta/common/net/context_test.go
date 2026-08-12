@@ -101,3 +101,32 @@ func TestSetupContextForConnWithTimeout2(t *testing.T) {
 		t.Fatal("conn not be canceled")
 	}
 }
+
+func TestRelayContextWithCancel(t *testing.T) {
+	t.Parallel()
+	leftConn, leftPeer := N.Pipe()
+	rightConn, rightPeer := N.Pipe()
+	defer leftPeer.Close()
+	defer rightPeer.Close()
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	errc := make(chan error)
+	go func() {
+		errc <- N.RelayContext(ctx, leftConn, rightConn)
+	}()
+
+	select {
+	case <-errc:
+		t.Fatal("relay stopped before cancel")
+	case <-time.After(100 * time.Millisecond):
+		cancel()
+	}
+
+	select {
+	case err := <-errc:
+		assert.ErrorIs(t, err, context.Canceled)
+	case <-time.After(100 * time.Millisecond):
+		t.Fatal("relay was not canceled")
+	}
+}

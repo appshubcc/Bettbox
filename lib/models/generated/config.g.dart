@@ -11,7 +11,17 @@ _AppSettingProps _$AppSettingPropsFromJson(Map<String, dynamic> json) =>
       locale: json['locale'] as String?,
       dashboardWidgets: json['dashboardWidgets'] == null
           ? defaultDashboardWidgets
-          : dashboardWidgetsSafeFormJson(json['dashboardWidgets'] as List?),
+          : dashboardWidgetsSafeFromJson(json['dashboardWidgets'] as List?),
+      mobileDashboardWidgets: json['mobileDashboardWidgets'] == null
+          ? defaultAndroidDashboardWidgets
+          : mobileDashboardWidgetsSafeFromJson(
+              json['mobileDashboardWidgets'] as List?,
+            ),
+      desktopDashboardWidgets: json['desktopDashboardWidgets'] == null
+          ? defaultDashboardWidgets
+          : desktopDashboardWidgetsSafeFromJson(
+              json['desktopDashboardWidgets'] as List?,
+            ),
       onlyStatisticsProxy: json['onlyStatisticsProxy'] as bool? ?? true,
       autoLaunch: json['autoLaunch'] as bool? ?? false,
       silentLaunch: json['silentLaunch'] as bool? ?? false,
@@ -20,7 +30,7 @@ _AppSettingProps _$AppSettingPropsFromJson(Map<String, dynamic> json) =>
       openLogs: json['openLogs'] as bool? ?? true,
       closeConnections: json['closeConnections'] as bool? ?? true,
       testUrl: json['testUrl'] as String? ?? defaultTestUrl,
-      isAnimateToPage: json['isAnimateToPage'] as bool? ?? true,
+      showStartSwitch: json['showStartSwitch'] as bool? ?? true,
       enableNavBarHapticFeedback:
           json['enableNavBarHapticFeedback'] as bool? ?? true,
       autoCheckUpdate: json['autoCheckUpdate'] as bool? ?? true,
@@ -45,6 +55,12 @@ Map<String, dynamic> _$AppSettingPropsToJson(_AppSettingProps instance) =>
       'dashboardWidgets': instance.dashboardWidgets
           .map((e) => _$DashboardWidgetEnumMap[e]!)
           .toList(),
+      'mobileDashboardWidgets': instance.mobileDashboardWidgets
+          .map((e) => _$DashboardWidgetEnumMap[e]!)
+          .toList(),
+      'desktopDashboardWidgets': instance.desktopDashboardWidgets
+          .map((e) => _$DashboardWidgetEnumMap[e]!)
+          .toList(),
       'onlyStatisticsProxy': instance.onlyStatisticsProxy,
       'autoLaunch': instance.autoLaunch,
       'silentLaunch': instance.silentLaunch,
@@ -53,7 +69,7 @@ Map<String, dynamic> _$AppSettingPropsToJson(_AppSettingProps instance) =>
       'openLogs': instance.openLogs,
       'closeConnections': instance.closeConnections,
       'testUrl': instance.testUrl,
-      'isAnimateToPage': instance.isAnimateToPage,
+      'showStartSwitch': instance.showStartSwitch,
       'enableNavBarHapticFeedback': instance.enableNavBarHapticFeedback,
       'autoCheckUpdate': instance.autoCheckUpdate,
       'showLabel': instance.showLabel,
@@ -116,8 +132,8 @@ _AccessControl _$AccessControlFromJson(Map<String, dynamic> json) =>
       sort:
           $enumDecodeNullable(_$AccessSortTypeEnumMap, json['sort']) ??
           AccessSortType.none,
-      isFilterSystemApp: json['isFilterSystemApp'] as bool? ?? true,
-      isFilterNonInternetApp: json['isFilterNonInternetApp'] as bool? ?? true,
+      isFilterSystemApp: json['isFilterSystemApp'] as bool? ?? false,
+      isFilterNonInternetApp: json['isFilterNonInternetApp'] as bool? ?? false,
     );
 
 Map<String, dynamic> _$AccessControlToJson(_AccessControl instance) =>
@@ -176,10 +192,11 @@ const _$TorBridgeModeEnumMap = {
 };
 
 _WindowProps _$WindowPropsFromJson(Map<String, dynamic> json) => _WindowProps(
-  width: (json['width'] as num?)?.toDouble() ?? 750,
-  height: (json['height'] as num?)?.toDouble() ?? 600,
+  width: (json['width'] as num?)?.toDouble() ?? 910,
+  height: (json['height'] as num?)?.toDouble() ?? 620,
   top: (json['top'] as num?)?.toDouble(),
   left: (json['left'] as num?)?.toDouble(),
+  isPinned: json['isPinned'] as bool? ?? false,
 );
 
 Map<String, dynamic> _$WindowPropsToJson(_WindowProps instance) =>
@@ -188,6 +205,7 @@ Map<String, dynamic> _$WindowPropsToJson(_WindowProps instance) =>
       'height': instance.height,
       'top': instance.top,
       'left': instance.left,
+      'isPinned': instance.isPinned,
     };
 
 _VpnProps _$VpnPropsFromJson(Map<String, dynamic> json) => _VpnProps(
@@ -203,7 +221,8 @@ _VpnProps _$VpnPropsFromJson(Map<String, dynamic> json) => _VpnProps(
   disableQuic: json['disableQuic'] as bool? ?? false,
   networkSpeedNotification: json['networkSpeedNotification'] as bool? ?? false,
   excludeChina: json['excludeChina'] as bool? ?? false,
-  trayEnhancement: json['trayEnhancement'] as bool? ?? true,
+  trayEnhancement: json['trayEnhancement'] as bool? ?? false,
+  enableTraySpeed: json['enableTraySpeed'] as bool? ?? false,
   alwaysShowTitleBar: json['alwaysShowTitleBar'] as bool? ?? true,
   quickResponse: json['quickResponse'] as bool? ?? true,
   accessControl: json['accessControl'] == null
@@ -225,6 +244,7 @@ Map<String, dynamic> _$VpnPropsToJson(_VpnProps instance) => <String, dynamic>{
   'networkSpeedNotification': instance.networkSpeedNotification,
   'excludeChina': instance.excludeChina,
   'trayEnhancement': instance.trayEnhancement,
+  'enableTraySpeed': instance.enableTraySpeed,
   'alwaysShowTitleBar': instance.alwaysShowTitleBar,
   'quickResponse': instance.quickResponse,
   'accessControl': instance.accessControl,
@@ -239,6 +259,11 @@ _NetworkProps _$NetworkPropsFromJson(Map<String, dynamic> json) =>
               .toList() ??
           defaultBypassDomain,
       bypassPrivateRoute: json['bypassPrivateRoute'] as bool? ?? true,
+      bypassPrivateRouteAddress:
+          (json['bypassPrivateRouteAddress'] as List<dynamic>?)
+              ?.map((e) => e as String)
+              .toList() ??
+          const [],
       autoSetSystemDns: json['autoSetSystemDns'] as bool? ?? true,
     );
 
@@ -247,6 +272,7 @@ Map<String, dynamic> _$NetworkPropsToJson(_NetworkProps instance) =>
       'systemProxy': instance.systemProxy,
       'bypassDomain': instance.bypassDomain,
       'bypassPrivateRoute': instance.bypassPrivateRoute,
+      'bypassPrivateRouteAddress': instance.bypassPrivateRouteAddress,
       'autoSetSystemDns': instance.autoSetSystemDns,
     };
 
@@ -279,6 +305,7 @@ _ProxiesStyle _$ProxiesStyleFromJson(Map<String, dynamic> json) =>
           ) ??
           const {},
       concurrencyLimit: (json['concurrencyLimit'] as num?)?.toInt() ?? 250,
+      showHiddenItems: json['showHiddenItems'] as bool? ?? false,
     );
 
 Map<String, dynamic> _$ProxiesStyleToJson(_ProxiesStyle instance) =>
@@ -291,6 +318,7 @@ Map<String, dynamic> _$ProxiesStyleToJson(_ProxiesStyle instance) =>
       'delayAnimation': _$DelayAnimationTypeEnumMap[instance.delayAnimation]!,
       'iconMap': instance.iconMap,
       'concurrencyLimit': instance.concurrencyLimit,
+      'showHiddenItems': instance.showHiddenItems,
     };
 
 const _$ProxiesTypeEnumMap = {ProxiesType.tab: 'tab', ProxiesType.list: 'list'};
@@ -361,7 +389,7 @@ _ThemeProps _$ThemePropsFromJson(Map<String, dynamic> json) => _ThemeProps(
   textScale: json['textScale'] == null
       ? const TextScale()
       : TextScale.fromJson(json['textScale'] as Map<String, dynamic>),
-  useLightIcon: json['useLightIcon'] as bool? ?? false,
+  useDarkIcon: json['useDarkIcon'] as bool? ?? false,
   useHarmonyFont: json['useHarmonyFont'] as bool? ?? false,
   invertTrayIcon: json['invertTrayIcon'] as bool? ?? false,
 );
@@ -374,7 +402,7 @@ Map<String, dynamic> _$ThemePropsToJson(_ThemeProps instance) =>
       'schemeVariant': _$DynamicSchemeVariantEnumMap[instance.schemeVariant]!,
       'pureBlack': instance.pureBlack,
       'textScale': instance.textScale,
-      'useLightIcon': instance.useLightIcon,
+      'useDarkIcon': instance.useDarkIcon,
       'useHarmonyFont': instance.useHarmonyFont,
       'invertTrayIcon': instance.invertTrayIcon,
     };
@@ -458,7 +486,9 @@ _Config _$ConfigFromJson(Map<String, dynamic> json) => _Config(
       : WindowProps.fromJson(json['windowProps'] as Map<String, dynamic>?),
   patchClashConfig: json['patchClashConfig'] == null
       ? defaultClashConfig
-      : ClashConfig.fromJson(json['patchClashConfig'] as Map<String, dynamic>),
+      : ClashConfig.safeFormJson(
+          json['patchClashConfig'] as Map<String, Object?>?,
+        ),
   scriptProps: json['scriptProps'] == null
       ? const ScriptProps()
       : ScriptProps.fromJson(json['scriptProps'] as Map<String, dynamic>),

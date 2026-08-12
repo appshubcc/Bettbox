@@ -23,7 +23,16 @@ const defaultBypassDomain = [
   '172.17.*',
   '172.18.*',
   '172.19.*',
-  '172.2*',
+  '172.20.*',
+  '172.21.*',
+  '172.22.*',
+  '172.23.*',
+  '172.24.*',
+  '172.25.*',
+  '172.26.*',
+  '172.27.*',
+  '172.28.*',
+  '172.29.*',
   '172.30.*',
   '172.31.*',
   '192.168.*',
@@ -44,13 +53,54 @@ const List<DashboardWidget> defaultDashboardWidgets = [
   DashboardWidget.tunButton,
   DashboardWidget.outboundMode,
   DashboardWidget.networkDetection,
-  DashboardWidget.trafficUsage,
   DashboardWidget.intranetIp,
+  DashboardWidget.trafficUsage,
+  DashboardWidget.memoryInfo,
+  DashboardWidget.connectionsCount,
+  DashboardWidget.startButton,
+];
+
+const List<DashboardWidget> defaultAndroidDashboardWidgets = [
+  DashboardWidget.outboundModeV2,
+  DashboardWidget.networkSpeed,
+  DashboardWidget.trafficUsage,
+  DashboardWidget.networkDetection,
+  DashboardWidget.connectionsCount,
   DashboardWidget.memoryInfo,
   DashboardWidget.startButton,
 ];
 
-List<DashboardWidget> dashboardWidgetsSafeFormJson(
+List<DashboardWidget> dashboardWidgetsSafeFromJson(
+  List<dynamic>? dashboardWidgets,
+) {
+  try {
+    return dashboardWidgets
+            ?.map((e) => $enumDecode(_$DashboardWidgetEnumMap, e))
+            .toList() ??
+        (system.isAndroid
+            ? defaultAndroidDashboardWidgets
+            : defaultDashboardWidgets);
+  } catch (_) {
+    return system.isAndroid
+        ? defaultAndroidDashboardWidgets
+        : defaultDashboardWidgets;
+  }
+}
+
+List<DashboardWidget> mobileDashboardWidgetsSafeFromJson(
+  List<dynamic>? dashboardWidgets,
+) {
+  try {
+    return dashboardWidgets
+            ?.map((e) => $enumDecode(_$DashboardWidgetEnumMap, e))
+            .toList() ??
+        defaultAndroidDashboardWidgets;
+  } catch (_) {
+    return defaultAndroidDashboardWidgets;
+  }
+}
+
+List<DashboardWidget> desktopDashboardWidgetsSafeFromJson(
   List<dynamic>? dashboardWidgets,
 ) {
   try {
@@ -68,8 +118,14 @@ abstract class AppSettingProps with _$AppSettingProps {
   const factory AppSettingProps({
     String? locale,
     @Default(defaultDashboardWidgets)
-    @JsonKey(fromJson: dashboardWidgetsSafeFormJson)
+    @JsonKey(fromJson: dashboardWidgetsSafeFromJson)
     List<DashboardWidget> dashboardWidgets,
+    @Default(defaultAndroidDashboardWidgets)
+    @JsonKey(fromJson: mobileDashboardWidgetsSafeFromJson)
+    List<DashboardWidget> mobileDashboardWidgets,
+    @Default(defaultDashboardWidgets)
+    @JsonKey(fromJson: desktopDashboardWidgetsSafeFromJson)
+    List<DashboardWidget> desktopDashboardWidgets,
     @Default(true) bool onlyStatisticsProxy,
     @Default(false) bool autoLaunch,
     @Default(false) bool silentLaunch,
@@ -78,7 +134,7 @@ abstract class AppSettingProps with _$AppSettingProps {
     @Default(true) bool openLogs,
     @Default(true) bool closeConnections,
     @Default(defaultTestUrl) String testUrl,
-    @Default(true) bool isAnimateToPage,
+    @Default(true) bool showStartSwitch,
     @Default(true) bool enableNavBarHapticFeedback,
     @Default(true) bool autoCheckUpdate,
     @Default(false) bool showLabel,
@@ -95,9 +151,26 @@ abstract class AppSettingProps with _$AppSettingProps {
       _$AppSettingPropsFromJson(json);
 
   factory AppSettingProps.safeFromJson(Map<String, Object?>? json) {
-    final props = json == null
+    var props = json == null
         ? defaultAppSettingProps
         : AppSettingProps.fromJson(json);
+
+    if (json != null) {
+      final oldWidgets = json['dashboardWidgets'];
+      if (oldWidgets is List) {
+        final parsedOld = dashboardWidgetsSafeFromJson(oldWidgets);
+        if (json['mobileDashboardWidgets'] == null) {
+          props = props.copyWith(mobileDashboardWidgets: parsedOld);
+        }
+        if (json['desktopDashboardWidgets'] == null) {
+          props = props.copyWith(desktopDashboardWidgets: parsedOld);
+        }
+      }
+    } else if (system.isAndroid) {
+      props = props.copyWith(
+        mobileDashboardWidgets: defaultAndroidDashboardWidgets,
+      );
+    }
 
     return props.copyWith(minimizeOnExit: true, openLogs: true);
   }
@@ -111,8 +184,8 @@ abstract class AccessControl with _$AccessControl {
     @Default([]) List<String> acceptList,
     @Default([]) List<String> rejectList,
     @Default(AccessSortType.none) AccessSortType sort,
-    @Default(true) bool isFilterSystemApp,
-    @Default(true) bool isFilterNonInternetApp,
+    @Default(false) bool isFilterSystemApp,
+    @Default(false) bool isFilterNonInternetApp,
   }) = _AccessControl;
 
   factory AccessControl.fromJson(Map<String, Object?> json) =>
@@ -164,10 +237,11 @@ extension TorPropsExt on TorProps {
 @freezed
 abstract class WindowProps with _$WindowProps {
   const factory WindowProps({
-    @Default(750) double width,
-    @Default(600) double height,
+    @Default(910) double width,
+    @Default(620) double height,
     double? top,
     double? left,
+    @Default(false) bool isPinned,
   }) = _WindowProps;
 
   factory WindowProps.fromJson(Map<String, Object?>? json) =>
@@ -189,7 +263,8 @@ abstract class VpnProps with _$VpnProps {
     @Default(false) bool disableQuic,
     @Default(false) bool networkSpeedNotification,
     @Default(false) bool excludeChina,
-    @Default(true) bool trayEnhancement,
+    @Default(false) bool trayEnhancement,
+    @Default(false) bool enableTraySpeed,
     @Default(true) bool alwaysShowTitleBar,
     @Default(true) bool quickResponse,
     @Default(defaultAccessControl) AccessControl accessControl,
@@ -201,10 +276,6 @@ abstract class VpnProps with _$VpnProps {
   factory VpnProps.safeFromJson(Map<String, Object?>? json) {
     final props = json == null ? defaultVpnProps : VpnProps.fromJson(json);
     var safeProps = props;
-
-    if (system.isAndroid) {
-      safeProps = safeProps.copyWith(systemProxy: false);
-    }
 
     if (safeProps.smartAutoStop && safeProps.quickResponse) {
       safeProps = safeProps.copyWith(quickResponse: false);
@@ -220,11 +291,21 @@ abstract class NetworkProps with _$NetworkProps {
     @Default(false) bool systemProxy,
     @Default(defaultBypassDomain) List<String> bypassDomain,
     @Default(true) bool bypassPrivateRoute,
+    @Default([]) List<String> bypassPrivateRouteAddress,
     @Default(true) bool autoSetSystemDns,
   }) = _NetworkProps;
 
   factory NetworkProps.fromJson(Map<String, Object?>? json) =>
       json == null ? const NetworkProps() : _$NetworkPropsFromJson(json);
+}
+
+extension NetworkPropsExt on NetworkProps {
+  List<String> get realBypassPrivateRouteAddress {
+    if (bypassPrivateRouteAddress.isNotEmpty) return bypassPrivateRouteAddress;
+    return system.isDesktop
+        ? defaultDesktopBypassPrivateRouteAddress
+        : defaultBypassPrivateRouteAddress;
+  }
 }
 
 @freezed
@@ -238,6 +319,7 @@ abstract class ProxiesStyle with _$ProxiesStyle {
     @Default(DelayAnimationType.none) DelayAnimationType delayAnimation,
     @Default({}) Map<String, String> iconMap,
     @Default(250) int concurrencyLimit,
+    @Default(false) bool showHiddenItems,
   }) = _ProxiesStyle;
 
   factory ProxiesStyle.fromJson(Map<String, Object?>? json) =>
@@ -264,7 +346,7 @@ abstract class ThemeProps with _$ThemeProps {
     @Default(DynamicSchemeVariant.content) DynamicSchemeVariant schemeVariant,
     @Default(false) bool pureBlack,
     @Default(TextScale()) TextScale textScale,
-    @Default(false) bool useLightIcon,
+    @Default(false) bool useDarkIcon,
     @Default(false) bool useHarmonyFont,
     @Default(false) bool invertTrayIcon,
   }) = _ThemeProps;
@@ -339,7 +421,9 @@ abstract class Config with _$Config {
     @JsonKey(fromJson: ThemeProps.safeFromJson) required ThemeProps themeProps,
     @Default(defaultProxiesStyle) ProxiesStyle proxiesStyle,
     @Default(defaultWindowProps) WindowProps windowProps,
-    @Default(defaultClashConfig) ClashConfig patchClashConfig,
+    @JsonKey(fromJson: ClashConfig.safeFormJson)
+    @Default(defaultClashConfig)
+    ClashConfig patchClashConfig,
     @Default(ScriptProps()) ScriptProps scriptProps,
     @Default('') String nodeExcludeFilter,
     @Default(5000) int healthCheckTimeout,

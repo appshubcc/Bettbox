@@ -182,6 +182,12 @@ func handleAction(action *Action, result ActionResult) {
 			result.success(value)
 		})
 		return
+	case parseExternalProviderContentMethod:
+		providerName := action.Data.(string)
+		handleParseExternalProviderContent(providerName, func(value string) {
+			result.success(value)
+		})
+		return
 	case startLogMethod:
 		handleStartLog()
 		result.success(true)

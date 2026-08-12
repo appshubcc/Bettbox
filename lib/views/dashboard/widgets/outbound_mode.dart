@@ -123,7 +123,7 @@ class OutboundModeV2 extends StatelessWidget {
                         clipBehavior: Clip.antiAlias,
                         alignment: Alignment.center,
                         decoration: BoxDecoration(),
-                        height: height - 16,
+                        height: height - 18,
                         child: Text(
                           Intl.message(item.name),
                           style: Theme.of(context).textTheme.titleSmall
@@ -138,7 +138,11 @@ class OutboundModeV2 extends StatelessWidget {
                     ),
                   ),
                 ),
-                padding: EdgeInsets.symmetric(horizontal: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 9,
+                ),
+                thumbRadius: const Radius.circular(12),
                 groupValue: mode,
                 onValueChanged: (value) {
                   if (value == null) {

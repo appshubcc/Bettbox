@@ -28,19 +28,20 @@ class _OverrideProfileViewState extends State<OverrideProfileView> {
         final overrideData = ref.read(
           getProfileOverrideDataProvider(widget.profileId),
         );
-        final newOverrideData = overrideData?.rule.type == OverrideRuleType.override &&
+        final newOverrideData =
+            overrideData?.rule.type == OverrideRuleType.override &&
                 overrideData?.rule.overrideRules.isEmpty == true
             ? overrideData?.copyWith(
-                rule: overrideData.rule.copyWith(
-                  overrideRules: snippet.rule,
-                ),
+                rule: overrideData.rule.copyWith(overrideRules: snippet.rule),
               )
             : overrideData;
         ref
             .read(profileOverrideStateProvider.notifier)
             .updateState(
-              (state) =>
-                  state.copyWith(snippet: snippet, overrideData: newOverrideData),
+              (state) => state.copyWith(
+                snippet: snippet,
+                overrideData: newOverrideData,
+              ),
             );
       });
     });
@@ -178,92 +179,77 @@ class _OverrideProfileViewState extends State<OverrideProfileView> {
               ),
             );
             final isEdit = editCount != 0;
-            return CommonScaffold(
-              title: appLocalizations.override,
-              body: _buildContent(),
-              actions: [
-                if (!isEdit)
-                  Consumer(
-                    builder: (_, ref, child) {
-                      final overrideData = ref.watch(
-                        getProfileOverrideDataProvider(widget.profileId),
-                      );
-                      final newOverrideData = ref.watch(
-                        profileOverrideStateProvider.select(
-                          (state) => state.overrideData,
-                        ),
-                      );
-                      final equals = overrideData == newOverrideData;
-                      if (equals || newOverrideData == null) {
-                        return SizedBox();
-                      }
-                      return CommonPopScope(
-                        onPop: () async {
-                          if (equals) {
-                            return true;
-                          }
-                          final res = await globalState.showMessage(
-                            message: TextSpan(
-                              text: appLocalizations.saveChanges,
-                            ),
-                            confirmText: appLocalizations.save,
-                          );
-                          if (!context.mounted || res != true) {
-                            return true;
-                          }
-                          _handleSave(ref, newOverrideData);
-                          return true;
-                        },
-                        child: IconButton(
-                          onPressed: () async {
-                            final res = await globalState.showMessage(
-                              message: TextSpan(text: appLocalizations.saveTip),
-                              confirmText: appLocalizations.save,
+            final overrideData = ref.watch(
+              getProfileOverrideDataProvider(widget.profileId),
+            );
+            final newOverrideData = ref.watch(
+              profileOverrideStateProvider.select(
+                (state) => state.overrideData,
+              ),
+            );
+            final equals = overrideData == newOverrideData;
+            final hasUnsavedChanges =
+                !isEdit && !equals && newOverrideData != null;
+
+            return CommonPopScope(
+              onPop: () async {
+                if (!hasUnsavedChanges) {
+                  return true;
+                }
+                final res = await globalState.showMessage(
+                  message: TextSpan(text: appLocalizations.saveChanges),
+                );
+                if (res == true && context.mounted) {
+                  _handleSave(ref, newOverrideData);
+                }
+                return true;
+              },
+              child: CommonScaffold(
+                title: appLocalizations.override,
+                body: _buildContent(),
+                actions: [
+                  if (hasUnsavedChanges)
+                    IconButton(
+                      onPressed: () async {
+                        final res = await globalState.showMessage(
+                          message: TextSpan(text: appLocalizations.saveChanges),
+                        );
+                        if (res != true) {
+                          return;
+                        }
+                        _handleSave(ref, newOverrideData);
+                      },
+                      icon: Icon(Icons.save),
+                    ),
+                  if (editCount == 1)
+                    IconButton(
+                      onPressed: () {
+                        final rule = ref.read(
+                          profileOverrideStateProvider.select((state) {
+                            return state.overrideData?.rule.rules.firstWhere(
+                              (item) => item.id == state.selectedRules.first,
                             );
-                            if (res != true) {
-                              return;
-                            }
-                            _handleSave(ref, newOverrideData);
-                          },
-                          icon: Icon(Icons.save),
-                        ),
-                      );
-                    },
-                  ),
-                if (editCount == 1)
-                  IconButton(
-                    onPressed: () {
-                      final rule = ref.read(
-                        profileOverrideStateProvider.select((state) {
-                          return state.overrideData?.rule.rules.firstWhere(
-                            (item) => item.id == state.selectedRules.first,
-                          );
-                        }),
-                      );
-                      if (rule == null) {
-                        return;
-                      }
-                      globalState.appController.handleAddOrUpdate(ref, rule);
-                    },
-                    icon: Icon(Icons.edit),
-                  ),
-                if (editCount > 0)
-                  IconButton(
-                    onPressed: () {
-                      _handleDelete(ref);
-                    },
-                    icon: Icon(Icons.delete),
-                  ),
-              ],
-              editState: AppBarEditState(
-                editCount: editCount,
-                onExit: () {
-                  ref
-                      .read(profileOverrideStateProvider.notifier)
-                      .updateState(
-                        (state) => state.copyWith(selectedRules: {}),
-                      );
-                },
+                          }),
+                        );
+                        if (rule == null) {
+                          return;
+                        }
+                        globalState.appController.handleAddOrUpdate(ref, rule);
+                      },
+                      icon: Icon(Icons.edit),
+                    ),
+                  if (editCount > 0)
+                    IconButton(
+                      onPressed: () {
+                        _handleDelete(ref);
+                      },
+                      icon: Icon(Icons.delete),
+                    ),
+                ],
+                editState: AppBarEditState(
+                  editCount: editCount,
+                  onExit: () => Navigator.of(context).pop(),
+                ),
               ),
             );
           },

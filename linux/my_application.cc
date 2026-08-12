@@ -11,43 +11,49 @@
 
 #include "flutter/generated_plugin_registrant.h"
 
-static void _send_control_command(const char* command) {
+static gboolean _is_dev_build() {
+  return g_str_has_suffix(APPLICATION_ID, ".dev");
+}
+
+static gchar* _get_control_socket_path() {
   const gchar* user_data_dir = g_get_user_data_dir();
-  const char* names[] = {"BettboxDev.control.sock", "Bettbox.control.sock"};
-  for (int i = 0; i < 2; i++) {
-    gchar* socket_path = g_build_filename(user_data_dir, "com.appshub.bettbox", names[i], nullptr);
-    
-    int client_fd = socket(AF_UNIX, SOCK_STREAM, 0);
-    if (client_fd >= 0) {
-      struct sockaddr_un addr;
-      memset(&addr, 0, sizeof(addr));
-      addr.sun_family = AF_UNIX;
-      strncpy(addr.sun_path, socket_path, sizeof(addr.sun_path) - 1);
-      
-      if (connect(client_fd, (struct sockaddr*)&addr, sizeof(addr)) == 0) {
-        gchar* payload = g_strdup_printf("%s\n", command);
-        ssize_t bytes_written = write(client_fd, payload, strlen(payload));
-        (void)bytes_written; // Suppress unused result warning
-        g_free(payload);
-        close(client_fd);
-        g_free(socket_path);
-        break;
-      }
-      close(client_fd);
-    }
-    g_free(socket_path);
+  const gchar* name = _is_dev_build() ? "BettboxDev.control.sock" : "Bettbox.control.sock";
+  return g_build_filename(user_data_dir, APPLICATION_ID, name, nullptr);
+}
+
+static void _send_control_command(const char* command) {
+  g_autofree gchar* socket_path = _get_control_socket_path();
+
+  int client_fd = socket(AF_UNIX, SOCK_STREAM, 0);
+  if (client_fd < 0) {
+    return;
   }
+
+  struct sockaddr_un addr;
+  memset(&addr, 0, sizeof(addr));
+  addr.sun_family = AF_UNIX;
+  strncpy(addr.sun_path, socket_path, sizeof(addr.sun_path) - 1);
+
+  if (connect(client_fd, (struct sockaddr*)&addr, sizeof(addr)) == 0) {
+    gchar* payload = g_strdup_printf("%s\n", command);
+    ssize_t bytes_written = write(client_fd, payload, strlen(payload));
+    (void)bytes_written; // Suppress unused result warning
+    g_free(payload);
+    close(client_fd);
+    return;
+  }
+  close(client_fd);
 }
 
 // App method channel related
 static FlMethodChannel* app_channel = nullptr;
 static GtkWindow* main_window = nullptr;
-static gboolean use_light_icon = FALSE;
+static gboolean use_dark_icon = FALSE;
 
 // Forward declarations
 static void setup_app_method_channel(FlView* view);
-static gboolean set_window_icon(gboolean use_light);
-static void save_icon_preference(gboolean use_light);
+static gboolean set_window_icon(gboolean use_dark);
+static void save_icon_preference(gboolean use_dark);
 static gboolean load_icon_preference();
 
 struct _MyApplication {
@@ -115,10 +121,8 @@ static void my_application_activate(GApplication* application) {
   setup_app_method_channel(view);
   
   // Load and apply saved icon preference
-  use_light_icon = load_icon_preference();
-  if (use_light_icon) {
-    set_window_icon(TRUE);
-  }
+  use_dark_icon = load_icon_preference();
+  set_window_icon(use_dark_icon);
 
   gtk_widget_grab_focus(GTK_WIDGET(view));
 }
@@ -139,11 +143,12 @@ static gboolean my_application_local_command_line(GApplication* application, gch
     }
   }
 
+
   g_autoptr(GError) error = nullptr;
   if (!g_application_register(application, nullptr, &error)) {
-     g_warning("Failed to register: %s", error->message);
-     *exit_status = 1;
-     return TRUE;
+    g_warning("Failed to register: %s", error->message);
+    *exit_status = 0;
+    return TRUE;
   }
 
   g_application_activate(application);
@@ -209,10 +214,10 @@ static void app_method_call_handler(FlMethodChannel* channel,
   if (strcmp(method, "setLauncherIcon") == 0) {
     FlValue* args = fl_method_call_get_args(method_call);
     if (fl_value_get_type(args) == FL_VALUE_TYPE_MAP) {
-      FlValue* use_light_value = fl_value_lookup_string(args, "useLightIcon");
-      if (use_light_value != nullptr && fl_value_get_type(use_light_value) == FL_VALUE_TYPE_BOOL) {
-        gboolean use_light = fl_value_get_bool(use_light_value);
-        gboolean success = set_window_icon(use_light);
+      FlValue* use_dark_value = fl_value_lookup_string(args, "useDarkIcon");
+      if (use_dark_value != nullptr && fl_value_get_type(use_dark_value) == FL_VALUE_TYPE_BOOL) {
+        gboolean use_dark = fl_value_get_bool(use_dark_value);
+        gboolean success = set_window_icon(use_dark);
         
         g_autoptr(FlValue) result = fl_value_new_bool(success);
         fl_method_call_respond_success(method_call, result, nullptr);
@@ -221,7 +226,7 @@ static void app_method_call_handler(FlMethodChannel* channel,
     }
     
     fl_method_call_respond_error(method_call, "INVALID_ARGUMENT",
-                                 "Missing useLightIcon argument", nullptr, nullptr);
+                                 "Missing useDarkIcon argument", nullptr, nullptr);
   } else {
     fl_method_call_respond_not_implemented(method_call, nullptr);
   }
@@ -238,13 +243,13 @@ static void setup_app_method_channel(FlView* view) {
                                            nullptr, nullptr);
 }
 
-static gboolean set_window_icon(gboolean use_light) {
+static gboolean set_window_icon(gboolean use_dark) {
   if (main_window == nullptr) {
     return FALSE;
   }
   
   // Icon file path
-  const gchar* icon_name = use_light ? "icon_light.png" : "icon.png";
+  const gchar* icon_name = use_dark ? "icon_light.png" : "icon.png";
   gchar* icon_path = g_strdup_printf("data/flutter_assets/assets/images/%s", icon_name);
   
   // Load icon
@@ -267,13 +272,13 @@ static gboolean set_window_icon(gboolean use_light) {
   g_object_unref(pixbuf);
   
   // Save preference
-  use_light_icon = use_light;
-  save_icon_preference(use_light);
+  use_dark_icon = use_dark;
+  save_icon_preference(use_dark);
   
   return TRUE;
 }
 
-static void save_icon_preference(gboolean use_light) {
+static void save_icon_preference(gboolean use_dark) {
   // Save to config file
   const gchar* config_dir = g_get_user_config_dir();
   gchar* app_config_dir = g_build_filename(config_dir, "bettbox", nullptr);
@@ -284,7 +289,7 @@ static void save_icon_preference(gboolean use_light) {
   gchar* config_file = g_build_filename(app_config_dir, "icon_preference", nullptr);
   
   // Write config
-  const gchar* value = use_light ? "1" : "0";
+  const gchar* value = use_dark ? "1" : "0";
   GError* error = nullptr;
   g_file_set_contents(config_file, value, -1, &error);
   

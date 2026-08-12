@@ -113,27 +113,16 @@ class DialerIp4pConvertItem extends ConsumerWidget {
   }
 }
 
-class ExperimentalOptions extends StatelessWidget {
-  const ExperimentalOptions({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: generateSection(
-        title: appLocalizations.options,
-        items: [
-          const QuicGoDisableGsoItem(),
-          const QuicGoDisableEcnItem(),
-          const DialerIp4pConvertItem(),
-        ],
-      ),
-    );
-  }
-}
-
-const experimentalItems = <Widget>[
-  OverrideExperimentalItem(),
-  ExperimentalOptions(),
+final experimentalItems = <Widget>[
+  const OverrideExperimentalItem(),
+  ...generateSection(
+    title: appLocalizations.options,
+    items: const [
+      QuicGoDisableGsoItem(),
+      QuicGoDisableEcnItem(),
+      DialerIp4pConvertItem(),
+    ],
+  ),
 ];
 
 class ExperimentalListView extends ConsumerWidget {

@@ -367,9 +367,9 @@ class ForceDomainWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, ref) {
-    return ListItem.open(
+    return ListItem.next(
       title: Text(appLocalizations.forceDomain),
-      delegate: OpenDelegate(
+      delegate: NextDelegate(
         blur: false,
         title: appLocalizations.forceDomain,
         widget: Consumer(
@@ -404,9 +404,9 @@ class SkipDomainWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, ref) {
-    return ListItem.open(
+    return ListItem.next(
       title: Text(appLocalizations.skipDomain),
-      delegate: OpenDelegate(
+      delegate: NextDelegate(
         blur: false,
         title: appLocalizations.skipDomain,
         widget: Consumer(
@@ -441,9 +441,9 @@ class SkipSrcAddressWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, ref) {
-    return ListItem.open(
+    return ListItem.next(
       title: Text(appLocalizations.skipSrcAddress),
-      delegate: OpenDelegate(
+      delegate: NextDelegate(
         blur: false,
         title: appLocalizations.skipSrcAddress,
         widget: Consumer(
@@ -479,9 +479,9 @@ class SkipDstAddressWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, ref) {
-    return ListItem.open(
+    return ListItem.next(
       title: Text(appLocalizations.skipDstAddress),
-      delegate: OpenDelegate(
+      delegate: NextDelegate(
         blur: false,
         title: appLocalizations.skipDstAddress,
         widget: Consumer(
@@ -512,33 +512,25 @@ class SkipDstAddressWidget extends ConsumerWidget {
   }
 }
 
-class SnifferOptions extends StatelessWidget {
-  const SnifferOptions({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: generateSection(
-        title: appLocalizations.options,
-        items: [
-          const SnifferStatusItem(),
-          const ForceDnsMappingItem(),
-          const ParsePureIpItem(),
-          const OverrideDestinationItem(),
-          const HttpPortSnifferItem(),
-          const TlsPortSnifferItem(),
-          const QuicPortSnifferItem(),
-          const ForceDomainWidget(),
-          const SkipDomainWidget(),
-          const SkipSrcAddressWidget(),
-          const SkipDstAddressWidget(),
-        ],
-      ),
-    );
-  }
-}
-
-const snifferItems = <Widget>[OverrideSnifferItem(), SnifferOptions()];
+final snifferItems = <Widget>[
+  const OverrideSnifferItem(),
+  ...generateSection(
+    title: appLocalizations.options,
+    items: const [
+      SnifferStatusItem(),
+      ForceDnsMappingItem(),
+      ParsePureIpItem(),
+      OverrideDestinationItem(),
+      HttpPortSnifferItem(),
+      TlsPortSnifferItem(),
+      QuicPortSnifferItem(),
+      ForceDomainWidget(),
+      SkipDomainWidget(),
+      SkipSrcAddressWidget(),
+      SkipDstAddressWidget(),
+    ],
+  ),
+];
 
 class SnifferListView extends ConsumerWidget {
   const SnifferListView({super.key});

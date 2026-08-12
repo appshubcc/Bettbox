@@ -361,7 +361,8 @@ func (w *v4Writer) writeFrame(payload []byte, paddingLength int) error {
 	}
 	frame = append(frame, payloadCipher...)
 
-	return writeFull(w.Writer, frame)
+	_, err := w.Writer.Write(frame)
+	return err
 }
 
 func swapPadding(padding, payloadCipher []byte) {
@@ -464,20 +465,6 @@ func randomUnitFloat64() (float64, error) {
 		return 0, err
 	}
 	return float64(n.Int64()) / math.Exp2(53), nil
-}
-
-func writeFull(w io.Writer, p []byte) error {
-	for len(p) > 0 {
-		n, err := w.Write(p)
-		if err != nil {
-			return err
-		}
-		if n == 0 {
-			return io.ErrShortWrite
-		}
-		p = p[n:]
-	}
-	return nil
 }
 
 func incrementV4Nonce(nonce []byte) {

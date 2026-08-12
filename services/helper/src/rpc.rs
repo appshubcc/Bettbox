@@ -86,10 +86,7 @@ async fn handle_request(request: HelperRequest) -> HelperResponse {
             HelperResponse::empty_success(&request.id)
         }
         "core.start" => {
-            ops::logs::log_message(format!(
-                "Received core.start request [{}]",
-                request.id
-            ));
+            ops::logs::log_message(format!("Received core.start request [{}]", request.id));
             handle_core_start(&request).await
         }
         "core.stop" => result_to_response(&request.id, ops::core::stop_core(), "CORE_STOP_FAILED"),

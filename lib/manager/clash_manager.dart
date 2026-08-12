@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:bett_box/clash/clash.dart';
 import 'package:bett_box/common/common.dart';
 import 'package:bett_box/enum/enum.dart';
@@ -32,8 +34,14 @@ class _ClashContainerState extends ConsumerState<ClashManager>
     ref.listenManual(needSetupProvider, (prev, next) {
       if (prev != next) {
         final profileChanged = prev?.a != next.a;
-        globalState.appController.handleChangeProfile(
-          hardRestart: system.isDesktop && profileChanged,
+        unawaited(
+          globalState.appController
+              .handleChangeProfile(
+                hardRestart: system.isDesktop && profileChanged,
+              )
+              .catchError((Object error, StackTrace stackTrace) {
+                commonPrint.log('Profile change failed: $error');
+              }),
         );
       }
     });

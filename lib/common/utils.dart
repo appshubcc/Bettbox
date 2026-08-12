@@ -252,12 +252,17 @@ class Utils {
 
   List<String> parseReleaseBody(String? body) {
     if (body == null) return [];
-    const pattern = r'- \s*(.*)';
-    final regex = RegExp(pattern);
+    const pattern = r'^\s*-\s+(.+)';
+    final regex = RegExp(pattern, multiLine: true);
     return regex
         .allMatches(body)
-        .map((match) => match.group(1) ?? '')
-        .where((item) => item.isNotEmpty)
+        .map((match) => match.group(1)?.trim() ?? '')
+        .where((item) =>
+            item.isNotEmpty &&
+            !item.startsWith('---') &&
+            !item.startsWith(':') &&
+            !item.startsWith('|') &&
+            !item.startsWith('['))
         .toList();
   }
 

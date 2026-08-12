@@ -20,6 +20,9 @@ type TrojanOption struct {
 	ClientAuthCert  string         `inbound:"client-auth-cert,omitempty"`
 	EchKey          string         `inbound:"ech-key,omitempty"`
 	AllowInsecure   bool           `inbound:"allow-insecure,omitempty"`
+	ShadowTLS       ShadowTLS      `inbound:"shadow-tls,omitempty"`
+	ResTLS          ResTLS         `inbound:"res-tls,omitempty"`
+	JLSConfig       JLSConfig      `inbound:"jls-config,omitempty"`
 	RealityConfig   RealityConfig  `inbound:"reality-config,omitempty"`
 	MuxOption       MuxOption      `inbound:"mux-option,omitempty"`
 	SSOption        TrojanSSOption `inbound:"ss-option,omitempty"`
@@ -75,6 +78,9 @@ func NewTrojan(options *TrojanOption) (*Trojan, error) {
 			ClientAuthCert:  options.ClientAuthCert,
 			EchKey:          options.EchKey,
 			AllowInsecure:   options.AllowInsecure,
+			ShadowTLS:       options.ShadowTLS.Build(),
+			ResTLS:          options.ResTLS.Build(),
+			JLSConfig:       options.JLSConfig.Build(),
 			RealityConfig:   options.RealityConfig.Build(),
 			MuxOption:       options.MuxOption.Build(),
 			TrojanSSOption: LC.TrojanSSOption{

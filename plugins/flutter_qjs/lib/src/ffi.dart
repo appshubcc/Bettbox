@@ -12,11 +12,10 @@ import 'package:ffi/ffi.dart';
 
 extension ListFirstWhere<T> on Iterable<T> {
   T? firstWhereOrNull(bool Function(T) test) {
-    try {
-      return firstWhere(test);
-    } on StateError {
-      return null;
+    for (final element in this) {
+      if (test(element)) return element;
     }
+    return null;
   }
 }
 

@@ -1,21 +1,28 @@
 import 'dart:convert';
 
 import 'package:bett_box/common/common.dart';
-import 'package:bett_box/enum/enum.dart';
+import 'package:bett_box/enum/enum.dart' hide Mode;
 import 'package:bett_box/models/common.dart';
 import 'package:bett_box/providers/app.dart';
 import 'package:bett_box/state.dart';
 import 'package:bett_box/widgets/widgets.dart';
+import 'package:code_forge/code_forge.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:re_editor/re_editor.dart';
 import 'package:re_highlight/languages/javascript.dart';
 import 'package:re_highlight/languages/yaml.dart';
+import 'package:re_highlight/re_highlight.dart' show Mode;
+import 'package:re_highlight/styles/atom-one-dark.dart';
 import 'package:re_highlight/styles/atom-one-light.dart';
 
-typedef EditingValueChangeBuilder = Widget Function(CodeLineEditingValue value);
-typedef TextEditingValueChangeBuilder = Widget Function(TextEditingValue value);
+typedef EditorWidgetBuilder = Widget Function();
+
+const int _kLargeEditableLineThresholdMobile = 5800;
+const int _kLargeEditableLineThresholdDesktop = 5800;
+const Duration _kFindFocusDelay = Duration(milliseconds: 500);
+const Duration _kMinBusyDuration = Duration(milliseconds: 600);
 
 class EditorPage extends ConsumerStatefulWidget {
   final String title;
@@ -24,6 +31,8 @@ class EditorPage extends ConsumerStatefulWidget {
   final bool supportRemoteDownload;
   final bool titleEditable;
   final bool readOnly;
+  final bool delayedFocus;
+  final bool simple;
   final Function(BuildContext context, String title, String content)? onSave;
   final Future<bool> Function(
     BuildContext context,
@@ -39,6 +48,8 @@ class EditorPage extends ConsumerStatefulWidget {
     required this.content,
     this.titleEditable = false,
     this.readOnly = false,
+    this.delayedFocus = false,
+    this.simple = false,
     this.onSave,
     this.onPop,
     this.onUrlImport,
@@ -51,72 +62,123 @@ class EditorPage extends ConsumerStatefulWidget {
 }
 
 class _EditorPageState extends ConsumerState<EditorPage> {
-  late CodeLineEditingController _controller;
-  late CodeFindController _findController;
+  late CodeForgeController _controller;
+  late _EditorFindController _findController;
+  late UndoRedoController _undoController;
   late TextEditingController _titleController;
   final _focusNode = FocusNode();
+  bool _lineWrap = false;
+  late final int _lineCount;
+  bool _isLoading = true;
+  bool _isBusy = false;
+
+  bool get _disableSyntaxHighlight =>
+      widget.simple || _lineCount > _largeEditableLineThreshold;
+
+  bool get _isLineWrapDisabled => _lineCount > _largeEditableLineThreshold;
+
+  int get _largeEditableLineThreshold => system.isDesktop
+      ? _kLargeEditableLineThresholdDesktop
+      : _kLargeEditableLineThresholdMobile;
 
   @override
   void initState() {
     super.initState();
-    _controller = CodeLineEditingController.fromText(widget.content);
-    _findController = CodeFindController(_controller);
+    _lineCount = widget.content.split('\n').length;
+    _lineWrap = !widget.readOnly && !_isLineWrapDisabled;
+    _controller = CodeForgeController();
+    _controller.useSpaceAsTab = true;
+    _controller.tabSize = 2;
+    _controller.text = widget.content;
+    _findController = _EditorFindController(_controller);
+    _undoController = UndoRedoController();
     _titleController = TextEditingController(text: widget.title);
-    if (system.isDesktop) {
-      return;
-    }
-    _focusNode.onKeyEvent = ((_, event) {
-      final keys = HardwareKeyboard.instance.logicalKeysPressed;
-      final key = event.logicalKey;
-      if (!keys.contains(key)) {
-        return KeyEventResult.ignored;
+
+    final loadingStopwatch = Stopwatch()..start();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final elapsed = loadingStopwatch.elapsedMilliseconds;
+      final remaining = _kMinBusyDuration.inMilliseconds - elapsed;
+      if (remaining > 0) {
+        await Future.delayed(Duration(milliseconds: remaining));
       }
-      if (key == LogicalKeyboardKey.arrowUp) {
-        _controller.moveCursor(AxisDirection.up);
-        return KeyEventResult.handled;
-      } else if (key == LogicalKeyboardKey.arrowDown) {
-        _controller.moveCursor(AxisDirection.down);
-        return KeyEventResult.handled;
-      } else if (key == LogicalKeyboardKey.arrowLeft) {
-        _controller.selection.endIndex;
-        _controller.moveCursor(AxisDirection.left);
-        return KeyEventResult.handled;
-      } else if (key == LogicalKeyboardKey.arrowRight) {
-        _controller.moveCursor(AxisDirection.right);
-        return KeyEventResult.handled;
+      if (mounted) setState(() => _isLoading = false);
+      if (widget.delayedFocus) {
+        Future.delayed(_kFindFocusDelay, () {
+          if (mounted) _focusNode.requestFocus();
+        });
       }
-      return KeyEventResult.ignored;
     });
   }
 
   @override
   void dispose() {
+    _controller.text = '';
     _findController.dispose();
+    _undoController.dispose();
     _controller.dispose();
+    _titleController.dispose();
     _focusNode.dispose();
     super.dispose();
   }
 
-  Widget _wrapController(EditingValueChangeBuilder builder) {
-    return ValueListenableBuilder(
-      valueListenable: _controller,
-      builder: (_, value, _) {
-        return builder(value);
-      },
-    );
-  }
-
-  Widget _wrapTitleController(TextEditingValueChangeBuilder builder) {
-    return ValueListenableBuilder(
-      valueListenable: _titleController,
-      builder: (_, value, _) {
-        return builder(value);
-      },
+  Widget _wrapTitleController(EditorWidgetBuilder builder) {
+    return ListenableBuilder(
+      listenable: Listenable.merge([
+        _titleController,
+        _CodeForgeControllerListenable(_controller),
+      ]),
+      builder: (_, _) => builder(),
     );
   }
 
   void _handleSearch() {
-    _findController.findMode();
+    _findController.isReplaceMode = false;
+    _findController.isActive = true;
+  }
+
+  void _handleReplace() {
+    _findController.isReplaceMode = true;
+    _findController.isActive = true;
+  }
+
+  void _handleSave(BuildContext context) {
+    if (widget.onSave == null) return;
+    if (widget.readOnly || widget.simple) return;
+    if (_isLoading) return;
+    if (_controller.text == widget.content &&
+        _titleController.text == widget.title) {
+      return;
+    }
+    widget.onSave!(context, _titleController.text, _controller.text);
+  }
+
+  void _setBusy(bool value) {
+    if (!mounted) return;
+    setState(() => _isBusy = value);
+  }
+
+  Future<void> _withBusy(Future<void> Function() task) async {
+    _setBusy(true);
+    await SchedulerBinding.instance.endOfFrame;
+    if (!mounted) return;
+    final stopwatch = Stopwatch()..start();
+    try {
+      await task();
+    } finally {
+      final remaining =
+          _kMinBusyDuration.inMilliseconds - stopwatch.elapsedMilliseconds;
+      if (remaining > 0) {
+        await Future.delayed(Duration(milliseconds: remaining));
+      }
+      if (mounted) _setBusy(false);
+    }
+  }
+
+  Future<void> _toggleLineWrap() async {
+    await _withBusy(() async {
+      setState(() => _lineWrap = !_lineWrap);
+      await SchedulerBinding.instance.endOfFrame;
+    });
   }
 
   Future<void> _handleImport() async {
@@ -141,7 +203,7 @@ class _EditorPageState extends ConsumerState<EditorPage> {
     }
     final url = await globalState.showCommonDialog(
       child: InputDialog(
-        title: '导入',
+        title: appLocalizations.import,
         value: '',
         labelText: appLocalizations.url,
         validator: (value) {
@@ -163,9 +225,59 @@ class _EditorPageState extends ConsumerState<EditorPage> {
     widget.onUrlImport?.call(url);
   }
 
+  Mode? _languageMode() {
+    if (_disableSyntaxHighlight) return null;
+    final language = widget.languages.firstOrNull;
+    switch (language) {
+      case Language.yaml:
+        return langYaml;
+      case Language.javaScript:
+        return langJavascript;
+      default:
+        return null;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final isMobileView = ref.watch(isMobileViewProvider);
+    final brightness = Theme.of(context).brightness;
+    final readOnly = widget.readOnly || widget.simple;
+    final canReplace =
+        !readOnly && !_disableSyntaxHighlight && _languageMode() != null;
+    final menuItems = <PopupMenuItemData>[
+      PopupMenuItemData(
+        icon: Icons.search,
+        label: appLocalizations.search,
+        onPressed: _handleSearch,
+      ),
+      if (canReplace)
+        PopupMenuItemData(
+          icon: Icons.find_replace,
+          label: appLocalizations.replace,
+          onPressed: _handleReplace,
+        ),
+      PopupMenuItemData(
+        icon: Icons.undo,
+        label: appLocalizations.undo,
+        onPressed: _undoController.canUndo
+            ? () => _undoController.undo()
+            : null,
+      ),
+      PopupMenuItemData(
+        icon: Icons.redo,
+        label: appLocalizations.redo,
+        onPressed: _undoController.canRedo
+            ? () => _undoController.redo()
+            : null,
+      ),
+      PopupMenuItemData(
+        icon: _lineWrap ? Icons.check : Icons.wrap_text,
+        label: appLocalizations.lineWrap,
+        onPressed: _isLineWrapDisabled ? null : _toggleLineWrap,
+      ),
+    ];
+
     return CommonPopScope(
       onPop: () async {
         if (widget.onPop == null) {
@@ -181,127 +293,126 @@ class _EditorPageState extends ConsumerState<EditorPage> {
         }
         return false;
       },
-      child: CommonScaffold(
-        appBar: AppBar(
-          title: TextField(
-            enabled: widget.titleEditable && !widget.readOnly,
-            controller: _titleController,
-            decoration: InputDecoration(
-              border: _NoInputBorder(),
-              hintText: appLocalizations.unnamed,
-            ),
-            style: context.textTheme.titleLarge,
-            autofocus: false,
-          ),
-          actions: genActions([
-            if (widget.onSave != null && !widget.readOnly)
-              _wrapController(
-                (value) => _wrapTitleController(
-                  (value) => IconButton(
-                    onPressed:
-                        _controller.text != widget.content ||
-                            _titleController.text != widget.title
-                        ? () {
-                            widget.onSave!(
-                              context,
-                              _titleController.text,
-                              _controller.text,
-                            );
-                          }
-                        : null,
-                    icon: const Icon(Icons.save_sharp),
+      child: CallbackShortcuts(
+        bindings: readOnly
+            ? const {}
+            : {
+                const SingleActivator(
+                  LogicalKeyboardKey.keyS,
+                  control: true,
+                ): () =>
+                    _handleSave(context),
+                const SingleActivator(
+                  LogicalKeyboardKey.keyS,
+                  meta: true,
+                ): () =>
+                    _handleSave(context),
+              },
+        child: AbsorbPointer(
+          absorbing: _isBusy || _isLoading,
+          child: CommonScaffold(
+            appBar: AppBar(
+              title: TextField(
+                enabled: widget.titleEditable && !readOnly,
+                controller: _titleController,
+                decoration: InputDecoration(
+                  border: _NoInputBorder(),
+                  hintText: appLocalizations.unnamed,
+                ),
+                style: context.textTheme.titleLarge,
+                autofocus: false,
+              ),
+              actions: genActions([
+                if (widget.onSave != null && !readOnly)
+                  _wrapTitleController(
+                    () => IconButton(
+                      onPressed:
+                          !_isLoading &&
+                              (_controller.text != widget.content ||
+                                  _titleController.text != widget.title)
+                          ? () => _handleSave(context)
+                          : null,
+                      icon: const Icon(Icons.save_sharp),
+                    ),
+                  ),
+                if (widget.supportRemoteDownload && !readOnly)
+                  IconButton(
+                    onPressed: _isLoading ? null : _handleImport,
+                    icon: const Icon(Icons.arrow_downward),
+                  ),
+                ListenableBuilder(
+                  listenable: _undoController,
+                  builder: (_, _) => CommonPopupBox(
+                    targetBuilder: (open) {
+                      return IconButton(
+                        onPressed: _isLoading
+                            ? null
+                            : () {
+                                open(offset: const Offset(-20, 20));
+                              },
+                        icon: const Icon(Icons.more_vert),
+                      );
+                    },
+                    popup: CommonPopupMenu(items: menuItems),
                   ),
                 ),
-              ),
-            if (widget.supportRemoteDownload && !widget.readOnly)
-              IconButton(
-                onPressed: _handleImport,
-                icon: Icon(Icons.arrow_downward),
-              ),
-            _wrapController(
-              (value) => CommonPopupBox(
-                targetBuilder: (open) {
-                  return IconButton(
-                    onPressed: () {
-                      open(offset: Offset(-20, 20));
-                    },
-                    icon: const Icon(Icons.more_vert),
-                  );
-                },
-                popup: CommonPopupMenu(
-                  items: [
-                    PopupMenuItemData(
-                      icon: Icons.search,
-                      label: appLocalizations.search,
-                      onPressed: _handleSearch,
-                    ),
-                    PopupMenuItemData(
-                      icon: Icons.undo,
-                      label: appLocalizations.undo,
-                      onPressed: widget.readOnly
-                          ? null
-                          : (_controller.canUndo ? _controller.undo : null),
-                    ),
-                    PopupMenuItemData(
-                      icon: Icons.redo,
-                      label: appLocalizations.redo,
-                      onPressed: widget.readOnly
-                          ? null
-                          : (_controller.canRedo ? _controller.redo : null),
-                    ),
-                  ],
-                ),
-              ),
+              ]),
             ),
-          ]),
-        ),
-        body: CodeEditor(
-          findController: _findController,
-          findBuilder: (context, controller, readOnly) => FindPanel(
-            controller: controller,
-            readOnly: readOnly,
-            isMobileView: isMobileView,
-          ),
-          padding: EdgeInsets.only(right: 16),
-          autocompleteSymbols: true,
-          focusNode: _focusNode,
-          readOnly: widget.readOnly,
-          scrollbarBuilder: (context, child, details) {
-            return CommonScrollBar(
-              controller: details.controller,
-              child: child,
-            );
-          },
-          toolbarController: ContextMenuControllerImpl(),
-          indicatorBuilder:
-              (context, editingController, chunkController, notifier) {
-                return Row(
-                  children: [
-                    DefaultCodeLineNumber(
-                      controller: editingController,
-                      notifier: notifier,
+            body: Stack(
+              children: [
+                if (!_isLoading)
+                  RepaintBoundary(
+                    child: CodeForge(
+                      controller: _controller,
+                      focusNode: _focusNode,
+                      findController: _findController,
+                      undoController: _undoController,
+                      readOnly: readOnly,
+                      lineWrap: _lineWrap,
+                      enableFolding: !widget.simple && !_disableSyntaxHighlight,
+                      enableGuideLines:
+                          !widget.simple && !_disableSyntaxHighlight,
+                      enableGutter: true,
+                      enableGutterDivider: false,
+                      enableLocalSuggestions: false,
+                      enableKeyboardSuggestions: false,
+                      enableMagnifier: true,
+                      language: _languageMode(),
+                      editorTheme: brightness == Brightness.dark
+                          ? atomOneDarkTheme
+                          : atomOneLightTheme,
+                      textStyle: TextStyle(
+                        fontFamily: FontFamily.jetBrainsMono.value,
+                        fontSize: context.textTheme.bodyLarge?.fontSize?.ap,
+                      ),
+                      innerPadding: const EdgeInsets.only(right: 16),
+                      finderBuilder: (context, controller) => FindPanel(
+                        controller: controller,
+                        readOnly: readOnly,
+                        isMobileView: isMobileView,
+                      ),
+                      scrollbarDecoration: ScrollbarDecoration(
+                        showLineNumberIndicator: false,
+                        thumbVisibility: false,
+                        thickness: 8,
+                        thumbColor: context.colorScheme.onSurface.withAlpha(
+                          100,
+                        ),
+                      ),
                     ),
-                    DefaultCodeChunkIndicator(
-                      width: 20,
-                      controller: chunkController,
-                      notifier: notifier,
+                  ),
+                if (_isBusy || _isLoading)
+                  Positioned.fill(
+                    child: Container(
+                      color: context.colorScheme.surface.withAlpha(200),
+                      child: Center(
+                        child: CircularProgressIndicator(
+                          color: context.colorScheme.primary,
+                        ),
+                      ),
                     ),
-                  ],
-                );
-              },
-          shortcutsActivatorsBuilder: DefaultCodeShortcutsActivatorsBuilder(),
-          controller: _controller,
-          style: CodeEditorStyle(
-            fontSize: context.textTheme.bodyLarge?.fontSize?.ap,
-            fontFamily: FontFamily.jetBrainsMono.value,
-            codeTheme: CodeHighlightTheme(
-              languages: {
-                if (widget.languages.contains(Language.yaml))
-                  'yaml': CodeHighlightThemeMode(mode: langYaml),
-                if (widget.languages.contains(Language.javaScript))
-                  'javascript': CodeHighlightThemeMode(mode: langJavascript),
-              },
-              theme: atomOneLightTheme,
+                  ),
+              ],
             ),
           ),
         ),
@@ -310,118 +421,250 @@ class _EditorPageState extends ConsumerState<EditorPage> {
   }
 }
 
-const double _kDefaultFindPanelHeight = 52;
+class _EditorFindController extends FindController {
+  _EditorFindController(super.codeController);
+
+  final ValueNotifier<bool> isOpenNotifier = ValueNotifier<bool>(false);
+
+  @override
+  set isActive(bool value) {
+    if (value == isActive) return;
+    super.isActive = value;
+    isOpenNotifier.value = value;
+  }
+}
 
 class FindPanel extends StatelessWidget implements PreferredSizeWidget {
-  final CodeFindController controller;
+  final FindController controller;
   final bool readOnly;
   final bool isMobileView;
-  final double height;
 
   const FindPanel({
     super.key,
     required this.controller,
     required this.readOnly,
     required this.isMobileView,
-  }) : height =
-           (isMobileView
-               ? _kDefaultFindPanelHeight * 2
-               : _kDefaultFindPanelHeight) +
-           8;
+  });
 
   @override
-  Size get preferredSize =>
-      Size(double.infinity, controller.value == null ? 0 : height);
+  Size get preferredSize {
+    if (!controller.isActive) return Size.zero;
+    final baseRows = isMobileView ? 2 : 1;
+    final totalRows =
+        baseRows + (!readOnly && controller.isReplaceMode ? 1 : 0);
+    final calculatedHeight = totalRows * 36.0 + (totalRows - 1) * 6.0 + 26.0;
+    return Size(double.infinity, calculatedHeight);
+  }
 
   @override
   Widget build(BuildContext context) {
-    if (controller.value == null) {
+    if (!controller.isActive) {
       return const SizedBox(width: 0, height: 0);
     }
-    return Container(
-      padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-      margin: EdgeInsets.only(bottom: 8),
-      color: context.colorScheme.surface,
-      alignment: Alignment.centerLeft,
-      height: height,
-      child: _buildFindInputView(context),
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    return ListenableBuilder(
+      listenable: controller,
+      builder: (context, _) => Container(
+        margin: const EdgeInsets.fromLTRB(12, 4, 12, 6),
+        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+        decoration: BoxDecoration(
+          color: colorScheme.surfaceContainerHighest.withAlpha(220),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: colorScheme.outlineVariant.withAlpha(120),
+            width: 1,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withAlpha(20),
+              blurRadius: 8,
+              offset: const Offset(0, 3),
+            ),
+          ],
+        ),
+        child: _buildFindInputView(context),
+      ),
     );
   }
 
   Widget _buildFindInputView(BuildContext context) {
-    final CodeFindValue value = controller.value!;
-    final String result;
-    if (value.result == null) {
-      result = appLocalizations.none;
-    } else {
-      result = '${value.result!.index + 1}/${value.result!.matches.length}';
-    }
-    final bar = Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        if (!isMobileView) ...[
-          ConstrainedBox(
-            constraints: BoxConstraints(maxWidth: 360),
-            child: _buildFindInput(context, value),
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final showReplace = !readOnly && controller.isReplaceMode;
+    final resultText = controller.matchCount == 0
+        ? appLocalizations.none
+        : controller.hasMoreMatches
+        ? '${controller.currentMatchIndex + 1}/1000+'
+        : '${controller.currentMatchIndex + 1}/${controller.matchCount}';
+
+    final topBar = SizedBox(
+      height: 36,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          if (!isMobileView) ...[
+            ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 340),
+              child: _buildFindInput(context),
+            ),
+            const SizedBox(width: 10),
+          ],
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            decoration: BoxDecoration(
+              color: colorScheme.surfaceContainerHigh,
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(
+                color: colorScheme.outlineVariant.withAlpha(80),
+              ),
+            ),
+            child: Text(
+              resultText,
+              style: context.textTheme.labelMedium?.copyWith(
+                color: controller.matchCount == 0
+                    ? colorScheme.onSurfaceVariant.withAlpha(150)
+                    : colorScheme.primary,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
           ),
-          SizedBox(width: 12),
-        ],
-        Text(result, style: context.textTheme.bodyMedium),
-        Expanded(
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            spacing: 8,
-            children: [
-              _buildIconButton(
-                onPressed: value.result == null
-                    ? null
-                    : () {
-                        controller.previousMatch();
-                      },
-                icon: Icons.arrow_upward,
-              ),
-              _buildIconButton(
-                onPressed: value.result == null
-                    ? null
-                    : () {
-                        controller.nextMatch();
-                      },
-                icon: Icons.arrow_downward,
-              ),
-              SizedBox(width: 2),
-              IconButton.filledTonal(
-                visualDensity: VisualDensity.compact,
-                onPressed: controller.close,
-                style: ButtonStyle(
-                  padding: WidgetStatePropertyAll(EdgeInsets.all(0)),
+          Expanded(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              spacing: 6,
+              children: [
+                _buildIconButton(
+                  onPressed: controller.matchCount == 0
+                      ? null
+                      : controller.previous,
+                  icon: Icons.keyboard_arrow_up,
                 ),
-                icon: Icon(Icons.close, size: 16),
-              ),
-            ],
+                _buildIconButton(
+                  onPressed: controller.matchCount == 0
+                      ? null
+                      : controller.next,
+                  icon: Icons.keyboard_arrow_down,
+                ),
+                if (isMobileView && showReplace) ...[
+                  _buildIconButton(
+                    onPressed: controller.matchCount == 0
+                        ? null
+                        : controller.replace,
+                    icon: Icons.find_replace,
+                    tooltip: appLocalizations.replace,
+                  ),
+                  _buildIconButton(
+                    onPressed: controller.matchCount == 0
+                        ? null
+                        : controller.replaceAll,
+                    icon: Icons.published_with_changes,
+                    tooltip: appLocalizations.replaceAll,
+                  ),
+                ],
+                if (!readOnly)
+                  _buildIconButton(
+                    onPressed: () => controller.toggleReplaceMode(),
+                    icon: controller.isReplaceMode
+                        ? Icons.unfold_less
+                        : Icons.unfold_more,
+                    tooltip: appLocalizations.replace,
+                  ),
+                const SizedBox(width: 2),
+                IconButton.filledTonal(
+                  visualDensity: VisualDensity.compact,
+                  onPressed: () => controller.isActive = false,
+                  style: ButtonStyle(
+                    backgroundColor: WidgetStatePropertyAll(
+                      colorScheme.errorContainer.withAlpha(160),
+                    ),
+                    foregroundColor: WidgetStatePropertyAll(
+                      colorScheme.onErrorContainer,
+                    ),
+                    padding: const WidgetStatePropertyAll(EdgeInsets.all(0)),
+                  ),
+                  icon: const Icon(Icons.close, size: 16),
+                ),
+              ],
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
+
     if (isMobileView) {
       return Column(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [bar, SizedBox(height: 4), _buildFindInput(context, value)],
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          topBar,
+          const SizedBox(height: 6),
+          _buildFindInput(context),
+          if (showReplace) ...[
+            const SizedBox(height: 6),
+            _buildReplaceInput(context),
+          ],
+        ],
       );
     }
-    return bar;
+
+    if (showReplace) {
+      return Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          topBar,
+          const SizedBox(height: 6),
+          _buildReplaceRow(context),
+        ],
+      );
+    }
+
+    return topBar;
   }
 
-  Stack _buildFindInput(BuildContext context, CodeFindValue value) {
+  Widget _buildReplaceRow(BuildContext context) {
+    return SizedBox(
+      height: 36,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 340),
+            child: _buildReplaceInput(context),
+          ),
+          const SizedBox(width: 10),
+          _buildIconButton(
+            onPressed: controller.matchCount == 0 ? null : controller.replace,
+            icon: Icons.find_replace,
+            tooltip: appLocalizations.replace,
+          ),
+          _buildIconButton(
+            onPressed: controller.matchCount == 0
+                ? null
+                : controller.replaceAll,
+            icon: Icons.published_with_changes,
+            tooltip: appLocalizations.replaceAll,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Stack _buildFindInput(BuildContext context) {
     return Stack(
       alignment: Alignment.center,
       children: [
         _buildTextField(
           context: context,
+          hintText: appLocalizations.search,
+          prefixIcon: Icons.search,
           onSubmitted: () {
-            if (value.result == null) {
+            if (controller.matchCount == 0) {
               return;
             }
-            controller.nextMatch();
+            controller.next();
             controller.findInputFocusNode.requestFocus();
           },
           controller: controller.findInputController,
@@ -429,28 +672,39 @@ class FindPanel extends StatelessWidget implements PreferredSizeWidget {
         ),
         Row(
           mainAxisAlignment: MainAxisAlignment.end,
-          spacing: 8,
+          spacing: 6,
           children: [
             _buildCheckText(
               context: context,
               text: 'Aa',
-              isSelected: value.option.caseSensitive,
-              onPressed: () {
-                controller.toggleCaseSensitive();
-              },
+              isSelected: controller.caseSensitive,
+              onPressed: controller.toggleCaseSensitive,
             ),
             _buildCheckText(
               context: context,
               text: '.*',
-              isSelected: value.option.regex,
-              onPressed: () {
-                controller.toggleRegex();
-              },
+              isSelected: controller.isRegex,
+              onPressed: controller.toggleRegex,
             ),
-            SizedBox(width: 4),
+            const SizedBox(width: 4),
           ],
         ),
       ],
+    );
+  }
+
+  Widget _buildReplaceInput(BuildContext context) {
+    return _buildTextField(
+      context: context,
+      hintText: appLocalizations.replace,
+      prefixIcon: Icons.find_replace,
+      onSubmitted: () {
+        if (controller.matchCount == 0) return;
+        controller.replace();
+        controller.replaceInputFocusNode.requestFocus();
+      },
+      controller: controller.replaceInputController,
+      focusNode: controller.replaceInputFocusNode,
     );
   }
 
@@ -459,19 +713,62 @@ class FindPanel extends StatelessWidget implements PreferredSizeWidget {
     required TextEditingController controller,
     required FocusNode focusNode,
     required VoidCallback onSubmitted,
+    String? hintText,
+    IconData? prefixIcon,
   }) {
-    return TextField(
-      maxLines: 1,
-      focusNode: focusNode,
-      style: context.textTheme.bodyMedium,
-      decoration: InputDecoration(
-        border: OutlineInputBorder(),
-        contentPadding: EdgeInsets.symmetric(horizontal: 12),
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    return SizedBox(
+      height: 36,
+      child: TextField(
+        maxLines: 1,
+        focusNode: focusNode,
+        style: context.textTheme.bodyMedium,
+        decoration: InputDecoration(
+          isDense: true,
+          filled: true,
+          fillColor: colorScheme.surface,
+          prefixIcon: prefixIcon != null
+              ? Icon(
+                  prefixIcon,
+                  size: 16,
+                  color: colorScheme.onSurfaceVariant.withAlpha(160),
+                )
+              : null,
+          prefixIconConstraints: const BoxConstraints(
+            minWidth: 32,
+            minHeight: 36,
+          ),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8),
+            borderSide: BorderSide(
+              color: colorScheme.outlineVariant.withAlpha(100),
+            ),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8),
+            borderSide: BorderSide(
+              color: colorScheme.outlineVariant.withAlpha(100),
+            ),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8),
+            borderSide: BorderSide(color: colorScheme.primary, width: 1.5),
+          ),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 10,
+            vertical: 8,
+          ),
+          hintText: hintText,
+          hintStyle: context.textTheme.bodyMedium?.copyWith(
+            color: colorScheme.onSurfaceVariant.withAlpha(120),
+          ),
+        ),
+        onSubmitted: (_) {
+          onSubmitted();
+        },
+        controller: controller,
       ),
-      onSubmitted: (_) {
-        onSubmitted();
-      },
-      controller: controller,
     );
   }
 
@@ -481,124 +778,69 @@ class FindPanel extends StatelessWidget implements PreferredSizeWidget {
     required bool isSelected,
     required VoidCallback onPressed,
   }) {
-    return SizedBox(
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    return Container(
       width: 28,
-      height: 28,
-      child: MouseRegion(
-        cursor: SystemMouseCursors.click,
-        child: isSelected
-            ? IconButton.filledTonal(
-                onPressed: onPressed,
-                padding: EdgeInsets.all(2),
-                icon: Text(text, style: context.textTheme.bodySmall),
-              )
-            : IconButton(
-                onPressed: onPressed,
-                padding: EdgeInsets.all(2),
-                icon: Text(text, style: context.textTheme.bodySmall),
-              ),
+      height: 24,
+      decoration: BoxDecoration(
+        color: isSelected
+            ? colorScheme.primaryContainer
+            : colorScheme.surfaceContainerHigh,
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(
+          color: isSelected
+              ? colorScheme.primary.withAlpha(120)
+              : colorScheme.outlineVariant.withAlpha(60),
+        ),
+      ),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(6),
+        onTap: onPressed,
+        child: Center(
+          child: Text(
+            text,
+            style: context.textTheme.labelSmall?.copyWith(
+              color: isSelected
+                  ? colorScheme.onPrimaryContainer
+                  : colorScheme.onSurfaceVariant,
+              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+            ),
+          ),
+        ),
       ),
     );
   }
 
-  Widget _buildIconButton({required IconData icon, VoidCallback? onPressed}) {
+  Widget _buildIconButton({
+    required IconData icon,
+    VoidCallback? onPressed,
+    String? tooltip,
+  }) {
     return IconButton(
       visualDensity: VisualDensity.compact,
       onPressed: onPressed,
-      style: ButtonStyle(padding: WidgetStatePropertyAll(EdgeInsets.all(0))),
-      icon: Icon(icon, size: 16),
+      tooltip: tooltip,
+      style: const ButtonStyle(
+        padding: WidgetStatePropertyAll(EdgeInsets.all(6)),
+        minimumSize: WidgetStatePropertyAll(Size(28, 28)),
+      ),
+      icon: Icon(icon, size: 18),
     );
   }
 }
 
-class ContextMenuControllerImpl implements SelectionToolbarController {
-  OverlayEntry? _overlayEntry;
-  bool _isFirstRender = true;
+class _CodeForgeControllerListenable extends Listenable {
+  _CodeForgeControllerListenable(this._controller);
 
-  void _removeOverLayEntry() {
-    _overlayEntry?.remove();
-    _overlayEntry = null;
-    _isFirstRender = true;
-  }
+  final CodeForgeController _controller;
 
   @override
-  void hide(BuildContext context) {
-    _removeOverLayEntry();
-  }
+  void addListener(VoidCallback listener) => _controller.addListener(listener);
 
   @override
-  void show({
-    required context,
-    required controller,
-    required anchors,
-    renderRect,
-    required layerLink,
-    required ValueNotifier<bool> visibility,
-  }) {
-    _removeOverLayEntry();
-    _overlayEntry ??= OverlayEntry(
-      builder: (context) => CodeEditorTapRegion(
-        child: ValueListenableBuilder(
-          valueListenable: controller,
-          builder: (_, _, child) {
-            final isNotEmpty = controller.selectedText.isNotEmpty;
-            final isAllSelected = controller.isAllSelected;
-            final hasSelected = controller.selectedText.isNotEmpty;
-            List<PopupMenuItemData> menus = [
-              if (isNotEmpty)
-                PopupMenuItemData(
-                  label: appLocalizations.copy,
-                  onPressed: controller.copy,
-                ),
-              PopupMenuItemData(
-                label: appLocalizations.paste,
-                onPressed: controller.paste,
-              ),
-              if (isNotEmpty)
-                PopupMenuItemData(
-                  label: appLocalizations.cut,
-                  onPressed: controller.cut,
-                ),
-              if (hasSelected && !isAllSelected)
-                PopupMenuItemData(
-                  label: appLocalizations.selectAll,
-                  onPressed: controller.selectAll,
-                ),
-            ];
-            if (_isFirstRender) {
-              _isFirstRender = false;
-            } else if (controller.selectedText.isEmpty) {
-              _removeOverLayEntry();
-            }
-            return TextSelectionToolbar(
-              anchorAbove: anchors.primaryAnchor,
-              anchorBelow: anchors.secondaryAnchor ?? Offset.zero,
-              children: menus.asMap().entries.map((
-                MapEntry<int, PopupMenuItemData> entry,
-              ) {
-                return TextSelectionToolbarTextButton(
-                  padding: TextSelectionToolbarTextButton.getPadding(
-                    entry.key,
-                    menus.length,
-                  ),
-                  alignment: AlignmentDirectional.centerStart,
-                  onPressed: () {
-                    if (entry.value.onPressed == null) {
-                      return;
-                    }
-                    entry.value.onPressed!();
-                    _removeOverLayEntry();
-                  },
-                  child: Text(entry.value.label),
-                );
-              }).toList(),
-            );
-          },
-        ),
-      ),
-    );
-    Overlay.of(context).insert(_overlayEntry!);
-  }
+  void removeListener(VoidCallback listener) =>
+      _controller.removeListener(listener);
 }
 
 class _NoInputBorder extends InputBorder {

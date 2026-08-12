@@ -29,6 +29,7 @@ type GostRelayOption struct {
 	Username          string `proxy:"username,omitempty"`
 	Password          string `proxy:"password,omitempty"`
 	SkipCertVerify    bool   `proxy:"skip-cert-verify,omitempty"`
+	NameCertVerify    string `proxy:"name-cert-verify,omitempty"`
 	Fingerprint       string `proxy:"fingerprint,omitempty"`
 	Certificate       string `proxy:"certificate,omitempty"`
 	PrivateKey        string `proxy:"private-key,omitempty"`
@@ -100,6 +101,7 @@ func NewGostRelay(option GostRelayOption) (*GostRelay, error) {
 		Username:          option.Username,
 		Password:          option.Password,
 		SkipCertVerify:    option.SkipCertVerify,
+		NameCertVerify:    option.NameCertVerify,
 		Fingerprint:       option.Fingerprint,
 		Certificate:       option.Certificate,
 		PrivateKey:        option.PrivateKey,

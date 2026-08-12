@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:bett_box/clash/core.dart';
 import 'package:bett_box/common/common.dart';
 import 'package:bett_box/enum/enum.dart';
 import 'package:bett_box/manager/window_manager.dart';
@@ -72,9 +73,9 @@ class _AppStateManagerState extends ConsumerState<AppStateManager>
         return;
       }
       if (next.a == true && next.b == true) {
-        macOS?.updateDns(false);
+        await macOS?.updateDns(false);
       } else {
-        macOS?.updateDns(true);
+        await macOS?.updateDns(true);
       }
     });
     ref.listenManual(currentBrightnessProvider, (prev, next) {
@@ -107,7 +108,9 @@ class _AppStateManagerState extends ConsumerState<AppStateManager>
       }
       isMinimized = await window?.isMinimized ?? false;
     }
-    final shouldRun = isForeground && isVisible && !isMinimized;
+    final isPinned = system.isDesktop &&
+        ref.read(windowSettingProvider.select((s) => s.isPinned));
+    final shouldRun = (isForeground || isPinned) && isVisible && !isMinimized;
 
     if (!shouldRun) {
       _dashboardRefreshDebounceTimer?.cancel();
@@ -167,7 +170,10 @@ class _AppStateManagerState extends ConsumerState<AppStateManager>
       await globalState.resumeForegroundUpdates();
       await globalState.appController.syncWakelockIfNeeded();
       _scheduleMissedUpdateCheck();
-      globalState.appController.updateGroupsDebounce();
+      final isInit = await clashCore.isInit;
+      if (isInit) {
+        globalState.appController.updateGroupsDebounce();
+      }
 
       final hasDetection = ref
           .read(dashboardStateProvider)

@@ -132,6 +132,7 @@ const (
 	generateAgeKeyPairMethod              Method = "generateAgeKeyPair"
 	convertAgeSecretKeyToPublicKeyMethod  Method = "convertAgeSecretKeyToPublicKey"
 	getModeMethod                         Method = "getMode"
+	parseExternalProviderContentMethod    Method = "parseExternalProviderContent"
 )
 
 type Method string

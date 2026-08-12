@@ -160,17 +160,17 @@ class WindowHeaderContainer extends StatelessWidget {
   }
 }
 
-class WindowHeader extends StatefulWidget {
+class WindowHeader extends ConsumerStatefulWidget {
   const WindowHeader({super.key});
 
   @override
-  State<WindowHeader> createState() => _WindowHeaderState();
+  ConsumerState<WindowHeader> createState() => _WindowHeaderState();
 }
 
-class _WindowHeaderState extends State<WindowHeader> {
+class _WindowHeaderState extends ConsumerState<WindowHeader> {
   final isMaximizedNotifier = ValueNotifier<bool>(false);
   final isPinNotifier = ValueNotifier<bool>(false);
-  final isHoveringNotifier = ValueNotifier<bool>(false); // 新增：鼠标悬停状态
+  final isHoveringNotifier = ValueNotifier<bool>(false);
 
   @override
   void initState() {
@@ -179,15 +179,20 @@ class _WindowHeaderState extends State<WindowHeader> {
   }
 
   Future<void> _initNotifier() async {
-    isMaximizedNotifier.value = await windowManager.isMaximized();
-    isPinNotifier.value = await windowManager.isAlwaysOnTop();
+    final isMaximized = await windowManager.isMaximized();
+    if (!mounted) return;
+    isMaximizedNotifier.value = isMaximized;
+    
+    final isAlwaysOnTop = await windowManager.isAlwaysOnTop();
+    if (!mounted) return;
+    isPinNotifier.value = isAlwaysOnTop;
   }
 
   @override
   void dispose() {
     isMaximizedNotifier.dispose();
     isPinNotifier.dispose();
-    isHoveringNotifier.dispose(); // 新增：释放资源
+    isHoveringNotifier.dispose();
     super.dispose();
   }
 
@@ -206,12 +211,19 @@ class _WindowHeaderState extends State<WindowHeader> {
 
   Future<void> _updatePin() async {
     final isAlwaysOnTop = await windowManager.isAlwaysOnTop();
-    await windowManager.setAlwaysOnTop(!isAlwaysOnTop);
-    isPinNotifier.value = await windowManager.isAlwaysOnTop();
+    final newIsPinned = !isAlwaysOnTop;
+    await windowManager.setAlwaysOnTop(newIsPinned);
+    isPinNotifier.value = newIsPinned;
+    ref.read(windowSettingProvider.notifier).updateState(
+          (state) => state.copyWith(isPinned: newIsPinned),
+        );
   }
 
   Widget _buildActions() {
     final shouldUseHoverEffect = system.isWindows || system.isLinux;
+    final alwaysShowTitleBar = ref.watch(
+      vpnSettingProvider.select((state) => state.alwaysShowTitleBar),
+    );
 
     return MouseRegion(
       onEnter: shouldUseHoverEffect
@@ -229,62 +241,55 @@ class _WindowHeaderState extends State<WindowHeader> {
       child: ValueListenableBuilder<bool>(
         valueListenable: isHoveringNotifier,
         builder: (_, isHovering, _) {
-          return Consumer(
-            builder: (context, ref, child) {
-              final alwaysShowTitleBar = ref.watch(
-                vpnSettingProvider.select((state) => state.alwaysShowTitleBar),
-              );
-              final showButtons =
-                  !shouldUseHoverEffect || alwaysShowTitleBar || isHovering;
-              return Opacity(
-                opacity: showButtons ? 1.0 : 0.0,
-                child: IgnorePointer(ignoring: !showButtons, child: child),
-              );
-            },
-            child: Row(
-              children: [
-                IconButton(
-                  onPressed: () async {
-                    _updatePin();
-                  },
-                  icon: ValueListenableBuilder(
-                    valueListenable: isPinNotifier,
-                    builder: (_, value, _) {
-                      return value
-                          ? const Icon(Icons.push_pin)
-                          : const Icon(Icons.push_pin_outlined);
-                    },
+          final showButtons =
+              !shouldUseHoverEffect || alwaysShowTitleBar || isHovering;
+          return Opacity(
+            opacity: showButtons ? 1.0 : 0.0,
+            child: IgnorePointer(
+              ignoring: !showButtons,
+              child: Row(
+                children: [
+                  IconButton(
+                    onPressed: _updatePin,
+                    icon: ValueListenableBuilder(
+                      valueListenable: isPinNotifier,
+                      builder: (_, value, _) {
+                        return value
+                            ? const Icon(Icons.push_pin)
+                            : const Icon(Icons.push_pin_outlined);
+                      },
+                    ),
                   ),
-                ),
-                IconButton(
-                  onPressed: () {
-                    windowManager.minimize();
-                  },
-                  icon: const Icon(Icons.remove),
-                ),
-                IconButton(
-                  onPressed: () async {
-                    _updateMaximized();
-                  },
-                  icon: ValueListenableBuilder(
-                    valueListenable: isMaximizedNotifier,
-                    builder: (_, value, _) {
-                      return value
-                          ? const Icon(Icons.filter_none, size: 20)
-                          : const Icon(Icons.crop_square);
+                  IconButton(
+                    onPressed: () {
+                      windowManager.minimize();
                     },
+                    icon: const Icon(Icons.remove),
                   ),
-                ),
-                IconButton(
-                  onPressed: () {
-                    FocusManager.instance.primaryFocus?.unfocus();
-                    globalState.appController.unBackBlock();
-                    isHoveringNotifier.value = true;
-                    globalState.appController.handleBackOrExit();
-                  },
-                  icon: const Icon(Icons.close),
-                ),
-              ],
+                  IconButton(
+                    onPressed: () async {
+                      _updateMaximized();
+                    },
+                    icon: ValueListenableBuilder(
+                      valueListenable: isMaximizedNotifier,
+                      builder: (_, value, _) {
+                        return value
+                            ? const Icon(Icons.filter_none, size: 20)
+                            : const Icon(Icons.crop_square);
+                      },
+                    ),
+                  ),
+                  IconButton(
+                    onPressed: () {
+                      FocusManager.instance.primaryFocus?.unfocus();
+                      globalState.appController.unBackBlock();
+                      isHoveringNotifier.value = true;
+                      globalState.appController.handleBackOrExit();
+                    },
+                    icon: const Icon(Icons.close),
+                  ),
+                ],
+              ),
             ),
           );
         },

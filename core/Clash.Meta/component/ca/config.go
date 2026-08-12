@@ -77,11 +77,12 @@ func GetCertPool() *x509.CertPool {
 }
 
 type Option struct {
-	TLSConfig   *tls.Config
-	Fingerprint string
-	ZeroTrust   bool
-	Certificate string
-	PrivateKey  string
+	TLSConfig      *tls.Config
+	Fingerprint    string
+	NameCertVerify string
+	ZeroTrust      bool
+	Certificate    string
+	PrivateKey     string
 }
 
 func GetTLSConfig(opt Option) (tlsConfig *tls.Config, err error) {
@@ -106,7 +107,17 @@ func GetTLSConfig(opt Option) (tlsConfig *tls.Config, err error) {
 			// [ConnectionState.ServerName] can return the actual ServerName needed for verification,
 			// avoiding inconsistencies caused by [tlsConfig.ServerName] being modified after the [NewFingerprintVerifier] call.
 			// https://github.com/golang/go/issues/36736#issuecomment-587925536
-			return verifier(state.PeerCertificates, state.ServerName)
+			serverName := state.ServerName
+			if opt.NameCertVerify != "" {
+				serverName = opt.NameCertVerify
+			}
+			return verifier(state.PeerCertificates, serverName)
+		}
+		tlsConfig.InsecureSkipVerify = true
+	} else if opt.NameCertVerify != "" {
+		verifier := NewNameCertVerifier(opt.NameCertVerify, tlsConfig.RootCAs, tlsConfig.Time)
+		tlsConfig.VerifyConnection = func(state tls.ConnectionState) error {
+			return verifier(state.PeerCertificates)
 		}
 		tlsConfig.InsecureSkipVerify = true
 	}

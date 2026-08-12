@@ -43,8 +43,8 @@ class MakeRPMConfig extends MakeConfig {
       genericName: json['generic_name'] as String?,
       startupNotify: json['startup_notify'] as bool?,
       keywords: (json['keywords'] as List<dynamic>?)?.cast<String>(),
-      supportedMimeType:
-          (json['supported_mime_type'] as List<dynamic>?)?.cast<String>(),
+      supportedMimeType: (json['supported_mime_type'] as List<dynamic>?)
+          ?.cast<String>(),
       actions: (json['actions'] as List<dynamic>?)?.cast<String>(),
       categories: (json['categories'] as List<dynamic>?)?.cast<String>(),
       summary: json['summary'] as String?,
@@ -112,8 +112,9 @@ class MakeRPMConfig extends MakeConfig {
           'Summary': summary ?? pubspec.description,
           'Group': group,
           'Vendor': vendor,
-          'Packager':
-              packagerEmail != null ? '$packager <$packagerEmail>' : packager,
+          'Packager': packagerEmail != null
+              ? '$packager <$packagerEmail>'
+              : packager,
           'License': license,
           'URL': url,
           'Requires': requires?.join(', '),
@@ -122,29 +123,35 @@ class MakeRPMConfig extends MakeConfig {
         }..removeWhere((key, value) => value == null),
         'body': {
           '%description': description ?? pubspec.description,
-          '%install': [
-            'mkdir -p %{buildroot}%{_bindir}',
-            'mkdir -p %{buildroot}%{_datadir}/%{name}',
-            'mkdir -p %{buildroot}%{_datadir}/applications',
-            'mkdir -p %{buildroot}%{_datadir}/pixmaps',
-            'cp -r %{name}/* %{buildroot}%{_datadir}/%{name}',
-            'ln -s %{_datadir}/%{name}/%{name} %{buildroot}%{_bindir}/%{name}',
-            'cp -r %{name}.desktop %{buildroot}%{_datadir}/applications',
-            'cp -r %{name}.png %{buildroot}%{_datadir}/pixmaps',
-            'update-mime-database %{_datadir}/mime &> /dev/null || :',
-          ].join('\n'),
-          '%postun': ['update-mime-database %{_datadir}/mime &> /dev/null || :']
-              .join('\n'),
-          '%files': [
-            '%{_bindir}/%{name}',
-            '%{_datadir}/%{name}',
-            '%{_datadir}/applications/%{name}.desktop',
-          ].join('\n'),
+          '%install':
+              install ??
+              [
+                'mkdir -p %{buildroot}%{_bindir}',
+                'mkdir -p %{buildroot}%{_datadir}/%{name}',
+                'mkdir -p %{buildroot}%{_datadir}/applications',
+                'mkdir -p %{buildroot}%{_datadir}/pixmaps',
+                'cp -r %{name}/* %{buildroot}%{_datadir}/%{name}',
+                'ln -s %{_datadir}/%{name}/%{name} %{buildroot}%{_bindir}/%{name}',
+                'cp -r %{name}.desktop %{buildroot}%{_datadir}/applications',
+                'cp -r %{name}.png %{buildroot}%{_datadir}/pixmaps',
+                'update-mime-database %{_datadir}/mime &> /dev/null || :',
+              ].join('\n'),
+          '%postun':
+              postun ??
+              [
+                'update-mime-database %{_datadir}/mime &> /dev/null || :',
+              ].join('\n'),
+          '%files':
+              files ??
+              [
+                if (defattr != null) '%defattr $defattr',
+                if (attr != null) attr,
+                '%{_bindir}/%{name}',
+                '%{_datadir}/%{name}',
+                '%{_datadir}/applications/%{name}.desktop',
+                if (icon != null) '%{_datadir}/pixmaps/%{name}.png',
+              ].join('\n'),
         }..removeWhere((key, value) => value == null),
-        'inline-body': {
-          '%defattr': '(-,root,root)',
-          '%attr': '(4755, root, root) %{_datadir}/pixmaps/%{name}.png',
-        },
       },
       'DESKTOP': {
         'Type': 'Application',
@@ -173,26 +180,30 @@ class MakeRPMConfig extends MakeConfig {
   Map<String, String> toFilesString() {
     final json = toJson();
 
-    final preamble = (json['SPEC']['preamble'] as Map)
-        .entries
-        .map((e) => '${e.key}: ${e.value}')
+    final preamble = [
+      '%define _build_id_links none',
+      ...(json['SPEC']['preamble'] as Map).entries.map(
+        (e) => '${e.key}: ${e.value}',
+      ),
+    ].join('\n');
+    final body = (json['SPEC']['body'] as Map).entries
+        .map((e) {
+          return '${e.key}\n${e.value}\n';
+        })
         .join('\n');
-    final body = (json['SPEC']['body'] as Map).entries.map(
-      (e) {
-        return '${e.key}\n${e.value}\n';
-      },
-    ).join('\n');
-    final inlineBody = (json['SPEC']['inline-body'] as Map).entries.map(
-      (e) {
-        return '${e.key}${e.value}\n';
-      },
-    ).join('\n');
+    final inlineBody =
+        (json['SPEC']['inline-body'] as Map?)?.entries
+            .map((e) {
+              return '${e.key}${e.value}\n';
+            })
+            .join('\n') ??
+        '';
 
     final desktopFile = [
       '[Desktop Entry]',
       ...(json['DESKTOP'] as Map<String, dynamic>).entries.map(
-            (e) => '${e.key}=${e.value}',
-          ),
+        (e) => '${e.key}=${e.value}',
+      ),
     ].join('\n');
     final map = {
       'DESKTOP': desktopFile,

@@ -144,23 +144,24 @@ class HiddenItem extends ConsumerWidget {
   }
 }
 
-class AnimateTabItem extends ConsumerWidget {
-  const AnimateTabItem({super.key});
+
+class ShowStartSwitchItem extends ConsumerWidget {
+  const ShowStartSwitchItem({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final isAnimateToPage = ref.watch(
-      appSettingProvider.select((state) => state.isAnimateToPage),
+    final showStartSwitch = ref.watch(
+      appSettingProvider.select((state) => state.showStartSwitch),
     );
     return ListItem.switchItem(
-      title: Text(appLocalizations.tabAnimation),
-      subtitle: Text(appLocalizations.tabAnimationDesc),
+      title: Text(appLocalizations.showStartSwitch),
+      subtitle: Text(appLocalizations.showStartSwitchDesc),
       delegate: SwitchDelegate(
-        value: isAnimateToPage,
+        value: showStartSwitch,
         onChanged: (value) {
           ref
               .read(appSettingProvider.notifier)
-              .updateState((state) => state.copyWith(isAnimateToPage: value));
+              .updateState((state) => state.copyWith(showStartSwitch: value));
         },
       ),
     );
@@ -245,35 +246,21 @@ class ApplicationSettingView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer(
-      builder: (context, ref, _) {
-        List<Widget> items = [
-          AutoLaunchItem(),
-          if (system.isDesktop) ...[SilentLaunchItem()],
-          AutoRunItem(),
-          if (system.isAndroid) ...[HiddenItem()],
-          if (system.isDesktop) ...[
-            if (system.isWindows || system.isLinux)
-              const AlwaysShowTitleBarItem(),
-          ] else ...[
-            const AnimateTabItem(),
-          ],
-          if (system.isAndroid) ...[NavBarHapticFeedbackItem()],
-          CloseConnectionsItem(),
-          UsageItem(),
-          AutoCheckUpdateItem(),
-        ];
-        return ListView.separated(
-          itemBuilder: (_, index) {
-            final item = items[index];
-            return item;
-          },
-          separatorBuilder: (_, _) {
-            return const Divider(height: 0);
-          },
-          itemCount: items.length,
-        );
-      },
-    );
+    List<Widget> items = [
+      AutoLaunchItem(),
+      if (system.isDesktop) ...[SilentLaunchItem()],
+      AutoRunItem(),
+      if (system.isAndroid) ...[HiddenItem()],
+      if (system.isDesktop) ...[
+        if (system.isWindows || system.isLinux)
+          const AlwaysShowTitleBarItem(),
+      ],
+      const ShowStartSwitchItem(),
+      if (system.isAndroid) ...[NavBarHapticFeedbackItem()],
+      CloseConnectionsItem(),
+      UsageItem(),
+      AutoCheckUpdateItem(),
+    ];
+    return generateListView(items);
   }
 }

@@ -1,7 +1,6 @@
 import 'package:bett_box/common/common.dart';
 import 'package:bett_box/models/models.dart';
 import 'package:bett_box/providers/providers.dart';
-import 'package:bett_box/state.dart';
 import 'package:bett_box/widgets/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -22,10 +21,7 @@ class _RequestsViewState extends ConsumerState<RequestsView> {
   @override
   void initState() {
     super.initState();
-    final requests = globalState.appState.requests.list;
-    _scrollController = ScrollController(
-      initialScrollOffset: requests.length * TrackerInfoItem.height,
-    );
+    _scrollController = ReverseScrollController();
   }
 
   @override
@@ -88,57 +84,41 @@ class _RequestsViewState extends ConsumerState<RequestsView> {
           ? NullStatus(
               label: appLocalizations.nullTip(appLocalizations.requests),
             )
-          : Align(
-              alignment: Alignment.topCenter,
-              child: CommonScrollBar(
-                trackVisibility: false,
+          : CommonScrollBar(
+              trackVisibility: false,
+              controller: _scrollController,
+              child: ScrollToEndBox(
                 controller: _scrollController,
-                child: ScrollToEndBox(
-                  controller: _scrollController,
-                  dataSource: requests,
-                  enable: _autoScrollToEnd,
-                  onCancelToEnd: _cancelAutoScroll,
-                  child: LayoutBuilder(
-                    builder: (context, constraints) {
-                      final contentHeight = requests.length * TrackerInfoItem.height;
-                      final listViewHeight = contentHeight < constraints.maxHeight
-                          ? contentHeight
-                          : constraints.maxHeight;
-
-                      return SizedBox(
-                        height: listViewHeight,
-                        child: ListView.builder(
-                          reverse: true,
-                          physics: const NextClampingScrollPhysics(),
-                          controller: _scrollController,
-                          itemBuilder: (_, index) {
-                            if (index.isOdd) {
-                              return const Divider(height: 0);
-                            }
-                            final itemIndex = index ~/ 2;
-                            if (itemIndex >= requests.length) {
-                              return const SizedBox.shrink();
-                            }
-                            final trackerInfo = requests[itemIndex];
-                            return TrackerInfoItem(
-                              key: ValueKey(trackerInfo.id),
-                              trackerInfo: trackerInfo,
-                              onClickKeyword: (value) {
-                                context.commonScaffoldState?.addKeyword(value);
-                              },
-                              detailTitle: appLocalizations.details
-                            );
-                          },
-                          itemExtentBuilder: (index, _) {
-                            if (index.isOdd) {
-                              return 0;
-                            }
-                            return TrackerInfoItem.height;
-                          },
-                          itemCount: requests.length * 2 - 1,
-                        ),
+                dataSource: requests,
+                enable: _autoScrollToEnd,
+                reverse: true,
+                onCancelToEnd: _cancelAutoScroll,
+                child: Align(
+                  alignment: Alignment.topCenter,
+                  child: ListView.builder(
+                    reverse: true,
+                    shrinkWrap: requests.length < 20,
+                    physics: const NextClampingScrollPhysics(),
+                    controller: _scrollController,
+                    padding: const EdgeInsets.only(bottom: 16, top: 8),
+                    itemBuilder: (context, index) {
+                      final trackerInfo = requests[index];
+                      return TrackerInfoItem(
+                        key: ValueKey(trackerInfo.id),
+                        index: index,
+                        count: requests.length,
+                        reversed: true,
+                        trackerInfo: trackerInfo,
+                        onClickKeyword: (value) {
+                          context.commonScaffoldState?.addKeyword(value);
+                        },
+                        detailTitle: appLocalizations.details,
                       );
                     },
+                    itemExtentBuilder: (index, _) {
+                      return TrackerInfoItem.height + 1;
+                    },
+                    itemCount: requests.length,
                   ),
                 ),
               ),

@@ -288,9 +288,9 @@ class FakeIpFilterItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListItem.open(
+    return ListItem.next(
       title: Text(appLocalizations.fakeipFilter),
-      delegate: OpenDelegate(
+      delegate: NextDelegate(
         blur: false,
         title: appLocalizations.fakeipFilter,
         widget: Consumer(
@@ -369,10 +369,10 @@ class DefaultNameserverItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListItem.open(
+    return ListItem.next(
       title: Text(appLocalizations.defaultNameserver),
       subtitle: Text(appLocalizations.defaultNameserverDesc),
-      delegate: OpenDelegate(
+      delegate: NextDelegate(
         blur: false,
         title: appLocalizations.defaultNameserver,
         widget: Consumer(
@@ -408,10 +408,10 @@ class NameserverItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListItem.open(
+    return ListItem.next(
       title: Text(appLocalizations.nameserver),
       subtitle: Text(appLocalizations.nameserverDesc),
-      delegate: OpenDelegate(
+      delegate: NextDelegate(
         title: appLocalizations.nameserver,
         blur: false,
         widget: Consumer(
@@ -521,10 +521,10 @@ class NameserverPolicyItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListItem.open(
+    return ListItem.next(
       title: Text(appLocalizations.nameserverPolicy),
       subtitle: Text(appLocalizations.nameserverPolicyDesc),
-      delegate: OpenDelegate(
+      delegate: NextDelegate(
         blur: false,
         title: appLocalizations.nameserverPolicy,
         widget: Consumer(
@@ -559,10 +559,10 @@ class ProxyServerNameserverItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListItem.open(
+    return ListItem.next(
       title: Text(appLocalizations.proxyNameserver),
       subtitle: Text(appLocalizations.proxyNameserverDesc),
-      delegate: OpenDelegate(
+      delegate: NextDelegate(
         blur: false,
         title: appLocalizations.proxyNameserver,
         widget: Consumer(
@@ -598,10 +598,10 @@ class DirectNameserverItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListItem.open(
+    return ListItem.next(
       title: Text(appLocalizations.directNameserver),
       subtitle: Text(appLocalizations.directNameserverDesc),
-      delegate: OpenDelegate(
+      delegate: NextDelegate(
         blur: false,
         title: appLocalizations.directNameserver,
         widget: Consumer(
@@ -673,10 +673,10 @@ class FallbackItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListItem.open(
+    return ListItem.next(
       title: Text(appLocalizations.fallback),
       subtitle: Text(appLocalizations.fallbackDesc),
-      delegate: OpenDelegate(
+      delegate: NextDelegate(
         blur: false,
         title: appLocalizations.fallback,
         widget: Consumer(
@@ -799,9 +799,9 @@ class IpcidrItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListItem.open(
+    return ListItem.next(
       title: Text(appLocalizations.ipcidr),
-      delegate: OpenDelegate(
+      delegate: NextDelegate(
         blur: false,
         title: appLocalizations.ipcidr,
         widget: Consumer(
@@ -837,9 +837,9 @@ class DomainItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListItem.open(
+    return ListItem.next(
       title: Text(appLocalizations.domain),
-      delegate: OpenDelegate(
+      delegate: NextDelegate(
         blur: false,
         title: appLocalizations.domain,
         widget: Consumer(
@@ -870,66 +870,44 @@ class DomainItem extends StatelessWidget {
   }
 }
 
-class DnsOptions extends StatelessWidget {
-  const DnsOptions({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: generateSection(
-        title: appLocalizations.options,
-        items: [
-          const StatusItem(),
-          const ListenItem(),
-          const CacheAlgorithmItem(),
-          const UseHostsItem(),
-          const UseSystemHostsItem(),
-          const IPv6Item(),
-          const RespectRulesItem(),
-          const PreferH3Item(),
-          const DnsModeItem(),
-          const FakeIpRangeItem(),
-          const FakeIpRangeV6Item(),
-          const FakeIpFilterModeItem(),
-          const FakeIpFilterItem(),
-          const FakeIpTtlItem(),
-          const DefaultNameserverItem(),
-          const NameserverPolicyItem(),
-          const NameserverItem(),
-          const FallbackItem(),
-          const ProxyServerNameserverItem(),
-          const DirectNameserverItem(),
-          const DirectNameserverFollowPolicyItem(),
-        ],
-      ),
-    );
-  }
-}
-
-class FallbackFilterOptions extends StatelessWidget {
-  const FallbackFilterOptions({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: generateSection(
-        title: appLocalizations.fallbackFilter,
-        items: [
-          const GeoipItem(),
-          const GeoipCodeItem(),
-          const FallbackConcurrentItem(),
-          const IpcidrItem(),
-          const DomainItem(),
-        ],
-      ),
-    );
-  }
-}
-
-const dnsItems = <Widget>[
-  OverrideItem(),
-  DnsOptions(),
-  FallbackFilterOptions(),
+final dnsItems = <Widget>[
+  const OverrideItem(),
+  ...generateSection(
+    title: appLocalizations.options,
+    items: const [
+      StatusItem(),
+      ListenItem(),
+      CacheAlgorithmItem(),
+      UseHostsItem(),
+      UseSystemHostsItem(),
+      IPv6Item(),
+      RespectRulesItem(),
+      PreferH3Item(),
+      DnsModeItem(),
+      FakeIpRangeItem(),
+      FakeIpRangeV6Item(),
+      FakeIpFilterModeItem(),
+      FakeIpFilterItem(),
+      FakeIpTtlItem(),
+      DefaultNameserverItem(),
+      NameserverPolicyItem(),
+      NameserverItem(),
+      FallbackItem(),
+      ProxyServerNameserverItem(),
+      DirectNameserverItem(),
+      DirectNameserverFollowPolicyItem(),
+    ],
+  ),
+  ...generateSection(
+    title: appLocalizations.fallbackFilter,
+    items: const [
+      GeoipItem(),
+      GeoipCodeItem(),
+      FallbackConcurrentItem(),
+      IpcidrItem(),
+      DomainItem(),
+    ],
+  ),
 ];
 
 class DnsListView extends ConsumerWidget {

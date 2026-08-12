@@ -269,6 +269,11 @@ data object VpnPlugin : FlutterPlugin, MethodChannel.MethodCallHandler {
         lastDns = dns
         invokeDart("dnsChanged", dns)
     }
+
+    fun notifyScreenStateChanged(isOn: Boolean) {
+        invokeDart("screenStateChanged", isOn)
+    }
+
     private fun getCurrentDns(): String {
         val dnsSet = when {
             networkDnsMap.isNotEmpty() -> networkDnsMap.values.flatMap { it }
@@ -410,6 +415,9 @@ data object VpnPlugin : FlutterPlugin, MethodChannel.MethodCallHandler {
     fun updateNotificationIcon() {
         scope.launch {
             runCatching {
+                val context = BettboxApplication.getAppContext()
+                val notificationManager = context.getSystemService(android.app.NotificationManager::class.java)
+                notificationManager?.cancel(GlobalState.NOTIFICATION_ID)
                 (bettBoxService as? BettboxService)?.resetNotificationBuilder()
                 (bettBoxService as? BettboxVpnService)?.resetNotificationBuilder()
                 bettBoxService?.startForeground()

@@ -123,23 +123,36 @@ class AppPackageMakerPacman extends AppPackageMaker {
       '${packagingDirectory.path}/usr/share/${makeConfig.appBinaryName}/',
     ]);
 
-    // MTREE Metadata using bsdtar and fakeroot
-    ProcessResult mtreeResult = await $(
-      'bsdtar',
-      [
-        '-czf',
-        '.MTREE',
-        '--format=mtree',
-        '--options=!all,use-set,type,uid,gid,mode,time,size,md5,sha256,link',
-        '.PKGINFO',
-        '.INSTALL',
-        'usr',
-      ],
-      environment: {
-        'LANG': 'C',
-      },
-      workingDirectory: packagingDirectory.path,
+    // Ensure the core binary has setuid bit set before packaging so that
+    // .MTREE records the elevated permissions. The postinstall script will
+    // re-apply ownership on the target system as a safety net.
+    final coreFile = File(
+      path.join(
+        packagingDirectory.path,
+        'usr/share',
+        makeConfig.appBinaryName,
+        'BettboxCore',
+      ),
     );
+    if (coreFile.existsSync()) {
+      await $('chmod', ['+sx', coreFile.path]);
+    }
+
+    // MTREE Metadata using bsdtar wrapped in fakeroot so uid/gid are recorded
+    // as root. This is required for setuid binaries to be effective after
+    // installation.
+    ProcessResult mtreeResult = await $('fakeroot', [
+      'bsdtar',
+      '-czf',
+      '.MTREE',
+      '--format=mtree',
+      '--options=!all,use-set,type,uid,gid,mode,time,size,md5,sha256,link',
+      '.PKGINFO',
+      '.INSTALL',
+      'usr',
+    ], environment: {
+      'LANG': 'C',
+    }, workingDirectory: packagingDirectory.path);
     if (mtreeResult.exitCode != 0) {
       throw MakeError(mtreeResult.stderr);
     }
@@ -147,21 +160,17 @@ class AppPackageMakerPacman extends AppPackageMaker {
     // create the pacman package using fakeroot and bsdtar
     // fakeroot -- env LANG=C bsdtar -cf - .MTREE .PKGINFO * | xz -c -z - > $pkgname-$pkgver-$pkgrel-$arch.tar.xz
 
-    ProcessResult archiveResult = await $(
+    ProcessResult archiveResult = await $('fakeroot', [
       'bsdtar',
-      [
-        '-cf',
-        'temptar',
-        '.MTREE',
-        '.INSTALL',
-        '.PKGINFO',
-        'usr',
-      ],
-      environment: {
-        'LANG': 'C',
-      },
-      workingDirectory: packagingDirectory.path,
-    );
+      '-cf',
+      'temptar',
+      '.MTREE',
+      '.INSTALL',
+      '.PKGINFO',
+      'usr',
+    ], environment: {
+      'LANG': 'C',
+    }, workingDirectory: packagingDirectory.path);
     if (archiveResult.exitCode != 0) {
       throw MakeError(archiveResult.stderr);
     }

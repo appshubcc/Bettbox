@@ -21,3 +21,19 @@ generic_name: Bettbox
 group: Applications/Internet
 
 startup_notify: true
+startup_wm_class: com.appshub.bettbox
+
+install: |
+  mkdir -p %{buildroot}%{_bindir}
+  mkdir -p %{buildroot}%{_datadir}/%{name}
+  mkdir -p %{buildroot}%{_datadir}/applications
+  mkdir -p %{buildroot}%{_datadir}/pixmaps
+  cp -r %{name}/* %{buildroot}%{_datadir}/%{name}
+  ln -s ../share/%{name}/%{name} %{buildroot}%{_bindir}/%{name}
+  cp -r %{name}.desktop %{buildroot}%{_datadir}/applications
+  cp -r %{name}.png %{buildroot}%{_datadir}/pixmaps
+  chmod +sx %{buildroot}%{_datadir}/%{name}/BettboxCore
+  update-mime-database %{_datadir}/mime &> /dev/null || :
+
+attr: |
+  %attr(4755, root, root) %{_datadir}/%{name}/BettboxCore

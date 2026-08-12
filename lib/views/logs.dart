@@ -22,10 +22,7 @@ class _LogsViewState extends ConsumerState<LogsView> {
   @override
   void initState() {
     super.initState();
-    final logs = globalState.appState.logs.list;
-    _scrollController = ScrollController(
-      initialScrollOffset: logs.length * LogItem.height,
-    );
+    _scrollController = ReverseScrollController();
   }
 
   @override
@@ -90,6 +87,7 @@ class _LogsViewState extends ConsumerState<LogsView> {
     globalState.showMessage(
       title: appLocalizations.tip,
       message: TextSpan(text: appLocalizations.exportSuccess),
+      cancelable: false,
     );
   }
 
@@ -101,7 +99,6 @@ class _LogsViewState extends ConsumerState<LogsView> {
   Widget build(BuildContext context) {
     final logs = ref.watch(filteredLogsProvider);
     final hasLogs = logs.isNotEmpty;
-
     return CommonScaffold(
       actions: [
         IconButton(
@@ -134,58 +131,40 @@ class _LogsViewState extends ConsumerState<LogsView> {
       searchState: AppBarSearchState(onSearch: _onSearch),
       title: appLocalizations.logs,
       body: !hasLogs
-          ? NullStatus(
-              label: appLocalizations.nullTip(appLocalizations.logs),
-            )
-          : Align(
-              alignment: Alignment.topCenter,
-              child: ScrollToEndBox(
-                onCancelToEnd: _cancelAutoScroll,
+          ? NullStatus(label: appLocalizations.nullTip(appLocalizations.logs))
+          : ScrollToEndBox(
+              onCancelToEnd: _cancelAutoScroll,
+              controller: _scrollController,
+              enable: _autoScrollToEnd,
+              reverse: true,
+              dataSource: logs,
+              child: CommonScrollBar(
                 controller: _scrollController,
-                enable: _autoScrollToEnd,
-                dataSource: logs,
-                child: CommonScrollBar(
-                  controller: _scrollController,
-                  child: LayoutBuilder(
-                    builder: (context, constraints) {
-                      final contentHeight = logs.length * LogItem.height;
-                      final listViewHeight = contentHeight < constraints.maxHeight
-                          ? contentHeight
-                          : constraints.maxHeight;
-
-                      return SizedBox(
-                        height: listViewHeight,
-                        child: ListView.builder(
-                          physics: const NextClampingScrollPhysics(),
-                          reverse: true,
-                          controller: _scrollController,
-                          itemBuilder: (_, index) {
-                            if (index.isOdd) {
-                              return const Divider(height: 0);
-                            }
-                            final itemIndex = index ~/ 2;
-                            if (itemIndex >= logs.length) {
-                              return const SizedBox.shrink();
-                            }
-                            final log = logs[itemIndex];
-                            return LogItem(
-                              key: ValueKey(log.dateTime),
-                              log: log,
-                              onClick: (value) {
-                                context.commonScaffoldState?.addKeyword(value);
-                              },
-                            );
-                          },
-                          itemExtentBuilder: (index, _) {
-                            if (index.isOdd) {
-                              return 0;
-                            }
-                            return LogItem.height;
-                          },
-                          itemCount: logs.length * 2 - 1,
-                        ),
+                child: Align(
+                  alignment: Alignment.topCenter,
+                  child: ListView.builder(
+                    physics: const NextClampingScrollPhysics(),
+                    reverse: true,
+                    shrinkWrap: logs.length < 20,
+                    controller: _scrollController,
+                    padding: const EdgeInsets.only(bottom: 16, top: 8),
+                    itemExtentBuilder: (index, _) {
+                      return LogItem.height + 1;
+                    },
+                    itemBuilder: (context, index) {
+                      final log = logs[index];
+                      return LogItem(
+                        key: ValueKey(log.dateTime),
+                        index: index,
+                        count: logs.length,
+                        reversed: true,
+                        log: log,
+                        onClick: (value) {
+                          context.commonScaffoldState?.addKeyword(value);
+                        },
                       );
                     },
+                    itemCount: logs.length,
                   ),
                 ),
               ),
@@ -197,60 +176,70 @@ class _LogsViewState extends ConsumerState<LogsView> {
 class LogItem extends StatelessWidget {
   final Log log;
   final Function(String)? onClick;
+  final int index;
+  final int count;
+  final bool reversed;
 
   static double get height {
     final measure = globalState.measure;
     return measure.bodyLargeHeight * 2 +
         8 +
         24 +
-        globalState.measure.labelMediumHeight +
+        measure.labelMediumHeight +
         16 +
         16;
   }
 
-  const LogItem({super.key, required this.log, this.onClick});
+  const LogItem({
+    super.key,
+    required this.log,
+    this.onClick,
+    required this.index,
+    required this.count,
+    this.reversed = false,
+  });
 
   @override
   Widget build(BuildContext context) {
     return RepaintBoundary(
-      child: ListItem(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-        onTap: () {
-        globalState.showCommonDialog(child: LogDetailDialog(log: log));
-      },
-      title: SizedBox(
-        height: globalState.measure.bodyLargeHeight * 2,
-        child: Text(
-          log.payload,
-          maxLines: 2,
-          overflow: TextOverflow.ellipsis,
-          style: context.textTheme.bodyLarge?.copyWith(
-            color: log.logLevel.color,
+      child: ContinuousListItem(
+        index: index,
+        count: count,
+        reversed: reversed,
+        child: ListItem(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+          onTap: () {
+            globalState.showCommonDialog(child: LogDetailDialog(log: log));
+          },
+          title: Text(
+            log.payload,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: context.textTheme.bodyLarge?.copyWith(
+              color: log.logLevel.color,
+            ),
+          ),
+          subtitle: Padding(
+            padding: const EdgeInsets.only(top: 10),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                CommonChip(
+                  onPressed: () {
+                    onClick?.call(log.logLevel.name);
+                  },
+                  label: log.logLevel.name,
+                ),
+                Text(
+                  log.dateTime,
+                  style: context.textTheme.bodySmall?.copyWith(
+                    color: context.colorScheme.onSurface.opacity80,
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
-      ),
-      subtitle: Column(
-        children: [
-          const SizedBox(height: 16),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              CommonChip(
-                onPressed: () {
-                  onClick?.call(log.logLevel.name);
-                },
-                label: log.logLevel.name,
-              ),
-              Text(
-                log.dateTime,
-                style: context.textTheme.bodySmall?.copyWith(
-                  color: context.colorScheme.onSurface.opacity80,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
       ),
     );
   }

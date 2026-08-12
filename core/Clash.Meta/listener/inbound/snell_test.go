@@ -7,7 +7,9 @@ import (
 
 	"github.com/metacubex/mihomo/adapter/outbound"
 	"github.com/metacubex/mihomo/listener/inbound"
-	shadowtls "github.com/metacubex/mihomo/transport/sing-shadowtls"
+	"github.com/metacubex/mihomo/transport/jls"
+	"github.com/metacubex/mihomo/transport/restls"
+	"github.com/metacubex/mihomo/transport/shadowtls"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -76,7 +78,7 @@ func TestInboundSnell(t *testing.T) {
 	}
 }
 
-func testInboundSnellShadowTls(t *testing.T, inboundOptions inbound.SnellOption, outboundOptions outbound.SnellOption) {
+func testInboundSnellUTLS(t *testing.T, inboundOptions inbound.SnellOption, outboundOptions outbound.SnellOption) {
 	t.Parallel()
 	t.Run("Conn", func(t *testing.T) {
 		inboundOptions, outboundOptions := inboundOptions, outboundOptions // don't modify outside options value
@@ -103,7 +105,7 @@ func TestInboundSnell_ShadowTlsv2(t *testing.T) {
 		ObfsOpts: map[string]any{"mode": shadowtls.Mode, "host": realityDest, "password": shadowsocksPassword16, "fingerprint": tlsFingerprint, "version": 2},
 	}
 	outboundOptions.ObfsOpts["alpn"] = []string{"http/1.1"} // shadowtls v2 work confuse with http/2 server, so we set alpn to http/1.1 to pass the test
-	testInboundSnellShadowTls(t, inboundOptions, outboundOptions)
+	testInboundSnellUTLS(t, inboundOptions, outboundOptions)
 }
 
 func TestInboundSnell_ShadowTlsv3(t *testing.T) {
@@ -119,5 +121,39 @@ func TestInboundSnell_ShadowTlsv3(t *testing.T) {
 		Version:  5,
 		ObfsOpts: map[string]any{"mode": shadowtls.Mode, "host": realityDest, "password": shadowsocksPassword16, "fingerprint": tlsFingerprint, "version": 3},
 	}
-	testInboundSnellShadowTls(t, inboundOptions, outboundOptions)
+	testInboundSnellUTLS(t, inboundOptions, outboundOptions)
+}
+
+func TestInboundSnell_Restls(t *testing.T) {
+	const password = "restls-password"
+	inboundOptions := inbound.SnellOption{
+		ResTLS: inbound.ResTLS{
+			Enable:   true,
+			Dest:     net.JoinHostPort(realityDest, "443"),
+			Password: password,
+		},
+	}
+	outboundOptions := outbound.SnellOption{
+		Version:  5,
+		ObfsOpts: map[string]any{"mode": restls.Mode, "host": realityDest, "password": password, "fingerprint": tlsFingerprint, "version-hint": "tls13"},
+	}
+	testInboundSnellUTLS(t, inboundOptions, outboundOptions)
+}
+
+func TestInboundSnell_JLS(t *testing.T) {
+	const username = "jls-user"
+	const password = "jls-password"
+	inboundOptions := inbound.SnellOption{
+		JLSConfig: inbound.JLSConfig{
+			Enable: true,
+			Users:  []inbound.JLSUser{{Username: username, Password: password}},
+			SNI:    realityDest,
+			Dest:   net.JoinHostPort(realityDest, "443"),
+		},
+	}
+	outboundOptions := outbound.SnellOption{
+		Version:  5,
+		ObfsOpts: map[string]any{"mode": jls.Mode, "host": realityDest, "username": username, "password": password},
+	}
+	testInboundSnellUTLS(t, inboundOptions, outboundOptions)
 }

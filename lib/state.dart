@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:animations/animations.dart';
 import 'package:crypto/crypto.dart';
 import 'package:dio/dio.dart';
 import 'package:dynamic_color/dynamic_color.dart';
@@ -61,7 +60,6 @@ class GlobalState {
   bool _needsTaskRestart = false;
   Timer? _backgroundCleanupTimer;
   final Lock _scriptEvaluateLock = Lock();
-
   bool isInit = false;
 
   bool get isStart => startTime != null && startTime!.isBeforeNow;
@@ -125,7 +123,13 @@ class GlobalState {
   Future<void> init() async {
     packageInfo = await PackageInfo.fromPlatform();
     config =
-        await preferences.getConfig() ?? Config(themeProps: defaultThemeProps);
+        await preferences.getConfig() ??
+        Config(
+          themeProps: defaultThemeProps,
+          patchClashConfig: system.isAndroid
+              ? const ClashConfig(findProcessMode: FindProcessMode.always)
+              : defaultClashConfig,
+        );
     await globalState.migrateOldData(config);
     final locale =
         utils.getLocaleForString(config.appSetting.locale) ??
@@ -206,10 +210,11 @@ class GlobalState {
     }
     render?.pause();
 
-    final networkSpeedNotification = appController.ref
-        .read(vpnSettingProvider)
-        .networkSpeedNotification;
-    if (!networkSpeedNotification) {
+    final vpnProps = appController.ref.read(vpnSettingProvider);
+    final keepTrafficUpdates =
+        (system.isAndroid && vpnProps.networkSpeedNotification) ||
+        (system.isMacOS && vpnProps.enableTraySpeed);
+    if (!keepTrafficUpdates) {
       stopUpdateTasks();
     }
 
@@ -258,26 +263,6 @@ class GlobalState {
 
     await appController.updateRunTime();
     await startUpdateTasks([appController.updateTraffic]);
-
-    if (system.isDesktop && clashService != null) {
-      final service = clashService;
-      if (service == null) return;
-      service
-          .checkCoreHealth()
-          .then((healthy) async {
-            if (healthy || service.isStarting) return;
-            if (appController.ref.read(
-              providers_state.isRestartingCoreProvider,
-            )) {
-              return;
-            }
-            commonPrint.log('Core connection error on resume, force-restart');
-            await appController.restartCore();
-          })
-          .catchError((e) {
-            commonPrint.log('Resume health check failed: $e');
-          });
-    }
   }
 
   void _scheduleBackgroundCleanup() {
@@ -306,7 +291,10 @@ class GlobalState {
     await clashCore.requestGc();
   }
 
-  Future<void> handleStart([UpdateTasks? tasks]) async {
+  Future<void> handleStart([
+    UpdateTasks? tasks,
+    bool includeVpnService = true,
+  ]) async {
     startTime ??= DateTime.now();
     if (system.isAndroid && isService) {
       await clashLibHandler?.startListener();
@@ -314,7 +302,9 @@ class GlobalState {
       await clashCore.startListener();
     }
     await _syncTorForStart();
-    await service?.startVpn();
+    if (includeVpnService) {
+      await service?.startVpn();
+    }
     final prefs = await preferences.sharedPreferencesCompleter.future;
     await prefs?.setBool('is_vpn_running', true);
 
@@ -371,13 +361,17 @@ class GlobalState {
     }
   }
 
-  Future handleStop() async {
+  Future handleStop([bool includeVpnService = true]) async {
     await _stopTorIfNeeded();
     startTime = null;
     if (system.isAndroid && isService) {
       await clashLibHandler?.stopListener();
     } else {
       await clashCore.stopListener();
+    }
+    if (!includeVpnService) {
+      stopUpdateTasks();
+      return;
     }
     await service?.stopVpn();
     final prefs = await preferences.sharedPreferencesCompleter.future;
@@ -437,18 +431,89 @@ class GlobalState {
     required Widget child,
     bool dismissible = true,
   }) async {
-    final context = navigatorKey.currentState!.context;
+    final state = navigatorKey.currentState;
+    if (state == null) return null;
+    final context = state.context;
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    return await showModal<T>(
+    return await showGeneralDialog<T>(
       context: context,
-      configuration: FadeScaleTransitionConfiguration(
-        barrierColor: isDark
-            ? const Color(0xCC000000)
-            : const Color(0x99000000),
-        barrierDismissible: dismissible,
-      ),
-      builder: (_) => child,
+      barrierColor: isDark ? const Color(0xCC000000) : const Color(0x99000000),
+      barrierDismissible: dismissible,
+      barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
+      transitionDuration: const Duration(milliseconds: 250),
+      pageBuilder: (context, animation, secondaryAnimation) => child,
+      transitionBuilder: (context, animation, secondaryAnimation, child) {
+        final curved = CurvedAnimation(
+          parent: animation,
+          curve: Curves.easeOutCubic,
+        );
+        return RepaintBoundary(
+          child: FadeTransition(
+            opacity: curved,
+            child: ScaleTransition(
+              scale: curved.drive(Tween<double>(begin: 0.94, end: 1.0)),
+              child: child,
+            ),
+          ),
+        );
+      },
     );
+  }
+
+  bool _dialogWarmedUp = false;
+
+  void warmupCommonDialog() {
+    if (_dialogWarmedUp) return;
+    _dialogWarmedUp = true;
+
+    final state = navigatorKey.currentState;
+    if (state == null) return;
+    final overlayState = state.overlay;
+    if (overlayState == null) return;
+
+    late OverlayEntry entry;
+    entry = OverlayEntry(
+      builder: (context) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          entry.remove();
+          entry.dispose();
+        });
+        return Offstage(
+          offstage: true,
+          child: RepaintBoundary(
+            child: Material(
+              type: MaterialType.transparency,
+              child: FadeTransition(
+                opacity: const AlwaysStoppedAnimation(1.0),
+                child: ScaleTransition(
+                  scale: const AlwaysStoppedAnimation(1.0),
+                  child: Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.surface,
+                      borderRadius: BorderRadius.circular(28),
+                      boxShadow: const [
+                        BoxShadow(blurRadius: 10, color: Colors.black12),
+                      ],
+                    ),
+                    child: const Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.check_circle_outline),
+                        SizedBox(height: 8),
+                        Text('warmup'),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+
+    overlayState.insert(entry);
   }
 
   void showNotifier(
@@ -521,14 +586,15 @@ class GlobalState {
 
   Future<Map<String, dynamic>> patchRawConfig({
     required ClashConfig patchConfig,
+    Profile? profile,
   }) async {
-    final profile = config.currentProfile;
-    if (profile == null) {
+    final targetProfile = profile ?? config.currentProfile;
+    if (targetProfile == null) {
       return {};
     }
-    final profileId = profile.id;
+    final profileId = targetProfile.id;
     final configMap = await getProfileConfig(profileId);
-    final rawConfig = await handleEvaluate(configMap, profile: profile);
+    final rawConfig = await handleEvaluate(configMap, profile: targetProfile);
     final originalProxyGroups = rawConfig['proxy-groups'];
 
     final realPatchConfig = patchConfig.copyWith(
@@ -536,6 +602,8 @@ class GlobalState {
         config.networkProps.bypassPrivateRoute,
         fakeIpRange: patchConfig.dns.fakeIpRange,
         fakeIpRangeV6: patchConfig.dns.fakeIpRangeV6,
+        bypassPrivateRouteAddress:
+            config.networkProps.realBypassPrivateRouteAddress,
       ),
     );
     rawConfig['external-controller'] = realPatchConfig.allowLan
@@ -612,7 +680,7 @@ class GlobalState {
         }
         if (proxyProvider['url'] != null) {
           proxyProvider['path'] = await appPath.getProvidersFilePath(
-            profile.id,
+            targetProfile.id,
             'proxies',
             proxyProvider['url'],
           );
@@ -629,7 +697,7 @@ class GlobalState {
         }
         if (ruleProvider['url'] != null) {
           ruleProvider['path'] = await appPath.getProvidersFilePath(
-            profile.id,
+            targetProfile.id,
             'rules',
             ruleProvider['url'],
           );
@@ -698,6 +766,9 @@ class GlobalState {
     if (overrideNtp) {
       final ntp = realPatchConfig.ntp;
       rawConfig['ntp'] = ntp.toJson();
+    }
+    if (system.isAndroid) {
+      rawConfig['ntp']['write-to-system'] = false;
     }
     if (rawConfig['sniffer'] == null) {
       rawConfig['sniffer'] = {};
@@ -821,8 +892,12 @@ class GlobalState {
       rawConfig.remove('rule');
     }
 
-    final overrideData = profile.overrideData;
-    if (overrideData.enable && config.scriptProps.currentScript == null) {
+    final scriptActive =
+        config.scriptProps.currentScript != null &&
+        targetProfile.useScriptOverride;
+
+    final overrideData = targetProfile.overrideData;
+    if (overrideData.enable && !scriptActive) {
       if (overrideData.rule.type == OverrideRuleType.override) {
         rules = overrideData.runningRule;
       } else {
@@ -866,9 +941,40 @@ class GlobalState {
               proxy['client-fingerprint'] == null) {
             proxy['client-fingerprint'] = globalClientFingerprint;
           }
+        }
 
-          if (proxy['client-fingerprint'] == 'chrome') {
-            proxy['client-fingerprint'] = 'firefox';
+        final realityOpts = proxy['reality-opts'];
+        if (realityOpts is Map) {
+          final shortId = realityOpts['short-id'];
+          if (shortId is num) {
+            realityOpts['short-id'] = shortId.toString();
+          }
+        }
+      }
+    }
+
+    if (targetProfile.groupSwitches.isNotEmpty &&
+        !scriptActive &&
+        rawConfig['proxy-groups'] is List) {
+      final disabledGroups = targetProfile.groupSwitches.entries
+          .where((e) => !e.value)
+          .map((e) => e.key)
+          .toSet();
+      if (disabledGroups.isNotEmpty) {
+        final proxyGroups = rawConfig['proxy-groups'] as List;
+        proxyGroups.removeWhere((g) {
+          if (g is Map && g['name'] is String) {
+            return disabledGroups.contains(g['name']);
+          }
+          return false;
+        });
+        for (int i = 0; i < rules.length; i++) {
+          if (rules[i] is String) {
+            final parsed = ParsedRule.parseString(rules[i] as String);
+            if (parsed.ruleTarget != null &&
+                disabledGroups.contains(parsed.ruleTarget)) {
+              rules[i] = parsed.copyWith(ruleTarget: 'PASS').value;
+            }
           }
         }
       }
@@ -913,6 +1019,7 @@ class GlobalState {
         return await JavaScriptRuntimeManager.evaluateScript(
           currentScript.content,
           config,
+          customOptions: currentScript.customOptions,
         );
       } catch (e) {
         commonPrint.log('Script execution failed: $e');
@@ -939,7 +1046,11 @@ class DashboardRefreshManager {
 
   Future<bool> _isActive() async {
     final lifecycleState = WidgetsBinding.instance.lifecycleState;
-    if (lifecycleState != null && lifecycleState != AppLifecycleState.resumed) {
+    final isPinned =
+        system.isDesktop && globalState.config.windowProps.isPinned;
+    if (!isPinned &&
+        lifecycleState != null &&
+        lifecycleState != AppLifecycleState.resumed) {
       return false;
     }
     if (system.isDesktop) {

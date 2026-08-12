@@ -1,6 +1,7 @@
 import 'package:bett_box/common/common.dart';
 import 'package:bett_box/enum/enum.dart';
 import 'package:bett_box/models/common.dart';
+import 'package:bett_box/models/config.dart';
 import 'package:bett_box/models/widget.dart';
 import 'package:bett_box/providers/providers.dart';
 import 'package:bett_box/views/proxies/list.dart';
@@ -9,6 +10,8 @@ import 'package:bett_box/widgets/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../profiles/scripts.dart'
+    show showGroupSwitchOptions, showScriptCustomOptions;
 import 'advanced_settings.dart';
 import 'setting.dart';
 import 'tab.dart';
@@ -26,6 +29,21 @@ class _ProxiesViewState extends ConsumerState<ProxiesView> {
   bool _isTab = false;
 
   List<Widget> _buildActions() {
+    final showHiddenItems = ref.watch(
+      proxiesStyleSettingProvider.select((state) => state.showHiddenItems),
+    );
+    final (scriptOn, compatible) = ref.watch(
+      scriptStateProvider.select(
+        (s) => (s.currentId != null, s.currentScript?.isCompatibleWithBettbox ?? false),
+      ),
+    );
+    final profileOverride = ref.watch(
+      currentProfileProvider.select((p) => p?.useScriptOverride ?? false),
+    );
+    final hasScriptCustom = scriptOn && compatible && profileOverride;
+    final hasGroupCustom =
+        !hasScriptCustom && ref.read(currentProfileIdProvider) != null;
+    final hasCustom = hasScriptCustom || hasGroupCustom;
     return [
       if (_isTab)
         IconButton(
@@ -33,6 +51,12 @@ class _ProxiesViewState extends ConsumerState<ProxiesView> {
             _proxiesTabKey.currentState?.scrollToGroupSelected();
           },
           icon: Icon(Icons.adjust, weight: 1),
+        ),
+      if (hasCustom)
+        IconButton(
+          onPressed: _handleCustomOptions,
+          icon: Icon(Icons.tune),
+          tooltip: appLocalizations.custom,
         ),
       CommonPopupBox(
         targetBuilder: (open) {
@@ -108,6 +132,20 @@ class _ProxiesViewState extends ConsumerState<ProxiesView> {
                   );
                 },
               ),
+            PopupMenuItemData(
+              icon: showHiddenItems
+                  ? Icons.radio_button_checked
+                  : Icons.radio_button_unchecked,
+              label: appLocalizations.showHiddenItems,
+              onPressed: () {
+                ref
+                    .read(proxiesStyleSettingProvider.notifier)
+                    .updateState(
+                      (state) =>
+                          state.copyWith(showHiddenItems: !showHiddenItems),
+                    );
+              },
+            ),
           ],
         ),
       ),
@@ -115,17 +153,46 @@ class _ProxiesViewState extends ConsumerState<ProxiesView> {
   }
 
   Widget? _buildFAB() {
-    return _isTab
-        ? DelayTestButton(
+    if (!_isTab) return null;
+    return Consumer(
+      builder: (context, ref, _) {
+        final isMobileView = ref.watch(isMobileViewProvider);
+        final currentGroupName = ref.watch(
+          proxiesTabControllerStateProvider.select((state) => state.b),
+        );
+        return Padding(
+          padding: EdgeInsets.only(
+            bottom: isMobileView
+                ? getFloatingBottomBarFABReserveHeight(context)
+                : 0,
+          ),
+          child: DelayTestButton(
+            groupName: currentGroupName ?? '',
             onClick: () async {
               await _proxiesTabKey.currentState?.delayTestCurrentGroup();
             },
-          )
-        : null;
+          ),
+        );
+      },
+    );
   }
 
   void _onSearch(String value) {
     ref.read(queryProvider.notifier).value = value;
+  }
+
+  Future<void> _handleCustomOptions() async {
+    final profileOverride =
+        ref.read(currentProfileProvider)?.useScriptOverride ?? false;
+    final script = ref.read(scriptStateProvider).currentScript;
+    if (script != null && script.isCompatibleWithBettbox && profileOverride) {
+      await showScriptCustomOptions(context, ref, script: script);
+      return;
+    }
+    final profileId = ref.read(currentProfileIdProvider);
+    if (profileId != null) {
+      await showGroupSwitchOptions(context, ref, profileId: profileId);
+    }
   }
 
   @override

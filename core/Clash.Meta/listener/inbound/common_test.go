@@ -10,7 +10,9 @@ import (
 	"net"
 	"net/netip"
 	"os"
+	"runtime"
 	"strconv"
+	"strings"
 	"sync"
 	"sync/atomic"
 	"testing"
@@ -47,6 +49,7 @@ var realityShortid = "10f897e26c4b9478"
 var realityRealDial = false
 var echPublicSni = "public.sni"
 var echConfigBase64, echKeyPem, _ = ech.GenECHConfig(echPublicSni)
+var winGo120 = runtime.GOOS == "windows" && strings.HasPrefix(runtime.Version(), "go1.20")
 
 func init() {
 	rand.Read(httpData)

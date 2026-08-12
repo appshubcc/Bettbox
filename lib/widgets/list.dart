@@ -41,7 +41,8 @@ class CheckboxDelegate<T> extends Delegate {
 }
 
 class OpenDelegate extends Delegate {
-  final Widget widget;
+  final Widget? widget;
+  final WidgetBuilder? builder;
   final String title;
   final double? maxWidth;
   final List<Widget> actions;
@@ -51,31 +52,36 @@ class OpenDelegate extends Delegate {
 
   const OpenDelegate({
     required this.title,
-    required this.widget,
+    this.widget,
+    this.builder,
     this.maxWidth,
     this.actions = const [],
     this.blur = false,
     this.wrap = true,
     this.forceFull = true,
-  });
+  }) : assert(widget != null || builder != null);
 }
 
 class NextDelegate extends Delegate {
-  final Widget widget;
+  final Widget? widget;
+  final WidgetBuilder? builder;
   final String title;
   final double? maxWidth;
   final List<Widget> actions;
   final bool blur;
   final bool wrap;
+  final bool forceFull;
 
   const NextDelegate({
     required this.title,
-    required this.widget,
+    this.widget,
+    this.builder,
     this.maxWidth,
     this.actions = const [],
     this.blur = false,
     this.wrap = true,
-  });
+    this.forceFull = true,
+  }) : assert(widget != null || builder != null);
 }
 
 class OptionsDelegate<T> extends Delegate {
@@ -277,7 +283,10 @@ class ListItem<T> extends StatelessWidget {
   Widget build(BuildContext context) {
     if (delegate is OpenDelegate) {
       final openDelegate = delegate as OpenDelegate;
-      final child = openDelegate.widget;
+      Widget buildChild(BuildContext context) {
+        return openDelegate.builder?.call(context) ?? openDelegate.widget!;
+      }
+
       return OpenContainer(
         closedBuilder: (_, action) {
           openAction() {
@@ -291,6 +300,7 @@ class ListItem<T> extends StatelessWidget {
                   forceFull: openDelegate.forceFull,
                 ),
                 builder: (_, type) {
+                  final child = buildChild(context);
                   return openDelegate.wrap
                       ? AdaptiveSheetScaffold(
                           actions: openDelegate.actions,
@@ -308,7 +318,8 @@ class ListItem<T> extends StatelessWidget {
 
           return _buildListTile(onTap: openAction);
         },
-        openBuilder: (_, action) {
+        openBuilder: (context, action) {
+          final child = buildChild(context);
           return openDelegate.wrap
               ? CommonScaffold(
                   key: Key(openDelegate.title),
@@ -322,7 +333,9 @@ class ListItem<T> extends StatelessWidget {
     }
     if (delegate is NextDelegate) {
       final nextDelegate = delegate as NextDelegate;
-      final child = nextDelegate.widget;
+      Widget buildChild(BuildContext context) {
+        return nextDelegate.builder?.call(context) ?? nextDelegate.widget!;
+      }
 
       return _buildListTile(
         onTap: () {
@@ -331,8 +344,10 @@ class ListItem<T> extends StatelessWidget {
             props: ExtendProps(
               blur: nextDelegate.blur,
               maxWidth: nextDelegate.maxWidth,
+              forceFull: nextDelegate.forceFull,
             ),
             builder: (_, type) {
+              final child = buildChild(context);
               return nextDelegate.wrap
                   ? AdaptiveSheetScaffold(
                       actions: nextDelegate.actions,
@@ -513,19 +528,161 @@ class ListHeader extends StatelessWidget {
   }
 }
 
+class SectionContainer extends StatelessWidget {
+  final String? title;
+  final List<Widget> items;
+  final List<Widget>? actions;
+  final bool separated;
+  final bool plain;
+  final bool isFirst;
+
+  const SectionContainer({
+    super.key,
+    this.title,
+    required this.items,
+    this.actions,
+    this.separated = true,
+    this.plain = false,
+    this.isFirst = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final headerPadding = isFirst
+        ? const EdgeInsets.only(left: 16, right: 8, top: 4, bottom: 8)
+        : null;
+
+    if (plain) {
+      final genItems = separated
+          ? items.separated(const Divider(height: 0))
+          : items;
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (items.isNotEmpty && title != null)
+            ListHeader(title: title!, actions: actions, padding: headerPadding),
+          ...genItems,
+        ],
+      );
+    }
+
+    final cleanItems = items.where((widget) => widget is! Divider).toList();
+    if (cleanItems.isEmpty) return const SizedBox.shrink();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (title != null)
+          ListHeader(title: title!, actions: actions, padding: headerPadding),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
+          child: CommonCard(
+            type: CommonCardType.filled,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                for (var i = 0; i < cleanItems.length; i++) ...[
+                  cleanItems[i],
+                  if (i != cleanItems.length - 1)
+                    Divider(
+                      height: 1,
+                      thickness: 1,
+                      color: context.colorScheme.outlineVariant.withValues(
+                        alpha:
+                            context.colorScheme.brightness == Brightness.light
+                            ? 0.3
+                            : 0.2,
+                      ),
+                      indent: 16,
+                      endIndent: 16,
+                    ),
+                ],
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class ContinuousListItem extends StatelessWidget {
+  final Widget child;
+  final int index;
+  final int count;
+  final bool reversed;
+
+  const ContinuousListItem({
+    super.key,
+    required this.child,
+    required this.index,
+    required this.count,
+    this.reversed = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final isFirst = reversed ? index == count - 1 : index == 0;
+    final isLast = reversed ? index == 0 : index == count - 1;
+    final dividerColor = context.colorScheme.outlineVariant.withValues(
+      alpha: context.colorScheme.brightness == Brightness.light ? 0.3 : 0.2,
+    );
+
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      decoration: BoxDecoration(
+        color: context.colorScheme.surfaceContainer,
+        borderRadius: BorderRadius.vertical(
+          top: isFirst ? const Radius.circular(20) : Radius.zero,
+          bottom: isLast ? const Radius.circular(20) : Radius.zero,
+        ),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final hasTightHeight = constraints.hasTightHeight;
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (hasTightHeight)
+                Expanded(
+                  child: Align(
+                    alignment: Alignment.center,
+                    child: child,
+                  ),
+                )
+              else
+                child,
+              Container(
+                height: 1,
+                margin: const EdgeInsets.symmetric(horizontal: 16),
+                color: isLast ? Colors.transparent : dividerColor,
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+}
+
 List<Widget> generateSection({
   String? title,
   required Iterable<Widget> items,
   List<Widget>? actions,
   bool separated = true,
+  bool plain = false,
 }) {
-  final genItems = separated
-      ? items.separated(const Divider(height: 0))
-      : items;
   return [
-    if (items.isNotEmpty && title != null)
-      ListHeader(title: title, actions: actions),
-    ...genItems,
+    SectionContainer(
+      title: title,
+      items: items.toList(),
+      actions: actions,
+      separated: separated,
+      plain: plain,
+    ),
   ];
 }
 
@@ -564,9 +721,65 @@ List<Widget> generateInfoSection({
 }
 
 Widget generateListView(List<Widget> items) {
-  return ListView.builder(
-    itemCount: items.length,
-    itemBuilder: (_, index) => items[index],
-    padding: const EdgeInsets.only(bottom: 16),
+  return Builder(
+    builder: (context) {
+      final bottomPadding = MediaQuery.of(context).padding.bottom;
+
+      final cleanItems = items.where((widget) => widget is! Divider).toList();
+      if (cleanItems.isEmpty) return const SizedBox.shrink();
+
+      return ListView.builder(
+        padding: EdgeInsets.only(bottom: 24 + bottomPadding, top: 12),
+        itemCount: cleanItems.length,
+        itemBuilder: (context, index) {
+          final item = cleanItems[index];
+
+          if (item is SectionContainer) {
+            if (index == 0 && !item.isFirst) {
+              return SectionContainer(
+                title: item.title,
+                items: item.items,
+                actions: item.actions,
+                separated: item.separated,
+                plain: item.plain,
+                isFirst: true,
+              );
+            }
+            return item;
+          }
+
+          if (item is ListHeader) {
+            if (index == 0 && item.padding == null) {
+              return ListHeader(
+                title: item.title,
+                subTitle: item.subTitle,
+                padding: const EdgeInsets.only(
+                  left: 16,
+                  right: 8,
+                  top: 4,
+                  bottom: 8,
+                ),
+                actions: item.actions,
+                space: item.space,
+              );
+            }
+            return item;
+          }
+
+          if (item is InfoHeader) {
+            return item;
+          }
+
+          if (item is SizedBox) {
+            return item;
+          }
+
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+            child: CommonCard(type: CommonCardType.filled, child: item),
+          );
+        },
+      );
+    },
   );
 }

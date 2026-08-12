@@ -49,6 +49,7 @@ type Hysteria2RealmOption struct {
 	// for ServerURL
 	SNI            string   `yaml:"sni" json:"sni,omitempty"`
 	SkipCertVerify bool     `yaml:"skip-cert-verify" json:"skip-cert-verify,omitempty"`
+	NameCertVerify string   `yaml:"name-cert-verify" json:"name-cert-verify,omitempty"`
 	Fingerprint    string   `yaml:"fingerprint" json:"fingerprint,omitempty"`
 	Certificate    string   `yaml:"certificate" json:"certificate,omitempty"`
 	PrivateKey     string   `yaml:"private-key" json:"private-key,omitempty"`

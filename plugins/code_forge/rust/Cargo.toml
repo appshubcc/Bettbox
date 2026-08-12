@@ -1,0 +1,16 @@
+[package]
+name = "code_forge"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib", "staticlib"]
+
+[dependencies]
+flutter_rust_bridge = "=2.12.0"
+ropey = "1.6.1"
+zed-sum-tree = "0.2.0"
+unicode-bidi = "0.3.18"
+
+[lints.rust]
+unexpected_cfgs = { level = "warn", check-cfg = ['cfg(frb_expand)'] }

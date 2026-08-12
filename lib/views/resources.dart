@@ -23,14 +23,14 @@ class GeoItem {
   });
 }
 
-class ResourcesView extends StatefulWidget {
+class ResourcesView extends ConsumerStatefulWidget {
   const ResourcesView({super.key});
 
   @override
-  State<ResourcesView> createState() => _ResourcesViewState();
+  ConsumerState<ResourcesView> createState() => _ResourcesViewState();
 }
 
-class _ResourcesViewState extends State<ResourcesView> {
+class _ResourcesViewState extends ConsumerState<ResourcesView> {
   final isUpdatingAll = ValueNotifier<bool>(false);
 
   static const geoItems = <GeoItem>[
@@ -65,6 +65,7 @@ class _ResourcesViewState extends State<ResourcesView> {
         globalState.showMessage(
           title: appLocalizations.syncFailed,
           message: TextSpan(text: e.toString()),
+          cancelable: false,
         );
       }
     } finally {
@@ -100,15 +101,13 @@ class _ResourcesViewState extends State<ResourcesView> {
           },
         ),
       ],
-      body: ListView.separated(
-        itemBuilder: (_, index) {
-          final geoItem = geoItems[index];
-          return GeoDataListItem(geoItem: geoItem);
-        },
-        separatorBuilder: (BuildContext context, int index) {
-          return const Divider(height: 0);
-        },
-        itemCount: geoItems.length,
+      body: ListView(
+        padding: const EdgeInsets.only(bottom: 24, top: 8),
+        children: [
+          ...generateSection(
+            items: geoItems.map((geoItem) => GeoDataListItem(geoItem: geoItem)),
+          ),
+        ],
       ),
     );
   }
@@ -152,6 +151,7 @@ class _GeoDataListItemState extends State<GeoDataListItem> {
         globalState.showMessage(
           title: geoItem.label,
           message: TextSpan(text: e.toString()),
+          cancelable: false,
         );
       }
     }

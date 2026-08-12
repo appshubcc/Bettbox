@@ -355,6 +355,9 @@ class ScriptState extends _$ScriptState with AutoDisposeNotifierMixin {
     final url = script.url;
     if (url == null || url.isEmpty) return;
     final res = await request.getTextResponseForUrl(url);
+    if (script.content != res.data) {
+      JavaScriptRuntimeManager.invalidateCachedOptions(script.content);
+    }
     final updated = script.copyWith(content: res.data);
     setScript(updated);
   }

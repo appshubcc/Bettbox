@@ -1,5 +1,6 @@
 import 'package:bett_box/common/common.dart';
 import 'package:bett_box/enum/enum.dart';
+import 'package:bett_box/providers/app.dart';
 import 'package:bett_box/providers/config.dart';
 import 'package:bett_box/widgets/widgets.dart';
 import 'package:flutter/material.dart';
@@ -50,6 +51,7 @@ class ProxiesSetting extends StatelessWidget {
 
   List<Widget> _buildStyleSetting() {
     return generateSection(
+      plain: true,
       title: appLocalizations.style,
       items: [
         SingleChildScrollView(
@@ -89,6 +91,7 @@ class ProxiesSetting extends StatelessWidget {
 
   List<Widget> _buildSortSetting() {
     return generateSection(
+      plain: true,
       title: appLocalizations.sort,
       items: [
         SingleChildScrollView(
@@ -115,6 +118,7 @@ class ProxiesSetting extends StatelessWidget {
                             .updateState((state) {
                               return state.copyWith(sortType: item);
                             });
+                        ref.read(sortNumProvider.notifier).add();
                       },
                     ),
                 ],
@@ -128,6 +132,7 @@ class ProxiesSetting extends StatelessWidget {
 
   List<Widget> _buildSizeSetting() {
     return generateSection(
+      plain: true,
       title: appLocalizations.size,
       items: [
         SingleChildScrollView(
@@ -164,6 +169,7 @@ class ProxiesSetting extends StatelessWidget {
 
   List<Widget> _buildLayoutSetting() {
     return generateSection(
+      plain: true,
       title: appLocalizations.layout,
       items: [
         SingleChildScrollView(
@@ -200,6 +206,7 @@ class ProxiesSetting extends StatelessWidget {
 
   List<Widget> _buildGroupStyleSetting() {
     return generateSection(
+      plain: true,
       title: appLocalizations.iconStyle,
       items: [
         SingleChildScrollView(

@@ -54,6 +54,7 @@ type TuicOption struct {
 	CWND                 int        `proxy:"cwnd,omitempty"`
 	BBRProfile           string     `proxy:"bbr-profile,omitempty"`
 	SkipCertVerify       bool       `proxy:"skip-cert-verify,omitempty"`
+	NameCertVerify       string     `proxy:"name-cert-verify,omitempty"`
 	Fingerprint          string     `proxy:"fingerprint,omitempty"`
 	Certificate          string     `proxy:"certificate,omitempty"`
 	PrivateKey           string     `proxy:"private-key,omitempty"`
@@ -138,9 +139,10 @@ func NewTuic(option TuicOption) (*Tuic, error) {
 			InsecureSkipVerify: option.SkipCertVerify,
 			MinVersion:         tls.VersionTLS13,
 		},
-		Fingerprint: option.Fingerprint,
-		Certificate: option.Certificate,
-		PrivateKey:  option.PrivateKey,
+		Fingerprint:    option.Fingerprint,
+		NameCertVerify: option.NameCertVerify,
+		Certificate:    option.Certificate,
+		PrivateKey:     option.PrivateKey,
 	})
 	if err != nil {
 		return nil, err

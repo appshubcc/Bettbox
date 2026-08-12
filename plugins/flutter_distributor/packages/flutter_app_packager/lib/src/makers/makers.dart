@@ -7,6 +7,7 @@ export 'dmg/app_package_maker_dmg.dart';
 export 'exe/app_package_maker_exe.dart';
 export 'ipa/app_package_maker_ipa.dart';
 export 'msix/app_package_maker_msix.dart';
+export 'pacman/app_package_maker_pacman.dart';
 export 'pkg/app_package_maker_pkg.dart';
 export 'rpm/app_package_maker_rpm.dart';
 export 'zip/app_package_maker_zip.dart';

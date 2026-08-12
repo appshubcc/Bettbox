@@ -58,9 +58,13 @@ pub fn service_main(_arguments: Vec<OsString>) {
                     .unwrap_or(0);
                 let msg = format!("[{}] service error: {}\n", ts, e);
                 let _ = std::fs::OpenOptions::new()
-                    .create(true).append(true)
+                    .create(true)
+                    .append(true)
                     .open(log_path)
-                    .map(|mut f| { use std::io::Write; let _ = f.write_all(msg.as_bytes()); });
+                    .map(|mut f| {
+                        use std::io::Write;
+                        let _ = f.write_all(msg.as_bytes());
+                    });
             }
         });
     }

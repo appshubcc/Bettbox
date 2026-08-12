@@ -22,6 +22,8 @@ extension NSRect {
 }
 
 public class TrayManagerPlugin: NSObject, FlutterPlugin, NSMenuDelegate {
+    static let instance = TrayManagerPlugin()
+    
     var channel: FlutterMethodChannel!
     
     var trayIcon: TrayIcon?
@@ -34,7 +36,7 @@ public class TrayManagerPlugin: NSObject, FlutterPlugin, NSMenuDelegate {
     
     public static func register(with registrar: FlutterPluginRegistrar) {
         let channel = FlutterMethodChannel(name: "tray_manager", binaryMessenger: registrar.messenger)
-        let instance = TrayManagerPlugin()
+        let instance = TrayManagerPlugin.instance
         instance.channel = channel
         registrar.addMethodCallDelegate(instance, channel: channel)
     }
@@ -58,6 +60,15 @@ public class TrayManagerPlugin: NSObject, FlutterPlugin, NSMenuDelegate {
             break
         case "setTitle":
             setTitle(call, result: result)
+            break
+        case "setSpeedTitle":
+            setSpeedTitle(call, result: result)
+            break
+        case "setActive":
+            setActive(call, result: result)
+            break
+        case "clearSpeedTitle":
+            clearSpeedTitle(call, result: result)
             break
         case "setContextMenu":
             setContextMenu(call, result: result)
@@ -191,6 +202,33 @@ public class TrayManagerPlugin: NSObject, FlutterPlugin, NSMenuDelegate {
         
         result(true)
     }
+
+    public func setSpeedTitle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+        let args = call.arguments as? [String: Any]
+        let upload = (args?["upload"] as? NSNumber)?.uint64Value ?? 0
+        let download = (args?["download"] as? NSNumber)?.uint64Value ?? 0
+        let active = args?["active"] as? Bool ?? true
+
+        trayIcon?.setSpeedTitle(
+            upload: upload,
+            download: download,
+            active: active
+        )
+
+        result(true)
+    }
+
+    public func setActive(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+        let args = call.arguments as? [String: Any]
+        let active = args?["active"] as? Bool ?? true
+        trayIcon?.setActive(active)
+        result(true)
+    }
+
+    public func clearSpeedTitle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+        trayIcon?.clearSpeedTitle()
+        result(true)
+    }
     
     public func setContextMenu(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         let args:[String: Any] = call.arguments as! [String: Any]
@@ -199,7 +237,7 @@ public class TrayManagerPlugin: NSObject, FlutterPlugin, NSMenuDelegate {
         let shouldKeepOpen = keepMenuOpen && _isMenuOpen
         
         if (shouldKeepOpen && trayMenu != nil) {
-            trayMenu?.updateMenuItems(args["menu"] as! [String: Any])
+            trayMenu?.update(args["menu"] as! [String: Any])
         } else {
             trayMenu = TrayMenu(args["menu"] as! [String: Any])
             trayMenu?.onMenuItemClick = { [weak self] (menuItem: NSMenuItem) in

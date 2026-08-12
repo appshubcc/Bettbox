@@ -24,22 +24,42 @@ func (r *Restls) Upstream() any {
 
 type Config = tls.Config
 
-var NewRestlsConfig = tls.NewRestlsConfig
+func NewRestlsConfig(serverName, password, versionHint, restlsScript, clientID string) (*Config, error) {
+	config, err := tls.NewRestlsConfig(serverName, password, versionHint, restlsScript, clientID)
+	if err != nil {
+		return nil, err
+	}
+	config.RootCAs = ca.GetCertPool()
+	config.Time = ntp.Now
+	return config, nil
+}
 
 type ServerConfig = tls.RestlsServerConfig
 
 var Server = tls.RestlsServer
 
-func SetFingerprint(config *Config, fingerprint string) (err error) {
+func SetFingerprint(config *Config, fingerprint string, nameCertVerify string) (err error) {
 	verifier, err := ca.NewFingerprintVerifier(fingerprint, ntp.Now)
 	if err != nil {
 		return err
 	}
 	config.InsecureSkipVerify = true
 	config.VerifyConnection = func(state tls.ConnectionState) error {
-		return verifier(state.PeerCertificates, state.ServerName)
+		serverName := state.ServerName
+		if nameCertVerify != "" {
+			serverName = nameCertVerify
+		}
+		return verifier(state.PeerCertificates, serverName)
 	}
 	return nil
+}
+
+func SetNameCertVerify(config *Config, dnsName string) {
+	verifier := ca.NewNameCertVerifier(dnsName, config.RootCAs, config.Time)
+	config.InsecureSkipVerify = true
+	config.VerifyConnection = func(state tls.ConnectionState) error {
+		return verifier(state.PeerCertificates)
+	}
 }
 
 // NewRestls return a Restls Connection

@@ -127,6 +127,7 @@ pub mod core {
 
             let mut process = PROCESS.lock().unwrap_or_else(|e| e.into_inner());
             let Some(child) = process.as_mut() else {
+                WATCHER_STARTED.store(false, Ordering::SeqCst);
                 break;
             };
 
@@ -288,8 +289,9 @@ pub mod process {
             TH32CS_SNAPPROCESS,
         };
         use windows::Win32::System::Threading::{
-            OpenProcess, SetPriorityClass, ABOVE_NORMAL_PRIORITY_CLASS, NORMAL_PRIORITY_CLASS,
-            PROCESS_SET_INFORMATION,
+            OpenProcess, ProcessMemoryPriority, SetPriorityClass, SetProcessInformation,
+            ABOVE_NORMAL_PRIORITY_CLASS, MEMORY_PRIORITY_INFORMATION, MEMORY_PRIORITY_NORMAL,
+            NORMAL_PRIORITY_CLASS, PROCESS_SET_INFORMATION,
         };
 
         let priority_class = if enable {
@@ -349,6 +351,28 @@ pub mod process {
                                 crate::ops::logs::log_message(format!(
                                     "Failed to set priority for {}: {}",
                                     process_name, e
+                                ));
+                            }
+                        }
+
+                        if enable {
+                            let memory_priority = MEMORY_PRIORITY_INFORMATION {
+                                MemoryPriority: MEMORY_PRIORITY_NORMAL,
+                            };
+                            if let Err(e) = SetProcessInformation(
+                                process_handle,
+                                ProcessMemoryPriority,
+                                &memory_priority as *const MEMORY_PRIORITY_INFORMATION as _,
+                                std::mem::size_of::<MEMORY_PRIORITY_INFORMATION>() as u32,
+                            ) {
+                                crate::ops::logs::log_message(format!(
+                                    "Failed to set memory priority for {}: {}",
+                                    process_name, e
+                                ));
+                            } else {
+                                crate::ops::logs::log_message(format!(
+                                    "Set memory priority for {} (PID: {}) to normal",
+                                    process_name, entry.th32ProcessID
                                 ));
                             }
                         }

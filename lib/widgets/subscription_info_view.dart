@@ -10,7 +10,7 @@ class SubscriptionInfoView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (subscriptionInfo == null) {
-      return Container();
+      return const SizedBox.shrink();
     }
 
     final use = subscriptionInfo!.upload + subscriptionInfo!.download;
@@ -18,7 +18,7 @@ class SubscriptionInfoView extends StatelessWidget {
 
     // No traffic info
     if (use == 0 && total == 0) {
-      return Container();
+      return const SizedBox.shrink();
     }
 
     // Show progress bar
@@ -27,10 +27,18 @@ class SubscriptionInfoView extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        LinearProgressIndicator(
-          minHeight: 6,
-          value: progress,
-          backgroundColor: context.colorScheme.primary.opacity15,
+        ClipRRect(
+          borderRadius: BorderRadius.circular(3),
+          child: Container(
+            height: 6,
+            width: double.infinity,
+            color: context.colorScheme.primary.opacity15,
+            child: FractionallySizedBox(
+              alignment: Alignment.centerLeft,
+              widthFactor: progress,
+              child: Container(color: context.colorScheme.primary),
+            ),
+          ),
         ),
         const SizedBox(height: 8),
       ],

@@ -53,6 +53,7 @@ type Hysteria2Option struct {
 	SNI               string     `proxy:"sni,omitempty"`
 	ECHOpts           ECHOptions `proxy:"ech-opts,omitempty"`
 	SkipCertVerify    bool       `proxy:"skip-cert-verify,omitempty"`
+	NameCertVerify    string     `proxy:"name-cert-verify,omitempty"`
 	Fingerprint       string     `proxy:"fingerprint,omitempty"`
 	Certificate       string     `proxy:"certificate,omitempty"`
 	PrivateKey        string     `proxy:"private-key,omitempty"`
@@ -60,6 +61,7 @@ type Hysteria2Option struct {
 	CWND              int        `proxy:"cwnd,omitempty"`
 	BBRProfile        string     `proxy:"bbr-profile,omitempty"`
 	UdpMTU            int        `proxy:"udp-mtu,omitempty"`
+	HandshakeTimeout  int        `proxy:"handshake-timeout,omitempty"`
 
 	RealmOpts Hysteria2RealmOption `proxy:"realm-opts,omitempty"`
 
@@ -80,6 +82,7 @@ type Hysteria2RealmOption struct {
 	// for ServerURL
 	SNI            string   `proxy:"sni,omitempty"`
 	SkipCertVerify bool     `proxy:"skip-cert-verify,omitempty"`
+	NameCertVerify string   `proxy:"name-cert-verify,omitempty"`
 	Fingerprint    string   `proxy:"fingerprint,omitempty"`
 	Certificate    string   `proxy:"certificate,omitempty"`
 	PrivateKey     string   `proxy:"private-key,omitempty"`
@@ -170,9 +173,10 @@ func NewHysteria2(option Hysteria2Option) (*Hysteria2, error) {
 			InsecureSkipVerify: option.SkipCertVerify,
 			MinVersion:         tls.VersionTLS13,
 		},
-		Fingerprint: option.Fingerprint,
-		Certificate: option.Certificate,
-		PrivateKey:  option.PrivateKey,
+		Fingerprint:    option.Fingerprint,
+		NameCertVerify: option.NameCertVerify,
+		Certificate:    option.Certificate,
+		PrivateKey:     option.PrivateKey,
 	})
 	if err != nil {
 		return nil, err
@@ -227,6 +231,7 @@ func NewHysteria2(option Hysteria2Option) (*Hysteria2, error) {
 		SetBBRCongestion: func(quicConn *quic.Conn) {
 			common.SetCongestionController(quicConn, "bbr", option.CWND, option.BBRProfile)
 		},
+		HandshakeTimeout: time.Duration(option.HandshakeTimeout) * time.Second,
 	}
 
 	var serverPorts []uint16
@@ -269,9 +274,10 @@ func NewHysteria2(option Hysteria2Option) (*Hysteria2, error) {
 				InsecureSkipVerify: option.RealmOpts.SkipCertVerify,
 				NextProtos:         option.RealmOpts.ALPN,
 			},
-			Fingerprint: option.RealmOpts.Fingerprint,
-			Certificate: option.RealmOpts.Certificate,
-			PrivateKey:  option.RealmOpts.PrivateKey,
+			Fingerprint:    option.RealmOpts.Fingerprint,
+			NameCertVerify: option.RealmOpts.NameCertVerify,
+			Certificate:    option.RealmOpts.Certificate,
+			PrivateKey:     option.RealmOpts.PrivateKey,
 		})
 		if err != nil {
 			return nil, err

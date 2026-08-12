@@ -12,7 +12,10 @@ import (
 	"github.com/metacubex/mihomo/component/ech"
 	C "github.com/metacubex/mihomo/constant"
 	LC "github.com/metacubex/mihomo/listener/config"
+	"github.com/metacubex/mihomo/listener/jls"
 	"github.com/metacubex/mihomo/listener/reality"
+	"github.com/metacubex/mihomo/listener/restls"
+	"github.com/metacubex/mihomo/listener/shadowtls"
 	"github.com/metacubex/mihomo/listener/sing"
 	"github.com/metacubex/mihomo/listener/tlsmirror"
 	"github.com/metacubex/mihomo/ntp"
@@ -94,6 +97,9 @@ func New(config LC.VmessServer, lc C.InboundListenConfig, tunnel C.Tunnel, addit
 		Protocols:   new(http.Protocols),
 	}
 	tlsConfig := &tls.Config{Time: ntp.Now}
+	var shadowTLSBuilder *shadowtls.Builder
+	var restlsBuilder *restls.Builder
+	var jlsBuilder *jls.Builder
 	var realityBuilder *reality.Builder
 	var tlsMirrorBuilder *tlsmirror.Builder
 
@@ -126,13 +132,39 @@ func New(config LC.VmessServer, lc C.InboundListenConfig, tunnel C.Tunnel, addit
 		}
 		tlsConfig.ClientCAs = pool
 	}
+	if tlsConfig.ClientAuth != tls.NoClientCert && tlsConfig.GetCertificate == nil {
+		return nil, errors.New("client-auth requires certificate")
+	}
+	securityModes := make([]string, 0, 6)
+	if tlsConfig.GetCertificate != nil {
+		securityModes = append(securityModes, "certificate")
+	}
 	if config.RealityConfig.PrivateKey != "" {
-		if tlsConfig.GetCertificate != nil {
-			return nil, errors.New("certificate is unavailable in reality")
-		}
-		if tlsConfig.ClientAuth != tls.NoClientCert {
-			return nil, errors.New("client-auth is unavailable in reality")
-		}
+		securityModes = append(securityModes, "reality")
+	}
+	if config.TLSMirrorConfig.PrimaryKey != "" {
+		securityModes = append(securityModes, "tlsmirror")
+	}
+	tcpOnlySecurityMode := ""
+	if config.ShadowTLS.Enable {
+		securityModes = append(securityModes, "shadow-tls")
+		tcpOnlySecurityMode = "ShadowTLS"
+	}
+	if config.ResTLS.Enable {
+		securityModes = append(securityModes, "res-tls")
+		tcpOnlySecurityMode = "Restls"
+	}
+	if config.JLSConfig.Enable {
+		securityModes = append(securityModes, "jls")
+		tcpOnlySecurityMode = "JLS"
+	}
+	if len(securityModes) > 1 {
+		return nil, errors.New("security modes are mutually exclusive: " + strings.Join(securityModes, ", "))
+	}
+	if config.MKCPConfig.Enable && tcpOnlySecurityMode != "" {
+		return nil, errors.New(tcpOnlySecurityMode + " only supports TCP transports")
+	}
+	if config.RealityConfig.PrivateKey != "" {
 		realityBuilder, err = config.RealityConfig.Build(tunnel)
 		if err != nil {
 			return nil, err
@@ -150,6 +182,21 @@ func New(config LC.VmessServer, lc C.InboundListenConfig, tunnel C.Tunnel, addit
 			SequenceWatermarkingEnabled:   config.TLSMirrorConfig.SequenceWatermarkingEnabled,
 		}.Build(tunnel)
 		h.Tunnel = tlsMirrorBuilder.WrapTunnel(tunnel)
+	}
+	if config.ShadowTLS.Enable {
+		shadowTLSBuilder, err = shadowtls.New(config.ShadowTLS, tunnel)
+		if err != nil {
+			return nil, err
+		}
+	}
+	if config.ResTLS.Enable {
+		restlsBuilder = restls.New(config.ResTLS, tunnel)
+	}
+	if config.JLSConfig.Enable {
+		jlsBuilder, err = jls.New(config.JLSConfig, tunnel)
+		if err != nil {
+			return nil, err
+		}
 	}
 	if config.WsPath != "" {
 		httpMux := http.NewServeMux()
@@ -214,7 +261,13 @@ func New(config LC.VmessServer, lc C.InboundListenConfig, tunnel C.Tunnel, addit
 				return nil, err
 			}
 		}
-		if tlsMirrorBuilder != nil {
+		if shadowTLSBuilder != nil {
+			l = shadowTLSBuilder.NewListener(l)
+		} else if restlsBuilder != nil {
+			l = restlsBuilder.NewListener(l)
+		} else if jlsBuilder != nil {
+			l = jlsBuilder.NewListener(l)
+		} else if tlsMirrorBuilder != nil {
 			l = tlsMirrorBuilder.NewListener(l)
 		} else if realityBuilder != nil {
 			l = realityBuilder.NewListener(l)

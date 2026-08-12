@@ -21,6 +21,8 @@ import kotlinx.coroutines.withContext
 import android.content.ComponentName
 import android.content.Intent
 
+import android.graphics.BitmapFactory
+
 interface BaseServiceInterface {
     suspend fun start(options: VpnOptions): Int
     fun stop()
@@ -31,8 +33,9 @@ suspend fun Service.createBettboxNotificationBuilder(): NotificationCompat.Build
     withContext(Dispatchers.IO) {
         val defaultComponent = ComponentName(packageName, "com.appshub.bettbox.MainActivity")
         val lightComponent = ComponentName(packageName, "com.appshub.bettbox.MainActivityLight")
+        val darkComponent = ComponentName(packageName, "com.appshub.bettbox.MainActivityDark")
 
-        val targetComponent = NotificationComponentCache.get(packageManager, defaultComponent, lightComponent)
+        val targetComponent = NotificationComponentCache.get(packageManager, defaultComponent, lightComponent, darkComponent)
 
         android.util.Log.d("Notification", "Using ${targetComponent.className}")
 
@@ -52,8 +55,22 @@ suspend fun Service.createBettboxNotificationBuilder(): NotificationCompat.Build
             PendingIntent.getActivity(this@createBettboxNotificationBuilder, 0, intent, flags)
         }
 
+        val isDark = targetComponent == darkComponent
+        val largeIconRes = if (isDark) {
+            R.mipmap.ic_launcher
+        } else {
+            R.mipmap.ic_launcher_light
+        }
+
+        val largeIconBitmap = runCatching {
+            BitmapFactory.decodeResource(resources, largeIconRes)
+        }.getOrNull()
+
         NotificationCompat.Builder(this@createBettboxNotificationBuilder, GlobalState.NOTIFICATION_CHANNEL).apply {
             setSmallIcon(R.drawable.ic)
+            if (largeIconBitmap != null) {
+                setLargeIcon(largeIconBitmap)
+            }
             setContentTitle("Bettbox")
             setContentIntent(pendingIntent)
             setCategory(NotificationCompat.CATEGORY_SERVICE)

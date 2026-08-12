@@ -134,6 +134,19 @@ func ParseListener(mapping map[string]any) (C.InboundListener, error) {
 			return nil, err
 		}
 		listener, err = IN.NewTuic(tuicOption)
+	case "shadowquic":
+		shadowQuicOption := &IN.ShadowQuicOption{
+			MaxIdleTime:          30000,
+			ALPN:                 []string{"h3"},
+			MaxDatagramFrameSize: 1400,
+			CongestionController: "bbr",
+			ZeroRTT:              true,
+		}
+		err = decoder.Decode(mapping, shadowQuicOption)
+		if err != nil {
+			return nil, err
+		}
+		listener, err = IN.NewShadowQuic(shadowQuicOption)
 	case "anytls":
 		anytlsOption := &IN.AnyTLSOption{}
 		err = decoder.Decode(mapping, anytlsOption)

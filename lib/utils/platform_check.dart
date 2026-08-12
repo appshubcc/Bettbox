@@ -28,9 +28,10 @@ class PlatformChecker {
       final server = await ServerSocket.bind(address, 0);
       await server.close();
 
-      try {
-        await File(testPath).delete();
-      } catch (_) {}
+      final testFile = File(testPath);
+      if (await testFile.exists()) {
+        await testFile.delete();
+      }
 
       _udsSupport = true;
       return true;

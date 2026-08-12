@@ -116,6 +116,7 @@ type HysteriaOption struct {
 	SNI                 string     `proxy:"sni,omitempty"`
 	ECHOpts             ECHOptions `proxy:"ech-opts,omitempty"`
 	SkipCertVerify      bool       `proxy:"skip-cert-verify,omitempty"`
+	NameCertVerify      string     `proxy:"name-cert-verify,omitempty"`
 	Fingerprint         string     `proxy:"fingerprint,omitempty"`
 	Certificate         string     `proxy:"certificate,omitempty"`
 	PrivateKey          string     `proxy:"private-key,omitempty"`
@@ -158,9 +159,10 @@ func NewHysteria(option HysteriaOption) (*Hysteria, error) {
 			InsecureSkipVerify: option.SkipCertVerify,
 			MinVersion:         tls.VersionTLS13,
 		},
-		Fingerprint: option.Fingerprint,
-		Certificate: option.Certificate,
-		PrivateKey:  option.PrivateKey,
+		Fingerprint:    option.Fingerprint,
+		NameCertVerify: option.NameCertVerify,
+		Certificate:    option.Certificate,
+		PrivateKey:     option.PrivateKey,
 	})
 	if err != nil {
 		return nil, err

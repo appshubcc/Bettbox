@@ -44,6 +44,13 @@ class _TrayContainerState extends ConsumerState<TrayManager> with TrayListener {
   }
 
   @override
+  void onTrayMenuItemClick(MenuItem menuItem) {
+    if (globalState.backgroundMode.value) {
+      globalState.appController.updateTray(false, false, true);
+    }
+  }
+
+  @override
   dispose() {
     trayManager.removeListener(this);
     super.dispose();

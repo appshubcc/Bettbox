@@ -22,6 +22,7 @@ type Option struct {
 	TLS            bool
 	ECHConfig      *ech.Config
 	SkipCertVerify bool
+	NameCertVerify string
 	Fingerprint    string
 	Certificate    string
 	PrivateKey     string
@@ -69,9 +70,10 @@ func NewGostWebsocket(ctx context.Context, conn net.Conn, option *Option) (net.C
 				InsecureSkipVerify: option.SkipCertVerify,
 				NextProtos:         []string{"http/1.1"},
 			},
-			Fingerprint: option.Fingerprint,
-			Certificate: option.Certificate,
-			PrivateKey:  option.PrivateKey,
+			Fingerprint:    option.Fingerprint,
+			NameCertVerify: option.NameCertVerify,
+			Certificate:    option.Certificate,
+			PrivateKey:     option.PrivateKey,
 		})
 		if err != nil {
 			return nil, err

@@ -12,12 +12,13 @@ object NotificationComponentCache {
         packageManager: PackageManager,
         defaultComponent: ComponentName,
         lightComponent: ComponentName,
+        darkComponent: ComponentName,
     ): ComponentName {
         cached?.let { return it }
 
         synchronized(this) {
             cached?.let { return it }
-            val result = resolve(packageManager, defaultComponent, lightComponent)
+            val result = resolve(packageManager, defaultComponent, lightComponent, darkComponent)
             cached = result
             return result
         }
@@ -31,9 +32,10 @@ object NotificationComponentCache {
         packageManager: PackageManager,
         defaultComponent: ComponentName,
         lightComponent: ComponentName,
+        darkComponent: ComponentName,
     ): ComponentName {
-        val defaultState = runCatching {
-            packageManager.getComponentEnabledSetting(defaultComponent)
+        val darkState = runCatching {
+            packageManager.getComponentEnabledSetting(darkComponent)
         }.getOrDefault(PackageManager.COMPONENT_ENABLED_STATE_DEFAULT)
 
         val lightState = runCatching {
@@ -41,14 +43,9 @@ object NotificationComponentCache {
         }.getOrDefault(PackageManager.COMPONENT_ENABLED_STATE_DEFAULT)
 
         return when {
+            darkState == PackageManager.COMPONENT_ENABLED_STATE_ENABLED -> darkComponent
             lightState == PackageManager.COMPONENT_ENABLED_STATE_ENABLED -> lightComponent
-            lightState == PackageManager.COMPONENT_ENABLED_STATE_DISABLED -> defaultComponent
-            defaultState == PackageManager.COMPONENT_ENABLED_STATE_ENABLED -> defaultComponent
-            defaultState == PackageManager.COMPONENT_ENABLED_STATE_DISABLED -> lightComponent
-            else -> runCatching {
-                packageManager.getActivityInfo(lightComponent, 0)
-                    .takeIf { it.enabled }?.let { lightComponent }
-            }.getOrNull() ?: defaultComponent
+            else -> defaultComponent
         }
     }
 }

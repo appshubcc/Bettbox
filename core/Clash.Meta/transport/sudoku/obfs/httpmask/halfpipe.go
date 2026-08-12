@@ -212,6 +212,10 @@ func (c *halfPipeConn) Close() error {
 	return nil
 }
 
+func (c *halfPipeConn) peerClosed() bool {
+	return isClosedPipeChan(c.remoteReadDone) && isClosedPipeChan(c.remoteWriteDone)
+}
+
 func (c *halfPipeConn) SetDeadline(t time.Time) error {
 	c.readDeadline.set(t)
 	c.writeDeadline.set(t)

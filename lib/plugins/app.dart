@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:bett_box/common/app_localizations.dart';
+import 'package:bett_box/common/system.dart';
 import 'package:bett_box/models/models.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
@@ -69,6 +70,12 @@ class App {
     await methodChannel.invokeMethod<void>('openAppSettings');
   }
 
+  Future<bool> openFcmDiagnostics() async {
+    if (!system.isAndroid) return false;
+    return await methodChannel.invokeMethod<bool>('openFcmDiagnostics') ??
+        false;
+  }
+
   Future<List<String>> getChinaPackageNames() async {
     final packageNamesRaw =
         await methodChannel.invokeListMethod<String>('getChinaPackageNames') ??
@@ -133,9 +140,9 @@ class App {
     await methodChannel.invokeMethod<void>('requestIgnoreBatteryOptimizations');
   }
 
-  Future<bool> setLauncherIcon(bool useLightIcon) async {
+  Future<bool> setLauncherIcon(bool useDarkIcon) async {
     final result = await methodChannel.invokeMethod<bool>('setLauncherIcon', {
-      'useLightIcon': useLightIcon,
+      'useDarkIcon': useDarkIcon,
     });
     return result ?? false;
   }

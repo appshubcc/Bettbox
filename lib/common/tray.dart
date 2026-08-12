@@ -26,10 +26,25 @@ class Tray {
   int _loadingFrame = 0;
   final List<String> _loadingFrames = ['.', '..', '...'];
 
-  bool _isTesting = false;
-  String? _testingGroupId;
+  Tray() {
+    delayTestCoordinator.addListener(_handleDelayTestStateChanged);
+  }
+
+  void _handleDelayTestStateChanged() {
+    if (system.isAndroid) return;
+    unawaited(globalState.appController.updateTray(false, true));
+  }
+
+  bool _traySpeedEnabled = false;
+  bool _trayTrafficActive = false;
+  bool _isSpeedTitleVisible = false;
+  Traffic _lastTraffic = Traffic();
+  int? _lastDisplayedUpload;
+  int? _lastDisplayedDownload;
+  bool? _lastDisplayedActive;
 
   void dispose() {
+    delayTestCoordinator.removeListener(_handleDelayTestStateChanged);
     _debounceTimer?.cancel();
     _loadingTimer?.cancel();
   }
@@ -43,6 +58,10 @@ class Tray {
     }
     if (force) {
       await trayManager.destroy();
+      _isSpeedTitleVisible = false;
+      _lastDisplayedUpload = null;
+      _lastDisplayedDownload = null;
+      _lastDisplayedActive = null;
     }
     await trayManager.setIcon(
       utils.getTrayIconPath(
@@ -55,6 +74,9 @@ class Tray {
       ),
       isTemplate: system.isMacOS,
     );
+    if (system.isMacOS) {
+      await trayManager.setActive(isStart);
+    }
     if (!Platform.isLinux) {
       await trayManager.setToolTip(appName);
     }
@@ -64,6 +86,7 @@ class Tray {
     required TrayState trayState,
     bool focus = false,
     bool silent = false,
+    bool force = false,
   }) async {
     if (system.isAndroid) {
       return;
@@ -78,7 +101,7 @@ class Tray {
       return;
     }
 
-    if (focus) {
+    if (force || focus) {
       await _doUpdate(trayState: trayState, focus: focus, silent: silent);
     } else if (silent) {
       _debounceTimer = Timer(const Duration(milliseconds: 50), () async {
@@ -100,12 +123,18 @@ class Tray {
     _isUpdating = true;
 
     try {
+      _traySpeedEnabled = trayState.enableTraySpeed;
+      _trayTrafficActive =
+          trayState.isStart && (trayState.systemProxy || trayState.tunEnable);
       if (!silent && !Platform.isLinux) {
         await _updateSystemTray(
           brightness: trayState.brightness,
-          isStart: trayState.isStart,
+          isStart: _trayTrafficActive,
           force: focus,
         );
+      }
+      if (system.isMacOS) {
+        await _syncSpeedTitle(isStart: trayState.isStart);
       }
     List<MenuItem> menuItems = [];
     final showMenuItem = MenuItem(
@@ -118,7 +147,9 @@ class Tray {
     final startMenuItem = MenuItem.checkbox(
       label: trayState.isStart ? appLocalizations.stop : appLocalizations.start,
       onClick: (_) async {
-        globalState.appController.updateStart();
+        final appController = globalState.appController;
+        await appController.updateStatus(!trayState.isStart);
+        await appController.updateTray();
       },
       checked: false,
     );
@@ -140,14 +171,16 @@ class Tray {
       for (final group in trayState.groups) {
         List<MenuItem> subMenuItems = [];
 
-        final isTestingThisGroup = _isTesting && _testingGroupId == group.name;
+        final isTestingThisGroup =
+            delayTestCoordinator.isTestingGroup(group.name);
 
         subMenuItems.add(
           MenuItem(
+            key: 'persistent-delay-test',
             label: isTestingThisGroup
                 ? '⚡ ${appLocalizations.startTest}...'
                 : '⚡ ${appLocalizations.startTest}',
-            disabled: _isTesting,
+            disabled: delayTestCoordinator.isTesting,
             onClick: (_) => _testGroupDelay(group),
           ),
         );
@@ -167,6 +200,7 @@ class Tray {
 
           subMenuItems.add(
             MenuItem.checkbox(
+              key: 'proxy-item:${proxy.name}',
               label: proxy.name,
               sublabel: _formatProxySublabel(delay),
               checked: group.getCurrentSelectedName(trayState.selectedMap[group.name] ?? '') == proxy.name,
@@ -233,7 +267,15 @@ class Tray {
       MenuItem(
         label: appLocalizations.restartCoreTitle,
         onClick: (_) async {
-          await globalState.appController.restartCore();
+          final appController = globalState.appController;
+          try {
+            await appController.restartCore();
+          } finally {
+            await appController.syncDesktopRuntimeState(
+              preferCurrentState: true,
+            );
+            await appController.updateTray();
+          }
         },
       ),
     ];
@@ -295,6 +337,53 @@ class Tray {
         );
       }
     }
+  }
+
+  Future<void> updateSpeed(Traffic traffic) async {
+    _lastTraffic = traffic;
+    if (!system.isMacOS || !_traySpeedEnabled) {
+      return;
+    }
+    await _setSpeedTitle(traffic);
+  }
+
+  Future<void> _syncSpeedTitle({required bool isStart}) async {
+    if (!_traySpeedEnabled) {
+      if (!_isSpeedTitleVisible) {
+        return;
+      }
+      await trayManager.clearSpeedTitle();
+      _isSpeedTitleVisible = false;
+      _lastDisplayedUpload = null;
+      _lastDisplayedDownload = null;
+      _lastDisplayedActive = null;
+      return;
+    }
+
+    if (!isStart) {
+      _lastTraffic = Traffic();
+    }
+    await _setSpeedTitle(_lastTraffic);
+  }
+
+  Future<void> _setSpeedTitle(Traffic traffic) async {
+    final upload = traffic.up.value;
+    final download = traffic.down.value;
+    if (_isSpeedTitleVisible &&
+        _lastDisplayedUpload == upload &&
+        _lastDisplayedDownload == download &&
+        _lastDisplayedActive == _trayTrafficActive) {
+      return;
+    }
+    await trayManager.setSpeedTitle(
+      upload: upload,
+      download: download,
+      active: _trayTrafficActive,
+    );
+    _isSpeedTitleVisible = true;
+    _lastDisplayedUpload = upload;
+    _lastDisplayedDownload = download;
+    _lastDisplayedActive = _trayTrafficActive;
   }
 
   MenuItem _buildCopyEnvSubmenu(int port) {
@@ -399,13 +488,13 @@ class Tray {
     _loadingTimer?.cancel();
     _loadingFrame = 0;
     Future.delayed(const Duration(milliseconds: 300), () {
-      if (!_isTesting) return;
+      if (!delayTestCoordinator.isTesting) return;
       _scheduleLoadingUpdate();
     });
   }
 
   void _scheduleLoadingUpdate() {
-    if (!_isTesting || !system.isMacOS) return;
+    if (!delayTestCoordinator.isTesting || !system.isMacOS) return;
     _loadingTimer = Timer(const Duration(milliseconds: 300), () async {
       if (trayManager.isMenuOpen) {
         _loadingFrame = (_loadingFrame + 1) % _loadingFrames.length;
@@ -422,7 +511,7 @@ class Tray {
   }
 
   Future<void> _testGroupDelay(Group group) async {
-    if (_isTesting) return;
+    if (delayTestCoordinator.isTesting) return;
 
     final appController = globalState.appController;
     final testableProxies = group.all.where((p) {
@@ -433,68 +522,26 @@ class Tray {
           p.type.toUpperCase() != 'REMATCH';
     }).toList();
 
-    _isTesting = true;
-    _testingGroupId = group.name;
-
     try {
-      final testingEntries = <String>{};
-
-      for (final proxy in testableProxies) {
-        final state = appController.getProxyCardState(proxy.name);
-        final name = state.proxyName;
-        if (name.isEmpty || _isNonTestableProxyName(name)) continue;
-        final url = appController.getRealTestUrl(
-          state.testUrl.getSafeValue(group.testUrl ?? ''),
-        );
-        final entryKey = '$url\n$name';
-        if (!testingEntries.add(entryKey)) continue;
-        appController.setDelay(Delay(url: url, name: name, value: 0));
+      if (system.isMacOS) {
+        _startLoadingAnimation();
       }
-
-      _startLoadingAnimation();
-
-      await appController.updateTray(false, true);
-
       await delayTest(
         testableProxies,
-        group.testUrl,
-        system.isMacOS ? () => appController.updateTray(false, true) : null,
+        testUrl: group.testUrl,
+        groupName: group.name,
+        onDelayUpdated: system.isMacOS
+            ? () => appController.updateTray(false, true)
+            : null,
       );
     } catch (e) {
       commonPrint.log('Delay test error: $e');
-      for (final proxy in testableProxies) {
-        final state = appController.getProxyCardState(proxy.name);
-        final name = state.proxyName;
-        if (name.isEmpty || _isNonTestableProxyName(name)) continue;
-        final url = appController.getRealTestUrl(
-          state.testUrl.getSafeValue(group.testUrl ?? ''),
-        );
-        appController.setDelay(Delay(url: url, name: name, value: -1));
-      }
     } finally {
-      _stopLoadingAnimation();
-
-      _isTesting = false;
-      _testingGroupId = null;
-
+      if (system.isMacOS) {
+        _stopLoadingAnimation();
+      }
       await appController.updateTray(false, true);
     }
-  }
-
-  bool _isNonTestableProxyName(String proxyName) {
-    final name = proxyName.toUpperCase();
-    if (name == 'REJECT' || name == 'REJECT-DROP' || name == 'PASS') {
-      return true;
-    }
-    final groups = globalState.appController.getCurrentGroups();
-    for (final group in groups) {
-      for (final proxy in group.all) {
-        if (proxy.name == proxyName) {
-          return proxy.type.toUpperCase() == 'REMATCH';
-        }
-      }
-    }
-    return false;
   }
 }
 

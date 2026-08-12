@@ -24,7 +24,7 @@ final configStateProvider = AutoDisposeProvider<Config>.internal(
 // ignore: unused_element
 typedef ConfigStateRef = AutoDisposeProviderRef<Config>;
 String _$currentGroupsStateHash() =>
-    r'bde3f468dc3a39b68c1d1f908c8a7f40896cb777';
+    r'f97e7d4a45fdbc18c23d2837224369193c6ad2e3';
 
 /// See also [currentGroupsState].
 @ProviderFor(currentGroupsState)
@@ -97,7 +97,7 @@ final coreStateProvider = AutoDisposeProvider<CoreState>.internal(
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef CoreStateRef = AutoDisposeProviderRef<CoreState>;
-String _$updateParamsHash() => r'aef760656c0e937600e2b8e34d5286123d0ce121';
+String _$updateParamsHash() => r'b607bf8aa980b305f0db271b1fac36b9b9c98f61';
 
 /// See also [updateParams].
 @ProviderFor(updateParams)
@@ -114,7 +114,7 @@ final updateParamsProvider = AutoDisposeProvider<UpdateParams>.internal(
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef UpdateParamsRef = AutoDisposeProviderRef<UpdateParams>;
-String _$proxyStateHash() => r'22478fb593aaca11dfe2cf64472013190475a5bc';
+String _$proxyStateHash() => r'c854ca2b6bdbf095b7db3ee01ec1591e9bda9247';
 
 /// See also [proxyState].
 @ProviderFor(proxyState)
@@ -131,7 +131,7 @@ final proxyStateProvider = AutoDisposeProvider<ProxyState>.internal(
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef ProxyStateRef = AutoDisposeProviderRef<ProxyState>;
-String _$trayStateHash() => r'08a611775e36405fa18fd6f047ae423bcb2efe83';
+String _$trayStateHash() => r'0a29fc928f71098761ddac2121022c39749aa864';
 
 /// See also [trayState].
 @ProviderFor(trayState)
@@ -182,7 +182,7 @@ final navigationStateProvider = AutoDisposeProvider<NavigationState>.internal(
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef NavigationStateRef = AutoDisposeProviderRef<NavigationState>;
-String _$dashboardStateHash() => r'84de07a3464e646d58e68e305ebc8a6cb8b85f88';
+String _$dashboardStateHash() => r'ab593873dfad85a40ad59031c9b6596ef3d16488';
 
 /// See also [dashboardState].
 @ProviderFor(dashboardState)

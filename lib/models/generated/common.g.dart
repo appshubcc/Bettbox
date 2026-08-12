@@ -254,6 +254,9 @@ _Script _$ScriptFromJson(Map<String, dynamic> json) => _Script(
   label: json['label'] as String,
   content: json['content'] as String,
   url: json['url'] as String?,
+  customOptions: (json['custom-options'] as Map<String, dynamic>?)?.map(
+    (k, e) => MapEntry(k, e as bool),
+  ),
 );
 
 Map<String, dynamic> _$ScriptToJson(_Script instance) => <String, dynamic>{
@@ -261,4 +264,5 @@ Map<String, dynamic> _$ScriptToJson(_Script instance) => <String, dynamic>{
   'label': instance.label,
   'content': instance.content,
   'url': instance.url,
+  'custom-options': instance.customOptions,
 };

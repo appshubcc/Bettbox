@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:ffi';
 import 'dart:io';
 import 'dart:isolate';
@@ -8,9 +9,10 @@ import 'package:bett_box/plugins/service.dart' as vpn_service;
 import 'package:bett_box/plugins/tile.dart';
 import 'package:bett_box/plugins/vpn.dart';
 import 'package:bett_box/state.dart';
+import 'package:code_forge/code_forge.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_displaymode/flutter_displaymode.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'application.dart';
 import 'clash/core.dart';
@@ -33,11 +35,22 @@ Future<void> main(List<String> args) async {
     exit(0);
   }
 
+  if (system.isMacOS) {
+    final acquire = await singleInstanceLock.acquire();
+    if (!acquire) {
+      commonPrint.log(
+        'SingleInstanceLock: another instance detected or lock failed, exiting',
+      );
+      await _sendControlCommand('show');
+      await Future.delayed(const Duration(milliseconds: 100));
+      exit(0);
+    }
+  }
+
   PaintingBinding.instance.imageCache.maximumSizeBytes = 50 * 1024 * 1024;
 
   final version = await system.version;
-  await clashCore.preload();
-  await globalState.initApp(version);
+  await Future.wait([globalState.initApp(version), clashCore.preload()]);
 
   try {
     await uiManager.initializeUI();
@@ -49,15 +62,28 @@ Future<void> main(List<String> args) async {
 }
 
 Future<void> _sendControlCommand(String command) async {
-  try {
-    await ExternalControl.sendCommand(command);
-    commonPrint.log('Sent $command command to running instance');
-  } catch (e) {
-    commonPrint.log('Failed to send $command command: $e');
+  for (int i = 0; i < 5; i++) {
+    try {
+      await ExternalControl.sendCommand(command);
+      commonPrint.log('Sent $command command to running instance');
+      return;
+    } catch (e) {
+      if (i == 4) {
+        commonPrint.log('Failed to send $command command: $e');
+        return;
+      }
+      await Future.delayed(const Duration(milliseconds: 200));
+    }
   }
 }
 
 Future<void> _runApp() async {
+  try {
+    await RustLib.init();
+  } catch (e) {
+    commonPrint.log('Failed to initialize code_forge RustLib: $e');
+  }
+
   if (system.isAndroid) {
     try {
       await FlutterDisplayMode.setHighRefreshRate();
@@ -164,6 +190,20 @@ Future<void> _service(List<String> flags) async {
             profileName,
             '↑0B/s ↓0B/s',
           );
+          Timer.periodic(const Duration(seconds: 1), (timer) async {
+            if (!globalState.isService ||
+                !globalState.config.vpnProps.networkSpeedNotification) {
+              timer.cancel();
+              return;
+            }
+            try {
+              final traffic = await clashCore.getTraffic();
+              await vpn_service.service?.updateNotificationSpeed(
+                profileName,
+                traffic.toString(),
+              );
+            } catch (_) {}
+          });
         }
 
         if (globalState.config.appSetting.openLogs) {

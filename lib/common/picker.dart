@@ -7,26 +7,73 @@ import 'package:image_picker/image_picker.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
 class Picker {
-  Future<PlatformFile?> pickerFile({bool withData = true}) async {
+  Future<List<PlatformFile>?> pickerFiles({
+    bool withData = true,
+    bool allowMultiple = true,
+    List<String>? allowedExtensions,
+  }) async {
+    final useCustom = !system.isAndroid &&
+        allowedExtensions != null &&
+        allowedExtensions.isNotEmpty;
     final filePickerResult = await FilePicker.platform.pickFiles(
       withData: withData,
-      allowMultiple: false,
+      allowMultiple: allowMultiple,
+      allowedExtensions: useCustom ? allowedExtensions : null,
+      type: useCustom ? FileType.custom : FileType.any,
       initialDirectory: await appPath.downloadDirPath,
     );
-    return filePickerResult?.files.first;
+    return filePickerResult?.files;
   }
 
-  Future<String?> saveFile(String fileName, Uint8List bytes) async {
+  Future<PlatformFile?> pickerFile({
+    bool withData = true,
+    List<String>? allowedExtensions,
+  }) async {
+    final files = await pickerFiles(
+      withData: withData,
+      allowMultiple: false,
+      allowedExtensions: allowedExtensions,
+    );
+    return files != null && files.isNotEmpty ? files.first : null;
+  }
+
+  Future<String?> saveFile(
+    String fileName,
+    Uint8List bytes, {
+    List<String>? allowedExtensions,
+  }) async {
+    var name = fileName;
+    if (allowedExtensions != null && allowedExtensions.isNotEmpty) {
+      final hasExt = allowedExtensions.any((ext) => name.endsWith('.$ext'));
+      if (!hasExt) {
+        name = '$name.${allowedExtensions.first}';
+      }
+    }
+    final useCustom = !system.isAndroid &&
+        allowedExtensions != null &&
+        allowedExtensions.isNotEmpty;
     final path = await FilePicker.platform.saveFile(
-      fileName: fileName,
+      fileName: name,
       initialDirectory: await appPath.downloadDirPath,
       bytes: system.isAndroid ? bytes : null,
+      allowedExtensions: useCustom ? allowedExtensions : null,
+      type: useCustom ? FileType.custom : FileType.any,
     );
-    if (!system.isAndroid && path != null) {
-      final file = await File(path).create(recursive: true);
+    if (path == null) return null;
+
+    var savePath = path;
+    if (allowedExtensions != null && allowedExtensions.isNotEmpty) {
+      final hasExt = allowedExtensions.any((ext) => savePath.endsWith('.$ext'));
+      if (!hasExt) {
+        savePath = '$savePath.${allowedExtensions.first}';
+      }
+    }
+
+    if (!system.isAndroid) {
+      final file = await File(savePath).create(recursive: true);
       await file.writeAsBytes(bytes);
     }
-    return path;
+    return savePath;
   }
 
   Future<String?> pickerConfigQRCode() async {

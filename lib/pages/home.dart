@@ -5,7 +5,6 @@ import 'package:bett_box/providers/providers.dart';
 import 'package:bett_box/state.dart';
 import 'package:bett_box/widgets/widgets.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 typedef OnSelected = void Function(int index);
@@ -62,42 +61,36 @@ class _HomePageState extends State<HomePage> {
                     navigationItems: navigationItems,
                     selectedIndex: currentIndex,
                     onTabChange: (index) {
-                      globalState.appController.toPage(navigationItems[index].label);
+                      globalState.appController.toPage(
+                        navigationItems[index].label,
+                      );
                     },
                   );
             if (isMobile) {
-              return AnnotatedRegion<SystemUiOverlayStyle>(
-                value: globalState.appState.systemUiOverlayStyle.copyWith(
-                  systemNavigationBarColor:
-                      context.colorScheme.surfaceContainer,
-                ),
-                child: Column(
-                  children: [
-                    Flexible(
-                      flex: 1,
-                      child: MediaQuery.removePadding(
-                        removeTop: false,
-                        removeBottom: true,
-                        removeLeft: true,
-                        removeRight: true,
-                        context: context,
-                        child: child!,
-                      ),
-                    ),
-                    MediaQuery.removePadding(
-                      removeTop: true,
-                      removeBottom: false,
-                      removeLeft: true,
-                      removeRight: true,
-                      context: context,
-                      child: bottomNavigationBar,
-                    ),
-                  ],
-                ),
+              final pageContent = MediaQuery.removePadding(
+                removeTop: false,
+                removeBottom: false,
+                removeLeft: true,
+                removeRight: true,
+                context: context,
+                child: child!,
               );
-            } else {
-              return child!;
+              final navBar = MediaQuery.removePadding(
+                removeTop: true,
+                removeBottom: false,
+                removeLeft: true,
+                removeRight: true,
+                context: context,
+                child: bottomNavigationBar,
+              );
+              return Stack(
+                children: [
+                  Positioned.fill(child: pageContent),
+                  Positioned(left: 0, right: 0, bottom: 0, child: navBar),
+                ],
+              );
             }
+            return child!;
           },
           child: Consumer(
             builder: (_, ref, _) {
@@ -138,7 +131,7 @@ class _HomePageState extends State<HomePage> {
       _currentNavIndex = currentIndex;
       _requestNavFocus(currentIndex);
     }
-    
+
     return Container(
       decoration: BoxDecoration(
         color: context.colorScheme.surfaceContainer,
@@ -165,74 +158,76 @@ class _HomePageState extends State<HomePage> {
                   animation: focusNode,
                   builder: (context, child) {
                     final isFocused = focusNode.hasFocus;
-                      return InkWell(
-                        focusNode: focusNode,
-                        onFocusChange: (hasFocus) {
-                          if (hasFocus) {
-                            if (!_isNavFocused) {
-                              _isNavFocused = true;
-                              if (index != currentIndex) {
-                                _requestNavFocus(currentIndex);
-                                return;
-                              }
+                    return InkWell(
+                      focusNode: focusNode,
+                      onFocusChange: (hasFocus) {
+                        if (hasFocus) {
+                          if (!_isNavFocused) {
+                            _isNavFocused = true;
+                            if (index != currentIndex) {
+                              _requestNavFocus(currentIndex);
+                              return;
                             }
-                          } else {
-                            Future.microtask(() {
-                              final currentFocus = FocusManager.instance.primaryFocus;
-                              if (currentFocus == null || !_navFocusNodes.values.contains(currentFocus)) {
-                                _isNavFocused = false;
-                              }
-                            });
                           }
-                        },
-                        onTap: () {
-                          globalState.appController.toPage(item.label);
-                        },
-                        child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                            decoration: BoxDecoration(
-                              color: isSelected
-                                  ? context.colorScheme.secondaryContainer
-                                  : Colors.transparent,
-                              borderRadius: BorderRadius.circular(12),
-                              border: isFocused
-                                  ? Border.all(
-                                      color: context.colorScheme.primary,
-                                      width: 2,
-                                    )
-                                  : Border.all(
-                                      color: Colors.transparent,
-                                      width: 2,
-                                    ),
+                        } else {
+                          Future.microtask(() {
+                            final currentFocus =
+                                FocusManager.instance.primaryFocus;
+                            if (currentFocus == null ||
+                                !_navFocusNodes.values.contains(currentFocus)) {
+                              _isNavFocused = false;
+                            }
+                          });
+                        }
+                      },
+                      onTap: () {
+                        globalState.appController.toPage(item.label);
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 8,
+                        ),
+                        decoration: BoxDecoration(
+                          color: isSelected
+                              ? context.colorScheme.secondaryContainer
+                              : Colors.transparent,
+                          borderRadius: BorderRadius.circular(12),
+                          border: isFocused
+                              ? Border.all(
+                                  color: context.colorScheme.primary,
+                                  width: 2,
+                                )
+                              : Border.all(color: Colors.transparent, width: 2),
+                        ),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            IconTheme(
+                              data: IconThemeData(
+                                color: isSelected
+                                    ? context.colorScheme.onSecondaryContainer
+                                    : context.colorScheme.onSurfaceVariant,
+                                size: 24,
+                              ),
+                              child: item.icon,
                             ),
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                IconTheme(
-                                  data: IconThemeData(
-                                    color: isSelected
-                                        ? context.colorScheme.onSecondaryContainer
-                                        : context.colorScheme.onSurfaceVariant,
-                                    size: 24,
-                                  ),
-                                  child: item.icon,
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  item.label.localizedName,
-                                  style: TextStyle(
-                                    color: isSelected
-                                        ? context.colorScheme.onSecondaryContainer
-                                        : context.colorScheme.onSurfaceVariant,
-                                    fontSize: 12,
-                                  ),
-                                ),
-                              ],
+                            const SizedBox(height: 4),
+                            Text(
+                              item.label.localizedName,
+                              style: TextStyle(
+                                color: isSelected
+                                    ? context.colorScheme.onSecondaryContainer
+                                    : context.colorScheme.onSurfaceVariant,
+                                fontSize: 12,
+                              ),
                             ),
-                          ),
-                      );
-                    },
-                  ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
               );
             }).toList(),
           ),
@@ -258,11 +253,13 @@ class _HomePageView extends ConsumerStatefulWidget {
 class _HomePageViewState extends ConsumerState<_HomePageView> {
   late PageController _pageController;
   late final ProviderSubscription<PageLabel> _pageLabelSubscription;
+  int _currentPageIndex = 0;
 
   @override
   initState() {
     super.initState();
-    _pageController = PageController(initialPage: _pageIndex);
+    _currentPageIndex = _pageIndex;
+    _pageController = PageController(initialPage: _currentPageIndex);
     _pageLabelSubscription = ref.listenManual(currentPageLabelProvider, (
       prev,
       next,
@@ -300,22 +297,21 @@ class _HomePageViewState extends ConsumerState<_HomePageView> {
     if (index == -1) {
       return;
     }
-    
+
     if (!globalState.isAndroidTV) {
       FocusManager.instance.primaryFocus?.unfocus();
     }
-    
-    final isAnimateToPage = system.isDesktop || ref.read(appSettingProvider).isAnimateToPage;
-    final isMobile = ref.read(isMobileViewProvider);
-    if (isAnimateToPage && isMobile && !ignoreAnimateTo) {
-      await _pageController.animateToPage(
-        index,
-        duration: kTabScrollDuration,
-        curve: Curves.easeOut,
-      );
-    } else {
-      _pageController.jumpToPage(index);
+
+    if (ref.read(isMobileViewProvider)) {
+      if (_currentPageIndex != index) {
+        setState(() {
+          _currentPageIndex = index;
+        });
+      }
+      return;
     }
+
+    _pageController.jumpToPage(index);
   }
 
   void _updatePageController() {
@@ -332,6 +328,20 @@ class _HomePageViewState extends ConsumerState<_HomePageView> {
 
   @override
   Widget build(BuildContext context) {
+    if (ref.watch(isMobileViewProvider)) {
+      return AnimatedSwitcher(
+        duration: const Duration(milliseconds: 300),
+        switchInCurve: Curves.easeOutCubic,
+        switchOutCurve: Curves.easeInCubic,
+        transitionBuilder: (child, animation) {
+          return FadeTransition(opacity: animation, child: child);
+        },
+        child: KeyedSubtree(
+          key: ValueKey(widget.navigationItems[_currentPageIndex].label),
+          child: widget.pageBuilder(context, _currentPageIndex),
+        ),
+      );
+    }
     return PageView.builder(
       controller: _pageController,
       physics: const NeverScrollableScrollPhysics(),
@@ -364,16 +374,17 @@ class HomeBackScope extends ConsumerWidget {
         canPop: false,
         onPopInvokedWithResult: (didPop, _) async {
           if (didPop || backBlock) return;
+          final navigatorState = globalState.navigatorKey.currentState;
+          if (navigatorState?.userGestureInProgress == true) return;
           if (!isCurrentRootPage) {
             globalState.appController.toPage(PageLabel.dashboard);
             return;
           }
-          final canPop = Navigator.canPop(context);
-          if (canPop) {
-            Navigator.pop(context);
-          } else {
-            await globalState.appController.handleBackOrExit();
+          if (navigatorState != null && navigatorState.canPop()) {
+            navigatorState.pop();
+            return;
           }
+          await globalState.appController.handleBackOrExit();
         },
         child: child,
       );

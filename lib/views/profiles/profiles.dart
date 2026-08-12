@@ -60,11 +60,9 @@ class _ProfilesViewState extends ConsumerState<ProfilesView> {
       globalState.showMessage(
         title: appLocalizations.tip,
         message: TextSpan(
-          children: [
-            for (final message in messages)
-              TextSpan(text: message),
-          ],
+          children: [for (final message in messages) TextSpan(text: message)],
         ),
+        cancelable: false,
       );
     }
   }
@@ -115,11 +113,19 @@ class _ProfilesViewState extends ConsumerState<ProfilesView> {
   }
 
   Widget _buildFAB() {
-    return FloatingActionButton.extended(
-      heroTag: null,
-      onPressed: _handleShowAddExtendPage,
-      icon: const Icon(Icons.add),
-      label: Text(appLocalizations.addProfile),
+    final isMobileView = ref.watch(isMobileViewProvider);
+    return Padding(
+      padding: EdgeInsets.only(
+        bottom: isMobileView
+            ? getFloatingBottomBarFABReserveHeight(context)
+            : 0,
+      ),
+      child: FloatingActionButton.extended(
+        heroTag: null,
+        onPressed: _handleShowAddExtendPage,
+        icon: const Icon(Icons.add),
+        label: Text(appLocalizations.addProfile),
+      ),
     );
   }
 
@@ -135,28 +141,37 @@ class _ProfilesViewState extends ConsumerState<ProfilesView> {
           final profilesSelectorState = ref.watch(
             profilesSelectorStateProvider,
           );
+          final isMobileView = ref.watch(isMobileViewProvider);
           if (profilesSelectorState.profiles.isEmpty) {
             return NullStatus(label: appLocalizations.nullProfileDesc);
           }
+          final columns = system.isAndroid
+              ? 1
+              : profilesSelectorState.profiles.length <
+                    profilesSelectorState.columns
+              ? profilesSelectorState.profiles.length
+              : profilesSelectorState.columns;
           return Align(
             alignment: Alignment.topCenter,
             child: SingleChildScrollView(
               key: profilesStoreKey,
-              padding: const EdgeInsets.only(
+              padding: EdgeInsets.only(
                 left: 16,
                 right: 16,
                 top: 16,
-                bottom: 88,
+                bottom:
+                    (profilesSelectorState.profiles.isNotEmpty &&
+                            profilesSelectorState.profiles.length % columns == 0
+                        ? 88
+                        : 16) +
+                    (isMobileView
+                        ? getFloatingBottomBarReserveHeight(context)
+                        : 0),
               ),
               child: Grid(
                 mainAxisSpacing: 16,
                 crossAxisSpacing: 16,
-                crossAxisCount: system.isAndroid
-                    ? 1
-                    : profilesSelectorState.profiles.length <
-                          profilesSelectorState.columns
-                    ? profilesSelectorState.profiles.length
-                    : profilesSelectorState.columns,
+                crossAxisCount: columns,
                 children: [
                   for (
                     int i = 0;
@@ -215,6 +230,7 @@ class ProfileItem extends StatelessWidget {
         final patchConfig = globalState.config.patchClashConfig;
         final runtimeConfig = await globalState.patchRawConfig(
           patchConfig: patchConfig,
+          profile: profile,
         );
         final content = await encodeYamlTask(runtimeConfig);
         if (!context.mounted) {
@@ -227,7 +243,11 @@ class ProfileItem extends StatelessWidget {
           content: content,
           readOnly: true,
         );
-        BaseNavigator.push<String>(context, previewPage);
+        BaseNavigator.push<String>(
+          context,
+          previewPage,
+          maintainState: false,
+        );
       },
       needLoading: true,
       title: appLocalizations.tip,
@@ -247,6 +267,7 @@ class ProfileItem extends StatelessWidget {
         message: TextSpan(
           text: '${profile.label ?? profile.id}: ${e.formatError}',
         ),
+        cancelable: false,
       );
     }
   }
@@ -285,32 +306,14 @@ class ProfileItem extends StatelessWidget {
       const SizedBox(height: 8),
       if (subscriptionInfo != null) ...[
         SubscriptionInfoView(subscriptionInfo: subscriptionInfo),
-        // Traffic / Total · Expiry - Update time
-        Row(
-          children: [
-            Expanded(
-              child: Text(
-                '${_getTrafficText(subscriptionInfo)} · ${_getExpireText(subscriptionInfo)} - $updateTimeText',
-                style: context.textTheme.labelMedium?.toLight,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-          ],
+        Text(
+          '${_getTrafficText(subscriptionInfo)} · ${_getExpireText(subscriptionInfo)} - $updateTimeText',
+          style: context.textTheme.labelMedium?.toLight,
         ),
       ] else
-        // Show only update time when no subscription info
-        Row(
-          children: [
-            Expanded(
-              child: Text(
-                updateTimeText,
-                style: context.textTheme.labelMedium?.toLight,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-          ],
+        Text(
+          updateTimeText,
+          style: context.textTheme.labelMedium?.toLight,
         ),
     ];
   }
@@ -369,9 +372,14 @@ class ProfileItem extends StatelessWidget {
     final res = await globalState.appController.safeRun<bool>(
       () async {
         final file = await profile.getFile();
+        final rawName = (profile.label ?? profile.id).trim();
+        final fileName = (rawName.endsWith('.yaml') || rawName.endsWith('.yml'))
+            ? rawName
+            : '$rawName.yaml';
         final value = await picker.saveFile(
-          profile.label ?? profile.id,
+          fileName,
           await file.readAsBytes(),
+          allowedExtensions: ['yaml', 'yml'],
         );
         if (value == null) return false;
         return true;

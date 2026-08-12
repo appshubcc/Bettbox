@@ -10,6 +10,8 @@ type SnellServer struct {
 	ObfsMode  string
 	ObfsHost  string
 	ShadowTLS ShadowTLS `yaml:"shadow-tls" json:"shadow-tls,omitempty"`
+	ResTLS    ResTLS    `yaml:"res-tls" json:"res-tls,omitempty"`
+	JLSConfig JLSConfig `yaml:"jls-config" json:"jls-config,omitempty"`
 }
 
 func (c SnellServer) String() string {

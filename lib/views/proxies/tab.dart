@@ -9,6 +9,7 @@ import 'package:bett_box/widgets/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 import '../../models/common.dart';
 import 'card.dart';
@@ -74,7 +75,11 @@ class ProxiesTabViewState extends ConsumerState<ProxiesTabView>
   Future<void> delayTestCurrentGroup() async {
     final currentGroupName = globalState.appController.getCurrentGroupName();
     final currentState = _keyMap[currentGroupName]?.currentState;
-    await delayTest(currentState?.proxies ?? [], currentState?.testUrl);
+    await delayTest(
+      currentState?.proxies ?? [],
+      testUrl: currentState?.testUrl,
+      groupName: currentGroupName,
+    );
   }
 
   Widget _buildMoreButton() {
@@ -147,14 +152,22 @@ class ProxiesTabViewState extends ConsumerState<ProxiesTabView>
     }
     final appController = globalState.appController;
     if (groupIndex == null) {
-      final currentIndex = _tabController?.index;
-      groupIndex = currentIndex;
+      final controller = _tabController;
+      if (controller == null) return;
+      final anim = controller.animation;
+      if (anim != null && anim.value != controller.index.toDouble()) {
+        return;
+      }
+      groupIndex = controller.index;
     }
     final currentGroups = appController.getCurrentGroups();
-    if (groupIndex == null || groupIndex > currentGroups.length) {
+    if (groupIndex < 0 || groupIndex >= currentGroups.length) {
       return;
     }
     final currentGroup = currentGroups[groupIndex];
+    if (appController.getCurrentGroupName() == currentGroup.name) {
+      return;
+    }
     WidgetsBinding.instance.addPostFrameCallback((_) {
       globalState.appController.updateCurrentGroupName(currentGroup.name);
     });
@@ -184,8 +197,19 @@ class ProxiesTabViewState extends ConsumerState<ProxiesTabView>
   @override
   Widget build(BuildContext context) {
     ref.watch(themeSettingProvider.select((state) => state.textScale));
-    final state = ref.watch(proxiesTabStateProvider);
-    final groups = state.groups;
+    final groups =
+        ref.watch(proxiesTabStateProvider.select((state) => state.groups));
+    final columns =
+        ref.watch(proxiesTabStateProvider.select((state) => state.columns));
+    final cardType = ref.watch(
+      proxiesTabStateProvider.select((state) => state.proxyCardType),
+    );
+    final sortType = ref.watch(
+      proxiesTabStateProvider.select((state) => state.proxiesSortType),
+    );
+    final sortNum =
+        ref.watch(proxiesTabStateProvider.select((state) => state.sortNum));
+
     if (groups.isEmpty) {
       return NullStatus(
         label: appLocalizations.nullTip(appLocalizations.proxies),
@@ -210,9 +234,10 @@ class ProxiesTabViewState extends ConsumerState<ProxiesTabView>
         child: ProxyGroupView(
           key: key,
           group: group,
-          columns: state.columns,
-          cardType: state.proxyCardType,
-          sortType: state.proxiesSortType,
+          columns: columns,
+          cardType: cardType,
+          sortType: sortType,
+          sortNum: sortNum,
         ),
       );
     }).toList();
@@ -263,7 +288,10 @@ class ProxiesTabViewState extends ConsumerState<ProxiesTabView>
                         Tab(
                           child: Padding(
                             padding: globalState.isAndroidTV
-                                ? const EdgeInsets.symmetric(horizontal: 12, vertical: 6)
+                                ? const EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 6,
+                                  )
                                 : EdgeInsets.zero,
                             child: EmojiText(group.name),
                           ),
@@ -303,6 +331,7 @@ class ProxyGroupView extends ConsumerStatefulWidget {
   final int columns;
   final ProxyCardType cardType;
   final ProxiesSortType sortType;
+  final num sortNum;
 
   const ProxyGroupView({
     super.key,
@@ -310,6 +339,7 @@ class ProxyGroupView extends ConsumerStatefulWidget {
     required this.columns,
     required this.cardType,
     required this.sortType,
+    required this.sortNum,
   });
 
   @override
@@ -321,6 +351,36 @@ class _ProxyGroupViewState extends ConsumerState<ProxyGroupView> {
 
   List<Proxy> proxies = [];
   String? testUrl;
+  List<Proxy>? _cachedSortedProxies;
+  ProxiesSortType? _lastSortType;
+  List<Proxy>? _lastProxies;
+  String? _lastTestUrl;
+  num? _lastSortNum;
+
+  List<Proxy> _getSortedProxies() {
+    final group = widget.group;
+    final sortType = widget.sortType;
+    final proxies = group.all;
+    final testUrl = group.testUrl;
+    final sortNum = widget.sortNum;
+    if (_cachedSortedProxies != null &&
+        _lastSortType == sortType &&
+        _lastTestUrl == testUrl &&
+        _lastProxies == proxies &&
+        _lastSortNum == sortNum) {
+      return _cachedSortedProxies!;
+    }
+    _lastSortType = sortType;
+    _lastTestUrl = testUrl;
+    _lastProxies = proxies;
+    _lastSortNum = sortNum;
+    _cachedSortedProxies = globalState.appController.getSortProxies(
+      proxies: proxies,
+      sortType: sortType,
+      testUrl: testUrl,
+    );
+    return _cachedSortedProxies!;
+  }
 
   @override
   void initState() {
@@ -365,15 +425,17 @@ class _ProxyGroupViewState extends ConsumerState<ProxyGroupView> {
   @override
   Widget build(BuildContext context) {
     ref.watch(themeSettingProvider.select((state) => state.textScale));
-    final group = widget.group;
-    final proxies = group.all;
-    final sortedProxies = globalState.appController.getSortProxies(
-      proxies: proxies,
-      sortType: widget.sortType,
-      testUrl: group.testUrl,
-    );
-    this.proxies = sortedProxies;
-    testUrl = group.testUrl;
+    final isMobileView = ref.watch(isMobileViewProvider);
+    final sortedProxies = _getSortedProxies();
+    proxies = sortedProxies;
+    testUrl = widget.group.testUrl;
+    final baseBottom =
+        sortedProxies.isNotEmpty && sortedProxies.length % widget.columns == 0
+        ? 88.0
+        : 16.0;
+    final extra = isMobileView
+        ? getFloatingBottomBarReserveHeight(context)
+        : 0.0;
 
     return Align(
       alignment: Alignment.topCenter,
@@ -382,12 +444,12 @@ class _ProxyGroupViewState extends ConsumerState<ProxyGroupView> {
         child: GridView.builder(
           key: _getPageStorageKey(),
           controller: _controller,
-          scrollCacheExtent: const ScrollCacheExtent.pixels(500),
-          padding: const EdgeInsets.only(
+          scrollCacheExtent: const ScrollCacheExtent.viewport(1.0),
+          padding: EdgeInsets.only(
             top: 16,
             left: 16,
             right: 16,
-            bottom: 96,
+            bottom: baseBottom + extra,
           ),
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: widget.columns,
@@ -399,11 +461,11 @@ class _ProxyGroupViewState extends ConsumerState<ProxyGroupView> {
           itemBuilder: (_, index) {
             final proxy = sortedProxies[index];
             return ProxyCard(
-              testUrl: group.testUrl,
-              groupType: group.type,
+              testUrl: widget.group.testUrl,
+              groupType: widget.group.type,
               type: widget.cardType,
               proxy: proxy,
-              groupName: group.name,
+              groupName: widget.group.name,
             );
           },
         ),
@@ -413,9 +475,14 @@ class _ProxyGroupViewState extends ConsumerState<ProxyGroupView> {
 }
 
 class DelayTestButton extends ConsumerStatefulWidget {
+  final String groupName;
   final Future Function() onClick;
 
-  const DelayTestButton({super.key, required this.onClick});
+  const DelayTestButton({
+    super.key,
+    required this.groupName,
+    required this.onClick,
+  });
 
   @override
   ConsumerState<DelayTestButton> createState() => _DelayTestButtonState();
@@ -426,15 +493,23 @@ class _DelayTestButtonState extends ConsumerState<DelayTestButton>
   late AnimationController _controller;
   late Animation<double> _scale;
 
+  bool get _isTesting => delayTestCoordinator.isTestingGroup(widget.groupName);
+
   Future<void> _healthcheck() async {
-    if (_controller.isAnimating) {
+    if (delayTestCoordinator.isTesting) {
       return;
     }
-    _controller.forward();
     await widget.onClick();
-    if (mounted) {
+  }
+
+  void _handleTestingChanged() {
+    if (!mounted) return;
+    if (_isTesting) {
+      _controller.forward();
+    } else {
       _controller.reverse();
     }
+    setState(() {});
   }
 
   @override
@@ -447,10 +522,21 @@ class _DelayTestButtonState extends ConsumerState<DelayTestButton>
     _scale = Tween<double>(begin: 1.0, end: 0.0).animate(
       CurvedAnimation(parent: _controller, curve: const Interval(0, 1)),
     );
+    delayTestCoordinator.addListener(_handleTestingChanged);
+    _handleTestingChanged();
+  }
+
+  @override
+  void didUpdateWidget(covariant DelayTestButton oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.groupName != widget.groupName) {
+      _handleTestingChanged();
+    }
   }
 
   @override
   void dispose() {
+    delayTestCoordinator.removeListener(_handleTestingChanged);
     _controller.dispose();
     super.dispose();
   }
@@ -461,14 +547,44 @@ class _DelayTestButtonState extends ConsumerState<DelayTestButton>
     return AnimatedBuilder(
       animation: _controller.view,
       builder: (_, child) {
-        return Transform.scale(scale: _scale.value, child: child);
+        final showLoading = _isTesting && _controller.isCompleted;
+        final contentScale = showLoading ? 0.0 : _scale.value;
+        return Stack(
+          alignment: Alignment.center,
+          children: [
+            FloatingActionButton.extended(
+              heroTag: null,
+              onPressed:
+                  delayTestCoordinator.isTesting || widget.groupName.isEmpty
+                  ? null
+                  : _healthcheck,
+              icon: Transform.scale(
+                scale: contentScale,
+                child: const Icon(Icons.network_ping),
+              ),
+              label: Transform.scale(
+                scale: contentScale,
+                child: Text(appLocalizations.startTest),
+              ),
+            ),
+            if (showLoading)
+              IgnorePointer(
+                child: SizedBox(
+                  width: 30,
+                  height: 16,
+                  child: OverflowBox(
+                    maxWidth: 30,
+                    maxHeight: 16,
+                    child: SpinKitThreeBounce(
+                      color: context.colorScheme.onPrimaryContainer,
+                      size: 16,
+                    ),
+                  ),
+                ),
+              ),
+          ],
+        );
       },
-      child: FloatingActionButton.extended(
-        heroTag: null,
-        onPressed: _healthcheck,
-        icon: const Icon(Icons.network_ping),
-        label: Text(appLocalizations.startTest),
-      ),
     );
   }
 }

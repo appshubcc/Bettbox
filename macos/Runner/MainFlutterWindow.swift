@@ -36,7 +36,7 @@ class MainFlutterWindow: NSWindow {
         
         // Load and apply saved icon preference
         if loadIconPreference() {
-            setDockIcon(useLightIcon: true)
+            setDockIcon(useDarkIcon: true)
         }
         
         super.awakeFromNib()
@@ -64,11 +64,11 @@ class MainFlutterWindow: NSWindow {
             switch call.method {
             case "setLauncherIcon":
                 if let arguments = call.arguments as? [String: Any],
-                   let useLightIcon = arguments["useLightIcon"] as? Bool {
-                    let success = self.setDockIcon(useLightIcon: useLightIcon)
+                   let useDarkIcon = arguments["useDarkIcon"] as? Bool {
+                    let success = self.setDockIcon(useDarkIcon: useDarkIcon)
                     result(success)
                 } else {
-                    result(FlutterError(code: "INVALID_ARGUMENT", message: "Missing useLightIcon argument", details: nil))
+                    result(FlutterError(code: "INVALID_ARGUMENT", message: "Missing useDarkIcon argument", details: nil))
                 }
             default:
                 result(FlutterMethodNotImplemented)
@@ -78,8 +78,8 @@ class MainFlutterWindow: NSWindow {
     
     // MARK: - Icon Management
     
-    private func setDockIcon(useLightIcon: Bool) -> Bool {
-        let iconName = useLightIcon ? "icon_light" : "icon"
+    private func setDockIcon(useDarkIcon: Bool) -> Bool {
+        let iconName = useDarkIcon ? "icon_black_macOS" : "icon_light_macOS"
         
         // Load icon from app bundle
         guard let iconPath = Bundle.main.path(forResource: iconName, ofType: "png", inDirectory: "data/flutter_assets/assets/images"),
@@ -95,17 +95,17 @@ class MainFlutterWindow: NSWindow {
         NSApp.applicationIconImage = image
         
         // Save preference
-        saveIconPreference(useLightIcon: useLightIcon)
+        saveIconPreference(useDarkIcon: useDarkIcon)
         
         return true
     }
     
-    private func saveIconPreference(useLightIcon: Bool) {
-        UserDefaults.standard.set(useLightIcon, forKey: "UseLightIcon")
+    private func saveIconPreference(useDarkIcon: Bool) {
+        UserDefaults.standard.set(useDarkIcon, forKey: "UseDarkIcon")
         UserDefaults.standard.synchronize()
     }
     
     private func loadIconPreference() -> Bool {
-        return UserDefaults.standard.bool(forKey: "UseLightIcon")
+        return UserDefaults.standard.bool(forKey: "UseDarkIcon")
     }
 }

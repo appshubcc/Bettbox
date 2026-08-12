@@ -17,6 +17,8 @@ type SnellOption struct {
 	UDP       bool            `inbound:"udp,omitempty"`
 	ObfsOpts  SnellObfsOption `inbound:"obfs-opts,omitempty"`
 	ShadowTLS ShadowTLS       `inbound:"shadow-tls,omitempty"`
+	ResTLS    ResTLS          `inbound:"res-tls,omitempty"`
+	JLSConfig JLSConfig       `inbound:"jls-config,omitempty"`
 }
 
 func (o SnellOption) Equal(config C.InboundConfig) bool {
@@ -58,6 +60,8 @@ func NewSnell(options *SnellOption) (*Snell, error) {
 			ObfsMode:  options.ObfsOpts.Mode,
 			ObfsHost:  options.ObfsOpts.Host,
 			ShadowTLS: options.ShadowTLS.Build(),
+			ResTLS:    options.ResTLS.Build(),
+			JLSConfig: options.JLSConfig.Build(),
 		},
 	}, nil
 }

@@ -493,7 +493,7 @@ class ModalSideSheetRoute<T> extends PopupRoute<T> {
   final String? barrierLabel;
 
   @override
-  Color get barrierColor => modalBarrierColor ?? Colors.black54;
+  Color get barrierColor => modalBarrierColor ?? Colors.black26;
 
   AnimationController? _animationController;
 

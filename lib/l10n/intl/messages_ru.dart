@@ -178,7 +178,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "Резервное копирование",
     ),
     "backupAndRecoveryDesc": MessageLookupByLibrary.simpleMessage(
-      "Синхронизация данных через WebDAV или файл",
+      "Синхронизация данных через WebDAV или локально",
     ),
     "backupSuccess": MessageLookupByLibrary.simpleMessage(
       "Резервное копирование успешно",
@@ -280,6 +280,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "controlSecretDesc": MessageLookupByLibrary.simpleMessage(
       "Пароль для доступа к RESTful API",
     ),
+    "copiedPackageName": MessageLookupByLibrary.simpleMessage(
+      "Скопировано имя пакета",
+    ),
     "copy": MessageLookupByLibrary.simpleMessage("Копировать"),
     "copyEnvVar": MessageLookupByLibrary.simpleMessage(
       "Копировать переменные окружения",
@@ -298,9 +301,14 @@ class MessageLookup extends MessageLookupByLibrary {
     "customDashboardTitle": MessageLookupByLibrary.simpleMessage(
       "Пользовательский заголовок",
     ),
+    "customScriptOptions": MessageLookupByLibrary.simpleMessage("Свои правила"),
     "customUrl": MessageLookupByLibrary.simpleMessage("Пользовательский URL"),
     "cut": MessageLookupByLibrary.simpleMessage("Вырезать"),
     "dark": MessageLookupByLibrary.simpleMessage("Тёмная"),
+    "darkIcon": MessageLookupByLibrary.simpleMessage("Тёмная иконка"),
+    "darkIconDesc": MessageLookupByLibrary.simpleMessage(
+      "Переключить на тёмный стиль рабочего стола вручную",
+    ),
     "dashboard": MessageLookupByLibrary.simpleMessage("Обзор"),
     "days": m0,
     "defaultNameserver": MessageLookupByLibrary.simpleMessage(
@@ -388,13 +396,16 @@ class MessageLookup extends MessageLookupByLibrary {
       "Изменить перенаправление",
     ),
     "emptyTip": m3,
-    "en": MessageLookupByLibrary.simpleMessage("Английский"),
     "enableCrashReport": MessageLookupByLibrary.simpleMessage("Анализ сбоев"),
     "enableCrashReportDesc": MessageLookupByLibrary.simpleMessage(
       "Отправка отчётов о сбоях при необходимости",
     ),
     "enableOverride": MessageLookupByLibrary.simpleMessage(
       "Включить переопределение",
+    ),
+    "enableTraySpeed": MessageLookupByLibrary.simpleMessage("Скорость сети"),
+    "enableTraySpeedDesc": MessageLookupByLibrary.simpleMessage(
+      "Отображение скорости отдачи и загрузки в строке меню",
     ),
     "endpointIndependentNat": MessageLookupByLibrary.simpleMessage(
       "Улучшенный NAT",
@@ -598,7 +609,6 @@ class MessageLookup extends MessageLookupByLibrary {
     "ipv6InboundDesc": MessageLookupByLibrary.simpleMessage(
       "Разрешить входящие IPv6",
     ),
-    "ja": MessageLookupByLibrary.simpleMessage("Японский"),
     "just": MessageLookupByLibrary.simpleMessage("Только что"),
     "keepAliveIntervalDesc": MessageLookupByLibrary.simpleMessage(
       "Интервал TCP keep-alive",
@@ -611,6 +621,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "lightIconDesc": MessageLookupByLibrary.simpleMessage(
       "Переключить на светлый стиль рабочего стола вручную",
     ),
+    "lineWrap": MessageLookupByLibrary.simpleMessage("Перенос строк"),
     "list": MessageLookupByLibrary.simpleMessage("Список"),
     "listen": MessageLookupByLibrary.simpleMessage("Прослушивание"),
     "local": MessageLookupByLibrary.simpleMessage("Локальное хранилище"),
@@ -753,7 +764,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "options": MessageLookupByLibrary.simpleMessage("Опции"),
     "other": MessageLookupByLibrary.simpleMessage("Другое"),
     "otherContributors": MessageLookupByLibrary.simpleMessage(
-      "Другие участники",
+      "Другие участники (в случайном порядке)",
     ),
     "otherSettings": MessageLookupByLibrary.simpleMessage(
       "Расширенные инструменты",
@@ -954,6 +965,8 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "remove": MessageLookupByLibrary.simpleMessage("Удалить"),
     "rename": MessageLookupByLibrary.simpleMessage("Переименовать"),
+    "replace": MessageLookupByLibrary.simpleMessage("Заменить"),
+    "replaceAll": MessageLookupByLibrary.simpleMessage("Заменить все"),
     "request": MessageLookupByLibrary.simpleMessage("Запрос"),
     "requests": MessageLookupByLibrary.simpleMessage("Запросы"),
     "requestsDesc": MessageLookupByLibrary.simpleMessage(
@@ -980,7 +993,6 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "retry": MessageLookupByLibrary.simpleMessage("Повторить"),
     "rotatingCircle": MessageLookupByLibrary.simpleMessage("Вращающийся круг"),
-    "ru": MessageLookupByLibrary.simpleMessage("Русский"),
     "rule": MessageLookupByLibrary.simpleMessage("Правила"),
     "ruleName": MessageLookupByLibrary.simpleMessage("Имя правила"),
     "ruleProviders": MessageLookupByLibrary.simpleMessage("Провайдеры правил"),
@@ -1006,6 +1018,13 @@ class MessageLookup extends MessageLookupByLibrary {
     "serviceRunning": MessageLookupByLibrary.simpleMessage("Служба запущена"),
     "settings": MessageLookupByLibrary.simpleMessage("Настройки"),
     "show": MessageLookupByLibrary.simpleMessage("Показать"),
+    "showHiddenItems": MessageLookupByLibrary.simpleMessage("Показать скрытые"),
+    "showStartSwitch": MessageLookupByLibrary.simpleMessage(
+      "Связанный переключатель",
+    ),
+    "showStartSwitchDesc": MessageLookupByLibrary.simpleMessage(
+      "Отображать отдельную кнопку переключения на главной странице",
+    ),
     "shrink": MessageLookupByLibrary.simpleMessage("Стандарт"),
     "silentLaunch": MessageLookupByLibrary.simpleMessage("Тихий запуск"),
     "silentLaunchDesc": MessageLookupByLibrary.simpleMessage(
@@ -1095,10 +1114,6 @@ class MessageLookup extends MessageLookupByLibrary {
       "Настроить системный прокси",
     ),
     "tab": MessageLookupByLibrary.simpleMessage("Вкладки"),
-    "tabAnimation": MessageLookupByLibrary.simpleMessage("Анимация вкладок"),
-    "tabAnimationDesc": MessageLookupByLibrary.simpleMessage(
-      "Работает только в мобильном режиме",
-    ),
     "tcpConcurrent": MessageLookupByLibrary.simpleMessage("TCP параллелизм"),
     "tcpConcurrentDesc": MessageLookupByLibrary.simpleMessage(
       "Разрешить параллельные TCP-соединения",
@@ -1148,7 +1163,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "Использовать TUN для перехвата трафика устройства",
     ),
     "tunEnableRequireAdmin": MessageLookupByLibrary.simpleMessage(
-      "Для включения виртуального адаптера требуются права администратора. Запустите программу от имени администратора.",
+      "Для включения виртуального адаптера TUN требуются права администратора или ROOT.",
     ),
     "tunnel": MessageLookupByLibrary.simpleMessage("Туннель"),
     "tunnelAddress": MessageLookupByLibrary.simpleMessage(
@@ -1208,6 +1223,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "vpnEnableDesc": MessageLookupByLibrary.simpleMessage(
       "Автоматическая маршрутизация всего трафика через VpnService",
     ),
+    "vpnSystemProxyConfirmDesc": MessageLookupByLibrary.simpleMessage(
+      "HTTP-прокси обычно не рекомендуется на мобильных платформах. Включайте эту функцию только при необходимости и если вы осознаёте возможные последствия.",
+    ),
     "vpnSystemProxyDesc": MessageLookupByLibrary.simpleMessage(
       "Добавить HTTP-прокси к VPN",
     ),
@@ -1231,7 +1249,5 @@ class MessageLookup extends MessageLookupByLibrary {
       "Требуются права администратора",
     ),
     "years": m14,
-    "zh_CN": MessageLookupByLibrary.simpleMessage("Китайский (упрощённый)"),
-    "zh_TC": MessageLookupByLibrary.simpleMessage("Китайский (традиционный)"),
   };
 }

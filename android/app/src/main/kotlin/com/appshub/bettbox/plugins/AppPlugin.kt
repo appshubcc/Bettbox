@@ -3,6 +3,7 @@ package com.appshub.bettbox.plugins
 import android.Manifest
 import android.app.Activity
 import android.app.ActivityManager
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.pm.ApplicationInfo
@@ -247,7 +248,7 @@ class AppPlugin : FlutterPlugin, MethodChannel.MethodCallHandler, ActivityAware 
                 result.success(true)
             }
             "setLauncherIcon" -> {
-                setLauncherIcon(call.argument<Boolean>("useLightIcon") ?: false)
+                setLauncherIcon(call.argument<Boolean>("useDarkIcon") ?: false)
                 result.success(true)
             }
             "hasPackageListPermission" -> {
@@ -267,8 +268,23 @@ class AppPlugin : FlutterPlugin, MethodChannel.MethodCallHandler, ActivityAware 
             "isAndroidTV" -> {
                 result.success(isAndroidTV())
             }
+            "openFcmDiagnostics" -> {
+                result.success(openFcmDiagnostics())
+            }
             else -> result.notImplemented()
         }
+    }
+
+    private fun openFcmDiagnostics(): Boolean {
+        val context = BettboxApplication.getAppContext()
+        val intent = Intent().apply {
+            component = ComponentName("com.google.android.gms", "com.google.android.gms.gcm.GcmDiagnostics")
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
+        return runCatching {
+            context.startActivity(intent)
+            true
+        }.getOrElse { false }
     }
 
     private fun openFile(path: String) {
@@ -533,18 +549,21 @@ class AppPlugin : FlutterPlugin, MethodChannel.MethodCallHandler, ActivityAware 
             }
     }
 
-    private fun setLauncherIcon(useLightIcon: Boolean) {
+    private fun setLauncherIcon(useDarkIcon: Boolean) {
         val context = BettboxApplication.getAppContext()
         val pm = context.packageManager
         val packageName = context.packageName
         val defaultComponent = android.content.ComponentName(packageName, "com.appshub.bettbox.MainActivity")
         val lightComponent = android.content.ComponentName(packageName, "com.appshub.bettbox.MainActivityLight")
+        val darkComponent = android.content.ComponentName(packageName, "com.appshub.bettbox.MainActivityDark")
 
-        if (useLightIcon) {
-            pm.setComponentEnabledSetting(lightComponent, PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP)
+        if (useDarkIcon) {
+            pm.setComponentEnabledSetting(darkComponent, PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP)
             pm.setComponentEnabledSetting(defaultComponent, PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP)
+            pm.setComponentEnabledSetting(lightComponent, PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP)
         } else {
             pm.setComponentEnabledSetting(defaultComponent, PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP)
+            pm.setComponentEnabledSetting(darkComponent, PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP)
             pm.setComponentEnabledSetting(lightComponent, PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP)
         }
         com.appshub.bettbox.services.NotificationComponentCache.invalidate()

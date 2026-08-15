@@ -2958,6 +2958,22 @@ class CodeForgeController implements DeltaTextInputClient {
     final wasComposingAtStart = isComposingActive;
 
     _ensureImeProjection();
+    final projectionBaseStart = _imeProjectionStartOffset;
+    var platformBaseText = _imeProjectionText;
+
+    int localToGlobal(int localUtf16Offset) {
+      final scalarLocal = utf16ToScalarOffset(
+        platformBaseText,
+        localUtf16Offset,
+      );
+      return (projectionBaseStart + scalarLocal).clamp(0, length);
+    }
+
+    TextSelection localSelToGlobal(TextSelection sel) => TextSelection(
+      baseOffset: localToGlobal(sel.baseOffset),
+      extentOffset: localToGlobal(sel.extentOffset),
+    );
+
     bool typingDetected = false;
 
     _suppressImeSync = true;
@@ -2987,9 +3003,7 @@ class CodeForgeController implements DeltaTextInputClient {
       _lastSentSelection = null;
 
       if (delta is TextEditingDeltaInsertion) {
-        final mappedInsertionOffset = _localImeOffsetToGlobal(
-          delta.insertionOffset,
-        );
+        final mappedInsertionOffset = localToGlobal(delta.insertionOffset);
         final staleMappedOffset =
             mappedInsertionOffset < _selection.extentOffset;
         bool useCurrentSelection =
@@ -3022,10 +3036,10 @@ class CodeForgeController implements DeltaTextInputClient {
       } else if (delta is TextEditingDeltaDeletion) {
         _handleDeletion(
           TextRange(
-            start: _localImeOffsetToGlobal(delta.deletedRange.start),
-            end: _localImeOffsetToGlobal(delta.deletedRange.end),
+            start: localToGlobal(delta.deletedRange.start),
+            end: localToGlobal(delta.deletedRange.end),
           ),
-          _localImeSelectionToGlobal(delta.selection),
+          localSelToGlobal(delta.selection),
         );
       } else if (delta is TextEditingDeltaReplacement) {
         if (delta.replacementText.isNotEmpty &&
@@ -3034,13 +3048,17 @@ class CodeForgeController implements DeltaTextInputClient {
         }
         _handleReplacement(
           TextRange(
-            start: _localImeOffsetToGlobal(delta.replacedRange.start),
-            end: _localImeOffsetToGlobal(delta.replacedRange.end),
+            start: localToGlobal(delta.replacedRange.start),
+            end: localToGlobal(delta.replacedRange.end),
           ),
           delta.replacementText,
-          _localImeSelectionToGlobal(delta.selection),
+          localSelToGlobal(delta.selection),
         );
       }
+
+      platformBaseText = delta.apply(
+        TextEditingValue(text: platformBaseText),
+      ).text;
 
       _trackImeComposing(
         delta.composing,
@@ -3896,8 +3914,13 @@ class CodeForgeController implements DeltaTextInputClient {
       if (deleteOffset >= _bufferLineRopeStart && deleteOffset < bufferEnd) {
         final localOffset = deleteOffset - _bufferLineRopeStart;
         final utf16Local = scalarToStringIndex(_bufferLineText!, localOffset);
-        final charToDelete = _rope.charAt(deleteOffset);
-        final utf16End = utf16Local + charToDelete.length;
+        final cu = _bufferLineText!.codeUnitAt(utf16Local);
+        final charLen = (cu >= 0xD800 && cu <= 0xDBFF) ? 2 : 1;
+        final charToDelete = _bufferLineText!.substring(
+          utf16Local,
+          utf16Local + charLen,
+        );
+        final utf16End = utf16Local + charLen;
         deletedText = charToDelete;
         _bufferLineText =
             _bufferLineText!.substring(0, utf16Local) +
@@ -4083,8 +4106,13 @@ class CodeForgeController implements DeltaTextInputClient {
       if (deleteOffset >= _bufferLineRopeStart && deleteOffset < bufferEnd) {
         final localOffset = deleteOffset - _bufferLineRopeStart;
         final utf16Local = scalarToStringIndex(_bufferLineText!, localOffset);
-        final charToDelete = _rope.charAt(deleteOffset);
-        final utf16End = utf16Local + charToDelete.length;
+        final cu = _bufferLineText!.codeUnitAt(utf16Local);
+        final charLen = (cu >= 0xD800 && cu <= 0xDBFF) ? 2 : 1;
+        final charToDelete = _bufferLineText!.substring(
+          utf16Local,
+          utf16Local + charLen,
+        );
+        final utf16End = utf16Local + charLen;
         deletedText = charToDelete;
         _bufferLineText =
             _bufferLineText!.substring(0, utf16Local) +

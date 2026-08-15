@@ -4635,6 +4635,10 @@ class _CodeFieldRenderer extends RenderBox implements MouseTrackerAnnotation {
   final Map<Rect, DocumentColor> _colorBoxHitAreas = {};
   final Map<int, ui.Paragraph> _paragraphCache = {};
   final Map<int, double> _lineHeightCache = {};
+  ui.Paragraph? _bufferParagraph;
+  int? _bufferParagraphLine;
+  int _bufferParagraphTextHash = 0;
+  double? _bufferParagraphWidth;
   final Map<int, FoldRange?> _foldRanges = {};
   final Map<int, int?> _bracketCache = {};
   final Map<
@@ -8108,11 +8112,22 @@ class _CodeFieldRenderer extends RenderBox implements MouseTrackerAnnotation {
 
       if (bufferActive && i == bufferLineIndex && bufferLineText != null) {
         lineText = bufferLineText;
-        paragraph = _buildHighlightedParagraph(
-          i,
-          bufferLineText,
-          width: paragraphWidth,
-        );
+        final textHash = bufferLineText.hashCode;
+        final pw = paragraphWidth;
+        if (_bufferParagraphLine != i ||
+            _bufferParagraphTextHash != textHash ||
+            _bufferParagraphWidth != pw) {
+          _bufferParagraph?.dispose();
+          _bufferParagraph = _buildHighlightedParagraph(
+            i,
+            bufferLineText,
+            width: pw,
+          );
+          _bufferParagraphLine = i;
+          _bufferParagraphTextHash = textHash;
+          _bufferParagraphWidth = pw;
+        }
+        paragraph = _bufferParagraph!;
         if (isRTL && lineWrap) {
           lineHeight = paragraph.height;
         }
@@ -8135,7 +8150,10 @@ class _CodeFieldRenderer extends RenderBox implements MouseTrackerAnnotation {
           _paragraphCache[i] = paragraph;
 
           if (lineWrap) {
-            _lineHeightCache[i] = paragraph.height;
+            if (_lineHeightCache[i] != paragraph.height) {
+              _lineHeightCache[i] = paragraph.height;
+              _invalidateWrappedLayoutCache();
+            }
             if (isRTL) {
               lineHeight = paragraph.height;
             }
@@ -11737,6 +11755,7 @@ class _CodeFieldRenderer extends RenderBox implements MouseTrackerAnnotation {
     _resizeTimer?.cancel();
     _layoutDebounceTimer?.cancel();
     _bracketHighlightResumeTimer?.cancel();
+    _bufferParagraph?.dispose();
     controller.removeListener(_onControllerChange);
     controller.setScrollCallback(null);
     _syntaxHighlighter?.dispose();
@@ -11883,18 +11902,11 @@ class _CodeFieldRenderer extends RenderBox implements MouseTrackerAnnotation {
       }
       _isGutterPointer = false;
 
-      if (controller.connection == null ||
-          !controller.connection!.attached ||
-          !focusNode.hasFocus) {
+      if (!focusNode.hasFocus) {
         focusNode.requestFocus();
-        if (focusNode.hasFocus) {
-          controller.connection!.setEditingState(
-            TextEditingValue(
-              text: controller.text,
-              selection: controller.selection,
-            ),
-          );
-        }
+      } else if (controller.connection == null ||
+          !controller.connection!.attached) {
+        controller.requestImeReset?.call();
       }
       _openedLspActionFromBulbTap = false;
       _onetap.addPointer(event);

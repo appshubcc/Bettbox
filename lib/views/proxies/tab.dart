@@ -276,9 +276,9 @@ class ProxiesTabViewState extends ConsumerState<ProxiesTabView>
                     controller: _tabController,
                     padding: EdgeInsets.only(
                       left: 16,
-                      right:
-                          (globalState.isAndroidTV ? 48 : 0) +
-                          (value ? 16 : 0),
+                      right: globalState.isAndroidTV
+                          ? 48
+                          : (value ? 48 : 0),
                     ),
                     dividerColor: Colors.transparent,
                     isScrollable: true,

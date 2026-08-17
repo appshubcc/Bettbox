@@ -232,7 +232,6 @@ TrayState trayState(Ref ref) {
     groups: groups,
     selectedMap: selectedMap,
     wakelockEnabled: wakelockEnabled,
-    trayEnhancement: vpnProps.trayEnhancement,
     enableTraySpeed: vpnProps.enableTraySpeed,
   );
 }

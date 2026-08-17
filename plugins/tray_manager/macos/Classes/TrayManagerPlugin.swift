@@ -157,17 +157,17 @@ public class TrayManagerPlugin: NSObject, FlutterPlugin, NSMenuDelegate {
         
         if (trayIcon == nil) {
             trayIcon = TrayIcon()
-            trayIcon?.onTrayIconMouseDown = { () in
-                self.channel.invokeMethod(kEventOnTrayIconMouseDown, arguments: nil, result: nil)
+            trayIcon?.onTrayIconMouseDown = { (optionKeyPressed) in
+                self.channel.invokeMethod(kEventOnTrayIconMouseDown, arguments: ["optionKeyPressed": optionKeyPressed], result: nil)
             }
-            trayIcon?.onTrayIconMouseUp = { () in
-                self.channel.invokeMethod(kEventOnTrayIconMouseUp, arguments: nil, result: nil)
+            trayIcon?.onTrayIconMouseUp = { (optionKeyPressed) in
+                self.channel.invokeMethod(kEventOnTrayIconMouseUp, arguments: ["optionKeyPressed": optionKeyPressed], result: nil)
             }
-            trayIcon?.onTrayIconRightMouseDown = { () in
-                self.channel.invokeMethod(kEventOnTrayIconRightMouseDown, arguments: nil, result: nil)
+            trayIcon?.onTrayIconRightMouseDown = { (optionKeyPressed) in
+                self.channel.invokeMethod(kEventOnTrayIconRightMouseDown, arguments: ["optionKeyPressed": optionKeyPressed], result: nil)
             }
-            trayIcon?.onTrayIconRightMouseUp = { () in
-                self.channel.invokeMethod(kEventOnTrayIconRightMouseUp, arguments: nil, result: nil)
+            trayIcon?.onTrayIconRightMouseUp = { (optionKeyPressed) in
+                self.channel.invokeMethod(kEventOnTrayIconRightMouseUp, arguments: ["optionKeyPressed": optionKeyPressed], result: nil)
             }
         }
         

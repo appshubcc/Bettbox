@@ -524,7 +524,13 @@ class _DelayTestButtonState extends ConsumerState<DelayTestButton>
   bool get _isTesting => delayTestCoordinator.isTestingGroup(widget.groupName);
 
   Future<void> _healthcheck() async {
-    if (delayTestCoordinator.isTesting) {
+    final testingGroupName = delayTestCoordinator.testingGroupName;
+    if (testingGroupName != null) {
+      if (testingGroupName != widget.groupName && mounted) {
+        context.showSnackBar(
+          '$testingGroupName ${appLocalizations.testingDelay}',
+        );
+      }
       return;
     }
     await widget.onClick();
@@ -582,8 +588,7 @@ class _DelayTestButtonState extends ConsumerState<DelayTestButton>
           children: [
             FloatingActionButton.extended(
               heroTag: null,
-              onPressed:
-                  delayTestCoordinator.isTesting || widget.groupName.isEmpty
+              onPressed: _isTesting || widget.groupName.isEmpty
                   ? null
                   : _healthcheck,
               icon: Transform.scale(

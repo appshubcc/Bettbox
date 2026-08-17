@@ -186,7 +186,18 @@ _VpnProps _$VpnPropsFromJson(Map<String, dynamic> json) => _VpnProps(
   disableQuic: json['disableQuic'] as bool? ?? false,
   networkSpeedNotification: json['networkSpeedNotification'] as bool? ?? false,
   excludeChina: json['excludeChina'] as bool? ?? false,
-  trayEnhancement: json['trayEnhancement'] as bool? ?? false,
+  trayLeftClickBehavior:
+      $enumDecodeNullable(
+        _$TrayClickBehaviorEnumMap,
+        json['trayLeftClickBehavior'],
+      ) ??
+      TrayClickBehavior.showPanel,
+  trayRightClickBehavior:
+      $enumDecodeNullable(
+        _$TrayClickBehaviorEnumMap,
+        json['trayRightClickBehavior'],
+      ) ??
+      TrayClickBehavior.showMenu,
   enableTraySpeed: json['enableTraySpeed'] as bool? ?? false,
   alwaysShowTitleBar: json['alwaysShowTitleBar'] as bool? ?? true,
   quickResponse: json['quickResponse'] as bool? ?? true,
@@ -208,11 +219,19 @@ Map<String, dynamic> _$VpnPropsToJson(_VpnProps instance) => <String, dynamic>{
   'disableQuic': instance.disableQuic,
   'networkSpeedNotification': instance.networkSpeedNotification,
   'excludeChina': instance.excludeChina,
-  'trayEnhancement': instance.trayEnhancement,
+  'trayLeftClickBehavior':
+      _$TrayClickBehaviorEnumMap[instance.trayLeftClickBehavior]!,
+  'trayRightClickBehavior':
+      _$TrayClickBehaviorEnumMap[instance.trayRightClickBehavior]!,
   'enableTraySpeed': instance.enableTraySpeed,
   'alwaysShowTitleBar': instance.alwaysShowTitleBar,
   'quickResponse': instance.quickResponse,
   'accessControl': instance.accessControl,
+};
+
+const _$TrayClickBehaviorEnumMap = {
+  TrayClickBehavior.showPanel: 'showPanel',
+  TrayClickBehavior.showMenu: 'showMenu',
 };
 
 _NetworkProps _$NetworkPropsFromJson(Map<String, dynamic> json) =>

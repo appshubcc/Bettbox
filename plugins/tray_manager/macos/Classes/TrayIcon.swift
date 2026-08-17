@@ -28,10 +28,10 @@ public class TrayIcon: NSView {
         1024.0 * 1024.0 * 1024.0 * 1024.0,
     ]
 
-    public var onTrayIconMouseDown:(() -> Void)?
-    public var onTrayIconMouseUp:(() -> Void)?
-    public var onTrayIconRightMouseDown:(() -> Void)?
-    public var onTrayIconRightMouseUp:(() -> Void)?
+    public var onTrayIconMouseDown:((Bool) -> Void)?
+    public var onTrayIconMouseUp:((Bool) -> Void)?
+    public var onTrayIconRightMouseDown:((Bool) -> Void)?
+    public var onTrayIconRightMouseUp:((Bool) -> Void)?
     
     var statusItem: NSStatusItem?
     private var sourceImage: NSImage?
@@ -241,19 +241,19 @@ public class TrayIcon: NSView {
     
     public override func mouseDown(with event: NSEvent) {
         statusItem?.button?.highlight(true)
-        self.onTrayIconMouseDown!()
+        self.onTrayIconMouseDown!(event.modifierFlags.contains(.option))
     }
     
     public override func mouseUp(with event: NSEvent) {
         statusItem?.button?.highlight(false)
-        self.onTrayIconMouseUp!()
+        self.onTrayIconMouseUp!(event.modifierFlags.contains(.option))
     }
     
     public override func rightMouseDown(with event: NSEvent) {
-        self.onTrayIconRightMouseDown!()
+        self.onTrayIconRightMouseDown!(event.modifierFlags.contains(.option))
     }
     
     public override func rightMouseUp(with event: NSEvent) {
-        self.onTrayIconRightMouseUp!()
+        self.onTrayIconRightMouseUp!(event.modifierFlags.contains(.option))
     }
 }

@@ -86,6 +86,8 @@ enum Mode { rule, global, direct }
 
 enum IpClickBehavior { privacyProtection, manualRefresh, switchDomestic }
 
+enum TrayClickBehavior { showPanel, showMenu }
+
 enum ViewMode { mobile, laptop, desktop }
 
 enum LogLevel { debug, info, warning, error, silent }
@@ -120,7 +122,12 @@ enum AccessSortType { none, name, time }
 
 enum ProfileType { file, url }
 
-enum ConnectionsSortType { defaultSort, realTimeSpeed, totalTraffic, creationTime }
+enum ConnectionsSortType {
+  defaultSort,
+  realTimeSpeed,
+  totalTraffic,
+  creationTime,
+}
 
 enum ResultType {
   @JsonValue(0)
@@ -385,7 +392,6 @@ extension PageLabelExtension on PageLabel {
     }
   }
 }
-
 
 enum RuleAction {
   DOMAIN('DOMAIN'),

@@ -35,19 +35,28 @@ class _TrayContainerState extends ConsumerState<TrayManager> with TrayListener {
     return widget.child;
   }
 
+  Future<void> _toggleWindow() async {
+    final isVisible = await window?.isVisible;
+    if (isVisible == true) {
+      await window?.hide();
+    } else {
+      await window?.show();
+    }
+  }
+
   Future<void> _handleTrayIconClick({required bool isRightClick}) async {
     if (system.isWindows) {
       if (isRightClick) {
         // ignore: deprecated_member_use
         await trayManager.popUpContextMenu(bringAppToFront: true);
       } else {
-        window?.show();
+        await _toggleWindow();
       }
       return;
     }
     if (system.isLinux) {
       if (!isRightClick) {
-        window?.show();
+        await _toggleWindow();
       }
       return;
     }
@@ -60,7 +69,7 @@ class _TrayContainerState extends ConsumerState<TrayManager> with TrayListener {
       await trayManager.popUpContextMenu(bringAppToFront: true);
       return;
     }
-    window?.show();
+    await _toggleWindow();
   }
 
   @override

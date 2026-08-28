@@ -206,6 +206,10 @@ final wakelockStateProvider = StateProvider<bool>((ref) => false);
 
 final isRestartingCoreProvider = StateProvider<bool>((ref) => false);
 
+final serverSideDecorationProvider = FutureProvider<bool>((ref) {
+  return isServerSideDecorationEnabled();
+});
+
 @riverpod
 TrayState trayState(Ref ref) {
   final isStart = ref.watch(runTimeProvider.select((state) => state != null));

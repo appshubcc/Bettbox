@@ -1075,6 +1075,13 @@ class MessageLookup extends MessageLookupByLibrary {
     "specialProxy": MessageLookupByLibrary.simpleMessage("Special Proxy"),
     "specialRules": MessageLookupByLibrary.simpleMessage("Special Rules"),
     "spinningLines": MessageLookupByLibrary.simpleMessage("Spinning Lines"),
+    "ssd": MessageLookupByLibrary.simpleMessage("Native Title Bar"),
+    "ssdDesc": MessageLookupByLibrary.simpleMessage(
+      "Use the desktop environment native title bar (takes effect after restart)",
+    ),
+    "ssdRestartTip": MessageLookupByLibrary.simpleMessage(
+      "Restart the app to apply the title bar change",
+    ),
     "stackMode": MessageLookupByLibrary.simpleMessage("Stack Mode"),
     "standard": MessageLookupByLibrary.simpleMessage("Standard"),
     "start": MessageLookupByLibrary.simpleMessage("Start"),

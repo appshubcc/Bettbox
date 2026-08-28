@@ -140,6 +140,9 @@ class WindowHeaderContainer extends StatelessWidget {
       builder: (_, ref, child) {
         final isMobileView = ref.watch(isMobileViewProvider);
         final version = ref.watch(versionProvider);
+        if (ssdEnabled && system.isLinux) {
+          return child!;
+        }
         if ((version <= 10 || !isMobileView) && system.isMacOS) {
           return child!;
         }

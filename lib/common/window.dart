@@ -3,9 +3,29 @@ import 'dart:io';
 import 'package:bett_box/common/common.dart';
 import 'package:bett_box/state.dart';
 import 'package:flutter/material.dart';
+import 'package:path/path.dart';
 import 'package:screen_retriever/screen_retriever.dart';
 import 'package:tray_manager/tray_manager.dart';
 import 'package:window_manager/window_manager.dart';
+
+Future<String> get ssdPreferencePath async {
+  final dir = await appPath.homeDirPath;
+  return join(dir, 'prefer_ssd');
+}
+
+Future<bool> isServerSideDecorationEnabled() async {
+  if (!system.isLinux) return false;
+  try {
+    final content = await File(await ssdPreferencePath).readAsString();
+    return content.trim() == '1';
+  } catch (_) {
+    return false;
+  }
+}
+
+bool _ssdEnabled = false;
+
+bool get ssdEnabled => _ssdEnabled;
 
 class Window {
   Future<void> init() async {
@@ -16,11 +36,14 @@ class Window {
       protocol.register('bettbox');
     }
     await windowManager.ensureInitialized();
+    _ssdEnabled = await isServerSideDecorationEnabled();
     WindowOptions windowOptions = WindowOptions(
       size: Size(props.width, props.height),
       minimumSize: const Size(380, 400),
     );
-    await windowManager.setTitleBarStyle(TitleBarStyle.hidden);
+    if (!_ssdEnabled) {
+      await windowManager.setTitleBarStyle(TitleBarStyle.hidden);
+    }
     await windowManager.setAlwaysOnTop(props.isPinned);
     if (!system.isMacOS) {
       final left = props.left ?? 0;

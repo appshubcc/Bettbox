@@ -1101,6 +1101,13 @@ class MessageLookup extends MessageLookupByLibrary {
     "specialProxy": MessageLookupByLibrary.simpleMessage("پروکسی ویژه"),
     "specialRules": MessageLookupByLibrary.simpleMessage("قوانین ویژه"),
     "spinningLines": MessageLookupByLibrary.simpleMessage("خطوط چرخان"),
+    "ssd": MessageLookupByLibrary.simpleMessage("نوار عنوان بومی"),
+    "ssdDesc": MessageLookupByLibrary.simpleMessage(
+      "استفاده از نوار عنوان بومی محیط دسکتاپ (پس از راه‌اندازی مجدد اعمال می‌شود)",
+    ),
+    "ssdRestartTip": MessageLookupByLibrary.simpleMessage(
+      "برای اعمال تغییر نوار عنوان، برنامه را راه‌اندازی مجدد کنید",
+    ),
     "stackMode": MessageLookupByLibrary.simpleMessage("حالت پشته"),
     "standard": MessageLookupByLibrary.simpleMessage("استاندارد"),
     "start": MessageLookupByLibrary.simpleMessage("شروع"),

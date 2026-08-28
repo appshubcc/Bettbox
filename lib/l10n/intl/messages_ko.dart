@@ -866,6 +866,13 @@ class MessageLookup extends MessageLookupByLibrary {
     "specialProxy": MessageLookupByLibrary.simpleMessage("특수 프록시"),
     "specialRules": MessageLookupByLibrary.simpleMessage("특수 규칙"),
     "spinningLines": MessageLookupByLibrary.simpleMessage("스핀 라인"),
+    "ssd": MessageLookupByLibrary.simpleMessage("네이티브 제목 표시줄"),
+    "ssdDesc": MessageLookupByLibrary.simpleMessage(
+      "데스크톱 환경 기본 제목 표시줄 사용 (재시작 후 적용)",
+    ),
+    "ssdRestartTip": MessageLookupByLibrary.simpleMessage(
+      "제목 표시줄 변경을 적용하려면 앱을 재시작하세요",
+    ),
     "stackMode": MessageLookupByLibrary.simpleMessage("스택 모드"),
     "standard": MessageLookupByLibrary.simpleMessage("표준"),
     "start": MessageLookupByLibrary.simpleMessage("시작"),

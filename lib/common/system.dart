@@ -33,6 +33,10 @@ class System {
 
   bool get isAndroid => Platform.isAndroid;
 
+  bool get isOhos => Platform.operatingSystem == 'ohos';
+
+  bool get isMobile => isAndroid || isOhos;
+
   bool get isLinux => Platform.isLinux;
 
   Future<int> get version async {

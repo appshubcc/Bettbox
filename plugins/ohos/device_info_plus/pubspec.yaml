@@ -1,0 +1,53 @@
+name: device_info_plus
+description: Flutter plugin providing detailed information about the device
+  (make, model, etc.), and Android or iOS version the app is running on.
+version: 9.1.0
+homepage: https://plus.fluttercommunity.dev/
+repository: https://gitee.com/openharmony-sig/flutter_plus_plugins/tree/master/packages/device_info_plus/device_info_plus
+issue_tracker: https://gitee.com/openharmony-sig/flutter_plus_plugins/issues
+
+flutter:
+  plugin:
+    platforms:
+      android:
+        package: dev.fluttercommunity.plus.device_info
+        pluginClass: DeviceInfoPlusPlugin
+      ios:
+        pluginClass: FPPDeviceInfoPlusPlugin
+      linux:
+        dartPluginClass: DeviceInfoPlusLinuxPlugin
+      web:
+        pluginClass: DeviceInfoPlusWebPlugin
+        fileName: src/device_info_plus_web.dart
+      macos:
+        pluginClass: DeviceInfoPlusMacosPlugin
+      ohos:
+        package: dev.fluttercommunity.plus.device_info
+        pluginClass: DeviceInfoPlusOhosPlugin
+      windows:
+        dartPluginClass: DeviceInfoPlusWindowsPlugin
+
+dependencies:
+  device_info_plus_platform_interface: ^7.0.0
+  ffi: ^2.0.1
+  file: ">=6.1.4 <8.0.0"
+  flutter:
+    sdk: flutter
+  flutter_web_plugins:
+    sdk: flutter
+  meta: ^1.8.0
+
+  # win32 is compatible across v4 and v5 for Win32 only (not COM)
+  win32: ">=4.0.0 <6.0.0"
+  win32_registry: ">=1.1.0 <3.0.0"
+
+dev_dependencies:
+  flutter_lints: ^2.0.1
+  flutter_test:
+    sdk: flutter
+  mockito: ^5.4.0
+  test: ^1.22.0
+
+environment:
+  sdk: ">=2.18.0 <4.0.0"
+  flutter: ">=3.3.0"

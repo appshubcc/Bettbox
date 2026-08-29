@@ -147,10 +147,7 @@ CoreState coreState(Ref ref) {
 
 @riverpod
 UpdateParams updateParams(Ref ref) {
-  final (
-    :bypassPrivateRoute,
-    :realBypassPrivateRouteAddress,
-  ) = ref.watch(
+  final (:bypassPrivateRoute, :realBypassPrivateRouteAddress) = ref.watch(
     networkSettingProvider.select(
       (state) => (
         bypassPrivateRoute: state.bypassPrivateRoute,
@@ -270,7 +267,7 @@ NavigationState navigationState(Ref ref) {
 DashboardState dashboardState(Ref ref) {
   final dashboardWidgets = ref.watch(
     appSettingProvider.select(
-      (state) => system.isAndroid
+      (state) => system.isMobile
           ? state.mobileDashboardWidgets
           : state.desktopDashboardWidgets,
     ),

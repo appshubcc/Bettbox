@@ -1,0 +1,9 @@
+diff --git a/pkg/tcpip/link/fdbased/endpoint.go b/pkg/tcpip/link/fdbased/endpoint.go
+--- a/pkg/tcpip/link/fdbased/endpoint.go
++++ b/pkg/tcpip/link/fdbased/endpoint.go
+@@ -476,0 +477,5 @@ func IsSocketFD(fd int) (bool, error) {
++		// HarmonyOS VPN descriptors deny fstat even though readv/writev and
++		// non-blocking mode are supported. They are TUN devices, not sockets.
++		if err == unix.EPERM || err == unix.EACCES {
++			return false, nil
++		}

@@ -1,0 +1,10 @@
+{
+  "module": {
+    "name": "shared_preferences_ohos",
+    "type": "har",
+    "deviceTypes": [
+      "default",
+      "tablet"
+    ]
+  }
+}

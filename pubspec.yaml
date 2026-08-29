@@ -11,12 +11,14 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   intl: ^0.20.0
-  path_provider: ^2.1.6
+  path_provider: 2.1.5
   path: ^1.9.0
   shared_preferences: ^2.5.5
+  shared_preferences_ohos:
+    path: plugins/ohos/shared_preferences_ohos
   window_manager: ^0.5.2
   dynamic_color: ^1.8.1
-  material_color_utilities: ^0.13.0
+  material_color_utilities: 0.11.1
   vclibs: ^0.1.3
   proxy:
     path: plugins/proxy
@@ -34,8 +36,10 @@ dependencies:
   animations: ^2.1.2
   package_info_plus: ^9.0.1
   url_launcher: ^6.3.2
+  url_launcher_ohos:
+    path: plugins/ohos/url_launcher_ohos
   freezed_annotation: ^3.1.0
-  image_picker: ^1.2.3
+  image_picker: 1.2.2
   webdav_client: ^1.2.2
   dio: ^5.10.0
   win32: ^5.15.0
@@ -47,8 +51,10 @@ dependencies:
   hotkey_manager: ^0.2.3
   uni_platform: ^0.1.3
   device_info_plus: ^12.4.0
-  sqflite: ^2.4.3
-  sqflite_common_ffi: ^2.4.2
+  path_provider_ohos:
+    path: plugins/ohos/path_provider_ohos
+  sqflite: 2.4.2
+  sqflite_common_ffi: 2.3.7+1
   yaml: ^3.1.2
   connectivity_plus: 7.0.0
   screen_retriever: ^0.2.0
@@ -71,6 +77,10 @@ dependencies:
   flutter_qjs:
     path: plugins/flutter_qjs
 dependency_overrides:
+  device_info_plus:
+    path: plugins/ohos/device_info_plus
+  package_info_plus:
+    path: plugins/ohos/package_info_plus
   # Fix compile failure: https://github.com/leanflutter/hotkey_manager/pull/66
   hotkey_manager_linux:
     git:

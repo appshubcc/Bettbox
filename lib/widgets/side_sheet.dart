@@ -343,6 +343,7 @@ class _ModalSideSheetState<T> extends State<_ModalSideSheet<T>> {
       case TargetPlatform.macOS:
         return '';
       case TargetPlatform.android:
+      case TargetPlatform.ohos:
       case TargetPlatform.fuchsia:
       case TargetPlatform.linux:
       case TargetPlatform.windows:

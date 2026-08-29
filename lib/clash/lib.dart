@@ -14,6 +14,9 @@ import 'package:bett_box/state.dart';
 import 'generated/clash_ffi.dart';
 import 'interface.dart';
 
+typedef _GetTunErrorNative = Pointer<Char> Function();
+typedef _GetTunErrorDart = Pointer<Char> Function();
+
 class ClashLib extends ClashHandlerInterface with AndroidClashInterface {
   static ClashLib? _instance;
   Completer<bool> _canSendCompleter = Completer();
@@ -55,10 +58,14 @@ class ClashLib extends ClashHandlerInterface with AndroidClashInterface {
 
   Future<void> _waitForIpc() async {
     for (var attempt = 0; attempt < 3; attempt++) {
-      final connected = await _canSendCompleter.future
-          .timeout(const Duration(seconds: 2), onTimeout: () => false);
+      final connected = await _canSendCompleter.future.timeout(
+        const Duration(seconds: 2),
+        onTimeout: () => false,
+      );
       if (connected) return;
-      commonPrint.log('ClashLib: IPC attempt ${attempt + 1}/3 failed, retrying...');
+      commonPrint.log(
+        'ClashLib: IPC attempt ${attempt + 1}/3 failed, retrying...',
+      );
       _canSendCompleter = Completer();
       await service?.reconnectIpc();
     }
@@ -138,6 +145,66 @@ class ClashLib extends ClashHandlerInterface with AndroidClashInterface {
   Future<String> getCurrentProfileName() {
     return invoke<String>(method: ActionMethod.getCurrentProfileName);
   }
+}
+
+class ClashOhos extends ClashHandlerInterface with AndroidClashInterface {
+  final ClashLibHandler _handler = ClashLibHandler();
+
+  @override
+  Future<bool> preload() async => true;
+
+  @override
+  void sendMessage(String message) {
+    unawaited(
+      _handler
+          .invokeAction(message)
+          .then((response) {
+            final result = ActionResult.fromJson(json.decode(response));
+            return handleResult(result);
+          })
+          .catchError((Object error, StackTrace stackTrace) {
+            commonPrint.log('OHOS core action failed: $error');
+          }),
+    );
+  }
+
+  @override
+  Future<void> reStart() async {}
+
+  @override
+  Future<bool> destroy() async {
+    _handler.stopTun();
+    return true;
+  }
+
+  @override
+  Future<bool> updateDns(String value) async {
+    _handler.updateDns(value);
+    return true;
+  }
+
+  @override
+  Future<AndroidVpnOptions?> getAndroidVpnOptions() async {
+    return _handler.getAndroidVpnOptions();
+  }
+
+  @override
+  Future<String> getCurrentProfileName() async {
+    return _handler.getCurrentProfileName();
+  }
+
+  @override
+  Future<DateTime?> getRunTime() async => _handler.getRunTime();
+
+  bool startTun(int fd) {
+    final started = _handler.startTun(fd);
+    if (!started) {
+      throw StateError('OHOS TUN startup failed: ${_handler.getTunError()}');
+    }
+    return true;
+  }
+
+  void stopTun() => _handler.stopTun();
 }
 
 class ClashLibHandler {
@@ -239,14 +306,17 @@ class ClashLibHandler {
     return DateTime.fromMillisecondsSinceEpoch(int.parse(runTimeString));
   }
 
-  Future<Map<String, dynamic>> getConfig(String id, {String? ageSecretKey}) async {
+  Future<Map<String, dynamic>> getConfig(
+    String id, {
+    String? ageSecretKey,
+  }) async {
     final path = await appPath.getProfilePath(id);
-    final params = {
-      'path': path,
-      'age-secret-key': ageSecretKey ?? '',
-    };
+    final params = {'path': path, 'age-secret-key': ageSecretKey ?? ''};
     return using((arena) {
-      final pathChar = json.encode(params).toNativeUtf8(allocator: arena).cast<Char>();
+      final pathChar = json
+          .encode(params)
+          .toNativeUtf8(allocator: arena)
+          .cast<Char>();
       final configRaw = clashFFI.getConfig(pathChar);
       if (configRaw == nullptr) return <String, dynamic>{};
       try {
@@ -289,6 +359,23 @@ class ClashLibHandler {
     malloc.free(stateParamsChar);
     return completer.future;
   }
+
+  bool startTun(int fd) => clashFFI.startTUN(fd, nullptr) != 0;
+
+  String getTunError() {
+    final getTunError = lib
+        .lookup<NativeFunction<_GetTunErrorNative>>('getTunError')
+        .asFunction<_GetTunErrorDart>();
+    final rawError = getTunError();
+    if (rawError == nullptr) return 'unknown error';
+    try {
+      return rawError.cast<Utf8>().toDartString();
+    } finally {
+      clashFFI.freeCString(rawError);
+    }
+  }
+
+  void stopTun() => clashFFI.stopTun();
 }
 
 ClashLib? get clashLib =>
@@ -296,3 +383,5 @@ ClashLib? get clashLib =>
 
 ClashLibHandler? get clashLibHandler =>
     system.isAndroid && globalState.isService ? ClashLibHandler() : null;
+
+ClashOhos? get clashOhos => system.isOhos ? ClashOhos() : null;

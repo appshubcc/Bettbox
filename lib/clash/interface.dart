@@ -210,10 +210,7 @@ abstract class ClashHandlerInterface with ClashInterface {
 
   @override
   FutureOr<String> validateConfig(String data, {String? ageSecretKey}) {
-    final params = {
-      'data': data,
-      'age-secret-key': ageSecretKey ?? '',
-    };
+    final params = {'data': data, 'age-secret-key': ageSecretKey ?? ''};
     return invoke<String>(
       method: ActionMethod.validateConfig,
       data: json.encode(params),
@@ -222,10 +219,7 @@ abstract class ClashHandlerInterface with ClashInterface {
 
   @override
   FutureOr<String> decryptAgeConfig(String data, String ageSecretKey) {
-    final params = {
-      'data': data,
-      'age-secret-key': ageSecretKey,
-    };
+    final params = {'data': data, 'age-secret-key': ageSecretKey};
     return invoke<String>(
       method: ActionMethod.decryptAgeConfig,
       data: json.encode(params),
@@ -243,10 +237,7 @@ abstract class ClashHandlerInterface with ClashInterface {
 
   @override
   Future<Result> getConfig(String path, {String? ageSecretKey}) async {
-    final params = {
-      'path': path,
-      'age-secret-key': ageSecretKey ?? '',
-    };
+    final params = {'path': path, 'age-secret-key': ageSecretKey ?? ''};
     final res = await invoke<Result>(
       method: ActionMethod.getConfig,
       data: json.encode(params),
@@ -436,14 +427,14 @@ abstract class ClashHandlerInterface with ClashInterface {
 
   @override
   Future<Map<String, String>> generateAgeKeyPair() async {
-    final res = await invoke<Map>(
-      method: ActionMethod.generateAgeKeyPair,
-    );
+    final res = await invoke<Map>(method: ActionMethod.generateAgeKeyPair);
     return res.map((key, value) => MapEntry(key.toString(), value.toString()));
   }
 
   @override
-  Future<Result<String>> convertAgeSecretKeyToPublicKey(String secretKey) async {
+  Future<Result<String>> convertAgeSecretKeyToPublicKey(
+    String secretKey,
+  ) async {
     final res = await invoke<Result>(
       method: ActionMethod.convertAgeSecretKeyToPublicKey,
       data: secretKey,
@@ -455,4 +446,34 @@ abstract class ClashHandlerInterface with ClashInterface {
       message: res.message,
     );
   }
+}
+
+/// Keeps the UI usable on platforms without a native Clash backend.
+class UnavailableClashHandler extends ClashHandlerInterface {
+  @override
+  Future<T> invoke<T>({
+    required ActionMethod method,
+    dynamic data,
+    Duration? timeout,
+    FutureOr<T> Function()? onTimeout,
+    T? defaultValue,
+  }) async {
+    if (defaultValue != null) return defaultValue;
+    if (T == bool) return false as T;
+    if (T == String) return '' as T;
+    if (T == Map) return <dynamic, dynamic>{} as T;
+    return null as T;
+  }
+
+  @override
+  Future<bool> preload() async => true;
+
+  @override
+  void sendMessage(String message) {}
+
+  @override
+  Future<void> reStart() async {}
+
+  @override
+  Future<bool> destroy() async => true;
 }

@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:bett_box/clash/clash.dart';
 import 'package:bett_box/common/common.dart';
 import 'package:bett_box/common/external_control.dart';
@@ -34,6 +33,7 @@ class ApplicationState extends ConsumerState<Application>
   final _pageTransitionsTheme = const PageTransitionsTheme(
     builders: <TargetPlatform, PageTransitionsBuilder>{
       TargetPlatform.android: CupertinoPageTransitionsBuilder(),
+      TargetPlatform.ohos: CupertinoPageTransitionsBuilder(),
       TargetPlatform.windows: CupertinoPageTransitionsBuilder(),
       TargetPlatform.linux: CupertinoPageTransitionsBuilder(),
       TargetPlatform.macOS: CupertinoPageTransitionsBuilder(),
@@ -147,12 +147,18 @@ class ApplicationState extends ConsumerState<Application>
         ),
       );
     }
-    return AndroidManager(
-      child: TileManager(child: SmartAutoStopManager(child: child)),
-    );
+    if (system.isAndroid) {
+      return AndroidManager(
+        child: TileManager(child: SmartAutoStopManager(child: child)),
+      );
+    }
+    return child;
   }
 
   Widget _buildState(Widget child) {
+    if (system.isOhos) {
+      return AppStateManager(child: ClashManager(child: child));
+    }
     return AppStateManager(
       child: ClashManager(
         child: ConnectivityManager(

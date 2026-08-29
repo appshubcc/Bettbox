@@ -5498,6 +5498,31 @@ class AppLocalizations {
   String get closeAll {
     return Intl.message('Close All', name: 'closeAll', desc: '', args: []);
   }
+
+  /// `Native Title Bar`
+  String get ssd {
+    return Intl.message('Native Title Bar', name: 'ssd', desc: '', args: []);
+  }
+
+  /// `Use the desktop environment native title bar (takes effect after restart)`
+  String get ssdDesc {
+    return Intl.message(
+      'Use the desktop environment native title bar (takes effect after restart)',
+      name: 'ssdDesc',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Restart the app to apply the title bar change`
+  String get ssdRestartTip {
+    return Intl.message(
+      'Restart the app to apply the title bar change',
+      name: 'ssdRestartTip',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<AppLocalizations> {

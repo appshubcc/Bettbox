@@ -147,6 +147,15 @@ class App {
     return result ?? false;
   }
 
+  Future<bool> setServerSideDecoration(bool useSsd) async {
+    if (!system.isLinux) return true;
+    final result = await methodChannel.invokeMethod<bool>(
+      'setServerSideDecoration',
+      {'useSsd': useSsd},
+    );
+    return result ?? false;
+  }
+
   Future<bool> isAndroidTV() async {
     final result = await methodChannel.invokeMethod<bool>('isAndroidTV');
     return result ?? false;

@@ -1090,6 +1090,13 @@ class MessageLookup extends MessageLookupByLibrary {
     "specialProxy": MessageLookupByLibrary.simpleMessage("Специальный прокси"),
     "specialRules": MessageLookupByLibrary.simpleMessage("Специальные правила"),
     "spinningLines": MessageLookupByLibrary.simpleMessage("Вращающиеся линии"),
+    "ssd": MessageLookupByLibrary.simpleMessage("Нативная строка заголовка"),
+    "ssdDesc": MessageLookupByLibrary.simpleMessage(
+      "Использовать системную строку заголовка (применяется после перезапуска)",
+    ),
+    "ssdRestartTip": MessageLookupByLibrary.simpleMessage(
+      "Перезапустите приложение, чтобы применить изменение строки заголовка",
+    ),
     "stackMode": MessageLookupByLibrary.simpleMessage("Режим стека"),
     "standard": MessageLookupByLibrary.simpleMessage("Стандарт"),
     "start": MessageLookupByLibrary.simpleMessage("Запуск"),

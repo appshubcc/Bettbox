@@ -14,6 +14,7 @@ import 'package:bett_box/widgets/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:restart_app/restart_app.dart';
 
 class ThemeModeItem {
   final ThemeMode themeMode;
@@ -50,6 +51,7 @@ class ThemeView extends ConsumerWidget {
       if (shouldShowHarmonyFont) _HarmonyFontItem(),
       _DarkIconItem(),
       if (system.isWindows) _TrayIconInvertItem(),
+      if (system.isLinux) _SsdItem(),
       _TextScaleFactorItem(),
     ];
 
@@ -550,6 +552,45 @@ class _TrayIconInvertItem extends ConsumerWidget {
               .read(themeSettingProvider.notifier)
               .updateState((state) => state.copyWith(invertTrayIcon: value));
           await globalState.appController.updateTray(true);
+        },
+      ),
+    );
+  }
+}
+
+class _SsdItem extends ConsumerWidget {
+  const _SsdItem();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final useSsd = ref.watch(serverSideDecorationProvider).value == true;
+    return ListItem.switchItem(
+      leading: Icon(Icons.crop_portrait),
+      horizontalTitleGap: 12,
+      title: Text(
+        appLocalizations.ssd,
+        style: Theme.of(context).textTheme.titleSmall?.copyWith(
+          color: context.colorScheme.onSurfaceVariant,
+        ),
+      ),
+      subtitle: Text(
+        appLocalizations.ssdDesc,
+        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+          color: context.colorScheme.onSurfaceVariant.withOpacity(0.7),
+        ),
+      ),
+      delegate: SwitchDelegate(
+        value: useSsd,
+        onChanged: (value) async {
+          await app.setServerSideDecoration(value);
+          ref.invalidate(serverSideDecorationProvider);
+          if (!context.mounted) return;
+          context.showNotifier(
+            appLocalizations.ssdRestartTip,
+            actionLabel: appLocalizations.restartApp,
+            onAction: () => Restart.restartApp(),
+            showCountdown: true,
+          );
         },
       ),
     );

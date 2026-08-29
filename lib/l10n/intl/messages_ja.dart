@@ -856,6 +856,13 @@ class MessageLookup extends MessageLookupByLibrary {
     "specialProxy": MessageLookupByLibrary.simpleMessage("特殊プロキシ"),
     "specialRules": MessageLookupByLibrary.simpleMessage("特殊ルール"),
     "spinningLines": MessageLookupByLibrary.simpleMessage("スピンライン"),
+    "ssd": MessageLookupByLibrary.simpleMessage("ネイティブタイトルバー"),
+    "ssdDesc": MessageLookupByLibrary.simpleMessage(
+      "デスクトップ環境のネイティブタイトルバーを使用（再起動後に有効）",
+    ),
+    "ssdRestartTip": MessageLookupByLibrary.simpleMessage(
+      "タイトルバーの変更を適用するにはアプリを再起動してください",
+    ),
     "stackMode": MessageLookupByLibrary.simpleMessage("スタックモード"),
     "standard": MessageLookupByLibrary.simpleMessage("標準"),
     "start": MessageLookupByLibrary.simpleMessage("開始"),

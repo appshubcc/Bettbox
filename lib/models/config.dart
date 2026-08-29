@@ -76,11 +76,11 @@ List<DashboardWidget> dashboardWidgetsSafeFromJson(
     return dashboardWidgets
             ?.map((e) => $enumDecode(_$DashboardWidgetEnumMap, e))
             .toList() ??
-        (system.isAndroid
+        (system.isMobile
             ? defaultAndroidDashboardWidgets
             : defaultDashboardWidgets);
   } catch (_) {
-    return system.isAndroid
+    return system.isMobile
         ? defaultAndroidDashboardWidgets
         : defaultDashboardWidgets;
   }
@@ -165,7 +165,7 @@ abstract class AppSettingProps with _$AppSettingProps {
           props = props.copyWith(desktopDashboardWidgets: parsedOld);
         }
       }
-    } else if (system.isAndroid) {
+    } else if (system.isMobile) {
       props = props.copyWith(
         mobileDashboardWidgets: defaultAndroidDashboardWidgets,
       );

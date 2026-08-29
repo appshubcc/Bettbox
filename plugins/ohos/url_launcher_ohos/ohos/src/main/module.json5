@@ -1,0 +1,10 @@
+{
+  "module": {
+    "name": "url_launcher_ohos",
+    "type": "har",
+    "deviceTypes": [
+      "default",
+      "tablet"
+    ]
+  }
+}

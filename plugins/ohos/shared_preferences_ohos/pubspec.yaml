@@ -1,0 +1,27 @@
+name: shared_preferences_ohos
+description: Ohos implementation of the shared_preferences plugin
+repository: https://gitee.com/openharmony-sig/flutter_packages/tree/master/packages/shared_preferences/shared_preferences_ohos
+issue_tracker: https://gitee.com/openharmony-sig/flutter_packages/issues
+version: 2.2.0
+
+environment:
+  sdk: ">=2.18.0 <4.0.0"
+  flutter: ">=3.3.0"
+
+flutter:
+  plugin:
+    implements: shared_preferences
+    platforms:
+      ohos:
+        package: io.flutter.plugins.sharedpreferences
+        pluginClass: SharedPreferencesPlugin
+        dartPluginClass: SharedPreferencesOhos
+
+dependencies:
+  flutter:
+    sdk: flutter
+  shared_preferences_platform_interface: ^2.3.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter

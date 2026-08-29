@@ -1,0 +1,10 @@
+{
+  "module": {
+    "name": "path_provider_ohos",
+    "type": "har",
+    "deviceTypes": [
+      "default",
+      "tablet"
+    ]
+  }
+}

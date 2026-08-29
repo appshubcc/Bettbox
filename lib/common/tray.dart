@@ -31,7 +31,7 @@ class Tray {
   }
 
   void _handleDelayTestStateChanged() {
-    if (system.isAndroid) return;
+    if (!system.isDesktop) return;
     unawaited(globalState.appController.updateTray(false, true));
   }
 
@@ -48,12 +48,13 @@ class Tray {
     _debounceTimer?.cancel();
     _loadingTimer?.cancel();
   }
+
   Future _updateSystemTray({
     required Brightness? brightness,
     required bool isStart,
     bool force = false,
   }) async {
-    if (system.isAndroid) {
+    if (!system.isDesktop) {
       return;
     }
     if (force) {
@@ -89,7 +90,7 @@ class Tray {
     bool silent = false,
     bool force = false,
   }) async {
-    if (system.isAndroid) {
+    if (!system.isDesktop) {
       return;
     }
 
@@ -137,190 +138,200 @@ class Tray {
       if (system.isMacOS) {
         await _syncSpeedTitle(isStart: trayState.isStart);
       }
-    List<MenuItem> menuItems = [];
-    final showMenuItem = MenuItem(
-      label: appLocalizations.show,
-      onClick: (_) {
-        window?.show();
-      },
-    );
-    menuItems.add(showMenuItem);
-    final startMenuItem = MenuItem.checkbox(
-      label: trayState.isStart ? appLocalizations.stop : appLocalizations.start,
-      onClick: (_) async {
-        final appController = globalState.appController;
-        await appController.updateStatus(!globalState.isStart);
-        await appController.updateTray(false, false, true);
-      },
-      checked: false,
-    );
-    menuItems.add(startMenuItem);
-    menuItems.add(MenuItem.separator());
-    for (final mode in Mode.values) {
-      menuItems.add(
-        MenuItem.checkbox(
-          label: Intl.message(mode.name),
-          onClick: (_) {
-            globalState.appController.changeMode(mode);
-          },
-          checked: mode == trayState.mode,
-        ),
+      List<MenuItem> menuItems = [];
+      final showMenuItem = MenuItem(
+        label: appLocalizations.show,
+        onClick: (_) {
+          window?.show();
+        },
       );
-    }
-    menuItems.add(MenuItem.separator());
-    if (trayState.trayEnhancement) {
-      for (final group in trayState.groups) {
-        List<MenuItem> subMenuItems = [];
-
-        final isTestingThisGroup =
-            delayTestCoordinator.isTestingGroup(group.name);
-
-        subMenuItems.add(
-          MenuItem(
-            key: 'persistent-delay-test',
-            label: isTestingThisGroup
-                ? '⚡ ${appLocalizations.startTest}...'
-                : '⚡ ${appLocalizations.startTest}',
-            disabled: delayTestCoordinator.isTesting,
-            onClick: (_) => _testGroupDelay(group),
+      menuItems.add(showMenuItem);
+      final startMenuItem = MenuItem.checkbox(
+        label: trayState.isStart
+            ? appLocalizations.stop
+            : appLocalizations.start,
+        onClick: (_) async {
+          final appController = globalState.appController;
+          await appController.updateStatus(!globalState.isStart);
+          await appController.updateTray(false, false, true);
+        },
+        checked: false,
+      );
+      menuItems.add(startMenuItem);
+      menuItems.add(MenuItem.separator());
+      for (final mode in Mode.values) {
+        menuItems.add(
+          MenuItem.checkbox(
+            label: Intl.message(mode.name),
+            onClick: (_) {
+              globalState.appController.changeMode(mode);
+            },
+            checked: mode == trayState.mode,
           ),
         );
+      }
+      menuItems.add(MenuItem.separator());
+      if (trayState.trayEnhancement) {
+        for (final group in trayState.groups) {
+          List<MenuItem> subMenuItems = [];
 
-        subMenuItems.add(MenuItem.separator());
-
-        final proxies = globalState.appController.getSortProxies(
-          proxies: group.all,
-          sortType: globalState.config.proxiesStyle.sortType,
-          testUrl: group.testUrl,
-        );
-        for (final proxy in proxies) {
-          final delay = globalState.appController.getTrayProxyDelay(
-            proxyName: proxy.name,
-            testUrl: group.testUrl,
+          final isTestingThisGroup = delayTestCoordinator.isTestingGroup(
+            group.name,
           );
 
           subMenuItems.add(
-            MenuItem.checkbox(
-              key: 'proxy-item:${proxy.name}',
-              label: proxy.name,
-              sublabel: _formatProxySublabel(delay),
-              checked: group.getCurrentSelectedName(trayState.selectedMap[group.name] ?? '') == proxy.name,
-              onClick: (_) {
-                final appController = globalState.appController;
-                appController.updateCurrentSelectedMap(group.name, proxy.name);
-                appController.changeProxy(
-                  groupName: group.name,
-                  proxyName: proxy.name,
-                );
-              },
+            MenuItem(
+              key: 'persistent-delay-test',
+              label: isTestingThisGroup
+                  ? '⚡ ${appLocalizations.startTest}...'
+                  : '⚡ ${appLocalizations.startTest}',
+              disabled: delayTestCoordinator.isTesting,
+              onClick: (_) => _testGroupDelay(group),
+            ),
+          );
+
+          subMenuItems.add(MenuItem.separator());
+
+          final proxies = globalState.appController.getSortProxies(
+            proxies: group.all,
+            sortType: globalState.config.proxiesStyle.sortType,
+            testUrl: group.testUrl,
+          );
+          for (final proxy in proxies) {
+            final delay = globalState.appController.getTrayProxyDelay(
+              proxyName: proxy.name,
+              testUrl: group.testUrl,
+            );
+
+            subMenuItems.add(
+              MenuItem.checkbox(
+                key: 'proxy-item:${proxy.name}',
+                label: proxy.name,
+                sublabel: _formatProxySublabel(delay),
+                checked:
+                    group.getCurrentSelectedName(
+                      trayState.selectedMap[group.name] ?? '',
+                    ) ==
+                    proxy.name,
+                onClick: (_) {
+                  final appController = globalState.appController;
+                  appController.updateCurrentSelectedMap(
+                    group.name,
+                    proxy.name,
+                  );
+                  appController.changeProxy(
+                    groupName: group.name,
+                    proxyName: proxy.name,
+                  );
+                },
+              ),
+            );
+          }
+          menuItems.add(
+            MenuItem.submenu(
+              label: group.name,
+              submenu: Menu(items: subMenuItems),
             ),
           );
         }
+        if (trayState.groups.isNotEmpty) {
+          menuItems.add(MenuItem.separator());
+        }
+      }
+      if (trayState.isStart) {
         menuItems.add(
-          MenuItem.submenu(
-            label: group.name,
-            submenu: Menu(items: subMenuItems),
+          MenuItem.checkbox(
+            label: appLocalizations.tun,
+            onClick: (_) {
+              globalState.appController.updateTun();
+            },
+            checked: trayState.tunEnable,
+          ),
+        );
+        menuItems.add(
+          MenuItem.checkbox(
+            label: appLocalizations.systemProxy,
+            onClick: (_) {
+              globalState.appController.updateSystemProxy();
+            },
+            checked: trayState.systemProxy,
+          ),
+        );
+        menuItems.add(MenuItem.separator());
+      }
+      final restartMenuItem = MenuItem(
+        label: appLocalizations.restartApp,
+        onClick: (_) async {
+          await Restart.restartApp();
+        },
+      );
+      menuItems.add(restartMenuItem);
+
+      final List<MenuItem> moreMenuItems = [
+        MenuItem.checkbox(
+          label: appLocalizations.autoLaunch,
+          onClick: (_) async {
+            globalState.appController.updateAutoLaunch();
+          },
+          checked: trayState.autoLaunch,
+        ),
+        _buildCopyEnvSubmenu(trayState.port),
+        MenuItem(
+          label: appLocalizations.restartCoreTitle,
+          onClick: (_) async {
+            final appController = globalState.appController;
+            try {
+              await appController.restartCore();
+            } finally {
+              await appController.syncDesktopRuntimeState(
+                preferCurrentState: true,
+              );
+              await appController.updateTray();
+            }
+          },
+        ),
+      ];
+
+      if (!system.isAndroid) {
+        moreMenuItems.add(
+          MenuItem.checkbox(
+            label: appLocalizations.wakelock,
+            onClick: (_) async {
+              await _toggleWakelock(trayState.wakelockEnabled);
+            },
+            checked: trayState.wakelockEnabled,
           ),
         );
       }
-      if (trayState.groups.isNotEmpty) {
-        menuItems.add(MenuItem.separator());
-      }
-    }
-    if (trayState.isStart) {
+
       menuItems.add(
-        MenuItem.checkbox(
-          label: appLocalizations.tun,
-          onClick: (_) {
-            globalState.appController.updateTun();
-          },
-          checked: trayState.tunEnable,
+        MenuItem.submenu(
+          label: appLocalizations.tools,
+          submenu: Menu(items: moreMenuItems),
         ),
       );
-      menuItems.add(
-        MenuItem.checkbox(
-          label: appLocalizations.systemProxy,
-          onClick: (_) {
-            globalState.appController.updateSystemProxy();
-          },
-          checked: trayState.systemProxy,
-        ),
-      );
+
       menuItems.add(MenuItem.separator());
-    }
-    final restartMenuItem = MenuItem(
-      label: appLocalizations.restartApp,
-      onClick: (_) async {
-        await Restart.restartApp();
-      },
-    );
-    menuItems.add(restartMenuItem);
-
-    final List<MenuItem> moreMenuItems = [
-      MenuItem.checkbox(
-        label: appLocalizations.autoLaunch,
+      final exitMenuItem = MenuItem(
+        label: appLocalizations.exit,
         onClick: (_) async {
-          globalState.appController.updateAutoLaunch();
+          await globalState.appController.handleExit();
         },
-        checked: trayState.autoLaunch,
-      ),
-      _buildCopyEnvSubmenu(trayState.port),
-      MenuItem(
-        label: appLocalizations.restartCoreTitle,
-        onClick: (_) async {
-          final appController = globalState.appController;
-          try {
-            await appController.restartCore();
-          } finally {
-            await appController.syncDesktopRuntimeState(
-              preferCurrentState: true,
-            );
-            await appController.updateTray();
-          }
-        },
-      ),
-    ];
-
-    if (!system.isAndroid) {
-      moreMenuItems.add(
-        MenuItem.checkbox(
-          label: appLocalizations.wakelock,
-          onClick: (_) async {
-            await _toggleWakelock(trayState.wakelockEnabled);
-          },
-          checked: trayState.wakelockEnabled,
-        ),
       );
-    }
-
-    menuItems.add(
-      MenuItem.submenu(
-        label: appLocalizations.tools,
-        submenu: Menu(items: moreMenuItems),
-      ),
-    );
-
-    menuItems.add(MenuItem.separator());
-    final exitMenuItem = MenuItem(
-      label: appLocalizations.exit,
-      onClick: (_) async {
-        await globalState.appController.handleExit();
-      },
-    );
-    menuItems.add(exitMenuItem);
-    final menu = Menu(items: menuItems);
-    await trayManager.setContextMenu(
-      menu,
-      keepMenuOpen: silent,
-      brightness: trayState.brightness,
-    );
-    if (Platform.isLinux) {
-      await _updateSystemTray(
+      menuItems.add(exitMenuItem);
+      final menu = Menu(items: menuItems);
+      await trayManager.setContextMenu(
+        menu,
+        keepMenuOpen: silent,
         brightness: trayState.brightness,
-        isStart: trayState.isStart,
-        force: focus,
       );
-    }
+      if (Platform.isLinux) {
+        await _updateSystemTray(
+          brightness: trayState.brightness,
+          isStart: trayState.isStart,
+          force: focus,
+        );
+      }
     } finally {
       _isUpdating = false;
 
@@ -416,7 +427,8 @@ class Tray {
 
   Future<void> _copyEnvPowerShell(int port) async {
     final url = 'http://127.0.0.1:$port';
-    final cmd = '\$env:http_proxy="$url"\n'
+    final cmd =
+        '\$env:http_proxy="$url"\n'
         '\$env:https_proxy="$url"\n'
         '\$env:all_proxy="$url"';
     await Clipboard.setData(ClipboardData(text: cmd));
@@ -424,7 +436,8 @@ class Tray {
 
   Future<void> _copyEnvCmd(int port) async {
     final url = 'http://127.0.0.1:$port';
-    final cmd = 'set http_proxy=$url\n'
+    final cmd =
+        'set http_proxy=$url\n'
         'set https_proxy=$url\n'
         'set all_proxy=$url';
     await Clipboard.setData(ClipboardData(text: cmd));
@@ -432,7 +445,8 @@ class Tray {
 
   Future<void> _copyEnvBash(int port) async {
     final url = 'http://127.0.0.1:$port';
-    final cmd = 'export http_proxy=$url\n'
+    final cmd =
+        'export http_proxy=$url\n'
         'export https_proxy=$url\n'
         'export all_proxy=$url';
     await Clipboard.setData(ClipboardData(text: cmd));
@@ -440,7 +454,8 @@ class Tray {
 
   Future<void> _copyEnvFish(int port) async {
     final url = 'http://127.0.0.1:$port';
-    final cmd = 'set -gx http_proxy $url\n'
+    final cmd =
+        'set -gx http_proxy $url\n'
         'set -gx https_proxy $url\n'
         'set -gx all_proxy $url';
     await Clipboard.setData(ClipboardData(text: cmd));

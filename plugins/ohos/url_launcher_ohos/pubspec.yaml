@@ -1,0 +1,28 @@
+name: url_launcher_ohos
+description: Ohos implementation of the url_launcher plugin.
+repository: https://gitee.com/openharmony-sig/flutter_packages/tree/master/packages/url_launcher/url_launcher_ohos
+issue_tracker: https://gitee.com/openharmony-sig/flutter_packages/issues
+version: 6.0.38
+environment:
+  sdk: ">=2.18.0 <4.0.0"
+  flutter: ">=3.3.0"
+
+flutter:
+  plugin:
+    implements: url_launcher
+    platforms:
+      ohos:
+        package: io.flutter.plugins.urllauncher
+        pluginClass: UrlLauncherPlugin
+        dartPluginClass: UrlLauncherOhos
+
+dependencies:
+  flutter:
+    sdk: flutter
+  url_launcher_platform_interface: ^2.0.3
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  integration_test:
+    sdk: flutter

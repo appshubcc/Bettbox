@@ -125,7 +125,8 @@ class GlobalState {
     if (system.isAndroid) {
       _isAndroidTV = await app.isAndroidTV();
     }
-    config = await preferences.getConfig() ??
+    config =
+        await preferences.getConfig() ??
         Config(
           themeProps: defaultThemeProps,
           patchClashConfig: system.isAndroid
@@ -136,6 +137,18 @@ class GlobalState {
           ),
         );
     await globalState.migrateOldData(config);
+    if (system.isOhos) {
+      final tun = config.patchClashConfig.tun;
+      if (tun.stack != TunStack.gvisor || tun.mtu != 1480) {
+        config = config.copyWith(
+          patchClashConfig: config.patchClashConfig.copyWith.tun(
+            stack: TunStack.gvisor,
+            mtu: 1480,
+          ),
+        );
+        await preferences.saveConfig(config);
+      }
+    }
     final locale =
         utils.getLocaleForString(config.appSetting.locale) ??
         utils.getSystemLocale();
@@ -301,15 +314,19 @@ class GlobalState {
     UpdateTasks? tasks,
     bool includeVpnService = true,
   ]) async {
-    startTime ??= DateTime.now();
     if (system.isAndroid && isService) {
       await clashLibHandler?.startListener();
     } else {
       await clashCore.startListener();
     }
-    if (includeVpnService) {
-      await service?.startVpn();
+    final vpnService = service;
+    if (includeVpnService && vpnService != null) {
+      final started = await vpnService.startVpn();
+      if (started != true) {
+        throw StateError('VPN service failed to start');
+      }
     }
+    startTime ??= DateTime.now();
     final prefs = await preferences.sharedPreferencesCompleter.future;
     await prefs?.setBool('is_vpn_running', true);
 
@@ -470,10 +487,7 @@ class GlobalState {
                       color: Theme.of(context).colorScheme.surface,
                       borderRadius: BorderRadius.circular(28),
                       boxShadow: const [
-                        BoxShadow(
-                          blurRadius: 10,
-                          color: Colors.black12,
-                        ),
+                        BoxShadow(blurRadius: 10, color: Colors.black12),
                       ],
                     ),
                     child: const Column(
@@ -577,16 +591,21 @@ class GlobalState {
     final rawConfig = await handleEvaluate(configMap, profile: targetProfile);
     final originalProxyGroups = rawConfig['proxy-groups'];
 
-    final realPatchConfig = patchConfig.copyWith(
+    final platformPatchConfig = system.isOhos
+        ? patchConfig.copyWith.tun(stack: TunStack.gvisor, mtu: 1480)
+        : patchConfig;
+    final realPatchConfig = platformPatchConfig.copyWith(
       dns: patchConfig.dns.copyWith(
-        fakeIpRangeV6:
-            patchConfig.dns.effectiveFakeIpRangeV6(ipv6Enabled: patchConfig.ipv6),
+        fakeIpRangeV6: patchConfig.dns.effectiveFakeIpRangeV6(
+          ipv6Enabled: patchConfig.ipv6,
+        ),
       ),
       tun: patchConfig.tun.getRealTun(
         config.networkProps.bypassPrivateRoute,
         fakeIpRange: patchConfig.dns.fakeIpRange,
-        fakeIpRangeV6:
-            patchConfig.dns.effectiveFakeIpRangeV6(ipv6Enabled: patchConfig.ipv6),
+        fakeIpRangeV6: patchConfig.dns.effectiveFakeIpRangeV6(
+          ipv6Enabled: patchConfig.ipv6,
+        ),
         bypassPrivateRouteAddress:
             config.networkProps.realBypassPrivateRouteAddress,
       ),
@@ -756,10 +775,10 @@ class GlobalState {
       if (listen.endsWith(':53')) {
         rawConfig['dns']['listen'] = listen.replaceAll(':53', ':10053');
       }
-      final noProviders = rawConfig['proxy-providers'] == null &&
+      final noProviders =
+          rawConfig['proxy-providers'] == null &&
           rawConfig['rule-providers'] == null;
-      final proxyServerNameserver =
-          rawConfig['dns']['proxy-server-nameserver'];
+      final proxyServerNameserver = rawConfig['dns']['proxy-server-nameserver'];
       final hasLocalProxyServerNameserver = switch (proxyServerNameserver) {
         List list => list.any((e) => e.toString().startsWith('127.0.0.1')),
         String str => str.startsWith('127.0.0.1'),
@@ -906,7 +925,8 @@ class GlobalState {
       rawConfig.remove('rule');
     }
 
-    final scriptActive = config.scriptProps.currentScript != null &&
+    final scriptActive =
+        config.scriptProps.currentScript != null &&
         targetProfile.useScriptOverride;
 
     final overrideData = targetProfile.overrideData;
@@ -1066,8 +1086,7 @@ class DashboardRefreshManager {
     }
 
     final lifecycleState = WidgetsBinding.instance.lifecycleState;
-    if (lifecycleState != null &&
-        lifecycleState != AppLifecycleState.resumed) {
+    if (lifecycleState != null && lifecycleState != AppLifecycleState.resumed) {
       return false;
     }
     return true;
@@ -1143,9 +1162,7 @@ class DetectionState {
   void toggleIpPrivacy() {
     _isIpMasked = !_isIpMasked;
     if (_rawIpInfo != null) {
-      state.value = state.value.copyWith(
-        ipInfo: _maskIpInfo(_rawIpInfo),
-      );
+      state.value = state.value.copyWith(ipInfo: _maskIpInfo(_rawIpInfo));
     }
   }
 
@@ -1226,8 +1243,9 @@ class DetectionState {
     state.value = state.value.copyWith(
       isLoading: false,
       ipInfo: _maskIpInfo(_rawIpInfo),
-      errorMessage:
-          _rawIpInfo != null ? null : appLocalizations.tryManualRefresh,
+      errorMessage: _rawIpInfo != null
+          ? null
+          : appLocalizations.tryManualRefresh,
     );
   }
 

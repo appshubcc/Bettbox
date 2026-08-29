@@ -1432,61 +1432,62 @@ class _CodeForgeState extends State<CodeForge> with TickerProviderStateMixin {
               delegate: _ContextMenuLayoutDelegate(position: offset),
               child: Card(
                 elevation: 8,
-                color: _editorTheme['root']?.backgroundColor ?? Colors.grey[900],
+                color:
+                    _editorTheme['root']?.backgroundColor ?? Colors.grey[900],
                 shape: _suggestionStyle.shape,
                 child: IntrinsicWidth(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    if (hasSelection) ...[
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      if (hasSelection) ...[
+                        if (!_controller.readOnly)
+                          _buildDesktopContextMenuItem(
+                            MaterialLocalizations.of(context).cutButtonLabel,
+                            'Ctrl+X',
+                            () => _controller.cut(),
+                          ),
+                        _buildDesktopContextMenuItem(
+                          MaterialLocalizations.of(context).copyButtonLabel,
+                          'Ctrl+C',
+                          () => _controller.copy(),
+                        ),
+                      ],
                       if (!_controller.readOnly)
                         _buildDesktopContextMenuItem(
-                          MaterialLocalizations.of(context).cutButtonLabel,
-                          'Ctrl+X',
-                          () => _controller.cut(),
+                          MaterialLocalizations.of(context).pasteButtonLabel,
+                          'Ctrl+V',
+                          () => _controller.paste(),
                         ),
                       _buildDesktopContextMenuItem(
-                        MaterialLocalizations.of(context).copyButtonLabel,
-                        'Ctrl+C',
-                        () => _controller.copy(),
+                        MaterialLocalizations.of(context).searchFieldLabel,
+                        'Ctrl+F',
+                        () => _triggerSearchWithSelection(),
                       ),
+                      if (widget.blockCommentLabel != null &&
+                          !_controller.readOnly)
+                        _buildDesktopContextMenuItem(
+                          widget.blockCommentLabel!,
+                          'Ctrl+/',
+                          () => _controller.toggleComment(),
+                        ),
+                      _buildDesktopContextMenuItem(
+                        MaterialLocalizations.of(context).selectAllButtonLabel,
+                        'Ctrl+A',
+                        () => _controller.selectAll(),
+                      ),
+                      ...widget.customContextMenuItems?.map(
+                            (item) => _buildDesktopContextMenuItem(
+                              item.label,
+                              item.description,
+                              item.onPress,
+                            ),
+                          ) ??
+                          [],
                     ],
-                    if (!_controller.readOnly)
-                      _buildDesktopContextMenuItem(
-                        MaterialLocalizations.of(context).pasteButtonLabel,
-                        'Ctrl+V',
-                        () => _controller.paste(),
-                      ),
-                    _buildDesktopContextMenuItem(
-                      MaterialLocalizations.of(context).searchFieldLabel,
-                      'Ctrl+F',
-                      () => _triggerSearchWithSelection(),
-                    ),
-                    if (widget.blockCommentLabel != null &&
-                        !_controller.readOnly)
-                      _buildDesktopContextMenuItem(
-                        widget.blockCommentLabel!,
-                        'Ctrl+/',
-                        () => _controller.toggleComment(),
-                      ),
-                    _buildDesktopContextMenuItem(
-                      MaterialLocalizations.of(context).selectAllButtonLabel,
-                      'Ctrl+A',
-                      () => _controller.selectAll(),
-                    ),
-                    ...widget.customContextMenuItems?.map(
-                          (item) => _buildDesktopContextMenuItem(
-                            item.label,
-                            item.description,
-                            item.onPress,
-                          ),
-                        ) ??
-                        [],
-                  ],
+                  ),
                 ),
               ),
-            ),
             ),
           );
         }
@@ -1762,7 +1763,9 @@ class _CodeForgeState extends State<CodeForge> with TickerProviderStateMixin {
                       minOverscrollLength:
                           _scrollbarDecoration.minOverscrollLength,
                       minThumbLength: _scrollbarDecoration.minThumbLength,
-                      padding: _scrollbarDecoration.padding,
+                      padding: _scrollbarDecoration.padding?.resolve(
+                        widget.textDirection,
+                      ),
                       pressDuration: _scrollbarDecoration.pressDuration,
                       trackColor: _scrollbarDecoration.trackColor,
                       notificationPredicate:
@@ -5034,29 +5037,42 @@ class _CodeFieldRenderer extends RenderBox implements MouseTrackerAnnotation {
     required this.isHoveringPopup,
     required this.context,
     required bool lineWrap,
-    required this._editorTheme,
-    required this._language,
-    required this._extraLanguages,
-    required this._readOnly,
+    required Map<String, TextStyle> editorTheme,
+    required Mode? language,
+    required List<Mode> extraLanguages,
+    required bool readOnly,
     required bool enableFolding,
-    required this._enableGuideLines,
-    required this._enableGutter,
-    required this._enableGutterDivider,
-    required this._enableMagnifier,
+    required bool enableGuideLines,
+    required bool enableGutter,
+    required bool enableGutterDivider,
+    required bool enableMagnifier,
     required GutterStyle gutterStyle,
     required this.gutterBuilder,
-    required this._selectionStyle,
-    required this._diagnostics,
+    required CodeSelectionStyle selectionStyle,
+    required List<LspErrors> diagnostics,
     this.languageId,
     this.lspConfig,
     this.filePath,
     this.matchHighlightStyle,
     this.onHoverSetByTap,
     EdgeInsets? innerPadding,
-    this._textStyle,
-    this._ghostTextStyle,
-    this._textDirection = TextDirection.ltr,
-  }) : _enableFolding = enableFolding,
+    TextStyle? textStyle,
+    TextStyle? ghostTextStyle,
+    TextDirection textDirection = TextDirection.ltr,
+  }) : _editorTheme = editorTheme,
+       _language = language,
+       _extraLanguages = extraLanguages,
+       _readOnly = readOnly,
+       _enableGuideLines = enableGuideLines,
+       _enableGutter = enableGutter,
+       _enableGutterDivider = enableGutterDivider,
+       _enableMagnifier = enableMagnifier,
+       _selectionStyle = selectionStyle,
+       _diagnostics = diagnostics,
+       _textStyle = textStyle,
+       _ghostTextStyle = ghostTextStyle,
+       _textDirection = textDirection,
+       _enableFolding = enableFolding,
        _gutterStyle = gutterStyle,
        _lineWrap = lineWrap,
        _innerPadding = innerPadding,
@@ -7317,7 +7333,10 @@ class _CodeFieldRenderer extends RenderBox implements MouseTrackerAnnotation {
     final lineText =
         _lineTextCache[anchorLine] ?? controller.getLineText(anchorLine);
     final scalarCol = anchorCol.clamp(0, lineText.runes.length);
-    final utf16Col = CodeForgeController.scalarToUtf16Offset(lineText, scalarCol);
+    final utf16Col = CodeForgeController.scalarToUtf16Offset(
+      lineText,
+      scalarCol,
+    );
 
     final paragraphWidth = lineWrap ? _wrapWidth : null;
     final linePara =
@@ -8528,9 +8547,12 @@ class _CodeFieldRenderer extends RenderBox implements MouseTrackerAnnotation {
                 final glyphInfo = zoomParagraph.getGlyphInfoAt(localCaretIndex);
                 if (glyphInfo != null) {
                   final range = glyphInfo.graphemeClusterCodeUnitRange;
-                  final start =
-                      range.start.clamp(0, previewText.length).toInt();
-                  final end = range.end.clamp(start, previewText.length).toInt();
+                  final start = range.start
+                      .clamp(0, previewText.length)
+                      .toInt();
+                  final end = range.end
+                      .clamp(start, previewText.length)
+                      .toInt();
                   final useTrailing =
                       localCaretIndex >= end ||
                       (localCaretIndex > start &&
@@ -8549,8 +8571,9 @@ class _CodeFieldRenderer extends RenderBox implements MouseTrackerAnnotation {
                   }
                 }
               } else if (localCaretIndex > 0) {
-                final glyphInfo =
-                    zoomParagraph.getGlyphInfoAt(localCaretIndex - 1);
+                final glyphInfo = zoomParagraph.getGlyphInfoAt(
+                  localCaretIndex - 1,
+                );
                 if (glyphInfo != null) {
                   final bounds = glyphInfo.graphemeClusterLayoutBounds;
                   caretDx = isRTL ? bounds.left : bounds.right;

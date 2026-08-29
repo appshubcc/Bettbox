@@ -19,8 +19,12 @@ class ClashCore {
   ClashCore._internal() {
     if (system.isAndroid) {
       clashInterface = clashLib!;
-    } else {
+    } else if (system.isOhos) {
+      clashInterface = clashOhos!;
+    } else if (system.isDesktop) {
       clashInterface = clashService!;
+    } else {
+      clashInterface = UnavailableClashHandler();
     }
   }
 
@@ -39,7 +43,12 @@ class ClashCore {
     if (!await homeDir.exists()) {
       await homeDir.create(recursive: true);
     }
-    const geoFileNameList = [mmdbFileName, geoSiteFileName, asnFileName, bundleMRSFileName];
+    const geoFileNameList = [
+      mmdbFileName,
+      geoSiteFileName,
+      asnFileName,
+      bundleMRSFileName,
+    ];
     try {
       for (final geoFileName in geoFileNameList) {
         final geoFile = File(join(homePath, geoFileName));
@@ -132,18 +141,21 @@ class ClashCore {
           return GroupTypeExtension.valueList.contains(proxy?['type']);
         }),
       ];
-      final groupsRaw = groupNames.map((groupName) {
-        final proxyData = allProxies[groupName] as Map?;
-        if (proxyData == null) return null;
-        final group = Map<String, dynamic>.from(
-          proxyData.cast<String, dynamic>(),
-        );
-        group['all'] = ((group['all'] ?? []) as List)
-            .map((name) => allProxies[name])
-            .whereType<Map<String, dynamic>>()
-            .toList();
-        return group;
-      }).whereType<Map<String, dynamic>>().toList();
+      final groupsRaw = groupNames
+          .map((groupName) {
+            final proxyData = allProxies[groupName] as Map?;
+            if (proxyData == null) return null;
+            final group = Map<String, dynamic>.from(
+              proxyData.cast<String, dynamic>(),
+            );
+            group['all'] = ((group['all'] ?? []) as List)
+                .map((name) => allProxies[name])
+                .whereType<Map<String, dynamic>>()
+                .toList();
+            return group;
+          })
+          .whereType<Map<String, dynamic>>()
+          .toList();
       return groupsRaw.map((e) => Group.fromJson(e)).toList();
     });
   }
@@ -267,9 +279,15 @@ class ClashCore {
     }
   }
 
-  Future<Map<String, dynamic>> getConfig(String id, {String? ageSecretKey}) async {
+  Future<Map<String, dynamic>> getConfig(
+    String id, {
+    String? ageSecretKey,
+  }) async {
     final profilePath = await appPath.getProfilePath(id);
-    final res = await clashInterface.getConfig(profilePath, ageSecretKey: ageSecretKey);
+    final res = await clashInterface.getConfig(
+      profilePath,
+      ageSecretKey: ageSecretKey,
+    );
     if (res.isSuccess) {
       return res.data as Map<String, dynamic>;
     } else {

@@ -128,8 +128,7 @@ class _DashboardViewState extends ConsumerState<DashboardView> {
           ),
         ),
       ),
-      if (showStartSwitch)
-        _DashboardStartSwitch(key: _startSwitchKey),
+      if (showStartSwitch) _DashboardStartSwitch(key: _startSwitchKey),
     ];
   }
 
@@ -187,7 +186,7 @@ class _DashboardViewState extends ConsumerState<DashboardView> {
       ref
           .read(appSettingProvider.notifier)
           .updateState(
-            (state) => system.isAndroid
+            (state) => system.isMobile
                 ? state.copyWith(
                     mobileDashboardWidgets: dashboardWidgets,
                     dashboardWidgets: dashboardWidgets,
@@ -485,8 +484,7 @@ class _DashboardStartSwitchState extends ConsumerState<_DashboardStartSwitch> {
   }
 
   void _onFocusChange() {
-    globalState.isDashboardStartSwitchFocused =
-        _focusNode?.hasFocus ?? false;
+    globalState.isDashboardStartSwitchFocused = _focusNode?.hasFocus ?? false;
   }
 
   void requestFocus() {

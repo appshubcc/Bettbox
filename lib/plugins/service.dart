@@ -7,7 +7,8 @@ import 'package:flutter/services.dart';
 
 import '../clash/lib.dart';
 
-typedef NativeEventCallback = Future<void> Function(String method, dynamic arguments);
+typedef NativeEventCallback =
+    Future<void> Function(String method, dynamic arguments);
 
 class Service {
   static final Service _instance = Service._internal();
@@ -47,13 +48,32 @@ class Service {
   Future<bool?> destroy() => methodChannel.invokeMethod<bool>('destroy');
 
   Future<bool?> startVpn() async {
-    final options = await clashLib?.getAndroidVpnOptions();
-    return await methodChannel.invokeMethod<bool>('startVpn', {
+    final options = system.isOhos
+        ? await clashOhos?.getAndroidVpnOptions()
+        : await clashLib?.getAndroidVpnOptions();
+    if (system.isOhos) {
+      if (options == null) return false;
+      if (!options.enable) return clashOhos?.startTun(0) ?? false;
+      final fd = await methodChannel.invokeMethod<int>('startVpn', {
+        'data': json.encode(options),
+      });
+      if (fd == null || fd <= 0) return false;
+      try {
+        return clashOhos?.startTun(fd) ?? false;
+      } catch (_) {
+        await methodChannel.invokeMethod<bool>('stopVpn');
+        rethrow;
+      }
+    }
+    return methodChannel.invokeMethod<bool>('startVpn', {
       'data': json.encode(options),
     });
   }
 
-  Future<bool?> stopVpn() => methodChannel.invokeMethod<bool>('stopVpn');
+  Future<bool?> stopVpn() async {
+    if (system.isOhos) clashOhos?.stopTun();
+    return methodChannel.invokeMethod<bool>('stopVpn');
+  }
 
   Future<bool?> smartStop() => methodChannel.invokeMethod<bool>('smartStop');
 
@@ -86,14 +106,18 @@ class Service {
   }
 
   Future<bool> isServiceEngineRunning() async {
-    return await methodChannel.invokeMethod<bool>('isServiceEngineRunning') ?? false;
+    return await methodChannel.invokeMethod<bool>('isServiceEngineRunning') ??
+        false;
   }
 
   Future<bool> getStatus() async {
     return await methodChannel.invokeMethod<bool>('status') ?? false;
   }
 
-  Future<void> updateNotificationSpeed(String profileName, String speedInfo) async {
+  Future<void> updateNotificationSpeed(
+    String profileName,
+    String speedInfo,
+  ) async {
     await methodChannel.invokeMethod<void>('updateNotificationSpeed', {
       'profileName': profileName,
       'speedInfo': speedInfo,
@@ -104,8 +128,11 @@ class Service {
     await methodChannel.invokeMethod<void>('restoreNotification');
   }
 
-  Future<bool?> reconnectIpc() => methodChannel.invokeMethod<bool>('reconnectIpc');
+  Future<bool?> reconnectIpc() =>
+      methodChannel.invokeMethod<bool>('reconnectIpc');
 }
 
 Service? get service =>
-    system.isAndroid && !globalState.isService ? Service() : null;
+    (system.isAndroid || system.isOhos) && !globalState.isService
+    ? Service()
+    : null;

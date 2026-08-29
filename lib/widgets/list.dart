@@ -649,29 +649,32 @@ class ContinuousListItem extends StatelessWidget {
         ),
       ),
       clipBehavior: Clip.antiAlias,
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          final hasTightHeight = constraints.hasTightHeight;
-          return Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (hasTightHeight)
-                Expanded(
-                  child: Align(
-                    alignment: Alignment.center,
-                    child: child,
-                  ),
-                )
-              else
-                child,
-              Container(
-                height: 1,
-                margin: const EdgeInsets.symmetric(horizontal: 16),
-                color: isLast ? Colors.transparent : dividerColor,
-              ),
-            ],
-          );
-        },
+      child: Material(
+        type: MaterialType.transparency,
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final hasTightHeight = constraints.hasTightHeight;
+            return Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (hasTightHeight)
+                  Expanded(
+                    child: Align(
+                      alignment: Alignment.center,
+                      child: child,
+                    ),
+                  )
+                else
+                  child,
+                Container(
+                  height: 1,
+                  margin: const EdgeInsets.symmetric(horizontal: 16),
+                  color: isLast ? Colors.transparent : dividerColor,
+                ),
+              ],
+            );
+          },
+        ),
       ),
     );
   }

@@ -2,46 +2,7 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Bettbox Windows Dev",
-      "request": "launch",
-      "type": "dart",
-      "flutterMode": "debug",
-      "program": "lib/main.dart",
-      "deviceId": "windows",
-      "toolArgs": [
-        "--dart-define",
-        "APP_DEV=true"
-      ],
-      "preLaunchTask": "bettbox: ensure windows dev core"
-    },
-    {
-      "name": "Bettbox macOS Dev",
-      "request": "launch",
-      "type": "dart",
-      "flutterMode": "debug",
-      "program": "lib/main.dart",
-      "deviceId": "macos",
-      "toolArgs": [
-        "--dart-define",
-        "APP_DEV=true"
-      ],
-      "preLaunchTask": "bettbox: ensure macos dev core"
-    },
-    {
-      "name": "Bettbox Linux Dev",
-      "request": "launch",
-      "type": "dart",
-      "flutterMode": "debug",
-      "program": "lib/main.dart",
-      "deviceId": "linux",
-      "toolArgs": [
-        "--dart-define",
-        "APP_DEV=true"
-      ],
-      "preLaunchTask": "bettbox: ensure linux dev core"
-    },
-    {
-      "name": "Bettbox Android x64 Dev",
+      "name": "Bettbox Dev",
       "request": "launch",
       "type": "dart",
       "flutterMode": "debug",
@@ -50,19 +11,7 @@
         "--dart-define",
         "APP_DEV=true"
       ],
-      "preLaunchTask": "bettbox: ensure android x64 core"
-    },
-    {
-      "name": "Bettbox Android arm64 Dev",
-      "request": "launch",
-      "type": "dart",
-      "flutterMode": "debug",
-      "program": "lib/main.dart",
-      "toolArgs": [
-        "--dart-define",
-        "APP_DEV=true"
-      ],
-      "preLaunchTask": "bettbox: ensure android arm64 core"
+      "preLaunchTask": "bettbox: ensure dev core"
     }
   ]
 }

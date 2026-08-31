@@ -601,8 +601,8 @@ class SectionContainer extends StatelessWidget {
                       color: context.colorScheme.outlineVariant.withValues(
                         alpha:
                             context.colorScheme.brightness == Brightness.light
-                            ? 0.3
-                            : 0.2,
+                            ? 0.6
+                            : 0.45,
                       ),
                       indent: 16,
                       endIndent: 16,
@@ -636,7 +636,7 @@ class ContinuousListItem extends StatelessWidget {
     final isFirst = reversed ? index == count - 1 : index == 0;
     final isLast = reversed ? index == 0 : index == count - 1;
     final dividerColor = context.colorScheme.outlineVariant.withValues(
-      alpha: context.colorScheme.brightness == Brightness.light ? 0.3 : 0.2,
+      alpha: context.colorScheme.brightness == Brightness.light ? 0.6 : 0.45,
     );
 
     return Container(

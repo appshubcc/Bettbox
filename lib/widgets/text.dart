@@ -68,7 +68,7 @@ class EmojiText extends StatelessWidget {
   ) {
     final List<TextSpan> spans = [];
     final matches = emojiRegex().allMatches(text);
-    final effectiveStyle = style ?? defaultStyle;
+    final effectiveStyle = defaultStyle.merge(style);
 
     int lastMatchEnd = 0;
     for (final match in matches) {

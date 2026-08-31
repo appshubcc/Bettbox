@@ -43,8 +43,8 @@ class SmartAutoStopSection extends ConsumerWidget {
             thickness: 1,
             color: context.colorScheme.outlineVariant.withValues(
               alpha: context.colorScheme.brightness == Brightness.light
-                  ? 0.3
-                  : 0.2,
+                  ? 0.6
+                  : 0.45,
             ),
             indent: 16,
             endIndent: 16,
@@ -433,8 +433,8 @@ class DisableQuicSection extends ConsumerWidget {
             thickness: 1,
             color: context.colorScheme.outlineVariant.withValues(
               alpha: context.colorScheme.brightness == Brightness.light
-                  ? 0.3
-                  : 0.2,
+                  ? 0.6
+                  : 0.45,
             ),
             indent: 16,
             endIndent: 16,
@@ -579,8 +579,8 @@ class TraySection extends ConsumerWidget {
             thickness: 1,
             color: context.colorScheme.outlineVariant.withValues(
               alpha: context.colorScheme.brightness == Brightness.light
-                  ? 0.3
-                  : 0.2,
+                  ? 0.6
+                  : 0.45,
             ),
             indent: 16,
             endIndent: 16,
@@ -721,6 +721,6 @@ class OtherSettingView extends ConsumerWidget {
       return const Center(child: Text('No settings available'));
     }
 
-    return generateListView(items);
+    return generateListView(generateSection(items: items));
   }
 }

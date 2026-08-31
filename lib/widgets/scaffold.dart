@@ -105,6 +105,11 @@ class CommonScaffoldState extends State<CommonScaffold> {
         inputDecorationTheme: InputDecorationTheme(
           hintStyle: theme.inputDecorationTheme.hintStyle,
           border: InputBorder.none,
+          enabledBorder: InputBorder.none,
+          focusedBorder: InputBorder.none,
+          disabledBorder: InputBorder.none,
+          errorBorder: InputBorder.none,
+          focusedErrorBorder: InputBorder.none,
         ),
       ),
       child: child,

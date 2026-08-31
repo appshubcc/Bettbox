@@ -399,10 +399,21 @@ class _AccessViewState extends ConsumerState<AccessView>
       valueList.remove(package.packageName);
     }
     ref.read(vpnSettingProvider.notifier).updateState((state) {
+      final currentManualList = state.accessControl.manualList;
+      final newManualList = value == false &&
+              currentManualList.contains(package.packageName)
+          ? currentManualList.where((e) => e != package.packageName).toList()
+          : currentManualList;
       return switch (state.accessControl.mode ==
           AccessControlMode.acceptSelected) {
-        true => state.copyWith.accessControl(acceptList: valueList),
-        false => state.copyWith.accessControl(rejectList: valueList),
+        true => state.copyWith.accessControl(
+            acceptList: valueList,
+            manualList: newManualList,
+          ),
+        false => state.copyWith.accessControl(
+            rejectList: valueList,
+            manualList: newManualList,
+          ),
       };
     });
   }
@@ -421,8 +432,8 @@ class _AccessViewState extends ConsumerState<AccessView>
     final packageNameList = packages.map((e) => e.packageName).toList();
     final valueList = currentList.intersection(packageNameList);
     final describe = accessControlMode == AccessControlMode.acceptSelected
-        ? appLocalizations.accessControlAllowDesc
-        : appLocalizations.accessControlNotAllowDesc;
+        ? '${appLocalizations.accessControlAllowDesc} (${appLocalizations.whitelistMode})'
+        : '${appLocalizations.accessControlNotAllowDesc} (${appLocalizations.blacklistMode})';
 
     return Column(
       mainAxisSize: MainAxisSize.max,
@@ -757,10 +768,21 @@ class AccessControlSearchDelegate extends SearchDelegate {
       valueList.remove(package.packageName);
     }
     ref.read(vpnSettingProvider.notifier).updateState((state) {
+      final currentManualList = state.accessControl.manualList;
+      final newManualList = value == false &&
+              currentManualList.contains(package.packageName)
+          ? currentManualList.where((e) => e != package.packageName).toList()
+          : currentManualList;
       return switch (state.accessControl.mode ==
           AccessControlMode.acceptSelected) {
-        true => state.copyWith.accessControl(acceptList: valueList),
-        false => state.copyWith.accessControl(rejectList: valueList),
+        true => state.copyWith.accessControl(
+            acceptList: valueList,
+            manualList: newManualList,
+          ),
+        false => state.copyWith.accessControl(
+            rejectList: valueList,
+            manualList: newManualList,
+          ),
       };
     });
   }
@@ -859,16 +881,16 @@ class _AccessControlPanelState extends ConsumerState<AccessControlPanel> {
   String _getTextWithAccessSortType(AccessSortType type) {
     return switch (type) {
       AccessSortType.none => appLocalizations.defaultText,
-      AccessSortType.name => appLocalizations.name,
-      AccessSortType.time => appLocalizations.time,
+      AccessSortType.installTime => appLocalizations.installTime,
+      AccessSortType.updateTime => appLocalizations.updateTime,
     };
   }
 
   IconData _getIconWithProxiesSortType(AccessSortType type) {
     return switch (type) {
       AccessSortType.none => Icons.sort,
-      AccessSortType.name => Icons.sort_by_alpha,
-      AccessSortType.time => Icons.timeline,
+      AccessSortType.installTime => Icons.install_mobile,
+      AccessSortType.updateTime => Icons.update,
     };
   }
 
@@ -1041,10 +1063,12 @@ class _AccessControlPanelState extends ConsumerState<AccessControlPanel> {
         final currentList =
             isAccept ? currentState.acceptList : currentState.rejectList;
         final newList = {...currentList, ...packages}.toList();
+        final newManualList = {...currentState.manualList, ...packages}.toList();
 
         newAccessControl = currentState.copyWith(
           acceptList: isAccept ? newList : currentState.acceptList,
           rejectList: !isAccept ? newList : currentState.rejectList,
+          manualList: newManualList,
         );
       }
 

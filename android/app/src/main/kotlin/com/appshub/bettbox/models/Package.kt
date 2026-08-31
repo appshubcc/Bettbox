@@ -5,5 +5,6 @@ data class Package(
     val label: String,
     val system: Boolean,
     val internet: Boolean,
-    val lastUpdateTime: Long,
+    val firstInstallTime: Long = 0L,
+    val lastUpdateTime: Long = 0L,
 )

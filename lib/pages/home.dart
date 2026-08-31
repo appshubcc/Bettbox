@@ -238,7 +238,13 @@ class _HomePageState extends State<HomePage> {
                         ),
                         decoration: BoxDecoration(
                           color: isSelected
-                              ? context.colorScheme.secondaryContainer
+                              ? context.colorScheme.primary.withValues(
+                                  alpha:
+                                      context.colorScheme.brightness ==
+                                              Brightness.light
+                                          ? 0.20
+                                          : 0.26,
+                                )
                               : Colors.transparent,
                           borderRadius: BorderRadius.circular(16),
                           border: isFocused
@@ -254,7 +260,7 @@ class _HomePageState extends State<HomePage> {
                             IconTheme(
                               data: IconThemeData(
                                 color: isSelected
-                                    ? context.colorScheme.onSecondaryContainer
+                                    ? context.colorScheme.primary
                                     : context.colorScheme.onSurfaceVariant,
                                 size: 24,
                               ),

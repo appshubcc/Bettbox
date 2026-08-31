@@ -877,7 +877,7 @@ class DomainItem extends StatelessWidget {
 }
 
 final dnsItems = <Widget>[
-  const OverrideItem(),
+  ...generateSection(items: const [OverrideItem()]),
   ...generateSection(
     title: appLocalizations.options,
     items: const [

@@ -15,22 +15,25 @@ class DeveloperView extends ConsumerWidget {
       appSettingProvider.select((state) => state.developerMode),
     );
     final items = [
-      ListItem.switchItem(
-        title: Text(appLocalizations.developerMode),
-        delegate: SwitchDelegate(
-          value: enable,
-          onChanged: (value) {
-            ref
-                .read(appSettingProvider.notifier)
-                .updateState(
-                  (state) => state.copyWith(developerMode: value),
-                );
-          },
-        ),
+      ...generateSection(
+        items: [
+          ListItem.switchItem(
+            title: Text(appLocalizations.developerMode),
+            delegate: SwitchDelegate(
+              value: enable,
+              onChanged: (value) {
+                ref
+                    .read(appSettingProvider.notifier)
+                    .updateState(
+                      (state) => state.copyWith(developerMode: value),
+                    );
+              },
+            ),
+          ),
+        ],
       ),
       ...generateSection(
         title: appLocalizations.options,
-        separated: false,
         items: [
           ListItem(
             title: Text(appLocalizations.messageTest),

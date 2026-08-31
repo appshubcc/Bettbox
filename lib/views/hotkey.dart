@@ -59,7 +59,7 @@ class HotKeyView extends StatelessWidget {
           },
         )
     ];
-    return generateListView(items);
+    return generateListView(generateSection(items: items));
   }
 }
 

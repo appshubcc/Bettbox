@@ -114,10 +114,13 @@ class CommonCard extends StatelessWidget {
         states.contains(WidgetState.pressed)) {
       return BorderSide(color: hoverColor);
     }
+    final isLight = colorScheme.brightness == Brightness.light;
     return BorderSide(
       color: isSelected
           ? colorScheme.primary
-          : colorScheme.surfaceContainerHighest,
+          : colorScheme.outlineVariant.withValues(
+              alpha: isLight ? 0.45 : 0.25,
+            ),
     );
   }
 

@@ -681,10 +681,12 @@
   "provinceAndCity": "Province / City",
   "operatorOrAsn": "Organization / ASN",
   "continent": "Continent",
-  "domain": "Domain",
+  "domain": "Organization / Domain",
   "copiedToClipboard": "Copied to clipboard",
   "privateIp": "Private / LAN IP Address",
   "isp": "ISP",
   "networkErrorRetryLater": "Network error, please try again later",
-  "tunVirtualAddress": "TUN Virtual Network Adapter"
+  "tunVirtualAddress": "TUN Virtual Network Adapter",
+  "installTime": "Install Time",
+  "updateTime": "Update Time"
 }

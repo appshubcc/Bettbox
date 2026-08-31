@@ -682,10 +682,12 @@
   "provinceAndCity": "都道府県 / 都市",
   "operatorOrAsn": "組織 / ASN",
   "continent": "大陸",
-  "domain": "ドメイン",
+  "domain": "組織 / ドメイン",
   "copiedToClipboard": "クリップボードにコピーしました",
   "privateIp": "プライベート / LAN IP アドレス",
   "isp": "プロバイダ",
   "networkErrorRetryLater": "ネットワークエラーが発生しました。後でもう一度お試しください",
-  "tunVirtualAddress": "TUN 仮想ネットワークアダプター"
+  "tunVirtualAddress": "TUN 仮想ネットワークアダプター",
+  "installTime": "インストール日時",
+  "updateTime": "更新日時"
 }

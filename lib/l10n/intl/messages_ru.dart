@@ -282,12 +282,16 @@ class MessageLookup extends MessageLookupByLibrary {
     "contactMe": MessageLookupByLibrary.simpleMessage("Связаться со мной"),
     "content": MessageLookupByLibrary.simpleMessage("Содержимое"),
     "contentScheme": MessageLookupByLibrary.simpleMessage("Контентная тема"),
+    "continent": MessageLookupByLibrary.simpleMessage("Континент"),
     "controlSecret": MessageLookupByLibrary.simpleMessage("Пароль управления"),
     "controlSecretDesc": MessageLookupByLibrary.simpleMessage(
       "Пароль для доступа к RESTful API",
     ),
     "copiedPackageName": MessageLookupByLibrary.simpleMessage(
       "Скопировано имя пакета",
+    ),
+    "copiedToClipboard": MessageLookupByLibrary.simpleMessage(
+      "Скопировано в буфер обмена",
     ),
     "copy": MessageLookupByLibrary.simpleMessage("Копировать"),
     "copyEnvVar": MessageLookupByLibrary.simpleMessage(
@@ -300,6 +304,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "coreInfo": MessageLookupByLibrary.simpleMessage("Информация о ядре"),
     "coreSuspended": MessageLookupByLibrary.simpleMessage("Приостановлено"),
     "country": MessageLookupByLibrary.simpleMessage("Регион"),
+    "countryOrRegion": MessageLookupByLibrary.simpleMessage("Страна / Регион"),
     "crashTest": MessageLookupByLibrary.simpleMessage("Тест сбоя"),
     "create": MessageLookupByLibrary.simpleMessage("Создать"),
     "creationTime": MessageLookupByLibrary.simpleMessage("Время создания"),
@@ -607,6 +612,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "invalidIpFormat": MessageLookupByLibrary.simpleMessage(
       "Неверный формат IP или CIDR",
     ),
+    "ipAddress": MessageLookupByLibrary.simpleMessage("IP-адрес"),
     "ipClickBehavior": MessageLookupByLibrary.simpleMessage(
       "Режим отображения",
     ),
@@ -616,6 +622,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "ipv6InboundDesc": MessageLookupByLibrary.simpleMessage(
       "Разрешить входящие IPv6",
     ),
+    "isp": MessageLookupByLibrary.simpleMessage("Провайдер"),
     "just": MessageLookupByLibrary.simpleMessage("Только что"),
     "keepAliveIntervalDesc": MessageLookupByLibrary.simpleMessage(
       "Интервал TCP keep-alive",
@@ -672,6 +679,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "monochromeScheme": MessageLookupByLibrary.simpleMessage("Монохром"),
     "months": m7,
     "more": MessageLookupByLibrary.simpleMessage("Подробности"),
+    "moreIpInfo": MessageLookupByLibrary.simpleMessage(
+      "Подробная информация об IP",
+    ),
     "name": MessageLookupByLibrary.simpleMessage("Имя"),
     "nameSort": MessageLookupByLibrary.simpleMessage("По имени"),
     "nameserver": MessageLookupByLibrary.simpleMessage("Основной DNS"),
@@ -693,6 +703,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "network": MessageLookupByLibrary.simpleMessage("Сеть"),
     "networkDesc": MessageLookupByLibrary.simpleMessage("Настройки сети"),
     "networkDetection": MessageLookupByLibrary.simpleMessage("IP сети"),
+    "networkErrorRetryLater": MessageLookupByLibrary.simpleMessage(
+      "Ошибка сети, попробуйте позже",
+    ),
     "networkFix": MessageLookupByLibrary.simpleMessage("Исправление сети"),
     "networkFixDesc": MessageLookupByLibrary.simpleMessage(
       "Исправляет значок сети в системе",
@@ -768,6 +781,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "openDashboard": MessageLookupByLibrary.simpleMessage("Открыть Zashboard"),
     "openSettings": MessageLookupByLibrary.simpleMessage("Открыть настройки"),
+    "operatorOrAsn": MessageLookupByLibrary.simpleMessage("Организация / ASN"),
     "options": MessageLookupByLibrary.simpleMessage("Опции"),
     "other": MessageLookupByLibrary.simpleMessage("Другое"),
     "otherContributors": MessageLookupByLibrary.simpleMessage(
@@ -869,6 +883,9 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "pressKeyboard": MessageLookupByLibrary.simpleMessage("Нажмите клавиши"),
     "preview": MessageLookupByLibrary.simpleMessage("Предпросмотр"),
+    "privateIp": MessageLookupByLibrary.simpleMessage(
+      "Частный / локальный IP-адрес",
+    ),
     "profile": MessageLookupByLibrary.simpleMessage("Профиль"),
     "profileAutoUpdateIntervalInvalidValidationDesc":
         MessageLookupByLibrary.simpleMessage(
@@ -897,6 +914,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "progress": MessageLookupByLibrary.simpleMessage("Прогресс"),
     "project": MessageLookupByLibrary.simpleMessage("Проект"),
     "providers": MessageLookupByLibrary.simpleMessage("Провайдеры"),
+    "provinceAndCity": MessageLookupByLibrary.simpleMessage(
+      "Провинция / Город",
+    ),
     "proxies": MessageLookupByLibrary.simpleMessage("Прокси"),
     "proxiesSetting": MessageLookupByLibrary.simpleMessage("Настройки прокси"),
     "proxyChains": MessageLookupByLibrary.simpleMessage("Цепочка прокси"),
@@ -1180,6 +1200,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "tunEnableRequireAdmin": MessageLookupByLibrary.simpleMessage(
       "Для включения виртуального адаптера TUN требуются права администратора или ROOT.",
     ),
+    "tunVirtualAddress": MessageLookupByLibrary.simpleMessage(
+      "Адрес виртуального сетевого адаптера TUN",
+    ),
     "tunnel": MessageLookupByLibrary.simpleMessage("Туннель"),
     "tunnelAddress": MessageLookupByLibrary.simpleMessage(
       "Адрес прослушивания",
@@ -1235,6 +1258,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "value": MessageLookupByLibrary.simpleMessage("Значение"),
     "vibrantScheme": MessageLookupByLibrary.simpleMessage("Яркий"),
     "view": MessageLookupByLibrary.simpleMessage("Просмотр"),
+    "viewDetailedIpData": MessageLookupByLibrary.simpleMessage(
+      "Посмотреть подробные данные IP",
+    ),
     "vpnDesc": MessageLookupByLibrary.simpleMessage("Настройки VPN"),
     "vpnEnableDesc": MessageLookupByLibrary.simpleMessage(
       "Автоматическая маршрутизация всего трафика через VpnService",

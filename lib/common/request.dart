@@ -5,6 +5,7 @@ import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
 import 'package:dio/io.dart';
+import 'package:intl/intl.dart';
 import 'package:bett_box/common/common.dart';
 import 'package:bett_box/models/models.dart';
 import 'package:bett_box/state.dart';
@@ -199,12 +200,27 @@ class Request {
     return null;
   }
 
-  final List<String> _ipInfoSources = [
+  List<String> _getPrimaryIpSources() {
+    final locale = Intl.getCurrentLocale().toLowerCase();
+    final isZh = locale.startsWith('zh');
+    return [
+      if (ipInfoToken.isNotEmpty)
+        'https://api.ipinfo.io/lite/me?token=$ipInfoToken',
+      isZh ? 'https://api.myip.la/cn?json' : 'https://api.myip.la/en?json',
+    ];
+  }
+
+  final List<String> _domesticIpSources = [
+    'https://myip.ipip.net/json',
+  ];
+
+  // 备用 Cloudflare 探测源
+  final List<String> _cloudflareIpInfoSources = [
     'https://ip.sb/cdn-cgi/trace',
     'https://api.ip.sb/cdn-cgi/trace',
   ];
 
-  final List<String> _domesticIpSources = [
+  final List<String> _cloudflareDomesticIpSources = [
     'https://www.qualcomm.cn/cdn-cgi/trace',
     'https://www.teamviewer.cn/cdn-cgi/trace',
   ];
@@ -212,8 +228,9 @@ class Request {
   Future<Result<IpInfo?>> _checkIpFromSources(
     List<String> sources,
     CancelToken? cancelToken,
-    Duration? timeout,
-  ) async {
+    Duration? timeout, {
+    void Function(IpInfo info)? onUpdate,
+  }) async {
     final effectiveTimeout = timeout ?? const Duration(seconds: 5);
 
     final dio = Dio(
@@ -230,14 +247,27 @@ class Request {
       },
     );
 
-    final Completer<Result<IpInfo?>> resultCompleter = Completer();
-    int failureCount = 0;
+    final Completer<Result<IpInfo?>> firstCompleter = Completer();
+    IpInfo? mergedInfo;
+    int completedCount = 0;
+    Timer? cleanupTimer;
 
-    void handleFailure() {
-      if (resultCompleter.isCompleted) return;
-      failureCount++;
-      if (failureCount == sources.length) {
-        resultCompleter.complete(Result.success(null));
+    void cleanup() {
+      cleanupTimer?.cancel();
+      cleanupTimer = null;
+      dio.close(force: true);
+    }
+
+    cleanupTimer = Timer(effectiveTimeout, cleanup);
+    cancelToken?.whenCancel.then((_) => cleanup());
+
+    void checkAllFinished() {
+      completedCount++;
+      if (completedCount == sources.length) {
+        if (!firstCompleter.isCompleted) {
+          firstCompleter.complete(Result.success(mergedInfo));
+        }
+        cleanup();
       }
     }
 
@@ -249,55 +279,226 @@ class Request {
             options: Options(responseType: ResponseType.bytes),
           )
           .then((res) {
-            if (resultCompleter.isCompleted) return;
             if (res.statusCode == HttpStatus.ok && res.data != null) {
               try {
                 final text = utf8.decode(
                   _decompressIfNeeded(_bytesFromResponse(res), res.headers),
                   allowMalformed: true,
-                );
-                resultCompleter.complete(
-                  Result.success(IpInfo.fromCloudflareTrace(text)),
-                );
-              } catch (_) {
-                handleFailure();
-              }
-            } else {
-              handleFailure();
+                ).trim();
+                IpInfo? ipInfo;
+                if (text.startsWith('{')) {
+                  final jsonMap = json.decode(text);
+                  if (jsonMap is Map<String, dynamic>) {
+                    ipInfo = IpInfo.fromJson(jsonMap);
+                  }
+                } else {
+                  ipInfo = IpInfo.fromCloudflareTrace(text);
+                }
+
+                if (ipInfo != null) {
+                  mergedInfo = mergedInfo == null
+                      ? ipInfo
+                      : mergedInfo!.merge(ipInfo);
+                  onUpdate?.call(mergedInfo!);
+                  if (!firstCompleter.isCompleted) {
+                    firstCompleter.complete(Result.success(mergedInfo));
+                  }
+                }
+              } catch (_) {}
             }
+            checkAllFinished();
           })
           .catchError((e) {
-            if (resultCompleter.isCompleted) return;
             if (e is DioException && e.type == DioExceptionType.cancel) {
-              resultCompleter.complete(Result.error('cancelled'));
-              return;
+              if (!firstCompleter.isCompleted) {
+                firstCompleter.complete(Result.error('cancelled'));
+              }
             }
-            handleFailure();
+            checkAllFinished();
           });
     }
 
-    try {
-      return await resultCompleter.future.timeout(
-        effectiveTimeout,
-        onTimeout: () => Result.success(null),
-      );
-    } finally {
-      dio.close(force: true);
-    }
+    return await firstCompleter.future.timeout(
+      effectiveTimeout,
+      onTimeout: () => Result.success(mergedInfo),
+    );
   }
 
   Future<Result<IpInfo?>> checkIp({
     CancelToken? cancelToken,
     Duration? timeout,
+    void Function(IpInfo info)? onUpdate,
   }) async {
-    return _checkIpFromSources(_ipInfoSources, cancelToken, timeout);
+    return _checkIpFromSources(
+      _getPrimaryIpSources(),
+      cancelToken,
+      timeout,
+      onUpdate: onUpdate,
+    );
   }
 
   Future<Result<IpInfo?>> checkIpDomestic({
     CancelToken? cancelToken,
     Duration? timeout,
+    void Function(IpInfo info)? onUpdate,
   }) async {
-    return _checkIpFromSources(_domesticIpSources, cancelToken, timeout);
+    return _checkIpFromSources(
+      _domesticIpSources,
+      cancelToken,
+      timeout,
+      onUpdate: onUpdate,
+    );
+  }
+
+  // 备用 Cloudflare 探测接口
+  Future<Result<IpInfo?>> checkIpCloudflare({
+    CancelToken? cancelToken,
+    Duration? timeout,
+  }) async {
+    return _checkIpFromSources(_cloudflareIpInfoSources, cancelToken, timeout);
+  }
+
+  Future<Result<IpInfo?>> checkIpDomesticCloudflare({
+    CancelToken? cancelToken,
+    Duration? timeout,
+  }) async {
+    return _checkIpFromSources(_cloudflareDomesticIpSources, cancelToken, timeout);
+  }
+
+  static const _ipCacheKey = 'ip_detail_cache';
+  static const _cacheDuration = Duration(days: 14);
+
+  Future<IpInfo?> _getValidCachedIp(String cacheKey) async {
+    try {
+      final prefs = await preferences.sharedPreferencesCompleter.future;
+      final cacheStr = prefs?.getString(_ipCacheKey);
+      if (cacheStr == null || cacheStr.isEmpty) return null;
+
+      final dynamic decoded = json.decode(cacheStr);
+      if (decoded is! Map) return null;
+
+      final rawMap = Map<String, dynamic>.from(decoded);
+      final now = DateTime.now().millisecondsSinceEpoch;
+      final maxAgeMs = _cacheDuration.inMilliseconds;
+
+      bool hasExpired = false;
+      final validEntries = <String, dynamic>{};
+      IpInfo? matchedIpInfo;
+
+      // 仅在用户查询时，主动检查并清理所有过期的缓存
+      for (final entry in rawMap.entries) {
+        final val = entry.value;
+        if (val is Map) {
+          final valMap = Map<String, dynamic>.from(val);
+          final timestamp = valMap['timestamp'] as num?;
+          if (timestamp != null && (now - timestamp) < maxAgeMs) {
+            validEntries[entry.key] = valMap;
+            if (entry.key == cacheKey && valMap['data'] is Map) {
+              try {
+                matchedIpInfo = IpInfo.fromJson(
+                  Map<String, dynamic>.from(valMap['data'] as Map),
+                );
+              } catch (_) {}
+            }
+          } else {
+            hasExpired = true;
+          }
+        }
+      }
+
+      // 如果有过期的数据被剔除，保存清理后的缓存
+      if (hasExpired) {
+        await prefs?.setString(_ipCacheKey, json.encode(validEntries));
+      }
+
+      return matchedIpInfo;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  Future<void> _saveCachedIp(String cacheKey, IpInfo ipInfo) async {
+    try {
+      final prefs = await preferences.sharedPreferencesCompleter.future;
+      final cacheStr = prefs?.getString(_ipCacheKey);
+      final rawMap = (cacheStr != null && cacheStr.isNotEmpty)
+          ? Map<String, dynamic>.from(json.decode(cacheStr) as Map)
+          : <String, dynamic>{};
+
+      final now = DateTime.now().millisecondsSinceEpoch;
+      final maxAgeMs = _cacheDuration.inMilliseconds;
+
+      // 清理已过期数据，并插入新数据
+      final validEntries = <String, dynamic>{};
+      for (final entry in rawMap.entries) {
+        final val = entry.value;
+        if (val is Map) {
+          final valMap = Map<String, dynamic>.from(val);
+          final timestamp = valMap['timestamp'] as num?;
+          if (timestamp != null && (now - timestamp) < maxAgeMs) {
+            validEntries[entry.key] = valMap;
+          }
+        }
+      }
+
+      validEntries[cacheKey] = {
+        'timestamp': now,
+        'data': ipInfo.toJson(),
+      };
+
+      await prefs?.setString(_ipCacheKey, json.encode(validEntries));
+    } catch (_) {}
+  }
+
+  Future<Result<IpInfo?>> queryIpDetail(
+    String ip, {
+    CancelToken? cancelToken,
+    Duration? timeout,
+  }) async {
+    final isZh = Intl.getCurrentLocale().toLowerCase().startsWith('zh');
+    final cacheKey = '${ip}_${isZh ? 'zh' : 'en'}';
+
+    // 1. 检查本地缓存并执行过期清理（有效时长7天）
+    final cached = await _getValidCachedIp(cacheKey);
+    if (cached != null) {
+      return Result.success(cached);
+    }
+
+    final effectiveTimeout = timeout ?? const Duration(seconds: 5);
+    final url = isZh
+        ? 'http://ip-api.com/json/$ip?lang=zh-CN'
+        : 'http://ip-api.com/json/$ip';
+
+    try {
+      final res = await _dio.get<Map<String, dynamic>>(
+        url,
+        cancelToken: cancelToken,
+        options: Options(
+          responseType: ResponseType.json,
+          receiveTimeout: effectiveTimeout,
+          sendTimeout: effectiveTimeout,
+        ),
+      );
+
+      if (res.statusCode == HttpStatus.ok && res.data != null) {
+        final data = res.data!;
+        final status = data['status']?.toString();
+        if (status == 'fail') {
+          final message = data['message']?.toString() ?? 'query failed';
+          return Result.error(message);
+        }
+        final ipInfo = IpInfo.fromJson(data);
+        // 2. 写入 7 天有效期的本地缓存
+        await _saveCachedIp(cacheKey, ipInfo);
+        return Result.success(ipInfo);
+      }
+      return Result.error('query failed');
+    } catch (e) {
+      if (e is DioException && e.type == DioExceptionType.cancel) {
+        return Result.error('cancelled');
+      }
+      return Result.error(e.toString());
+    }
   }
 }
 

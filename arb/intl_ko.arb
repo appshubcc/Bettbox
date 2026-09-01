@@ -1,4 +1,4 @@
-﻿{
+{
   "rule": "규칙",
   "global": "글로벌",
   "direct": "직접 연결",
@@ -674,5 +674,18 @@
   "clear": "지우기",
   "back": "뒤로",
   "closeAll": "모두 닫기",
-  "script": "스크립트"
+  "script": "스크립트",
+  "moreIpInfo": "상세 IP 정보",
+  "viewDetailedIpData": "상세 IP 데이터 보기",
+  "ipAddress": "IP 주소",
+  "countryOrRegion": "국가 / 지역",
+  "provinceAndCity": "시 / 도 / 도시",
+  "operatorOrAsn": "소속 / ASN",
+  "continent": "대륙",
+  "domain": "도메인",
+  "copiedToClipboard": "클립보드에 복사되었습니다",
+  "privateIp": "사설 / LAN IP 주소",
+  "isp": "통신사",
+  "networkErrorRetryLater": "네트워크 오류가 발생했습니다. 나중에 다시 시도해 주세요",
+  "tunVirtualAddress": "TUN 가상 네트워크 어댑터"
 }

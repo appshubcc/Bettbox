@@ -477,6 +477,11 @@ class BuildCommand extends Command {
         ? ' --build-dart-define=APP_ASSET_SUFFIX=$suffix'
         : '';
 
+    final ipinfoToken = Platform.environment['IPINFO_TOKEN'] ?? '';
+    final ipinfoArg = ipinfoToken.isNotEmpty
+        ? ' --build-dart-define=IPINFO_TOKEN=$ipinfoToken'
+        : '';
+
     final appDevArg = Build.isDev ? ' --build-dart-define=APP_DEV=true' : '';
 
     final environment = Map<String, String>.from(Platform.environment);
@@ -488,7 +493,7 @@ class BuildCommand extends Command {
     await Build.exec(
       name: name,
       Build.getExecutable(
-        'flutter_distributor package --skip-clean --platform ${target.name} --targets $targets --flutter-build-args=verbose$args$sentryArg$suffixArg --build-dart-define=APP_ENV=$env$appDevArg',
+        'flutter_distributor package --skip-clean --platform ${target.name} --targets $targets --flutter-build-args=verbose$args$sentryArg$suffixArg$ipinfoArg --build-dart-define=APP_ENV=$env$appDevArg',
       ),
       environment: environment,
     );

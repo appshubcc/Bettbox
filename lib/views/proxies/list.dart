@@ -198,7 +198,7 @@ class _ProxyGroupsListState extends ConsumerState<_ProxyGroupsList> {
         controller: _scrollController,
         padding: EdgeInsets.all(16).copyWith(
           bottom:
-              16 +
+              (globalState.isAndroidTV ? 48.0 : 16.0) +
               (isMobileView ? getFloatingBottomBarReserveHeight(context) : 0),
         ),
         itemCount: flatItems.length,
@@ -300,7 +300,7 @@ class _GroupHeader extends ConsumerWidget {
     return CommonCard(
       radius: 16,
       type: CommonCardType.filled,
-      onPressed: globalState.isAndroidTV ? null : onToggle,
+      onPressed: onToggle,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         child: Row(

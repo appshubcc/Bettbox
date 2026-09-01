@@ -33,6 +33,7 @@ class GlobalState {
   Map<CacheTag, FixedMap<String, double>> computeHeightMapCache = {};
   bool isService = false;
   bool isExiting = false;
+  bool isScreenOn = true;
   Timer? timer;
   Timer? groupsUpdateTimer;
   late Config config;
@@ -125,7 +126,8 @@ class GlobalState {
     if (system.isAndroid) {
       _isAndroidTV = await app.isAndroidTV();
     }
-    config = await preferences.getConfig() ??
+    config =
+        await preferences.getConfig() ??
         Config(
           themeProps: defaultThemeProps,
           patchClashConfig: system.isAndroid
@@ -470,10 +472,7 @@ class GlobalState {
                       color: Theme.of(context).colorScheme.surface,
                       borderRadius: BorderRadius.circular(28),
                       boxShadow: const [
-                        BoxShadow(
-                          blurRadius: 10,
-                          color: Colors.black12,
-                        ),
+                        BoxShadow(blurRadius: 10, color: Colors.black12),
                       ],
                     ),
                     child: const Column(
@@ -579,14 +578,16 @@ class GlobalState {
 
     final realPatchConfig = patchConfig.copyWith(
       dns: patchConfig.dns.copyWith(
-        fakeIpRangeV6:
-            patchConfig.dns.effectiveFakeIpRangeV6(ipv6Enabled: patchConfig.ipv6),
+        fakeIpRangeV6: patchConfig.dns.effectiveFakeIpRangeV6(
+          ipv6Enabled: patchConfig.ipv6,
+        ),
       ),
       tun: patchConfig.tun.getRealTun(
         config.networkProps.bypassPrivateRoute,
         fakeIpRange: patchConfig.dns.fakeIpRange,
-        fakeIpRangeV6:
-            patchConfig.dns.effectiveFakeIpRangeV6(ipv6Enabled: patchConfig.ipv6),
+        fakeIpRangeV6: patchConfig.dns.effectiveFakeIpRangeV6(
+          ipv6Enabled: patchConfig.ipv6,
+        ),
         bypassPrivateRouteAddress:
             config.networkProps.realBypassPrivateRouteAddress,
       ),
@@ -756,10 +757,10 @@ class GlobalState {
       if (listen.endsWith(':53')) {
         rawConfig['dns']['listen'] = listen.replaceAll(':53', ':10053');
       }
-      final noProviders = rawConfig['proxy-providers'] == null &&
+      final noProviders =
+          rawConfig['proxy-providers'] == null &&
           rawConfig['rule-providers'] == null;
-      final proxyServerNameserver =
-          rawConfig['dns']['proxy-server-nameserver'];
+      final proxyServerNameserver = rawConfig['dns']['proxy-server-nameserver'];
       final hasLocalProxyServerNameserver = switch (proxyServerNameserver) {
         List list => list.any((e) => e.toString().startsWith('127.0.0.1')),
         String str => str.startsWith('127.0.0.1'),
@@ -906,7 +907,8 @@ class GlobalState {
       rawConfig.remove('rule');
     }
 
-    final scriptActive = config.scriptProps.currentScript != null &&
+    final scriptActive =
+        config.scriptProps.currentScript != null &&
         targetProfile.useScriptOverride;
 
     final overrideData = targetProfile.overrideData;
@@ -1066,8 +1068,7 @@ class DashboardRefreshManager {
     }
 
     final lifecycleState = WidgetsBinding.instance.lifecycleState;
-    if (lifecycleState != null &&
-        lifecycleState != AppLifecycleState.resumed) {
+    if (lifecycleState != null && lifecycleState != AppLifecycleState.resumed) {
       return false;
     }
     return true;
@@ -1113,6 +1114,7 @@ class DetectionState {
   static DetectionState? _instance;
   bool? _preIsStart;
   int _requestId = 0;
+  int? _currentCheckRequestId;
   CancelToken? _cancelToken;
   bool _isIpMasked = false;
   IpInfo? _rawIpInfo;
@@ -1134,6 +1136,7 @@ class DetectionState {
   }
 
   bool get isIpMasked => _isIpMasked;
+  IpInfo? get rawIpInfo => _rawIpInfo;
 
   IpInfo? _maskIpInfo(IpInfo? ipInfo) {
     if (ipInfo == null) return null;
@@ -1143,24 +1146,39 @@ class DetectionState {
   void toggleIpPrivacy() {
     _isIpMasked = !_isIpMasked;
     if (_rawIpInfo != null) {
-      state.value = state.value.copyWith(
-        ipInfo: _maskIpInfo(_rawIpInfo),
-      );
+      state.value = state.value.copyWith(ipInfo: _maskIpInfo(_rawIpInfo));
     }
   }
 
   void manualRefresh() {
     _rawIpInfo = null;
+    _currentCheckRequestId = null;
+    _isIpMasked = false;
     state.value = state.value.copyWith(
       isLoading: true,
       ipInfo: null,
       errorMessage: null,
     );
-    startCheck(immediate: true);
+    startCheck(immediate: true, showLoading: true);
+  }
+
+  void _onIpProgress(int requestId, IpInfo info) {
+    if (requestId != _requestId) return;
+    _rawIpInfo = (_currentCheckRequestId == requestId && _rawIpInfo != null)
+        ? _rawIpInfo!.merge(info)
+        : info;
+    _currentCheckRequestId = requestId;
+    state.value = state.value.copyWith(
+      isLoading: false,
+      ipInfo: _maskIpInfo(_rawIpInfo),
+      errorMessage: null,
+    );
   }
 
   Future<void> switchToDomesticIp() async {
     _rawIpInfo = null;
+    _currentCheckRequestId = null;
+    _isIpMasked = false;
 
     _cancelPreviousRequest();
     _cancelToken = CancelToken();
@@ -1172,22 +1190,36 @@ class DetectionState {
       errorMessage: null,
     );
 
-    final res = await request.checkIpDomestic(cancelToken: _cancelToken);
+    final res = await request.checkIpDomestic(
+      cancelToken: _cancelToken,
+      onUpdate: (info) => _onIpProgress(requestId, info),
+    );
 
     if (requestId != _requestId) return;
 
     _handleResponse(res);
   }
 
-  void startCheck({bool immediate = false}) {
+  void startCheck({bool immediate = false, bool showLoading = false}) {
     final appState = globalState.appState;
     if (!appState.isInit) return;
+
+    if (showLoading || state.value.ipInfo == null) {
+      state.value = state.value.copyWith(
+        isLoading: true,
+        errorMessage: null,
+      );
+    }
 
     final delay = immediate
         ? Duration.zero
         : const Duration(milliseconds: 1000);
 
-    debouncer.call(FunctionTag.checkIp, _checkIp, duration: delay);
+    debouncer.call(
+      FunctionTag.checkIp,
+      () => _checkIp(showLoading: showLoading),
+      duration: delay,
+    );
   }
 
   void tryStartCheck() {
@@ -1208,30 +1240,41 @@ class DetectionState {
       if (res.message == 'cancelled') {
         state.value = state.value.copyWith(
           isLoading: false,
-          ipInfo: null,
           errorMessage: null,
         );
         return;
       }
-      _rawIpInfo = null;
-      state.value = state.value.copyWith(
-        isLoading: false,
-        ipInfo: null,
-        errorMessage: appLocalizations.tryManualRefresh,
-      );
+      if (state.value.ipInfo == null) {
+        _rawIpInfo = null;
+        state.value = state.value.copyWith(
+          isLoading: false,
+          ipInfo: null,
+          errorMessage: appLocalizations.tryManualRefresh,
+        );
+      } else {
+        state.value = state.value.copyWith(isLoading: false);
+      }
       return;
     }
 
-    _rawIpInfo = res.data;
+    if (res.data != null) {
+      _rawIpInfo = (_currentCheckRequestId == _requestId && _rawIpInfo != null)
+          ? _rawIpInfo!.merge(res.data!)
+          : res.data!;
+      _currentCheckRequestId = _requestId;
+    }
     state.value = state.value.copyWith(
       isLoading: false,
       ipInfo: _maskIpInfo(_rawIpInfo),
-      errorMessage:
-          _rawIpInfo != null ? null : appLocalizations.tryManualRefresh,
+      errorMessage: _rawIpInfo != null
+          ? null
+          : (state.value.ipInfo == null
+              ? appLocalizations.tryManualRefresh
+              : null),
     );
   }
 
-  Future<void> _checkIp() async {
+  Future<void> _checkIp({bool showLoading = false}) async {
     final appState = globalState.appState;
 
     if (!appState.isInit) return;
@@ -1252,19 +1295,30 @@ class DetectionState {
     _cancelToken = CancelToken();
     final requestId = ++_requestId;
 
-    state.value = state.value.copyWith(
-      isLoading: true,
-      errorMessage: null,
-      ipInfo: isStateChanged ? null : _maskIpInfo(_rawIpInfo),
-    );
+    final shouldShowLoading =
+        showLoading || state.value.ipInfo == null || isStateChanged;
+    if (shouldShowLoading) {
+      _rawIpInfo = null;
+      _currentCheckRequestId = null;
+      state.value = state.value.copyWith(
+        isLoading: true,
+        errorMessage: null,
+        ipInfo: isStateChanged ? null : state.value.ipInfo,
+      );
+    }
 
     final timeout = const Duration(seconds: 5);
 
     final res = isStart
-        ? await request.checkIp(cancelToken: _cancelToken, timeout: timeout)
+        ? await request.checkIp(
+            cancelToken: _cancelToken,
+            timeout: timeout,
+            onUpdate: (info) => _onIpProgress(requestId, info),
+          )
         : await request.checkIpDomestic(
             cancelToken: _cancelToken,
             timeout: timeout,
+            onUpdate: (info) => _onIpProgress(requestId, info),
           );
 
     if (requestId != _requestId) return;

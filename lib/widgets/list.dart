@@ -266,7 +266,7 @@ class ListItem<T> extends StatelessWidget {
       key: key,
       dense: dense,
       enabled: enabled,
-      focusColor: context.colorScheme.primary.withValues(alpha: 0.1),
+      focusColor: context.colorScheme.primary.withValues(alpha: 0.18),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       titleTextStyle: titleTextStyle,
       subtitleTextStyle: subtitleTextStyle,

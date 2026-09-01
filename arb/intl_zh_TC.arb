@@ -1,4 +1,4 @@
-﻿{
+{
   "rule": "規則",
   "global": "全域",
   "direct": "直連",
@@ -674,5 +674,18 @@
   "clear": "清空",
   "back": "返回",
   "closeAll": "關閉全部",
-  "script": "指令碼"
+  "script": "指令碼",
+  "moreIpInfo": "更多 IP 資訊",
+  "viewDetailedIpData": "檢視詳細 IP 資料",
+  "ipAddress": "IP 位址",
+  "countryOrRegion": "國家 / 地區",
+  "provinceAndCity": "省份 / 城市",
+  "operatorOrAsn": "歸屬 / ASN",
+  "continent": "大洲",
+  "domain": "組織網域名稱",
+  "copiedToClipboard": "已複製到剪貼簿",
+  "privateIp": "私有 / 區域網路 IP 位址",
+  "isp": "電信業者",
+  "networkErrorRetryLater": "網路異常，請稍後再試",
+  "tunVirtualAddress": "TUN 虛擬網卡位址"
 }

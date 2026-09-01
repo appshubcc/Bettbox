@@ -1,4 +1,4 @@
-﻿{
+{
   "rule": "Правила",
   "global": "Глобально",
   "direct": "Напрямую",
@@ -676,5 +676,18 @@
   "clear": "Очистить",
   "back": "Назад",
   "closeAll": "Закрыть все",
-  "script": "Скрипт"
+  "script": "Скрипт",
+  "moreIpInfo": "Подробная информация об IP",
+  "viewDetailedIpData": "Посмотреть подробные данные IP",
+  "ipAddress": "IP-адрес",
+  "countryOrRegion": "Страна / Регион",
+  "provinceAndCity": "Провинция / Город",
+  "operatorOrAsn": "Организация / ASN",
+  "continent": "Континент",
+  "domain": "Домен",
+  "copiedToClipboard": "Скопировано в буфер обмена",
+  "privateIp": "Частный / локальный IP-адрес",
+  "isp": "Провайдер",
+  "networkErrorRetryLater": "Ошибка сети, попробуйте позже",
+  "tunVirtualAddress": "Адрес виртуального сетевого адаптера TUN"
 }

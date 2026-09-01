@@ -5483,6 +5483,111 @@ class AppLocalizations {
   String get closeAll {
     return Intl.message('Close All', name: 'closeAll', desc: '', args: []);
   }
+
+  /// `More IP Information`
+  String get moreIpInfo {
+    return Intl.message(
+      'More IP Information',
+      name: 'moreIpInfo',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `View Detailed IP Data`
+  String get viewDetailedIpData {
+    return Intl.message(
+      'View Detailed IP Data',
+      name: 'viewDetailedIpData',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `IP Address`
+  String get ipAddress {
+    return Intl.message('IP Address', name: 'ipAddress', desc: '', args: []);
+  }
+
+  /// `Country / Region`
+  String get countryOrRegion {
+    return Intl.message(
+      'Country / Region',
+      name: 'countryOrRegion',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Province / City`
+  String get provinceAndCity {
+    return Intl.message(
+      'Province / City',
+      name: 'provinceAndCity',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Organization / ASN`
+  String get operatorOrAsn {
+    return Intl.message(
+      'Organization / ASN',
+      name: 'operatorOrAsn',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Continent`
+  String get continent {
+    return Intl.message('Continent', name: 'continent', desc: '', args: []);
+  }
+
+  /// `Copied to clipboard`
+  String get copiedToClipboard {
+    return Intl.message(
+      'Copied to clipboard',
+      name: 'copiedToClipboard',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Private / LAN IP Address`
+  String get privateIp {
+    return Intl.message(
+      'Private / LAN IP Address',
+      name: 'privateIp',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `ISP`
+  String get isp {
+    return Intl.message('ISP', name: 'isp', desc: '', args: []);
+  }
+
+  /// `Network error, please try again later`
+  String get networkErrorRetryLater {
+    return Intl.message(
+      'Network error, please try again later',
+      name: 'networkErrorRetryLater',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `TUN Virtual Network Adapter`
+  String get tunVirtualAddress {
+    return Intl.message(
+      'TUN Virtual Network Adapter',
+      name: 'tunVirtualAddress',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<AppLocalizations> {

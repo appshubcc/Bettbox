@@ -1400,7 +1400,7 @@ class _ToolViewState extends ConsumerState<ToolsView> {
         },
         padding: EdgeInsets.only(
           bottom:
-              20 +
+              (globalState.isAndroidTV ? 80.0 : 20.0) +
               (isMobileView ? getFloatingBottomBarReserveHeight(context) : 0),
           top: 8,
         ),

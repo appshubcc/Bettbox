@@ -31,7 +31,8 @@ abstract class Package with _$Package {
     required String label,
     required bool system,
     required bool internet,
-    required int lastUpdateTime,
+    @Default(0) int firstInstallTime,
+    @Default(0) int lastUpdateTime,
   }) = _Package;
 
   factory Package.fromJson(Map<String, Object?> json) =>
@@ -417,8 +418,149 @@ extension ColorSchemesExt on ColorSchemes {
 class IpInfo {
   final String ip;
   final String countryCode;
+  final String? country;
+  final String? province;
+  final String? city;
+  final String? isp;
+  final String? asn;
+  final String? asName;
+  final String? asDomain;
+  final String? continent;
+  final String? continentCode;
 
-  const IpInfo({required this.ip, required this.countryCode});
+  const IpInfo({
+    required this.ip,
+    required this.countryCode,
+    this.country,
+    this.province,
+    this.city,
+    this.isp,
+    this.asn,
+    this.asName,
+    this.asDomain,
+    this.continent,
+    this.continentCode,
+  });
+
+  static IpInfo fromJson(Map<String, dynamic> json) {
+    // myip.ipip.net 格式: {"ret":"ok", "data":{"ip":"...", "location":["中国", "浙江", "绍兴", "", "电信"]}}
+    if (json['ret'] == 'ok' && json['data'] is Map) {
+      final data = json['data'] as Map;
+      final ip = data['ip']?.toString() ?? '';
+      final loc = data['location'];
+      if (loc is List && ip.isNotEmpty) {
+        final locList = loc.map((e) => e?.toString() ?? '').toList();
+        final country = locList.isNotEmpty && locList[0].isNotEmpty ? locList[0] : null;
+        final countryCode = country == '中国' ? 'CN' : '';
+        final province = locList.length > 1 && locList[1].isNotEmpty ? locList[1] : null;
+        final city = locList.length > 2 && locList[2].isNotEmpty ? locList[2] : null;
+        final last = locList.length > 4 && locList[4].isNotEmpty
+            ? locList[4]
+            : (locList.length > 3 && locList[3].isNotEmpty ? locList[3] : null);
+
+        String? isp;
+        String? asName;
+        String? asDomain;
+        if (last != null && last.isNotEmpty) {
+          if (last.contains('.')) {
+            asDomain = last;
+            asName = last;
+          } else {
+            isp = last;
+            asName = last;
+          }
+        }
+
+        return IpInfo(
+          ip: ip,
+          countryCode: countryCode,
+          country: country,
+          province: province,
+          city: city,
+          isp: isp,
+          asName: asName,
+          asDomain: asDomain,
+        );
+      }
+    }
+
+    final ip = json['ip']?.toString() ?? '';
+    // myip.la 格式: {"ip":"...", "location":{"country_code":"...", "country_name":"...", "province":"...", "city":"..."}}
+    if (json['location'] is Map) {
+      final loc = json['location'] as Map;
+      final countryCode = loc['country_code']?.toString() ?? '';
+      final country = loc['country_name']?.toString();
+      final province = loc['province']?.toString();
+      final city = loc['city']?.toString();
+      if (ip.isNotEmpty) {
+        return IpInfo(
+          ip: ip,
+          countryCode: countryCode,
+          country: country,
+          province: province,
+          city: city,
+        );
+      }
+    }
+    // ip-api.com 格式: {"status":"success", "country":"...", "countryCode":"...", "regionName":"...", "city":"...", "isp":"...", "org":"...", "as":"...", "query":"..."}
+    if (json['query'] != null || json['countryCode'] != null) {
+      final ip = (json['query'] ?? json['ip'])?.toString() ?? '';
+      final countryCode =
+          (json['countryCode'] ?? json['country_code'])?.toString() ?? '';
+      final country = json['country']?.toString();
+      final province =
+          (json['regionName'] ?? json['region'] ?? json['province'])?.toString();
+      final city = json['city']?.toString();
+      final isp = json['isp']?.toString();
+      final org = json['org']?.toString();
+      final asName = org?.isNotEmpty == true
+          ? org
+          : (json['as_name']?.toString());
+
+      // 仅取最前面的 AS 号 (例如: "AS37963 Hangzhou Alibaba..." -> "AS37963")
+      final rawAs = (json['as'] ?? json['asn'])?.toString() ?? '';
+      final asnMatch =
+          RegExp(r'^(AS\d+)', caseSensitive: false).firstMatch(rawAs.trim());
+      final asn = asnMatch != null
+          ? asnMatch.group(1)!.toUpperCase()
+          : (rawAs.isNotEmpty ? rawAs.trim().split(' ').first : null);
+
+      if (ip.isNotEmpty) {
+        return IpInfo(
+          ip: ip,
+          countryCode: countryCode,
+          country: country,
+          province: province,
+          city: city,
+          isp: isp,
+          asName: asName,
+          asn: asn,
+        );
+      }
+    }
+    // ipinfo.io 格式: {"ip":"...", "country_code":"...", "country":"...", "asn":"...", "as_name":"...", "as_domain":"...", "continent":"...", "continent_code":"..."}
+    final countryCode =
+        (json['country_code'] ?? json['country'])?.toString() ?? '';
+    final country = json['country']?.toString();
+    final asn = json['asn']?.toString();
+    final asName = json['as_name']?.toString();
+    final asDomain = json['as_domain']?.toString();
+    final continent = json['continent']?.toString();
+    final continentCode = json['continent_code']?.toString();
+    if (ip.isNotEmpty) {
+      return IpInfo(
+        ip: ip,
+        countryCode: countryCode,
+        country: country,
+        asn: asn,
+        asName: asName,
+        asDomain: asDomain,
+        continent: continent,
+        continentCode: continentCode,
+      );
+    }
+    throw const FormatException('invalid ip json format');
+  }
 
   static IpInfo fromCloudflareTrace(String traceText) {
     // Cloudflare trace格式示例:
@@ -464,16 +606,87 @@ class IpInfo {
     throw const FormatException('invalid cloudflare trace format');
   }
 
-  IpInfo copyWith({String? ip, String? countryCode}) {
+  static bool _hasNonAscii(String? str) {
+    if (str == null || str.isEmpty) return false;
+    return str.codeUnits.any((c) => c > 127);
+  }
+
+  IpInfo merge(IpInfo other) {
+    final mergedCountry = () {
+      if (_hasNonAscii(country) && !_hasNonAscii(other.country)) {
+        return country;
+      }
+      if (_hasNonAscii(other.country)) {
+        return other.country;
+      }
+      return other.country?.isNotEmpty == true ? other.country : country;
+    }();
+
+    return IpInfo(
+      ip: ip.isNotEmpty ? ip : other.ip,
+      countryCode: countryCode.isNotEmpty ? countryCode : other.countryCode,
+      country: mergedCountry,
+      province: other.province?.isNotEmpty == true ? other.province : province,
+      city: other.city?.isNotEmpty == true ? other.city : city,
+      isp: other.isp?.isNotEmpty == true ? other.isp : isp,
+      asn: other.asn?.isNotEmpty == true ? other.asn : asn,
+      asName: other.asName?.isNotEmpty == true ? other.asName : asName,
+      asDomain: other.asDomain?.isNotEmpty == true ? other.asDomain : asDomain,
+      continent:
+          other.continent?.isNotEmpty == true ? other.continent : continent,
+      continentCode: other.continentCode?.isNotEmpty == true
+          ? other.continentCode
+          : continentCode,
+    );
+  }
+
+  IpInfo copyWith({
+    String? ip,
+    String? countryCode,
+    String? country,
+    String? province,
+    String? city,
+    String? isp,
+    String? asn,
+    String? asName,
+    String? asDomain,
+    String? continent,
+    String? continentCode,
+  }) {
     return IpInfo(
       ip: ip ?? this.ip,
       countryCode: countryCode ?? this.countryCode,
+      country: country ?? this.country,
+      province: province ?? this.province,
+      city: city ?? this.city,
+      isp: isp ?? this.isp,
+      asn: asn ?? this.asn,
+      asName: asName ?? this.asName,
+      asDomain: asDomain ?? this.asDomain,
+      continent: continent ?? this.continent,
+      continentCode: continentCode ?? this.continentCode,
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'ip': ip,
+      'countryCode': countryCode,
+      if (country != null) 'country': country,
+      if (province != null) 'regionName': province,
+      if (city != null) 'city': city,
+      if (isp != null) 'isp': isp,
+      if (asName != null) 'org': asName,
+      if (asn != null) 'as': asn,
+      if (asDomain != null) 'as_domain': asDomain,
+      if (continent != null) 'continent': continent,
+      if (continentCode != null) 'continent_code': continentCode,
+    };
   }
 
   @override
   String toString() {
-    return 'IpInfo{ip: $ip, countryCode: $countryCode}';
+    return 'IpInfo{ip: $ip, countryCode: $countryCode, country: $country, province: $province, city: $city, isp: $isp, asn: $asn, asName: $asName}';
   }
 }
 

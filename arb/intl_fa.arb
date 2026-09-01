@@ -1,4 +1,4 @@
-﻿{
+{
   "rule": "قوانین",
   "global": "سراسر جهان",
   "direct": "مستقیم",
@@ -674,5 +674,18 @@
   "clear": "پاک کردن",
   "back": "بازگشت",
   "closeAll": "بستن همه",
-  "script": "اسکریپت"
+  "script": "اسکریپت",
+  "moreIpInfo": "اطلاعات بیشتر IP",
+  "viewDetailedIpData": "مشاهده داده‌های دقیق IP",
+  "ipAddress": "آدرس IP",
+  "countryOrRegion": "کشور / منطقه",
+  "provinceAndCity": "استان / شهر",
+  "operatorOrAsn": "سازمان / ASN",
+  "continent": "قاره",
+  "domain": "دامنه",
+  "copiedToClipboard": "در کلیپ‌بورد کپی شد",
+  "privateIp": "آدرس IP خصوصی / شبکه محلی",
+  "isp": "ارائه‌دهنده اینترنت",
+  "networkErrorRetryLater": "خطای شبکه، لطفاً بعداً دوباره امتحان کنید",
+  "tunVirtualAddress": "آدرس کارت شبکه مجازی TUN"
 }

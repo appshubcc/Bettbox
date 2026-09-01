@@ -144,7 +144,13 @@ class BettboxVpnService : VpnService(), BaseServiceInterface {
             setHttpProxy(ProxyInfo.buildDirectProxy("127.0.0.1", options.port, options.bypassDomain))
         }
 
-        establish()?.detachFd()?.also { return it }
+        val fd = runCatching { establish()?.detachFd() }.getOrElse { e ->
+            Log.e(TAG, "Establish VPN exception: ${e.message}")
+            null
+        }
+        if (fd != null && fd > 0) {
+            return fd
+        }
         Log.e(TAG, "Establish VPN rejected by system")
         -1
     }

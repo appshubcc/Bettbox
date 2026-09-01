@@ -220,11 +220,15 @@ class MessageLookup extends MessageLookupByLibrary {
     "contactMe": MessageLookupByLibrary.simpleMessage("お問い合わせ"),
     "content": MessageLookupByLibrary.simpleMessage("内容"),
     "contentScheme": MessageLookupByLibrary.simpleMessage("コンテンツテーマ"),
+    "continent": MessageLookupByLibrary.simpleMessage("大陸"),
     "controlSecret": MessageLookupByLibrary.simpleMessage("制御パスワード"),
     "controlSecretDesc": MessageLookupByLibrary.simpleMessage(
       "RESTful APIアクセスパスワード",
     ),
     "copiedPackageName": MessageLookupByLibrary.simpleMessage("パッケージ名をコピーしました"),
+    "copiedToClipboard": MessageLookupByLibrary.simpleMessage(
+      "クリップボードにコピーしました",
+    ),
     "copy": MessageLookupByLibrary.simpleMessage("コピー"),
     "copyEnvVar": MessageLookupByLibrary.simpleMessage("環境変数をコピー"),
     "copyLink": MessageLookupByLibrary.simpleMessage("リンクをコピー"),
@@ -234,6 +238,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "coreInfo": MessageLookupByLibrary.simpleMessage("カーネル情報"),
     "coreSuspended": MessageLookupByLibrary.simpleMessage("一時停止中"),
     "country": MessageLookupByLibrary.simpleMessage("地域"),
+    "countryOrRegion": MessageLookupByLibrary.simpleMessage("国 / 地域"),
     "crashTest": MessageLookupByLibrary.simpleMessage("クラッシュテスト"),
     "create": MessageLookupByLibrary.simpleMessage("作成"),
     "creationTime": MessageLookupByLibrary.simpleMessage("作成日時"),
@@ -471,11 +476,13 @@ class MessageLookup extends MessageLookupByLibrary {
     "interval": MessageLookupByLibrary.simpleMessage("間隔"),
     "intranetIP": MessageLookupByLibrary.simpleMessage("ローカル IP"),
     "invalidIpFormat": MessageLookupByLibrary.simpleMessage("無効なIPまたはCIDR形式"),
+    "ipAddress": MessageLookupByLibrary.simpleMessage("IP アドレス"),
     "ipClickBehavior": MessageLookupByLibrary.simpleMessage("表示切替"),
     "ipPrivacyProtection": MessageLookupByLibrary.simpleMessage("IP表示を隠す"),
     "ipcidr": MessageLookupByLibrary.simpleMessage("IP / サブネットマスク"),
     "ipv6Desc": MessageLookupByLibrary.simpleMessage("IPv6トラフィックの受信を有効化"),
     "ipv6InboundDesc": MessageLookupByLibrary.simpleMessage("IPv6インバウンド通信を許可"),
+    "isp": MessageLookupByLibrary.simpleMessage("プロバイダ"),
     "just": MessageLookupByLibrary.simpleMessage("たった今"),
     "keepAliveIntervalDesc": MessageLookupByLibrary.simpleMessage(
       "TCP Keep-Alive間隔",
@@ -522,6 +529,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "monochromeScheme": MessageLookupByLibrary.simpleMessage("モノクローム"),
     "months": m7,
     "more": MessageLookupByLibrary.simpleMessage("詳細"),
+    "moreIpInfo": MessageLookupByLibrary.simpleMessage("詳細 IP 情報"),
     "name": MessageLookupByLibrary.simpleMessage("名前"),
     "nameSort": MessageLookupByLibrary.simpleMessage("名前順"),
     "nameserver": MessageLookupByLibrary.simpleMessage("ネームサーバー"),
@@ -539,6 +547,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "network": MessageLookupByLibrary.simpleMessage("ネットワーク"),
     "networkDesc": MessageLookupByLibrary.simpleMessage("ネットワーク関連設定を変更"),
     "networkDetection": MessageLookupByLibrary.simpleMessage("ネットワーク検出"),
+    "networkErrorRetryLater": MessageLookupByLibrary.simpleMessage(
+      "ネットワークエラーが発生しました。後でもう一度お試しください",
+    ),
     "networkFix": MessageLookupByLibrary.simpleMessage("ネットワーク修復"),
     "networkFixDesc": MessageLookupByLibrary.simpleMessage(
       "システムネットワーク検出アイコンの問題を修復",
@@ -600,6 +611,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "openDashboard": MessageLookupByLibrary.simpleMessage("Zashboardを開く"),
     "openSettings": MessageLookupByLibrary.simpleMessage("設定を開く"),
+    "operatorOrAsn": MessageLookupByLibrary.simpleMessage("組織 / ASN"),
     "options": MessageLookupByLibrary.simpleMessage("オプション"),
     "other": MessageLookupByLibrary.simpleMessage("その他"),
     "otherContributors": MessageLookupByLibrary.simpleMessage("その他の貢献者（ランダム順）"),
@@ -679,6 +691,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "preferH3Desc": MessageLookupByLibrary.simpleMessage("DoHでHTTP/3を優先使用"),
     "pressKeyboard": MessageLookupByLibrary.simpleMessage("キーを入力してください"),
     "preview": MessageLookupByLibrary.simpleMessage("プレビュー"),
+    "privateIp": MessageLookupByLibrary.simpleMessage("プライベート / LAN IP アドレス"),
     "profile": MessageLookupByLibrary.simpleMessage("プロファイル"),
     "profileAutoUpdateIntervalInvalidValidationDesc":
         MessageLookupByLibrary.simpleMessage("有効な時間を指定してください"),
@@ -705,6 +718,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "progress": MessageLookupByLibrary.simpleMessage("プロセス"),
     "project": MessageLookupByLibrary.simpleMessage("プロジェクト"),
     "providers": MessageLookupByLibrary.simpleMessage("プロバイダー"),
+    "provinceAndCity": MessageLookupByLibrary.simpleMessage("都道府県 / 都市"),
     "proxies": MessageLookupByLibrary.simpleMessage("プロキシ"),
     "proxiesSetting": MessageLookupByLibrary.simpleMessage("プロキシ設定"),
     "proxyChains": MessageLookupByLibrary.simpleMessage("プロキシチェーン"),
@@ -922,6 +936,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "tunEnableRequireAdmin": MessageLookupByLibrary.simpleMessage(
       "TUN仮想NIC機能の有効化には管理者（ROOT）権限が必要です",
     ),
+    "tunVirtualAddress": MessageLookupByLibrary.simpleMessage(
+      "TUN 仮想ネットワークアダプター",
+    ),
     "tunnel": MessageLookupByLibrary.simpleMessage("トンネル"),
     "tunnelAddress": MessageLookupByLibrary.simpleMessage("バインドアドレス"),
     "tunnelAddressHint": MessageLookupByLibrary.simpleMessage(
@@ -963,6 +980,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "value": MessageLookupByLibrary.simpleMessage("値"),
     "vibrantScheme": MessageLookupByLibrary.simpleMessage("バイブラント"),
     "view": MessageLookupByLibrary.simpleMessage("表示"),
+    "viewDetailedIpData": MessageLookupByLibrary.simpleMessage("詳細なIPデータを見る"),
     "vpnDesc": MessageLookupByLibrary.simpleMessage("VPN関連の設定を変更"),
     "vpnEnableDesc": MessageLookupByLibrary.simpleMessage(
       "VpnServiceでシステム通信をルーティング",

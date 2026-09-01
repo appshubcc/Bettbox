@@ -1,4 +1,4 @@
-﻿{
+{
   "rule": "规则",
   "global": "全局",
   "direct": "直连",
@@ -674,5 +674,18 @@
   "clear": "清空",
   "back": "返回",
   "closeAll": "关闭全部",
-  "script": "脚本"
+  "script": "脚本",
+  "moreIpInfo": "更多 IP 信息",
+  "viewDetailedIpData": "查看详细 IP 数据",
+  "ipAddress": "IP 地址",
+  "countryOrRegion": "国家 / 地区",
+  "provinceAndCity": "省份 / 城市",
+  "operatorOrAsn": "归属 / ASN",
+  "continent": "大洲",
+  "domain": "组织域名",
+  "copiedToClipboard": "已复制到剪贴板",
+  "privateIp": "私有 / 局域网 IP 地址",
+  "isp": "运营商",
+  "networkErrorRetryLater": "网络异常，请稍后再试",
+  "tunVirtualAddress": "TUN 虚拟网卡地址"
 }

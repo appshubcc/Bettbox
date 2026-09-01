@@ -103,7 +103,8 @@ class _ResourcesViewState extends ConsumerState<ResourcesView> {
       ],
       body: ListView(
         padding: EdgeInsets.only(
-          bottom: 16 + MediaQuery.of(context).padding.bottom,
+          bottom: (globalState.isAndroidTV ? 48.0 : 16.0) +
+              MediaQuery.of(context).padding.bottom,
           top: 8,
         ),
         children: [

@@ -11,12 +11,148 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:lpinyin/lpinyin.dart';
 
+enum IpCategory {
+  tun,
+  lan,
+  public,
+}
+
 class Utils {
   Color? getDelayColor(int? delay) {
     if (delay == null) return null;
     if (delay < 0) return Colors.red;
     if (delay < 600) return Colors.green;
     return const Color(0xFFC57F0A);
+  }
+
+  String countryCodeToEmoji(String countryCode) {
+    final String code = countryCode.toUpperCase();
+    if (code.length != 2) {
+      return countryCode;
+    }
+    final int firstLetter = code.codeUnitAt(0) - 0x41 + 0x1F1E6;
+    final int secondLetter = code.codeUnitAt(1) - 0x41 + 0x1F1E6;
+    return String.fromCharCode(firstLetter) + String.fromCharCode(secondLetter);
+  }
+
+  bool isTunIp(String ip) {
+    final address = InternetAddress.tryParse(ip.trim());
+    if (address == null) return false;
+    if (address.type == InternetAddressType.IPv4) {
+      final parts = ip.trim().split('.').map(int.tryParse).toList();
+      if (parts.length == 4 && parts.every((p) => p != null)) {
+        final p0 = parts[0]!;
+        final p1 = parts[1]!;
+        final p2 = parts[2]!;
+        // 198.51.100.0/24 (TEST-NET-2 / TUN Default)
+        if (p0 == 198 && p1 == 51 && p2 == 100) return true;
+        // 198.18.0.0/15 (Benchmarking / Fake-IP)
+        if (p0 == 198 && (p1 == 18 || p1 == 19)) return true;
+      }
+    } else if (address.type == InternetAddressType.IPv6) {
+      final clean = ip.trim().toLowerCase();
+      // fdfe:dcba:9876::/126 (Default TUN IPv6)
+      if (clean.startsWith('fdfe:dcba:9876:')) return true;
+    }
+    return false;
+  }
+
+  IpCategory classifyIp(String ip) {
+    if (isTunIp(ip)) {
+      return IpCategory.tun;
+    }
+    if (isPrivateOrReservedIp(ip)) {
+      return IpCategory.lan;
+    }
+    return IpCategory.public;
+  }
+
+  bool isPrivateOrReservedIp(String ip) {
+    final address = InternetAddress.tryParse(ip.trim());
+    if (address == null) return false;
+
+    if (address.isLoopback || address.isLinkLocal || address.isMulticast) {
+      return true;
+    }
+
+    if (address.type == InternetAddressType.IPv4) {
+      final parts = ip.trim().split('.').map(int.tryParse).toList();
+      if (parts.length == 4 && parts.every((p) => p != null)) {
+        final p0 = parts[0]!;
+        final p1 = parts[1]!;
+        final p2 = parts[2]!;
+
+        // 0.0.0.0/8 (Current network / RFC 1122)
+        if (p0 == 0) return true;
+
+        // 10.0.0.0/8 (Private / RFC 1918)
+        if (p0 == 10) return true;
+
+        // 100.64.0.0/10 (CGNAT / Shared / RFC 6598: 100.64.0.0 - 100.127.255.255)
+        if (p0 == 100 && (p1 >= 64 && p1 <= 127)) return true;
+
+        // 127.0.0.0/8 (Loopback / RFC 1122)
+        if (p0 == 127) return true;
+
+        // 169.254.0.0/16 (Link Local / RFC 3927)
+        if (p0 == 169 && p1 == 254) return true;
+
+        // 172.16.0.0/12 (Private / RFC 1918: 172.16.0.0 - 172.31.255.255)
+        if (p0 == 172 && (p1 >= 16 && p1 <= 31)) return true;
+
+        // 192.0.0.0/24 (IETF Protocol Assignments / RFC 6890)
+        if (p0 == 192 && p1 == 0 && p2 == 0) return true;
+
+        // 192.0.2.0/24 (TEST-NET-1 / RFC 5737)
+        if (p0 == 192 && p1 == 0 && p2 == 2) return true;
+
+        // 192.88.99.0/24 (6to4 Relay Anycast / RFC 7526)
+        if (p0 == 192 && p1 == 88 && p2 == 99) return true;
+
+        // 192.168.0.0/16 (Private / RFC 1918)
+        if (p0 == 192 && p1 == 168) return true;
+
+        // 198.18.0.0/15 (Benchmarking / Fake-IP / RFC 2544: 198.18.0.0 - 198.19.255.255)
+        if (p0 == 198 && (p1 == 18 || p1 == 19)) return true;
+
+        // 198.51.100.0/24 (TEST-NET-2 / TUN Default / RFC 5737)
+        if (p0 == 198 && p1 == 51 && p2 == 100) return true;
+
+        // 203.0.113.0/24 (TEST-NET-3 / RFC 5737)
+        if (p0 == 203 && p1 == 0 && p2 == 113) return true;
+
+        // 224.0.0.0/4 (Multicast / RFC 5771)
+        if (p0 >= 224 && p0 <= 239) return true;
+
+        // 240.0.0.0/4 (Reserved / RFC 1112)
+        if (p0 >= 240) return true;
+      }
+    } else if (address.type == InternetAddressType.IPv6) {
+      final clean = ip.trim().toLowerCase();
+      // ::1 (Loopback), :: (Unspecified)
+      if (clean == '::1' || clean == '::') return true;
+      // fe80::/10 (Link-local)
+      if (clean.startsWith('fe8') ||
+          clean.startsWith('fe9') ||
+          clean.startsWith('fea') ||
+          clean.startsWith('feb')) {
+        return true;
+      }
+      // fc00::/7 (Unique Local Address ULA: fc00:: ~ fdff::)
+      if (clean.startsWith('fc') || clean.startsWith('fd')) {
+        return true;
+      }
+      // ff00::/8 (Multicast)
+      if (clean.startsWith('ff')) {
+        return true;
+      }
+      // 2001:db8::/32 (Documentation)
+      if (clean.startsWith('2001:db8:')) {
+        return true;
+      }
+    }
+
+    return false;
   }
 
   String get id {

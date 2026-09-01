@@ -1,4 +1,4 @@
-﻿{
+{
   "rule": "Rule",
   "global": "Global",
   "direct": "Direct",
@@ -673,5 +673,18 @@
   "clear": "Clear",
   "back": "Back",
   "closeAll": "Close All",
-  "script": "Script"
+  "script": "Script",
+  "moreIpInfo": "More IP Information",
+  "viewDetailedIpData": "View Detailed IP Data",
+  "ipAddress": "IP Address",
+  "countryOrRegion": "Country / Region",
+  "provinceAndCity": "Province / City",
+  "operatorOrAsn": "Organization / ASN",
+  "continent": "Continent",
+  "domain": "Domain",
+  "copiedToClipboard": "Copied to clipboard",
+  "privateIp": "Private / LAN IP Address",
+  "isp": "ISP",
+  "networkErrorRetryLater": "Network error, please try again later",
+  "tunVirtualAddress": "TUN Virtual Network Adapter"
 }

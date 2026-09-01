@@ -1,4 +1,4 @@
-﻿{
+{
   "rule": "ルール",
   "global": "グローバル",
   "direct": "ダイレクト",
@@ -674,5 +674,18 @@
   "clear": "消去",
   "back": "戻る",
   "closeAll": "すべて閉じる",
-  "script": "スクリプト"
+  "script": "スクリプト",
+  "moreIpInfo": "詳細 IP 情報",
+  "viewDetailedIpData": "詳細なIPデータを見る",
+  "ipAddress": "IP アドレス",
+  "countryOrRegion": "国 / 地域",
+  "provinceAndCity": "都道府県 / 都市",
+  "operatorOrAsn": "組織 / ASN",
+  "continent": "大陸",
+  "domain": "ドメイン",
+  "copiedToClipboard": "クリップボードにコピーしました",
+  "privateIp": "プライベート / LAN IP アドレス",
+  "isp": "プロバイダ",
+  "networkErrorRetryLater": "ネットワークエラーが発生しました。後でもう一度お試しください",
+  "tunVirtualAddress": "TUN 仮想ネットワークアダプター"
 }

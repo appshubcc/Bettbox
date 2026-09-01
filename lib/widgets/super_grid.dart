@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:bett_box/common/common.dart';
 import 'package:bett_box/enum/enum.dart';
+import 'package:bett_box/state.dart';
 import 'package:bett_box/widgets/activate_box.dart';
 import 'package:bett_box/widgets/card.dart';
 import 'package:bett_box/widgets/grid.dart';
@@ -615,6 +616,7 @@ class _DeletableContainerState extends State<_DeletableContainer>
   late Animation<double> _scaleAnimation;
   late Animation<double> _fadeAnimation;
   bool _deleteButtonVisible = true;
+  bool _isFocused = false;
 
   @override
   void initState() {
@@ -657,6 +659,36 @@ class _DeletableContainerState extends State<_DeletableContainer>
 
   @override
   Widget build(BuildContext context) {
+    Widget content = widget.child;
+    if (globalState.isAndroidTV) {
+      content = InkWell(
+        borderRadius: BorderRadius.circular(16),
+        onTap: _handleDel,
+        onFocusChange: (focused) {
+          setState(() {
+            _isFocused = focused;
+          });
+        },
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            border: _isFocused
+                ? Border.all(
+                    color: context.colorScheme.error,
+                    width: 2.5,
+                  )
+                : Border.all(
+                    color: Colors.transparent,
+                    width: 2.5,
+                  ),
+          ),
+          child: ExcludeFocus(
+            child: AbsorbPointer(child: widget.child),
+          ),
+        ),
+      );
+    }
+
     return Stack(
       clipBehavior: Clip.none,
       children: [
@@ -668,7 +700,7 @@ class _DeletableContainerState extends State<_DeletableContainer>
               child: Opacity(opacity: _fadeAnimation.value, child: child!),
             );
           },
-          child: widget.child,
+          child: content,
         ),
         if (_deleteButtonVisible)
           Positioned(
@@ -676,13 +708,19 @@ class _DeletableContainerState extends State<_DeletableContainer>
             right: -8,
             child: DeferPointer(
               child: SizedBox(
-                width: 24,
-                height: 24,
+                width: globalState.isAndroidTV ? 28 : 24,
+                height: globalState.isAndroidTV ? 28 : 24,
                 child: IconButton.filled(
-                  iconSize: 20,
-                  padding: EdgeInsets.all(2),
+                  iconSize: globalState.isAndroidTV ? 18 : 20,
+                  padding: const EdgeInsets.all(2),
+                  style: globalState.isAndroidTV
+                      ? IconButton.styleFrom(
+                          backgroundColor: context.colorScheme.error,
+                          foregroundColor: context.colorScheme.onError,
+                        )
+                      : null,
                   onPressed: _handleDel,
-                  icon: Icon(Icons.close),
+                  icon: const Icon(Icons.close),
                 ),
               ),
             ),

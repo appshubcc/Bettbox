@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:bett_box/common/common.dart';
@@ -333,28 +334,28 @@ class TrackerInfoDetailView extends ConsumerWidget {
     return process;
   }
 
-  String _getSourceText(TrackerInfo info) {
-    final sourceIP = info.metadata.sourceIP;
-    if (sourceIP.isEmpty) {
-      return '';
-    }
-    final sourcePort = info.metadata.sourcePort;
-    if (sourcePort.isNotEmpty) {
-      return '$sourceIP:$sourcePort';
-    }
-    return sourceIP;
+  bool _isIpAddress(String str) {
+    return InternetAddress.tryParse(str) != null;
   }
 
-  String _getDestinationText(TrackerInfo info) {
-    final destinationIP = info.metadata.destinationIP;
-    if (destinationIP.isEmpty) {
-      return '';
+  (String, String?)? _parseIpAndPort(String text) {
+    var raw = text.trim();
+    if (raw.isEmpty) return null;
+    if (raw.startsWith('[') && raw.contains(']')) {
+      final end = raw.indexOf(']');
+      final ip = raw.substring(1, end);
+      final rest = raw.substring(end + 1);
+      final port = rest.startsWith(':') ? rest.substring(1) : null;
+      if (_isIpAddress(ip)) return (ip, port);
     }
-    final destinationPort = info.metadata.destinationPort;
-    if (destinationPort.isNotEmpty) {
-      return '$destinationIP:$destinationPort';
+    if (raw.contains(':')) {
+      final parts = raw.split(':');
+      if (parts.length == 2 && int.tryParse(parts[1]) != null) {
+        if (_isIpAddress(parts[0])) return (parts[0], parts[1]);
+      }
     }
-    return destinationIP;
+    if (_isIpAddress(raw)) return (raw, null);
+    return null;
   }
 
   Widget _buildChains(TrackerInfo info) {
@@ -374,6 +375,80 @@ class TrackerInfoDetailView extends ConsumerWidget {
         children: [
           Text(appLocalizations.proxyChains),
           Flexible(child: chains),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildIpItem(
+    BuildContext context, {
+    required String title,
+    required String ip,
+    String? port,
+  }) {
+    final category = utils.classifyIp(ip);
+    final IconData icon = switch (category) {
+      IpCategory.tun => Icons.stacked_line_chart,
+      IpCategory.lan => Icons.shuffle,
+      IpCategory.public => Icons.search_rounded,
+    };
+
+    return ListItem(
+      title: Row(
+        spacing: 16,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Text(title),
+          Flexible(
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Material(
+                  color: context.colorScheme.primary.withValues(alpha: 0.08),
+                  borderRadius: BorderRadius.circular(6),
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(6),
+                    onTap: () {
+                      showIpDetailDialog(context, ip);
+                    },
+                    child: Padding(
+                      padding:
+                          const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            icon,
+                            size: 14,
+                            color: context.colorScheme.primary,
+                          ),
+                          const SizedBox(width: 4),
+                          Flexible(
+                            child: Text(
+                              ip,
+                              style: context.textTheme.bodyMedium?.copyWith(
+                                color: context.colorScheme.primary,
+                                fontWeight: FontWeight.w600,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                if (port != null && port.isNotEmpty) ...[
+                  const SizedBox(width: 4),
+                  Text(
+                    ':$port',
+                    style: context.textTheme.bodyMedium,
+                  ),
+                ],
+              ],
+            ),
+          ),
         ],
       ),
     );
@@ -420,6 +495,8 @@ class TrackerInfoDetailView extends ConsumerWidget {
       orElse: () => trackerInfo,
     );
 
+    final remoteDestParsed = _parseIpAndPort(info.metadata.remoteDestination);
+
     final items = [
       _buildItem(
         title: appLocalizations.creationTime,
@@ -436,13 +513,30 @@ class TrackerInfoDetailView extends ConsumerWidget {
       ),
       _buildItem(title: appLocalizations.rule, desc: _getRuleText(info)),
       if (info.metadata.host.isNotEmpty)
-        _buildItem(title: appLocalizations.host, desc: info.metadata.host),
-      if (_getSourceText(info).isNotEmpty)
-        _buildItem(title: appLocalizations.source, desc: _getSourceText(info)),
-      if (_getDestinationText(info).isNotEmpty)
-        _buildItem(
+        _isIpAddress(info.metadata.host)
+            ? _buildIpItem(
+                context,
+                title: appLocalizations.host,
+                ip: info.metadata.host,
+              )
+            : _buildItem(title: appLocalizations.host, desc: info.metadata.host),
+      if (info.metadata.sourceIP.isNotEmpty)
+        _buildIpItem(
+          context,
+          title: appLocalizations.source,
+          ip: info.metadata.sourceIP,
+          port: info.metadata.sourcePort.isNotEmpty
+              ? info.metadata.sourcePort
+              : null,
+        ),
+      if (info.metadata.destinationIP.isNotEmpty)
+        _buildIpItem(
+          context,
           title: appLocalizations.destination,
-          desc: _getDestinationText(info),
+          ip: info.metadata.destinationIP,
+          port: info.metadata.destinationPort.isNotEmpty
+              ? info.metadata.destinationPort
+              : null,
         ),
       _buildItem(
         title: appLocalizations.upload,
@@ -486,10 +580,17 @@ class TrackerInfoDetailView extends ConsumerWidget {
           desc: info.metadata.specialRules,
         ),
       if (info.metadata.remoteDestination.isNotEmpty)
-        _buildItem(
-          title: appLocalizations.remoteDestination,
-          desc: info.metadata.remoteDestination,
-        ),
+        remoteDestParsed != null
+            ? _buildIpItem(
+                context,
+                title: appLocalizations.remoteDestination,
+                ip: remoteDestParsed.$1,
+                port: remoteDestParsed.$2,
+              )
+            : _buildItem(
+                title: appLocalizations.remoteDestination,
+                desc: info.metadata.remoteDestination,
+              ),
       _buildChains(info),
     ];
     return SelectionArea(

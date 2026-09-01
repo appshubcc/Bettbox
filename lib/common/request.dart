@@ -272,6 +272,7 @@ class Request {
     }
 
     for (final url in sources) {
+      final isIpInfo = url.contains('ipinfo.io');
       dio
           .get<Uint8List>(
             url,
@@ -298,7 +299,10 @@ class Request {
                 if (ipInfo != null) {
                   mergedInfo = mergedInfo == null
                       ? ipInfo
-                      : mergedInfo!.merge(ipInfo);
+                      : mergedInfo!.merge(
+                          ipInfo,
+                          otherIsAuthoritative: isIpInfo,
+                        );
                   onUpdate?.call(mergedInfo!);
                   if (!firstCompleter.isCompleted) {
                     firstCompleter.complete(Result.success(mergedInfo));

@@ -611,32 +611,78 @@ class IpInfo {
     return str.codeUnits.any((c) => c > 127);
   }
 
-  IpInfo merge(IpInfo other) {
+  IpInfo merge(IpInfo other, {bool otherIsAuthoritative = false}) {
+    final isOtherPrimary = otherIsAuthoritative ||
+        ((asn == null || asn!.isEmpty) &&
+            (other.asn != null && other.asn!.isNotEmpty));
+
+    final primary = isOtherPrimary ? other : this;
+    final secondary = isOtherPrimary ? this : other;
+
+    final mergedIp = primary.ip.isNotEmpty ? primary.ip : secondary.ip;
+    final bool isSameIp = primary.ip.isEmpty ||
+        secondary.ip.isEmpty ||
+        primary.ip == secondary.ip;
+
+    final primaryCc = primary.countryCode.trim().toUpperCase();
+    final secondaryCc = secondary.countryCode.trim().toUpperCase();
+
+    final bool isSameCountry = isSameIp &&
+        (primaryCc.isEmpty ||
+            secondaryCc.isEmpty ||
+            primaryCc == secondaryCc);
+
+    final mergedCountryCode = primaryCc.isNotEmpty ? primaryCc : secondaryCc;
+
     final mergedCountry = () {
-      if (_hasNonAscii(country) && !_hasNonAscii(other.country)) {
-        return country;
+      if (isSameCountry) {
+        if (_hasNonAscii(primary.country)) return primary.country;
+        if (_hasNonAscii(secondary.country)) return secondary.country;
+        return (primary.country?.isNotEmpty == true)
+            ? primary.country
+            : secondary.country;
       }
-      if (_hasNonAscii(other.country)) {
-        return other.country;
-      }
-      return other.country?.isNotEmpty == true ? other.country : country;
+      return (primary.country?.isNotEmpty == true)
+          ? primary.country
+          : secondary.country;
     }();
 
+    final mergedProvince = primary.province?.isNotEmpty == true
+        ? primary.province
+        : (isSameCountry ? secondary.province : null);
+
+    final mergedCity = primary.city?.isNotEmpty == true
+        ? primary.city
+        : (isSameCountry ? secondary.city : null);
+
+    final mergedAsn =
+        primary.asn?.isNotEmpty == true ? primary.asn : secondary.asn;
+    final mergedAsName =
+        primary.asName?.isNotEmpty == true ? primary.asName : secondary.asName;
+    final mergedAsDomain = primary.asDomain?.isNotEmpty == true
+        ? primary.asDomain
+        : secondary.asDomain;
+    final mergedIsp =
+        primary.isp?.isNotEmpty == true ? primary.isp : secondary.isp;
+    final mergedContinent = primary.continent?.isNotEmpty == true
+        ? primary.continent
+        : secondary.continent;
+    final mergedContinentCode = primary.continentCode?.isNotEmpty == true
+        ? primary.continentCode
+        : secondary.continentCode;
+
     return IpInfo(
-      ip: ip.isNotEmpty ? ip : other.ip,
-      countryCode: countryCode.isNotEmpty ? countryCode : other.countryCode,
+      ip: mergedIp,
+      countryCode: mergedCountryCode,
       country: mergedCountry,
-      province: other.province?.isNotEmpty == true ? other.province : province,
-      city: other.city?.isNotEmpty == true ? other.city : city,
-      isp: other.isp?.isNotEmpty == true ? other.isp : isp,
-      asn: other.asn?.isNotEmpty == true ? other.asn : asn,
-      asName: other.asName?.isNotEmpty == true ? other.asName : asName,
-      asDomain: other.asDomain?.isNotEmpty == true ? other.asDomain : asDomain,
-      continent:
-          other.continent?.isNotEmpty == true ? other.continent : continent,
-      continentCode: other.continentCode?.isNotEmpty == true
-          ? other.continentCode
-          : continentCode,
+      province: mergedProvince,
+      city: mergedCity,
+      isp: mergedIsp,
+      asn: mergedAsn,
+      asName: mergedAsName,
+      asDomain: mergedAsDomain,
+      continent: mergedContinent,
+      continentCode: mergedContinentCode,
     );
   }
 

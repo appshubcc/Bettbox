@@ -567,7 +567,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "networkMatch": MessageLookupByLibrary.simpleMessage("네트워크 일치"),
     "networkMatchHint": MessageLookupByLibrary.simpleMessage(
-      "IP 또는 CIDR 입력 (쉼표로 구분, 최대 2개)",
+      "IP, CIDR 또는 Gateway:IP/CIDR 입력",
     ),
     "networkSpeed": MessageLookupByLibrary.simpleMessage("네트워크 속도"),
     "networkSpeedNotification": MessageLookupByLibrary.simpleMessage("속도 알림"),

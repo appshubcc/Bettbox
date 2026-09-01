@@ -40,7 +40,7 @@
   "smartAutoStop": "توقف هوشمند",
   "smartAutoStopDesc": "توقف سرویس پروکسی هنگام اتصال به شبکه مشخص",
   "networkMatch": "تطبیق شبکه",
-  "networkMatchHint": "IP یا CIDR (حداکثر ۲ مورد با ویرگول جدا شوند)",
+  "networkMatchHint": "IP یا CIDR یا Gateway:IP/CIDR",
   "smartAutoStopServiceRunning": "سرویس توقف هوشمند در حال اجرا است",
   "serviceRunning": "سرویس در حال اجرا است",
   "coreConnected": "متصل شد",

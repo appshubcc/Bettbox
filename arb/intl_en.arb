@@ -40,7 +40,7 @@
   "smartAutoStop": "Smart Auto-Stop",
   "smartAutoStopDesc": "Stop VPN on specific networks",
   "networkMatch": "Network Match",
-  "networkMatchHint": "Max 2 IPs/CIDRs, comma-separated",
+  "networkMatchHint": "Enter IP, CIDR or Gateway:IP/CIDR",
   "smartAutoStopServiceRunning": "Smart Auto-Stop running",
   "serviceRunning": "Service Running",
   "coreConnected": "Connected",

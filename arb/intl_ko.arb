@@ -40,7 +40,7 @@
   "smartAutoStop": "스마트 자동 정지",
   "smartAutoStopDesc": "지정된 네트워크 연결 시 프록시 서비스 정지",
   "networkMatch": "네트워크 일치",
-  "networkMatchHint": "IP 또는 CIDR 입력 (쉼표로 구분, 최대 2개)",
+  "networkMatchHint": "IP, CIDR 또는 Gateway:IP/CIDR 입력",
   "smartAutoStopServiceRunning": "스마트 자동 정지 서비스 실행 중",
   "serviceRunning": "서비스 실행 중",
   "coreConnected": "연결됨",

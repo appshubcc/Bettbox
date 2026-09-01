@@ -309,7 +309,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "creationTime": MessageLookupByLibrary.simpleMessage("Creation Time"),
     "custom": MessageLookupByLibrary.simpleMessage("Custom"),
     "customDashboardTitle": MessageLookupByLibrary.simpleMessage(
-      "Custom Dashboard Title",
+      "Custom Home Title",
     ),
     "customScriptOptions": MessageLookupByLibrary.simpleMessage(
       "Custom Rule Switch",
@@ -706,7 +706,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "networkMatch": MessageLookupByLibrary.simpleMessage("Network Match"),
     "networkMatchHint": MessageLookupByLibrary.simpleMessage(
-      "Max 2 IPs/CIDRs, comma-separated",
+      "Enter IP, CIDR or Gateway:IP/CIDR",
     ),
     "networkSpeed": MessageLookupByLibrary.simpleMessage("Network Speed"),
     "networkSpeedNotification": MessageLookupByLibrary.simpleMessage(

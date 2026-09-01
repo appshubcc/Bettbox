@@ -40,7 +40,7 @@
   "smartAutoStop": "智能启停",
   "smartAutoStopDesc": "连接指定网络后停止代理服务",
   "networkMatch": "网络匹配",
-  "networkMatchHint": "输入 IP 或 CIDR，最多 2 个，以逗号分隔",
+  "networkMatchHint": "输入 IP、CIDR 或 Gateway:IP/CIDR",
   "smartAutoStopServiceRunning": "智能启停服务运行中",
   "serviceRunning": "服务正在运行中",
   "coreConnected": "已连接",

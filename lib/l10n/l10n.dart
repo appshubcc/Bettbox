@@ -74,10 +74,10 @@ class AppLocalizations {
     return Intl.message('Home', name: 'dashboard', desc: '', args: []);
   }
 
-  /// `Custom Dashboard Title`
+  /// `Custom Home Title`
   String get customDashboardTitle {
     return Intl.message(
-      'Custom Dashboard Title',
+      'Custom Home Title',
       name: 'customDashboardTitle',
       desc: '',
       args: [],
@@ -354,10 +354,10 @@ class AppLocalizations {
     );
   }
 
-  /// `Max 2 IPs/CIDRs, comma-separated`
+  /// `Enter IP, CIDR or Gateway:IP/CIDR`
   String get networkMatchHint {
     return Intl.message(
-      'Max 2 IPs/CIDRs, comma-separated',
+      'Enter IP, CIDR or Gateway:IP/CIDR',
       name: 'networkMatchHint',
       desc: '',
       args: [],

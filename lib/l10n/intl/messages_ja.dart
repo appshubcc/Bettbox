@@ -557,7 +557,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "networkMatch": MessageLookupByLibrary.simpleMessage("ネットワークマッチ"),
     "networkMatchHint": MessageLookupByLibrary.simpleMessage(
-      "IPまたはCIDR（カンマ区切りで最大2つ）",
+      "IP、CIDR または Gateway:IP/CIDR",
     ),
     "networkSpeed": MessageLookupByLibrary.simpleMessage("通信速度"),
     "networkSpeedNotification": MessageLookupByLibrary.simpleMessage("速度通知"),

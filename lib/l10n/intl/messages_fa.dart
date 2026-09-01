@@ -704,7 +704,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "networkMatch": MessageLookupByLibrary.simpleMessage("تطبیق شبکه"),
     "networkMatchHint": MessageLookupByLibrary.simpleMessage(
-      "IP یا CIDR (حداکثر ۲ مورد با ویرگول جدا شوند)",
+      "IP یا CIDR یا Gateway:IP/CIDR",
     ),
     "networkSpeed": MessageLookupByLibrary.simpleMessage("سرعت شبکه"),
     "networkSpeedNotification": MessageLookupByLibrary.simpleMessage(

@@ -497,7 +497,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "networkFixDesc": MessageLookupByLibrary.simpleMessage("修复系统网络检测地球图标问题"),
     "networkMatch": MessageLookupByLibrary.simpleMessage("网络匹配"),
     "networkMatchHint": MessageLookupByLibrary.simpleMessage(
-      "输入 IP 或 CIDR，最多 2 个，以逗号分隔",
+      "输入 IP、CIDR 或 Gateway:IP/CIDR",
     ),
     "networkSpeed": MessageLookupByLibrary.simpleMessage("网络速度"),
     "networkSpeedNotification": MessageLookupByLibrary.simpleMessage("网速通知"),

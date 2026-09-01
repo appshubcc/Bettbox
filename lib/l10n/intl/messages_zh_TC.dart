@@ -507,7 +507,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "networkFixDesc": MessageLookupByLibrary.simpleMessage("修復系統網路檢測地球圖示問題"),
     "networkMatch": MessageLookupByLibrary.simpleMessage("網路匹配"),
     "networkMatchHint": MessageLookupByLibrary.simpleMessage(
-      "輸入 IP 或 CIDR，最多 2 個，以逗號分隔",
+      "輸入 IP、CIDR 或 Gateway:IP/CIDR",
     ),
     "networkSpeed": MessageLookupByLibrary.simpleMessage("網路速度"),
     "networkSpeedNotification": MessageLookupByLibrary.simpleMessage("網速通知"),

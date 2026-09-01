@@ -40,7 +40,7 @@
   "smartAutoStop": "スマート自動停止",
   "smartAutoStopDesc": "指定ネットワーク接続時にプロキシを停止",
   "networkMatch": "ネットワークマッチ",
-  "networkMatchHint": "IPまたはCIDR（カンマ区切りで最大2つ）",
+  "networkMatchHint": "IP、CIDR または Gateway:IP/CIDR",
   "smartAutoStopServiceRunning": "スマート自動停止サービス稼働中",
   "serviceRunning": "サービス稼働中",
   "coreConnected": "接続済み",

@@ -493,19 +493,15 @@ abstract class Experimental with _$Experimental {
 abstract class GeoXUrl with _$GeoXUrl {
   const factory GeoXUrl({
     @Default(
-      'https://fastly.jsdelivr.net/gh/appshubcc/bett-rules@release/geoip.metadb',
+      'https://github.com/appshubcc/bett-rules/releases/download/latest/geoip.metadb',
     )
     String mmdb,
     @Default(
-      'https://fastly.jsdelivr.net/gh/appshubcc/bett-rules@release/GeoLite2-ASN.mmdb',
+      'https://github.com/appshubcc/bett-rules/releases/download/latest/GeoLite2-ASN.mmdb',
     )
     String asn,
     @Default(
-      'https://fastly.jsdelivr.net/gh/appshubcc/bett-rules@release/geoip.dat',
-    )
-    String geoip,
-    @Default(
-      'https://fastly.jsdelivr.net/gh/appshubcc/bett-rules@release/geosite.dat',
+      'https://github.com/appshubcc/bett-rules/releases/download/latest/geosite.dat',
     )
     String geosite,
   }) = _GeoXUrl;

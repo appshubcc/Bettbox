@@ -33,7 +33,6 @@ const commonDuration = Duration(milliseconds: 300);
 const defaultUpdateDuration = Duration(days: 1);
 const mmdbFileName = 'geoip.metadb';
 const asnFileName = 'ASN.mmdb';
-const geoIpFileName = 'GeoIP.dat';
 const geoSiteFileName = 'GeoSite.dat';
 const bundleMRSFileName = 'BundleMRS.7z';
 final double kHeaderHeight = system.isDesktop

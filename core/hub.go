@@ -379,12 +379,6 @@ func handleUpdateGeoData(geoType string, geoName string, fn func(value string)) 
 				fn(err.Error())
 				return
 			}
-		case "GeoIp":
-			err := updater.UpdateGeoIpWithPath(path)
-			if err != nil {
-				fn(err.Error())
-				return
-			}
 		case "GeoSite":
 			err := updater.UpdateGeoSiteWithPath(path)
 			if err != nil {

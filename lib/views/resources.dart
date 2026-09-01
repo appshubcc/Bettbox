@@ -73,6 +73,20 @@ class _ResourcesViewState extends ConsumerState<ResourcesView> {
     }
   }
 
+  Future<void> _handleResetAll() async {
+    final res = await globalState.showMessage(
+      title: appLocalizations.reset,
+      message: TextSpan(text: appLocalizations.resetTip),
+    );
+    if (res != true) {
+      return;
+    }
+    ref.read(patchClashConfigProvider.notifier).updateState((state) {
+      return state.copyWith(geoXUrl: defaultGeoXUrl);
+    });
+    await globalState.appController.setupClashConfig();
+  }
+
   @override
   void dispose() {
     isUpdatingAll.dispose();
@@ -84,6 +98,11 @@ class _ResourcesViewState extends ConsumerState<ResourcesView> {
     return CommonScaffold(
       title: appLocalizations.resources,
       actions: [
+        IconButton(
+          icon: const Icon(Icons.replay),
+          onPressed: _handleResetAll,
+          tooltip: appLocalizations.reset,
+        ),
         ValueListenableBuilder(
           valueListenable: isUpdatingAll,
           builder: (_, isUpdating, _) {

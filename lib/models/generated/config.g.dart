@@ -127,8 +127,17 @@ _AccessControl _$AccessControlFromJson(Map<String, dynamic> json) =>
               ?.map((e) => e as String)
               .toList() ??
           const [],
+      manualList:
+          (json['manualList'] as List<dynamic>?)
+              ?.map((e) => e as String)
+              .toList() ??
+          const [],
       sort:
-          $enumDecodeNullable(_$AccessSortTypeEnumMap, json['sort']) ??
+          $enumDecodeNullable(
+            _$AccessSortTypeEnumMap,
+            json['sort'],
+            unknownValue: AccessSortType.none,
+          ) ??
           AccessSortType.none,
       isFilterSystemApp: json['isFilterSystemApp'] as bool? ?? false,
       isFilterNonInternetApp: json['isFilterNonInternetApp'] as bool? ?? false,
@@ -140,6 +149,7 @@ Map<String, dynamic> _$AccessControlToJson(_AccessControl instance) =>
       'mode': _$AccessControlModeEnumMap[instance.mode]!,
       'acceptList': instance.acceptList,
       'rejectList': instance.rejectList,
+      'manualList': instance.manualList,
       'sort': _$AccessSortTypeEnumMap[instance.sort]!,
       'isFilterSystemApp': instance.isFilterSystemApp,
       'isFilterNonInternetApp': instance.isFilterNonInternetApp,
@@ -152,8 +162,8 @@ const _$AccessControlModeEnumMap = {
 
 const _$AccessSortTypeEnumMap = {
   AccessSortType.none: 'none',
-  AccessSortType.name: 'name',
-  AccessSortType.time: 'time',
+  AccessSortType.installTime: 'installTime',
+  AccessSortType.updateTime: 'updateTime',
 };
 
 _WindowProps _$WindowPropsFromJson(Map<String, dynamic> json) => _WindowProps(

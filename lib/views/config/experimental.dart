@@ -114,7 +114,7 @@ class DialerIp4pConvertItem extends ConsumerWidget {
 }
 
 final experimentalItems = <Widget>[
-  const OverrideExperimentalItem(),
+  ...generateSection(items: const [OverrideExperimentalItem()]),
   ...generateSection(
     title: appLocalizations.options,
     items: const [

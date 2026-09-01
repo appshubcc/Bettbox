@@ -6,6 +6,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'constant.dart';
 
+import 'print.dart';
+
 class Preferences {
   static Preferences? _instance;
   Completer<SharedPreferences?> sharedPreferencesCompleter = Completer();
@@ -27,22 +29,32 @@ class Preferences {
     final preferences = await sharedPreferencesCompleter.future;
     final clashConfigString = preferences?.getString(clashConfigKey);
     if (clashConfigString == null) return null;
-    final clashConfigMap = json.decode(clashConfigString);
-    return ClashConfig.fromJson(clashConfigMap);
+    try {
+      final clashConfigMap = json.decode(clashConfigString);
+      return ClashConfig.fromJson(clashConfigMap);
+    } catch (e, stackTrace) {
+      commonPrint.log('Failed to parse clash config from preferences: $e\n$stackTrace');
+      return null;
+    }
   }
 
   Future<Config?> getConfig() async {
     final preferences = await sharedPreferencesCompleter.future;
     final configString = preferences?.getString(configKey);
     if (configString == null) return null;
-    final configMap = json.decode(configString);
-    final config = Config.compatibleFromJson(configMap);
-    
-    if (preferences?.getBool('autoLaunch') != config.appSetting.autoLaunch) {
-      await preferences?.setBool('autoLaunch', config.appSetting.autoLaunch);
+    try {
+      final configMap = json.decode(configString);
+      final config = Config.compatibleFromJson(configMap);
+
+      if (preferences?.getBool('autoLaunch') != config.appSetting.autoLaunch) {
+        await preferences?.setBool('autoLaunch', config.appSetting.autoLaunch);
+      }
+
+      return config;
+    } catch (e, stackTrace) {
+      commonPrint.log('Failed to parse config from preferences: $e\n$stackTrace');
+      return null;
     }
-    
-    return config;
   }
 
   Future<bool> saveConfig(Config config) async {

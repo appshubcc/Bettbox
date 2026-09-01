@@ -513,7 +513,7 @@ class SkipDstAddressWidget extends ConsumerWidget {
 }
 
 final snifferItems = <Widget>[
-  const OverrideSnifferItem(),
+  ...generateSection(items: const [OverrideSnifferItem()]),
   ...generateSection(
     title: appLocalizations.options,
     items: const [

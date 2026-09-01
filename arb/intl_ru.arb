@@ -684,10 +684,12 @@
   "provinceAndCity": "Провинция / Город",
   "operatorOrAsn": "Организация / ASN",
   "continent": "Континент",
-  "domain": "Домен",
+  "domain": "Организация / Домен",
   "copiedToClipboard": "Скопировано в буфер обмена",
   "privateIp": "Частный / локальный IP-адрес",
   "isp": "Провайдер",
   "networkErrorRetryLater": "Ошибка сети, попробуйте позже",
-  "tunVirtualAddress": "Адрес виртуального сетевого адаптера TUN"
+  "tunVirtualAddress": "Адрес виртуального сетевого адаптера TUN",
+  "installTime": "Время установки",
+  "updateTime": "Время обновления"
 }

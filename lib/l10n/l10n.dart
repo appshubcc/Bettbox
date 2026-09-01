@@ -3799,9 +3799,14 @@ class AppLocalizations {
     return Intl.message('IP/CIDR', name: 'ipcidr', desc: '', args: []);
   }
 
-  /// `Domain`
+  /// `Organization / Domain`
   String get domain {
-    return Intl.message('Domain', name: 'domain', desc: '', args: []);
+    return Intl.message(
+      'Organization / Domain',
+      name: 'domain',
+      desc: '',
+      args: [],
+    );
   }
 
   /// `Reset`
@@ -5587,6 +5592,21 @@ class AppLocalizations {
       desc: '',
       args: [],
     );
+  }
+
+  /// `Install Time`
+  String get installTime {
+    return Intl.message(
+      'Install Time',
+      name: 'installTime',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Update Time`
+  String get updateTime {
+    return Intl.message('Update Time', name: 'updateTime', desc: '', args: []);
   }
 }
 

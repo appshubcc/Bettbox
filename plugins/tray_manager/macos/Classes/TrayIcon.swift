@@ -13,8 +13,8 @@ public class TrayIcon: NSView {
     }
     private static let speedFontSize: CGFloat = 9.5
     private static let speedLineHeight: CGFloat = 10
-    private static let speedPadding: CGFloat = 8
-    private static let speedMinimumWidth: CGFloat = 58
+    private static let speedPadding: CGFloat = 12
+    private static let speedMinimumWidth: CGFloat = 66
     private static let speedDisplayThreshold = 1000.0
     private static let speedUnits = ["B/s", "K/s", "M/s", "G/s", "T/s"]
     private static let speedScales = [
@@ -97,7 +97,7 @@ public class TrayIcon: NSView {
     ) {
         let uploadText = formatSpeed(upload)
         let downloadText = formatSpeed(download)
-        let title = "\(leftPad(uploadText, width: 6))\n\(leftPad(downloadText, width: 6))"
+        let title = "  \(leftPad(uploadText, width: 6))\n  \(leftPad(downloadText, width: 6))"
         if lastSpeedTitle == title && lastSpeedActive == active {
             return
         }

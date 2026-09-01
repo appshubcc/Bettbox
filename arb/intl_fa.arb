@@ -682,10 +682,12 @@
   "provinceAndCity": "استان / شهر",
   "operatorOrAsn": "سازمان / ASN",
   "continent": "قاره",
-  "domain": "دامنه",
+  "domain": "سازمان / دامنه",
   "copiedToClipboard": "در کلیپ‌بورد کپی شد",
   "privateIp": "آدرس IP خصوصی / شبکه محلی",
   "isp": "ارائه‌دهنده اینترنت",
   "networkErrorRetryLater": "خطای شبکه، لطفاً بعداً دوباره امتحان کنید",
-  "tunVirtualAddress": "آدرس کارت شبکه مجازی TUN"
+  "tunVirtualAddress": "آدرس کارت شبکه مجازی TUN",
+  "installTime": "زمان نصب",
+  "updateTime": "زمان به‌روزرسانی"
 }

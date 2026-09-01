@@ -390,7 +390,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "doYouWantToPass": MessageLookupByLibrary.simpleMessage(
       "آیا می‌خواهید مجوز دهید برای:",
     ),
-    "domain": MessageLookupByLibrary.simpleMessage("دامنه"),
+    "domain": MessageLookupByLibrary.simpleMessage("سازمان / دامنه"),
     "doubleBounce": MessageLookupByLibrary.simpleMessage("جهش دوگانه"),
     "download": MessageLookupByLibrary.simpleMessage("دانلود"),
     "dozeSuspend": MessageLookupByLibrary.simpleMessage("پشتیبانی از Doze"),
@@ -588,6 +588,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "inputCorrectHotkey": MessageLookupByLibrary.simpleMessage(
       "لطفاً کلید میانبر معتبری وارد کنید",
     ),
+    "installTime": MessageLookupByLibrary.simpleMessage("زمان نصب"),
     "intelligentSelected": MessageLookupByLibrary.simpleMessage(
       "انتخاب هوشمند",
     ),
@@ -1241,6 +1242,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "unnamed": MessageLookupByLibrary.simpleMessage("بدون نام"),
     "unpin": MessageLookupByLibrary.simpleMessage("برداشتن پین"),
     "update": MessageLookupByLibrary.simpleMessage("بروزرسانی"),
+    "updateTime": MessageLookupByLibrary.simpleMessage("زمان به‌روزرسانی"),
     "upload": MessageLookupByLibrary.simpleMessage("آپلود"),
     "url": MessageLookupByLibrary.simpleMessage("آدرس URL"),
     "urlDesc": MessageLookupByLibrary.simpleMessage(

@@ -675,7 +675,7 @@ class BypassPrivateRouteItem extends ConsumerWidget {
 }
 
 final networkItems = [
-  if (system.isAndroid) const VPNItem(),
+  if (system.isAndroid) ...generateSection(items: const [VPNItem()]),
   if (system.isAndroid)
     ...generateSection(
       title: 'VPN',

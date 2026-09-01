@@ -296,7 +296,7 @@ as List<NavigationItemMode>,
 /// @nodoc
 mixin _$Package {
 
- String get packageName; String get label; bool get system; bool get internet; int get lastUpdateTime;
+ String get packageName; String get label; bool get system; bool get internet; int get firstInstallTime; int get lastUpdateTime;
 /// Create a copy of Package
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -309,16 +309,16 @@ $PackageCopyWith<Package> get copyWith => _$PackageCopyWithImpl<Package>(this as
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Package&&(identical(other.packageName, packageName) || other.packageName == packageName)&&(identical(other.label, label) || other.label == label)&&(identical(other.system, system) || other.system == system)&&(identical(other.internet, internet) || other.internet == internet)&&(identical(other.lastUpdateTime, lastUpdateTime) || other.lastUpdateTime == lastUpdateTime));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Package&&(identical(other.packageName, packageName) || other.packageName == packageName)&&(identical(other.label, label) || other.label == label)&&(identical(other.system, system) || other.system == system)&&(identical(other.internet, internet) || other.internet == internet)&&(identical(other.firstInstallTime, firstInstallTime) || other.firstInstallTime == firstInstallTime)&&(identical(other.lastUpdateTime, lastUpdateTime) || other.lastUpdateTime == lastUpdateTime));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,packageName,label,system,internet,lastUpdateTime);
+int get hashCode => Object.hash(runtimeType,packageName,label,system,internet,firstInstallTime,lastUpdateTime);
 
 @override
 String toString() {
-  return 'Package(packageName: $packageName, label: $label, system: $system, internet: $internet, lastUpdateTime: $lastUpdateTime)';
+  return 'Package(packageName: $packageName, label: $label, system: $system, internet: $internet, firstInstallTime: $firstInstallTime, lastUpdateTime: $lastUpdateTime)';
 }
 
 
@@ -329,7 +329,7 @@ abstract mixin class $PackageCopyWith<$Res>  {
   factory $PackageCopyWith(Package value, $Res Function(Package) _then) = _$PackageCopyWithImpl;
 @useResult
 $Res call({
- String packageName, String label, bool system, bool internet, int lastUpdateTime
+ String packageName, String label, bool system, bool internet, int firstInstallTime, int lastUpdateTime
 });
 
 
@@ -346,13 +346,14 @@ class _$PackageCopyWithImpl<$Res>
 
 /// Create a copy of Package
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? packageName = null,Object? label = null,Object? system = null,Object? internet = null,Object? lastUpdateTime = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? packageName = null,Object? label = null,Object? system = null,Object? internet = null,Object? firstInstallTime = null,Object? lastUpdateTime = null,}) {
   return _then(_self.copyWith(
 packageName: null == packageName ? _self.packageName : packageName // ignore: cast_nullable_to_non_nullable
 as String,label: null == label ? _self.label : label // ignore: cast_nullable_to_non_nullable
 as String,system: null == system ? _self.system : system // ignore: cast_nullable_to_non_nullable
 as bool,internet: null == internet ? _self.internet : internet // ignore: cast_nullable_to_non_nullable
-as bool,lastUpdateTime: null == lastUpdateTime ? _self.lastUpdateTime : lastUpdateTime // ignore: cast_nullable_to_non_nullable
+as bool,firstInstallTime: null == firstInstallTime ? _self.firstInstallTime : firstInstallTime // ignore: cast_nullable_to_non_nullable
+as int,lastUpdateTime: null == lastUpdateTime ? _self.lastUpdateTime : lastUpdateTime // ignore: cast_nullable_to_non_nullable
 as int,
   ));
 }
@@ -438,10 +439,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String packageName,  String label,  bool system,  bool internet,  int lastUpdateTime)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String packageName,  String label,  bool system,  bool internet,  int firstInstallTime,  int lastUpdateTime)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Package() when $default != null:
-return $default(_that.packageName,_that.label,_that.system,_that.internet,_that.lastUpdateTime);case _:
+return $default(_that.packageName,_that.label,_that.system,_that.internet,_that.firstInstallTime,_that.lastUpdateTime);case _:
   return orElse();
 
 }
@@ -459,10 +460,10 @@ return $default(_that.packageName,_that.label,_that.system,_that.internet,_that.
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String packageName,  String label,  bool system,  bool internet,  int lastUpdateTime)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String packageName,  String label,  bool system,  bool internet,  int firstInstallTime,  int lastUpdateTime)  $default,) {final _that = this;
 switch (_that) {
 case _Package():
-return $default(_that.packageName,_that.label,_that.system,_that.internet,_that.lastUpdateTime);case _:
+return $default(_that.packageName,_that.label,_that.system,_that.internet,_that.firstInstallTime,_that.lastUpdateTime);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -479,10 +480,10 @@ return $default(_that.packageName,_that.label,_that.system,_that.internet,_that.
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String packageName,  String label,  bool system,  bool internet,  int lastUpdateTime)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String packageName,  String label,  bool system,  bool internet,  int firstInstallTime,  int lastUpdateTime)?  $default,) {final _that = this;
 switch (_that) {
 case _Package() when $default != null:
-return $default(_that.packageName,_that.label,_that.system,_that.internet,_that.lastUpdateTime);case _:
+return $default(_that.packageName,_that.label,_that.system,_that.internet,_that.firstInstallTime,_that.lastUpdateTime);case _:
   return null;
 
 }
@@ -494,14 +495,15 @@ return $default(_that.packageName,_that.label,_that.system,_that.internet,_that.
 @JsonSerializable()
 
 class _Package implements Package {
-  const _Package({required this.packageName, required this.label, required this.system, required this.internet, required this.lastUpdateTime});
+  const _Package({required this.packageName, required this.label, required this.system, required this.internet, this.firstInstallTime = 0, this.lastUpdateTime = 0});
   factory _Package.fromJson(Map<String, dynamic> json) => _$PackageFromJson(json);
 
 @override final  String packageName;
 @override final  String label;
 @override final  bool system;
 @override final  bool internet;
-@override final  int lastUpdateTime;
+@override@JsonKey() final  int firstInstallTime;
+@override@JsonKey() final  int lastUpdateTime;
 
 /// Create a copy of Package
 /// with the given fields replaced by the non-null parameter values.
@@ -516,16 +518,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Package&&(identical(other.packageName, packageName) || other.packageName == packageName)&&(identical(other.label, label) || other.label == label)&&(identical(other.system, system) || other.system == system)&&(identical(other.internet, internet) || other.internet == internet)&&(identical(other.lastUpdateTime, lastUpdateTime) || other.lastUpdateTime == lastUpdateTime));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Package&&(identical(other.packageName, packageName) || other.packageName == packageName)&&(identical(other.label, label) || other.label == label)&&(identical(other.system, system) || other.system == system)&&(identical(other.internet, internet) || other.internet == internet)&&(identical(other.firstInstallTime, firstInstallTime) || other.firstInstallTime == firstInstallTime)&&(identical(other.lastUpdateTime, lastUpdateTime) || other.lastUpdateTime == lastUpdateTime));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,packageName,label,system,internet,lastUpdateTime);
+int get hashCode => Object.hash(runtimeType,packageName,label,system,internet,firstInstallTime,lastUpdateTime);
 
 @override
 String toString() {
-  return 'Package(packageName: $packageName, label: $label, system: $system, internet: $internet, lastUpdateTime: $lastUpdateTime)';
+  return 'Package(packageName: $packageName, label: $label, system: $system, internet: $internet, firstInstallTime: $firstInstallTime, lastUpdateTime: $lastUpdateTime)';
 }
 
 
@@ -536,7 +538,7 @@ abstract mixin class _$PackageCopyWith<$Res> implements $PackageCopyWith<$Res> {
   factory _$PackageCopyWith(_Package value, $Res Function(_Package) _then) = __$PackageCopyWithImpl;
 @override @useResult
 $Res call({
- String packageName, String label, bool system, bool internet, int lastUpdateTime
+ String packageName, String label, bool system, bool internet, int firstInstallTime, int lastUpdateTime
 });
 
 
@@ -553,13 +555,14 @@ class __$PackageCopyWithImpl<$Res>
 
 /// Create a copy of Package
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? packageName = null,Object? label = null,Object? system = null,Object? internet = null,Object? lastUpdateTime = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? packageName = null,Object? label = null,Object? system = null,Object? internet = null,Object? firstInstallTime = null,Object? lastUpdateTime = null,}) {
   return _then(_Package(
 packageName: null == packageName ? _self.packageName : packageName // ignore: cast_nullable_to_non_nullable
 as String,label: null == label ? _self.label : label // ignore: cast_nullable_to_non_nullable
 as String,system: null == system ? _self.system : system // ignore: cast_nullable_to_non_nullable
 as bool,internet: null == internet ? _self.internet : internet // ignore: cast_nullable_to_non_nullable
-as bool,lastUpdateTime: null == lastUpdateTime ? _self.lastUpdateTime : lastUpdateTime // ignore: cast_nullable_to_non_nullable
+as bool,firstInstallTime: null == firstInstallTime ? _self.firstInstallTime : firstInstallTime // ignore: cast_nullable_to_non_nullable
+as int,lastUpdateTime: null == lastUpdateTime ? _self.lastUpdateTime : lastUpdateTime // ignore: cast_nullable_to_non_nullable
 as int,
   ));
 }

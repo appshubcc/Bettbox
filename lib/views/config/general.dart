@@ -653,8 +653,8 @@ class ExternalControllerItem extends ConsumerWidget {
             thickness: 1,
             color: context.colorScheme.outlineVariant.withValues(
               alpha: context.colorScheme.brightness == Brightness.light
-                  ? 0.3
-                  : 0.2,
+                  ? 0.6
+                  : 0.45,
             ),
             indent: 16,
             endIndent: 16,
@@ -769,20 +769,31 @@ class _SecretDialogState extends ConsumerState<_SecretDialog> {
   }
 }
 
-final generalItems = <Widget>[
-  LogLevelItem(),
-  UaItem(),
-  if (system.isDesktop) KeepAliveIntervalItem(),
-  TestUrlItem(),
-  PortItem(),
-  Ipv6Item(),
-  AllowLanItem(),
-  UnifiedDelayItem(),
-  FindProcessItem(),
-  TcpConcurrentItem(),
-  GeodataLoaderItem(),
-  ExternalControllerItem(),
-].separated(const Divider(height: 0)).toList();
+List<Widget> get generalItems => generateSection(
+  items: [
+    const LogLevelItem(),
+    const UaItem(),
+    if (system.isDesktop) const KeepAliveIntervalItem(),
+    const TestUrlItem(),
+    const PortItem(),
+    const Ipv6Item(),
+    const AllowLanItem(),
+    const UnifiedDelayItem(),
+    const FindProcessItem(),
+    const TcpConcurrentItem(),
+    const GeodataLoaderItem(),
+    const ExternalControllerItem(),
+  ],
+);
+
+class GeneralListView extends StatelessWidget {
+  const GeneralListView({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return generateListView(generalItems);
+  }
+}
 
 class _PortDialog extends ConsumerStatefulWidget {
   const _PortDialog();

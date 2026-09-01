@@ -682,10 +682,12 @@
   "provinceAndCity": "省份 / 城市",
   "operatorOrAsn": "归属 / ASN",
   "continent": "大洲",
-  "domain": "组织域名",
+  "domain": "组织 / 域名",
   "copiedToClipboard": "已复制到剪贴板",
   "privateIp": "私有 / 局域网 IP 地址",
   "isp": "运营商",
   "networkErrorRetryLater": "网络异常，请稍后再试",
-  "tunVirtualAddress": "TUN 虚拟网卡地址"
+  "tunVirtualAddress": "TUN 虚拟网卡地址",
+  "installTime": "安装时间",
+  "updateTime": "更新时间"
 }

@@ -79,24 +79,11 @@ class BettboxService : Service(), BaseServiceInterface {
         }
 
         val builder = notificationBuilder()
-
-        val separator = " ‹ "
-        val combinedText = "$title$separator$content"
-        val spannable = SpannableString(combinedText).apply {
-            val startIndex = title.length + separator.length
-            if (startIndex in 1..combinedText.length) {
-                setSpan(
-                    RelativeSizeSpan(0.80f),
-                    startIndex,
-                    combinedText.length,
-                    Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
-                )
-            }
-        }
-        val notification = builder.setContentTitle(spannable)
-            .setContentText(null)
+        val notification = builder
+            .setContentTitle(title)
+            .setContentText(content)
             .setStyle(null)
-            .setTicker(combinedText)
+            .setTicker("$title: $content")
             .build()
 
         if (!hasStartedForeground) {

@@ -261,6 +261,6 @@ class ApplicationSettingView extends StatelessWidget {
       UsageItem(),
       AutoCheckUpdateItem(),
     ];
-    return generateListView(items);
+    return generateListView(generateSection(items: items));
   }
 }

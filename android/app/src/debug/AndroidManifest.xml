@@ -7,7 +7,7 @@
     <application
         android:icon="@mipmap/ic_launcher"
         android:label="Bettbox Debug"
-        tools:replace="android:label">
+        tools:replace="android:label,android:icon">
         <service
             android:name=".services.BettboxTileService"
             android:label="Bettbox Debug"

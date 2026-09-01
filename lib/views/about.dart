@@ -308,7 +308,7 @@ class _LinkGridRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final dividerColor = context.colorScheme.outlineVariant.withValues(
-      alpha: context.colorScheme.brightness == Brightness.light ? 0.3 : 0.2,
+      alpha: context.colorScheme.brightness == Brightness.light ? 0.6 : 0.45,
     );
     return IntrinsicHeight(
       child: Row(

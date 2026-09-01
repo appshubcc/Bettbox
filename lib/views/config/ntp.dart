@@ -229,7 +229,7 @@ class NtpIntervalItem extends ConsumerWidget {
 }
 
 final ntpItems = <Widget>[
-  const OverrideNtpItem(),
+  ...generateSection(items: const [OverrideNtpItem()]),
   ...generateSection(
     title: appLocalizations.options,
     items: const [

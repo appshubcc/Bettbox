@@ -99,11 +99,16 @@ class GoogleBottomNavBar extends ConsumerWidget {
               hoverColor: context.colorScheme.onSurface.withValues(alpha: 0.1),
               haptic: enableHapticFeedback, // Control GNav haptic feedback
               gap: 8,
-              activeColor: context.colorScheme.onSecondaryContainer,
+              activeColor: context.colorScheme.primary,
               iconSize: 24,
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
               duration: const Duration(milliseconds: 250),
-              tabBackgroundColor: context.colorScheme.secondaryContainer,
+              tabBackgroundColor: context.colorScheme.primary.withValues(
+                alpha:
+                    context.colorScheme.brightness == Brightness.light
+                        ? 0.20
+                        : 0.26,
+              ),
               color: context.colorScheme.onSurfaceVariant,
               tabs: tabsList,
               selectedIndex: selectedIndex,

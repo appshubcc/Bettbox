@@ -113,6 +113,10 @@ fun Service.startForeground(notification: Notification, useSpecialType: Boolean 
         }
     }.onFailure {
         android.util.Log.e("BaseServiceInterface", "startForeground failed: ${it.message}")
-        startForeground(GlobalState.NOTIFICATION_ID, notification)
+        runCatching {
+            startForeground(GlobalState.NOTIFICATION_ID, notification)
+        }.onFailure { fallbackErr ->
+            android.util.Log.e("BaseServiceInterface", "startForeground fallback failed: ${fallbackErr.message}")
+        }
     }
 }

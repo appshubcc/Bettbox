@@ -69,9 +69,23 @@ class NetworkMatcher {
     return rules.split(',').any((rule) => matchRule(ip, rule));
   }
 
+  static bool matchAnyGateway(String? gateway, String rules) {
+    if (gateway == null || gateway.isEmpty || rules.isEmpty) return false;
+
+    return rules.split(',').any((rule) {
+      final trimmed = rule.trim();
+      if (!trimmed.toLowerCase().startsWith('gateway:')) return false;
+      return matchRule(gateway, trimmed.substring(8).trim());
+    });
+  }
+
   static bool isValidRule(String rule) {
     final trimmed = rule.trim();
     if (trimmed.isEmpty) return false;
+
+    if (trimmed.toLowerCase().startsWith('gateway:')) {
+      return isValidRule(trimmed.substring(8).trim());
+    }
 
     return trimmed.contains('/') ? parseCIDR(trimmed) != null : parseIPv4(trimmed) != null;
   }

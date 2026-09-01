@@ -70,6 +70,13 @@ class Vpn {
         const [];
   }
 
+  Future<List<String>> getLocalGateways() async {
+    return await methodChannel.invokeListMethod<String>(
+          'getLocalGateways',
+        ) ??
+        const [];
+  }
+
   Future<void> setSmartStopped(bool value) async {
     await methodChannel.invokeMethod<bool>('setSmartStopped', {'value': value});
   }

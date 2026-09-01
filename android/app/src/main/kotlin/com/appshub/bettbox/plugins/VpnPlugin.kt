@@ -250,6 +250,24 @@ data object VpnPlugin : FlutterPlugin, MethodChannel.MethodCallHandler {
         emptyList()
     }
 
+    fun getLocalGateways(): List<String> = runCatching {
+        networks.flatMap { network ->
+            connectivity?.getLinkProperties(network)
+                ?.routes
+                ?.filter { it.isDefaultRoute() }
+                ?.mapNotNull { it.gateway }
+                ?.filter {
+                    !it.isLoopbackAddress && !it.isAnyLocalAddress &&
+                        it.hostAddress?.contains(":") == false
+                }
+                ?.mapNotNull { it.hostAddress }
+                ?: emptyList()
+        }
+    }.getOrElse {
+        android.util.Log.e("VpnPlugin", "getLocalGateways error: ${it.message}")
+        emptyList()
+    }
+
     fun handleStart(options: VpnOptions): Boolean {
         onUpdateNetwork()
         if (options.enable != this.options?.enable) {

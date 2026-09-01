@@ -506,6 +506,98 @@ class Utils {
     return '';
   }
 
+  Future<List<String>> getLocalGateways() async {
+    if (Platform.isLinux) {
+      return _getLinuxGateways();
+    }
+    if (Platform.isMacOS) {
+      return _getMacOSGateways();
+    }
+    if (Platform.isWindows) {
+      return _getWindowsGateways();
+    }
+    return [];
+  }
+
+  Future<List<String>> _getLinuxGateways() async {
+    try {
+      final routeFile = File('/proc/net/route');
+      if (!await routeFile.exists()) return [];
+
+      final lines = await routeFile.readAsLines();
+      final gateways = <String>[];
+      // Header: Iface Destination Gateway Flags RefCnt Use Metric Mask ...
+      for (final line in lines.skip(1)) {
+        final parts = line.trim().split(RegExp(r'\s+'));
+        if (parts.length < 3) continue;
+        if (parts[1] != '00000000') continue; // default route destination
+        final gwHex = parts[2];
+        if (gwHex == '00000000') continue; // no gateway
+        // /proc/net/route stores IPv4 in little-endian hex
+        final bytes = [
+          int.parse(gwHex.substring(6, 8), radix: 16),
+          int.parse(gwHex.substring(4, 6), radix: 16),
+          int.parse(gwHex.substring(2, 4), radix: 16),
+          int.parse(gwHex.substring(0, 2), radix: 16),
+        ];
+        gateways.add(bytes.join('.'));
+      }
+      return gateways;
+    } catch (e) {
+      commonPrint.log('Smart Auto Stop: Linux gateway error: $e');
+      return [];
+    }
+  }
+
+  Future<List<String>> _getMacOSGateways() async {
+    try {
+      final result = await Process.run('route', ['-n', 'get', 'default']);
+      if (result.exitCode != 0) return [];
+
+      final stdout = result.stdout.toString();
+      for (final line in stdout.split('\n')) {
+        final trimmed = line.trim();
+        if (!trimmed.startsWith('gateway:')) continue;
+        final gateway = trimmed.substring('gateway:'.length).trim();
+        // Exclude IPv6/link-local gateways
+        if (gateway.isNotEmpty && !gateway.contains(':')) {
+          return [gateway];
+        }
+      }
+      return [];
+    } catch (e) {
+      commonPrint.log('Smart Auto Stop: macOS gateway error: $e');
+      return [];
+    }
+  }
+
+  Future<List<String>> _getWindowsGateways() async {
+    try {
+      final result = await Process.run(
+        'powershell',
+        [
+          '-NoProfile',
+          '-Command',
+          'Get-NetRoute -DestinationPrefix \'0.0.0.0/0\' '
+              '| Select-Object -ExpandProperty NextHop',
+        ],
+      );
+      if (result.exitCode != 0) return [];
+
+      final gateways = <String>[];
+      for (final line in result.stdout.toString().split('\n')) {
+        final gateway = line.trim();
+        if (gateway.isEmpty) continue;
+        if (!RegExp(r'^\d{1,3}(\.\d{1,3}){3}$').hasMatch(gateway)) continue;
+        gateways.add(gateway);
+      }
+      return gateways;
+    } catch (e) {
+      commonPrint.log('Smart Auto Stop: Windows gateway error: $e');
+      return [];
+    }
+  }
+
   SingleActivator controlSingleActivator(LogicalKeyboardKey trigger) {
     final control = system.isMacOS ? false : true;
     return SingleActivator(trigger, control: control, meta: !control);

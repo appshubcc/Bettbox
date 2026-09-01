@@ -431,10 +431,18 @@ class AppPlugin : FlutterPlugin, MethodChannel.MethodCallHandler, ActivityAware 
 
     fun requestVpnPermission(callBack: () -> Unit) {
         vpnCallBack = callBack
-        val intent = VpnService.prepare(BettboxApplication.getAppContext())
+        val intent = runCatching { VpnService.prepare(BettboxApplication.getAppContext()) }.getOrNull()
         if (intent != null) {
-            activityRef?.get()?.startActivityForResult(intent, VPN_PERMISSION_REQUEST_CODE)
-            return
+            val activity = activityRef?.get()
+            if (activity != null) {
+                runCatching {
+                    activity.startActivityForResult(intent, VPN_PERMISSION_REQUEST_CODE)
+                }.onFailure { e ->
+                    android.util.Log.e("AppPlugin", "startActivityForResult for VPN permission failed: ${e.message}")
+                    vpnCallBack?.invoke()
+                }
+                return
+            }
         }
         vpnCallBack?.invoke()
     }

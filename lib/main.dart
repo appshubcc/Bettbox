@@ -5,6 +5,7 @@ import 'dart:isolate';
 import 'dart:ui';
 
 import 'package:bett_box/plugins/app.dart';
+import 'package:bett_box/plugins/clipboard_ext.dart';
 import 'package:bett_box/plugins/tile.dart';
 import 'package:bett_box/plugins/vpn.dart';
 import 'package:bett_box/state.dart';
@@ -95,6 +96,9 @@ Future<void> _runApp() async {
   await android?.init();
 
   await window?.init();
+  if (system.isWindows) {
+    clipboardExt.init();
+  }
   HttpOverrides.global = BettboxHttpOverrides();
   runApp(ProviderScope(child: const Application()));
 }

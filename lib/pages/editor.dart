@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:bett_box/common/common.dart';
 import 'package:bett_box/enum/enum.dart' hide Mode;
 import 'package:bett_box/models/common.dart';
+import 'package:bett_box/plugins/clipboard_ext.dart';
 import 'package:bett_box/providers/app.dart';
 import 'package:bett_box/state.dart';
 import 'package:bett_box/widgets/widgets.dart';
@@ -68,6 +69,7 @@ class _EditorPageState extends ConsumerState<EditorPage> {
   late TextEditingController _titleController;
   final _focusNode = FocusNode();
   late final FocusNode _saveButtonFocusNode;
+  VoidCallback? _removePasteHandler;
   bool _lineWrap = false;
   late final int _lineCount;
   bool _isLoading = true;
@@ -96,6 +98,10 @@ class _EditorPageState extends ConsumerState<EditorPage> {
     _undoController = UndoRedoController();
     _titleController = TextEditingController(text: widget.title);
 
+    if (system.isWindows) {
+      _removePasteHandler = clipboardExt.addHandler(_handleNativePaste);
+    }
+
     final loadingStopwatch = Stopwatch()..start();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final elapsed = loadingStopwatch.elapsedMilliseconds;
@@ -112,8 +118,18 @@ class _EditorPageState extends ConsumerState<EditorPage> {
     });
   }
 
+  /// Handles a native paste command (Windows clipboard history) while the
+  /// editor holds focus. Returns false so other handlers can take over.
+  Future<bool> _handleNativePaste() async {
+    if (widget.readOnly || widget.simple) return false;
+    if (!_focusNode.hasFocus) return false;
+    await _controller.paste();
+    return true;
+  }
+
   @override
   void dispose() {
+    _removePasteHandler?.call();
     _controller.text = '';
     _findController.dispose();
     _undoController.dispose();

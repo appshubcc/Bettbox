@@ -1,5 +1,6 @@
 import '../src/rust/api/editor.dart';
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 
 import '../code_forge.dart';
@@ -3013,26 +3014,46 @@ class CodeForgeController implements DeltaTextInputClient {
         if (isBufferActive) useCurrentSelection = true;
         _imeSelectionNeedsResync = false;
 
-        if (delta.textInserted.length == 1) {
-          _lastTypedCharacter = delta.textInserted;
-        }
-        if (delta.textInserted.isNotEmpty &&
-            (_isAlpha(delta.textInserted) ||
-                _isCompletionTriggerChar(delta.textInserted))) {
-          typingDetected = true;
-        }
-        final insertionOffset = useCurrentSelection
-            ? _selection.extentOffset
-            : mappedInsertionOffset;
-        final insertionSelection = TextSelection.collapsed(
-          offset: insertionOffset + delta.textInserted.runes.length,
-        );
+        // Multi-character insertions from IME paste / clipboard history should
+        // replace the original document selection (or insert at the caret)
+        // instead of being mapped through the IME projection window. Single
+        // characters keep the normal path so wrapping and IME typing stay
+        // unchanged.
+        if (delta.textInserted.runes.length > 1) {
+          final pendingReplacement = _pendingSelectionReplacement;
+          final replaceStart =
+              pendingReplacement != null && !pendingReplacement.isCollapsed
+              ? pendingReplacement.start
+              : _selection.start;
+          final replaceEnd =
+              pendingReplacement != null && !pendingReplacement.isCollapsed
+              ? pendingReplacement.end
+              : _selection.end;
+          replaceRange(replaceStart, replaceEnd, delta.textInserted);
+          _pendingSelectionReplacement = null;
+          _imeSelectionNeedsResync = true;
+        } else {
+          if (delta.textInserted.length == 1) {
+            _lastTypedCharacter = delta.textInserted;
+          }
+          if (delta.textInserted.isNotEmpty &&
+              (_isAlpha(delta.textInserted) ||
+                  _isCompletionTriggerChar(delta.textInserted))) {
+            typingDetected = true;
+          }
+          final insertionOffset = useCurrentSelection
+              ? _selection.extentOffset
+              : mappedInsertionOffset;
+          final insertionSelection = TextSelection.collapsed(
+            offset: insertionOffset + delta.textInserted.runes.length,
+          );
 
-        _handleInsertion(
-          insertionOffset,
-          delta.textInserted,
-          insertionSelection,
-        );
+          _handleInsertion(
+            insertionOffset,
+            delta.textInserted,
+            insertionSelection,
+          );
+        }
       } else if (delta is TextEditingDeltaDeletion) {
         _handleDeletion(
           TextRange(
@@ -4238,7 +4259,31 @@ class CodeForgeController implements DeltaTextInputClient {
 
   @protected
   @override
-  void insertContent(KeyboardInsertedContent content) {}
+  void insertContent(KeyboardInsertedContent content) {
+    if (readOnly) return;
+    if (!_isPlainTextMime(content.mimeType)) return;
+
+    final data = content.data;
+    if (data != null && data.isNotEmpty) {
+      final replacement = utf8.decode(data, allowMalformed: true);
+      if (replacement.isEmpty) return;
+      final sel = selection;
+      replaceRange(sel.start, sel.end, replacement);
+      _pendingSelectionReplacement = null;
+      return;
+    }
+
+    // Some IMEs provide only the MIME type. Read the current clipboard
+    // instead, preserving the editor selection.
+    unawaited(paste());
+  }
+
+  static bool _isPlainTextMime(String mimeType) {
+    final mime = mimeType.toLowerCase();
+    return mime == 'text/plain' ||
+        mime == 'text/*' ||
+        mime.startsWith('text/');
+  }
 
   @protected
   @override

@@ -837,6 +837,7 @@ class _CodeForgeState extends State<CodeForge> with TickerProviderStateMixin {
         inputAction: TextInputAction.newline,
         autocorrect: false,
         viewId: View.of(context).viewId,
+        allowedMimeTypes: const <String>['text/plain', 'text/*'],
       ),
     );
   }

@@ -165,12 +165,78 @@ void CleanupLegacyIconSettings() {
   RemoveLegacyIconRegistryKeys();
 }
 
+constexpr const char kClipboardChannel[] = "clipboard_ext";
+constexpr const char kPasteMethod[] = "paste";
+constexpr const wchar_t kFlutterWindowProp[] = L"BettboxFlutterWindow";
+
 }  // namespace
 
 FlutterWindow::FlutterWindow(const flutter::DartProject& project)
     : project_(project) {}
 
 FlutterWindow::~FlutterWindow() {}
+
+void FlutterWindow::SubclassViewWindow() {
+  if (!flutter_controller_ || !flutter_controller_->view()) {
+    return;
+  }
+  HWND view = flutter_controller_->view()->GetNativeWindow();
+  if (!view) {
+    return;
+  }
+
+  ::SetPropW(view, kFlutterWindowProp, reinterpret_cast<HANDLE>(this));
+  original_view_proc_ = reinterpret_cast<WNDPROC>(::SetWindowLongPtrW(
+      view, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(ViewWindowProc)));
+  if (original_view_proc_ == nullptr) {
+    ::RemovePropW(view, kFlutterWindowProp);
+    return;
+  }
+  view_window_ = view;
+}
+
+void FlutterWindow::RestoreViewWindow() {
+  if (!view_window_) {
+    return;
+  }
+  if (original_view_proc_ != nullptr) {
+    ::SetWindowLongPtrW(view_window_, GWLP_WNDPROC,
+                        reinterpret_cast<LONG_PTR>(original_view_proc_));
+  }
+  ::RemovePropW(view_window_, kFlutterWindowProp);
+  view_window_ = nullptr;
+  original_view_proc_ = nullptr;
+}
+
+void FlutterWindow::NotifyPaste() {
+  if (clipboard_channel_) {
+    clipboard_channel_->InvokeMethod(
+        kPasteMethod, std::make_unique<flutter::EncodableValue>());
+  }
+}
+
+// static
+LRESULT CALLBACK FlutterWindow::ViewWindowProc(HWND window, UINT message,
+                                              WPARAM wparam,
+                                              LPARAM lparam) noexcept {
+  auto* self = reinterpret_cast<FlutterWindow*>(
+      ::GetPropW(window, kFlutterWindowProp));
+  if (self == nullptr || self->original_view_proc_ == nullptr) {
+    return ::DefWindowProcW(window, message, wparam, lparam);
+  }
+
+  WNDPROC original = self->original_view_proc_;
+  if (message == WM_PASTE) {
+    self->NotifyPaste();
+    return 0;
+  }
+  if (message == WM_NCDESTROY) {
+    self->RestoreViewWindow();
+    return ::CallWindowProcW(original, window, message, wparam, lparam);
+  }
+
+  return ::CallWindowProcW(original, window, message, wparam, lparam);
+}
 
 bool FlutterWindow::OnCreate() {
   if (!Win32Window::OnCreate()) {
@@ -189,7 +255,13 @@ bool FlutterWindow::OnCreate() {
   }
   RegisterPlugins(flutter_controller_->engine());
 
+  clipboard_channel_ =
+      std::make_unique<flutter::MethodChannel<flutter::EncodableValue>>(
+          flutter_controller_->engine()->messenger(), kClipboardChannel,
+          &flutter::StandardMethodCodec::GetInstance());
+
   SetChildContent(flutter_controller_->view()->GetNativeWindow());
+  SubclassViewWindow();
 
   flutter_controller_->engine()->SetNextFrameCallback([&]() {
 
@@ -201,6 +273,8 @@ bool FlutterWindow::OnCreate() {
 }
 
 void FlutterWindow::OnDestroy() {
+  RestoreViewWindow();
+  clipboard_channel_ = nullptr;
   if (flutter_controller_) {
     flutter_controller_ = nullptr;
   }
@@ -225,6 +299,9 @@ FlutterWindow::MessageHandler(HWND hwnd, UINT const message,
     case WM_FONTCHANGE:
       flutter_controller_->engine()->ReloadSystemFonts();
       break;
+    case WM_PASTE:
+      NotifyPaste();
+      return 0;
   }
 
   return Win32Window::MessageHandler(hwnd, message, wparam, lparam);

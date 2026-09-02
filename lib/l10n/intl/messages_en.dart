@@ -1091,7 +1091,11 @@ class MessageLookup extends MessageLookupByLibrary {
     "stackMode": MessageLookupByLibrary.simpleMessage("Stack Mode"),
     "standard": MessageLookupByLibrary.simpleMessage("Standard"),
     "start": MessageLookupByLibrary.simpleMessage("Start"),
-    "startTest": MessageLookupByLibrary.simpleMessage("Delay Test"),
+    "noUsageData": MessageLookupByLibrary.simpleMessage("No usage data"),
+    "localFile": MessageLookupByLibrary.simpleMessage("Local File"),
+    "expired": MessageLookupByLibrary.simpleMessage("Expired"),
+    "lastEdit": MessageLookupByLibrary.simpleMessage("Last edited"),
+    "startTest": MessageLookupByLibrary.simpleMessage("Latency Test"),
     "startVpn": MessageLookupByLibrary.simpleMessage("Starting..."),
     "status": MessageLookupByLibrary.simpleMessage("Status"),
     "statusDesc": MessageLookupByLibrary.simpleMessage(

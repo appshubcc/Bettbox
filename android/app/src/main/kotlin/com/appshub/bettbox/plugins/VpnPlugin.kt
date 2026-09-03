@@ -189,6 +189,10 @@ data object VpnPlugin : FlutterPlugin, MethodChannel.MethodCallHandler {
                 result.success(getLocalIpAddresses())
             }
 
+            "getLocalGateways" -> {
+                result.success(getLocalGateways())
+            }
+
             "setSmartStopped" -> {
                 val value = call.argument<Boolean>("value") ?: false
                 GlobalState.isSmartStopped = value
@@ -208,7 +212,7 @@ data object VpnPlugin : FlutterPlugin, MethodChannel.MethodCallHandler {
                 val data = call.argument<String>("data")
                 result.success(handleSmartResume(Gson().fromJson(data, VpnOptions::class.java)))
             }
-            
+
             "setQuickResponse" -> {
                 quickResponseEnabled = call.argument<Boolean>("enabled") ?: false
                 result.success(true)
@@ -231,13 +235,27 @@ data object VpnPlugin : FlutterPlugin, MethodChannel.MethodCallHandler {
             }
         }
     }
-    
+
     fun setQuickResponse(enabled: Boolean) {
         quickResponseEnabled = enabled
     }
 
+    /**
+     * Returns non-VPN networks. Falls back to connectivity.allNetworks
+     * if the NetworkCallback hasn't populated [networks] yet (e.g. cold
+     * start from tile after device reboot).
+     */
+    private fun getNonVpnNetworks(): Set<Network> {
+        return networks.ifEmpty {
+            connectivity?.allNetworks?.filter { network ->
+                val caps = connectivity?.getNetworkCapabilities(network)
+                caps != null && !caps.hasTransport(NetworkCapabilities.TRANSPORT_VPN)
+            }?.toSet() ?: emptySet()
+        }
+    }
+
     fun getLocalIpAddresses(): List<String> = runCatching {
-        networks.flatMap { network ->
+        getNonVpnNetworks().flatMap { network ->
             connectivity?.getLinkProperties(network)
                 ?.linkAddresses
                 ?.mapNotNull { it.address }
@@ -251,7 +269,7 @@ data object VpnPlugin : FlutterPlugin, MethodChannel.MethodCallHandler {
     }
 
     fun getLocalGateways(): List<String> = runCatching {
-        networks.flatMap { network ->
+        getNonVpnNetworks().flatMap { network ->
             connectivity?.getLinkProperties(network)
                 ?.routes
                 ?.filter { it.isDefaultRoute() }
@@ -376,7 +394,7 @@ data object VpnPlugin : FlutterPlugin, MethodChannel.MethodCallHandler {
             onUpdateNetwork()
         }
     }
-    
+
     private fun handleNetworkChange() {
         val currentNetworkType = getCurrentNetworkType()
         if (lastNetworkType == null) {
@@ -416,7 +434,7 @@ data object VpnPlugin : FlutterPlugin, MethodChannel.MethodCallHandler {
             }
         }
     }
-    
+
     private fun getCurrentNetworkType(): Int {
         val activeNetwork = connectivity?.activeNetwork ?: return -1
         val caps = connectivity?.getNetworkCapabilities(activeNetwork) ?: return -1
@@ -496,7 +514,7 @@ data object VpnPlugin : FlutterPlugin, MethodChannel.MethodCallHandler {
             bindService()
             return
         }
-        
+
         scope.launch {
             try {
                 val prepareIntent = try {
@@ -611,9 +629,9 @@ data object VpnPlugin : FlutterPlugin, MethodChannel.MethodCallHandler {
             val success = runCatching {
                 (bettBoxService as? BettboxVpnService)?.protect(fd) == true
             }.getOrDefault(false)
-            
+
             if (success) return true
-            
+
             retries++
             if (retries < 5) {
                 Thread.sleep(60)

@@ -226,7 +226,29 @@ Future<void> _service(List<String> flags) async {
           return;
         }
         await vpn?.start(clashLibHandler.getAndroidVpnOptions());
-        Future.delayed(const Duration(seconds: 2), checkSmartAutoStop);
+        // Smart auto-stop: retry check because network callbacks
+        // (VpnPlugin.networks) may not have fired yet after boot
+        Future(() async {
+          final vpnProps = globalState.config.vpnProps;
+          if (!vpnProps.smartAutoStop) return;
+          final networks = vpnProps.smartAutoStopNetworks;
+          if (networks.isEmpty) return;
+          for (int attempt = 0; attempt < 5; attempt++) {
+            await Future.delayed(Duration(seconds: attempt == 0 ? 2 : 3));
+            try {
+              final candidateIps =
+                  await vpn?.getLocalIpAddresses() ?? const <String>[];
+              final candidateGateways =
+                  await vpn?.getLocalGateways() ?? const <String>[];
+              if (candidateIps.isNotEmpty || candidateGateways.isNotEmpty) {
+                await checkSmartAutoStop();
+                return;
+              }
+            } catch (_) {}
+          }
+          // Last resort: run check anyway
+          await checkSmartAutoStop();
+        });
 
         if (globalState.config.vpnProps.networkSpeedNotification) {
           final profile = globalState.config.profiles

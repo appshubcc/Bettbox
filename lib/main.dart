@@ -159,7 +159,7 @@ Future<void> _service(List<String> flags) async {
     int _networkChangeCheckSequence = 0;
     void _debouncedCheckSmartAutoStop() {
       final currentSequence = ++_networkChangeCheckSequence;
-      Future.delayed(const Duration(milliseconds: 1000), () async {
+      Future.delayed(const Duration(milliseconds: 1500), () async {
         if (currentSequence != _networkChangeCheckSequence) {
           return;
         }
@@ -239,28 +239,23 @@ Future<void> _service(List<String> flags) async {
           return;
         }
         await vpn?.start(clashLibHandler.getAndroidVpnOptions());
-        // Smart auto-stop: retry check because network callbacks
-        // (VpnPlugin.networks) may not have fired yet after boot
+        // Smart auto-stop: always attempt checkSmartAutoStop on each retry.
+        // checkSmartAutoStop handles empty data gracefully (returns early).
+        // Once native network is ready, getNonVpnNetworks fallback will work.
+        // Additionally, onAvailable/onLost callbacks trigger debounced check.
         Future(() async {
           final vpnProps = globalState.config.vpnProps;
           if (!vpnProps.smartAutoStop) return;
           final networks = vpnProps.smartAutoStopNetworks;
           if (networks.isEmpty) return;
-          for (int attempt = 0; attempt < 5; attempt++) {
-            await Future.delayed(Duration(seconds: attempt == 0 ? 2 : 3));
-            try {
-              final candidateIps =
-                  await vpn?.getLocalIpAddresses() ?? const <String>[];
-              final candidateGateways =
-                  await vpn?.getLocalGateways() ?? const <String>[];
-              if (candidateIps.isNotEmpty || candidateGateways.isNotEmpty) {
-                await checkSmartAutoStop();
-                return;
-              }
-            } catch (_) {}
+          for (int attempt = 0; attempt < 8; attempt++) {
+            await Future.delayed(Duration(seconds: attempt == 0 ? 2 : 2));
+            await checkSmartAutoStop();
+            final isSmartStopped = await vpn?.isSmartStopped() ?? false;
+            final isRunning = await vpn?.getStatus() ?? false;
+            if (!isRunning) return;
+            if (isSmartStopped) return;
           }
-          // Last resort: run check anyway
-          await checkSmartAutoStop();
         });
 
         if (globalState.config.vpnProps.networkSpeedNotification) {

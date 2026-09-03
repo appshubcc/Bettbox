@@ -4,6 +4,7 @@ on:
   push:
     tags:
       - 'v*'
+  workflow_dispatch:
 
 env:
   IS_STABLE: ${{ !contains(github.ref, '-') }}

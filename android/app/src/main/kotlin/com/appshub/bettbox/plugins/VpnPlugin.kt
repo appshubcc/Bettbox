@@ -241,17 +241,31 @@ data object VpnPlugin : FlutterPlugin, MethodChannel.MethodCallHandler {
     }
 
     /**
-     * Returns non-VPN networks. Falls back to connectivity.allNetworks
-     * if the NetworkCallback hasn't populated [networks] yet (e.g. cold
-     * start from tile after device reboot).
+     * Returns non-VPN networks with three-layer fallback:
+     * 1. Networks collected by NetworkCallback
+     * 2. All non-VPN networks from ConnectivityManager
+     * 3. Active network directly (covers cold boot where callbacks haven't fired)
      */
     private fun getNonVpnNetworks(): Set<Network> {
-        return networks.ifEmpty {
+        val callbackNetworks = networks.ifEmpty {
             connectivity?.allNetworks?.filter { network ->
                 val caps = connectivity?.getNetworkCapabilities(network)
                 caps != null && !caps.hasTransport(NetworkCapabilities.TRANSPORT_VPN)
             }?.toSet() ?: emptySet()
         }
+
+        if (callbackNetworks.isNotEmpty()) return callbackNetworks
+
+        // Layer 3: direct fallback to active network (covers cold boot case
+        // where NetworkCallback and allNetworks haven't fired yet)
+        return connectivity?.activeNetwork?.let { active ->
+            val caps = connectivity?.getNetworkCapabilities(active)
+            if (caps == null || !caps.hasTransport(NetworkCapabilities.TRANSPORT_VPN)) {
+                setOf(active)
+            } else {
+                emptySet()
+            }
+        } ?: emptySet()
     }
 
     fun getLocalIpAddresses(): List<String> = runCatching {

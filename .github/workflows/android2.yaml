@@ -2,6 +2,11 @@ name: android2
 
 on:
   workflow_dispatch:
+    inputs:
+      tag_name:
+        description: 'Release tag (e.g. v1.19.0)'
+        required: true
+        default: 'v1.19.0'
 
 env:
   IS_STABLE: ${{ !contains(github.ref, '-') }}
@@ -123,7 +128,7 @@ jobs:
 
       - name: Patch release.md
         run: |
-          version=$(echo "${{ github.ref_name }}" | sed 's/^v//')
+          version=$(echo "${{ github.event.inputs.tag_name }}" | sed 's/^v//')
           base_version=$(echo "$version" | sed 's/-pre[0-9]*//')
           if [ "${{ env.IS_PRERELEASE }}" == "true" ]; then
             sed -e "s|BASE_VERSION|$base_version|g" -e "s|VERSION|$version|g" ./.github/release_template_pre.md >> release.md
@@ -132,9 +137,10 @@ jobs:
           fi
 
       - name: Release
-        if: ${{ env.SHOULD_RELEASE == 'true' }}
         uses: softprops/action-gh-release@v3.0.0
         with:
+          tag_name: ${{ github.event.inputs.tag_name }}
+          name: ${{ github.event.inputs.tag_name }}
           files: ./dist/*
           body_path: './release.md'
           prerelease: ${{ env.IS_PRERELEASE == 'true' }}

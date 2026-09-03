@@ -42,21 +42,6 @@ Bettbox意为: Better Experience, Out of the box，更好的体验，亦开箱�
 * **社区导向**：我们会认真评估社区反馈，优先对待高质量的 Issue，你的声音不会无故被淹没。
 
 ---
-</div>
-
-###   🛩️ 推荐服务
-### 小众低调专线  〢  [百变小樱](https://www.bbxy01.com/v2/register?code=c09R)
-
-### Bettbox新用户独享68折优惠码：bettbox68
-
-**简评** : ❚ ❚  老牌小众专线，海外团队运营多年，稳定性与口碑优秀，折后约17元/月或127元/年，适合对稳定性和延迟要求较高的用户，后台每次签到可额外领取叠加5-10GB流量
-
---------------------------------
-### 低价直连  〢  [良心云](https://xn--9kqz23b19z.com/#/register?code=VTnrQYAj)  〢  [一分](https://xn--4gqx1hgtfdmt.com/#/register?code=AuCiXprV)  〢  [赔钱](https://xn--mes358aby2apfg.com/register?code=z7TUZLmM&cover=sfw)
-
-**简评** : ❚  AWS或资源渠道机，直连风险相对较低，1000G不限时套餐通常更有性价比，量大管饱，价格低廉，适合要求不高的用户或备用机场流量选择
-
----
 ## 🛠️ 安装与下载
 
 请前往 **[[Releases]](https://github.com/appshubcc/Bettbox/releases)** 页面下载最新适合您平台和系统的安装包

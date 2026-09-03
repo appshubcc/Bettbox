@@ -1,4 +1,4 @@
-name: android2
+name: android-arm64
 
 on:
   workflow_dispatch:

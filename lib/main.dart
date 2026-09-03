@@ -154,6 +154,19 @@ Future<void> _service(List<String> flags) async {
       }
     }
 
+    // Debounced version for network change events
+    // Prevents rapid-fire checks during WiFi/Cellular transitions
+    int _networkChangeCheckSequence = 0;
+    void _debouncedCheckSmartAutoStop() {
+      final currentSequence = ++_networkChangeCheckSequence;
+      Future.delayed(const Duration(milliseconds: 1000), () async {
+        if (currentSequence != _networkChangeCheckSequence) {
+          return;
+        }
+        await checkSmartAutoStop();
+      });
+    }
+
     tile?.addListener(
       _TileListenerWithService(
         onStart: () async {
@@ -179,7 +192,7 @@ Future<void> _service(List<String> flags) async {
         onDnsChanged: (String dns) {
           clashLibHandler.updateDns(dns);
         },
-        onNetworkChanged: checkSmartAutoStop,
+        onNetworkChanged: _debouncedCheckSmartAutoStop,
       ),
     );
 

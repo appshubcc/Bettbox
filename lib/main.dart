@@ -155,11 +155,11 @@ Future<void> _service(List<String> flags) async {
     }
 
     // Debounced version for network change events
-    // Prevents rapid-fire checks during WiFi/Cellular transitions
+    // Shorter delay (500ms) for faster response
     int _networkChangeCheckSequence = 0;
     void _debouncedCheckSmartAutoStop() {
       final currentSequence = ++_networkChangeCheckSequence;
-      Future.delayed(const Duration(milliseconds: 1500), () async {
+      Future.delayed(const Duration(milliseconds: 800), () async {
         if (currentSequence != _networkChangeCheckSequence) {
           return;
         }
@@ -239,17 +239,15 @@ Future<void> _service(List<String> flags) async {
           return;
         }
         await vpn?.start(clashLibHandler.getAndroidVpnOptions());
-        // Smart auto-stop: always attempt checkSmartAutoStop on each retry.
-        // checkSmartAutoStop handles empty data gracefully (returns early).
-        // Once native network is ready, getNonVpnNetworks fallback will work.
-        // Additionally, onAvailable/onLost callbacks trigger debounced check.
+        // Smart auto-stop: retry every 1 second, up to 8 attempts (8 seconds window)
+        // Combined with onAvailable/onLost callbacks for immediate response
         Future(() async {
           final vpnProps = globalState.config.vpnProps;
           if (!vpnProps.smartAutoStop) return;
           final networks = vpnProps.smartAutoStopNetworks;
           if (networks.isEmpty) return;
           for (int attempt = 0; attempt < 8; attempt++) {
-            await Future.delayed(Duration(seconds: attempt == 0 ? 2 : 2));
+            await Future.delayed(const Duration(seconds: 1));
             await checkSmartAutoStop();
             final isSmartStopped = await vpn?.isSmartStopped() ?? false;
             final isRunning = await vpn?.getStatus() ?? false;

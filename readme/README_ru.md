@@ -9,9 +9,11 @@
 
 **Bettbox — это мультиплатформенный клиент для отладки сети и маршрутизации трафика на базе правил, созданный на ядре Mihomo (Clash Meta) и переработанный из ранней версии FlClash.**
 
-Следуя принципу «Better Experience» (Лучший опыт), Bettbox сохраняет отличный UI оригинала, глубоко оптимизируя детали интерфейса и логику функций. Цель: плавная работа в активном режиме и незаметное энергосбережение в фоновом — лёгкий и надёжный клиент Mihomo.
+Следуя принципу «Better Experience» (Лучший опыт), Bettbox сохраняет отличный UI оригинала, глубоко оптимизируя детали интерфейса и логику функций. Ключевые особенности и цели: плавная работа в активном режиме и незаметное энергосбережение в фоновом — надёжный клиент Mihomo для долгосрочной стабильной работы с минимальным потреблением ресурсов.
 
-Название Bettbox означает: Better Experience, Out of the box (Превосходный опыт из коробки).
+Наше видение: Connecting AI, Accelerating Innovation — Соединяя ИИ, ускоряем инновации
+
+Название Bettbox означает: Better Experience, Out of the box — Превосходный опыт из коробки.
 
 [![Latest Release](https://img.shields.io/github/v/release/appshubcc/Bettbox?style=for-the-badge&logo=github&color=238636&label=Release)](https://github.com/appshubcc/Bettbox/releases/latest) [![Core](https://img.shields.io/github/v/release/MetaCubeX/mihomo?style=for-the-badge&logo=go&logoColor=white&color=8A2BE2&label=Mihomo)](https://github.com/MetaCubeX/mihomo/releases/latest)
 ---
@@ -54,7 +56,7 @@
 **Linux Kernel 5.4+:** (x64/arm64)
 **macOS 10.15+:** (Intel/Apple Silicon)
 * **Устройства Android 8.0+:** Android (ARMv8 / ARMv7 / x86_64 / Universal)
-* **Android TV:** Поддерживается, опционально ARMv7 32-bit
+* **Android TV:** Полностью адаптирован, опционально ARMv7 32-bit
 * **HarmonyOS NEXT:** Совместимо при использовании с [[ZhuoYiTong]](https://harmonyos.cool/android-app)
 
 **Другие способы установки:**<br>
@@ -75,24 +77,17 @@
    - Другие ошибки: Предоставьте Debug информацию и **убедитесь в отсутствии конфликтующих прокси-сервисов**.
    - Если проблема не решена, пожалуйста, создайте ISSUE для обратной связи.
 
-3. **Инструкция по установке на macOS**:
+3. **Важные примечания по установке на macOS**:
    - Скачайте образ для вашей платформы (Intel / Apple Silicon) и откройте `Bettbox-macos-xx.dmg`.
    - Перетащите значок Bettbox в папку `Applications` (Программы).
-   - **Обход блокировок Gatekeeper при первом запуске** ([так как мы пока не приобретали сертификат разработчика Apple](https://support.apple.com/en-us/102445)):
+   - **Обход блокировок Gatekeeper при установке или обновлении** ([так как мы пока не приобретали сертификат разработчика Apple](https://support.apple.com/en-us/102445)):
      - **Рекомендуемый**: откройте папку «Программы», **нажмите правой кнопкой мыши по значку Bettbox**, выберите **«Открыть»**, а затем снова **«Открыть»** в окне подтверждения.
      - **Альтернативный**: если запуск заблокирован, перейдите в «Системные настройки» -> «Конфиденциальность и безопасность», найдите Bettbox и нажмите **«Подтвердить вход»**.
-   - При первом включении режима TUN введите пароль пользователя Mac для настройки сети.
-   - **Если появляется сообщение «Приложение повреждено и его нельзя открыть. Вам следует переместить его в Корзину»**:
-     - Это ложное срабатывание macOS Gatekeeper. Откройте Терминал и выполните:
-       ```bash
-       xattr -d com.apple.quarantine /Applications/Bettbox.app
-       ```
+   - При первом включении режима TUN введите пароль текущего вошедшего пользователя Mac для настройки сети.
 
 4. **Не удается импортировать ссылку на подписку**:
    - **Обязательно сначала сбросьте ссылку**, чтобы убедиться в её работоспособности перед импортом.
-   - Если проблема не решена, создайте ISSUE для обратной связи.
-
-5. **Продолжение следует...**
+   - Если проблема не устранена, сначала обратитесь к поставщику услуг. Если проблема на стороне приложения, создайте ISSUE для обратной связи.
 
 ---
 
@@ -120,7 +115,7 @@
 
 **Если вам нравится проект, вы можете поддержать разработку:**
 
-* EVM Compatible:  <code>0xF8B1B39431013359D83F38a4e403087624618E67</code>
+* TRON (TRC-20):   <code>TCkTtZfF2WrciZLaJj3e1aqrh3zdTnCkDa</code>
 * Bitcoin: <code>bc1qu950cl6035qvllmzk6cfw3l30j2lg3cq9n6g6h</code>
 ---
 
@@ -139,9 +134,9 @@
 
 **[FlClash GUI](https://github.com/chen08209/FlClash)** 〢 **[Mihomo Core](https://github.com/MetaCubeX/mihomo)**
 
-Отдельное спасибо всем [Участникам](https://github.com/appshubcc/Bettbox/graphs/contributors) и разработчикам смежных проектов:
+Отдельное спасибо всем [Участникам](https://github.com/appshubcc/Bettbox/graphs/contributors), а также используемым и связанным открытым проектам:
 
-[CMFA](https://github.com/MetaCubeX/ClashMetaForAndroid), [Sparkle](https://github.com/xishang0128/sparkle), [SFA](https://github.com/SagerNet/sing-box-for-android), [HUSI](https://github.com/xchacha20-poly1305/husi), [V2rayN](https://github.com/2dust/v2rayN)
+[Zashboard](https://github.com/Zephyruso/zashboard), [CMFA](https://github.com/MetaCubeX/ClashMetaForAndroid), [Sparkle](https://github.com/xishang0128/sparkle), [SFA](https://github.com/SagerNet/sing-box-for-android), [HUSI](https://github.com/xchacha20-poly1305/husi), [V2rayN](https://github.com/2dust/v2rayN)
 
 ---
 

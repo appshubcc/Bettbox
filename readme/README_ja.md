@@ -9,9 +9,11 @@
 
 **Bettbox は、Mihomo（Clash Meta）カーネルを搭載し、初期の FlClash をベースに再構築されたマルチプラットフォーム対応のネットワークデバッグ・分流クライアントです。**
 
-「Better Experience（より良い体験）」を追求し、オリジナルの洗練された UI を継承しつつ、細部のデザインや実用ロジックを深層最適化。目指したのは「フロントエンドはぬるぬる滑らか、バックグラウンドは省電力で無感」。低リソースで安定動作する Mihomo クライアントを提供します。
+「Better Experience（より良い体験）」を追求し、オリジナルの洗練された UI を継承しつつ、細部のデザインや実用ロジックを深層最適化。コア機能と設計目標：「フロントエンドはぬるぬる滑らか、バックグラウンドは省電力で無感」。低リソースで長期にわたり安定動作する、より優れた Mihomo クライアントの実現に尽力しています。
 
-Bettbox：Better Experience, Out of the box（優れた体験を、すぐに使える）。
+私たちのビジョン：Connecting AI, Accelerating Innovation - AIを繋ぎ、イノベーションを加速する
+
+Bettbox：Better Experience, Out of the box - 優れた体験を、すぐに使える。
 
 [![Latest Release](https://img.shields.io/github/v/release/appshubcc/Bettbox?style=for-the-badge&logo=github&color=238636&label=Release)](https://github.com/appshubcc/Bettbox/releases/latest) [![Core](https://img.shields.io/github/v/release/MetaCubeX/mihomo?style=for-the-badge&logo=go&logoColor=white&color=8A2BE2&label=Mihomo)](https://github.com/MetaCubeX/mihomo/releases/latest)
 ---
@@ -75,24 +77,17 @@ Bettbox：Better Experience, Out of the box（優れた体験を、すぐに使�
    - その他のエラー：デバッグ情報を提供し、**競合するプロキシソフトやサービスが動作していないことを確認してください**。
    - 問題が解決しない場合は、ISSUE を提出してください。
 
-3. **macOSインストールガイド**：
+3. **macOSインストールの注意事項**：
    - ご利用の環境（Intel / Apple Silicon）に適したファイルをダウンロードし、`Bettbox-macos-xx.dmg` をダブルクリックして開きます。
    - Bettbox アイコンを「Applications」フォルダにドラッグ＆ドロップしてインストール完了。
-   - **初回起動時の Gatekeeper 回避**（[現在 Apple デベロッパー証明書を購入していないため](https://support.apple.com/en-us/102445)）：
+   - **インストールまたはアップデート時の Gatekeeper 回避**（[現在 Apple デベロッパー証明書を購入していないため](https://support.apple.com/en-us/102445)）：
      - **推奨**：「Applications」フォルダ内で **Bettbox アイコンを右クリック**し、**「開く」** を選択後、確認ダイアログで再度 **「開く」** をクリックします。
      - **代替案**：ダブルクリックで開けない場合は、Mac「システム設定」 -> 「プライバシーとセキュリティ」から Bettbox を探して **「このまま開く」** をクリックします。
-   - 初めて TUN モードを有効にする際、Mac のシステムパスワードを入力してネットワーク構成を許可してください。
-   - **「壊れているため開けません。ゴミ箱に入れる必要があります」と表示される場合**：
-     - 未署名ソフトに対する macOS Gatekeeper の誤検知です。ターミナル（Terminal）で以下を実行して隔離属性を解除してください：
-       ```bash
-       xattr -d com.apple.quarantine /Applications/Bettbox.app
-       ```
+   - 初めて TUN モードを有効にする際、現在ログインしている Mac ユーザーのパスワードを入力してネットワーク構成を許可してください。
 
 4. **購読リンクをインポートできない**：
    - **まずリンクをリセットして**、正常にアクセスできることを確認してからインポートしてください。
-   - 問題が解決しない場合は、ISSUE を提出してください。
-
-5. **順次追加・更新予定...**
+   - 問題が解決しない場合は、まずプロバイダーにお問い合わせください。アプリ側の原因である場合は ISSUE を提出してください。
 
 ---
 
@@ -120,7 +115,7 @@ Windows の例：
 
 **プロジェクトがお役に立ちましたら、以下の方法で開発をサポートしていただけます：**
 
-* EVM Compatible:  <code>0xF8B1B39431013359D83F38a4e403087624618E67</code>
+* TRON (TRC-20):   <code>TCkTtZfF2WrciZLaJj3e1aqrh3zdTnCkDa</code>
 * Bitcoin: <code>bc1qu950cl6035qvllmzk6cfw3l30j2lg3cq9n6g6h</code>
 ---
 
@@ -137,11 +132,11 @@ Windows の例：
   </tr>
 </table>
 
-**[FlClash GUI](https://github.com/chen08209/FlClash)** Clearance **[Mihomo Core](https://github.com/MetaCubeX/mihomo)**
+**[FlClash GUI](https://github.com/chen08209/FlClash)** 〢 **[Mihomo Core](https://github.com/MetaCubeX/mihomo)**
 
-すべての [コントリビューター](https://github.com/appshubcc/Bettbox/graphs/contributors) および関連オープンソースプロジェクトに感謝いたします：
+すべての [コントリビューター](https://github.com/appshubcc/Bettbox/graphs/contributors) および利用・参考にしたオープンソースプロジェクトに感謝いたします：
 
-[CMFA](https://github.com/MetaCubeX/ClashMetaForAndroid), [Sparkle](https://github.com/xishang0128/sparkle), [SFA](https://github.com/SagerNet/sing-box-for-android), [HUSI](https://github.com/xchacha20-poly1305/husi), [V2rayN](https://github.com/2dust/v2rayN)
+[Zashboard](https://github.com/Zephyruso/zashboard), [CMFA](https://github.com/MetaCubeX/ClashMetaForAndroid), [Sparkle](https://github.com/xishang0128/sparkle), [SFA](https://github.com/SagerNet/sing-box-for-android), [HUSI](https://github.com/xchacha20-poly1305/husi), [V2rayN](https://github.com/2dust/v2rayN)
 
 ---
 

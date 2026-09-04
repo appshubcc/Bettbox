@@ -9,9 +9,11 @@
 
 **Bettbox는 Mihomo(Clash Meta) 커널 기반으로 FlClash 초기 버전을 재구축한 멀티플랫폼 네트워크 디버깅 및 규칙 분류 클라이언트입니다.**
 
-"Better Experience (더 나은 경험)"라는 원칙 아래 기존의 뛰어난 UI를 계승하면서 세부 인터랙션과 기능 로직을 한층 더 최적화했습니다. 목표: 부드러운 고프레임 화면, 전력 소비 없는 백그라운드 — 적은 리소스로 지속적이고 안정적인 성능을 발휘하는 Mihomo 클라이언트입니다.
+"Better Experience (더 나은 경험)"라는 원칙 아래 기존의 뛰어난 UI를 계승하면서 세부 인터랙션과 기능 로직을 한층 더 최적화했습니다. 핵심 기능 및 설계 목표: 부드러운 고프레임 화면, 전력 소비 없는 백그라운드 — 적은 리소스로 장기적으로 안정적인 실행을 유지하며 더 나은 경험을 제공하는 Mihomo 클라이언트입니다.
 
-Bettbox: Better Experience, Out of the box (뛰어난 경험, 설치 즉시 사용).
+우리의 비전: Connecting AI, Accelerating Innovation - AI를 연결하고 혁신을 가속화합니다
+
+Bettbox: Better Experience, Out of the box - 뛰어난 경험, 설치 즉시 사용.
 
 [![Latest Release](https://img.shields.io/github/v/release/appshubcc/Bettbox?style=for-the-badge&logo=github&color=238636&label=Release)](https://github.com/appshubcc/Bettbox/releases/latest) [![Core](https://img.shields.io/github/v/release/MetaCubeX/mihomo?style=for-the-badge&logo=go&logoColor=white&color=8A2BE2&label=Mihomo)](https://github.com/MetaCubeX/mihomo/releases/latest)
 ---
@@ -75,24 +77,17 @@ Bettbox: Better Experience, Out of the box (뛰어난 경험, 설치 즉시 사�
    - 기타 오류: 디버그 정보를 제공하고 **충돌하는 다른 프록시 소프트웨어나 서비스가 실행 중이지 않은지** 확인하십시오.
    - 문제가 지속되면 ISSUE를 제출하여 피드백해 주십시오.
 
-3. **macOS 설치 안내**:
+3. **macOS 설치 시 주의사항**:
    - 사용 중인 플랫폼(Intel / Apple Silicon)에 맞는 파일을 다운로드한 후 `Bettbox-macos-xx.dmg` 파일을 더블 클릭하여 엽니다.
    - Bettbox 아이콘을 `Applications`(응용 프로그램) 폴더로 드래그 앤 드롭하여 설치를 완료합니다.
-   - **첫 실행 시 Gatekeeper 보안 차단 우회 방법** ([현재 Apple 공식 개발자 인증서를 구매하지 않았기 때문](https://support.apple.com/en-us/102445)):
+   - **설치 또는 업데이트 시 Gatekeeper 보안 차단 우회 방법** ([현재 Apple 공식 개발자 인증서를 구매하지 않았기 때문](https://support.apple.com/en-us/102445)):
      - **추천**: 응용 프로그램 폴더로 이동한 후 **Bettbox 아이콘을 마우스 오른쪽 버튼으로 클릭**하고 **"열기"**를 선택한 다음, 확인 창에서 다시 **"열기"**를 클릭합니다.
      - **대안**: 더블 클릭으로 실행할 수 없는 경우, Mac 시스템 설정 -> "개인정보 보호 및 보안"으로 이동하여 Bettbox를 찾고 **"확인 없이 열기"**를 클릭합니다.
-   - 처음 TUN 모드를 활성화할 때 시스템 암호 입력을 요구하는 창이 뜹니다. Mac의 사용자 암호를 입력하여 Bettbox의 네트워크 구성을 허용해 주십시오.
-   - **"손상되었기 때문에 열 수 없습니다. 휴지통으로 이동해야 합니다"라고 표시되는 경우**:
-     - 이는 서명되지 않은 소프트웨어에 대한 macOS Gatekeeper의 오동작입니다. 터미널(Terminal)을 열고 다음 명령어를 실행하여 격리 속성을 제거해 주십시오:
-       ```bash
-       xattr -d com.apple.quarantine /Applications/Bettbox.app
-       ```
+   - 처음 TUN 모드를 활성화할 때 시스템 암호 입력을 요구하는 창이 뜹니다. 현재 로그인된 사용자의 암호를 입력하여 Bettbox의 네트워크 구성을 허용해 주십시오.
 
 4. **구독 링크 가져오기 불가**:
    - **반드시 먼저 링크를 재설정하여** 링크가 정상인지 확인한 후 가져오십시오.
-   - 문제가 지속되면 ISSUE를 제출하여 피드백해 주십시오.
-
-5. **계속해서 보완 및 추가 예정...**
+   - 문제가 지속되면 먼저 서비스 제공업체에 문의해 주시고, 앱 문제인 경우 ISSUE를 제출해 주십시오.
 
 ---
 
@@ -120,7 +115,7 @@ Windows 환경을 예로 들면:
 
 **프로젝트가 도움이 되었다면 다음 방법으로 개발을 후원하실 수 있습니다:**
 
-* EVM Compatible:  <code>0xF8B1B39431013359D83F38a4e403087624618E67</code>
+* TRON (TRC-20):   <code>TCkTtZfF2WrciZLaJj3e1aqrh3zdTnCkDa</code>
 * Bitcoin: <code>bc1qu950cl6035qvllmzk6cfw3l30j2lg3cq9n6g6h</code>
 ---
 
@@ -137,11 +132,11 @@ Windows 환경을 예로 들면:
   </tr>
 </table>
 
-**[FlClash GUI](https://github.com/chen08209/FlClash)** Clearance **[Mihomo Core](https://github.com/MetaCubeX/mihomo)**
+**[FlClash GUI](https://github.com/chen08209/FlClash)** 〢 **[Mihomo Core](https://github.com/MetaCubeX/mihomo)**
 
-프로젝트에 기여해 주신 모든 [기여자](https://github.com/appshubcc/Bettbox/graphs/contributors) 및 오픈소스 프로젝트에 감사드립니다:
+프로젝트에 기여해 주신 모든 [기여자](https://github.com/appshubcc/Bettbox/graphs/contributors) 및 사용하거나 참고한 오픈소스 프로젝트에 감사드립니다:
 
-[CMFA](https://github.com/MetaCubeX/ClashMetaForAndroid), [Sparkle](https://github.com/xishang0128/sparkle), [SFA](https://github.com/SagerNet/sing-box-for-android), [HUSI](https://github.com/xchacha20-poly1305/husi), [V2rayN](https://github.com/2dust/v2rayN)
+[Zashboard](https://github.com/Zephyruso/zashboard), [CMFA](https://github.com/MetaCubeX/ClashMetaForAndroid), [Sparkle](https://github.com/xishang0128/sparkle), [SFA](https://github.com/SagerNet/sing-box-for-android), [HUSI](https://github.com/xchacha20-poly1305/husi), [V2rayN](https://github.com/2dust/v2rayN)
 
 ---
 

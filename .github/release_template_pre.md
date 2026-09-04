@@ -17,14 +17,14 @@
 ###   🛩️ 推荐服务
 ### 小众低调专线  〢  [百变小樱](https://www.bbxy01.com/v2/register?code=c09R)
 
-### Bettbox新用户独享68折优惠码：bettbox68
+### 专享68折优惠码：bettbox68
 
-**简评** : ❚ ❚  老牌小众专线，海外团队运营多年，稳定性与口碑优秀，折后约17元/月或127元/年，适合对稳定性和延迟要求较高的用户，后台每次签到可额外领取叠加5-10GB流量
+**简评** : ❚ ❚  老牌小众专线，海外团队运营多年，BGP入口+广港&沪日线路，折后约17元/月或127元/年，解锁流媒体与AI，口碑优秀，适合对稳定性和延迟要求较高的用户，小技巧：后台个人中心签到每日可再额外领取5-10GB流量
 
 --------------------------------
-### 低价直连  〢  [良心云](https://xn--9kqz23b19z.com/#/register?code=VTnrQYAj)  〢  [一分](https://xn--4gqx1hgtfdmt.com/#/register?code=AuCiXprV)  〢  [赔钱](https://xn--mes358aby2apfg.com/register?code=z7TUZLmM&cover=sfw)
+### 低价直连  〢  [良心云](https://xn--9kqz23b19z.com/#/register?code=VTnrQYAj)  〢  [一分](https://xn--4gqx1hgtfdmt.com/#/register?code=AuCiXprV)
 
-**简评** : ❚  AWS或资源渠道机，直连风险相对较低，1000G不限时套餐通常更有性价比，量大管饱，价格低廉，适合要求不高的用户或备用机场流量选择
+**简评** : ❚  大流量或资源机为主，跑路风险相对较低（也许？），1000G不限时套餐通常更有性价比，量大管饱，价格低廉，适合要求不高的用户或备用流量及大流量下载选择
 
 ---
 ### ⬇️ Download / 下载链接

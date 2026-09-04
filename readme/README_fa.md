@@ -9,9 +9,11 @@
 
 **Bettbox یک کلاینت چندسکویی برای دیباگ شبکه و تقسیم ترافیک بر اساس قوانین است که با هسته Mihomo (Clash Meta) بازنویسی شده است.**
 
-با پایبندی به اصل "Better Experience"، Bettbox ضمن حفظ رابط کاربری جذاب نسخه اصلی، جزئیات و منطق برنامه را عمیقاً بهینه‌سازی کرده است. هدف: انیمیشن‌های روان در فرانت‌اند و عملکرد بی‌صدا و کم‌مصرف در پس‌زمینه — یک کلاینت سبک و پایدار برای Mihomo.
+با پایبندی به اصل "Better Experience"، Bettbox ضمن حفظ رابط کاربری جذاب نسخه اصلی، جزئیات و منطق برنامه را عمیقاً بهینه‌سازی کرده است. ویژگی‌های کلیدی و اهداف طراحی: انیمیشن‌های روان در فرانت‌اند و عملکرد بی‌صدا و کم‌مصرف در پس‌زمینه — کلاینتی با تجربه کاربری بهتر که با مصرف منابع اندک، عملکرد پایدار و طولانی‌مدتی را برای Mihomo ارائه می‌دهد.
 
-Bettbox یعنی: Better Experience, Out of the box (تجربه برتر، آماده استفاده).
+چشم‌انداز ما: Connecting AI, Accelerating Innovation - اتصال هوش مصنوعی، شتاب‌بخشی به نوآوری
+
+Bettbox یعنی: Better Experience, Out of the box - تجربه برتر، آماده استفاده.
 
 [![Latest Release](https://img.shields.io/github/v/release/appshubcc/Bettbox?style=for-the-badge&logo=github&color=238636&label=Release)](https://github.com/appshubcc/Bettbox/releases/latest) [![Core](https://img.shields.io/github/v/release/MetaCubeX/mihomo?style=for-the-badge&logo=go&logoColor=white&color=8A2BE2&label=Mihomo)](https://github.com/MetaCubeX/mihomo/releases/latest)
 ---
@@ -75,24 +77,17 @@ Bettbox یعنی: Better Experience, Out of the box (تجربه برتر، آم�
    - سایر خطاها: لطفاً اطلاعات دیباگ را ارسال کرده و **از عدم اجرای پروکسی‌های همزمان مطمئن شوید**.
    - در صورت تداوم مشکل، یک ISSUE ثبت کنید.
 
-3. **راهنمای نصب در macOS**:
+3. **نکات مهم نصب در macOS**:
    - فایل متناسب با پلتفرم خود (Intel / Apple Silicon) را دانلود کرده و `Bettbox-macos-xx.dmg` را باز کنید.
    - آیکون Bettbox را به پوشه `Applications` منتقل کنید.
-   - **میانبر زدن بلاک امنیتی Gatekeeper برای اولین اجرا** ([به دلیل عدم خرید گواهی رسمی توسعه‌دهنده اپل](https://support.apple.com/en-us/102445)):
+   - **میانبر زدن بلاک امنیتی Gatekeeper در هنگام نصب یا بروزرسانی** ([به دلیل عدم خرید گواهی رسمی توسعه‌دهنده اپل](https://support.apple.com/en-us/102445)):
      - **روش پیشنهادی**: در پوشه Applications، **روی آیکون Bettbox راست‌کلیک کنید**، گزینه **"Open"** را انتخاب کرده و مجدداً روی **"Open"** کلیک کنید.
      - **روش جایگزین**: در صورت مسدود بودن، به System Settings -> Privacy & Security رفته و روی **"Open Anyway"** کلیک کنید.
-   - در اولین فعال‌سازی حالت TUN، رمز عبور سیستم مک خود را وارد کنید.
-   - **خطای "damaged and can't be opened"**:
-     - این یک هشدار اشتباه Gatekeeper است. ترمینال را باز کرده و دستور زیر را اجرا کنید:
-       ```bash
-       xattr -d com.apple.quarantine /Applications/Bettbox.app
-       ```
+   - در اولین فعال‌سازی حالت TUN، رمز عبور کاربر فعال سیستم مک خود را وارد کنید تا اجازه پیکربندی شبکه داده شود.
 
 4. **عدم امکان وارد کردن اشتراک**:
    - **لطفاً ابتدا لینک را ریست کنید** تا از فعال بودن آن مطمئن شوید.
-   - در صورت تداوم مشکل، یک ISSUE ثبت کنید.
-
-5. **به زودی موارد بیشتری اضافه خواهد شد...**
+   - در صورت تداوم مشکل، ابتدا با ارائه‌دهنده سرویس خود تماس بگیرید؛ اگر مشکل از برنامه باشد، یک ISSUE ثبت کنید.
 
 ---
 
@@ -120,7 +115,7 @@ Bettbox یعنی: Better Experience, Out of the box (تجربه برتر، آم�
 
 **در صورت تمایل می‌توانید از توسعه پروژه حمایت کنید:**
 
-* EVM Compatible:  <code>0xF8B1B39431013359D83F38a4e403087624618E67</code>
+* TRON (TRC-20):   <code>TCkTtZfF2WrciZLaJj3e1aqrh3zdTnCkDa</code>
 * Bitcoin: <code>bc1qu950cl6035qvllmzk6cfw3l30j2lg3cq9n6g6h</code>
 ---
 
@@ -139,9 +134,9 @@ Bettbox یعنی: Better Experience, Out of the box (تجربه برتر، آم�
 
 **[FlClash GUI](https://github.com/chen08209/FlClash)** 〢 **[Mihomo Core](https://github.com/MetaCubeX/mihomo)**
 
-تشکر ویژه از تمامی [مشارکت‌کنندگان](https://github.com/appshubcc/Bettbox/graphs/contributors) و پروژه‌های مرتبط:
+تشکر ویژه از تمامی [مشارکت‌کنندگان](https://github.com/appshubcc/Bettbox/graphs/contributors) و پروژه‌های متن‌باز استفاده‌شده یا ارجاع‌داده‌شده:
 
-[CMFA](https://github.com/MetaCubeX/ClashMetaForAndroid), [Sparkle](https://github.com/xishang0128/sparkle), [SFA](https://github.com/SagerNet/sing-box-for-android), [HUSI](https://github.com/xchacha20-poly1305/husi), [V2rayN](https://github.com/2dust/v2rayN)
+[Zashboard](https://github.com/Zephyruso/zashboard), [CMFA](https://github.com/MetaCubeX/ClashMetaForAndroid), [Sparkle](https://github.com/xishang0128/sparkle), [SFA](https://github.com/SagerNet/sing-box-for-android), [HUSI](https://github.com/xchacha20-poly1305/husi), [V2rayN](https://github.com/2dust/v2rayN)
 
 ---
 

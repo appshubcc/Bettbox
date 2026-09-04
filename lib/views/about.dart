@@ -184,8 +184,8 @@ class AboutView extends StatelessWidget {
                         padding: const EdgeInsets.all(12),
                         child: Image.asset(
                           'assets/images/icon.png',
-                          width: 64,
-                          height: 64,
+                          width: 48,
+                          height: 48,
                         ),
                       ),
                       Column(

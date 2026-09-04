@@ -9,9 +9,11 @@
 
 **Bettbox 是一款使用Mihomo(Clash Meta)内核、基于FlClash早期版本进行重构的、多平台网络调试及规则分流客户端**
 
-秉承“Better Experience更优体验”的原则，Bettbox在继承原版优秀界面的基础上，深度优化了诸多细节与实用功能/逻辑。设计目标: 前台流畅丝滑、后台省电无感，致力于成为体验更好、以少量资源消耗即可持续稳定运行的 Mihomo 客户端
+秉承“Better Experience更优体验”的原则，Bettbox在继承原版优秀界面的基础上，深度优化了诸多细节与实用功能/逻辑。核心特性及设计目标: 前台流畅丝滑、后台省电无感，致力于成为体验更好、以少量资源消耗即可长期稳定运行的 Mihomo 客户端
 
-Bettbox意为: Better Experience, Out of the box，更好的体验，亦开箱可用
+我们的愿景: Connecting AI, Accelerating Innovation - 连接AI，为创新加速
+
+Bettbox意为: Better Experience, Out of the box - 更好的体验，亦开箱可用
 
 [![Latest Release](https://img.shields.io/github/v/release/appshubcc/Bettbox?style=for-the-badge&logo=github&color=238636&label=Release)](https://github.com/appshubcc/Bettbox/releases/latest) [![Core](https://img.shields.io/github/v/release/MetaCubeX/mihomo?style=for-the-badge&logo=go&logoColor=white&color=8A2BE2&label=Mihomo)](https://github.com/MetaCubeX/mihomo/releases/latest)
 ---
@@ -47,14 +49,14 @@ Bettbox意为: Better Experience, Out of the box，更好的体验，亦开箱�
 ###   🛩️ 推荐服务
 ### 小众低调专线  〢  [百变小樱](https://www.bbxy01.com/v2/register?code=c09R)
 
-### Bettbox新用户独享68折优惠码：bettbox68
+### 专享68折优惠码：bettbox68
 
-**简评** : ❚ ❚  老牌小众专线，海外团队运营多年，稳定性与口碑优秀，折后约17元/月或127元/年，适合对稳定性和延迟要求较高的用户，后台每次签到可额外领取叠加5-10GB流量
+**简评** : ❚ ❚  老牌小众专线，海外团队运营多年，BGP入口+广港&沪日线路，折后约17元/月或127元/年，解锁流媒体与AI，口碑优秀，适合对稳定性和延迟要求较高的用户，小技巧：后台个人中心签到每日可再额外领取5-10GB流量
 
 --------------------------------
-### 低价直连  〢  [良心云](https://xn--9kqz23b19z.com/#/register?code=VTnrQYAj)  〢  [一分](https://xn--4gqx1hgtfdmt.com/#/register?code=AuCiXprV)  〢  [赔钱](https://xn--mes358aby2apfg.com/register?code=z7TUZLmM&cover=sfw)
+### 低价直连  〢  [良心云](https://xn--9kqz23b19z.com/#/register?code=VTnrQYAj)  〢  [一分](https://xn--4gqx1hgtfdmt.com/#/register?code=AuCiXprV)
 
-**简评** : ❚  AWS或资源渠道机，直连风险相对较低，1000G不限时套餐通常更有性价比，量大管饱，价格低廉，适合要求不高的用户或备用机场流量选择
+**简评** : ❚  大流量或资源机为主，跑路风险相对较低（也许？），1000G不限时套餐通常更有性价比，量大管饱，价格低廉，适合要求不高的用户或备用流量及大流量下载选择
 
 ---
 ## 🛠️ 安装与下载
@@ -67,7 +69,7 @@ Bettbox意为: Better Experience, Out of the box，更好的体验，亦开箱�
 **Linux Kernel 5.4+:** (x64/arm64)
 **macOS 10.15+:** (Intel/Apple Silicon)
 * **Android 8.0+:** Android (ARMv8/ ARMv7/ x86_64/ Universal) 
-* **Android TV:** 已适配，可选 ARMv7 32位
+* **Android TV:** 已完整适配，可选 ARMv7 32位
 * **鸿蒙 NEXT:** 可配合 [[卓易通]](https://harmonyos.cool/android-app) 使用
 
 **其他安装方式:**<br>
@@ -88,24 +90,17 @@ Bettbox意为: Better Experience, Out of the box，更好的体验，亦开箱�
    - 其他报错：请提供Debug信息，并**确保没有冲突的代理软件或服务正在运行**
    - 其他问题如持续存在，请提交ISSUE反馈
 
-3.  **macOS安装教程**：
+3.  **macOS安装注意事项**：
    - 根据所属平台(Intel/Apple Silicon)下载完成后，双击打开 Bettbox-macos-xx.dmg 文件
    - 将 Bettbox 图标拖拽至 Applications（应用程序）文件夹中即可完成安装
-   - **首次运行避开系统安全拦截**（[由于当前暂未购买 Apple 开发者证书](https://support.apple.com/en-us/102445)）：
+   - **安装或更新时避开系统安全拦截**（[由于当前暂未购买 Apple 开发者证书](https://support.apple.com/en-us/102445)）：
      - **推荐**：进入“应用程序”文件夹，**右键 Bettbox 图标**，选择 **“打开”**，在确认弹窗中再次点击 **“打开”** 即可
      - **备选**：如果直接双击被阻止，请前往 Mac 系统“设置” -> “隐私与安全性”，找到 Bettbox 并点击 **“仍要打开”**
-   - 首次开启 TUN 模式时，系统会弹出密码授权窗口，请输入当前用户密码以允许 Bettbox 配置网络
-   - **如果提示“已损坏，打不开，移到废纸篓”**：
-     - 这是 macOS 针对未签名软件的安全机制误报。请打开终端（Terminal），运行以下命令以解除隔离：
-       ```bash
-       xattr -d com.apple.quarantine /Applications/Bettbox.app
-       ```
+   - 首次开启 TUN 模式时，系统会弹出密码授权窗口，请输入当前登录用户的密码以允许 Bettbox 配置网络
 
 4.  **无法导入订阅链接**：
    - **请务必先尝试重置链接**，确保链接正常后导入
-   - 其他问题如持续存在，请提交ISSUE反馈
-
-5.  **待持续完善补充..**
+   - 其他问题如持续存在，请先联系服务商解决，如为APP原因，则提交ISSUE反馈
 
 ---
 
@@ -133,7 +128,7 @@ Bettbox意为: Better Experience, Out of the box，更好的体验，亦开箱�
 
 **如果您觉得这个项目对您有所帮助，可通过以下方式赞助开发或使用推荐链接：**
 
-* EVM Compatible：  <code>0xF8B1B39431013359D83F38a4e403087624618E67</code>
+* TRON (TRC-20)：   <code>TCkTtZfF2WrciZLaJj3e1aqrh3zdTnCkDa</code>
 * Bitcoin： <code>bc1qu950cl6035qvllmzk6cfw3l30j2lg3cq9n6g6h</code>
 ---
 
@@ -152,9 +147,9 @@ Bettbox意为: Better Experience, Out of the box，更好的体验，亦开箱�
 
 **[FlClash GUI](https://github.com/chen08209/FlClash)** 〢 **[Mihomo Core](https://github.com/MetaCubeX/mihomo)**
 
-其他为本项目添砖加瓦的 [Contributors](https://github.com/appshubcc/Bettbox/graphs/contributors) 以及相关开源项目参考
+其他为本项目添砖加瓦的 [Contributors](https://github.com/appshubcc/Bettbox/graphs/contributors) 以及相关开源项目使用或参考
 
-[CMFA](https://github.com/MetaCubeX/ClashMetaForAndroid), [Sparkle](https://github.com/xishang0128/sparkle), [SFA](https://github.com/SagerNet/sing-box-for-android), [HUSI](https://github.com/xchacha20-poly1305/husi), [V2rayN](https://github.com/2dust/v2rayN)
+[Zashboard](https://github.com/Zephyruso/zashboard), [CMFA](https://github.com/MetaCubeX/ClashMetaForAndroid), [Sparkle](https://github.com/xishang0128/sparkle), [SFA](https://github.com/SagerNet/sing-box-for-android), [HUSI](https://github.com/xchacha20-poly1305/husi), [V2rayN](https://github.com/2dust/v2rayN)
 
 ---
 

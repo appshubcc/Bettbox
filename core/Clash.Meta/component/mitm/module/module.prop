@@ -1,0 +1,6 @@
+id=bettbox_mitm_ca
+name=Bettbox MITM CA
+version=1.0.0
+versionCode=1
+author=Bettbox
+description=Mounts the Bettbox MITM CA into the system trust store

@@ -7,6 +7,7 @@ import 'package:bett_box/views/config/dns.dart';
 import 'package:bett_box/views/config/general.dart';
 import 'package:bett_box/views/config/network.dart';
 import 'package:bett_box/views/config/ntp.dart';
+import 'package:bett_box/views/config/mitm.dart';
 import 'package:bett_box/views/config/sniffer.dart';
 import 'package:bett_box/views/config/tunnel.dart';
 import 'package:bett_box/views/config/experimental.dart';
@@ -215,6 +216,41 @@ class _ConfigViewState extends State<ConfigView> {
             ),
           ],
           builder: (_) => const SnifferListView(),
+          blur: false,
+        ),
+      ),
+      ListItem.next(
+        title: Text(appLocalizations.mitm),
+        subtitle: Text(appLocalizations.mitmDesc),
+        leading: const Icon(Icons.security),
+        delegate: NextDelegate(
+          title: appLocalizations.mitm,
+          actions: [
+            Consumer(
+              builder: (_, ref, _) {
+                return IconButton(
+                  onPressed: () async {
+                    final res = await globalState.showMessage(
+                      title: appLocalizations.reset,
+                      message: TextSpan(text: appLocalizations.resetTip),
+                    );
+                    if (res != true) {
+                      return;
+                    }
+                    ref.read(mitmSettingProvider.notifier).updateState(
+                      (_) => defaultMitm,
+                    );
+                    globalState.appController.applyProfileDebounce(
+                      silence: true,
+                    );
+                  },
+                  tooltip: appLocalizations.reset,
+                  icon: const Icon(Icons.replay),
+                );
+              },
+            ),
+          ],
+          builder: (_) => const MitmListView(),
           blur: false,
         ),
       ),

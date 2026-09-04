@@ -1072,6 +1072,7 @@ class AppController {
   Future handleClear() async {
     await preferences.clearPreferences();
     commonPrint.log('clear preferences');
+    globalState.mitm = defaultMitm;
     globalState.config = Config(
       themeProps: defaultThemeProps,
       networkProps: defaultNetworkProps.copyWith(

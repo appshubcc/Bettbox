@@ -3109,6 +3109,202 @@ class AppLocalizations {
     );
   }
 
+  String get mitm {
+    return Intl.message('MITM', name: 'mitm', desc: '', args: []);
+  }
+
+  String get mitmDesc {
+    return Intl.message(
+      'HTTPS decryption, rewrite, and Android system CA module',
+      name: 'mitmDesc',
+      desc: '',
+      args: [],
+    );
+  }
+
+  String get mitmEnable {
+    return Intl.message(
+      'Enable MITM',
+      name: 'mitmEnable',
+      desc: '',
+      args: [],
+    );
+  }
+
+  String get mitmEnableDesc {
+    return Intl.message(
+      'Decrypt HTTPS for listed hosts on this device',
+      name: 'mitmEnableDesc',
+      desc: '',
+      args: [],
+    );
+  }
+
+  String get mitmWarningTitle {
+    return Intl.message(
+      'Enable MITM',
+      name: 'mitmWarningTitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  String get mitmWarningDesc {
+    return Intl.message(
+      'MITM decrypts HTTPS for hosts you list, on this device only. Apps that pin certificates will fail. Android apps need the CA in the system store (KernelSU/Magisk module). QUIC/HTTP3 is blocked for those hosts. Do not use this to intercept other people\'s traffic.',
+      name: 'mitmWarningDesc',
+      desc: '',
+      args: [],
+    );
+  }
+
+  String get mitmHosts {
+    return Intl.message('MITM hosts', name: 'mitmHosts', desc: '', args: []);
+  }
+
+  String get mitmRewrite {
+    return Intl.message(
+      'Rewrite rules',
+      name: 'mitmRewrite',
+      desc: '',
+      args: [],
+    );
+  }
+
+  String get mitmQuicBlock {
+    return Intl.message('Block QUIC', name: 'mitmQuicBlock', desc: '', args: []);
+  }
+
+  String get mitmQuicBlockDesc {
+    return Intl.message(
+      'Reject UDP 443/8443 for MITM hosts so apps cannot skip decryption via HTTP/3',
+      name: 'mitmQuicBlockDesc',
+      desc: '',
+      args: [],
+    );
+  }
+
+  String get mitmSkipCertVerify {
+    return Intl.message(
+      'Skip origin certificate verify',
+      name: 'mitmSkipCertVerify',
+      desc: '',
+      args: [],
+    );
+  }
+
+  String get mitmCertificate {
+    return Intl.message('MITM CA', name: 'mitmCertificate', desc: '', args: []);
+  }
+
+  String get mitmExportPem {
+    return Intl.message(
+      'Export CA PEM',
+      name: 'mitmExportPem',
+      desc: '',
+      args: [],
+    );
+  }
+
+  String get mitmExportModule {
+    return Intl.message(
+      'Export KernelSU module',
+      name: 'mitmExportModule',
+      desc: '',
+      args: [],
+    );
+  }
+
+  String get mitmRegenerateCA {
+    return Intl.message(
+      'Regenerate CA',
+      name: 'mitmRegenerateCA',
+      desc: '',
+      args: [],
+    );
+  }
+
+  String get mitmRegenerateCATip {
+    return Intl.message(
+      'This replaces the CA. Re-export and reinstall the module, then reboot.',
+      name: 'mitmRegenerateCATip',
+      desc: '',
+      args: [],
+    );
+  }
+
+  String get mitmImport {
+    return Intl.message(
+      'Import Surge override',
+      name: 'mitmImport',
+      desc: '',
+      args: [],
+    );
+  }
+
+  String get mitmImportScriptIgnored {
+    return Intl.message(
+      'Script rewrite is not in this version. Hosts and rewrite rules were imported.',
+      name: 'mitmImportScriptIgnored',
+      desc: '',
+      args: [],
+    );
+  }
+
+  String get mitmImportEmpty {
+    return Intl.message(
+      'No MITM hosts or rewrite rules found',
+      name: 'mitmImportEmpty',
+      desc: '',
+      args: [],
+    );
+  }
+
+  String get mitmModuleHint {
+    return Intl.message(
+      'Install the ZIP in KernelSU, Magisk, or APatch, then reboot. This is a regular module, not a metamodule.',
+      name: 'mitmModuleHint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  String get mitmPinningHint {
+    return Intl.message(
+      'Certificate pinning is not bypassed. Use -host to exclude a name.',
+      name: 'mitmPinningHint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  String get mitmFingerprint {
+    return Intl.message(
+      'Fingerprint',
+      name: 'mitmFingerprint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  String get mitmNotGenerated {
+    return Intl.message(
+      'CA is not generated yet',
+      name: 'mitmNotGenerated',
+      desc: '',
+      args: [],
+    );
+  }
+
+  String get mitmCaNotReady {
+    return Intl.message(
+      'Generate the CA first',
+      name: 'mitmCaNotReady',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Override Sniffer`
   String get overrideSniffer {
     return Intl.message(

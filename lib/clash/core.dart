@@ -347,6 +347,18 @@ class ClashCore {
     return clashInterface.generateAgeKeyPair();
   }
 
+  Future<Map<String, String>> getMitmCA() {
+    return clashInterface.getMitmCA();
+  }
+
+  Future<Map<String, String>> regenerateMitmCA() {
+    return clashInterface.regenerateMitmCA();
+  }
+
+  Future<Map<String, String>> exportMitmModule() {
+    return clashInterface.exportMitmModule();
+  }
+
   Future<Result<String>> convertAgeSecretKeyToPublicKey(String secretKey) {
     return clashInterface.convertAgeSecretKeyToPublicKey(secretKey);
   }

@@ -55,6 +55,11 @@ class _ClashContainerState extends ConsumerState<ClashManager>
         globalState.appController.updateClashConfigDebounce();
       }
     });
+    ref.listenManual(mitmSettingProvider, (prev, next) {
+      if (prev != next) {
+        globalState.appController.applyProfileDebounce(silence: true);
+      }
+    });
 
     ref.listenManual(appSettingProvider.select((state) => state.openLogs), (
       prev,

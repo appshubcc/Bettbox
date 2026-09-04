@@ -481,6 +481,52 @@ class MessageLookup extends MessageLookupByLibrary {
     "minimizeOnExitDesc": MessageLookupByLibrary.simpleMessage("修改系統預設退出事件"),
     "minutes": m6,
     "mixedPort": MessageLookupByLibrary.simpleMessage("混合連接埠"),
+    "mitm": MessageLookupByLibrary.simpleMessage("MITM"),
+    "mitmCaNotReady": MessageLookupByLibrary.simpleMessage("請先產生 CA"),
+    "mitmCertificate": MessageLookupByLibrary.simpleMessage("MITM CA"),
+    "mitmDesc": MessageLookupByLibrary.simpleMessage(
+      "HTTPS 解密、改寫，以及 Android 系統 CA 模組",
+    ),
+    "mitmEnable": MessageLookupByLibrary.simpleMessage("啟用 MITM"),
+    "mitmEnableDesc": MessageLookupByLibrary.simpleMessage(
+      "對本機名單內的主機解密 HTTPS",
+    ),
+    "mitmExportModule": MessageLookupByLibrary.simpleMessage(
+      "匯出 KernelSU 模組",
+    ),
+    "mitmExportPem": MessageLookupByLibrary.simpleMessage("匯出 CA PEM"),
+    "mitmFingerprint": MessageLookupByLibrary.simpleMessage("指紋"),
+    "mitmHosts": MessageLookupByLibrary.simpleMessage("MITM 主機"),
+    "mitmImport": MessageLookupByLibrary.simpleMessage("匯入 Surge 覆寫"),
+    "mitmImportEmpty": MessageLookupByLibrary.simpleMessage(
+      "未找到 MITM 主機或 rewrite 規則",
+    ),
+    "mitmImportScriptIgnored": MessageLookupByLibrary.simpleMessage(
+      "此版本不支援腳本改寫。已匯入主機名單和 rewrite 規則。",
+    ),
+    "mitmModuleHint": MessageLookupByLibrary.simpleMessage(
+      "在 KernelSU、Magisk 或 APatch 中安裝該 ZIP，然後重啟。這是普通模組，不是元模組。",
+    ),
+    "mitmNotGenerated": MessageLookupByLibrary.simpleMessage("尚未產生 CA"),
+    "mitmPinningHint": MessageLookupByLibrary.simpleMessage(
+      "不會繞過憑證固定。用 -主機名 排除。",
+    ),
+    "mitmQuicBlock": MessageLookupByLibrary.simpleMessage("阻斷 QUIC"),
+    "mitmQuicBlockDesc": MessageLookupByLibrary.simpleMessage(
+      "對 MITM 主機拒絕 UDP 443/8443，避免應用走 HTTP/3 繞過解密",
+    ),
+    "mitmRegenerateCA": MessageLookupByLibrary.simpleMessage("重新產生 CA"),
+    "mitmRegenerateCATip": MessageLookupByLibrary.simpleMessage(
+      "這會取代目前 CA。需要重新匯出並安裝模組，然後重啟。",
+    ),
+    "mitmRewrite": MessageLookupByLibrary.simpleMessage("改寫規則"),
+    "mitmSkipCertVerify": MessageLookupByLibrary.simpleMessage(
+      "跳過源站憑證校驗",
+    ),
+    "mitmWarningDesc": MessageLookupByLibrary.simpleMessage(
+      "MITM 只在本機解密你名單中的 HTTPS。使用憑證固定的應用會失敗。Android 應用需要把 CA 裝進系統信任庫（KernelSU/Magisk 模組）。這些主機會阻斷 QUIC/HTTP3。不要用來攔截他人流量。",
+    ),
+    "mitmWarningTitle": MessageLookupByLibrary.simpleMessage("啟用 MITM"),
     "mode": MessageLookupByLibrary.simpleMessage("模式"),
     "monochromeScheme": MessageLookupByLibrary.simpleMessage("單色"),
     "months": m7,

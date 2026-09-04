@@ -258,6 +258,9 @@ enum ActionMethod {
   decryptAgeConfig,
   getMode,
   parseExternalProviderContent,
+  getMitmCA,
+  regenerateMitmCA,
+  exportMitmModule,
 
   ///Android,
   setState,

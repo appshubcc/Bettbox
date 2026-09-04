@@ -16,6 +16,7 @@ import 'package:bett_box/views/config/experimental.dart';
 import 'package:bett_box/views/config/general.dart';
 import 'package:bett_box/views/config/network.dart';
 import 'package:bett_box/views/config/ntp.dart';
+import 'package:bett_box/views/config/mitm.dart';
 import 'package:bett_box/views/config/sniffer.dart';
 import 'package:bett_box/views/config/tunnel.dart';
 import 'package:bett_box/views/connection/connections.dart';
@@ -1248,6 +1249,31 @@ class _ToolViewState extends ConsumerState<ToolsView> {
           appLocalizations.sniffer,
           const SnifferListView(),
         ),
+      ),
+    ]);
+
+    final mitmCategory = '$configCategory/${appLocalizations.mitm}';
+    items.addAll([
+      _SearchItem(
+        title: appLocalizations.mitm,
+        subtitle: appLocalizations.mitmDesc,
+        category: mitmCategory,
+        onTap: (context, _) =>
+            _pushPage(context, appLocalizations.mitm, const MitmListView()),
+      ),
+      _SearchItem(
+        title: appLocalizations.mitmEnable,
+        subtitle: appLocalizations.mitmEnableDesc,
+        category: mitmCategory,
+        onTap: (context, _) =>
+            _pushPage(context, appLocalizations.mitm, const MitmListView()),
+      ),
+      _SearchItem(
+        title: appLocalizations.mitmExportModule,
+        subtitle: appLocalizations.mitmModuleHint,
+        category: mitmCategory,
+        onTap: (context, _) =>
+            _pushPage(context, appLocalizations.mitm, const MitmListView()),
       ),
     ]);
 

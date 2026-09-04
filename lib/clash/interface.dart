@@ -88,6 +88,12 @@ mixin ClashInterface {
   FutureOr<bool> flushDnsCache();
 
   Future<String> getMode();
+
+  Future<Map<String, String>> getMitmCA();
+
+  Future<Map<String, String>> regenerateMitmCA();
+
+  Future<Map<String, String>> exportMitmModule();
 }
 
 mixin AndroidClashInterface {
@@ -440,6 +446,29 @@ abstract class ClashHandlerInterface with ClashInterface {
       method: ActionMethod.generateAgeKeyPair,
     );
     return res.map((key, value) => MapEntry(key.toString(), value.toString()));
+  }
+
+  Future<Map<String, String>> _invokeStringMap(ActionMethod method) async {
+    final res = await invoke<Map>(
+      method: method,
+      defaultValue: <dynamic, dynamic>{},
+    );
+    return res.map((key, value) => MapEntry(key.toString(), value.toString()));
+  }
+
+  @override
+  Future<Map<String, String>> getMitmCA() {
+    return _invokeStringMap(ActionMethod.getMitmCA);
+  }
+
+  @override
+  Future<Map<String, String>> regenerateMitmCA() {
+    return _invokeStringMap(ActionMethod.regenerateMitmCA);
+  }
+
+  @override
+  Future<Map<String, String>> exportMitmModule() {
+    return _invokeStringMap(ActionMethod.exportMitmModule);
   }
 
   @override

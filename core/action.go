@@ -235,6 +235,30 @@ func handleAction(action *Action, result ActionResult) {
 			"public-key": publicKey,
 		})
 		return
+	case getMitmCAMethod:
+		info, err := handleGetMitmCA()
+		if err != nil {
+			result.error(err.Error())
+			return
+		}
+		result.success(info)
+		return
+	case regenerateMitmCAMethod:
+		info, err := handleRegenerateMitmCA()
+		if err != nil {
+			result.error(err.Error())
+			return
+		}
+		result.success(info)
+		return
+	case exportMitmModuleMethod:
+		info, err := handleExportMitmModule()
+		if err != nil {
+			result.error(err.Error())
+			return
+		}
+		result.success(info)
+		return
 	case convertAgeSecretKeyToPublicKeyMethod:
 		secretKey := action.Data.(string)
 		publicKeys, err := age.ToPublicKeys(secretKey)

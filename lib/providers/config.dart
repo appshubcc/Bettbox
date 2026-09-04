@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:bett_box/common/common.dart';
 import 'package:bett_box/models/models.dart';
 import 'package:bett_box/state.dart';
@@ -345,6 +347,27 @@ class ScriptState extends _$ScriptState with AutoDisposeNotifierMixin {
     setScript(updated);
   }
 }
+
+class MitmSetting extends AutoDisposeNotifier<Mitm>
+    with AutoDisposeNotifierMixin {
+  @override
+  Mitm build() {
+    return globalState.mitm;
+  }
+
+  @override
+  onUpdate(value) {
+    globalState.mitm = value;
+    unawaited(preferences.saveMitm(value));
+  }
+
+  void updateState(Mitm Function(Mitm state) builder) {
+    state = builder(state);
+  }
+}
+
+final mitmSettingProvider =
+    AutoDisposeNotifierProvider<MitmSetting, Mitm>(MitmSetting.new);
 
 @riverpod
 class PatchClashConfig extends _$PatchClashConfig

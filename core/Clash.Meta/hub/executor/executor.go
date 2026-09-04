@@ -25,6 +25,7 @@ import (
 	"github.com/metacubex/mihomo/component/profile/cachefile"
 	"github.com/metacubex/mihomo/component/resolver"
 	"github.com/metacubex/mihomo/component/resource"
+	"github.com/metacubex/mihomo/component/mitm"
 	"github.com/metacubex/mihomo/component/sniffer"
 	"github.com/metacubex/mihomo/component/trie"
 	"github.com/metacubex/mihomo/component/updater"
@@ -100,6 +101,7 @@ func ApplyConfig(cfg *config.Config, force bool) {
 	updateProxies(cfg.Proxies, cfg.Providers)
 	updateRules(cfg.Rules, cfg.SubRules, cfg.RuleProviders)
 	updateSniffer(cfg.Sniffer)
+	updateMitm(cfg.Mitm)
 	updateHosts(cfg.Hosts)
 	updateGeneral(cfg.General, true)
 	updateDNS(cfg.DNS, cfg.General.IPv6)
@@ -364,6 +366,15 @@ func updateSniffer(snifferConfig *sniffer.Config) {
 		log.Infoln("Sniffer is loaded and working")
 	} else {
 		log.Infoln("Sniffer is closed")
+	}
+}
+
+func updateMitm(cfg *mitm.Config) {
+	mitm.Update(cfg)
+	if cfg != nil && cfg.Enable {
+		log.Infoln("MITM is loaded and working")
+	} else {
+		log.Infoln("MITM is closed")
 	}
 }
 

@@ -25,6 +25,7 @@ import (
 	"github.com/metacubex/mihomo/component/geodata"
 	"github.com/metacubex/mihomo/component/process"
 	"github.com/metacubex/mihomo/component/resolver"
+	"github.com/metacubex/mihomo/component/mitm"
 	"github.com/metacubex/mihomo/component/sniffer"
 	"github.com/metacubex/mihomo/component/trie"
 	C "github.com/metacubex/mihomo/constant"
@@ -210,6 +211,7 @@ type Config struct {
 	RuleProviders map[string]P.RuleProvider
 	Tunnels       []LC.Tunnel
 	Sniffer       *sniffer.Config
+	Mitm          *mitm.Config
 	TLS           *TLS
 }
 
@@ -387,6 +389,14 @@ type RawSniffingConfig struct {
 	OverrideDest *bool    `yaml:"override-destination" json:"override-destination"`
 }
 
+type RawMitm struct {
+	Enable         bool     `yaml:"enable" json:"enable"`
+	Hosts          []string `yaml:"hosts" json:"hosts"`
+	SkipCertVerify bool     `yaml:"skip-cert-verify" json:"skip-cert-verify"`
+	QuicBlock      bool     `yaml:"quic-block" json:"quic-block"`
+	Rewrite        []string `yaml:"rewrite" json:"rewrite"`
+}
+
 type RawTLS struct {
 	Certificate     string   `yaml:"certificate" json:"certificate"`
 	PrivateKey      string   `yaml:"private-key" json:"private-key"`
@@ -461,6 +471,7 @@ type RawConfig struct {
 	Profile       RawProfile                `yaml:"profile" json:"profile"`
 	GeoXUrl       RawGeoXUrl                `yaml:"geox-url" json:"geox-url"`
 	Sniffer       RawSniffer                `yaml:"sniffer" json:"sniffer"`
+	Mitm          RawMitm                   `yaml:"mitm" json:"mitm"`
 	TLS           RawTLS                    `yaml:"tls" json:"tls"`
 
 	ClashForAndroid RawClashForAndroid `yaml:"clash-for-android" json:"clash-for-android"`
@@ -590,6 +601,12 @@ func DefaultRawConfig() *RawConfig {
 			ForceDnsMapping: true,
 			ParsePureIp:     true,
 			OverrideDest:    true,
+		},
+		Mitm: RawMitm{
+			Enable:    false,
+			Hosts:     []string{},
+			QuicBlock: true,
+			Rewrite:   []string{},
 		},
 		ExternalUIURL: "https://github.com/Zephyruso/zashboard/releases/latest/download/dist-no-fonts.zip",
 		ExternalControllerCors: RawCors{
@@ -739,6 +756,11 @@ func ParseRawConfig(rawCfg *RawConfig) (*Config, error) {
 	}
 
 	config.Sniffer, err = parseSniffer(rawCfg.Sniffer, ruleProviders)
+	if err != nil {
+		return nil, err
+	}
+
+	config.Mitm, err = parseMitm(rawCfg.Mitm)
 	if err != nil {
 		return nil, err
 	}
@@ -1843,6 +1865,25 @@ func parseSniffer(snifferRaw RawSniffer, ruleProviders map[string]P.RuleProvider
 	snifferConfig.SkipDomain = skipDomain
 
 	return snifferConfig, nil
+}
+
+func parseMitm(raw RawMitm) (*mitm.Config, error) {
+	cfg := &mitm.Config{
+		Enable:         raw.Enable,
+		SkipCertVerify: raw.SkipCertVerify,
+		QuicBlock:      raw.QuicBlock,
+		Hosts:          mitm.NewHostMatcher(raw.Hosts),
+		Rewrite:        mitm.ParseRewriteRules(raw.Rewrite),
+	}
+	if !raw.Enable {
+		return cfg, nil
+	}
+	auth, err := mitm.LoadOrCreate()
+	if err != nil {
+		return nil, fmt.Errorf("mitm CA: %w", err)
+	}
+	cfg.Auth = auth
+	return cfg, nil
 }
 
 func parseIPCIDR(addresses []string, cidrSet *cidr.IpCidrSet, adapterName string, ruleProviders map[string]P.RuleProvider) (matchers []C.IpMatcher, err error) {

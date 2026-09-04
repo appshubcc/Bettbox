@@ -133,6 +133,9 @@ const (
 	convertAgeSecretKeyToPublicKeyMethod  Method = "convertAgeSecretKeyToPublicKey"
 	getModeMethod                         Method = "getMode"
 	parseExternalProviderContentMethod    Method = "parseExternalProviderContent"
+	getMitmCAMethod                       Method = "getMitmCA"
+	regenerateMitmCAMethod                Method = "regenerateMitmCA"
+	exportMitmModuleMethod                Method = "exportMitmModule"
 )
 
 type Method string

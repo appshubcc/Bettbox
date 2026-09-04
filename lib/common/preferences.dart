@@ -66,6 +66,26 @@ class Preferences {
         false;
   }
 
+  Future<Mitm> getMitm() async {
+    final preferences = await sharedPreferencesCompleter.future;
+    final raw = preferences?.getString(mitmKey);
+    if (raw == null) return defaultMitm;
+    try {
+      return Mitm.fromJson(
+        Map<String, Object?>.from(json.decode(raw) as Map),
+      );
+    } catch (e, stackTrace) {
+      commonPrint.log('Failed to parse MITM config: $e\n$stackTrace');
+      return defaultMitm;
+    }
+  }
+
+  Future<bool> saveMitm(Mitm mitm) async {
+    final preferences = await sharedPreferencesCompleter.future;
+    return await preferences?.setString(mitmKey, json.encode(mitm.toJson())) ??
+        false;
+  }
+
   Future<void> clearClashConfig() async {
     final preferences = await sharedPreferencesCompleter.future;
     preferences?.remove(clashConfigKey);

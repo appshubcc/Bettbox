@@ -88,6 +88,15 @@ class App {
         false;
   }
 
+  Future<bool> shareFile(String path, [String mime = '*/*']) async {
+    if (!system.isAndroid) return false;
+    return await methodChannel.invokeMethod<bool>('shareFile', {
+          'path': path,
+          'mime': mime,
+        }) ??
+        false;
+  }
+
   Future<Uint8List?> getPackageIcon(
     String packageName, {
     bool forceRefresh = false,

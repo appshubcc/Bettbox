@@ -670,6 +670,56 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "minutes": m6,
     "mixedPort": MessageLookupByLibrary.simpleMessage("Mixed Port"),
+    "mitm": MessageLookupByLibrary.simpleMessage("MITM"),
+    "mitmCaNotReady": MessageLookupByLibrary.simpleMessage(
+      "Generate the CA first",
+    ),
+    "mitmCertificate": MessageLookupByLibrary.simpleMessage("MITM CA"),
+    "mitmDesc": MessageLookupByLibrary.simpleMessage(
+      "HTTPS decryption, rewrite, and Android system CA module",
+    ),
+    "mitmEnable": MessageLookupByLibrary.simpleMessage("Enable MITM"),
+    "mitmEnableDesc": MessageLookupByLibrary.simpleMessage(
+      "Decrypt HTTPS for listed hosts on this device",
+    ),
+    "mitmExportModule": MessageLookupByLibrary.simpleMessage(
+      "Export KernelSU module",
+    ),
+    "mitmExportPem": MessageLookupByLibrary.simpleMessage("Export CA PEM"),
+    "mitmFingerprint": MessageLookupByLibrary.simpleMessage("Fingerprint"),
+    "mitmHosts": MessageLookupByLibrary.simpleMessage("MITM hosts"),
+    "mitmImport": MessageLookupByLibrary.simpleMessage("Import Surge override"),
+    "mitmImportEmpty": MessageLookupByLibrary.simpleMessage(
+      "No MITM hosts or rewrite rules found",
+    ),
+    "mitmImportScriptIgnored": MessageLookupByLibrary.simpleMessage(
+      "Script rewrite is not in this version. Hosts and rewrite rules were imported.",
+    ),
+    "mitmModuleHint": MessageLookupByLibrary.simpleMessage(
+      "Install the ZIP in KernelSU, Magisk, or APatch, then reboot. This is a regular module, not a metamodule.",
+    ),
+    "mitmNotGenerated": MessageLookupByLibrary.simpleMessage(
+      "CA is not generated yet",
+    ),
+    "mitmPinningHint": MessageLookupByLibrary.simpleMessage(
+      "Certificate pinning is not bypassed. Use -host to exclude a name.",
+    ),
+    "mitmQuicBlock": MessageLookupByLibrary.simpleMessage("Block QUIC"),
+    "mitmQuicBlockDesc": MessageLookupByLibrary.simpleMessage(
+      "Reject UDP 443/8443 for MITM hosts so apps cannot skip decryption via HTTP/3",
+    ),
+    "mitmRegenerateCA": MessageLookupByLibrary.simpleMessage("Regenerate CA"),
+    "mitmRegenerateCATip": MessageLookupByLibrary.simpleMessage(
+      "This replaces the CA. Re-export and reinstall the module, then reboot.",
+    ),
+    "mitmRewrite": MessageLookupByLibrary.simpleMessage("Rewrite rules"),
+    "mitmSkipCertVerify": MessageLookupByLibrary.simpleMessage(
+      "Skip origin certificate verify",
+    ),
+    "mitmWarningDesc": MessageLookupByLibrary.simpleMessage(
+      "MITM decrypts HTTPS for hosts you list, on this device only. Apps that pin certificates will fail. Android apps need the CA in the system store (KernelSU/Magisk module). QUIC/HTTP3 is blocked for those hosts. Do not use this to intercept other people\'s traffic.",
+    ),
+    "mitmWarningTitle": MessageLookupByLibrary.simpleMessage("Enable MITM"),
     "mode": MessageLookupByLibrary.simpleMessage("Mode"),
     "monochromeScheme": MessageLookupByLibrary.simpleMessage("Monochrome"),
     "months": m7,

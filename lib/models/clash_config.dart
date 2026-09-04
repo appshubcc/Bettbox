@@ -15,6 +15,7 @@ const defaultTun = Tun();
 const defaultDns = Dns();
 const defaultNtp = Ntp();
 const defaultSniffer = Sniffer();
+const defaultMitm = Mitm();
 const defaultTunnel = <TunnelEntry>[];
 const defaultExperimental = Experimental();
 const defaultGeoXUrl = GeoXUrl();
@@ -196,6 +197,98 @@ abstract class Sniffer with _$Sniffer {
       return const Sniffer();
     }
   }
+}
+
+class Mitm {
+  const Mitm({
+    this.enable = false,
+    this.hosts = const [],
+    this.skipCertVerify = false,
+    this.quicBlock = true,
+    this.rewrite = const [],
+  });
+
+  final bool enable;
+  final List<String> hosts;
+  final bool skipCertVerify;
+  final bool quicBlock;
+  final List<String> rewrite;
+
+  factory Mitm.fromJson(Map<String, Object?>? json) {
+    if (json == null) return const Mitm();
+    try {
+      return Mitm(
+        enable: json['enable'] as bool? ?? false,
+        hosts:
+            (json['hosts'] as List<dynamic>?)
+                ?.map((e) => e.toString())
+                .toList() ??
+            const [],
+        skipCertVerify: json['skip-cert-verify'] as bool? ?? false,
+        quicBlock: json['quic-block'] as bool? ?? true,
+        rewrite:
+            (json['rewrite'] as List<dynamic>?)
+                ?.map((e) => e.toString())
+                .toList() ??
+            const [],
+      );
+    } catch (_) {
+      return const Mitm();
+    }
+  }
+
+  Map<String, dynamic> toJson() => {
+    'enable': enable,
+    'hosts': hosts,
+    'skip-cert-verify': skipCertVerify,
+    'quic-block': quicBlock,
+    'rewrite': rewrite,
+  };
+
+  Mitm copyWith({
+    bool? enable,
+    List<String>? hosts,
+    bool? skipCertVerify,
+    bool? quicBlock,
+    List<String>? rewrite,
+  }) {
+    return Mitm(
+      enable: enable ?? this.enable,
+      hosts: hosts ?? this.hosts,
+      skipCertVerify: skipCertVerify ?? this.skipCertVerify,
+      quicBlock: quicBlock ?? this.quicBlock,
+      rewrite: rewrite ?? this.rewrite,
+    );
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    return other is Mitm &&
+        other.enable == enable &&
+        other.skipCertVerify == skipCertVerify &&
+        other.quicBlock == quicBlock &&
+        _listEq(other.hosts, hosts) &&
+        _listEq(other.rewrite, rewrite);
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    enable,
+    skipCertVerify,
+    quicBlock,
+    Object.hashAll(hosts),
+    Object.hashAll(rewrite),
+  );
+}
+
+bool _listEq(List<String> a, List<String> b) {
+  if (identical(a, b)) return true;
+  if (a.length != b.length) return false;
+  for (var i = 0; i < a.length; i++) {
+    if (a[i] != b[i]) return false;
+  }
+  return true;
 }
 
 List<String> _formJsonPorts(List? ports) {

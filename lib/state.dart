@@ -37,6 +37,7 @@ class GlobalState {
   Timer? timer;
   Timer? groupsUpdateTimer;
   late Config config;
+  Mitm mitm = defaultMitm;
   late AppState appState;
   bool isPre = true;
   String? coreSHA256;
@@ -140,6 +141,7 @@ class GlobalState {
             showStartSwitch: _isAndroidTV ?? false,
           ),
         );
+    mitm = await preferences.getMitm();
     await globalState.migrateOldData(config);
     final locale =
         utils.getLocaleForString(config.appSetting.locale) ??
@@ -799,6 +801,7 @@ class GlobalState {
       final sniffer = realPatchConfig.sniffer;
       rawConfig['sniffer'] = sniffer.toJson();
     }
+    rawConfig['mitm'] = mitm.toJson();
     final guiTunnels = realPatchConfig.tunnels;
     if (guiTunnels.isNotEmpty) {
       final existingTunnels = rawConfig['tunnels'] as List? ?? [];

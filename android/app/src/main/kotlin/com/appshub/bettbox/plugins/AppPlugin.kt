@@ -237,6 +237,11 @@ class AppPlugin : FlutterPlugin, MethodChannel.MethodCallHandler, ActivityAware 
                 openFile(call.argument<String>("path")!!)
                 result.success(true)
             }
+            "shareFile" -> {
+                val path = call.argument<String>("path")
+                val mime = call.argument<String>("mime") ?: "*/*"
+                result.success(shareFile(path, mime))
+            }
             "getSelfLastUpdateTime" -> {
                 result.success(getSelfLastUpdateTime())
             }
@@ -301,6 +306,30 @@ class AppPlugin : FlutterPlugin, MethodChannel.MethodCallHandler, ActivityAware 
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         }
         runCatching { context.startActivity(intent) }
+    }
+
+    private fun shareFile(path: String?, mime: String): Boolean {
+        if (path.isNullOrEmpty()) return false
+        val context = BettboxApplication.getAppContext()
+        val file = File(path)
+        if (!file.exists()) return false
+        val uri = FileProvider.getUriForFile(
+            context,
+            "${context.packageName}.fileProvider",
+            file
+        )
+        val send = Intent(Intent.ACTION_SEND).apply {
+            type = mime
+            putExtra(Intent.EXTRA_STREAM, uri)
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
+        return runCatching {
+            context.startActivity(
+                Intent.createChooser(send, file.name).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            )
+            true
+        }.getOrDefault(false)
     }
 
     private fun updateExcludeFromRecents(value: Boolean?) {

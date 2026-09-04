@@ -21,6 +21,7 @@ import (
 	"github.com/metacubex/mihomo/component/proxydialer"
 	"github.com/metacubex/mihomo/component/resolver"
 	"github.com/metacubex/mihomo/component/slowdown"
+	"github.com/metacubex/mihomo/component/mitm"
 	"github.com/metacubex/mihomo/component/sniffer"
 	C "github.com/metacubex/mihomo/constant"
 	"github.com/metacubex/mihomo/constant/features"
@@ -466,6 +467,11 @@ func handleUDPConn(packet C.PacketAdapter) {
 				return nil, nil, err
 			}
 
+			if mitm.ShouldBlockQUIC(metadata) {
+				log.Infoln("[MITM] block QUIC %s", metadata.Host)
+				return nil, nil, fmt.Errorf("mitm quic-block")
+			}
+
 			_ = preHandleMetadata(metadata) // error was pre-checked
 
 			proxy, rule, err := resolveMetadata(metadata)
@@ -551,6 +557,16 @@ func handleTCPConn(connCtx C.ConnContext) {
 		return
 	}
 
+	proxy, rule, err := resolveMetadata(metadata)
+	if err != nil {
+		log.Warnln("[Metadata] parse failed: %s", err.Error())
+		return
+	}
+
+	if mitm.TryHandle(conn, metadata, proxy, rule) {
+		return
+	}
+
 	peekMutex := sync.Mutex{}
 	if !conn.Peeked() {
 		peekMutex.Lock()
@@ -560,12 +576,6 @@ func handleTCPConn(connCtx C.ConnContext) {
 			_, _ = conn.Peek(1)
 			_ = conn.SetReadDeadline(time.Time{})
 		}()
-	}
-
-	proxy, rule, err := resolveMetadata(metadata)
-	if err != nil {
-		log.Warnln("[Metadata] parse failed: %s", err.Error())
-		return
 	}
 
 	dialMetadata := metadata

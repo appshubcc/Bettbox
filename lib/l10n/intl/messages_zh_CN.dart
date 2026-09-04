@@ -558,6 +558,52 @@ class MessageLookup extends MessageLookupByLibrary {
     "openDashboard": MessageLookupByLibrary.simpleMessage("打开 Zashboard"),
     "openSettings": MessageLookupByLibrary.simpleMessage("打开设置"),
     "operatorOrAsn": MessageLookupByLibrary.simpleMessage("归属 / ASN"),
+    "mitm": MessageLookupByLibrary.simpleMessage("MITM"),
+    "mitmCaNotReady": MessageLookupByLibrary.simpleMessage("请先生成 CA"),
+    "mitmCertificate": MessageLookupByLibrary.simpleMessage("MITM CA"),
+    "mitmDesc": MessageLookupByLibrary.simpleMessage(
+      "HTTPS 解密、改写，以及 Android 系统 CA 模块",
+    ),
+    "mitmEnable": MessageLookupByLibrary.simpleMessage("启用 MITM"),
+    "mitmEnableDesc": MessageLookupByLibrary.simpleMessage(
+      "对本机名单内的主机解密 HTTPS",
+    ),
+    "mitmExportModule": MessageLookupByLibrary.simpleMessage(
+      "导出 KernelSU 模块",
+    ),
+    "mitmExportPem": MessageLookupByLibrary.simpleMessage("导出 CA PEM"),
+    "mitmFingerprint": MessageLookupByLibrary.simpleMessage("指纹"),
+    "mitmHosts": MessageLookupByLibrary.simpleMessage("MITM 主机"),
+    "mitmImport": MessageLookupByLibrary.simpleMessage("导入 Surge 覆写"),
+    "mitmImportEmpty": MessageLookupByLibrary.simpleMessage(
+      "未找到 MITM 主机或 rewrite 规则",
+    ),
+    "mitmImportScriptIgnored": MessageLookupByLibrary.simpleMessage(
+      "此版本不支持脚本改写。已导入主机名单和 rewrite 规则。",
+    ),
+    "mitmModuleHint": MessageLookupByLibrary.simpleMessage(
+      "在 KernelSU、Magisk 或 APatch 中安装该 ZIP，然后重启。这是普通模块，不是元模块。",
+    ),
+    "mitmNotGenerated": MessageLookupByLibrary.simpleMessage("尚未生成 CA"),
+    "mitmPinningHint": MessageLookupByLibrary.simpleMessage(
+      "不会绕过证书固定。用 -主机名 排除。",
+    ),
+    "mitmQuicBlock": MessageLookupByLibrary.simpleMessage("阻断 QUIC"),
+    "mitmQuicBlockDesc": MessageLookupByLibrary.simpleMessage(
+      "对 MITM 主机拒绝 UDP 443/8443，避免应用走 HTTP/3 绕过解密",
+    ),
+    "mitmRegenerateCA": MessageLookupByLibrary.simpleMessage("重新生成 CA"),
+    "mitmRegenerateCATip": MessageLookupByLibrary.simpleMessage(
+      "这会替换当前 CA。需要重新导出并安装模块，然后重启。",
+    ),
+    "mitmRewrite": MessageLookupByLibrary.simpleMessage("改写规则"),
+    "mitmSkipCertVerify": MessageLookupByLibrary.simpleMessage(
+      "跳过源站证书校验",
+    ),
+    "mitmWarningDesc": MessageLookupByLibrary.simpleMessage(
+      "MITM 只在本机解密你名单中的 HTTPS。使用证书固定的应用会失败。Android 应用需要把 CA 装进系统信任库（KernelSU/Magisk 模块）。这些主机会阻断 QUIC/HTTP3。不要用来拦截他人流量。",
+    ),
+    "mitmWarningTitle": MessageLookupByLibrary.simpleMessage("启用 MITM"),
     "options": MessageLookupByLibrary.simpleMessage("选项"),
     "other": MessageLookupByLibrary.simpleMessage("其他"),
     "otherContributors": MessageLookupByLibrary.simpleMessage("其他贡献者(随机排序)"),

@@ -100,11 +100,26 @@ jobs:
 
       - name: Setup Keystore (Android)
         if: matrix.platform == 'android'
+        env:
+          KEYSTORE_B64: ${{ secrets.KEYSTORE }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          STORE_PASSWORD: ${{ secrets.STORE_PASSWORD }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
         run: |
-          echo "${{ secrets.KEYSTORE }}" | base64 --decode > android/app/keystore.jks
-          echo "keyAlias=${{ secrets.KEY_ALIAS }}" >> android/local.properties
-          echo "storePassword=${{ secrets.STORE_PASSWORD }}" >> android/local.properties
-          echo "keyPassword=${{ secrets.KEY_PASSWORD }}" >> android/local.properties
+          if [ -z "$KEYSTORE_B64" ]; then
+            echo "KEYSTORE secret not set; Android release will use debug signing"
+            rm -f android/app/keystore.jks
+            exit 0
+          fi
+          echo "$KEYSTORE_B64" | base64 --decode > android/app/keystore.jks
+          if [ ! -s android/app/keystore.jks ]; then
+            echo "decoded KEYSTORE is empty; Android release will use debug signing"
+            rm -f android/app/keystore.jks
+            exit 0
+          fi
+          echo "keyAlias=${KEY_ALIAS}" >> android/local.properties
+          echo "storePassword=${STORE_PASSWORD}" >> android/local.properties
+          echo "keyPassword=${KEY_PASSWORD}" >> android/local.properties
           
       - name: Setup Java (Android)
         if: matrix.platform == 'android'

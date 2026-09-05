@@ -1,4 +1,3 @@
-import 'package:collection/collection.dart';
 import 'package:bett_box/common/common.dart';
 import 'package:bett_box/enum/enum.dart';
 import 'package:bett_box/models/models.dart';
@@ -185,27 +184,33 @@ extension PackageListSelectorStateExt on PackageListSelectorState {
             ));
 
     final combined = [...filtered, ...manualPackages];
-    return combined
-        .sorted((a, b) {
-          return switch (sort) {
-            AccessSortType.none => utils.sortByChar(
-              utils.getPinyin(a.label),
-              utils.getPinyin(b.label),
-            ),
-            AccessSortType.installTime =>
-              b.firstInstallTime.compareTo(a.firstInstallTime),
-            AccessSortType.updateTime =>
-              b.lastUpdateTime.compareTo(a.lastUpdateTime),
-          };
-        })
-        .sorted((a, b) {
-          final isSelectA = selectedList.contains(a.packageName);
-          final isSelectB = selectedList.contains(b.packageName);
-          if (isSelectA && isSelectB) return 0;
-          if (isSelectA) return -1;
-          if (isSelectB) return 1;
-          return 0;
-        });
+    // 单次排序完成"已勾选优先 + 按所选方式排序"。
+    // Dart 的 List.sort 不稳定，不能先排序再二次排序：
+    // 第二次排序比较器大量返回 0 时会打乱第一次的顺序。
+    int comparePackages(Package a, Package b) {
+      final isSelectA = selectedList.contains(a.packageName);
+      final isSelectB = selectedList.contains(b.packageName);
+      if (isSelectA != isSelectB) {
+        return isSelectA ? -1 : 1;
+      }
+      final bySort = switch (sort) {
+        AccessSortType.none => utils.sortByChar(
+          utils.getPinyin(a.label),
+          utils.getPinyin(b.label),
+        ),
+        AccessSortType.installTime =>
+          b.firstInstallTime.compareTo(a.firstInstallTime),
+        AccessSortType.updateTime =>
+          b.lastUpdateTime.compareTo(a.lastUpdateTime),
+      };
+      if (bySort != 0) {
+        return bySort;
+      }
+      // 兜底：保证结果确定，同更新时间的应用按包名稳定排列
+      return a.packageName.compareTo(b.packageName);
+    }
+
+    return combined..sort(comparePackages);
   }
 }
 

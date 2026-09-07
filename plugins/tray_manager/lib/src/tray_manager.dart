@@ -165,10 +165,11 @@ class TrayManager {
     bool isTemplate = false, // macOS only
     TrayIconPosition iconPosition = TrayIconPosition.left, // macOS only
     int iconSize = 18, // macOS only
+    String? id, // Linux only
   }) async {
     final Map<String, dynamic> arguments = {
       'id': defaultTargetPlatform == TargetPlatform.linux
-          ? 'bettbox'
+          ? (id ?? shortid.generate())
           : shortid.generate(),
       'iconPath': path.joinAll([
         path.dirname(Platform.resolvedExecutable),

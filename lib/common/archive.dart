@@ -25,3 +25,20 @@ extension ArchiveExt on Archive {
     addFile(ArchiveFile(name, data.length, utf8.encode(data)));
   }
 }
+
+Future<void> restoreBackupFiles(
+  Iterable<ArchiveFile> profiles,
+  String homeDirPath,
+) async {
+  final canonicalHome = canonicalize(homeDirPath);
+  for (final profile in profiles) {
+    final normalizedName = profile.name.replaceAll('\\', '/');
+    if (!profile.isFile || normalizedName.endsWith('/')) continue;
+    final targetPath = canonicalize(join(homeDirPath, normalizedName));
+    if (!isWithin(canonicalHome, targetPath)) continue;
+    final file = File(targetPath);
+    await file.create(recursive: true);
+    await file.writeAsBytes(profile.content);
+  }
+}
+

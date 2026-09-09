@@ -7,8 +7,28 @@ import 'app_localizations.dart';
 import 'print.dart';
 
 extension StringExtension on String {
+  bool get isHttpUrl {
+    return RegExp(r'^(http|https)://').hasMatch(this);
+  }
+
+  bool get isFtpUrl {
+    return startsWith('ftp://');
+  }
+
+  bool get isFileUrl {
+    return startsWith('file://');
+  }
+
+  bool get isRemoteUrl {
+    return isHttpUrl || isFtpUrl;
+  }
+
+  bool get isLocalUrl {
+    return isFileUrl;
+  }
+
   bool get isUrl {
-    return RegExp(r'^(http|https|ftp)://').hasMatch(this);
+    return isRemoteUrl || isLocalUrl;
   }
 
   dynamic get splitByMultipleSeparators {

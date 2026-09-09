@@ -63,8 +63,12 @@ class AppController {
   }
 
   void updateClashConfigDebounce() {
-    debouncer.call(FunctionTag.updateClashConfig, () async {
-      await updateClashConfig();
+    // A debounce requested while holding the reentrant core lock must run in
+    // a fresh zone after that lock scope has ended.
+    Zone.root.run(() {
+      debouncer.call(FunctionTag.updateClashConfig, () async {
+        await updateClashConfig();
+      });
     });
   }
 

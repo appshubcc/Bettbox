@@ -877,6 +877,17 @@ class _ToolViewState extends ConsumerState<ToolsView> {
             const NetworkListView(),
           ),
         ),
+      if (system.isLinux)
+        _SearchItem(
+          title: appLocalizations.autoRedirect,
+          subtitle: appLocalizations.autoRedirectDesc,
+          category: networkCategory,
+          onTap: (context, _) => _pushPage(
+            context,
+            appLocalizations.network,
+            const NetworkListView(),
+          ),
+        ),
       _SearchItem(
         title: appLocalizations.icmpForwarding,
         subtitle: appLocalizations.icmpForwardingDesc,

@@ -166,6 +166,12 @@ class MessageLookup extends MessageLookupByLibrary {
     "autoLaunchDesc": MessageLookupByLibrary.simpleMessage(
       "Запуск при старте системы",
     ),
+    "autoRedirect": MessageLookupByLibrary.simpleMessage(
+      "Автоматическое перенаправление",
+    ),
+    "autoRedirectDesc": MessageLookupByLibrary.simpleMessage(
+      "Автоматически настраивать правила брандмауэра для перенаправления TCP-соединений",
+    ),
     "autoRun": MessageLookupByLibrary.simpleMessage("Автоподключение"),
     "autoRunDesc": MessageLookupByLibrary.simpleMessage(
       "Подключаться при запуске приложения",

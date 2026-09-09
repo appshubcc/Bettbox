@@ -491,6 +491,8 @@
   "stackMode": "栈模式",
   "strictRoute": "严格路由",
   "strictRouteDesc": "使用 TUN 严格路由模式",
+  "autoRedirect": "自动重定向",
+  "autoRedirectDesc": "自动配置防火墙规则以重定向 TCP 连接",
   "icmpForwarding": "ICMP转发",
   "icmpForwardingDesc": "开启后将支持 ICMP Ping",
   "dnsHijack": "DNS 劫持",

@@ -491,6 +491,8 @@
   "stackMode": "Режим стека",
   "strictRoute": "Строгая маршрутизация",
   "strictRouteDesc": "Использовать строгий режим маршрутизации TUN",
+  "autoRedirect": "Автоматическое перенаправление",
+  "autoRedirectDesc": "Автоматически настраивать правила брандмауэра для перенаправления TCP-соединений",
   "icmpForwarding": "Пересылка ICMP",
   "icmpForwardingDesc": "Включить поддержку ICMP Ping",
   "dnsHijack": "Перехват DNS",

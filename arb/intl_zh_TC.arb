@@ -491,6 +491,8 @@
   "stackMode": "堆疊模式",
   "strictRoute": "嚴格路由",
   "strictRouteDesc": "使用 TUN 嚴格路由模式",
+  "autoRedirect": "自動重新導向",
+  "autoRedirectDesc": "自動設定防火牆規則以重新導向 TCP 連線",
   "icmpForwarding": "ICMP 轉發",
   "icmpForwardingDesc": "開啟後將支援 ICMP Ping",
   "dnsHijack": "DNS 劫持",

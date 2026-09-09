@@ -122,6 +122,10 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "autoLaunch": MessageLookupByLibrary.simpleMessage("開機啟動"),
     "autoLaunchDesc": MessageLookupByLibrary.simpleMessage("跟隨系統自動啟動"),
+    "autoRedirect": MessageLookupByLibrary.simpleMessage("自動重新導向"),
+    "autoRedirectDesc": MessageLookupByLibrary.simpleMessage(
+      "自動設定防火牆規則以重新導向 TCP 連線",
+    ),
     "autoRun": MessageLookupByLibrary.simpleMessage("自動連線"),
     "autoRunDesc": MessageLookupByLibrary.simpleMessage("應用打開後自動連線"),
     "autoScroll": MessageLookupByLibrary.simpleMessage("自動滾動"),

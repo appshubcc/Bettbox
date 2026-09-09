@@ -130,6 +130,10 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "autoLaunch": MessageLookupByLibrary.simpleMessage("自動起動"),
     "autoLaunchDesc": MessageLookupByLibrary.simpleMessage("OS起動時にアプリを自動開始"),
+    "autoRedirect": MessageLookupByLibrary.simpleMessage("自動リダイレクト"),
+    "autoRedirectDesc": MessageLookupByLibrary.simpleMessage(
+      "TCP接続をリダイレクトするファイアウォールルールを自動設定",
+    ),
     "autoRun": MessageLookupByLibrary.simpleMessage("自動接続"),
     "autoRunDesc": MessageLookupByLibrary.simpleMessage("アプリ起動時に自動でプロキシに接続"),
     "autoScroll": MessageLookupByLibrary.simpleMessage("自動スクロール"),

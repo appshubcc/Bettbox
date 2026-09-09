@@ -163,6 +163,10 @@ class MessageLookup extends MessageLookupByLibrary {
     "autoLaunchDesc": MessageLookupByLibrary.simpleMessage(
       "Launch on system startup",
     ),
+    "autoRedirect": MessageLookupByLibrary.simpleMessage("Auto Redirect"),
+    "autoRedirectDesc": MessageLookupByLibrary.simpleMessage(
+      "Automatically configure firewall rules to redirect TCP connections",
+    ),
     "autoRun": MessageLookupByLibrary.simpleMessage("Auto Run"),
     "autoRunDesc": MessageLookupByLibrary.simpleMessage(
       "Connect on app launch",

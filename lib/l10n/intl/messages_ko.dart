@@ -134,6 +134,10 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "autoLaunch": MessageLookupByLibrary.simpleMessage("자동 시작"),
     "autoLaunchDesc": MessageLookupByLibrary.simpleMessage("시스템 부팅 시 앱 자동 시작"),
+    "autoRedirect": MessageLookupByLibrary.simpleMessage("자동 리디렉션"),
+    "autoRedirectDesc": MessageLookupByLibrary.simpleMessage(
+      "TCP 연결을 리디렉션하도록 방화벽 규칙 자동 구성",
+    ),
     "autoRun": MessageLookupByLibrary.simpleMessage("자동 연결"),
     "autoRunDesc": MessageLookupByLibrary.simpleMessage("앱 실행 시 자동으로 프록시 연결"),
     "autoScroll": MessageLookupByLibrary.simpleMessage("자동 스크롤"),

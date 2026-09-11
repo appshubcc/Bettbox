@@ -2,7 +2,7 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <style name="LaunchTheme" parent="Theme.SplashScreen">
         <item name="windowSplashScreenBackground">#000000</item>
-        <item name="windowSplashScreenAnimatedIcon">@drawable/splash_text_dark</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/splash_icon_dark</item>
         <item name="postSplashScreenTheme">@style/NormalTheme</item>
     </style>
 </resources>

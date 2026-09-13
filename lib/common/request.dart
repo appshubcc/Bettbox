@@ -153,6 +153,7 @@ class Request {
           url: url,
           bytes: bytes,
           responseType: responseType,
+          fileName: fileName,
         );
       } finally {
         if (await tempFile.exists()) {
@@ -187,6 +188,7 @@ class Request {
       url: url,
       bytes: bytes,
       responseType: responseType,
+      fileName: segments.last,
     );
   }
 
@@ -204,19 +206,28 @@ class Request {
     required String url,
     required Uint8List bytes,
     required ResponseType responseType,
+    String? fileName,
   }) {
     final requestOptions = RequestOptions(path: url);
+    final disposition = fileName == null
+        ? null
+        : 'attachment; filename*=UTF-8\'\'${Uri.encodeComponent(fileName)}';
+    final headers = disposition == null
+        ? null
+        : Headers.fromMap({'content-disposition': [disposition]});
     if (responseType == ResponseType.plain) {
       return Response(
         requestOptions: requestOptions,
         data: utf8.decode(bytes, allowMalformed: true),
         statusCode: HttpStatus.ok,
+        headers: headers,
       );
     }
     return Response(
       requestOptions: requestOptions,
       data: bytes,
       statusCode: HttpStatus.ok,
+      headers: headers,
     );
   }
 

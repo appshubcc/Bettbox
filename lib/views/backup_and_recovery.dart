@@ -420,7 +420,7 @@ class _WebDAVFormDialogState extends ConsumerState<WebDAVFormDialog> {
                 helperText: appLocalizations.addressHelp,
               ),
               validator: (String? value) {
-                if (value == null || value.isEmpty || !value.isUrl) {
+                if (value == null || value.isEmpty || !value.isHttpUrl) {
                   return appLocalizations.addressTip;
                 }
                 return null;

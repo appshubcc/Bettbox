@@ -159,7 +159,7 @@ class _GeoDataListItemState extends ConsumerState<GeoDataListItem> {
     );
     if (newUrl != null && newUrl != url && mounted) {
       try {
-        if (!newUrl.isUrl) {
+        if (!newUrl.isHttpUrl) {
           throw 'Invalid url';
         }
         ref.read(patchClashConfigProvider.notifier).updateState((state) {

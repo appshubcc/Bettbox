@@ -70,6 +70,7 @@ dependencies:
     path: plugins/code_forge
   flutter_qjs:
     path: plugins/flutter_qjs
+  ftpconnect: ^2.0.10
 dependency_overrides:
   flutter_rust_bridge: 2.12.0
   # Fix compile failure: https://github.com/leanflutter/hotkey_manager/pull/66

@@ -6,6 +6,7 @@ import 'dart:typed_data';
 import 'package:dio/dio.dart';
 import 'package:dio/io.dart';
 import 'package:intl/intl.dart';
+import 'package:ftpconnect/ftpconnect.dart';
 import 'package:bett_box/common/common.dart';
 import 'package:bett_box/models/models.dart';
 import 'package:bett_box/state.dart';
@@ -90,10 +91,107 @@ class Request {
     return Uint8List.fromList((data as List).cast<int>());
   }
 
+  Future<Response> _getFtpResponseForUrl(
+    String url,
+    ResponseType responseType,
+  ) async {
+    final uri = Uri.parse(url);
+
+    var user = 'anonymous';
+    var pass = '';
+    if (uri.userInfo.isNotEmpty) {
+      final colonIndex = uri.userInfo.indexOf(':');
+      if (colonIndex != -1) {
+        user = Uri.decodeComponent(uri.userInfo.substring(0, colonIndex));
+        pass = Uri.decodeComponent(uri.userInfo.substring(colonIndex + 1));
+      } else {
+        user = Uri.decodeComponent(uri.userInfo);
+      }
+    }
+
+    final ftpConnect = FTPConnect(
+      uri.host,
+      port: uri.hasPort ? uri.port : 21,
+      user: user,
+      pass: pass,
+      timeout: 30,
+    );
+
+    try {
+      final connected = await ftpConnect.connect();
+      if (!connected) {
+        throw Exception('Failed to connect to FTP server: ${uri.host}');
+      }
+
+      final pathSegments = uri.pathSegments
+          .where((segment) => segment.isNotEmpty)
+          .toList();
+      if (pathSegments.isEmpty) {
+        throw Exception('Empty file path in FTP url: $url');
+      }
+      final fileName = pathSegments.last;
+      final dirSegments = pathSegments.take(pathSegments.length - 1);
+
+      for (final dir in dirSegments) {
+        final changed = await ftpConnect.changeDirectory(dir);
+        if (!changed) {
+          throw Exception('Failed to change remote directory: $dir');
+        }
+      }
+
+      final tempFile = File(
+        '${Directory.systemTemp.path}/bettbox_${DateTime.now().microsecondsSinceEpoch}',
+      );
+
+      try {
+        final downloaded = await ftpConnect.downloadFile(fileName, tempFile);
+        if (!downloaded) {
+          throw Exception('Failed to download FTP file: $fileName');
+        }
+        final bytes = await tempFile.readAsBytes();
+        return _buildResponseFromBytes(
+          url: url,
+          bytes: bytes,
+          responseType: responseType,
+        );
+      } finally {
+        if (await tempFile.exists()) {
+          await tempFile.delete();
+        }
+      }
+    } finally {
+      await ftpConnect.disconnect();
+    }
+  }
+
+  Response _buildResponseFromBytes({
+    required String url,
+    required Uint8List bytes,
+    required ResponseType responseType,
+  }) {
+    final requestOptions = RequestOptions(path: url);
+    if (responseType == ResponseType.plain) {
+      return Response(
+        requestOptions: requestOptions,
+        data: utf8.decode(bytes, allowMalformed: true),
+        statusCode: HttpStatus.ok,
+      );
+    }
+    return Response(
+      requestOptions: requestOptions,
+      data: bytes,
+      statusCode: HttpStatus.ok,
+    );
+  }
+
   Future<Response> _getResponseForUrl(
     String url,
     ResponseType responseType,
   ) async {
+    if (url.isFtpUrl) {
+      return _getFtpResponseForUrl(url, responseType);
+    }
+
     String? userInfo;
     String requestUrl = url;
 

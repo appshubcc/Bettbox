@@ -164,6 +164,42 @@ class Request {
     }
   }
 
+  Future<Response> _getFileResponseForUrl(
+    String url,
+    ResponseType responseType,
+  ) async {
+    final uri = Uri.parse(url);
+    final segments =
+        uri.pathSegments.where((segment) => segment.isNotEmpty).toList();
+    if (segments.isEmpty && uri.host.isEmpty) {
+      throw Exception('Empty file path in file url: $url');
+    }
+
+    final filePath = _buildFilePath(uri, segments);
+    final file = File(filePath);
+
+    if (!await file.exists()) {
+      throw Exception('Local file not found: $filePath');
+    }
+
+    final bytes = await file.readAsBytes();
+    return _buildResponseFromBytes(
+      url: url,
+      bytes: bytes,
+      responseType: responseType,
+    );
+  }
+
+  String _buildFilePath(Uri uri, List<String> segments) {
+    if (segments.isNotEmpty && segments.first.contains(':')) {
+      return segments.join('/');
+    }
+    if (uri.host.isNotEmpty) {
+      return '//${uri.host}/${segments.join('/')}';
+    }
+    return '/${segments.join('/')}';
+  }
+
   Response _buildResponseFromBytes({
     required String url,
     required Uint8List bytes,
@@ -190,6 +226,10 @@ class Request {
   ) async {
     if (url.isFtpUrl) {
       return _getFtpResponseForUrl(url, responseType);
+    }
+
+    if (url.isFileUrl) {
+      return _getFileResponseForUrl(url, responseType);
     }
 
     String? userInfo;

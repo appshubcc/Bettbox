@@ -4,7 +4,7 @@
 #
 Pod::Spec.new do |s|
   s.name             = 'code_forge'
-  s.version          = '10.0.0'
+  s.version          = '10.12.0'
   s.summary          = 'A new Flutter FFI plugin project.'
   s.description      = <<-DESC
 A new Flutter FFI plugin project.
@@ -22,7 +22,7 @@ A new Flutter FFI plugin project.
   s.source_files     = 'Classes/**/*'
   s.dependency 'FlutterMacOS'
 
-  s.platform = :osx, '10.15'
+  s.platform = :osx, '10.11'
   s.pod_target_xcconfig = { 'DEFINES_MODULE' => 'YES' }
   s.swift_version = '5.0'
 

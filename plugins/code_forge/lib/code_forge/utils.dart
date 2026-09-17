@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../LSP/lsp.dart';
+
 /// Represents a foldable code region in the editor.
 ///
 /// A fold range defines a region of code that can be collapsed (folded) to hide
@@ -456,5 +458,14 @@ class CustomContextMenu {
     required this.label,
     required this.description,
     required this.onPress,
+  });
+}
+
+/// Use it to display error lints (wavy underlines) in [CodeForge].
+class DiagnosticLine extends LspErrors {
+  DiagnosticLine({
+    required super.severity,
+    required super.range,
+    required super.message,
   });
 }

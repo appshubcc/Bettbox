@@ -353,8 +353,8 @@ class _CodeForgeState extends State<CodeForge> with TickerProviderStateMixin {
   late final FocusNode _focusNode;
   late final AnimationController _caretBlinkController;
   late final AnimationController _lineHighlightController;
-  late final Map<String, TextStyle> _editorTheme;
-  late final Mode? _language;
+  late Map<String, TextStyle> _editorTheme;
+  late Mode? _language;
   late final CodeSelectionStyle _selectionStyle;
   late final GutterStyle _gutterStyle;
   late final SuggestionStyle _suggestionStyle;
@@ -1077,6 +1077,27 @@ class _CodeForgeState extends State<CodeForge> with TickerProviderStateMixin {
     _caretBlinkController
       ..stop()
       ..repeat(reverse: true);
+  }
+
+  @override
+  void didUpdateWidget(covariant CodeForge oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (widget._tabSize != _controller.tabSize) {
+      _controller.tabSize = widget._tabSize;
+    }
+    if (widget.useSpaceAsTab != _controller.useSpaceAsTab) {
+      _controller.useSpaceAsTab = widget.useSpaceAsTab;
+    }
+    if (widget.language != oldWidget.language) {
+      _language = widget.language ?? Mode();
+    }
+    if (widget.editorTheme != oldWidget.editorTheme) {
+      _editorTheme = widget.editorTheme ?? lightfairTheme;
+    }
+    if (widget.readOnly != oldWidget.readOnly) {
+      _readOnly = widget.readOnly;
+    }
   }
 
   @override
@@ -4648,6 +4669,7 @@ class _CodeField extends LeafRenderObjectWidget {
     }
     renderObject
       ..updateDiagnostics(diagnostics)
+      ..updateScreenWidth()
       ..editorTheme = editorTheme
       ..language = language
       ..extraLanguages = extraLanguages
@@ -4749,6 +4771,7 @@ class _CodeFieldRenderer extends RenderBox implements MouseTrackerAnnotation {
   Size? _lastImeEditableSize;
   double _imeComposingCaretDx = 0.0;
   double _imeComposingWidth = 0.0;
+  double _screenWidth = 0.0;
   int? _dragStartOffset;
   Timer? _selectionTimer, _hoverTimer, _showBubbleTimer;
   Offset? _pointerDownPosition;
@@ -5041,6 +5064,8 @@ class _CodeFieldRenderer extends RenderBox implements MouseTrackerAnnotation {
     }
   }
 
+  void updateScreenWidth() => _screenWidth = MediaQuery.sizeOf(context).width;
+
   ui.Paragraph _buildParagraph(String text, {double? width}) {
     final builder = ui.ParagraphBuilder(_paragraphStyle)
       ..pushStyle(_uiTextStyle)
@@ -5124,6 +5149,7 @@ class _CodeFieldRenderer extends RenderBox implements MouseTrackerAnnotation {
         _textStyle?.color ?? _editorTheme['root']?.color ?? Colors.black;
     final lineHeightMultiplier = _textStyle?.height ?? 1.2;
 
+    _screenWidth = MediaQuery.sizeOf(context).width;
     _lineHeight = fontSize * lineHeightMultiplier;
 
     _syntaxHighlighter = _language == null
@@ -12334,9 +12360,19 @@ class _CodeFieldRenderer extends RenderBox implements MouseTrackerAnnotation {
         }
 
         if (_selectionActive) {
+          int extentOffset = textOffset;
+          final contentWidth =
+              size.width - _gutterWidth - (innerPadding?.horizontal ?? 0);
+
+          if (localPosition.dx >= _screenWidth - 5 &&
+              (contentX + _gutterWidth).clamp(0, contentWidth) !=
+                  contentWidth) {
+            extentOffset += 8;
+          }
+
           final newSel = TextSelection(
             baseOffset: _dragStartOffset!,
-            extentOffset: textOffset,
+            extentOffset: extentOffset,
           );
           if (newSel != controller.selection) {
             controller.selection = newSel;

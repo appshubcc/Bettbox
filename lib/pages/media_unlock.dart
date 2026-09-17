@@ -114,35 +114,39 @@ class _MediaUnlockPageState extends ConsumerState<MediaUnlockPage> {
     double size = 20,
   }) {
     final assetPath = _getPlatformSvgPath(platform);
-    final colorfulIcons = ref.watch(
-      appSettingProvider.select((state) => state.mediaUnlockColorfulIcons),
-    );
-    final isBrandColor = status == null ||
-        status == MediaUnlockStatus.unknown ||
-        status == MediaUnlockStatus.testing ||
+    final scale = size / 20.0;
+    final iconSize = platform.iconSize;
+    final iconWidth = iconSize.width * scale;
+    final iconHeight = iconSize.height * scale;
+
+    final isUnlocked = status == null ||
         status == MediaUnlockStatus.unlocked ||
         status == MediaUnlockStatus.limited ||
         status == MediaUnlockStatus.flagged;
+    final isTestingOrUnknown =
+        status == MediaUnlockStatus.unknown || status == MediaUnlockStatus.testing;
 
     final Widget icon;
     if (platform.isMonochrome) {
       icon = SvgPicture.asset(
         assetPath,
-        width: size,
-        height: size,
+        width: iconWidth,
+        height: iconHeight,
         fit: BoxFit.contain,
         colorFilter: ColorFilter.mode(
-          isBrandColor
+          isUnlocked
               ? context.colorScheme.onSurface
-              : status.statusColor(context.colorScheme),
+              : (isTestingOrUnknown
+                  ? context.colorScheme.onSurfaceVariant
+                  : status.statusColor(context.colorScheme)),
           BlendMode.srcIn,
         ),
       );
-    } else if (colorfulIcons) {
+    } else if (isUnlocked) {
       icon = SvgPicture.asset(
         assetPath,
-        width: size,
-        height: size,
+        width: iconWidth,
+        height: iconHeight,
         fit: BoxFit.contain,
       );
     } else {
@@ -150,8 +154,8 @@ class _MediaUnlockPageState extends ConsumerState<MediaUnlockPage> {
         colorFilter: monochromeColorFilter,
         child: SvgPicture.asset(
           assetPath,
-          width: size,
-          height: size,
+          width: iconWidth,
+          height: iconHeight,
           fit: BoxFit.contain,
         ),
       );
@@ -376,9 +380,9 @@ class _MediaUnlockPageState extends ConsumerState<MediaUnlockPage> {
   }
 
   Widget _buildSummaryCard(
+    int unlocked,
     int blocked,
-    int other,
-    int unlocked, {
+    int other, {
     bool isStreaming = false,
   }) {
     return Container(
@@ -395,6 +399,18 @@ class _MediaUnlockPageState extends ConsumerState<MediaUnlockPage> {
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
           _buildSummaryItem(
+            isStreaming
+                ? appLocalizations.mediaUnlocked
+                : appLocalizations.unlocked,
+            '$unlocked',
+            const Color(0xFF4CAF50),
+          ),
+          Container(
+            height: 24,
+            width: 1,
+            color: context.colorScheme.outlineVariant.withValues(alpha: 0.3),
+          ),
+          _buildSummaryItem(
             appLocalizations.notUnlocked,
             '$blocked',
             context.colorScheme.error,
@@ -408,18 +424,6 @@ class _MediaUnlockPageState extends ConsumerState<MediaUnlockPage> {
             appLocalizations.other,
             '$other',
             Colors.orange,
-          ),
-          Container(
-            height: 24,
-            width: 1,
-            color: context.colorScheme.outlineVariant.withValues(alpha: 0.3),
-          ),
-          _buildSummaryItem(
-            isStreaming
-                ? appLocalizations.mediaUnlocked
-                : appLocalizations.unlocked,
-            '$unlocked',
-            const Color(0xFF4CAF50),
           ),
         ],
       ),
@@ -802,15 +806,25 @@ class _MediaUnlockPageState extends ConsumerState<MediaUnlockPage> {
             slivers: [
               SliverToBoxAdapter(
                 child: _buildSummaryCard(
+                  unlockedList.length,
                   blockedList.length,
                   otherList.length,
-                  unlockedList.length,
                   isStreaming: effectiveCategory == MediaCategory.streaming,
                 ),
               ),
               const SliverToBoxAdapter(child: SizedBox(height: 4)),
               SliverToBoxAdapter(child: _buildCategoryTabs(isChinese)),
               const SliverToBoxAdapter(child: SizedBox(height: 8)),
+              ..._buildStatusSectionSlivers(
+                title: _selectedCategory == MediaCategory.streaming
+                    ? appLocalizations.mediaUnlocked
+                    : appLocalizations.unlocked,
+                icon: Icons.check_circle_outline_rounded,
+                color: mediaUnlockGreen,
+                platforms: unlockedList,
+                state: state,
+                showExtraDetails: showExtraDetails,
+              ),
               ..._buildStatusSectionSlivers(
                 title: appLocalizations.notUnlocked,
                 icon: Icons.cancel_outlined,
@@ -824,16 +838,6 @@ class _MediaUnlockPageState extends ConsumerState<MediaUnlockPage> {
                 icon: Icons.help_outline_rounded,
                 color: mediaUnlockOrange,
                 platforms: otherList,
-                state: state,
-                showExtraDetails: showExtraDetails,
-              ),
-              ..._buildStatusSectionSlivers(
-                title: _selectedCategory == MediaCategory.streaming
-                    ? appLocalizations.mediaUnlocked
-                    : appLocalizations.unlocked,
-                icon: Icons.check_circle_outline_rounded,
-                color: mediaUnlockGreen,
-                platforms: unlockedList,
                 state: state,
                 showExtraDetails: showExtraDetails,
               ),

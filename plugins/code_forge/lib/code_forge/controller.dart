@@ -1831,6 +1831,183 @@ class CodeForgeController implements DeltaTextInputClient {
     return '\t' * tabSize;
   }
 
+  /// Reindent the whole document to [newTabSize], mapping the current
+  /// selection through the transformation.
+  void reindentDocument({required int newTabSize}) {
+    final oldTabSize = detectIndentation();
+
+    if (oldTabSize <= 0 || newTabSize <= 0 || oldTabSize == newTabSize) {
+      tabSize = newTabSize;
+      return;
+    }
+
+    final originalText = text;
+    if (originalText.isEmpty) {
+      tabSize = newTabSize;
+      return;
+    }
+
+    final originalSelection = selection;
+    final originalLines = originalText.split("\n");
+    final newLines = <String>[];
+
+    for (final line in originalLines) {
+      final match = RegExp(r"^[ \t]+").firstMatch(line);
+      if (match == null) {
+        newLines.add(line);
+        continue;
+      }
+
+      final leadingWhitespace = match.group(0)!;
+      final content = line.substring(leadingWhitespace.length);
+
+      int visualSpaces = 0;
+      for (int i = 0; i < leadingWhitespace.length; i++) {
+        if (leadingWhitespace[i] == '\t') {
+          visualSpaces += oldTabSize - (visualSpaces % oldTabSize);
+        } else {
+          visualSpaces += 1;
+        }
+      }
+
+      final indentLevels = visualSpaces ~/ oldTabSize;
+      final remainder = visualSpaces % oldTabSize;
+      final newIndentLength = (indentLevels * newTabSize) + remainder;
+
+      newLines.add("${' ' * newIndentLength}$content");
+    }
+
+    final newText = newLines.join("\n");
+    tabSize = newTabSize;
+
+    if (newText == originalText) return;
+
+    final newLineStarts = _lineStarts(newText);
+    final originalLineStarts = _lineStarts(originalText);
+
+    final mappedSelection = TextSelection(
+      baseOffset: _mapOffsetForReindent(
+        originalOffset: originalSelection.baseOffset,
+        originalText: originalText,
+        newText: newText,
+        originalLineStarts: originalLineStarts,
+        newLineStarts: newLineStarts,
+      ),
+      extentOffset: _mapOffsetForReindent(
+        originalOffset: originalSelection.extentOffset,
+        originalText: originalText,
+        newText: newText,
+        originalLineStarts: originalLineStarts,
+        newLineStarts: newLineStarts,
+      ),
+    );
+
+    text = newText;
+    selection = mappedSelection;
+  }
+
+  /// Detect the document's actual indentation width based on line diffs.
+  int detectIndentation() {
+    final lines = text.split("\n");
+    final diffCount = <int, int>{};
+    int previousIndent = 0;
+
+    for (final line in lines) {
+      if (line.trim().isEmpty) continue;
+
+      final match = RegExp(r"^( +)\S").firstMatch(line);
+      final currentIndent = match?.group(1)?.length ?? 0;
+
+      final diff = (currentIndent - previousIndent).abs();
+      if (diff >= 1 && diff <= 32) {
+        diffCount[diff] = (diffCount[diff] ?? 0) + 1;
+      }
+
+      previousIndent = currentIndent;
+    }
+
+    if (diffCount.isEmpty) return tabSize > 0 ? tabSize : 2;
+
+    int bestIndent = tabSize;
+    int maxOccurrences = 0;
+
+    diffCount.forEach((indent, count) {
+      if (count > maxOccurrences) {
+        maxOccurrences = count;
+        bestIndent = indent;
+      }
+    });
+
+    return bestIndent;
+  }
+
+  int _mapOffsetForReindent({
+    required int originalOffset,
+    required String originalText,
+    required String newText,
+    required List<int> originalLineStarts,
+    required List<int> newLineStarts,
+  }) {
+    if (originalOffset <= 0) return 0;
+    if (originalOffset >= originalText.length) return newText.length;
+
+    final lineIndex = _findLineIndex(originalLineStarts, originalOffset);
+    final originalLineStart = originalLineStarts[lineIndex];
+    final originalNextLineStart = lineIndex + 1 < originalLineStarts.length
+        ? originalLineStarts[lineIndex + 1]
+        : originalText.length;
+
+    final originalLineText = originalText.substring(
+      originalLineStart,
+      originalNextLineStart,
+    );
+    final originalWhitespaceLen =
+        RegExp(r"^[ \t]+").firstMatch(originalLineText)?.group(0)?.length ?? 0;
+
+    final newLineStart = lineIndex < newLineStarts.length
+        ? newLineStarts[lineIndex]
+        : newText.length;
+    final newNextLineStart = lineIndex + 1 < newLineStarts.length
+        ? newLineStarts[lineIndex + 1]
+        : newText.length;
+
+    final newLineText = newText.substring(newLineStart, newNextLineStart);
+    final newWhitespaceLen =
+        RegExp(r"^[ \t]+").firstMatch(newLineText)?.group(0)?.length ?? 0;
+
+    final column = originalOffset - originalLineStart;
+
+    int newColumn;
+    if (column <= originalWhitespaceLen) {
+      newColumn = originalWhitespaceLen == 0
+          ? 0
+          : ((column / originalWhitespaceLen) * newWhitespaceLen).round();
+    } else {
+      newColumn = newWhitespaceLen + (column - originalWhitespaceLen);
+    }
+
+    return (newLineStart + newColumn).clamp(0, newText.length);
+  }
+
+  List<int> _lineStarts(String value) {
+    final starts = <int>[0];
+    for (var index = 0; index < value.length; index++) {
+      if (value[index] == "\n") {
+        starts.add(index + 1);
+      }
+    }
+    return starts;
+  }
+
+  int _findLineIndex(List<int> lineStarts, int offset) {
+    var lineIndex = 0;
+    while (lineIndex + 1 < lineStarts.length &&
+        lineStarts[lineIndex + 1] <= offset) {
+      lineIndex++;
+    }
+    return lineIndex;
+  }
+
   /// Whether the line structure has changed (lines added or removed).
   bool lineStructureChanged = false;
 

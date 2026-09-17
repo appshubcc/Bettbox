@@ -5434,10 +5434,10 @@ class AppLocalizations {
     );
   }
 
-  /// `Generate from Age private key`
+  /// `Generate from private key`
   String get generateFromPrivateKey {
     return Intl.message(
-      'Generate from Age private key',
+      'Generate from private key',
       name: 'generateFromPrivateKey',
       desc: '',
       args: [],

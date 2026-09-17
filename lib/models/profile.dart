@@ -27,13 +27,19 @@ abstract class SubscriptionInfo with _$SubscriptionInfo {
   factory SubscriptionInfo.fromJson(Map<String, Object?> json) =>
       _$SubscriptionInfoFromJson(json);
 
+  static int? _parseValue(String? value) {
+    if (value == null) return null;
+    return int.tryParse(value) ?? double.tryParse(value)?.toInt();
+  }
+
   factory SubscriptionInfo.formHString(String? info) {
     if (info == null) return const SubscriptionInfo();
     final list = info.split(';');
     Map<String, int?> map = {};
     for (final i in list) {
       final keyValue = i.trim().split('=');
-      map[keyValue[0]] = int.tryParse(keyValue[1]);
+      if (keyValue.length < 2) continue;
+      map[keyValue[0]] = _parseValue(keyValue[1]);
     }
     return SubscriptionInfo(
       upload: map['upload'] ?? 0,

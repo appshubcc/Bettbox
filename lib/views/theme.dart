@@ -171,8 +171,6 @@ class _PrimaryColorItem extends ConsumerStatefulWidget {
 }
 
 class _PrimaryColorItemState extends ConsumerState<_PrimaryColorItem> {
-  int? _removablePrimaryColor;
-
   int _calcColumns(double maxWidth) {
     return max((maxWidth / 96).ceil(), 3);
   }
@@ -193,10 +191,7 @@ class _PrimaryColorItemState extends ConsumerState<_PrimaryColorItem> {
     });
   }
 
-  Future<void> _handleDel() async {
-    if (_removablePrimaryColor == null) {
-      return;
-    }
+  Future<void> _handleDel(int color) async {
     final res = await globalState.showMessage(
       message: TextSpan(
         text: appLocalizations.deleteTip(appLocalizations.colorSchemes),
@@ -207,9 +202,9 @@ class _PrimaryColorItemState extends ConsumerState<_PrimaryColorItem> {
     }
     ref.read(themeSettingProvider.notifier).updateState((state) {
       final newPrimaryColors = List<int>.from(state.primaryColors)
-        ..remove(_removablePrimaryColor);
+        ..remove(color);
       int? newPrimaryColor = state.primaryColor;
-      if (state.primaryColor == _removablePrimaryColor) {
+      if (state.primaryColor == color) {
         if (newPrimaryColors.contains(defaultPrimaryColor)) {
           newPrimaryColor = defaultPrimaryColor;
         } else {
@@ -220,9 +215,6 @@ class _PrimaryColorItemState extends ConsumerState<_PrimaryColorItem> {
         primaryColors: newPrimaryColors,
         primaryColor: newPrimaryColor,
       );
-    });
-    setState(() {
-      _removablePrimaryColor = null;
     });
   }
 
@@ -288,122 +280,74 @@ class _PrimaryColorItemState extends ConsumerState<_PrimaryColorItem> {
     final schemeVariant = vm4.c;
     final isEquals = vm4.d;
 
-    return CommonPopScope(
-      onPop: () {
-        if (_removablePrimaryColor != null) {
-          setState(() {
-            _removablePrimaryColor = null;
-          });
-          return false;
-        }
-        return true;
-      },
-      child: ItemCard(
-        info: Info(label: appLocalizations.themeColor, iconData: Icons.palette),
-        actions: genActions([
-          if (_removablePrimaryColor == null)
-            FilledButton(
-              style: ButtonStyle(visualDensity: VisualDensity.compact),
-              onPressed: _handleChangeSchemeVariant,
-              child: Text(Intl.message('${schemeVariant.name}Scheme')),
-            ),
-          if (_removablePrimaryColor != null)
-            FilledButton(
-              style: ButtonStyle(visualDensity: VisualDensity.compact),
-              onPressed: () {
-                setState(() {
-                  _removablePrimaryColor = null;
-                });
-              },
-              child: Text(appLocalizations.cancel),
-            ),
-          if (_removablePrimaryColor == null && !isEquals)
-            IconButton.filledTonal(
-              iconSize: 20,
-              padding: EdgeInsets.all(4),
-              visualDensity: VisualDensity.compact,
-              onPressed: _handleReset,
-              icon: Icon(Icons.replay),
-            ),
-        ], space: 8),
-        child: Container(
-          margin: const EdgeInsets.symmetric(horizontal: 16),
-          child: LayoutBuilder(
-            builder: (_, constraints) {
-              final columns = _calcColumns(constraints.maxWidth);
-              final itemWidth =
-                  (constraints.maxWidth - (columns - 1) * 16) / columns;
-              return Wrap(
-                spacing: 16,
-                runSpacing: 16,
-                children: [
-                  for (final color in primaryColors)
-                    Container(
-                      clipBehavior: Clip.none,
-                      width: itemWidth,
-                      height: itemWidth,
-                      child: Stack(
-                        alignment: Alignment.center,
-                        clipBehavior: Clip.none,
-                        children: [
-                          EffectGestureDetector(
-                            child: ColorSchemeBox(
-                              isSelected: color == primaryColor,
-                              primaryColor: color != null ? Color(color) : null,
-                              onPressed: () {
-                                setState(() {
-                                  _removablePrimaryColor = null;
-                                });
-                                ref
-                                    .read(themeSettingProvider.notifier)
-                                    .updateState(
-                                      (state) =>
-                                          state.copyWith(primaryColor: color),
-                                    );
-                              },
-                            ),
-                            onLongPress: () {
-                              setState(() {
-                                _removablePrimaryColor = color;
-                              });
-                            },
-                          ),
-                          if (_removablePrimaryColor != null &&
-                              _removablePrimaryColor == color)
-                            Container(
-                              color: Colors.white.opacity0,
-                              padding: EdgeInsets.all(8),
-                              child: IconButton.filledTonal(
-                                onPressed: _handleDel,
-                                padding: EdgeInsets.all(12),
-                                iconSize: 30,
-                                icon: Icon(
-                                  color: context.colorScheme.primary,
-                                  Icons.delete,
-                                ),
-                              ),
-                            ),
-                        ],
-                      ),
-                    ),
-                  if (_removablePrimaryColor == null)
-                    Container(
-                      width: itemWidth,
-                      height: itemWidth,
-                      padding: EdgeInsets.all(4),
-                      child: IconButton.filledTonal(
-                        onPressed: _handleAdd,
-                        iconSize: 32,
-                        icon: Icon(
-                          color: context.colorScheme.primary,
-                          Icons.add,
-                        ),
-                      ),
-                    ),
-                ],
-              );
-            },
+    return ItemCard(
+      info: Info(label: appLocalizations.themeColor, iconData: Icons.palette),
+      actions: genActions([
+        FilledButton(
+          style: const ButtonStyle(visualDensity: VisualDensity.compact),
+          onPressed: _handleChangeSchemeVariant,
+          child: Text(Intl.message('${schemeVariant.name}Scheme')),
+        ),
+        if (!isEquals)
+          IconButton.filledTonal(
+            iconSize: 20,
+            padding: const EdgeInsets.all(4),
+            visualDensity: VisualDensity.compact,
+            onPressed: _handleReset,
+            icon: const Icon(Icons.replay),
           ),
+      ], space: 8),
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 16),
+        child: LayoutBuilder(
+          builder: (_, constraints) {
+            final columns = _calcColumns(constraints.maxWidth);
+            final itemWidth =
+                (constraints.maxWidth - (columns - 1) * 16) / columns;
+            return Wrap(
+              spacing: 16,
+              runSpacing: 16,
+              children: [
+                for (final color in primaryColors)
+                  SizedBox(
+                    width: itemWidth,
+                    height: itemWidth,
+                    child: EffectGestureDetector(
+                      onLongPress: color != null
+                          ? () {
+                              _handleDel(color);
+                            }
+                          : null,
+                      child: ColorSchemeBox(
+                        isSelected: color == primaryColor,
+                        primaryColor: color != null ? Color(color) : null,
+                        onPressed: () {
+                          ref
+                              .read(themeSettingProvider.notifier)
+                              .updateState(
+                                (state) =>
+                                    state.copyWith(primaryColor: color),
+                              );
+                        },
+                      ),
+                    ),
+                  ),
+                Container(
+                  width: itemWidth,
+                  height: itemWidth,
+                  padding: const EdgeInsets.all(4),
+                  child: IconButton.filledTonal(
+                    onPressed: _handleAdd,
+                    iconSize: 32,
+                    icon: Icon(
+                      color: context.colorScheme.primary,
+                      Icons.add,
+                    ),
+                  ),
+                ),
+              ],
+            );
+          },
         ),
       ),
     );

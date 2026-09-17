@@ -200,6 +200,28 @@ extension MediaPlatformExt on MediaPlatform {
       };
 
   bool get pinColoBadge => this == MediaPlatform.telegram;
+
+  Size get iconSize => switch (this) {
+        MediaPlatform.youtube => const Size(19, 13.5),
+        MediaPlatform.disney ||
+        MediaPlatform.onetrust =>
+          const Size(19, 10.5),
+        MediaPlatform.netflix => const Size(10, 18),
+        MediaPlatform.reddit ||
+        MediaPlatform.spotify ||
+        MediaPlatform.telegram ||
+        MediaPlatform.coinbase ||
+        MediaPlatform.cryptocom ||
+        MediaPlatform.steam =>
+          const Size(15, 15),
+        MediaPlatform.openai ||
+        MediaPlatform.claude ||
+        MediaPlatform.openrouter ||
+        MediaPlatform.perplexity ||
+        MediaPlatform.apple =>
+          const Size(17, 17),
+        _ => const Size(16, 16),
+      };
 }
 
 enum MediaUnlockStatus {

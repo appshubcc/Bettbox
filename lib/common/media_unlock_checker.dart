@@ -101,6 +101,11 @@ class MediaUnlockChecker {
     'TR', 'AF', 'SS', 'YE', 'ZW', 'MM', 'SD', 'SO', 'CF', 'VE',
   };
 
+  static const _geminiUnsupportedRegions = {
+    'CN', 'MO', 'RU', 'BY', 'IR', 'KP', 'SY', 'CU', 'VE', 'MM',
+    'SD', 'AF', 'SS', 'YE', 'ZW',
+  };
+
   Future<MediaUnlockResult> _checkCloudflareTrace(
     MediaPlatform platform,
     String domain, {
@@ -212,11 +217,6 @@ class MediaUnlockChecker {
           desc = parts.isNotEmpty ? parts.join(' ') : country;
         }
       }
-      final latency = await _measureLatency(
-        dio,
-        'https://r.inews.qq.com/',
-        sw.elapsedMilliseconds,
-      );
       return MediaUnlockResult(
         platform: MediaPlatform.qqnews,
         status: (ip != null && ip.isNotEmpty)
@@ -225,7 +225,7 @@ class MediaUnlockChecker {
         region: region ?? 'CN',
         colo: desc,
         ip: ip,
-        latency: latency,
+        latency: sw.elapsedMilliseconds,
       );
     } catch (_) {
       return MediaUnlockResult(
@@ -408,10 +408,10 @@ class MediaUnlockChecker {
     final sw = Stopwatch()..start();
     final dio = _createDio(followRedirects: false);
     try {
-      final res1 = await dio.get<void>(
+      final res1 = await dio.get<ResponseBody>(
         'https://www.netflix.com/title/70143836',
         options: Options(
-          responseType: ResponseType.plain,
+          responseType: ResponseType.stream,
           receiveTimeout: const Duration(seconds: 4),
           sendTimeout: const Duration(seconds: 4),
         ),
@@ -426,10 +426,10 @@ class MediaUnlockChecker {
       } else if (res1.statusCode == 200) {
         status = MediaUnlockStatus.unlocked;
       } else {
-        final res2 = await dio.get<void>(
+        final res2 = await dio.get<ResponseBody>(
           'https://www.netflix.com/title/81280792',
           options: Options(
-            responseType: ResponseType.plain,
+            responseType: ResponseType.stream,
             receiveTimeout: const Duration(seconds: 4),
             sendTimeout: const Duration(seconds: 4),
           ),
@@ -443,12 +443,11 @@ class MediaUnlockChecker {
           status = MediaUnlockStatus.blocked;
         }
       }
-      final latency = await _measureLatency(dio, 'https://www.netflix.com/', sw.elapsedMilliseconds);
       return MediaUnlockResult(
         platform: MediaPlatform.netflix,
         status: status,
         region: region,
-        latency: latency,
+        latency: sw.elapsedMilliseconds,
       );
     } catch (_) {
       return MediaUnlockResult(
@@ -465,10 +464,9 @@ class MediaUnlockChecker {
     final sw = Stopwatch()..start();
     final dio = _createDio(followRedirects: true);
     try {
-      final res = await dio.get<void>(
+      final res = await dio.head<void>(
         'https://www.disneyplus.com/',
         options: Options(
-          responseType: ResponseType.plain,
           receiveTimeout: const Duration(seconds: 4),
           sendTimeout: const Duration(seconds: 4),
         ),
@@ -485,12 +483,11 @@ class MediaUnlockChecker {
       } else {
         status = MediaUnlockStatus.blocked;
       }
-      final latency = await _measureLatency(dio, 'https://www.disneyplus.com/', sw.elapsedMilliseconds);
       return MediaUnlockResult(
         platform: MediaPlatform.disney,
         status: status,
         region: region,
-        latency: latency,
+        latency: sw.elapsedMilliseconds,
       );
     } catch (_) {
       return MediaUnlockResult(
@@ -507,11 +504,44 @@ class MediaUnlockChecker {
     final sw = Stopwatch()..start();
     final dio = _createDio(followRedirects: true);
     try {
-      final res = await dio.get<String>('https://www.youtube.com/premium');
+      final res = await dio.get<ResponseBody>(
+        'https://www.youtube.com/premium',
+        options: Options(
+          responseType: ResponseType.stream,
+          receiveTimeout: const Duration(seconds: 4),
+          sendTimeout: const Duration(seconds: 4),
+        ),
+      );
+      final realUrl = res.realUri.toString();
+      if (realUrl.contains('sorry.google.com')) {
+        return MediaUnlockResult(
+          platform: MediaPlatform.youtube,
+          status: MediaUnlockStatus.blocked,
+          latency: sw.elapsedMilliseconds,
+        );
+      }
+
+      final responseBody = res.data;
+      final chunks = <int>[];
+      if (responseBody != null) {
+        try {
+          await for (final chunk in responseBody.stream) {
+            chunks.addAll(chunk);
+            if (chunks.length >= 150 * 1024) break;
+            final currentStr = utf8.decode(chunks, allowMalformed: true);
+            if (currentStr.contains('"INNERTUBE_CONTEXT_GL"') ||
+                currentStr.contains('Premium is not available') ||
+                currentStr.contains('unavailable in your country')) {
+              break;
+            }
+          }
+        } catch (_) {}
+      }
+
       final MediaUnlockStatus status;
       String? region;
       if (res.statusCode == 200) {
-        final body = res.data ?? '';
+        final body = utf8.decode(chunks, allowMalformed: true);
         final glMatch = RegExp(r'"INNERTUBE_CONTEXT_GL"\s*:\s*"([A-Z]{2})"').firstMatch(body);
         final ccMatch = RegExp(r'"countryCode"\s*:\s*"([A-Z]{2})"').firstMatch(body);
         final reqDomainMatch = RegExp(r'"REQUEST_DOMAIN"\s*:\s*"([a-zA-Z]{2})"').firstMatch(body);
@@ -526,12 +556,11 @@ class MediaUnlockChecker {
       } else {
         status = MediaUnlockStatus.blocked;
       }
-      final latency = await _measureLatency(dio, 'https://www.youtube.com/premium', sw.elapsedMilliseconds);
       return MediaUnlockResult(
         platform: MediaPlatform.youtube,
         status: status,
         region: region,
-        latency: latency,
+        latency: sw.elapsedMilliseconds,
       );
     } catch (_) {
       return MediaUnlockResult(
@@ -549,10 +578,17 @@ class MediaUnlockChecker {
     final sw = Stopwatch()..start();
     final dio = _createDio(followRedirects: true);
     try {
-      final res = await dio.get<String>('https://www.reddit.com/');
+      final res = await dio.head<void>(
+        'https://www.reddit.com/',
+        options: Options(
+          receiveTimeout: const Duration(seconds: 4),
+          sendTimeout: const Duration(seconds: 4),
+        ),
+      );
       final timing = res.headers.value('server-timing') ?? '';
       final popMatch = RegExp(r'p=([A-Z]{3})').firstMatch(timing);
-      final region = popMatch?.group(1);
+      final rawRegion = popMatch?.group(1);
+      final region = rawRegion != null ? utils.normalizeRegion(rawRegion) : null;
       final MediaUnlockStatus status;
 
       if (res.statusCode == 200) {
@@ -565,12 +601,11 @@ class MediaUnlockChecker {
             ? MediaUnlockStatus.unlocked
             : MediaUnlockStatus.blocked;
       }
-      final latency = await _measureLatency(dio, 'https://www.reddit.com/', sw.elapsedMilliseconds);
       return MediaUnlockResult(
         platform: MediaPlatform.reddit,
         status: status,
         region: region,
-        latency: latency,
+        latency: sw.elapsedMilliseconds,
       );
     } catch (_) {
       return MediaUnlockResult(
@@ -587,21 +622,37 @@ class MediaUnlockChecker {
     final sw = Stopwatch()..start();
     final dio = _createDio(followRedirects: true);
     try {
-      final res = await dio.get<String>(
+      final res = await dio.get<ResponseBody>(
         'https://www.spotify.com/signup',
         options: Options(
-          responseType: ResponseType.plain,
+          responseType: ResponseType.stream,
           receiveTimeout: const Duration(seconds: 4),
           sendTimeout: const Duration(seconds: 4),
         ),
       );
       final finalUrl = res.realUri.toString();
-      final body = res.data ?? '';
-      final geoMatch = RegExp(r'geoCountry"?\s*:\s*"([A-Z]{2})"').firstMatch(body);
       final pathMatch = RegExp(r'spotify\.com/([a-z]{2})(?:-[a-z]{2})?/').firstMatch(finalUrl);
-      final rawRegion = geoMatch?.group(1) ?? pathMatch?.group(1)?.toUpperCase();
-      final region = rawRegion != null ? utils.normalizeRegion(rawRegion) : null;
+      String? rawRegion = pathMatch?.group(1)?.toUpperCase();
 
+      if (rawRegion == null) {
+        final responseBody = res.data;
+        final chunks = <int>[];
+        if (responseBody != null) {
+          try {
+            await for (final chunk in responseBody.stream) {
+              chunks.addAll(chunk);
+              if (chunks.length >= 48 * 1024) break;
+              final currentStr = utf8.decode(chunks, allowMalformed: true);
+              if (currentStr.contains('geoCountry')) break;
+            }
+          } catch (_) {}
+        }
+        final body = utf8.decode(chunks, allowMalformed: true);
+        final geoMatch = RegExp(r'geoCountry"?\s*:\s*"([A-Z]{2})"').firstMatch(body);
+        rawRegion = geoMatch?.group(1);
+      }
+
+      final region = rawRegion != null ? utils.normalizeRegion(rawRegion) : null;
       final MediaUnlockStatus status;
       if (finalUrl.contains('why-not-available')) {
         status = MediaUnlockStatus.blocked;
@@ -615,16 +666,11 @@ class MediaUnlockChecker {
             : MediaUnlockStatus.blocked;
       }
 
-      final latency = await _measureLatency(
-        dio,
-        'https://www.spotify.com/',
-        sw.elapsedMilliseconds,
-      );
       return MediaUnlockResult(
         platform: MediaPlatform.spotify,
         status: status,
         region: region,
-        latency: latency,
+        latency: sw.elapsedMilliseconds,
       );
     } catch (_) {
       return MediaUnlockResult(
@@ -636,7 +682,6 @@ class MediaUnlockChecker {
       dio.close(force: true);
     }
   }
-
 
   Future<MediaUnlockResult> checkTikTok() async {
     final sw = Stopwatch()..start();
@@ -675,17 +720,12 @@ class MediaUnlockChecker {
       final rawRegion = viaMatch?.group(1) ?? cinfoMatch?.group(1);
       final region = rawRegion != null ? utils.normalizeRegion(rawRegion) : null;
       final isSuccess = statusCode >= 200 && statusCode < 400;
-      final latency = await _measureLatency(
-        dio,
-        'https://perfops1.byteperf.com/500b-bench.jpg',
-        sw.elapsedMilliseconds,
-      );
       return MediaUnlockResult(
         platform: MediaPlatform.tiktok,
         status:
             isSuccess ? MediaUnlockStatus.unlocked : MediaUnlockStatus.blocked,
         region: region,
-        latency: latency,
+        latency: sw.elapsedMilliseconds,
       );
     } catch (_) {
       return MediaUnlockResult(
@@ -702,8 +742,16 @@ class MediaUnlockChecker {
     final sw = Stopwatch()..start();
     final dio = _createDio(followRedirects: true);
     try {
-      final res = await dio.get<void>('https://github.com/');
+      final res = await dio.head<void>(
+        'https://github.com/',
+        options: Options(
+          receiveTimeout: const Duration(seconds: 4),
+          sendTimeout: const Duration(seconds: 4),
+        ),
+      );
       final edge = res.headers.value('x-github-edge-region') ?? '';
+      final rawEdge = edge.isNotEmpty ? edge.toUpperCase() : null;
+      final region = rawEdge != null ? utils.normalizeRegion(rawEdge) : null;
       final MediaUnlockStatus status;
       if (res.statusCode == 200) {
         status = MediaUnlockStatus.unlocked;
@@ -712,12 +760,11 @@ class MediaUnlockChecker {
       } else {
         status = MediaUnlockStatus.failed;
       }
-      final latency = await _measureLatency(dio, 'https://github.com/', sw.elapsedMilliseconds);
       return MediaUnlockResult(
         platform: MediaPlatform.github,
         status: status,
-        region: edge.isNotEmpty ? edge.toUpperCase() : null,
-        latency: latency,
+        region: region,
+        latency: sw.elapsedMilliseconds,
       );
     } catch (_) {
       return MediaUnlockResult(
@@ -734,23 +781,25 @@ class MediaUnlockChecker {
     final sw = Stopwatch()..start();
     final dio = _createDio(followRedirects: true);
     try {
-      final res = await dio.get<void>('https://www.wikipedia.org/');
+      final res = await dio.get<ResponseBody>(
+        'https://www.wikipedia.org/',
+        options: Options(
+          responseType: ResponseType.stream,
+          receiveTimeout: const Duration(seconds: 4),
+          sendTimeout: const Duration(seconds: 4),
+        ),
+      );
       final cookies = res.headers['set-cookie']?.join('; ') ?? '';
       final geoMatch = RegExp(r'GeoIP=([A-Z]{2}):').firstMatch(cookies);
       final region = geoMatch?.group(1);
       final status = res.statusCode == 200
           ? MediaUnlockStatus.unlocked
           : MediaUnlockStatus.blocked;
-      final latency = await _measureLatency(
-        dio,
-        'https://www.wikipedia.org/',
-        sw.elapsedMilliseconds,
-      );
       return MediaUnlockResult(
         platform: MediaPlatform.wikipedia,
         status: status,
         region: region,
-        latency: latency,
+        latency: sw.elapsedMilliseconds,
       );
     } catch (_) {
       return MediaUnlockResult(
@@ -767,39 +816,44 @@ class MediaUnlockChecker {
     final sw = Stopwatch()..start();
     final dio = _createDio(followRedirects: true);
     try {
-      final res = await dio.get<String>('https://store.steampowered.com/');
-      final body = res.data ?? '';
+      final res = await dio.get<ResponseBody>(
+        'https://store.steampowered.com/',
+        options: Options(
+          responseType: ResponseType.stream,
+          receiveTimeout: const Duration(seconds: 4),
+          sendTimeout: const Duration(seconds: 4),
+        ),
+      );
+      final responseBody = res.data;
+      final chunks = <int>[];
+      if (responseBody != null) {
+        try {
+          await for (final chunk in responseBody.stream) {
+            chunks.addAll(chunk);
+            if (chunks.length >= 64 * 1024) break;
+            final currentStr = utf8.decode(chunks, allowMalformed: true);
+            if (currentStr.contains('country_code') ||
+                currentStr.contains('countrycode') ||
+                currentStr.contains('COUNTRY')) {
+              break;
+            }
+          }
+        } catch (_) {}
+      }
+
+      final body = utf8.decode(chunks, allowMalformed: true);
       final countryMatch = RegExp(
         r'(?:COUNTRY|country_code|countrycode)(?:&quot;|"):\s*(?:&quot;|")([A-Z]{2})',
       ).firstMatch(body);
       String? region = countryMatch?.group(1);
-      if (region == null || region.isEmpty) {
-        try {
-          final resApp = await dio.get<String>(
-            'https://store.steampowered.com/app/761830',
-          );
-          final curMatch = RegExp(
-            r'itemprop="priceCurrency"\s+content="([A-Z]{3})"',
-          ).firstMatch(resApp.data ?? '');
-          final cur = curMatch?.group(1);
-          if (cur != null) {
-            region = utils.normalizeRegion(cur);
-          }
-        } catch (_) {}
-      }
       final status = res.statusCode == 200
           ? MediaUnlockStatus.unlocked
           : MediaUnlockStatus.blocked;
-      final latency = await _measureLatency(
-        dio,
-        'https://store.steampowered.com/',
-        sw.elapsedMilliseconds,
-      );
       return MediaUnlockResult(
         platform: MediaPlatform.steam,
         status: status,
         region: region,
-        latency: latency,
+        latency: sw.elapsedMilliseconds,
       );
     } catch (_) {
       return MediaUnlockResult(
@@ -816,26 +870,50 @@ class MediaUnlockChecker {
     final sw = Stopwatch()..start();
     final dio = _createDio(followRedirects: true);
     try {
-      final res = await dio.get<String>('https://gemini.google.com/');
+      final res = await dio.get<String>(
+        'https://gemini.google.com/',
+        options: Options(
+          receiveTimeout: const Duration(seconds: 4),
+          sendTimeout: const Duration(seconds: 4),
+        ),
+      );
+      final realUrl = res.realUri.toString();
+      if (realUrl.contains('sorry.google.com')) {
+        return MediaUnlockResult(
+          platform: MediaPlatform.gemini,
+          status: MediaUnlockStatus.blocked,
+          latency: sw.elapsedMilliseconds,
+        );
+      }
+
       final body = res.data ?? '';
       final regMatch = RegExp(r',2,1,200,"([A-Z]{3})"').firstMatch(body);
       final altMatch = RegExp(r'\[1,null,null,\d+,\d+,"([A-Z]{3})"').firstMatch(body);
       final rawRegion = regMatch?.group(1) ?? altMatch?.group(1);
       final region = rawRegion != null ? utils.normalizeRegion(rawRegion) : null;
-      final loc = res.realUri.toString();
-      final status = (res.statusCode == 200 && !loc.contains('unavailable'))
-          ? MediaUnlockStatus.unlocked
-          : MediaUnlockStatus.blocked;
-      final latency = await _measureLatency(
-        dio,
-        'https://gemini.google.com/',
-        sw.elapsedMilliseconds,
-      );
+
+      final isUnavailable = realUrl.contains('unavailable') ||
+          body.contains('is not supported in your country') ||
+          body.contains("isn't supported in your country") ||
+          body.contains('not available in your country') ||
+          body.contains('unavailable in your country') ||
+          body.contains('is not currently supported') ||
+          body.contains("isn't currently supported");
+
+      final MediaUnlockStatus status;
+      if (res.statusCode != 200 || isUnavailable) {
+        status = MediaUnlockStatus.blocked;
+      } else if (region != null && _geminiUnsupportedRegions.contains(region)) {
+        status = MediaUnlockStatus.blocked;
+      } else {
+        status = MediaUnlockStatus.unlocked;
+      }
+
       return MediaUnlockResult(
         platform: MediaPlatform.gemini,
         status: status,
         region: region,
-        latency: latency,
+        latency: sw.elapsedMilliseconds,
       );
     } catch (_) {
       return MediaUnlockResult(
@@ -858,16 +936,11 @@ class MediaUnlockChecker {
       final status = (res.statusCode == 200 && region != null)
           ? MediaUnlockStatus.unlocked
           : MediaUnlockStatus.blocked;
-      final latency = await _measureLatency(
-        dio,
-        'https://gspe1-ssl.ls.apple.com/pep/gcc',
-        sw.elapsedMilliseconds,
-      );
       return MediaUnlockResult(
         platform: MediaPlatform.apple,
         status: status,
         region: region,
-        latency: latency,
+        latency: sw.elapsedMilliseconds,
       );
     } catch (_) {
       return MediaUnlockResult(
@@ -894,16 +967,11 @@ class MediaUnlockChecker {
       final status = (res.statusCode == 200 && region != null)
           ? MediaUnlockStatus.unlocked
           : MediaUnlockStatus.blocked;
-      final latency = await _measureLatency(
-        dio,
-        'https://geolocation.onetrust.com/cookieconsentpub/v1/geo/location',
-        sw.elapsedMilliseconds,
-      );
       return MediaUnlockResult(
         platform: MediaPlatform.onetrust,
         status: status,
         region: region,
-        latency: latency,
+        latency: sw.elapsedMilliseconds,
       );
     } catch (_) {
       return MediaUnlockResult(
@@ -920,7 +988,13 @@ class MediaUnlockChecker {
     final sw = Stopwatch()..start();
     final dio = _createDio(followRedirects: true);
     try {
-      final res = await dio.get<String>('https://www.iq.com/');
+      final res = await dio.head<void>(
+        'https://www.iq.com/',
+        options: Options(
+          receiveTimeout: const Duration(seconds: 4),
+          sendTimeout: const Duration(seconds: 4),
+        ),
+      );
       final cookies = res.headers['set-cookie']?.join('; ') ?? '';
       final customIp = res.headers.value('x-custom-client-ip') ?? '';
       final modMatch =
@@ -930,16 +1004,11 @@ class MediaUnlockChecker {
       final status = res.statusCode == 200
           ? MediaUnlockStatus.unlocked
           : MediaUnlockStatus.blocked;
-      final latency = await _measureLatency(
-        dio,
-        'https://www.iq.com/',
-        sw.elapsedMilliseconds,
-      );
       return MediaUnlockResult(
         platform: MediaPlatform.iqiyi,
         status: status,
         region: region,
-        latency: latency,
+        latency: sw.elapsedMilliseconds,
       );
     } catch (_) {
       return MediaUnlockResult(
@@ -1002,16 +1071,11 @@ class MediaUnlockChecker {
         }
       }
 
-      final latency = await _measureLatency(
-        dio,
-        'https://api.bilibili.com/x/web-interface/zone',
-        sw.elapsedMilliseconds,
-      );
       return MediaUnlockResult(
         platform: MediaPlatform.bilibili,
         status: status,
         region: region,
-        latency: latency,
+        latency: sw.elapsedMilliseconds,
       );
     } catch (_) {
       return MediaUnlockResult(

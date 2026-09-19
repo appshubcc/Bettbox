@@ -737,5 +737,8 @@
   "checkFailed": "Timeout",
   "testing": "檢測中",
   "other": "其他",
-  "flagged": "已標記"
+  "flagged": "已標記",
+  "ssd": "原生標題欄",
+  "ssdDesc": "使用桌面環境原生標題欄（重新啟動後生效）",
+  "ssdRestartTip": "重新啟動軟件以套用標題欄變更"
 }

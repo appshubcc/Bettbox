@@ -737,5 +737,8 @@
   "checkFailed": "Timeout",
   "testing": "검사 중",
   "other": "기타",
-  "flagged": "표시됨"
+  "flagged": "표시됨",
+  "ssd": "네이티브 제목 표시줄",
+  "ssdDesc": "데스크톱 환경 기본 제목 표시줄 사용 (재시작 후 적용)",
+  "ssdRestartTip": "제목 표시줄 변경을 적용하려면 앱을 재시작하세요"
 }

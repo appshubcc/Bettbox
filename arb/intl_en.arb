@@ -736,5 +736,8 @@
   "checkFailed": "Timeout",
   "testing": "Testing",
   "other": "Other",
-  "flagged": "Flagged"
+  "flagged": "Flagged",
+  "ssd": "Native Title Bar",
+  "ssdDesc": "Use the desktop environment native title bar (takes effect after restart)",
+  "ssdRestartTip": "Restart the app to apply the title bar change"
 }

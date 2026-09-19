@@ -737,5 +737,8 @@
   "checkFailed": "Timeout",
   "testing": "检测中",
   "other": "其他",
-  "flagged": "已标记"
+  "flagged": "已标记",
+  "ssd": "原生标题栏",
+  "ssdDesc": "使用桌面环境原生标题栏（重启后生效）",
+  "ssdRestartTip": "重启软件以应用标题栏更改"
 }

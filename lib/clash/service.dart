@@ -136,6 +136,9 @@ class ClashService extends ClashHandlerInterface {
     isStarting = true;
     _isDestroying = false;
 
+    if (system.isLinux) {
+      await _shutdownRunningCore();
+    }
     await _destroySocket();
 
     process?.kill();
@@ -238,7 +241,8 @@ class ClashService extends ClashHandlerInterface {
 
   @override
   sendMessage(String message) async {
-    if (_isDestroying || globalState.isExiting) {
+    if ((_isDestroying || globalState.isExiting) &&
+        !_isShutdownMessage(message)) {
       return;
     }
     final socket = await socketCompleter.future;
@@ -281,8 +285,29 @@ class ClashService extends ClashHandlerInterface {
     }
   }
 
+  Future<void> _shutdownRunningCore() async {
+    if (!socketCompleter.isCompleted) return;
+    try {
+      await super.shutdown();
+    } catch (e) {
+      commonPrint.log('Graceful core shutdown failed: $e');
+    }
+  }
+
+  bool _isShutdownMessage(String message) {
+    try {
+      final action = json.decode(message);
+      return action is Map && action['method'] == ActionMethod.shutdown.name;
+    } catch (_) {
+      return false;
+    }
+  }
+
   @override
   shutdown() async {
+    if (system.isLinux) {
+      await _shutdownRunningCore();
+    }
     _isDestroying = true;
     if (system.isWindows) {
       await helperClient.stopCore();

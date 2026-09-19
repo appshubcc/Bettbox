@@ -4049,6 +4049,26 @@ class AppLocalizations {
     );
   }
 
+  /// `Auto Redirect`
+  String get autoRedirect {
+    return Intl.message(
+      'Auto Redirect',
+      name: 'autoRedirect',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Automatically configure firewall rules to redirect TCP connections`
+  String get autoRedirectDesc {
+    return Intl.message(
+      'Automatically configure firewall rules to redirect TCP connections',
+      name: 'autoRedirectDesc',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `ICMP Forwarding`
   String get icmpForwarding {
     return Intl.message(

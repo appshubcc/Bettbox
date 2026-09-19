@@ -491,6 +491,8 @@
   "stackMode": "Stack Mode",
   "strictRoute": "Strict Route",
   "strictRouteDesc": "Use TUN strict routing mode",
+  "autoRedirect": "Auto Redirect",
+  "autoRedirectDesc": "Automatically configure firewall rules to redirect TCP connections",
   "icmpForwarding": "ICMP Forwarding",
   "icmpForwardingDesc": "Enable ICMP Ping",
   "dnsHijack": "DNS Hijack",

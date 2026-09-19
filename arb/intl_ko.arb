@@ -491,6 +491,8 @@
   "stackMode": "스택 모드",
   "strictRoute": "엄격한 라우팅",
   "strictRouteDesc": "TUN 엄격한 라우팅 모드 사용",
+  "autoRedirect": "자동 리디렉션",
+  "autoRedirectDesc": "TCP 연결을 리디렉션하도록 방화벽 규칙 자동 구성",
   "icmpForwarding": "ICMP 포워딩",
   "icmpForwardingDesc": "활성화 시 ICMP Ping 지원",
   "dnsHijack": "DNS 하이재킹",

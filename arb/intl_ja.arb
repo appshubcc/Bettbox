@@ -491,6 +491,8 @@
   "stackMode": "スタックモード",
   "strictRoute": "厳格ルーティング",
   "strictRouteDesc": "TUNの厳格ルーティングモードを使用",
+  "autoRedirect": "自動リダイレクト",
+  "autoRedirectDesc": "TCP接続をリダイレクトするファイアウォールルールを自動設定",
   "icmpForwarding": "ICMP転送",
   "icmpForwardingDesc": "有効化するとICMP Pingをサポート",
   "dnsHijack": "DNSハイジャック",

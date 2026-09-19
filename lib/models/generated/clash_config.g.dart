@@ -190,7 +190,7 @@ _Tun _$TunFromJson(Map<String, dynamic> json) => _Tun(
   disableIcmpForwarding: json['disable-icmp-forwarding'] as bool? ?? true,
   mtu: (json['mtu'] as num?)?.toInt() ?? 9000,
   endpointIndependentNat: json['endpoint-independent-nat'] as bool? ?? false,
-  autoRedirect: json['auto-redirect'] as bool? ?? false,
+  autoRedirect: json['auto-redirect'] as bool? ?? true,
 );
 
 Map<String, dynamic> _$TunToJson(_Tun instance) => <String, dynamic>{

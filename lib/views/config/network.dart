@@ -206,6 +206,32 @@ class StrictRouteItem extends ConsumerWidget {
   }
 }
 
+class AutoRedirectItem extends ConsumerWidget {
+  const AutoRedirectItem({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final autoRedirect = ref.watch(
+      patchClashConfigProvider.select((state) => state.tun.autoRedirect),
+    );
+
+    return ListItem.switchItem(
+      title: Text(appLocalizations.autoRedirect),
+      subtitle: Text(appLocalizations.autoRedirectDesc),
+      delegate: SwitchDelegate(
+        value: autoRedirect,
+        onChanged: (value) async {
+          ref
+              .read(patchClashConfigProvider.notifier)
+              .updateState((state) => state.copyWith.tun(autoRedirect: value));
+
+          await _handleNetworkConfigChange(ref);
+        },
+      ),
+    );
+  }
+}
+
 class IcmpForwardingItem extends ConsumerWidget {
   const IcmpForwardingItem({super.key});
 
@@ -658,6 +684,7 @@ final networkItems = [
       if (system.isDesktop) const TUNItem(),
       if (system.isMacOS) const AutoSetSystemDnsItem(),
       if (!system.isAndroid) const StrictRouteItem(),
+      if (system.isLinux) const AutoRedirectItem(),
       const IcmpForwardingItem(),
       const DnsHijackItem(),
       const EndpointIndependentNatItem(),

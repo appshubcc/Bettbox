@@ -491,6 +491,8 @@
   "stackMode": "حالت پشته",
   "strictRoute": "مسیریابی سخت‌گیرانه",
   "strictRouteDesc": "استفاده از حالت مسیریابی سخت‌گیرانه TUN",
+  "autoRedirect": "تغییر مسیر خودکار",
+  "autoRedirectDesc": "پیکربندی خودکار قوانین دیواره آتش برای تغییر مسیر اتصال‌های TCP",
   "icmpForwarding": "هدایت ICMP",
   "icmpForwardingDesc": "پشتیبانی از پینگ ICMP در صورت فعال بودن",
   "dnsHijack": "ربودن DNS",

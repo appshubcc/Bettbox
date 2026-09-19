@@ -1,3 +1,5 @@
-<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M12 2L4 6v8c0 5.5 3.4 10.7 8 12 4.6-1.3 8-6.5 8-12V6l-8-4zm0 3.5l5 2.5v5.5c0 3.8-2.3 7.4-5 8.5-2.7-1.1-5-4.7-5-8.5V8l5-2.5z" fill="#113366"/>
+<?xml version="1.0" encoding="utf-8"?><!-- Uploaded to: SVG Repo, www.svgrepo.com, Generator: SVG Repo Mixer Tools -->
+<svg width="800px" height="800px" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+   <circle cx="512" cy="512" r="512" style="fill:#002967"/>
+   <path d="M714.2 628.8 512 745.5 309.8 628.8V395.3L512 278.5l202.2 116.8v233.5zM512 256 290.3 384v256L512 768l221.7-128V384L512 256zm86.9 110.5H424.7l-20.2 88.8h215.4l-21-88.8zM455.6 577.6v-59L404 485.8l-58.4 43.4 79.6 138.4H457l37.6-35V615l-39-37.4zm113-108.9H455.8l19 49.6L469 574h43l43.4-.2-5.4-55.4 18.6-49.7zm51.6 16.7-51 33.2v59l-39 37.4v17.6l37.6 34.6h31.4l79.2-138-58.2-43.8z" style="fill:#fff"/>
 </svg>

@@ -81,16 +81,40 @@ class Picker {
     if (xFile == null) {
       return null;
     }
-    final controller = MobileScannerController();
-    final capture = await controller.analyzeImage(
-      xFile.path,
-      formats: [BarcodeFormat.qrCode],
-    );
-    final result = capture?.barcodes.first.rawValue;
+    return decodeProfileUrlFromQrImage(xFile.path);
+  }
+
+  /// 解码二维码图片，并校验它是可用作订阅的 URL。
+  Future<String?> decodeProfileUrlFromQrImage(String path) async {
+    final result = await _decodeQrCodeImage(path);
     if (result == null || !result.isUrl) {
       throw appLocalizations.pleaseUploadValidQrcode;
     }
     return result;
+  }
+
+  /// mobile_scanner 只实现了 Android / iOS / macOS / Web，Windows 与 Linux 上
+  /// 调用原生识别会抛 `MissingPluginException`；原生识别失败或没找到二维码时，
+  /// 再退回纯 Dart 解码。
+  Future<String?> _decodeQrCodeImage(String path) async {
+    if (Platform.isAndroid || Platform.isIOS || Platform.isMacOS) {
+      try {
+        final capture = await MobileScannerController().analyzeImage(
+          path,
+          formats: const [BarcodeFormat.qrCode],
+        );
+        final barcodes = capture?.barcodes;
+        final result = barcodes == null || barcodes.isEmpty
+            ? null
+            : barcodes.first.rawValue;
+        if (result != null && result.isNotEmpty) {
+          return result;
+        }
+      } catch (e) {
+        commonPrint.log('Native qr decode failed: $e');
+      }
+    }
+    return qrReader.decodeFile(path);
   }
 }
 

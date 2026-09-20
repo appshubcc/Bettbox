@@ -1,4 +1,13 @@
-<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-<circle cx="12" cy="12" r="10" fill="#4A90E2"/>
-<path d="M7 8h10M7 12h7M7 16h10" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round"/>
-</svg>
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg"><g transform="translate(0 73.142857) scale(1.828571)">
+  <g class="layer">
+    <title>Layer 1</title>
+    <rect fill="#E01A2B" height="80" width="80" x="200" y="200"/>
+    <rect fill="#E01A2B" height="80" width="120" x="80" y="400"/>
+    <rect fill="#E01A2B" height="480" width="80" x="0" y="0"/>
+    <rect fill="#E01A2B" height="80" width="120" x="80" y="0"/>
+    <rect fill="#E01A2B" height="480" width="80" x="320" y="0"/>
+    <rect fill="#E01A2B" height="480" width="80" x="480" y="0"/>
+    <rect fill="#E01A2B" height="80" width="80" x="400" y="200"/>
+    <rect fill="#E01A2B" height="80" width="80" x="80" y="200"/>
+  </g>
+</g></svg>

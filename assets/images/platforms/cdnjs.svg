@@ -1,4 +1,19 @@
-<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-<circle cx="12" cy="12" r="10" fill="#D9643A"/>
-<path d="M8 12a4 4 0 108 0 4 4 0 00-8 0zm-2 0a6 6 0 1112 0 6 6 0 01-12 0z" fill="#FFFFFF"/>
-</svg>
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg"><g transform="translate(0 142.262341) scale(0.722144)">
+  <polyline
+    points="520,60 60,512 520,964"
+    fill="none"
+    stroke="#FF6934"
+    stroke-width="120"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+
+  <polyline
+    points="898,60 1358,512 898,964"
+    fill="none"
+    stroke="#A6A6A6"
+    stroke-width="120"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+</g></svg>

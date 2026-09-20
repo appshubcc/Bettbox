@@ -187,7 +187,7 @@ class MediaUnlockChecker {
     }
   }
 
-  Future<MediaUnlockResult> checkQqNews() async {
+  Future<MediaUnlockResult> checkTencent() async {
     final sw = Stopwatch()..start();
     final dio = _createDio(followRedirects: true);
     try {
@@ -218,7 +218,7 @@ class MediaUnlockChecker {
         }
       }
       return MediaUnlockResult(
-        platform: MediaPlatform.qqnews,
+        platform: MediaPlatform.tencent,
         status: (ip != null && ip.isNotEmpty)
             ? MediaUnlockStatus.unlocked
             : MediaUnlockStatus.failed,
@@ -229,7 +229,7 @@ class MediaUnlockChecker {
       );
     } catch (_) {
       return MediaUnlockResult(
-        platform: MediaPlatform.qqnews,
+        platform: MediaPlatform.tencent,
         status: MediaUnlockStatus.failed,
         latency: sw.elapsedMilliseconds,
       );
@@ -238,7 +238,7 @@ class MediaUnlockChecker {
     }
   }
 
-  Future<MediaUnlockResult> checkAliDns() async {
+  Future<MediaUnlockResult> checkAlibaba() async {
     final sw = Stopwatch()..start();
     final dio = _createDio(followRedirects: true);
     try {
@@ -266,7 +266,7 @@ class MediaUnlockChecker {
       }
       final latency = sw.elapsedMilliseconds;
       return MediaUnlockResult(
-        platform: MediaPlatform.alidnsprobe,
+        platform: MediaPlatform.alibaba,
         status: (ip != null && ip.isNotEmpty)
             ? MediaUnlockStatus.unlocked
             : MediaUnlockStatus.failed,
@@ -277,7 +277,7 @@ class MediaUnlockChecker {
       );
     } catch (_) {
       return MediaUnlockResult(
-        platform: MediaPlatform.alidnsprobe,
+        platform: MediaPlatform.alibaba,
         status: MediaUnlockStatus.failed,
         latency: sw.elapsedMilliseconds,
       );
@@ -300,8 +300,8 @@ class MediaUnlockChecker {
         status: (ip != null && ip.isNotEmpty)
             ? MediaUnlockStatus.unlocked
             : (res.statusCode == 200
-                ? MediaUnlockStatus.unlocked
-                : MediaUnlockStatus.failed),
+                  ? MediaUnlockStatus.unlocked
+                  : MediaUnlockStatus.failed),
         region: 'CN',
         ip: ip,
         latency: latency,
@@ -317,7 +317,7 @@ class MediaUnlockChecker {
     }
   }
 
-  Future<MediaUnlockResult> checkByteDance() async {
+  Future<MediaUnlockResult> checkDouyin() async {
     final sw = Stopwatch()..start();
     final dio = _createDio(followRedirects: true);
     try {
@@ -328,19 +328,19 @@ class MediaUnlockChecker {
           res.headers.value('x-response-cinfo');
       final latency = sw.elapsedMilliseconds;
       return MediaUnlockResult(
-        platform: MediaPlatform.bytedance,
+        platform: MediaPlatform.douyin,
         status: (ip != null && ip.isNotEmpty)
             ? MediaUnlockStatus.unlocked
             : (res.statusCode == 200
-                ? MediaUnlockStatus.unlocked
-                : MediaUnlockStatus.failed),
+                  ? MediaUnlockStatus.unlocked
+                  : MediaUnlockStatus.failed),
         region: 'CN',
         ip: ip,
         latency: latency,
       );
     } catch (_) {
       return MediaUnlockResult(
-        platform: MediaPlatform.bytedance,
+        platform: MediaPlatform.douyin,
         status: MediaUnlockStatus.failed,
         latency: sw.elapsedMilliseconds,
       );
@@ -1121,15 +1121,15 @@ class MediaUnlockChecker {
       MediaPlatform.bilibili => checkBilibili(),
       MediaPlatform.iqiyi => checkIqiyi(),
       MediaPlatform.crunchyroll =>
-        _checkCloudflareTrace(MediaPlatform.crunchyroll, 'crunchyroll.com'),
+_checkCloudflareTrace(MediaPlatform.crunchyroll, 'crunchyroll.com'),
       MediaPlatform.missav =>
-        _checkCloudflareTrace(MediaPlatform.missav, 'missav.ai'),
+_checkCloudflareTrace(MediaPlatform.missav, 'missav.ai'),
       MediaPlatform.ehentai =>
-        _checkCloudflareTrace(MediaPlatform.ehentai, 'e-hentai.org'),
-      MediaPlatform.qqnews => checkQqNews(),
-      MediaPlatform.alidnsprobe => checkAliDns(),
+_checkCloudflareTrace(MediaPlatform.ehentai, 'e-hentai.org'),
+      MediaPlatform.tencent => checkTencent(),
+      MediaPlatform.alibaba => checkAlibaba(),
       MediaPlatform.netease => checkNetease(),
-      MediaPlatform.bytedance => checkByteDance(),
+      MediaPlatform.douyin => checkDouyin(),
       MediaPlatform.cloudflarecn => _checkCloudflareTrace(
         MediaPlatform.cloudflarecn,
         'www.cloudflare-cn.com',

@@ -1,4 +1,25 @@
-<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-<rect width="24" height="24" rx="4" fill="#CB3837"/>
-<path d="M4 7h16v10H12v-7H9.5v7H4V7z" fill="#FFFFFF"/>
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+  <g transform="translate(0 0) scale(0.4096)">
+    <path
+      fill="#c00"
+      d="
+        M300 0
+        H2200
+        Q2500 0 2500 300
+        V2200
+        Q2500 2500 2200 2500
+        H300
+        Q0 2500 0 2200
+        V300
+        Q0 0 300 0
+        Z
+      "
+    />
+
+    <path
+      fill="#fff"
+      transform="translate(375 375) scale(0.7)"
+      d="M1241.5 268.5h-973v1962.9h972.9V763.5h495v1467.9h495V268.5z"
+    />
+  </g>
 </svg>

@@ -16,7 +16,9 @@ void main() {
       }
 
       for (final cat in MediaCategory.values) {
-        final count = MediaPlatform.values.where((p) => p.category == cat).length;
+        final count = MediaPlatform.values
+            .where((p) => p.category == cat)
+            .length;
         expect(count > 0, true);
       }
 
@@ -31,14 +33,14 @@ void main() {
       expect(MediaPlatform.perplexity.defaultName, 'Perplexity');
       expect(MediaPlatform.perplexity.category, MediaCategory.ai);
 
-      expect(MediaPlatform.qqnews.defaultName, 'Tencent(CN)');
-      expect(MediaPlatform.qqnews.category, MediaCategory.china);
-      expect(MediaPlatform.alidnsprobe.defaultName, 'Alibaba(CN)');
-      expect(MediaPlatform.alidnsprobe.category, MediaCategory.china);
+      expect(MediaPlatform.tencent.defaultName, 'Tencent(CN)');
+      expect(MediaPlatform.tencent.category, MediaCategory.china);
+      expect(MediaPlatform.alibaba.defaultName, 'Alibaba(CN)');
+      expect(MediaPlatform.alibaba.category, MediaCategory.china);
       expect(MediaPlatform.netease.defaultName, 'Netease(CN)');
       expect(MediaPlatform.netease.category, MediaCategory.china);
-      expect(MediaPlatform.bytedance.defaultName, 'Douyin(CN)');
-      expect(MediaPlatform.bytedance.category, MediaCategory.china);
+      expect(MediaPlatform.douyin.defaultName, 'Douyin(CN)');
+      expect(MediaPlatform.douyin.category, MediaCategory.china);
       expect(MediaPlatform.bilibili.defaultName, 'Bilibili(CN)');
       expect(MediaPlatform.bilibili.category, MediaCategory.china);
       expect(MediaPlatform.cloudflarecn.defaultName, 'Cloudflare(CN)');
@@ -87,28 +89,43 @@ void main() {
       expect(MediaPlatform.cryptocom.category, MediaCategory.crypto);
       expect(MediaPlatform.phantom.category, MediaCategory.crypto);
 
-      expect(MediaPlatform.x.isMonochrome, true);
+      expect(MediaPlatform.x.isMonochrome, false);
       expect(MediaPlatform.github.isMonochrome, true);
       expect(MediaPlatform.apple.isMonochrome, true);
       expect(MediaPlatform.grok.isMonochrome, true);
       expect(MediaPlatform.epic.isMonochrome, true);
       expect(MediaPlatform.openai.isMonochrome, false);
       expect(MediaPlatform.netflix.isMonochrome, false);
+      expect(MediaPlatform.tiktok.isMonochrome, false);
     });
-    test('defaultPinnedMediaPlatforms has 3 items: reddit, gemini, cloudflare', () {
-      expect(defaultPinnedMediaPlatforms, [
-        MediaPlatform.reddit,
-        MediaPlatform.gemini,
-        MediaPlatform.cloudflare,
-      ]);
-    });
+    test(
+      'defaultPinnedMediaPlatforms has 3 items: reddit, gemini, cloudflare',
+      () {
+        expect(defaultPinnedMediaPlatforms, [
+          MediaPlatform.reddit,
+          MediaPlatform.gemini,
+          MediaPlatform.cloudflare,
+        ]);
+      },
+    );
 
     test('pinnedMediaPlatformsSafeFromJson migration', () {
-      final migrated = pinnedMediaPlatformsSafeFromJson(['chatgpt', 'linuxdo', 'youtube', 'github']);
+      final migrated = pinnedMediaPlatformsSafeFromJson([
+        'chatgpt',
+        'linuxdo',
+        'youtube',
+        'github',
+        'qqnews',
+        'alidnsprobe',
+        'bytedance',
+      ]);
       expect(migrated, [
         MediaPlatform.openai,
         MediaPlatform.youtube,
         MediaPlatform.github,
+        MediaPlatform.tencent,
+        MediaPlatform.alibaba,
+        MediaPlatform.douyin,
       ]);
     });
 

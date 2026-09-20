@@ -130,6 +130,18 @@ List<MediaPlatform> pinnedMediaPlatformsSafeFromJson(
         list.add(MediaPlatform.openai);
         continue;
       }
+      if (str == 'qqnews') {
+        list.add(MediaPlatform.tencent);
+        continue;
+      }
+      if (str == 'alidnsprobe') {
+        list.add(MediaPlatform.alibaba);
+        continue;
+      }
+      if (str == 'bytedance') {
+        list.add(MediaPlatform.douyin);
+        continue;
+      }
       final p = MediaPlatform.values.where((v) => v.name == str).firstOrNull;
       if (p != null) list.add(p);
     }

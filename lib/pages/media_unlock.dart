@@ -548,7 +548,7 @@ class _MediaUnlockPageState extends ConsumerState<MediaUnlockPage> {
             child: _buildPlatformIcon(
               platform,
               status: status,
-              size: 20,
+              size: 25,
             ),
           ),
           const SizedBox(width: 12),

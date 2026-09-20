@@ -47,7 +47,7 @@ func Start(fd int, device string, stack constant.TUNStack, disableIcmpForwarding
 
 	validMtu := mtu
 	if validMtu < 1280 || validMtu > 65535 {
-		validMtu = 1480
+		validMtu = 9000
 	}
 
 	options := LC.Tun{

@@ -84,6 +84,7 @@ abstract class AndroidVpnOptions with _$AndroidVpnOptions {
     @Default('config') String routeMode,
     required String dnsServerAddress,
     @Default(false) bool dozeSuspend,
+    @Default(9000) int mtu,
   }) = _AndroidVpnOptions;
 
   factory AndroidVpnOptions.fromJson(Map<String, Object?> json) =>

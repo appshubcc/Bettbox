@@ -437,7 +437,7 @@ class MtuItem extends ConsumerWidget {
     );
 
     // Preset options
-    final presetOptions = [1480, 4064, 9000];
+    final presetOptions = [9000, 4064];
     final isCustom = !presetOptions.contains(mtu);
 
     return ListItem.options(
@@ -445,7 +445,7 @@ class MtuItem extends ConsumerWidget {
       subtitle: Text(isCustom ? '$mtu (${appLocalizations.custom})' : '$mtu'),
       delegate: OptionsDelegate<String>(
         value: isCustom ? 'custom' : '$mtu',
-        options: ['1480', '4064', '9000', 'custom'],
+        options: ['9000', '4064', 'custom'],
         textBuilder: (value) {
           if (value == 'custom') {
             return '${appLocalizations.custom}...';

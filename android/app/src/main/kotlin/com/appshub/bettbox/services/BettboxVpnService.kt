@@ -122,7 +122,7 @@ class BettboxVpnService : VpnService(), BaseServiceInterface {
                 .onFailure { Log.e(TAG, "Invalid DNS: ${options.dnsServerAddress}") }
         }
 
-        setMtu(options.mtu.coerceIn(1280..65535).takeIf { it > 0 } ?: 1480)
+        setMtu(options.mtu.takeIf { it in 1280..65535 } ?: 9000)
 
         val accessControl = options.accessControl
         if (accessControl.enable) {

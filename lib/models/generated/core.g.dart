@@ -121,6 +121,7 @@ _AndroidVpnOptions _$AndroidVpnOptionsFromJson(Map<String, dynamic> json) =>
       routeMode: json['routeMode'] as String? ?? 'config',
       dnsServerAddress: json['dnsServerAddress'] as String,
       dozeSuspend: json['dozeSuspend'] as bool? ?? false,
+      mtu: (json['mtu'] as num?)?.toInt() ?? 9000,
     );
 
 Map<String, dynamic> _$AndroidVpnOptionsToJson(_AndroidVpnOptions instance) =>
@@ -137,6 +138,7 @@ Map<String, dynamic> _$AndroidVpnOptionsToJson(_AndroidVpnOptions instance) =>
       'routeMode': instance.routeMode,
       'dnsServerAddress': instance.dnsServerAddress,
       'dozeSuspend': instance.dozeSuspend,
+      'mtu': instance.mtu,
     };
 
 _InitParams _$InitParamsFromJson(Map<String, dynamic> json) => _InitParams(

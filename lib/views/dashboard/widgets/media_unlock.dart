@@ -113,12 +113,9 @@ class _MediaUnlockState extends ConsumerState<MediaUnlock> {
       statusDisplay = '-';
     } else if (status == MediaUnlockStatus.testing) {
       statusDisplay = '...';
-    } else if (status == MediaUnlockStatus.limited) {
-      statusDisplay = platform.category == MediaCategory.streaming
-          ? appLocalizations.limitedUnlock
-          : appLocalizations.flagged;
-    } else if (status == MediaUnlockStatus.flagged) {
-      statusDisplay = appLocalizations.flagged;
+    } else if (status == MediaUnlockStatus.limited &&
+        platform.category == MediaCategory.streaming) {
+      statusDisplay = appLocalizations.limitedUnlock;
     } else if (latency != null) {
       statusDisplay = '${latency}ms';
     } else {

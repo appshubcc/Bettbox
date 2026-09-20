@@ -798,7 +798,8 @@ class _MediaUnlockPageState extends ConsumerState<MediaUnlockPage> {
           final status = state.results[p]?.status;
           if (status == MediaUnlockStatus.unlocked) {
             unlockedList.add(p);
-          } else if (status == MediaUnlockStatus.blocked) {
+          } else if (status == MediaUnlockStatus.blocked ||
+              status == MediaUnlockStatus.failed) {
             blockedList.add(p);
           } else {
             otherList.add(p);

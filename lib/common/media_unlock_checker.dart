@@ -106,74 +106,150 @@ class MediaUnlockChecker {
     'SD', 'AF', 'SS', 'YE', 'ZW',
   };
 
+  String? _extractColoFromRay(String? ray) {
+    if (ray == null) return null;
+    final idx = ray.lastIndexOf('-');
+    if (idx >= 0 && idx < ray.length - 1) {
+      final code = ray.substring(idx + 1).trim().toUpperCase();
+      if (code.length >= 3 && code.length <= 4) {
+        return code;
+      }
+    }
+    return null;
+  }
+
+  bool _isCloudflareChallenge(Response<dynamic> res) {
+    final cfMitigated = res.headers.value('cf-mitigated')?.toLowerCase();
+    if (cfMitigated == 'challenge') return true;
+
+    final server = res.headers.value('server')?.toLowerCase() ?? '';
+    final cfRay = res.headers.value('cf-ray');
+    final isCf = server.contains('cloudflare') || cfRay != null;
+    if (!isCf) return false;
+
+    final statusCode = res.statusCode ?? 0;
+    if (statusCode == 403 || statusCode == 503) return true;
+
+    final data = res.data?.toString() ?? '';
+    return data.contains('challenges.cloudflare.com') ||
+        data.contains('cf-chl-') ||
+        data.contains('/cdn-cgi/challenge-platform/') ||
+        data.contains('cf-turnstile') ||
+        data.contains(r'__CF$cv$params');
+  }
+
   Future<MediaUnlockResult> _checkCloudflareTrace(
     MediaPlatform platform,
     String domain, {
+    List<String>? fallbackDomains,
     Set<String>? unsupportedRegions,
     String? fallbackUrl,
   }) async {
     final sw = Stopwatch()..start();
     final dio = _createDio(followRedirects: true);
     try {
-      final url = 'https://$domain/cdn-cgi/trace';
-      final res = await dio.get<String>(url);
-      final statusCode = res.statusCode ?? 0;
-      String? ip;
-      String? loc;
-      String? colo;
-      bool isWarp = false;
+      final domains = [domain, ...?fallbackDomains];
+      MediaUnlockStatus? detectedStatus;
+      String? detectedRegion;
+      String? detectedColo;
+      String? detectedIp;
+      bool detectedWarp = false;
+      String activeDomain = domain;
+      bool hasAnyResponse = false;
 
-      if (statusCode >= 200 &&
-          statusCode < 400 &&
-          res.data != null &&
-          !res.data!.contains('<!DOCTYPE')) {
-        final lines = res.data!.split('\n');
-        for (final line in lines) {
-          final idx = line.indexOf('=');
-          if (idx > 0) {
-            final k = line.substring(0, idx).trim();
-            final v = line.substring(idx + 1).trim();
-            if (k == 'ip') ip = v;
-            if (k == 'loc') loc = v;
-            if (k == 'colo') colo = v;
-            if (k == 'warp') isWarp = v != 'off';
+      for (final candidate in domains) {
+        try {
+          final url = 'https://$candidate/cdn-cgi/trace';
+          final res = await dio.get<String>(url);
+          hasAnyResponse = true;
+          final statusCode = res.statusCode ?? 0;
+          String? ip;
+          String? loc;
+          String? colo;
+          bool isWarp = false;
+
+          if (statusCode >= 200 &&
+              statusCode < 400 &&
+              res.data != null &&
+              !res.data!.contains('<!DOCTYPE')) {
+            final lines = res.data!.split('\n');
+            for (final line in lines) {
+              final idx = line.indexOf('=');
+              if (idx > 0) {
+                final k = line.substring(0, idx).trim();
+                final v = line.substring(idx + 1).trim();
+                if (k == 'ip') ip = v;
+                if (k == 'loc') loc = v;
+                if (k == 'colo') colo = v;
+                if (k == 'warp') isWarp = v != 'off';
+              }
+            }
           }
-        }
+
+          colo ??= _extractColoFromRay(res.headers.value('cf-ray'));
+          final region = loc?.toUpperCase();
+
+          if (ip != null && ip.isNotEmpty) {
+            final isBlocked = unsupportedRegions != null &&
+                region != null &&
+                unsupportedRegions.contains(region);
+            detectedStatus = isBlocked
+                ? MediaUnlockStatus.blocked
+                : MediaUnlockStatus.unlocked;
+            detectedRegion = region;
+            detectedColo = colo?.toUpperCase();
+            detectedIp = ip;
+            detectedWarp = isWarp;
+            activeDomain = candidate;
+            break;
+          } else if (_isCloudflareChallenge(res)) {
+            detectedStatus = MediaUnlockStatus.flagged;
+            detectedColo ??= colo?.toUpperCase();
+            activeDomain = candidate;
+          }
+        } catch (_) {}
       }
 
-      final region = loc?.toUpperCase();
       final MediaUnlockStatus status;
-      if (ip != null && ip.isNotEmpty) {
-        if (unsupportedRegions != null &&
-            region != null &&
-            unsupportedRegions.contains(region)) {
-          status = MediaUnlockStatus.blocked;
-        } else {
-          status = MediaUnlockStatus.unlocked;
-        }
+      if (detectedStatus != null) {
+        status = detectedStatus;
       } else if (fallbackUrl != null) {
-        final probe = await dio.get<void>(fallbackUrl);
-        final code = probe.statusCode ?? 0;
-        status = (code >= 200 && code < 400)
-            ? MediaUnlockStatus.unlocked
-            : MediaUnlockStatus.blocked;
+        final probe = await dio.get<String>(fallbackUrl);
+        hasAnyResponse = true;
+        final probeCode = probe.statusCode ?? 0;
+        final probeColo = _extractColoFromRay(probe.headers.value('cf-ray'));
+        if (_isCloudflareChallenge(probe)) {
+          status = MediaUnlockStatus.flagged;
+          detectedColo ??= probeColo?.toUpperCase();
+        } else if (probeCode >= 200 && probeCode < 400) {
+          status = MediaUnlockStatus.unlocked;
+          detectedColo ??= probeColo?.toUpperCase();
+        } else {
+          status = MediaUnlockStatus.blocked;
+        }
+      } else if (!hasAnyResponse) {
+        return MediaUnlockResult(
+          platform: platform,
+          status: MediaUnlockStatus.failed,
+          latency: sw.elapsedMilliseconds,
+        );
       } else {
         status = MediaUnlockStatus.blocked;
       }
 
       final latency = await _measureLatency(
         dio,
-        'https://$domain/',
+        'https://$activeDomain/',
         sw.elapsedMilliseconds,
       );
 
       return MediaUnlockResult(
         platform: platform,
         status: status,
-        region: region,
-        colo: colo?.toUpperCase(),
-        ip: ip,
-        isWarp: isWarp,
+        region: detectedRegion,
+        colo: detectedColo,
+        ip: detectedIp,
+        isWarp: detectedWarp,
         latency: latency,
       );
     } catch (_) {
@@ -1122,8 +1198,11 @@ class MediaUnlockChecker {
       MediaPlatform.iqiyi => checkIqiyi(),
       MediaPlatform.crunchyroll =>
 _checkCloudflareTrace(MediaPlatform.crunchyroll, 'crunchyroll.com'),
-      MediaPlatform.missav =>
-_checkCloudflareTrace(MediaPlatform.missav, 'missav.ai'),
+      MediaPlatform.missav => _checkCloudflareTrace(
+        MediaPlatform.missav,
+        'missav.ws',
+        fallbackDomains: const ['missav.ai'],
+      ),
       MediaPlatform.ehentai =>
 _checkCloudflareTrace(MediaPlatform.ehentai, 'e-hentai.org'),
       MediaPlatform.tencent => checkTencent(),

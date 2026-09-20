@@ -12,7 +12,8 @@ class Picker {
     bool allowMultiple = true,
     List<String>? allowedExtensions,
   }) async {
-    final useCustom = !system.isAndroid &&
+    final useCustom =
+        !system.isAndroid &&
         allowedExtensions != null &&
         allowedExtensions.isNotEmpty;
     final filePickerResult = await FilePicker.platform.pickFiles(
@@ -49,7 +50,8 @@ class Picker {
         name = '$name.${allowedExtensions.first}';
       }
     }
-    final useCustom = !system.isAndroid &&
+    final useCustom =
+        !system.isAndroid &&
         allowedExtensions != null &&
         allowedExtensions.isNotEmpty;
     final path = await FilePicker.platform.saveFile(
@@ -81,16 +83,36 @@ class Picker {
     if (xFile == null) {
       return null;
     }
-    final controller = MobileScannerController();
-    final capture = await controller.analyzeImage(
-      xFile.path,
-      formats: [BarcodeFormat.qrCode],
-    );
-    final result = capture?.barcodes.first.rawValue;
+    return decodeProfileUrlFromQrImage(xFile.path);
+  }
+
+  Future<String?> decodeProfileUrlFromQrImage(String path) async {
+    final result = await _decodeQrCodeImage(path);
     if (result == null || !result.isUrl) {
       throw appLocalizations.pleaseUploadValidQrcode;
     }
     return result;
+  }
+
+  Future<String?> _decodeQrCodeImage(String path) async {
+    if (Platform.isAndroid || Platform.isIOS || Platform.isMacOS) {
+      try {
+        final capture = await MobileScannerController().analyzeImage(
+          path,
+          formats: const [BarcodeFormat.qrCode],
+        );
+        final barcodes = capture?.barcodes;
+        final result = barcodes == null || barcodes.isEmpty
+            ? null
+            : barcodes.first.rawValue;
+        if (result != null && result.isNotEmpty) {
+          return result;
+        }
+      } catch (e) {
+        commonPrint.log('Native qr decode failed: $e');
+      }
+    }
+    return qrReader.decodeFile(path);
   }
 }
 

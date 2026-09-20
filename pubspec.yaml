@@ -28,6 +28,8 @@ dependencies:
   json_annotation: ^4.9.0
   file_picker: ^8.3.7
   mobile_scanner: ^7.2.1
+  zxing2: ^0.2.4
+  image: ^4.3.0
   app_links: ^6.3.3
   win32_registry: ^2.0.0
   collection: ^1.18.0

@@ -23,6 +23,7 @@ class _ScanPageState extends State<ScanPage> with WidgetsBindingObserver {
   );
 
   StreamSubscription<Object?>? _subscription;
+  bool _handled = false;
   bool _permissionDenied = false;
   bool _permissionChecking = false;
 
@@ -38,12 +39,15 @@ class _ScanPageState extends State<ScanPage> with WidgetsBindingObserver {
   }
 
   void _handleBarcode(BarcodeCapture barcodeCapture) {
-    final barcode = barcodeCapture.barcodes.first;
-    if (barcode.type == BarcodeType.url) {
-      Navigator.pop<String>(context, barcode.rawValue);
-    } else {
+    if (_handled || barcodeCapture.barcodes.isEmpty) return;
+    final rawValue = barcodeCapture.barcodes.first.rawValue?.trim();
+    if (rawValue == null || rawValue.isEmpty) return;
+    _handled = true;
+    if (!rawValue.toLowerCase().isUrl) {
       Navigator.pop(context);
+      return;
     }
+    Navigator.pop<String>(context, rawValue);
   }
 
   @override
@@ -71,19 +75,19 @@ class _ScanPageState extends State<ScanPage> with WidgetsBindingObserver {
 
   Future<void> _checkCameraPermission() async {
     if (_permissionChecking) return; // Prevent concurrent checks
-    
+
     setState(() {
       _permissionChecking = true;
     });
-    
+
     final granted = await app.hasCameraPermission();
     if (!mounted) return;
-    
+
     setState(() {
       _permissionDenied = !granted;
       _permissionChecking = false;
     });
-    
+
     if (!granted) {
       if (controller.value.isRunning) {
         await controller.stop();

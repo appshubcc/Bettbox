@@ -133,7 +133,7 @@
   "pleaseCloseSystemProxyFirst": "Please close System Proxy first",
   "just": "Just now",
   "qrcode": "QR Code",
-  "qrcodeDesc": "Scan QR code to get profile",
+  "qrcodeDesc": "Scan QR code to import profile",
   "clipboard": "Clipboard",
   "clipboardDesc": "Get profile link from clipboard",
   "url": "URL",
@@ -736,5 +736,14 @@
   "checkFailed": "Timeout",
   "testing": "Testing",
   "other": "Other",
-  "flagged": "Flagged"
+  "flagged": "Flagged",
+  "tvScanImport": "Scan / LAN Import",
+  "tvScanImportDesc": "Scan QR or push profile to TV via LAN",
+  "tvScanStep1": "Ensure phone and TV are on the same Wi-Fi network",
+  "tvScanStep2": "Scan the QR code with a supported camera or browser",
+  "tvScanStep3": "Paste subscription URL or upload profile on the webpage and push",
+  "tvScanManualUrl": "Or enter directly in phone browser:",
+  "tvScanWaiting": "Waiting for profile from phone...",
+  "tvScanSuccess": "Profile received, importing...",
+  "tvScanNoNetwork": "No available LAN detected, please check Wi-Fi"
 }

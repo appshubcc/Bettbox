@@ -133,7 +133,7 @@
   "pleaseCloseSystemProxyFirst": "最初にシステムプロキシをオフにしてください",
   "just": "たった今",
   "qrcode": "QRコード",
-  "qrcodeDesc": "QRコードをスキャンして設定を取得",
+  "qrcodeDesc": "QRコードをスキャンして設定をインポート",
   "clipboard": "クリップボード",
   "clipboardDesc": "クリップボードからURLを自動取得",
   "url": "URL",
@@ -737,5 +737,14 @@
   "checkFailed": "Timeout",
   "testing": "検出中",
   "other": "その他",
-  "flagged": "フラグ付き"
+  "flagged": "フラグ付き",
+  "tvScanImport": "スキャン / LANインポート",
+  "tvScanImportDesc": "スマホでスキャンまたはLAN経由でTVに設定をプッシュ",
+  "tvScanStep1": "スマホとTVが同じWi-Fiネットワークにあることを確認",
+  "tvScanStep2": "対応するカメラまたはブラウザでQRコードをスキャン",
+  "tvScanStep3": "Webページで購読URLを貼り付けまたは設定をアップロードしてプッシュ",
+  "tvScanManualUrl": "スマホのブラウザに直接入力も可能：",
+  "tvScanWaiting": "スマホからのプッシュを待機中...",
+  "tvScanSuccess": "設定がプッシュされました。インポート中...",
+  "tvScanNoNetwork": "利用可能なLANが見つかりません。Wi-Fiを確認してください"
 }

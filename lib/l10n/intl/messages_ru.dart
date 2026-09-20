@@ -1022,7 +1022,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "pureBlackMode": MessageLookupByLibrary.simpleMessage("Чистый чёрный"),
     "qrcode": MessageLookupByLibrary.simpleMessage("QR-код"),
     "qrcodeDesc": MessageLookupByLibrary.simpleMessage(
-      "Сканировать QR для получения профиля",
+      "Сканировать QR для импорта профиля",
     ),
     "quicGoDisableEcn": MessageLookupByLibrary.simpleMessage(
       "Отключить ECN QUIC",
@@ -1323,6 +1323,33 @@ class MessageLookup extends MessageLookupByLibrary {
     "tunnelTarget": MessageLookupByLibrary.simpleMessage("Целевой адрес"),
     "tunnelTargetHint": MessageLookupByLibrary.simpleMessage(
       "Например: 114.114.114.114:53",
+    ),
+    "tvScanImport": MessageLookupByLibrary.simpleMessage(
+      "Сканирование / Импорт по LAN",
+    ),
+    "tvScanImportDesc": MessageLookupByLibrary.simpleMessage(
+      "Сканируйте QR или отправьте профиль на ТВ через LAN",
+    ),
+    "tvScanManualUrl": MessageLookupByLibrary.simpleMessage(
+      "Или введите адрес в браузере телефона:",
+    ),
+    "tvScanNoNetwork": MessageLookupByLibrary.simpleMessage(
+      "Доступная локальная сеть не найдена, проверьте Wi-Fi",
+    ),
+    "tvScanStep1": MessageLookupByLibrary.simpleMessage(
+      "Убедитесь, что телефон и TV подключены к одной сети Wi-Fi",
+    ),
+    "tvScanStep2": MessageLookupByLibrary.simpleMessage(
+      "Отсканируйте QR-код поддерживаемой камерой или браузером",
+    ),
+    "tvScanStep3": MessageLookupByLibrary.simpleMessage(
+      "Вставьте URL подписки или загрузите конфигурацию на веб-странице и отправьте",
+    ),
+    "tvScanSuccess": MessageLookupByLibrary.simpleMessage(
+      "Профиль получен, выполняется импорт...",
+    ),
+    "tvScanWaiting": MessageLookupByLibrary.simpleMessage(
+      "Ожидание отправки профиля с телефона...",
     ),
     "twoColumns": MessageLookupByLibrary.simpleMessage("2 колонки"),
     "unableToUpdateCurrentProfileDesc": MessageLookupByLibrary.simpleMessage(

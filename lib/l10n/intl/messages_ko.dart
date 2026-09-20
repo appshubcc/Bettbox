@@ -1028,6 +1028,31 @@ class MessageLookup extends MessageLookupByLibrary {
     "tunnelTargetHint": MessageLookupByLibrary.simpleMessage(
       "예: 114.114.114.114:53",
     ),
+    "tvScanImport": MessageLookupByLibrary.simpleMessage("스캔 / LAN 가져오기"),
+    "tvScanImportDesc": MessageLookupByLibrary.simpleMessage(
+      "스마트폰으로 스캔하거나 LAN을 통해 TV로 프로필 푸시",
+    ),
+    "tvScanManualUrl": MessageLookupByLibrary.simpleMessage(
+      "스마트폰 브라우저에 직접 입력할 수도 있습니다:",
+    ),
+    "tvScanNoNetwork": MessageLookupByLibrary.simpleMessage(
+      "사용 가능한 LAN을 찾을 수 없습니다. Wi-Fi를 확인하세요",
+    ),
+    "tvScanStep1": MessageLookupByLibrary.simpleMessage(
+      "스마트폰과 TV가 동일한 Wi-Fi 네트워크에 연결되어 있는지 확인",
+    ),
+    "tvScanStep2": MessageLookupByLibrary.simpleMessage(
+      "지원되는 카메라 또는 브라우저로 QR 코드를 스캔하세요",
+    ),
+    "tvScanStep3": MessageLookupByLibrary.simpleMessage(
+      "웹페이지에서 구독 링크를 붙여넣거나 프로필을 업로드하여 푸시하세요",
+    ),
+    "tvScanSuccess": MessageLookupByLibrary.simpleMessage(
+      "프로필이 푸시되었습니다. 가져오는 중...",
+    ),
+    "tvScanWaiting": MessageLookupByLibrary.simpleMessage(
+      "스마트폰에서 프로필 푸시 대기 중...",
+    ),
     "twoColumns": MessageLookupByLibrary.simpleMessage("2열"),
     "unableToUpdateCurrentProfileDesc": MessageLookupByLibrary.simpleMessage(
       "현재 프로필을 업데이트할 수 없습니다",

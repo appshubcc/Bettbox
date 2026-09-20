@@ -133,7 +133,7 @@
   "pleaseCloseSystemProxyFirst": "請先關閉系統代理",
   "just": "剛剛",
   "qrcode": "二維碼",
-  "qrcodeDesc": "掃描二維碼獲取設定檔",
+  "qrcodeDesc": "掃描二維碼導入設定檔",
   "clipboard": "剪貼簿",
   "clipboardDesc": "自動獲取剪貼簿訂閱連結",
   "url": "URL",
@@ -737,5 +737,14 @@
   "checkFailed": "Timeout",
   "testing": "檢測中",
   "other": "其他",
-  "flagged": "已標記"
+  "flagged": "已標記",
+  "tvScanImport": "掃碼 / 局域網導入",
+  "tvScanImportDesc": "手機掃碼或局域網推送設定檔至電視",
+  "tvScanStep1": "確保手機與 TV 連接在同一 Wi-Fi 局域網",
+  "tvScanStep2": "使用支援的相機或瀏覽器以掃描二維碼",
+  "tvScanStep3": "在網頁中粘貼訂閱連結或上傳設定檔並推送",
+  "tvScanManualUrl": "也可在手機瀏覽器中直接輸入：",
+  "tvScanWaiting": "等待手機推送設定檔中...",
+  "tvScanSuccess": "設定檔推送成功，正在導入...",
+  "tvScanNoNetwork": "未檢測到可用的局域網，請檢查 Wi-Fi"
 }

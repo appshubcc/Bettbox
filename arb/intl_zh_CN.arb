@@ -133,7 +133,7 @@
   "pleaseCloseSystemProxyFirst": "请先关闭系统代理",
   "just": "刚刚",
   "qrcode": "二维码",
-  "qrcodeDesc": "扫描二维码获取配置文件",
+  "qrcodeDesc": "扫描二维码导入配置文件",
   "clipboard": "剪切板",
   "clipboardDesc": "自动获取剪切板订阅链接",
   "url": "URL",
@@ -737,5 +737,14 @@
   "checkFailed": "Timeout",
   "testing": "检测中",
   "other": "其他",
-  "flagged": "已标记"
+  "flagged": "已标记",
+  "tvScanImport": "扫码 / 局域网导入",
+  "tvScanImportDesc": "手机扫码或局域网推送配置至电视",
+  "tvScanStep1": "确保手机与 TV 连接在同一 Wi-Fi 局域网",
+  "tvScanStep2": "使用支持的相机或浏览器以扫描二维码",
+  "tvScanStep3": "在网页中粘贴订阅链接或上传配置并推送",
+  "tvScanManualUrl": "手机浏览器也可直接访问：",
+  "tvScanWaiting": "等待手机推送配置中...",
+  "tvScanSuccess": "配置推送成功，正在导入...",
+  "tvScanNoNetwork": "未检测到可用的局域网，请检查 Wi-Fi"
 }

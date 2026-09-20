@@ -737,5 +737,14 @@
   "checkFailed": "Timeout",
   "testing": "검사 중",
   "other": "기타",
-  "flagged": "표시됨"
+  "flagged": "표시됨",
+  "tvScanImport": "스캔 / LAN 가져오기",
+  "tvScanImportDesc": "스마트폰으로 스캔하거나 LAN을 통해 TV로 프로필 푸시",
+  "tvScanStep1": "스마트폰과 TV가 동일한 Wi-Fi 네트워크에 연결되어 있는지 확인",
+  "tvScanStep2": "지원되는 카메라 또는 브라우저로 QR 코드를 스캔하세요",
+  "tvScanStep3": "웹페이지에서 구독 링크를 붙여넣거나 프로필을 업로드하여 푸시하세요",
+  "tvScanManualUrl": "스마트폰 브라우저에 직접 입력할 수도 있습니다:",
+  "tvScanWaiting": "스마트폰에서 프로필 푸시 대기 중...",
+  "tvScanSuccess": "프로필이 푸시되었습니다. 가져오는 중...",
+  "tvScanNoNetwork": "사용 가능한 LAN을 찾을 수 없습니다. Wi-Fi를 확인하세요"
 }

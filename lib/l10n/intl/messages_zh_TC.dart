@@ -723,7 +723,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "pulse": MessageLookupByLibrary.simpleMessage("脈衝律動"),
     "pureBlackMode": MessageLookupByLibrary.simpleMessage("純黑模式"),
     "qrcode": MessageLookupByLibrary.simpleMessage("二維碼"),
-    "qrcodeDesc": MessageLookupByLibrary.simpleMessage("掃描二維碼獲取設定檔"),
+    "qrcodeDesc": MessageLookupByLibrary.simpleMessage("掃描二維碼導入設定檔"),
     "quicGoDisableEcn": MessageLookupByLibrary.simpleMessage("停用 QUIC 顯式壅塞通知"),
     "quicGoDisableEcnDesc": MessageLookupByLibrary.simpleMessage(
       "停用 QUIC 的顯式擁塞通知功能",
@@ -926,6 +926,21 @@ class MessageLookup extends MessageLookupByLibrary {
     "tunnelTargetHint": MessageLookupByLibrary.simpleMessage(
       "例如: 114.114.114.114:53",
     ),
+    "tvScanImport": MessageLookupByLibrary.simpleMessage("掃碼 / 局域網導入"),
+    "tvScanImportDesc": MessageLookupByLibrary.simpleMessage(
+      "手機掃碼或局域網推送設定檔至電視",
+    ),
+    "tvScanManualUrl": MessageLookupByLibrary.simpleMessage("也可在手機瀏覽器中直接輸入："),
+    "tvScanNoNetwork": MessageLookupByLibrary.simpleMessage(
+      "未檢測到可用的局域網，請檢查 Wi-Fi",
+    ),
+    "tvScanStep1": MessageLookupByLibrary.simpleMessage(
+      "確保手機與 TV 連接在同一 Wi-Fi 局域網",
+    ),
+    "tvScanStep2": MessageLookupByLibrary.simpleMessage("使用支援的相機或瀏覽器以掃描二維碼"),
+    "tvScanStep3": MessageLookupByLibrary.simpleMessage("在網頁中粘貼訂閱連結或上傳設定檔並推送"),
+    "tvScanSuccess": MessageLookupByLibrary.simpleMessage("設定檔推送成功，正在導入..."),
+    "tvScanWaiting": MessageLookupByLibrary.simpleMessage("等待手機推送設定檔中..."),
     "twoColumns": MessageLookupByLibrary.simpleMessage("兩列"),
     "unableToUpdateCurrentProfileDesc": MessageLookupByLibrary.simpleMessage(
       "無法更新目前的設定檔",

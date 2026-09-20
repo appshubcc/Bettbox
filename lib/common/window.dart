@@ -25,22 +25,39 @@ class Window {
     if (!system.isMacOS) {
       final left = props.left;
       final top = props.top;
-      if (left == null || top == null || (left == 0 && top == 0)) {
+      if (left == null || top == null) {
         await windowManager.setAlignment(Alignment.center);
       } else {
+        final savedDpr = props.scaleFactor;
+        final currentDpr = windowManager.getDevicePixelRatio();
+
+        final physLeft = left * savedDpr;
+        final physTop = top * savedDpr;
+        final physRight = physLeft + props.width * savedDpr;
+        final physBottom = physTop + props.height * savedDpr;
+
         bool isPositionValid = false;
         try {
           final displays = await screenRetriever.getAllDisplays();
           isPositionValid = displays.any((display) {
             final pos = display.visiblePosition;
-            final size = display.visibleSize ?? display.size;
             if (pos == null) return false;
-            return Rect.fromLTWH(pos.dx, pos.dy, size.width, size.height)
-                .contains(Offset(left, top));
+            final sf = (display.scaleFactor ?? 1.0).toDouble();
+            final physDisplayBounds = Rect.fromLTWH(
+              pos.dx * sf,
+              pos.dy * sf,
+              display.size.width * sf,
+              display.size.height * sf,
+            );
+            return physDisplayBounds.contains(Offset(physLeft, physTop)) ||
+                physDisplayBounds.contains(Offset(physRight, physBottom));
           });
         } catch (_) {}
         if (isPositionValid) {
-          await windowManager.setPosition(Offset(left, top));
+          await windowManager.setPosition(Offset(
+            physLeft / currentDpr,
+            physTop / currentDpr,
+          ));
         } else {
           await windowManager.setAlignment(Alignment.center);
         }

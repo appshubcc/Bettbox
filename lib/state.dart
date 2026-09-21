@@ -1403,7 +1403,19 @@ class MediaUnlockStateNotifier {
       ..sort((a, b) => a.key.compareTo(b.key));
     final selectedStr =
         sortedEntries.map((e) => '${e.key}:${e.value}').join(';');
-    return '$profileId|$mode|$selectedStr';
+    String activeGroupsStr = '';
+    if (globalState.isInit) {
+      try {
+        final groups = globalState.appController.ref.read(groupsProvider);
+        if (groups.isNotEmpty) {
+          final sortedGroups = groups.toList()
+            ..sort((a, b) => a.name.compareTo(b.name));
+          activeGroupsStr =
+              sortedGroups.map((g) => '${g.name}:${g.realNow}').join(';');
+        }
+      } catch (_) {}
+    }
+    return '$profileId|$mode|$selectedStr|$activeGroupsStr';
   }
 
   final state = ValueNotifier<MediaUnlockState>(
@@ -1639,6 +1651,7 @@ class MediaUnlockStateNotifier {
     final isRunning = globalState.appState.runTime != null;
     if (!isRunning) {
       _preIsStart = false;
+      _nodeChangeTimer?.cancel();
       return;
     }
     final isStartup = _preIsStart != true;
@@ -1647,11 +1660,11 @@ class MediaUnlockStateNotifier {
     if (!globalState.hasMediaUnlockWidget) return;
     if (!globalState.config.appSetting.mediaUnlockRefreshOnNodeChange) return;
 
-    final requestId = ++_requestId;
-    _nodeChangeTimer?.cancel();
-    _checker.cancel();
-
     if (isStartup) {
+      _nodeChangeTimer?.cancel();
+      _checker.cancel();
+      final requestId = ++_requestId;
+
       if (globalState.hasNetworkDetectionWidget) {
         var waited = 0;
         while (detectionState.state.value.isLoading &&
@@ -1675,7 +1688,16 @@ class MediaUnlockStateNotifier {
         testingPlatforms: {},
         isLoading: false,
       );
-    } else {
+      _lastCheckedNodeSignature = _getNodeSignature();
+      checkPinned(force: true);
+      return;
+    }
+
+    _nodeChangeTimer?.cancel();
+    _nodeChangeTimer = Timer(_nodeChangeDelay, () {
+      if (globalState.appState.runTime == null) return;
+      if (globalState.backgroundMode.value) return;
+
       final currentSignature = _getNodeSignature();
       if (_lastCheckedNodeSignature == currentSignature &&
           state.value.results.isNotEmpty) {
@@ -1692,12 +1714,8 @@ class MediaUnlockStateNotifier {
         testingPlatforms: {},
         isLoading: false,
       );
-      await Future.delayed(_nodeChangeDelay);
-      if (requestId != _requestId || globalState.appState.runTime == null) return;
-    }
-
-    _lastCheckedNodeSignature = _getNodeSignature();
-    checkPinned(force: true);
+      checkPinned(force: true);
+    });
   }
 
   void tryStartCheck() {

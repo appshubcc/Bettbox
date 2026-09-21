@@ -493,6 +493,7 @@ class BypassDomainItem extends StatelessWidget {
                         (state) =>
                             state.copyWith(bypassDomain: defaultBypassDomain),
                       );
+                  await _handleNetworkConfigChange(ref);
                 },
                 tooltip: appLocalizations.reset,
                 icon: const Icon(Icons.replay),
@@ -510,12 +511,13 @@ class BypassDomainItem extends StatelessWidget {
               title: appLocalizations.bypassDomain,
               items: bypassDomain,
               titleBuilder: (item) => Text(item),
-              onChange: (items) {
+              onChange: (items) async {
                 ref
                     .read(networkSettingProvider.notifier)
                     .updateState(
                       (state) => state.copyWith(bypassDomain: List.from(items)),
                     );
+                await _handleNetworkConfigChange(ref);
               },
             );
           },
@@ -632,39 +634,44 @@ class BypassPrivateRouteItem extends ConsumerWidget {
   }
 }
 
-final networkItems = [
-  if (system.isAndroid) ...generateSection(items: const [VPNItem()]),
-  if (system.isAndroid)
-    ...generateSection(
-      title: 'VPN',
-      items: [const AllowBypassItem(), const VpnSystemProxyItem()],
-    ),
-  if (system.isDesktop)
-    ...generateSection(
-      title: appLocalizations.system,
-      items: [SystemProxyItem(), BypassDomainItem()],
-    ),
-  ...generateSection(
-    title: appLocalizations.options,
-    items: [
-      if (system.isDesktop) const TUNItem(),
-      if (system.isMacOS) const AutoSetSystemDnsItem(),
-      if (!system.isAndroid) const StrictRouteItem(),
-      const IcmpForwardingItem(),
-      const DnsHijackItem(),
-      const EndpointIndependentNatItem(),
-      const TunStackItem(),
-      const MtuItem(),
-      const BypassPrivateRouteItem(),
-    ],
-  ),
-];
-
-class NetworkListView extends StatelessWidget {
+class NetworkListView extends ConsumerWidget {
   const NetworkListView({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final vpnSystemProxy = system.isAndroid &&
+        ref.watch(vpnSettingProvider.select((state) => state.systemProxy));
+    final networkItems = [
+      if (system.isAndroid) ...generateSection(items: const [VPNItem()]),
+      if (system.isAndroid)
+        ...generateSection(
+          title: 'VPN',
+          items: [
+            const AllowBypassItem(),
+            const VpnSystemProxyItem(),
+            if (vpnSystemProxy) const BypassDomainItem(),
+          ],
+        ),
+      if (system.isDesktop)
+        ...generateSection(
+          title: appLocalizations.system,
+          items: const [SystemProxyItem(), BypassDomainItem()],
+        ),
+      ...generateSection(
+        title: appLocalizations.options,
+        items: [
+          if (system.isDesktop) const TUNItem(),
+          if (system.isMacOS) const AutoSetSystemDnsItem(),
+          if (!system.isAndroid) const StrictRouteItem(),
+          const IcmpForwardingItem(),
+          const DnsHijackItem(),
+          const EndpointIndependentNatItem(),
+          const TunStackItem(),
+          const MtuItem(),
+          const BypassPrivateRouteItem(),
+        ],
+      ),
+    ];
     return generateListView(networkItems);
   }
 }

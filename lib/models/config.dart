@@ -11,13 +11,15 @@ part 'generated/config.freezed.dart';
 part 'generated/config.g.dart';
 
 const defaultBypassDomain = [
-  '*jd.com',
-  '*zhihu.com',
-  '*zhimg.com',
-  '*360buyimg.com',
+  '*.jd.com',
+  '*.zhihu.com',
+  '*.zhimg.com',
+  '*.360buyimg.com',
   'localhost',
-  '*.local',
   '127.*',
+  '[::1]',
+  '::1',
+  '*.local',
   '10.*',
   '172.16.*',
   '172.17.*',

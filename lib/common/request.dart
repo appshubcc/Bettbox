@@ -494,12 +494,17 @@ class Request {
 
   Future<void> _writeIpCacheFile(File file, Map<String, dynamic> entries) async {
     try {
-      final tempFile = File('${file.path}.tmp');
+      final tempFile = File('${file.path}.${DateTime.now().microsecondsSinceEpoch}.tmp');
+      await tempFile.parent.create(recursive: true);
       await tempFile.writeAsString(json.encode(entries), flush: true);
-      if (await file.exists()) {
-        await file.delete();
+      try {
+        await tempFile.rename(file.path);
+      } catch (_) {
+        if (await tempFile.exists()) {
+          await tempFile.copy(file.path);
+          await tempFile.delete();
+        }
       }
-      await tempFile.rename(file.path);
     } catch (_) {}
   }
 

@@ -29,20 +29,23 @@ class ClashLib extends ClashHandlerInterface with AndroidClashInterface {
     return _canSendCompleter.future;
   }
 
+  bool _isListening = false;
+
   Future<void> _initService() async {
     _registerMainPort(receiverPort.sendPort);
-    receiverPort.listen((message) {
-      if (message is SendPort) {
-        if (_canSendCompleter.isCompleted) {
-          sendPort = null;
-          _canSendCompleter = Completer();
+    if (!_isListening) {
+      _isListening = true;
+      receiverPort.listen((message) {
+        if (message is SendPort) {
+          sendPort = message;
+          if (!_canSendCompleter.isCompleted) {
+            _canSendCompleter.complete(true);
+          }
+        } else {
+          handleResult(ActionResult.fromJson(json.decode(message)));
         }
-        sendPort = message;
-        _canSendCompleter.complete(true);
-      } else {
-        handleResult(ActionResult.fromJson(json.decode(message)));
-      }
-    });
+      });
+    }
     final alreadyRunning = await service?.isServiceEngineRunning() ?? false;
     if (alreadyRunning) {
       await service?.reconnectIpc();
@@ -55,11 +58,14 @@ class ClashLib extends ClashHandlerInterface with AndroidClashInterface {
 
   Future<void> _waitForIpc() async {
     for (var attempt = 0; attempt < 3; attempt++) {
+      if (sendPort != null && _canSendCompleter.isCompleted) return;
       final connected = await _canSendCompleter.future
           .timeout(const Duration(seconds: 2), onTimeout: () => false);
-      if (connected) return;
+      if (connected && sendPort != null) return;
       commonPrint.log('ClashLib: IPC attempt ${attempt + 1}/3 failed, retrying...');
-      _canSendCompleter = Completer();
+      if (_canSendCompleter.isCompleted) {
+        _canSendCompleter = Completer();
+      }
       await service?.reconnectIpc();
     }
     commonPrint.log('ClashLib: IPC failed after 3 attempts');
@@ -95,7 +101,14 @@ class ClashLib extends ClashHandlerInterface with AndroidClashInterface {
 
   @override
   sendMessage(String message) async {
-    await _canSendCompleter.future;
+    final canSend = await _canSendCompleter.future.timeout(
+      const Duration(seconds: 5),
+      onTimeout: () => false,
+    );
+    if (!canSend || sendPort == null) {
+      commonPrint.log('ClashLib: IPC not ready after 5s');
+      throw TimeoutException('Android IPC SendPort unavailable');
+    }
     try {
       sendPort?.send(message);
     } catch (e) {

@@ -129,7 +129,7 @@ abstract class ClashHandlerInterface with ClashInterface {
     }
   }
 
-  void sendMessage(String message);
+  FutureOr<void> sendMessage(String message);
 
   FutureOr<void> reStart();
 
@@ -157,7 +157,12 @@ abstract class ClashHandlerInterface with ClashInterface {
       }
     }
 
-    sendMessage(json.encode(Action(id: id, method: method, data: data)));
+    try {
+      await sendMessage(json.encode(Action(id: id, method: method, data: data)));
+    } catch (e) {
+      callbackCompleterMap.remove(id);
+      rethrow;
+    }
 
     return (callbackCompleterMap[id] as Completer<T>).safeFuture(
       timeout: timeout,
@@ -264,7 +269,8 @@ abstract class ClashHandlerInterface with ClashInterface {
     return await invoke<String>(
       method: ActionMethod.setupConfig,
       data: data,
-      timeout: const Duration(seconds: 60),
+      timeout: const Duration(seconds: 15),
+      onTimeout: () => throw TimeoutException('setupConfig timeout'),
     );
   }
 

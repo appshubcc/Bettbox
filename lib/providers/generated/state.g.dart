@@ -80,7 +80,7 @@ final currentNavigationItemsStateProvider =
 // ignore: unused_element
 typedef CurrentNavigationItemsStateRef =
     AutoDisposeProviderRef<NavigationItemsState>;
-String _$coreStateHash() => r'0fec30a6b2b78e720d08824a11e1cc945c1873bb';
+String _$coreStateHash() => r'0fa27ce344c4d783bd66f3d828ff116a24fe7279';
 
 /// See also [coreState].
 @ProviderFor(coreState)

@@ -601,16 +601,16 @@ class GlobalState {
   Future<void> _writeRunningConfig(Map<String, dynamic> clashConfig) async {
     final content = await encodeCompactYamlTask(clashConfig);
     final configPath = await appPath.configFilePath;
-    final tempFile = File('$configPath.tmp');
+    final tempFile = File('$configPath.${DateTime.now().microsecondsSinceEpoch}.tmp');
+    await tempFile.parent.create(recursive: true);
     await tempFile.writeAsString(content, flush: true);
     try {
       await tempFile.rename(configPath);
     } catch (_) {
-      final targetFile = File(configPath);
-      if (await targetFile.exists()) {
-        await targetFile.delete();
+      if (await tempFile.exists()) {
+        await tempFile.copy(configPath);
+        await tempFile.delete();
       }
-      await tempFile.rename(configPath);
     }
   }
 

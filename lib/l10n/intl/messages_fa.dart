@@ -235,6 +235,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "پلتفرم‌های اجتماعی",
     ),
     "categoryStreaming": MessageLookupByLibrary.simpleMessage("رسانه‌های جاری"),
+    "chasingDots": MessageLookupByLibrary.simpleMessage("نقاط تعقیب‌کننده"),
     "checkError": MessageLookupByLibrary.simpleMessage("بررسی ناموفق بود"),
     "checkFailed": MessageLookupByLibrary.simpleMessage("Timeout"),
     "checkOrAddProfile": MessageLookupByLibrary.simpleMessage(
@@ -319,6 +320,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "crashTest": MessageLookupByLibrary.simpleMessage("تست خرابی"),
     "create": MessageLookupByLibrary.simpleMessage("ایجاد"),
     "creationTime": MessageLookupByLibrary.simpleMessage("زمان ایجاد"),
+    "cubeGrid": MessageLookupByLibrary.simpleMessage("شبکه مکعب‌ها"),
     "custom": MessageLookupByLibrary.simpleMessage("سفارشی"),
     "customDashboardTitle": MessageLookupByLibrary.simpleMessage(
       "عنوان سفارشی",
@@ -328,6 +330,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "customUrl": MessageLookupByLibrary.simpleMessage("آدرس URL سفارشی"),
     "cut": MessageLookupByLibrary.simpleMessage("برش"),
+    "dancingSquare": MessageLookupByLibrary.simpleMessage("مربع رقصان"),
     "dark": MessageLookupByLibrary.simpleMessage("تاریک"),
     "darkIcon": MessageLookupByLibrary.simpleMessage("آیکون تاریک"),
     "darkIconDesc": MessageLookupByLibrary.simpleMessage(
@@ -413,6 +416,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "dozeSuspendDesc": MessageLookupByLibrary.simpleMessage(
       "همگام‌سازی با حالت خواب سیستم (Doze)",
     ),
+    "dualRing": MessageLookupByLibrary.simpleMessage("حلقه دوتایی"),
     "edit": MessageLookupByLibrary.simpleMessage("ویرایش"),
     "editTunnel": MessageLookupByLibrary.simpleMessage("ویرایش هدایت"),
     "emptyTip": m3,
@@ -468,7 +472,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "externalLink": MessageLookupByLibrary.simpleMessage("لینک خارجی"),
     "externalResources": MessageLookupByLibrary.simpleMessage("منابع خارجی"),
     "fadingCircle": MessageLookupByLibrary.simpleMessage("حلقه محوشونده"),
+    "fadingCube": MessageLookupByLibrary.simpleMessage("مکعب محوشونده"),
     "fadingFour": MessageLookupByLibrary.simpleMessage("چهار دایره محوشونده"),
+    "fadingGrid": MessageLookupByLibrary.simpleMessage("شبکه محوشونده"),
     "fakeIpFilterMode": MessageLookupByLibrary.simpleMessage(
       "حالت فیلتر FakeIP",
     ),
@@ -513,6 +519,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "امکان جستجو و تطبیق پردازش‌ها",
     ),
     "flagged": MessageLookupByLibrary.simpleMessage("نشانه‌گذاری‌شده"),
+    "foldingCube": MessageLookupByLibrary.simpleMessage("مکعب تاشو"),
     "fontFamily": MessageLookupByLibrary.simpleMessage("فونت"),
     "forceDnsMapping": MessageLookupByLibrary.simpleMessage("نگاشت اجباری DNS"),
     "forceDnsMappingDesc": MessageLookupByLibrary.simpleMessage(
@@ -584,6 +591,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "hotkeyManagementDesc": MessageLookupByLibrary.simpleMessage(
       "کنترل برنامه با صفحه کلید",
     ),
+    "hourGlass": MessageLookupByLibrary.simpleMessage("ساعت شنی"),
     "hours": m5,
     "httpPortSniffer": MessageLookupByLibrary.simpleMessage("اسنیف پورت HTTP"),
     "icmpForwarding": MessageLookupByLibrary.simpleMessage("هدایت ICMP"),
@@ -911,6 +919,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "password": MessageLookupByLibrary.simpleMessage("رمز عبور"),
     "paste": MessageLookupByLibrary.simpleMessage("جایگذاری"),
+    "pianoWave": MessageLookupByLibrary.simpleMessage("موج پیانو"),
     "pin": MessageLookupByLibrary.simpleMessage("پین"),
     "pleaseBindWebDAV": MessageLookupByLibrary.simpleMessage(
       "لطفاً به WebDAV متصل شوید",
@@ -938,6 +947,10 @@ class MessageLookup extends MessageLookupByLibrary {
       "لطفاً پورت غیرتکراری وارد کنید",
     ),
     "portTip": m11,
+    "pouringHourGlass": MessageLookupByLibrary.simpleMessage("ساعت شنی روان"),
+    "pouringHourGlassRefined": MessageLookupByLibrary.simpleMessage(
+      "ساعت شنی ظریف",
+    ),
     "powerSwitch": MessageLookupByLibrary.simpleMessage("کلید روشن/خاموش"),
     "preferH3Desc": MessageLookupByLibrary.simpleMessage(
       "اولویت استفاده از HTTP/3 در DoH",
@@ -1002,6 +1015,8 @@ class MessageLookup extends MessageLookupByLibrary {
       "مجموعه پروکسی",
     ),
     "pulse": MessageLookupByLibrary.simpleMessage("پالس"),
+    "pulsingGrid": MessageLookupByLibrary.simpleMessage("شبکه تپنده"),
+    "pumpingHeart": MessageLookupByLibrary.simpleMessage("قلب تپنده"),
     "pureBlackMode": MessageLookupByLibrary.simpleMessage("حالت مشکی خالص"),
     "qrcode": MessageLookupByLibrary.simpleMessage("کد QR"),
     "qrcodeDesc": MessageLookupByLibrary.simpleMessage(
@@ -1100,7 +1115,10 @@ class MessageLookup extends MessageLookupByLibrary {
     "restore": MessageLookupByLibrary.simpleMessage("بازیابی"),
     "retry": MessageLookupByLibrary.simpleMessage("تلاش مجدد"),
     "rightClickBehavior": MessageLookupByLibrary.simpleMessage("کلیک راست"),
+    "ring": MessageLookupByLibrary.simpleMessage("حلقه"),
+    "ripple": MessageLookupByLibrary.simpleMessage("موج آب"),
     "rotatingCircle": MessageLookupByLibrary.simpleMessage("چرخش تک‌دایره"),
+    "rotatingPlain": MessageLookupByLibrary.simpleMessage("صفحه چرخان"),
     "rule": MessageLookupByLibrary.simpleMessage("قوانین"),
     "ruleName": MessageLookupByLibrary.simpleMessage("نام قانون"),
     "ruleProviders": MessageLookupByLibrary.simpleMessage(
@@ -1189,7 +1207,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "sourceIp": MessageLookupByLibrary.simpleMessage("IP مبدا"),
     "specialProxy": MessageLookupByLibrary.simpleMessage("پروکسی ویژه"),
     "specialRules": MessageLookupByLibrary.simpleMessage("قوانین ویژه"),
+    "spinningCircle": MessageLookupByLibrary.simpleMessage("دایره چرخان"),
     "spinningLines": MessageLookupByLibrary.simpleMessage("خطوط چرخان"),
+    "squareCircle": MessageLookupByLibrary.simpleMessage("مربع و دایره"),
     "stackMode": MessageLookupByLibrary.simpleMessage("حالت پشته"),
     "standard": MessageLookupByLibrary.simpleMessage("استاندارد"),
     "start": MessageLookupByLibrary.simpleMessage("شروع"),
@@ -1381,7 +1401,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "wakelockDescription": MessageLookupByLibrary.simpleMessage(
       "جلوگیری از خاموش شدن خودکار صفحه نمایش برای فعال ماندن برنامه‌ها در پس‌زمینه.",
     ),
+    "wanderingCubes": MessageLookupByLibrary.simpleMessage("مکعب‌های سرگردان"),
     "wave": MessageLookupByLibrary.simpleMessage("موج"),
+    "waveSpinner": MessageLookupByLibrary.simpleMessage("چرخنده موجی"),
     "webDAVConfiguration": MessageLookupByLibrary.simpleMessage(
       "تنظیمات WebDAV",
     ),

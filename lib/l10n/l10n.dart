@@ -2419,6 +2419,166 @@ class AppLocalizations {
     );
   }
 
+  /// `Chasing Dots`
+  String get chasingDots {
+    return Intl.message(
+      'Chasing Dots',
+      name: 'chasingDots',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Cube Grid`
+  String get cubeGrid {
+    return Intl.message('Cube Grid', name: 'cubeGrid', desc: '', args: []);
+  }
+
+  /// `Dancing Square`
+  String get dancingSquare {
+    return Intl.message(
+      'Dancing Square',
+      name: 'dancingSquare',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Dual Ring`
+  String get dualRing {
+    return Intl.message('Dual Ring', name: 'dualRing', desc: '', args: []);
+  }
+
+  /// `Fading Cube`
+  String get fadingCube {
+    return Intl.message('Fading Cube', name: 'fadingCube', desc: '', args: []);
+  }
+
+  /// `Fading Grid`
+  String get fadingGrid {
+    return Intl.message('Fading Grid', name: 'fadingGrid', desc: '', args: []);
+  }
+
+  /// `Folding Cube`
+  String get foldingCube {
+    return Intl.message(
+      'Folding Cube',
+      name: 'foldingCube',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Hourglass`
+  String get hourGlass {
+    return Intl.message('Hourglass', name: 'hourGlass', desc: '', args: []);
+  }
+
+  /// `Piano Wave`
+  String get pianoWave {
+    return Intl.message('Piano Wave', name: 'pianoWave', desc: '', args: []);
+  }
+
+  /// `Pouring Hourglass`
+  String get pouringHourGlass {
+    return Intl.message(
+      'Pouring Hourglass',
+      name: 'pouringHourGlass',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Refined Hourglass`
+  String get pouringHourGlassRefined {
+    return Intl.message(
+      'Refined Hourglass',
+      name: 'pouringHourGlassRefined',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Pulsing Grid`
+  String get pulsingGrid {
+    return Intl.message(
+      'Pulsing Grid',
+      name: 'pulsingGrid',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Pumping Heart`
+  String get pumpingHeart {
+    return Intl.message(
+      'Pumping Heart',
+      name: 'pumpingHeart',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Ring`
+  String get ring {
+    return Intl.message('Ring', name: 'ring', desc: '', args: []);
+  }
+
+  /// `Ripple`
+  String get ripple {
+    return Intl.message('Ripple', name: 'ripple', desc: '', args: []);
+  }
+
+  /// `Rotating Plain`
+  String get rotatingPlain {
+    return Intl.message(
+      'Rotating Plain',
+      name: 'rotatingPlain',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Spinning Circle`
+  String get spinningCircle {
+    return Intl.message(
+      'Spinning Circle',
+      name: 'spinningCircle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Square Circle`
+  String get squareCircle {
+    return Intl.message(
+      'Square Circle',
+      name: 'squareCircle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Wandering Cubes`
+  String get wanderingCubes {
+    return Intl.message(
+      'Wandering Cubes',
+      name: 'wanderingCubes',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Wave Spinner`
+  String get waveSpinner {
+    return Intl.message(
+      'Wave Spinner',
+      name: 'waveSpinner',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Sort`
   String get sort {
     return Intl.message('Sort', name: 'sort', desc: '', args: []);

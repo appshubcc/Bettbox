@@ -235,6 +235,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "categoryGaming": MessageLookupByLibrary.simpleMessage("Gaming Center"),
     "categorySocial": MessageLookupByLibrary.simpleMessage("Social Platforms"),
     "categoryStreaming": MessageLookupByLibrary.simpleMessage("Streaming"),
+    "chasingDots": MessageLookupByLibrary.simpleMessage("Chasing Dots"),
     "checkError": MessageLookupByLibrary.simpleMessage("Check Failed"),
     "checkFailed": MessageLookupByLibrary.simpleMessage("Timeout"),
     "checkOrAddProfile": MessageLookupByLibrary.simpleMessage(
@@ -321,6 +322,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "crashTest": MessageLookupByLibrary.simpleMessage("Crash Test"),
     "create": MessageLookupByLibrary.simpleMessage("Create"),
     "creationTime": MessageLookupByLibrary.simpleMessage("Creation Time"),
+    "cubeGrid": MessageLookupByLibrary.simpleMessage("Cube Grid"),
     "custom": MessageLookupByLibrary.simpleMessage("Custom"),
     "customDashboardTitle": MessageLookupByLibrary.simpleMessage(
       "Custom Dashboard Title",
@@ -330,6 +332,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "customUrl": MessageLookupByLibrary.simpleMessage("Custom URL"),
     "cut": MessageLookupByLibrary.simpleMessage("Cut"),
+    "dancingSquare": MessageLookupByLibrary.simpleMessage("Dancing Square"),
     "dark": MessageLookupByLibrary.simpleMessage("Dark"),
     "darkIcon": MessageLookupByLibrary.simpleMessage("Dark Icon"),
     "darkIconDesc": MessageLookupByLibrary.simpleMessage(
@@ -417,6 +420,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "dozeSuspendDesc": MessageLookupByLibrary.simpleMessage(
       "Sync with system Doze mode",
     ),
+    "dualRing": MessageLookupByLibrary.simpleMessage("Dual Ring"),
     "edit": MessageLookupByLibrary.simpleMessage("Edit"),
     "editTunnel": MessageLookupByLibrary.simpleMessage("Edit Forwarding"),
     "emptyTip": m3,
@@ -474,7 +478,9 @@ class MessageLookup extends MessageLookupByLibrary {
       "External Resources",
     ),
     "fadingCircle": MessageLookupByLibrary.simpleMessage("Fading Circle"),
+    "fadingCube": MessageLookupByLibrary.simpleMessage("Fading Cube"),
     "fadingFour": MessageLookupByLibrary.simpleMessage("Fading Four"),
+    "fadingGrid": MessageLookupByLibrary.simpleMessage("Fading Grid"),
     "fakeIpFilterMode": MessageLookupByLibrary.simpleMessage(
       "FakeIP Filter Mode",
     ),
@@ -517,6 +523,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "Enable process matching",
     ),
     "flagged": MessageLookupByLibrary.simpleMessage("Flagged"),
+    "foldingCube": MessageLookupByLibrary.simpleMessage("Folding Cube"),
     "fontFamily": MessageLookupByLibrary.simpleMessage("Font"),
     "forceDnsMapping": MessageLookupByLibrary.simpleMessage(
       "Force DNS Mapping",
@@ -588,6 +595,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "hotkeyManagementDesc": MessageLookupByLibrary.simpleMessage(
       "Control app via keyboard",
     ),
+    "hourGlass": MessageLookupByLibrary.simpleMessage("Hourglass"),
     "hours": m5,
     "httpPortSniffer": MessageLookupByLibrary.simpleMessage(
       "HTTP Port Sniffing",
@@ -899,6 +907,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "password": MessageLookupByLibrary.simpleMessage("Password"),
     "paste": MessageLookupByLibrary.simpleMessage("Paste"),
+    "pianoWave": MessageLookupByLibrary.simpleMessage("Piano Wave"),
     "pin": MessageLookupByLibrary.simpleMessage("Pin"),
     "pleaseBindWebDAV": MessageLookupByLibrary.simpleMessage(
       "Please bind WebDAV",
@@ -926,6 +935,12 @@ class MessageLookup extends MessageLookupByLibrary {
       "Please enter a different port",
     ),
     "portTip": m11,
+    "pouringHourGlass": MessageLookupByLibrary.simpleMessage(
+      "Pouring Hourglass",
+    ),
+    "pouringHourGlassRefined": MessageLookupByLibrary.simpleMessage(
+      "Refined Hourglass",
+    ),
     "powerSwitch": MessageLookupByLibrary.simpleMessage("Power"),
     "preferH3Desc": MessageLookupByLibrary.simpleMessage(
       "Prioritize DoH HTTP/3",
@@ -982,6 +997,8 @@ class MessageLookup extends MessageLookupByLibrary {
       "Proxy Providers",
     ),
     "pulse": MessageLookupByLibrary.simpleMessage("Pulse"),
+    "pulsingGrid": MessageLookupByLibrary.simpleMessage("Pulsing Grid"),
+    "pumpingHeart": MessageLookupByLibrary.simpleMessage("Pumping Heart"),
     "pureBlackMode": MessageLookupByLibrary.simpleMessage("Pure Black Mode"),
     "qrcode": MessageLookupByLibrary.simpleMessage("QR Code"),
     "qrcodeDesc": MessageLookupByLibrary.simpleMessage(
@@ -1076,7 +1093,10 @@ class MessageLookup extends MessageLookupByLibrary {
     "restore": MessageLookupByLibrary.simpleMessage("Restore"),
     "retry": MessageLookupByLibrary.simpleMessage("Retry"),
     "rightClickBehavior": MessageLookupByLibrary.simpleMessage("Right Click"),
+    "ring": MessageLookupByLibrary.simpleMessage("Ring"),
+    "ripple": MessageLookupByLibrary.simpleMessage("Ripple"),
     "rotatingCircle": MessageLookupByLibrary.simpleMessage("Rotating Circle"),
+    "rotatingPlain": MessageLookupByLibrary.simpleMessage("Rotating Plain"),
     "rule": MessageLookupByLibrary.simpleMessage("Rule"),
     "ruleName": MessageLookupByLibrary.simpleMessage("Rule Name"),
     "ruleProviders": MessageLookupByLibrary.simpleMessage("Rule Providers"),
@@ -1163,7 +1183,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "sourceIp": MessageLookupByLibrary.simpleMessage("Source IP"),
     "specialProxy": MessageLookupByLibrary.simpleMessage("Special Proxy"),
     "specialRules": MessageLookupByLibrary.simpleMessage("Special Rules"),
+    "spinningCircle": MessageLookupByLibrary.simpleMessage("Spinning Circle"),
     "spinningLines": MessageLookupByLibrary.simpleMessage("Spinning Lines"),
+    "squareCircle": MessageLookupByLibrary.simpleMessage("Square Circle"),
     "stackMode": MessageLookupByLibrary.simpleMessage("Stack Mode"),
     "standard": MessageLookupByLibrary.simpleMessage("Standard"),
     "start": MessageLookupByLibrary.simpleMessage("Start"),
@@ -1343,7 +1365,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "wakelockDescription": MessageLookupByLibrary.simpleMessage(
       "Keeps the screen on and app active in the background without requiring special CPU wakelock permissions.",
     ),
+    "wanderingCubes": MessageLookupByLibrary.simpleMessage("Wandering Cubes"),
     "wave": MessageLookupByLibrary.simpleMessage("Wave"),
+    "waveSpinner": MessageLookupByLibrary.simpleMessage("Wave Spinner"),
     "webDAVConfiguration": MessageLookupByLibrary.simpleMessage(
       "WebDAV Configuration",
     ),

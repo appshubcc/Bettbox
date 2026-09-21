@@ -1371,9 +1371,6 @@ class MessageLookup extends MessageLookupByLibrary {
     "vpnEnableDesc": MessageLookupByLibrary.simpleMessage(
       "هدایت ترافیک سیستم از طریق VpnService",
     ),
-    "vpnSystemProxyConfirmDesc": MessageLookupByLibrary.simpleMessage(
-      "استفاده از پروکسی HTTP در موبایل پیشنهاد نمی‌شود مگر در صورت نیاز",
-    ),
     "vpnSystemProxyDesc": MessageLookupByLibrary.simpleMessage(
       "افزودن پروکسی HTTP به VpnService",
     ),

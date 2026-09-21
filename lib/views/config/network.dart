@@ -112,14 +112,6 @@ class VpnSystemProxyItem extends ConsumerWidget {
       delegate: SwitchDelegate(
         value: systemProxy,
         onChanged: (bool value) async {
-          if (value) {
-            final res = await globalState.showMessage(
-              message: TextSpan(
-                text: appLocalizations.vpnSystemProxyConfirmDesc,
-              ),
-            );
-            if (res != true) return;
-          }
           ref
               .read(vpnSettingProvider.notifier)
               .updateState((state) => state.copyWith(systemProxy: value));

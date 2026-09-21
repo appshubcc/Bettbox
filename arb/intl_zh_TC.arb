@@ -245,7 +245,6 @@
   "app": "應用",
   "general": "一般",
   "vpnSystemProxyDesc": "為 VpnService 附加 HTTP 代理",
-  "vpnSystemProxyConfirmDesc": "非桌面端通常不建議使用 HTTP 代理，此功能僅建議您在必要且知悉的情況下開啟",
   "systemProxyDesc": "設定系統代理",
   "unifiedDelay": "統一延遲",
   "unifiedDelayDesc": "去除交握解析等額外延遲",

@@ -1074,9 +1074,6 @@ class MessageLookup extends MessageLookupByLibrary {
     "vpnEnableDesc": MessageLookupByLibrary.simpleMessage(
       "VpnServiceでシステム通信をルーティング",
     ),
-    "vpnSystemProxyConfirmDesc": MessageLookupByLibrary.simpleMessage(
-      "モバイル端末ではHTTPプロキシ併用は非推奨です。必要な場合のみ設定してください",
-    ),
     "vpnSystemProxyDesc": MessageLookupByLibrary.simpleMessage(
       "VpnServiceにHTTPプロキシを添付",
     ),

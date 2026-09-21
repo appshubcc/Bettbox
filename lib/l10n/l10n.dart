@@ -2054,16 +2054,6 @@ class AppLocalizations {
     );
   }
 
-  /// `HTTP proxy is generally not recommended on non-desktop platforms. Only enable this feature when necessary and you fully understand the implications.`
-  String get vpnSystemProxyConfirmDesc {
-    return Intl.message(
-      'HTTP proxy is generally not recommended on non-desktop platforms. Only enable this feature when necessary and you fully understand the implications.',
-      name: 'vpnSystemProxyConfirmDesc',
-      desc: '',
-      args: [],
-    );
-  }
-
   /// `Set system proxy`
   String get systemProxyDesc {
     return Intl.message(

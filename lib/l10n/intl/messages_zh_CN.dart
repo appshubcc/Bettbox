@@ -956,9 +956,6 @@ class MessageLookup extends MessageLookupByLibrary {
     "vpnEnableDesc": MessageLookupByLibrary.simpleMessage(
       "通过 VpnService 自动路由系统流量",
     ),
-    "vpnSystemProxyConfirmDesc": MessageLookupByLibrary.simpleMessage(
-      "非桌面端通常不推荐使用 HTTP 代理，此功能仅建议您在必要且熟悉的情况下开启",
-    ),
     "vpnSystemProxyDesc": MessageLookupByLibrary.simpleMessage(
       "为 VpnService 附加 HTTP 代理",
     ),

@@ -245,7 +245,6 @@
   "app": "برنامه",
   "general": "عمومی",
   "vpnSystemProxyDesc": "افزودن پروکسی HTTP به VpnService",
-  "vpnSystemProxyConfirmDesc": "استفاده از پروکسی HTTP در موبایل پیشنهاد نمی‌شود مگر در صورت نیاز",
   "systemProxyDesc": "تنظیمات پروکسی سیستم",
   "unifiedDelay": "تاخیر یکپارچه",
   "unifiedDelayDesc": "حذف تاخیرهای اضافی دست‌تکانی",

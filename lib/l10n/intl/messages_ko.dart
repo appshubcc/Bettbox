@@ -1086,9 +1086,6 @@ class MessageLookup extends MessageLookupByLibrary {
     "vpnEnableDesc": MessageLookupByLibrary.simpleMessage(
       "VpnService를 통해 시스템 트래픽 라우팅",
     ),
-    "vpnSystemProxyConfirmDesc": MessageLookupByLibrary.simpleMessage(
-      "모바일 환경에서는 HTTP 프록시 병용을 권장하지 않습니다. 필요한 경우에만 켜세요",
-    ),
     "vpnSystemProxyDesc": MessageLookupByLibrary.simpleMessage(
       "VpnService에 HTTP 프록시 연결",
     ),

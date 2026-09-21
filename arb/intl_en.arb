@@ -245,7 +245,6 @@
   "app": "App",
   "general": "General",
   "vpnSystemProxyDesc": "Attach HTTP proxy to VpnService",
-  "vpnSystemProxyConfirmDesc": "HTTP proxy is generally not recommended on non-desktop platforms. Only enable this feature when necessary and you fully understand the implications.",
   "systemProxyDesc": "Set system proxy",
   "unifiedDelay": "Unified Delay",
   "unifiedDelayDesc": "Exclude handshake delays from testing",

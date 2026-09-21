@@ -245,7 +245,6 @@
   "app": "アプリ",
   "general": "一般",
   "vpnSystemProxyDesc": "VpnServiceにHTTPプロキシを添付",
-  "vpnSystemProxyConfirmDesc": "モバイル端末ではHTTPプロキシ併用は非推奨です。必要な場合のみ設定してください",
   "systemProxyDesc": "システムプロキシの設定",
   "unifiedDelay": "レイテンシの統一",
   "unifiedDelayDesc": "ハンドシェイク等の追加レイテンシを除外",

@@ -244,6 +244,7 @@ _WindowProps _$WindowPropsFromJson(Map<String, dynamic> json) => _WindowProps(
   top: (json['top'] as num?)?.toDouble(),
   left: (json['left'] as num?)?.toDouble(),
   isPinned: json['isPinned'] as bool? ?? false,
+  scaleFactor: (json['scaleFactor'] as num?)?.toDouble() ?? 1.0,
 );
 
 Map<String, dynamic> _$WindowPropsToJson(_WindowProps instance) =>
@@ -253,11 +254,12 @@ Map<String, dynamic> _$WindowPropsToJson(_WindowProps instance) =>
       'top': instance.top,
       'left': instance.left,
       'isPinned': instance.isPinned,
+      'scaleFactor': instance.scaleFactor,
     };
 
 _VpnProps _$VpnPropsFromJson(Map<String, dynamic> json) => _VpnProps(
   enable: json['enable'] as bool? ?? true,
-  systemProxy: json['systemProxy'] as bool? ?? false,
+  systemProxy: json['systemProxy'] as bool? ?? true,
   allowBypass: json['allowBypass'] as bool? ?? false,
   bypassPrivateRoute: json['bypassPrivateRoute'] as bool? ?? true,
   dozeSuspend: json['dozeSuspend'] as bool? ?? true,
@@ -322,7 +324,7 @@ const _$TrayClickBehaviorEnumMap = {
 
 _NetworkProps _$NetworkPropsFromJson(Map<String, dynamic> json) =>
     _NetworkProps(
-      systemProxy: json['systemProxy'] as bool? ?? false,
+      systemProxy: json['systemProxy'] as bool? ?? true,
       bypassDomain:
           (json['bypassDomain'] as List<dynamic>?)
               ?.map((e) => e as String)

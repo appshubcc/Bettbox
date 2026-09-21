@@ -245,7 +245,6 @@
   "app": "앱",
   "general": "일반",
   "vpnSystemProxyDesc": "VpnService에 HTTP 프록시 연결",
-  "vpnSystemProxyConfirmDesc": "모바일 환경에서는 HTTP 프록시 병용을 권장하지 않습니다. 필요한 경우에만 켜세요",
   "systemProxyDesc": "시스템 프록시 설정",
   "unifiedDelay": "통합 지연 시간",
   "unifiedDelayDesc": "핸드셰이크 등 추가 지연 시간 제외",

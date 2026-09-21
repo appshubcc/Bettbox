@@ -685,7 +685,7 @@ as bool,
 /// @nodoc
 mixin _$WindowProps {
 
- double get width; double get height; double? get top; double? get left; bool get isPinned;
+ double get width; double get height; double? get top; double? get left; bool get isPinned; double get scaleFactor;
 /// Create a copy of WindowProps
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -698,16 +698,16 @@ $WindowPropsCopyWith<WindowProps> get copyWith => _$WindowPropsCopyWithImpl<Wind
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is WindowProps&&(identical(other.width, width) || other.width == width)&&(identical(other.height, height) || other.height == height)&&(identical(other.top, top) || other.top == top)&&(identical(other.left, left) || other.left == left)&&(identical(other.isPinned, isPinned) || other.isPinned == isPinned));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is WindowProps&&(identical(other.width, width) || other.width == width)&&(identical(other.height, height) || other.height == height)&&(identical(other.top, top) || other.top == top)&&(identical(other.left, left) || other.left == left)&&(identical(other.isPinned, isPinned) || other.isPinned == isPinned)&&(identical(other.scaleFactor, scaleFactor) || other.scaleFactor == scaleFactor));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,width,height,top,left,isPinned);
+int get hashCode => Object.hash(runtimeType,width,height,top,left,isPinned,scaleFactor);
 
 @override
 String toString() {
-  return 'WindowProps(width: $width, height: $height, top: $top, left: $left, isPinned: $isPinned)';
+  return 'WindowProps(width: $width, height: $height, top: $top, left: $left, isPinned: $isPinned, scaleFactor: $scaleFactor)';
 }
 
 
@@ -718,7 +718,7 @@ abstract mixin class $WindowPropsCopyWith<$Res>  {
   factory $WindowPropsCopyWith(WindowProps value, $Res Function(WindowProps) _then) = _$WindowPropsCopyWithImpl;
 @useResult
 $Res call({
- double width, double height, double? top, double? left, bool isPinned
+ double width, double height, double? top, double? left, bool isPinned, double scaleFactor
 });
 
 
@@ -735,14 +735,15 @@ class _$WindowPropsCopyWithImpl<$Res>
 
 /// Create a copy of WindowProps
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? width = null,Object? height = null,Object? top = freezed,Object? left = freezed,Object? isPinned = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? width = null,Object? height = null,Object? top = freezed,Object? left = freezed,Object? isPinned = null,Object? scaleFactor = null,}) {
   return _then(_self.copyWith(
 width: null == width ? _self.width : width // ignore: cast_nullable_to_non_nullable
 as double,height: null == height ? _self.height : height // ignore: cast_nullable_to_non_nullable
 as double,top: freezed == top ? _self.top : top // ignore: cast_nullable_to_non_nullable
 as double?,left: freezed == left ? _self.left : left // ignore: cast_nullable_to_non_nullable
 as double?,isPinned: null == isPinned ? _self.isPinned : isPinned // ignore: cast_nullable_to_non_nullable
-as bool,
+as bool,scaleFactor: null == scaleFactor ? _self.scaleFactor : scaleFactor // ignore: cast_nullable_to_non_nullable
+as double,
   ));
 }
 
@@ -827,10 +828,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( double width,  double height,  double? top,  double? left,  bool isPinned)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( double width,  double height,  double? top,  double? left,  bool isPinned,  double scaleFactor)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _WindowProps() when $default != null:
-return $default(_that.width,_that.height,_that.top,_that.left,_that.isPinned);case _:
+return $default(_that.width,_that.height,_that.top,_that.left,_that.isPinned,_that.scaleFactor);case _:
   return orElse();
 
 }
@@ -848,10 +849,10 @@ return $default(_that.width,_that.height,_that.top,_that.left,_that.isPinned);ca
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( double width,  double height,  double? top,  double? left,  bool isPinned)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( double width,  double height,  double? top,  double? left,  bool isPinned,  double scaleFactor)  $default,) {final _that = this;
 switch (_that) {
 case _WindowProps():
-return $default(_that.width,_that.height,_that.top,_that.left,_that.isPinned);case _:
+return $default(_that.width,_that.height,_that.top,_that.left,_that.isPinned,_that.scaleFactor);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -868,10 +869,10 @@ return $default(_that.width,_that.height,_that.top,_that.left,_that.isPinned);ca
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( double width,  double height,  double? top,  double? left,  bool isPinned)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( double width,  double height,  double? top,  double? left,  bool isPinned,  double scaleFactor)?  $default,) {final _that = this;
 switch (_that) {
 case _WindowProps() when $default != null:
-return $default(_that.width,_that.height,_that.top,_that.left,_that.isPinned);case _:
+return $default(_that.width,_that.height,_that.top,_that.left,_that.isPinned,_that.scaleFactor);case _:
   return null;
 
 }
@@ -883,7 +884,7 @@ return $default(_that.width,_that.height,_that.top,_that.left,_that.isPinned);ca
 @JsonSerializable()
 
 class _WindowProps implements WindowProps {
-  const _WindowProps({this.width = 910, this.height = 620, this.top, this.left, this.isPinned = false});
+  const _WindowProps({this.width = 910, this.height = 620, this.top, this.left, this.isPinned = false, this.scaleFactor = 1.0});
   factory _WindowProps.fromJson(Map<String, dynamic> json) => _$WindowPropsFromJson(json);
 
 @override@JsonKey() final  double width;
@@ -891,6 +892,7 @@ class _WindowProps implements WindowProps {
 @override final  double? top;
 @override final  double? left;
 @override@JsonKey() final  bool isPinned;
+@override@JsonKey() final  double scaleFactor;
 
 /// Create a copy of WindowProps
 /// with the given fields replaced by the non-null parameter values.
@@ -905,16 +907,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _WindowProps&&(identical(other.width, width) || other.width == width)&&(identical(other.height, height) || other.height == height)&&(identical(other.top, top) || other.top == top)&&(identical(other.left, left) || other.left == left)&&(identical(other.isPinned, isPinned) || other.isPinned == isPinned));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _WindowProps&&(identical(other.width, width) || other.width == width)&&(identical(other.height, height) || other.height == height)&&(identical(other.top, top) || other.top == top)&&(identical(other.left, left) || other.left == left)&&(identical(other.isPinned, isPinned) || other.isPinned == isPinned)&&(identical(other.scaleFactor, scaleFactor) || other.scaleFactor == scaleFactor));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,width,height,top,left,isPinned);
+int get hashCode => Object.hash(runtimeType,width,height,top,left,isPinned,scaleFactor);
 
 @override
 String toString() {
-  return 'WindowProps(width: $width, height: $height, top: $top, left: $left, isPinned: $isPinned)';
+  return 'WindowProps(width: $width, height: $height, top: $top, left: $left, isPinned: $isPinned, scaleFactor: $scaleFactor)';
 }
 
 
@@ -925,7 +927,7 @@ abstract mixin class _$WindowPropsCopyWith<$Res> implements $WindowPropsCopyWith
   factory _$WindowPropsCopyWith(_WindowProps value, $Res Function(_WindowProps) _then) = __$WindowPropsCopyWithImpl;
 @override @useResult
 $Res call({
- double width, double height, double? top, double? left, bool isPinned
+ double width, double height, double? top, double? left, bool isPinned, double scaleFactor
 });
 
 
@@ -942,14 +944,15 @@ class __$WindowPropsCopyWithImpl<$Res>
 
 /// Create a copy of WindowProps
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? width = null,Object? height = null,Object? top = freezed,Object? left = freezed,Object? isPinned = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? width = null,Object? height = null,Object? top = freezed,Object? left = freezed,Object? isPinned = null,Object? scaleFactor = null,}) {
   return _then(_WindowProps(
 width: null == width ? _self.width : width // ignore: cast_nullable_to_non_nullable
 as double,height: null == height ? _self.height : height // ignore: cast_nullable_to_non_nullable
 as double,top: freezed == top ? _self.top : top // ignore: cast_nullable_to_non_nullable
 as double?,left: freezed == left ? _self.left : left // ignore: cast_nullable_to_non_nullable
 as double?,isPinned: null == isPinned ? _self.isPinned : isPinned // ignore: cast_nullable_to_non_nullable
-as bool,
+as bool,scaleFactor: null == scaleFactor ? _self.scaleFactor : scaleFactor // ignore: cast_nullable_to_non_nullable
+as double,
   ));
 }
 
@@ -1182,7 +1185,7 @@ return $default(_that.enable,_that.systemProxy,_that.allowBypass,_that.bypassPri
 @JsonSerializable()
 
 class _VpnProps implements VpnProps {
-  const _VpnProps({this.enable = true, this.systemProxy = false, this.allowBypass = false, this.bypassPrivateRoute = true, this.dozeSuspend = true, this.smartAutoStop = false, this.smartAutoStopNetworks = '', this.storeFix = false, this.networkFix = false, this.disableQuic = false, this.highPriorityNotification = false, this.networkSpeedNotification = false, this.excludeChina = false, this.trayEnhancement = false, this.trayLeftClickBehavior = TrayClickBehavior.showPanel, this.trayRightClickBehavior = TrayClickBehavior.showMenu, this.enableTraySpeed = false, this.alwaysShowTitleBar = true, this.quickResponse = true, this.accessControl = defaultAccessControl});
+  const _VpnProps({this.enable = true, this.systemProxy = true, this.allowBypass = false, this.bypassPrivateRoute = true, this.dozeSuspend = true, this.smartAutoStop = false, this.smartAutoStopNetworks = '', this.storeFix = false, this.networkFix = false, this.disableQuic = false, this.highPriorityNotification = false, this.networkSpeedNotification = false, this.excludeChina = false, this.trayEnhancement = false, this.trayLeftClickBehavior = TrayClickBehavior.showPanel, this.trayRightClickBehavior = TrayClickBehavior.showMenu, this.enableTraySpeed = false, this.alwaysShowTitleBar = true, this.quickResponse = true, this.accessControl = defaultAccessControl});
   factory _VpnProps.fromJson(Map<String, dynamic> json) => _$VpnPropsFromJson(json);
 
 @override@JsonKey() final  bool enable;
@@ -1496,7 +1499,7 @@ return $default(_that.systemProxy,_that.bypassDomain,_that.bypassPrivateRoute,_t
 @JsonSerializable()
 
 class _NetworkProps implements NetworkProps {
-  const _NetworkProps({this.systemProxy = false, final  List<String> bypassDomain = defaultBypassDomain, this.bypassPrivateRoute = true, final  List<String> bypassPrivateRouteAddress = const [], this.autoSetSystemDns = true}): _bypassDomain = bypassDomain,_bypassPrivateRouteAddress = bypassPrivateRouteAddress;
+  const _NetworkProps({this.systemProxy = true, final  List<String> bypassDomain = defaultBypassDomain, this.bypassPrivateRoute = true, final  List<String> bypassPrivateRouteAddress = const [], this.autoSetSystemDns = true}): _bypassDomain = bypassDomain,_bypassPrivateRouteAddress = bypassPrivateRouteAddress;
   factory _NetworkProps.fromJson(Map<String, dynamic> json) => _$NetworkPropsFromJson(json);
 
 @override@JsonKey() final  bool systemProxy;

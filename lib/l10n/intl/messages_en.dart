@@ -574,6 +574,13 @@ class MessageLookup extends MessageLookupByLibrary {
       "Node health check timeout",
     ),
     "heapObjects": MessageLookupByLibrary.simpleMessage("Objects"),
+    "hideDockIcon": MessageLookupByLibrary.simpleMessage("Hide Dock Icon"),
+    "hideDockIconDesc": MessageLookupByLibrary.simpleMessage(
+      "Hide the app icon from the Dock and keep only the menu bar tray icon",
+    ),
+    "hideDockIconTip": MessageLookupByLibrary.simpleMessage(
+      "Once enabled, the app icon will disappear from the Dock and can only be accessed from the menu bar tray icon. Are you sure you want to enable it?",
+    ),
     "highPriority": MessageLookupByLibrary.simpleMessage("High Priority"),
     "highPriorityDesc": MessageLookupByLibrary.simpleMessage(
       "Increase priority of main process and core process",

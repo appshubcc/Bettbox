@@ -572,6 +572,15 @@ class MessageLookup extends MessageLookupByLibrary {
       "مهلت زمانی تست سلامت نودها",
     ),
     "heapObjects": MessageLookupByLibrary.simpleMessage("Objects"),
+    "hideDockIcon": MessageLookupByLibrary.simpleMessage(
+      "پنهان کردن آیکون Dock",
+    ),
+    "hideDockIconDesc": MessageLookupByLibrary.simpleMessage(
+      "آیکون برنامه را از Dock پنهان می‌کند و فقط آیکون نوار منو باقی می‌ماند",
+    ),
+    "hideDockIconTip": MessageLookupByLibrary.simpleMessage(
+      "با فعال‌سازی، آیکون برنامه از Dock ناپدید شده و فقط از طریق آیکون نوار منو قابل دسترسی خواهد بود. فعال شود؟",
+    ),
     "highPriority": MessageLookupByLibrary.simpleMessage("اولویت بالا"),
     "highPriorityDesc": MessageLookupByLibrary.simpleMessage(
       "افزایش اولویت پردازش برنامه و هسته",

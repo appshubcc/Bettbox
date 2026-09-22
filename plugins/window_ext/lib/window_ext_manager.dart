@@ -39,6 +39,13 @@ class WindowExtManager {
   void removeListener(WindowExtListener listener) {
     _listeners.remove(listener);
   }
+
+  /// Toggles the app icon visibility in the macOS Dock.
+  ///
+  /// Only supported on macOS, callers on other platforms should skip it.
+  Future<void> setDockIconVisible(bool visible) {
+    return _channel.invokeMethod('setDockIconVisible', visible);
+  }
 }
 
 final windowExtManager = WindowExtManager.instance;

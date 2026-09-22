@@ -539,6 +539,36 @@ class AppLocalizations {
     );
   }
 
+  /// `Hide Dock Icon`
+  String get hideDockIcon {
+    return Intl.message(
+      'Hide Dock Icon',
+      name: 'hideDockIcon',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Hide the app icon from the Dock and keep only the menu bar tray icon`
+  String get hideDockIconDesc {
+    return Intl.message(
+      'Hide the app icon from the Dock and keep only the menu bar tray icon',
+      name: 'hideDockIconDesc',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Once enabled, the app icon will disappear from the Dock and can only be accessed from the menu bar tray icon. Are you sure you want to enable it?`
+  String get hideDockIconTip {
+    return Intl.message(
+      'Once enabled, the app icon will disappear from the Dock and can only be accessed from the menu bar tray icon. Are you sure you want to enable it?',
+      name: 'hideDockIconTip',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Tray Enhancement`
   String get trayEnhancement {
     return Intl.message(

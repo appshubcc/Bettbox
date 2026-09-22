@@ -186,6 +186,7 @@ abstract class AppSettingProps with _$AppSettingProps {
     @Default(false) bool disclaimerAccepted,
     @Default(true) bool minimizeOnExit,
     @Default(false) bool hidden,
+    @Default(false) bool hideDockIcon,
     @Default(false) bool developerMode,
     @Default(false) bool enableHighRefreshRate,
     @Default(RecoveryStrategy.compatible) RecoveryStrategy recoveryStrategy,

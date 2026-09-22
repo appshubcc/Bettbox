@@ -461,6 +461,13 @@ class MessageLookup extends MessageLookupByLibrary {
       "ヘルスチェックのタイムアウト時間",
     ),
     "heapObjects": MessageLookupByLibrary.simpleMessage("Objects"),
+    "hideDockIcon": MessageLookupByLibrary.simpleMessage("Dock アイコンを隠す"),
+    "hideDockIconDesc": MessageLookupByLibrary.simpleMessage(
+      "Dock からアプリアイコンを非表示にし、メニューバーのトレイアイコンのみ残します",
+    ),
+    "hideDockIconTip": MessageLookupByLibrary.simpleMessage(
+      "有効にするとアプリアイコンは Dock から消え、メニューバーのトレイアイコンからのみ操作できます。有効にしますか？",
+    ),
     "highPriority": MessageLookupByLibrary.simpleMessage("高優先度"),
     "highPriorityDesc": MessageLookupByLibrary.simpleMessage(
       "メインプロセスとカーネルプロセスの優先度を付与",

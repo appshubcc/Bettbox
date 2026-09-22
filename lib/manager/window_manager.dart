@@ -83,6 +83,7 @@ class _WindowContainerState extends ConsumerState<WindowManager>
   }
 
   ProviderSubscription? _autoLaunchSub;
+  ProviderSubscription? _dockVisibleSub;
 
   @override
   void initState() {
@@ -99,6 +100,15 @@ class _WindowContainerState extends ConsumerState<WindowManager>
     );
     windowExtManager.addListener(this);
     windowManager.addListener(this);
+    if (system.isMacOS) {
+      _dockVisibleSub = ref.listenManual(
+        appSettingProvider.select((state) => state.hideDockIcon),
+        (prev, next) {
+          if (prev == next) return;
+          unawaited(_updateDockIcon(!next));
+        },
+      );
+    }
   }
 
   @override
@@ -195,9 +205,18 @@ class _WindowContainerState extends ConsumerState<WindowManager>
     super.onTaskbarCreated();
   }
 
+  Future<void> _updateDockIcon(bool visible) async {
+    try {
+      await windowExtManager.setDockIconVisible(visible);
+    } catch (e) {
+      commonPrint.log('Update dock icon visibility failed: $e');
+    }
+  }
+
   @override
   Future<void> dispose() async {
     _autoLaunchSub?.close();
+    _dockVisibleSub?.close();
     windowManager.removeListener(this);
     windowExtManager.removeListener(this);
     _renderToggleTimer?.cancel();

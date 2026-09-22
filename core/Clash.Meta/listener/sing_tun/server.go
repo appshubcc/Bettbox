@@ -95,6 +95,7 @@ type ListenerHandler struct {
 	Inet4Address          []netip.Prefix
 	Inet6Address          []netip.Prefix
 	DisableICMPForwarding bool
+	tunIf                 tun.Tun
 }
 
 var emptyAddressSet = []*netipx.IPSet{{}}
@@ -517,6 +518,7 @@ func New(options LC.Tun, tunnel C.Tunnel, additions ...inbound.Addition) (l *Lis
 		EnforceBindInterface:   EnforceBindInterface,
 	}
 	l.tunIf = tunIf
+	handler.tunIf = tunIf
 
 	tunStack, err := tun.NewStack(strings.ToLower(options.Stack.String()), stackOptions)
 	if err != nil {

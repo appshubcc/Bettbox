@@ -47,7 +47,16 @@ func (h *ListenerHandler) NewPacket(ctx context.Context, key netip.AddrPort, buf
 		go relayDnsPacket(ctx, buffer, rwOptions, metadata.Destination, nil, &writer)
 		return
 	}
-	h.ListenerHandler.NewPacket(ctx, key, buffer, metadata, init)
+	var rejecter func() error
+	if h.tunIf != nil {
+		srcAddr := metadata.Source.AddrPort()
+		dstAddr := metadata.Destination.AddrPort()
+		payloadLen := buffer.Len()
+		rejecter = func() error {
+			return sendICMPUnreachable(h.tunIf, srcAddr, dstAddr, payloadLen)
+		}
+	}
+	h.ListenerHandler.NewPacketWithRejecter(ctx, key, buffer, metadata, init, rejecter)
 }
 
 func (h *ListenerHandler) NewPacketConnection(ctx context.Context, conn network.PacketConn, metadata M.Metadata) error {

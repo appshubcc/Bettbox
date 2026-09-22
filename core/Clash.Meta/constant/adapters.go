@@ -305,6 +305,17 @@ func (s *packetAdapter) Key() string {
 	return s.key
 }
 
+type PacketRejector interface {
+	Reject() error
+}
+
+func (s *packetAdapter) Reject() error {
+	if rejector, ok := s.UDPPacket.(PacketRejector); ok {
+		return rejector.Reject()
+	}
+	return nil
+}
+
 func NewPacketAdapter(packet UDPPacket, metadata *Metadata) PacketAdapter {
 	return &packetAdapter{
 		packet,

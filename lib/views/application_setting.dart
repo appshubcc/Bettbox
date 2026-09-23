@@ -1,5 +1,6 @@
 import 'package:bett_box/common/common.dart';
 import 'package:bett_box/providers/config.dart';
+import 'package:bett_box/state.dart';
 import 'package:bett_box/widgets/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -145,6 +146,75 @@ class HiddenItem extends ConsumerWidget {
 }
 
 
+class HideDockIconItem extends ConsumerStatefulWidget {
+  const HideDockIconItem({super.key});
+
+  @override
+  ConsumerState<HideDockIconItem> createState() => _HideDockIconItemState();
+}
+
+class _HideDockIconItemState extends ConsumerState<HideDockIconItem> {
+  bool _processing = false;
+
+  Future<bool> _showConfirmDialog(BuildContext context) async {
+    final result = await globalState.showCommonDialog<bool>(
+      child: CommonDialog(
+        title: appLocalizations.hideDockIcon,
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context, rootNavigator: true).pop(false);
+            },
+            child: Text(appLocalizations.cancel),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(context, rootNavigator: true).pop(true);
+            },
+            child: Text(appLocalizations.confirm),
+          ),
+        ],
+        child: Text(appLocalizations.hideDockIconTip),
+      ),
+    );
+    return result == true;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final hideDockIcon = ref.watch(
+      appSettingProvider.select((state) => state.hideDockIcon),
+    );
+    return ListItem.switchItem(
+      title: Text(appLocalizations.hideDockIcon),
+      subtitle: Text(appLocalizations.hideDockIconDesc),
+      delegate: SwitchDelegate(
+        value: hideDockIcon,
+        onChanged: _processing
+            ? null
+            : (value) async {
+                if (_processing) return;
+                setState(() => _processing = true);
+                try {
+                  if (value) {
+                    final confirm = await _showConfirmDialog(context);
+                    if (!confirm) return;
+                    if (!context.mounted) return;
+                  }
+                  ref.read(appSettingProvider.notifier).updateState(
+                        (state) => state.copyWith(hideDockIcon: value),
+                      );
+                } finally {
+                  if (mounted) {
+                    setState(() => _processing = false);
+                  }
+                }
+              },
+      ),
+    );
+  }
+}
+
 class ShowStartSwitchItem extends ConsumerWidget {
   const ShowStartSwitchItem({super.key});
 
@@ -254,6 +324,7 @@ class ApplicationSettingView extends StatelessWidget {
       if (system.isDesktop) ...[
         if (system.isWindows || system.isLinux)
           const AlwaysShowTitleBarItem(),
+        if (system.isMacOS) const HideDockIconItem(),
       ],
       const ShowStartSwitchItem(),
       if (system.isAndroid) ...[NavBarHapticFeedbackItem()],

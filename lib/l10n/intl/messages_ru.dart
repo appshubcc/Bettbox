@@ -595,6 +595,15 @@ class MessageLookup extends MessageLookupByLibrary {
       "Таймаут проверки работоспособности узлов",
     ),
     "heapObjects": MessageLookupByLibrary.simpleMessage("Objects"),
+    "hideDockIcon": MessageLookupByLibrary.simpleMessage(
+      "Скрыть иконку в Dock",
+    ),
+    "hideDockIconDesc": MessageLookupByLibrary.simpleMessage(
+      "Скрыть иконку приложения в Dock, оставив только иконку в строке меню",
+    ),
+    "hideDockIconTip": MessageLookupByLibrary.simpleMessage(
+      "После включения иконка приложения исчезнет из Dock, доступ возможен только через иконку в строке меню. Включить?",
+    ),
     "highPriority": MessageLookupByLibrary.simpleMessage("Высокий приоритет"),
     "highPriorityDesc": MessageLookupByLibrary.simpleMessage(
       "Повысить приоритет процесса приложения и ядра",

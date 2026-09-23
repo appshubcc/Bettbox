@@ -471,6 +471,13 @@ class MessageLookup extends MessageLookupByLibrary {
       "노드 상태 점검 타임아웃 시간",
     ),
     "heapObjects": MessageLookupByLibrary.simpleMessage("Objects"),
+    "hideDockIcon": MessageLookupByLibrary.simpleMessage("Dock 아이콘 숨기기"),
+    "hideDockIconDesc": MessageLookupByLibrary.simpleMessage(
+      "Dock에서 앱 아이콘을 숨기고 메뉴 막대 트레이 아이콘만 유지합니다",
+    ),
+    "hideDockIconTip": MessageLookupByLibrary.simpleMessage(
+      "활성화하면 앱 아이콘이 Dock에서 사라지고 메뉴 막대 트레이 아이콘으로만 접근할 수 있습니다. 활성화하시겠습니까?",
+    ),
     "highPriority": MessageLookupByLibrary.simpleMessage("높은 우선순위"),
     "highPriorityDesc": MessageLookupByLibrary.simpleMessage(
       "메인 프로세스 및 코어 프로세스 우선순위 상향",

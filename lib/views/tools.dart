@@ -479,6 +479,17 @@ class _ToolViewState extends ConsumerState<ToolsView> {
             const ApplicationSettingView(),
           ),
         ),
+      if (system.isMacOS)
+        _SearchItem(
+          title: appLocalizations.hideDockIcon,
+          subtitle: appLocalizations.hideDockIconDesc,
+          category: appCategory,
+          onTap: (context, _) => _pushPage(
+            context,
+            appLocalizations.application,
+            const ApplicationSettingView(),
+          ),
+        ),
       _SearchItem(
         title: appLocalizations.showStartSwitch,
         subtitle: appLocalizations.showStartSwitchDesc,

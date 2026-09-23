@@ -83,6 +83,7 @@ class _WindowContainerState extends ConsumerState<WindowManager>
   }
 
   ProviderSubscription? _autoLaunchSub;
+  ProviderSubscription? _dockVisibleSub;
 
   @override
   void initState() {
@@ -99,6 +100,27 @@ class _WindowContainerState extends ConsumerState<WindowManager>
     );
     windowExtManager.addListener(this);
     windowManager.addListener(this);
+    if (system.isMacOS) {
+      _dockVisibleSub = ref.listenManual(
+        appSettingProvider.select((state) => state.hideDockIcon),
+        (prev, next) {
+          if (prev == next) return;
+          unawaited(_updateDockIcon(!next));
+        },
+      );
+      // listenManual 只在设置变化时触发，启动时需要主动应用已保存的值。
+      // initState 时 provider 可能尚未 hydrating（config 异步加载完成前读到默认值 false），
+      // 故延迟到下一帧再检查一次，避免启动时漏隐藏。
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        final hideDockIcon = ref.read(
+          appSettingProvider.select((state) => state.hideDockIcon),
+        );
+        if (hideDockIcon) {
+          unawaited(_updateDockIcon(false));
+        }
+      });
+    }
   }
 
   @override
@@ -195,9 +217,18 @@ class _WindowContainerState extends ConsumerState<WindowManager>
     super.onTaskbarCreated();
   }
 
+  Future<void> _updateDockIcon(bool visible) async {
+    try {
+      await windowExtManager.setDockIconVisible(visible);
+    } catch (e) {
+      commonPrint.log('Update dock icon visibility failed: $e');
+    }
+  }
+
   @override
   Future<void> dispose() async {
     _autoLaunchSub?.close();
+    _dockVisibleSub?.close();
     windowManager.removeListener(this);
     windowExtManager.removeListener(this);
     _renderToggleTimer?.cancel();

@@ -417,6 +417,13 @@ class MessageLookup extends MessageLookupByLibrary {
       "节点健康检查超时时间",
     ),
     "heapObjects": MessageLookupByLibrary.simpleMessage("Objects"),
+    "hideDockIcon": MessageLookupByLibrary.simpleMessage("隐藏 Dock 图标"),
+    "hideDockIconDesc": MessageLookupByLibrary.simpleMessage(
+      "不在 Dock 栏显示应用图标，仅保留菜单栏托盘图标",
+    ),
+    "hideDockIconTip": MessageLookupByLibrary.simpleMessage(
+      "开启后应用图标将从 Dock 栏消失，仅能通过菜单栏托盘图标访问，确定要开启吗",
+    ),
     "highPriority": MessageLookupByLibrary.simpleMessage("高优先级"),
     "highPriorityDesc": MessageLookupByLibrary.simpleMessage("提升主程序和内核进程的优先级"),
     "highRefreshRate": MessageLookupByLibrary.simpleMessage("高刷新率"),

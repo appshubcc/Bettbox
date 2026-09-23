@@ -161,7 +161,7 @@ class ClashLibHandler {
   late final DynamicLibrary lib;
 
   ClashLibHandler._internal() {
-    lib = DynamicLibrary.open('libclash.so');
+    lib = DynamicLibrary.open('libmeta.so');
     clashFFI = ClashFFI(lib);
     clashFFI.initNativeApiBridge(NativeApi.initializeApiDLData);
   }

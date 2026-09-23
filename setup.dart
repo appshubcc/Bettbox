@@ -103,9 +103,9 @@ class Build {
 
   static String get helperName => '${identityName}HelperService';
 
-  static String get libName => 'libclash';
+  static String get libName => 'libmeta';
 
-  static String get outDir => join(current, libName);
+  static String get outDir => join(current, 'libclash');
 
   static String get _coreDir => join(current, 'core');
 

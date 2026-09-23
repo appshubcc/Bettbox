@@ -2,7 +2,7 @@
 #include <jni.h>
 #include <cstring>
 #include "jni_helper.h"
-#include "libclash.h"
+#include "libmeta.h"
 
 extern "C"
 JNIEXPORT void JNICALL

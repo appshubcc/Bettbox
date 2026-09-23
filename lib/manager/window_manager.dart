@@ -109,13 +109,17 @@ class _WindowContainerState extends ConsumerState<WindowManager>
         },
       );
       // listenManual 只在设置变化时触发，启动时需要主动应用已保存的值。
-      // 仅在需要隐藏时调用：_updateDockIcon(true) 会顺带激活应用，不适合启动路径。
-      final hideDockIcon = ref.read(
-        appSettingProvider.select((state) => state.hideDockIcon),
-      );
-      if (hideDockIcon) {
-        unawaited(_updateDockIcon(false));
-      }
+      // initState 时 provider 可能尚未 hydrating（config 异步加载完成前读到默认值 false），
+      // 故延迟到下一帧再检查一次，避免启动时漏隐藏。
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        final hideDockIcon = ref.read(
+          appSettingProvider.select((state) => state.hideDockIcon),
+        );
+        if (hideDockIcon) {
+          unawaited(_updateDockIcon(false));
+        }
+      });
     }
   }
 

@@ -88,7 +88,9 @@ class Preferences {
       await preferences?.setBool('autoLaunch', selectedConfig.appSetting.autoLaunch);
     }
 
-    if (selectedConfig != null &&
+    // hideDockIcon 镜像仅在 macOS 有意义，避免在其他平台污染 UserDefaults/SharedPreferences。
+    if (Platform.isMacOS &&
+        selectedConfig != null &&
         preferences?.getBool('hideDockIcon') != selectedConfig.appSetting.hideDockIcon) {
       await preferences?.setBool('hideDockIcon', selectedConfig.appSetting.hideDockIcon);
     }
@@ -100,8 +102,11 @@ class Preferences {
     final preferences = await sharedPreferencesCompleter.future;
     await preferences?.setBool('autoLaunch', config.appSetting.autoLaunch);
     // hideDockIcon 同样镜像为独立键（flutter.hideDockIcon），
-    // 供 macOS 原生在启动最早期读取并隐藏 Dock 图标（见 AppDelegate.swift）
-    await preferences?.setBool('hideDockIcon', config.appSetting.hideDockIcon);
+    // 供 macOS 原生在启动最早期读取并隐藏 Dock 图标（见 AppDelegate.swift）。
+    // 仅在 macOS 写入，避免其他平台污染 UserDefaults。
+    if (Platform.isMacOS) {
+      await preferences?.setBool('hideDockIcon', config.appSetting.hideDockIcon);
+    }
 
     final jsonStr = json.encode(config);
 

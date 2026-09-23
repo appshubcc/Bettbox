@@ -17,13 +17,11 @@ class Window {
       protocol.register('bettbox');
     }
     await windowManager.ensureInitialized();
-    if (system.isMacOS) {
-      // Apply the Dock icon preference before the window becomes visible, so
-      // the icon does not flash on launch.
+    if (system.isMacOS && globalState.config.appSetting.hideDockIcon) {
+      // 仅在需要隐藏时调用，避免在显示场景下触发 NSApp.activate 抢占焦点。
+      // 显示场景由系统默认 .regular 处理，无需额外调用。
       try {
-        await windowExtManager.setDockIconVisible(
-          !globalState.config.appSetting.hideDockIcon,
-        );
+        await windowExtManager.setDockIconVisible(false);
       } catch (e) {
         commonPrint.log('Apply dock icon visibility failed: $e');
       }

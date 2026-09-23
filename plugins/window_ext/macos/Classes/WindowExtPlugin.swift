@@ -26,12 +26,25 @@ public class WindowExtPlugin: NSObject, FlutterPlugin {
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         switch call.method {
         case "setDockIconVisible":
-            guard let visible = (call.arguments as? NSNumber)?.boolValue else {
+            let visible: Bool? = {
+                if let b = call.arguments as? Bool { return b }
+                if let n = call.arguments as? NSNumber { return n.boolValue }
+                return nil
+            }()
+            guard let visible = visible else {
                 result(FlutterError(code: "invalid_arguments", message: "Expected a bool argument", details: nil))
                 return
             }
-            setDockIconVisible(visible)
-            result(nil)
+            // setActivationPolicy 必须在主线程调用，Flutter 引擎已在主线程回调，此处再做一次主线程派发以兜底。
+            if Thread.isMainThread {
+                setDockIconVisible(visible)
+                result(nil)
+            } else {
+                DispatchQueue.main.async {
+                    self.setDockIconVisible(visible)
+                    result(nil)
+                }
+            }
         default:
             result(FlutterMethodNotImplemented)
         }
@@ -40,6 +53,10 @@ public class WindowExtPlugin: NSObject, FlutterPlugin {
     private func setDockIconVisible(_ visible: Bool) {
         if visible {
             NSApp.setActivationPolicy(.regular)
+            // 从 accessory 切回 regular 时，窗口可能仍处于隐藏状态，主动前置以避免“Dock 出现但窗口不出现”。
+            for window in NSApp.windows {
+                window.makeKeyAndOrderFront(nil)
+            }
             NSApp.activate(ignoringOtherApps: true)
         } else {
             NSApp.setActivationPolicy(.accessory)

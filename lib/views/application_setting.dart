@@ -146,8 +146,15 @@ class HiddenItem extends ConsumerWidget {
 }
 
 
-class HideDockIconItem extends ConsumerWidget {
+class HideDockIconItem extends ConsumerStatefulWidget {
   const HideDockIconItem({super.key});
+
+  @override
+  ConsumerState<HideDockIconItem> createState() => _HideDockIconItemState();
+}
+
+class _HideDockIconItemState extends ConsumerState<HideDockIconItem> {
+  bool _processing = false;
 
   Future<bool> _showConfirmDialog(BuildContext context) async {
     final result = await globalState.showCommonDialog<bool>(
@@ -174,7 +181,7 @@ class HideDockIconItem extends ConsumerWidget {
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final hideDockIcon = ref.watch(
       appSettingProvider.select((state) => state.hideDockIcon),
     );
@@ -183,15 +190,26 @@ class HideDockIconItem extends ConsumerWidget {
       subtitle: Text(appLocalizations.hideDockIconDesc),
       delegate: SwitchDelegate(
         value: hideDockIcon,
-        onChanged: (value) async {
-          if (value) {
-            final confirm = await _showConfirmDialog(context);
-            if (!confirm) return;
-          }
-          ref
-              .read(appSettingProvider.notifier)
-              .updateState((state) => state.copyWith(hideDockIcon: value));
-        },
+        onChanged: _processing
+            ? null
+            : (value) async {
+                if (_processing) return;
+                setState(() => _processing = true);
+                try {
+                  if (value) {
+                    final confirm = await _showConfirmDialog(context);
+                    if (!confirm) return;
+                    if (!context.mounted) return;
+                  }
+                  ref.read(appSettingProvider.notifier).updateState(
+                        (state) => state.copyWith(hideDockIcon: value),
+                      );
+                } finally {
+                  if (mounted) {
+                    setState(() => _processing = false);
+                  }
+                }
+              },
       ),
     );
   }

@@ -108,6 +108,14 @@ class _WindowContainerState extends ConsumerState<WindowManager>
           unawaited(_updateDockIcon(!next));
         },
       );
+      // listenManual 只在设置变化时触发，启动时需要主动应用已保存的值。
+      // 仅在需要隐藏时调用：_updateDockIcon(true) 会顺带激活应用，不适合启动路径。
+      final hideDockIcon = ref.read(
+        appSettingProvider.select((state) => state.hideDockIcon),
+      );
+      if (hideDockIcon) {
+        unawaited(_updateDockIcon(false));
+      }
     }
   }
 

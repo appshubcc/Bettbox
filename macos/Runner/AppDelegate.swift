@@ -5,6 +5,16 @@ import window_ext
 @main
 class AppDelegate: FlutterAppDelegate {
     
+    override func applicationWillFinishLaunching(_ notification: Notification) {
+        // 在启动最早期应用「隐藏 Dock 图标」设置，避免图标短暂闪现。
+        // 读取的是 Dart 侧 Preferences 镜像的 hideDockIcon 键
+        // （shared_preferences 以 "flutter." 前缀写入 UserDefaults.standard）。
+        if UserDefaults.standard.object(forKey: "flutter.hideDockIcon") as? Bool == true {
+            NSApp.setActivationPolicy(.accessory)
+        }
+        super.applicationWillFinishLaunching(notification)
+    }
+
     override func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
         return false
     }

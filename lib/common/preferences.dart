@@ -88,12 +88,20 @@ class Preferences {
       await preferences?.setBool('autoLaunch', selectedConfig.appSetting.autoLaunch);
     }
 
+    if (selectedConfig != null &&
+        preferences?.getBool('hideDockIcon') != selectedConfig.appSetting.hideDockIcon) {
+      await preferences?.setBool('hideDockIcon', selectedConfig.appSetting.hideDockIcon);
+    }
+
     return selectedConfig;
   }
 
   Future<bool> saveConfig(Config config) async {
     final preferences = await sharedPreferencesCompleter.future;
     await preferences?.setBool('autoLaunch', config.appSetting.autoLaunch);
+    // hideDockIcon 同样镜像为独立键（flutter.hideDockIcon），
+    // 供 macOS 原生在启动最早期读取并隐藏 Dock 图标（见 AppDelegate.swift）
+    await preferences?.setBool('hideDockIcon', config.appSetting.hideDockIcon);
 
     final jsonStr = json.encode(config);
 

@@ -7,7 +7,7 @@ void main() {
 
   group('MediaPlatform & Region Tests', () {
     test('MediaPlatform enum count and extensions', () {
-      expect(MediaPlatform.values.length, 50);
+      expect(MediaPlatform.values.length, 51);
       expect(MediaCategory.values.length, 7);
 
       for (final p in MediaPlatform.values) {
@@ -49,6 +49,8 @@ void main() {
       expect(MediaPlatform.netflix.category, MediaCategory.streaming);
       expect(MediaPlatform.disney.category, MediaCategory.streaming);
       expect(MediaPlatform.youtube.category, MediaCategory.streaming);
+      expect(MediaPlatform.youtubemusic.defaultName, 'YouTube Music');
+      expect(MediaPlatform.youtubemusic.category, MediaCategory.streaming);
       expect(MediaPlatform.spotify.category, MediaCategory.streaming);
       expect(MediaPlatform.tiktok.category, MediaCategory.streaming);
       expect(MediaPlatform.iqiyi.category, MediaCategory.streaming);

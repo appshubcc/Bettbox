@@ -649,6 +649,88 @@ class MediaUnlockChecker {
     }
   }
 
+  Future<MediaUnlockResult> checkYouTubeMusic() async {
+    final sw = Stopwatch()..start();
+    final dio = _createDio(followRedirects: true);
+    try {
+      final res = await dio.get<ResponseBody>(
+        'https://music.youtube.com/',
+        options: Options(
+          responseType: ResponseType.stream,
+          receiveTimeout: const Duration(seconds: 4),
+          sendTimeout: const Duration(seconds: 4),
+          headers: {
+            'User-Agent':
+                'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36',
+            'Accept-Language': 'en-US,en;q=0.9',
+          },
+        ),
+      );
+      final realUrl = res.realUri.toString();
+      if (realUrl.contains('sorry.google.com') ||
+          realUrl.contains('unavailable')) {
+        return MediaUnlockResult(
+          platform: MediaPlatform.youtubemusic,
+          status: MediaUnlockStatus.blocked,
+          latency: sw.elapsedMilliseconds,
+        );
+      }
+
+      final responseBody = res.data;
+      final chunks = <int>[];
+      if (responseBody != null) {
+        try {
+          await for (final chunk in responseBody.stream) {
+            chunks.addAll(chunk);
+            if (chunks.length >= 150 * 1024) break;
+            final currentStr = utf8.decode(chunks, allowMalformed: true);
+            if (currentStr.contains('"INNERTUBE_CONTEXT_GL"') ||
+                currentStr.contains('"countryCode"') ||
+                currentStr.contains('not available in your') ||
+                currentStr.contains('unavailable in your country')) {
+              break;
+            }
+          }
+        } catch (_) {}
+      }
+
+      final MediaUnlockStatus status;
+      String? region;
+      if (res.statusCode == 200) {
+        final body = utf8.decode(chunks, allowMalformed: true);
+        final glMatch = RegExp(
+          r'"(?:INNERTUBE_CONTEXT_GL|countryCode|GL)"\s*:\s*"([A-Z]{2})"',
+        ).firstMatch(body);
+        region = glMatch?.group(1);
+
+        if (body.contains('not available in your area') ||
+            body.contains('not available in your country') ||
+            body.contains('unavailable in your country') ||
+            region == 'CN' ||
+            region == 'RU') {
+          status = MediaUnlockStatus.blocked;
+        } else {
+          status = MediaUnlockStatus.unlocked;
+        }
+      } else {
+        status = MediaUnlockStatus.blocked;
+      }
+      return MediaUnlockResult(
+        platform: MediaPlatform.youtubemusic,
+        status: status,
+        region: region,
+        latency: sw.elapsedMilliseconds,
+      );
+    } catch (_) {
+      return MediaUnlockResult(
+        platform: MediaPlatform.youtubemusic,
+        status: MediaUnlockStatus.failed,
+        latency: sw.elapsedMilliseconds,
+      );
+    } finally {
+      dio.close(force: true);
+    }
+  }
 
   Future<MediaUnlockResult> checkReddit() async {
     final sw = Stopwatch()..start();
@@ -1192,6 +1274,7 @@ class MediaUnlockChecker {
       MediaPlatform.netflix => checkNetflix(),
       MediaPlatform.disney => checkDisney(),
       MediaPlatform.youtube => checkYouTube(),
+      MediaPlatform.youtubemusic => checkYouTubeMusic(),
       MediaPlatform.spotify => checkSpotify(),
       MediaPlatform.tiktok => checkTikTok(),
       MediaPlatform.bilibili => checkBilibili(),

@@ -118,9 +118,12 @@ class HelperClient {
   final HelperTransport _transport;
   final Random _random = Random.secure();
 
-  Future<bool> ping(String expectedToken) async {
+  Future<bool> ping(
+    String expectedToken, {
+    Duration timeout = const Duration(milliseconds: 500),
+  }) async {
     try {
-      final response = await _request('helper.ping');
+      final response = await _request('helper.ping', timeout: timeout);
       return response.data == expectedToken;
     } catch (e) {
       commonPrint.log('[HelperClient] ping failed: $e');

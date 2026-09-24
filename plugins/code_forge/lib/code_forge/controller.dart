@@ -3012,7 +3012,10 @@ class CodeForgeController implements DeltaTextInputClient {
           preserveOldCursor: true,
         );
 
-        if (lineIdx == pStartLine && primarySelMin >= insertPos) {
+        final shouldShiftStart = selection.isCollapsed
+            ? primarySelMin >= insertPos
+            : primarySelMin > insertPos;
+        if (lineIdx == pStartLine && shouldShiftStart) {
           primaryStartShift += pLen;
         } else if (lineIdx < pStartLine) {
           primaryStartShift += pLen;
@@ -3953,10 +3956,11 @@ class CodeForgeController implements DeltaTextInputClient {
       suffix++;
     }
 
-    final globalStart =
-        _imeWindowStart + utf16ToScalarOffset(committedOld, prefix);
-    final globalEnd =
-        _imeWindowStart + utf16ToScalarOffset(committedOld, oldLen - suffix);
+    final globalStart = _imeWindowStart +
+        _normalizedToRawImeOffset(utf16ToScalarOffset(committedOld, prefix));
+    final globalEnd = _imeWindowStart +
+        _normalizedToRawImeOffset(
+            utf16ToScalarOffset(committedOld, oldLen - suffix));
     final replacement = committedNew.substring(prefix, newLen - suffix);
 
     replaceRange(globalStart, globalEnd, replacement);
@@ -3972,7 +3976,8 @@ class CodeForgeController implements DeltaTextInputClient {
       compStartLocal -= _imeMirrorDeleteLen;
     }
     final anchorGlobal = (_imeWindowStart +
-            utf16ToScalarOffset(_imeMirrorText, compStartLocal))
+            _normalizedToRawImeOffset(
+                utf16ToScalarOffset(_imeMirrorText, compStartLocal)))
         .clamp(0, length);
     final caretLocalRaw = (_imeMirrorSelection.extentOffset - comp.start).clamp(
       0,
@@ -3994,10 +3999,12 @@ class CodeForgeController implements DeltaTextInputClient {
       return TextSelection.collapsed(offset: comp.anchor);
     }
     final base = (_imeWindowStart +
-            utf16ToScalarOffset(_imeMirrorText, localSelection.baseOffset))
+            _normalizedToRawImeOffset(
+                utf16ToScalarOffset(_imeMirrorText, localSelection.baseOffset)))
         .clamp(0, length);
     final extent = (_imeWindowStart +
-            utf16ToScalarOffset(_imeMirrorText, localSelection.extentOffset))
+            _normalizedToRawImeOffset(utf16ToScalarOffset(
+                _imeMirrorText, localSelection.extentOffset)))
         .clamp(0, length);
     return TextSelection(baseOffset: base, extentOffset: extent);
   }
@@ -4056,15 +4063,18 @@ class CodeForgeController implements DeltaTextInputClient {
     TextSelection? sel,
   ) {
     if (sel == null || sel.isCollapsed) return (localStart: 0, text: '');
-    final scalarStart = sel.start - _imeWindowStart;
-    final scalarEnd = sel.end - _imeWindowStart;
-    if (scalarStart < 0 ||
-        scalarEnd > _imeWindowCommitted.runes.length ||
-        scalarEnd <= scalarStart) {
+    final rawScalarStart = sel.start - _imeWindowStart;
+    final rawScalarEnd = sel.end - _imeWindowStart;
+    if (rawScalarStart < 0 ||
+        rawScalarEnd > _imeProjectionRawText.runes.length ||
+        rawScalarEnd <= rawScalarStart) {
       return (localStart: 0, text: '');
     }
-    final localStart = scalarToUtf16Offset(_imeWindowCommitted, scalarStart);
-    final localEnd = scalarToUtf16Offset(_imeWindowCommitted, scalarEnd);
+    final normScalarStart = _rawToNormalizedImeOffset(rawScalarStart);
+    final normScalarEnd = _rawToNormalizedImeOffset(rawScalarEnd);
+    final localStart =
+        scalarToUtf16Offset(_imeWindowCommitted, normScalarStart);
+    final localEnd = scalarToUtf16Offset(_imeWindowCommitted, normScalarEnd);
     return (
       localStart: localStart,
       text: _imeWindowCommitted.substring(localStart, localEnd),
@@ -4081,9 +4091,13 @@ class CodeForgeController implements DeltaTextInputClient {
     if (_imeWindowCommitted.substring(localStart, localEnd) != capture.text) {
       return;
     }
+    final scalarLocal = utf16ToScalarOffset(_imeWindowCommitted, localStart);
     final globalStart =
-        _imeWindowStart + utf16ToScalarOffset(_imeWindowCommitted, localStart);
-    replaceRange(globalStart, globalStart + capture.text.runes.length, '');
+        _imeWindowStart + _normalizedToRawImeOffset(scalarLocal);
+    final scalarEnd = scalarLocal + capture.text.runes.length;
+    final globalEnd =
+        _imeWindowStart + _normalizedToRawImeOffset(scalarEnd);
+    replaceRange(globalStart, globalEnd, '');
     _imeWindowCommitted =
         _imeWindowCommitted.substring(0, localStart) +
         _imeWindowCommitted.substring(localEnd);

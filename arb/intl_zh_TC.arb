@@ -767,6 +767,14 @@
   "tvScanManualUrl": "也可在手機瀏覽器中直接輸入：",
   "tvScanWaiting": "等待手機推送設定檔中...",
   "tvScanSuccess": "設定檔推送成功，正在導入...",
-  "tvScanNoNetwork": "未檢測到可用的局域網，請檢查 Wi-Fi"
+  "tvScanNoNetwork": "未檢測到可用的局域網，請檢查 Wi-Fi",
+  "userAuth": "用戶驗證",
+  "skipLocalAuth": "跳過本機驗證",
+  "skipLocalAuthDesc": "允許本機免密存取代理",
+  "username": "使用者名稱",
+  "addUser": "新增用戶",
+  "editUser": "編輯用戶",
+  "userAuthEmpty": "未設定驗證用戶，局域網連線無需憑據",
+  "usernameCannotContainColon": "使用者名稱不能包含冒號"
 }
 

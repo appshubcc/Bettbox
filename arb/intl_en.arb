@@ -766,6 +766,14 @@
   "tvScanManualUrl": "Or enter directly in phone browser:",
   "tvScanWaiting": "Waiting for profile from phone...",
   "tvScanSuccess": "Profile received, importing...",
-  "tvScanNoNetwork": "No available LAN detected, please check Wi-Fi"
+  "tvScanNoNetwork": "No available LAN detected, please check Wi-Fi",
+  "userAuth": "User Authentication",
+  "skipLocalAuth": "Skip Local Authentication",
+  "skipLocalAuthDesc": "Allow local machine to access proxy without credentials",
+  "username": "Username",
+  "addUser": "Add User",
+  "editUser": "Edit User",
+  "userAuthEmpty": "No authentication configured, LAN connections do not require credentials",
+  "usernameCannotContainColon": "Username cannot contain colons"
 }
 

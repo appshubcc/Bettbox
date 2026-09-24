@@ -767,6 +767,14 @@
   "tvScanManualUrl": "스마트폰 브라우저에 직접 입력할 수도 있습니다:",
   "tvScanWaiting": "스마트폰에서 프로필 푸시 대기 중...",
   "tvScanSuccess": "프로필이 푸시되었습니다. 가져오는 중...",
-  "tvScanNoNetwork": "사용 가능한 LAN을 찾을 수 없습니다. Wi-Fi를 확인하세요"
+  "tvScanNoNetwork": "사용 가능한 LAN을 찾을 수 없습니다. Wi-Fi를 확인하세요",
+  "userAuth": "사용자 인증",
+  "skipLocalAuth": "로컬 인증 건너뛰기",
+  "skipLocalAuthDesc": "로컬 기기에서 인증 없이 프록시 접근 허용",
+  "username": "사용자 이름",
+  "addUser": "사용자 추가",
+  "editUser": "사용자 편집",
+  "userAuthEmpty": "인증 사용자가 설정되지 않았습니다. LAN 연결에는 자격 증명이 필요하지 않습니다",
+  "usernameCannotContainColon": "사용자 이름에는 콜론(:)을 포함할 수 없습니다"
 }
 

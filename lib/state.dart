@@ -132,6 +132,12 @@ class GlobalState {
     await init();
   }
 
+  Future<String?> getOrCalcCoreSHA256() async {
+    if (coreSHA256 != null && coreSHA256!.isNotEmpty) return coreSHA256;
+    coreSHA256 = await _calcCoreSHA256();
+    return coreSHA256;
+  }
+
   Future<String?> _calcCoreSHA256() async {
     try {
       final file = File(appPath.corePath);
@@ -676,6 +682,17 @@ class GlobalState {
     rawConfig['tproxy-port'] = realPatchConfig.tproxyPort;
     rawConfig['find-process-mode'] = realPatchConfig.findProcessMode.name;
     rawConfig['allow-lan'] = realPatchConfig.allowLan;
+    if (realPatchConfig.authentication.isNotEmpty) {
+      rawConfig['authentication'] = realPatchConfig.authentication;
+      if (realPatchConfig.skipAuthPrefixes.isNotEmpty) {
+        rawConfig['skip-auth-prefixes'] = realPatchConfig.skipAuthPrefixes;
+      } else {
+        rawConfig.remove('skip-auth-prefixes');
+      }
+    } else {
+      rawConfig.remove('authentication');
+      rawConfig.remove('skip-auth-prefixes');
+    }
     rawConfig['mode'] = realPatchConfig.mode.name;
     if (rawConfig['tun'] == null) {
       rawConfig['tun'] = <String, dynamic>{};

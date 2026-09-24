@@ -448,6 +448,16 @@ _ClashConfig _$ClashConfigFromJson(Map<String, dynamic> json) => _ClashConfig(
   tproxyPort: (json['tproxy-port'] as num?)?.toInt() ?? 0,
   mode: $enumDecodeNullable(_$ModeEnumMap, json['mode']) ?? Mode.rule,
   allowLan: json['allow-lan'] as bool? ?? false,
+  authentication:
+      (json['authentication'] as List<dynamic>?)
+          ?.map((e) => e as String)
+          .toList() ??
+      const [],
+  skipAuthPrefixes:
+      (json['skip-auth-prefixes'] as List<dynamic>?)
+          ?.map((e) => e as String)
+          .toList() ??
+      defaultSkipAuthPrefixes,
   logLevel:
       $enumDecodeNullable(_$LogLevelEnumMap, json['log-level']) ??
       LogLevel.error,
@@ -526,6 +536,8 @@ Map<String, dynamic> _$ClashConfigToJson(_ClashConfig instance) =>
       'tproxy-port': instance.tproxyPort,
       'mode': _$ModeEnumMap[instance.mode]!,
       'allow-lan': instance.allowLan,
+      'authentication': instance.authentication,
+      'skip-auth-prefixes': instance.skipAuthPrefixes,
       'log-level': _$LogLevelEnumMap[instance.logLevel]!,
       'ipv6': instance.ipv6,
       'find-process-mode': _$FindProcessModeEnumMap[instance.findProcessMode]!,

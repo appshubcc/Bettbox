@@ -21,6 +21,7 @@ const defaultGeoXUrl = GeoXUrl();
 
 const defaultMixedPort = 7890;
 const defaultKeepAliveInterval = 30;
+const defaultSkipAuthPrefixes = ['127.0.0.1/8', '::1/128'];
 
 const defaultBypassPrivateRouteAddress = [
   '198.51.100.0/30',
@@ -705,6 +706,10 @@ abstract class ClashConfig with _$ClashConfig {
     @Default(0) @JsonKey(name: 'tproxy-port') int tproxyPort,
     @Default(Mode.rule) Mode mode,
     @Default(false) @JsonKey(name: 'allow-lan') bool allowLan,
+    @Default([]) List<String> authentication,
+    @Default(defaultSkipAuthPrefixes)
+    @JsonKey(name: 'skip-auth-prefixes')
+    List<String> skipAuthPrefixes,
     @Default(LogLevel.error) @JsonKey(name: 'log-level') LogLevel logLevel,
     @Default(false) bool ipv6,
     @Default(FindProcessMode.off)

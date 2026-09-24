@@ -767,6 +767,14 @@
   "tvScanManualUrl": "スマホのブラウザに直接入力も可能：",
   "tvScanWaiting": "スマホからのプッシュを待機中...",
   "tvScanSuccess": "設定がプッシュされました。インポート中...",
-  "tvScanNoNetwork": "利用可能なLANが見つかりません。Wi-Fiを確認してください"
+  "tvScanNoNetwork": "利用可能なLANが見つかりません。Wi-Fiを確認してください",
+  "userAuth": "ユーザー認証",
+  "skipLocalAuth": "ローカル認証をスキップ",
+  "skipLocalAuthDesc": "ローカル端末からの認証なしアクセスを許可",
+  "username": "ユーザー名",
+  "addUser": "ユーザーを追加",
+  "editUser": "ユーザーを編集",
+  "userAuthEmpty": "認証ユーザーが設定されていません。LAN接続には資格情報が不要です",
+  "usernameCannotContainColon": "ユーザー名にコロン（:）を含めることはできません"
 }
 

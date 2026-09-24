@@ -88,6 +88,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "addTunnel": MessageLookupByLibrary.simpleMessage(
       "Добавить перенаправление",
     ),
+    "addUser": MessageLookupByLibrary.simpleMessage("Добавить пользователя"),
     "addedOriginRules": MessageLookupByLibrary.simpleMessage(
       "Добавить к исходным правилам",
     ),
@@ -436,6 +437,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "edit": MessageLookupByLibrary.simpleMessage("Редактировать"),
     "editTunnel": MessageLookupByLibrary.simpleMessage(
       "Изменить перенаправление",
+    ),
+    "editUser": MessageLookupByLibrary.simpleMessage(
+      "Редактировать пользователя",
     ),
     "emptyTip": m3,
     "enableCrashReport": MessageLookupByLibrary.simpleMessage("Анализ сбоев"),
@@ -1186,6 +1190,12 @@ class MessageLookup extends MessageLookupByLibrary {
     "skipDstAddress": MessageLookupByLibrary.simpleMessage(
       "Пропустить IP назначения",
     ),
+    "skipLocalAuth": MessageLookupByLibrary.simpleMessage(
+      "Пропустить локальную аутентификацию",
+    ),
+    "skipLocalAuthDesc": MessageLookupByLibrary.simpleMessage(
+      "Разрешить локальному устройству доступ к прокси без учетных данных",
+    ),
     "skipSrcAddress": MessageLookupByLibrary.simpleMessage(
       "Пропустить IP источника",
     ),
@@ -1407,6 +1417,16 @@ class MessageLookup extends MessageLookupByLibrary {
     "useHosts": MessageLookupByLibrary.simpleMessage("Использовать hosts"),
     "useSystemHosts": MessageLookupByLibrary.simpleMessage(
       "Использовать системные hosts",
+    ),
+    "userAuth": MessageLookupByLibrary.simpleMessage(
+      "Аутентификация пользователей",
+    ),
+    "userAuthEmpty": MessageLookupByLibrary.simpleMessage(
+      "Пользователи аутентификации не настроены, подключение по LAN не требует учетных данных",
+    ),
+    "username": MessageLookupByLibrary.simpleMessage("Имя пользователя"),
+    "usernameCannotContainColon": MessageLookupByLibrary.simpleMessage(
+      "Имя пользователя не может содержать двоеточие",
     ),
     "value": MessageLookupByLibrary.simpleMessage("Значение"),
     "vibrantScheme": MessageLookupByLibrary.simpleMessage("Яркий"),

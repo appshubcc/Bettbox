@@ -767,6 +767,14 @@
   "tvScanManualUrl": "手机浏览器也可直接访问：",
   "tvScanWaiting": "等待手机推送配置中...",
   "tvScanSuccess": "配置推送成功，正在导入...",
-  "tvScanNoNetwork": "未检测到可用的局域网，请检查 Wi-Fi"
+  "tvScanNoNetwork": "未检测到可用的局域网，请检查 Wi-Fi",
+  "userAuth": "用户验证",
+  "skipLocalAuth": "跳过本机验证",
+  "skipLocalAuthDesc": "允许本机免密访问代理",
+  "username": "用户名",
+  "addUser": "添加用户",
+  "editUser": "编辑用户",
+  "userAuthEmpty": "未配置验证用户，局域网连接无需凭据",
+  "usernameCannotContainColon": "用户名不能包含冒号"
 }
 

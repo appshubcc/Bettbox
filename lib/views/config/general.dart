@@ -3,6 +3,7 @@ import 'package:bett_box/enum/enum.dart';
 import 'package:bett_box/models/models.dart';
 import 'package:bett_box/providers/providers.dart';
 import 'package:bett_box/state.dart';
+import 'package:bett_box/views/config/user_auth.dart';
 import 'package:bett_box/widgets/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -463,6 +464,10 @@ class Ipv6Item extends ConsumerWidget {
 class AllowLanItem extends ConsumerWidget {
   const AllowLanItem({super.key});
 
+  Future<void> _showUserAuthDialog() async {
+    await globalState.showCommonDialog(child: const UserAuthDialog());
+  }
+
   @override
   Widget build(BuildContext context, ref) {
     final allowLan = ref.watch(
@@ -470,7 +475,25 @@ class AllowLanItem extends ConsumerWidget {
     );
     return ListItem.switchItem(
       leading: const Icon(Icons.device_hub),
-      title: Text(appLocalizations.allowLan),
+      title: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(appLocalizations.allowLan),
+          const SizedBox(width: 6),
+          Tooltip(
+            message: appLocalizations.userAuth,
+            child: InkResponse(
+              radius: 16,
+              onTap: _showUserAuthDialog,
+              child: Icon(
+                Icons.settings_outlined,
+                size: 18,
+                color: context.colorScheme.onSurfaceVariant,
+              ),
+            ),
+          ),
+        ],
+      ),
       subtitle: Text(appLocalizations.allowLanDesc),
       delegate: SwitchDelegate(
         value: allowLan,
@@ -483,6 +506,7 @@ class AllowLanItem extends ConsumerWidget {
     );
   }
 }
+
 
 class UnifiedDelayItem extends ConsumerWidget {
   const UnifiedDelayItem({super.key});

@@ -525,6 +525,7 @@
   "regExp": "正規表示式",
   "icon": "圖片",
   "iconConfiguration": "圖片設定",
+  "iconConfigurationDesc": "自訂代理組 ICON 圖示",
   "noData": "暫無資料",
   "adminAutoLaunch": "管理員自啟動",
   "adminAutoLaunchDesc": "使用管理員模式開機自動啟動",
@@ -686,6 +687,7 @@
   "ageKeyPairGeneratedSuccess": "已生成 X25519 金鑰對，請妥善保存",
   "agePrivateKeyRequired": "請先輸入正確的 Age 私鑰",
   "lineWrap": "自動換行",
+  "autoStickyHeader": "自動吸頂",
   "showHiddenItems": "顯示隱藏項",
   "blockComment": "註解",
   "locate": "定位",
@@ -767,3 +769,4 @@
   "tvScanSuccess": "設定檔推送成功，正在導入...",
   "tvScanNoNetwork": "未檢測到可用的局域網，請檢查 Wi-Fi"
 }
+

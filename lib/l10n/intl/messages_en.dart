@@ -175,6 +175,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "autoSetSystemDns": MessageLookupByLibrary.simpleMessage(
       "Auto Set System DNS",
     ),
+    "autoStickyHeader": MessageLookupByLibrary.simpleMessage(
+      "Auto Sticky Header",
+    ),
     "autoUpdate": MessageLookupByLibrary.simpleMessage("Auto Update"),
     "autoUpdateInterval": MessageLookupByLibrary.simpleMessage(
       "Auto update interval (min)",
@@ -607,6 +610,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "icon": MessageLookupByLibrary.simpleMessage("Icon"),
     "iconConfiguration": MessageLookupByLibrary.simpleMessage(
       "Icon Configuration",
+    ),
+    "iconConfigurationDesc": MessageLookupByLibrary.simpleMessage(
+      "Customize proxy group ICON icons",
     ),
     "iconStyle": MessageLookupByLibrary.simpleMessage("Icon Style"),
     "import": MessageLookupByLibrary.simpleMessage("Import"),

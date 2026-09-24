@@ -525,6 +525,7 @@
   "regExp": "عبارت باقاعده (RegEx)",
   "icon": "تصویر",
   "iconConfiguration": "تنظیمات تصویر",
+  "iconConfigurationDesc": "سفارشی‌سازی آیکون‌های ICON گروه پروکسی",
   "noData": "داده‌ای موجود نیست",
   "adminAutoLaunch": "شروع خودکار با دسترسی Admin",
   "adminAutoLaunchDesc": "اجرای خودکار با دسترسی Admin هنگام بووت",
@@ -686,6 +687,7 @@
   "ageKeyPairGeneratedSuccess": "جفت کلید X25519 با موفقیت ساخته شد. لطفاً آن را ذخیره کنید",
   "agePrivateKeyRequired": "لطفا ابتدا کلید خصوصی Age صحیح را وارد کنید",
   "lineWrap": "شکستن خطوط",
+  "autoStickyHeader": "چسبندگی خودکار سربرگ",
   "showHiddenItems": "نمایش موارد پنهان",
   "blockComment": "کامنت",
   "locate": "موقعیت",
@@ -767,3 +769,4 @@
   "tvScanSuccess": "پروفایل دریافت شد، در حال وارد کردن...",
   "tvScanNoNetwork": "شبکه محلی در دسترس یافت نشد، لطفاً Wi-Fi را بررسی کنید"
 }
+

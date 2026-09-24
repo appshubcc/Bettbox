@@ -525,6 +525,7 @@
   "regExp": "正则",
   "icon": "图片",
   "iconConfiguration": "图片配置",
+  "iconConfigurationDesc": "自定义代理组 ICON 图标",
   "noData": "暂无数据",
   "adminAutoLaunch": "管理员自启动",
   "adminAutoLaunchDesc": "使用管理员模式开机自启动",
@@ -686,6 +687,7 @@
   "ageKeyPairGeneratedSuccess": "已生成 X25519 密钥对，请妥善保存",
   "agePrivateKeyRequired": "请先输入正确的 Age 私钥",
   "lineWrap": "自动换行",
+  "autoStickyHeader": "自动吸顶",
   "showHiddenItems": "显示隐藏项",
   "blockComment": "注释",
   "locate": "定位",
@@ -767,3 +769,4 @@
   "tvScanSuccess": "配置推送成功，正在导入...",
   "tvScanNoNetwork": "未检测到可用的局域网，请检查 Wi-Fi"
 }
+

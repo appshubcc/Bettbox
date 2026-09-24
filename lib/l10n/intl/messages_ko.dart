@@ -142,6 +142,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "autoRunDesc": MessageLookupByLibrary.simpleMessage("앱 실행 시 자동으로 프록시 연결"),
     "autoScroll": MessageLookupByLibrary.simpleMessage("자동 스크롤"),
     "autoSetSystemDns": MessageLookupByLibrary.simpleMessage("시스템 DNS 자동 설정"),
+    "autoStickyHeader": MessageLookupByLibrary.simpleMessage("헤더 자동 고정"),
     "autoUpdate": MessageLookupByLibrary.simpleMessage("자동 업데이트"),
     "autoUpdateInterval": MessageLookupByLibrary.simpleMessage(
       "자동 업데이트 간격 (분)",
@@ -495,6 +496,9 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "icon": MessageLookupByLibrary.simpleMessage("이미지"),
     "iconConfiguration": MessageLookupByLibrary.simpleMessage("이미지 설정"),
+    "iconConfigurationDesc": MessageLookupByLibrary.simpleMessage(
+      "프록시 그룹 ICON 아이콘 사용자 지정",
+    ),
     "iconStyle": MessageLookupByLibrary.simpleMessage("아이콘 스타일"),
     "import": MessageLookupByLibrary.simpleMessage("가져오기"),
     "importFailed": MessageLookupByLibrary.simpleMessage("가져오기 실패"),

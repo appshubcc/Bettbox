@@ -4329,6 +4329,16 @@ class AppLocalizations {
     );
   }
 
+  /// `Customize proxy group ICON icons`
+  String get iconConfigurationDesc {
+    return Intl.message(
+      'Customize proxy group ICON icons',
+      name: 'iconConfigurationDesc',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `No Data`
   String get noData {
     return Intl.message('No Data', name: 'noData', desc: '', args: []);
@@ -5617,6 +5627,16 @@ class AppLocalizations {
   /// `Wrap Lines`
   String get lineWrap {
     return Intl.message('Wrap Lines', name: 'lineWrap', desc: '', args: []);
+  }
+
+  /// `Auto Sticky Header`
+  String get autoStickyHeader {
+    return Intl.message(
+      'Auto Sticky Header',
+      name: 'autoStickyHeader',
+      desc: '',
+      args: [],
+    );
   }
 
   /// `Show Hidden Items`

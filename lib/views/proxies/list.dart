@@ -86,6 +86,67 @@ class _RowItem extends _FlatItem {
 
 class _ProxyGroupsListState extends ConsumerState<_ProxyGroupsList> {
   final ScrollController _scrollController = ScrollController();
+  final ValueNotifier<ProxiesListHeaderSelectorState?> _headerStateNotifier =
+      ValueNotifier<ProxiesListHeaderSelectorState?>(null);
+  List<double> _headerOffsets = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_adjustHeader);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _adjustHeader();
+    });
+  }
+
+  @override
+  void didUpdateWidget(covariant _ProxyGroupsList oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _adjustHeader();
+    });
+  }
+
+  void _adjustHeader() {
+    final autoStickyHeader = ref.read(
+      proxiesStyleSettingProvider.select((s) => s.autoStickyHeader),
+    );
+    if (!autoStickyHeader ||
+        !_scrollController.hasClients ||
+        _headerOffsets.isEmpty) {
+      if (_headerStateNotifier.value != null) {
+        _headerStateNotifier.value = null;
+      }
+      return;
+    }
+
+    final pixels = _scrollController.offset;
+    final index = _headerOffsets.findInterval(pixels);
+    if (index < 0 || index >= widget.groups.length) {
+      if (_headerStateNotifier.value != null) {
+        _headerStateNotifier.value = null;
+      }
+      return;
+    }
+
+    final headerHeight = _getHeaderHeight();
+    double offset = 0.0;
+    if (index + 1 <= _headerOffsets.length - 1) {
+      final endOffset = _headerOffsets[index + 1];
+      final startOffset = endOffset - headerHeight - 8.0;
+      if (pixels > startOffset && pixels < endOffset) {
+        offset = pixels - startOffset;
+      }
+    }
+
+    final nextState = ProxiesListHeaderSelectorState(
+      offset: offset > 0 ? offset : 0.0,
+      currentIndex: index,
+    );
+    if (_headerStateNotifier.value != nextState) {
+      _headerStateNotifier.value = nextState;
+    }
+  }
 
   void _handleToggle(String groupName) {
     final tempUnfoldSet = Set<String>.from(widget.currentUnfoldSet);
@@ -95,6 +156,9 @@ class _ProxyGroupsListState extends ConsumerState<_ProxyGroupsList> {
       tempUnfoldSet.add(groupName);
     }
     globalState.appController.updateCurrentUnfoldSet(tempUnfoldSet);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _adjustHeader();
+    });
   }
 
   double _getHeaderHeight() {
@@ -141,8 +205,14 @@ class _ProxyGroupsListState extends ConsumerState<_ProxyGroupsList> {
     final proxyIndex = sortedProxies.indexWhere((p) => p.name == selectedName);
     if (proxyIndex >= 0) {
       final rowIndex = proxyIndex ~/ widget.columns;
-      targetOffset += headerHeight + 8.0;
-      targetOffset += rowIndex * (itemHeight + 8.0);
+      final autoStickyHeader = ref.read(
+        proxiesStyleSettingProvider.select((s) => s.autoStickyHeader),
+      );
+      if (autoStickyHeader) {
+        targetOffset += rowIndex * (itemHeight + 8.0);
+      } else {
+        targetOffset += headerHeight + 8.0 + rowIndex * (itemHeight + 8.0);
+      }
     }
 
     _scrollController.animateTo(
@@ -154,9 +224,18 @@ class _ProxyGroupsListState extends ConsumerState<_ProxyGroupsList> {
 
   List<_FlatItem> _buildFlatItems() {
     final flatItems = <_FlatItem>[];
+    final headerOffsets = <double>[];
+    var currentOffset = 0.0;
+    final headerHeight = _getHeaderHeight();
+    final itemHeight = getItemHeight(widget.cardType);
+
     for (final group in widget.groups) {
+      headerOffsets.add(currentOffset);
       flatItems.add(_HeaderItem(group));
+      currentOffset += headerHeight;
+
       flatItems.add(_SpacingItem(8.0));
+      currentOffset += 8.0;
 
       final isExpand = widget.currentUnfoldSet.contains(group.name);
       if (isExpand) {
@@ -172,14 +251,18 @@ class _ProxyGroupsListState extends ConsumerState<_ProxyGroupsList> {
               : sortedProxies.length;
           final chunk = sortedProxies.sublist(i, end);
           flatItems.add(_RowItem(group, chunk));
+          currentOffset += (itemHeight + 8.0);
         }
       }
     }
+    _headerOffsets = headerOffsets;
     return flatItems;
   }
 
   @override
   void dispose() {
+    _headerStateNotifier.dispose();
+    _scrollController.removeListener(_adjustHeader);
     _scrollController.dispose();
     super.dispose();
   }
@@ -187,79 +270,146 @@ class _ProxyGroupsListState extends ConsumerState<_ProxyGroupsList> {
   @override
   Widget build(BuildContext context) {
     final isMobileView = ref.watch(isMobileViewProvider);
+    final autoStickyHeader = ref.watch(
+      proxiesStyleSettingProvider.select((s) => s.autoStickyHeader),
+    );
+
+    ref.listen(
+      proxiesStyleSettingProvider.select((s) => s.autoStickyHeader),
+      (_, next) {
+        if (!next) {
+          _headerStateNotifier.value = null;
+        } else {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            _adjustHeader();
+          });
+        }
+      },
+    );
+
     final flatItems = _buildFlatItems();
     final headerHeight = _getHeaderHeight();
     final itemHeight = getItemHeight(widget.cardType);
 
     return CommonScrollBar(
       controller: _scrollController,
-      child: ListView.builder(
-        key: const PageStorageKey<String>('proxies_list'),
-        controller: _scrollController,
-        padding: EdgeInsets.all(16).copyWith(
-          bottom:
-              (globalState.isAndroidTV ? 48.0 : 16.0) +
-              (isMobileView ? getFloatingBottomBarReserveHeight(context) : 0),
-        ),
-        itemCount: flatItems.length,
-        itemExtentBuilder: (index, _) {
-          return flatItems[index].getHeight(headerHeight, itemHeight);
-        },
-        itemBuilder: (context, index) {
-          final item = flatItems[index];
-          if (item is _HeaderItem) {
-            final isExpand = widget.currentUnfoldSet.contains(item.group.name);
-            return _GroupHeader(
-              key: ValueKey('header_${item.group.name}'),
-              group: item.group,
-              isExpand: isExpand,
-              onToggle: () => _handleToggle(item.group.name),
-              cardType: widget.cardType,
-              columns: widget.columns,
-              onScrollToSelected: () => _scrollToSelected(item.group.name),
-            );
-          } else if (item is _SpacingItem) {
-            return SizedBox(height: item.height);
-          } else if (item is _RowItem) {
-            final cardWidgets = <Widget>[];
-            for (var i = 0; i < widget.columns; i++) {
-              if (i < item.proxies.length) {
-                final proxy = item.proxies[i];
-                cardWidgets.add(
-                  Expanded(
-                    child: ProxyCard(
-                      key: ValueKey('${item.group.name}.${proxy.name}'),
-                      proxy: proxy,
-                      groupName: item.group.name,
-                      type: widget.cardType,
-                      groupType: item.group.type,
-                      testUrl: item.group.testUrl,
-                    ),
-                  ),
-                );
-              } else {
-                cardWidgets.add(const Expanded(child: SizedBox()));
-              }
-            }
-
-            final rowChildren = <Widget>[];
-            for (var i = 0; i < cardWidgets.length; i++) {
-              rowChildren.add(cardWidgets[i]);
-              if (i < cardWidgets.length - 1) {
-                rowChildren.add(const SizedBox(width: 8));
-              }
-            }
-
-            return Padding(
-              padding: const EdgeInsets.only(bottom: 8),
-              child: SizedBox(
-                height: itemHeight,
-                child: Row(children: rowChildren),
+      child: Stack(
+        clipBehavior: Clip.hardEdge,
+        children: [
+          Positioned.fill(
+            child: ListView.builder(
+              key: const PageStorageKey<String>('proxies_list'),
+              controller: _scrollController,
+              padding: EdgeInsets.all(16).copyWith(
+                bottom:
+                    (globalState.isAndroidTV ? 48.0 : 16.0) +
+                    (isMobileView ? getFloatingBottomBarReserveHeight(context) : 0),
               ),
-            );
-          }
-          return const SizedBox();
-        },
+              itemCount: flatItems.length,
+              itemExtentBuilder: (index, _) {
+                return flatItems[index].getHeight(headerHeight, itemHeight);
+              },
+              itemBuilder: (context, index) {
+                final item = flatItems[index];
+                if (item is _HeaderItem) {
+                  final isExpand = widget.currentUnfoldSet.contains(item.group.name);
+                  return _GroupHeader(
+                    key: ValueKey('header_${item.group.name}'),
+                    group: item.group,
+                    isExpand: isExpand,
+                    onToggle: () => _handleToggle(item.group.name),
+                    cardType: widget.cardType,
+                    columns: widget.columns,
+                    onScrollToSelected: () => _scrollToSelected(item.group.name),
+                  );
+                } else if (item is _SpacingItem) {
+                  return SizedBox(height: item.height);
+                } else if (item is _RowItem) {
+                  final cardWidgets = <Widget>[];
+                  for (var i = 0; i < widget.columns; i++) {
+                    if (i < item.proxies.length) {
+                      final proxy = item.proxies[i];
+                      cardWidgets.add(
+                        Expanded(
+                          child: ProxyCard(
+                            key: ValueKey('${item.group.name}.${proxy.name}'),
+                            proxy: proxy,
+                            groupName: item.group.name,
+                            type: widget.cardType,
+                            groupType: item.group.type,
+                            testUrl: item.group.testUrl,
+                          ),
+                        ),
+                      );
+                    } else {
+                      cardWidgets.add(const Expanded(child: SizedBox()));
+                    }
+                  }
+
+                  final rowChildren = <Widget>[];
+                  for (var i = 0; i < cardWidgets.length; i++) {
+                    rowChildren.add(cardWidgets[i]);
+                    if (i < cardWidgets.length - 1) {
+                      rowChildren.add(const SizedBox(width: 8));
+                    }
+                  }
+
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 8),
+                    child: SizedBox(
+                      height: itemHeight,
+                      child: Row(children: rowChildren),
+                    ),
+                  );
+                }
+                return const SizedBox();
+              },
+            ),
+          ),
+          if (autoStickyHeader)
+            Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              child: ValueListenableBuilder<ProxiesListHeaderSelectorState?>(
+                valueListenable: _headerStateNotifier,
+                builder: (context, headerState, _) {
+                  if (headerState == null) return const SizedBox.shrink();
+                  final index = headerState.currentIndex;
+                  if (index < 0 || index >= widget.groups.length) {
+                    return const SizedBox.shrink();
+                  }
+                  final group = widget.groups[index];
+                  final isExpand = widget.currentUnfoldSet.contains(group.name);
+
+                  return Transform.translate(
+                    offset: Offset(0, -headerState.offset),
+                    child: Container(
+                      color: context.colorScheme.surface,
+                      padding: const EdgeInsets.only(
+                        top: 16,
+                        left: 16,
+                        right: 16,
+                        bottom: 8,
+                      ),
+                      child: SizedBox(
+                        height: headerHeight,
+                        child: _GroupHeader(
+                          key: ValueKey('sticky_header_${group.name}'),
+                          group: group,
+                          isExpand: isExpand,
+                          onToggle: () => _handleToggle(group.name),
+                          cardType: widget.cardType,
+                          columns: widget.columns,
+                          onScrollToSelected: () => _scrollToSelected(group.name),
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+        ],
       ),
     );
   }

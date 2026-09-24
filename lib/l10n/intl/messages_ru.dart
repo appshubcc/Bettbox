@@ -178,6 +178,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "autoSetSystemDns": MessageLookupByLibrary.simpleMessage(
       "Автоматически настроить системный DNS",
     ),
+    "autoStickyHeader": MessageLookupByLibrary.simpleMessage(
+      "Автозакрепление заголовка",
+    ),
     "autoUpdate": MessageLookupByLibrary.simpleMessage("Автообновление"),
     "autoUpdateInterval": MessageLookupByLibrary.simpleMessage(
       "Интервал автообновления (минуты)",
@@ -630,6 +633,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "icon": MessageLookupByLibrary.simpleMessage("Иконка"),
     "iconConfiguration": MessageLookupByLibrary.simpleMessage(
       "Настройка иконки",
+    ),
+    "iconConfigurationDesc": MessageLookupByLibrary.simpleMessage(
+      "Настройка значков ICON групп прокси",
     ),
     "iconStyle": MessageLookupByLibrary.simpleMessage("Стиль иконок"),
     "import": MessageLookupByLibrary.simpleMessage("Импорт"),

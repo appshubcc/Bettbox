@@ -30,8 +30,10 @@ class _ProxiesViewState extends ConsumerState<ProxiesView> {
   bool _isTab = false;
 
   List<Widget> _buildActions() {
-    final showHiddenItems = ref.watch(
-      proxiesStyleSettingProvider.select((state) => state.showHiddenItems),
+    final (autoStickyHeader, showHiddenItems) = ref.watch(
+      proxiesStyleSettingProvider.select(
+        (state) => (state.autoStickyHeader, state.showHiddenItems),
+      ),
     );
     final (scriptOn, compatible) = ref.watch(
       scriptStateProvider.select(
@@ -120,25 +122,23 @@ class _ProxiesViewState extends ConsumerState<ProxiesView> {
             ),
             if (!_isTab)
               PopupMenuItemData(
-                icon: Icons.style_outlined,
-                label: appLocalizations.iconConfiguration,
+                icon: autoStickyHeader
+                    ? Icons.check_circle_rounded
+                    : Icons.circle_outlined,
+                label: appLocalizations.autoStickyHeader,
                 onPressed: () {
-                  showExtend(
-                    context,
-                    builder: (_, type) {
-                      return AdaptiveSheetScaffold(
-                        type: type,
-                        body: const _IconConfigView(),
-                        title: appLocalizations.iconConfiguration,
+                  ref
+                      .read(proxiesStyleSettingProvider.notifier)
+                      .updateState(
+                        (state) =>
+                            state.copyWith(autoStickyHeader: !autoStickyHeader),
                       );
-                    },
-                  );
                 },
               ),
             PopupMenuItemData(
               icon: showHiddenItems
-                  ? Icons.radio_button_checked
-                  : Icons.radio_button_unchecked,
+                  ? Icons.check_circle_rounded
+                  : Icons.circle_outlined,
               label: appLocalizations.showHiddenItems,
               onPressed: () {
                 ref
@@ -251,32 +251,3 @@ class _ProxiesViewState extends ConsumerState<ProxiesView> {
   }
 }
 
-class _IconConfigView extends ConsumerWidget {
-  const _IconConfigView();
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final iconMap = ref.watch(
-      proxiesStyleSettingProvider.select((state) => state.iconMap),
-    );
-    return MapInputPage(
-      title: appLocalizations.iconConfiguration,
-      map: iconMap,
-      keyLabel: appLocalizations.regExp,
-      valueLabel: appLocalizations.icon,
-      titleBuilder: (item) => EmojiText(item.key),
-      leadingBuilder: (item) => Container(
-        decoration: BoxDecoration(borderRadius: BorderRadius.circular(16)),
-        clipBehavior: Clip.antiAlias,
-        child: CommonTargetIcon(src: item.value, size: 42),
-      ),
-      subtitleBuilder: (item) =>
-          Text(item.value, maxLines: 2, overflow: TextOverflow.ellipsis),
-      onChange: (value) {
-        ref
-            .read(proxiesStyleSettingProvider.notifier)
-            .updateState((state) => state.copyWith(iconMap: value));
-      },
-    );
-  }
-}

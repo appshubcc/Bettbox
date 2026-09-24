@@ -19,6 +19,7 @@ class ProxiesAdvancedSettings extends ConsumerWidget {
           const _ConcurrencyLimitItem(),
           const _HealthCheckTimeoutItem(),
           const _DelayAnimationItem(),
+          const _IconConfigItem(),
         ],
       ),
     );
@@ -235,6 +236,61 @@ class _DelayAnimationItem extends ConsumerWidget {
                 (state) => state.copyWith(delayAnimation: value),
               );
         }
+      },
+    );
+  }
+}
+
+class _IconConfigItem extends StatelessWidget {
+  const _IconConfigItem();
+
+  @override
+  Widget build(BuildContext context) {
+    return ListItem(
+      leading: const Icon(Icons.style_outlined),
+      title: Text(appLocalizations.iconConfiguration),
+      subtitle: Text(appLocalizations.iconConfigurationDesc),
+      onTap: () {
+        showExtend(
+          context,
+          builder: (_, type) {
+            return AdaptiveSheetScaffold(
+              type: type,
+              body: const _IconConfigView(),
+              title: appLocalizations.iconConfiguration,
+            );
+          },
+        );
+      },
+    );
+  }
+}
+
+class _IconConfigView extends ConsumerWidget {
+  const _IconConfigView();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final iconMap = ref.watch(
+      proxiesStyleSettingProvider.select((state) => state.iconMap),
+    );
+    return MapInputPage(
+      title: appLocalizations.iconConfiguration,
+      map: iconMap,
+      keyLabel: appLocalizations.regExp,
+      valueLabel: appLocalizations.icon,
+      titleBuilder: (item) => EmojiText(item.key),
+      leadingBuilder: (item) => Container(
+        decoration: BoxDecoration(borderRadius: BorderRadius.circular(16)),
+        clipBehavior: Clip.antiAlias,
+        child: CommonTargetIcon(src: item.value, size: 42),
+      ),
+      subtitleBuilder: (item) =>
+          Text(item.value, maxLines: 2, overflow: TextOverflow.ellipsis),
+      onChange: (value) {
+        ref
+            .read(proxiesStyleSettingProvider.notifier)
+            .updateState((state) => state.copyWith(iconMap: value));
       },
     );
   }

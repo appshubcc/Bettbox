@@ -525,6 +525,7 @@
   "regExp": "RegExp",
   "icon": "Icon",
   "iconConfiguration": "Icon Configuration",
+  "iconConfigurationDesc": "Customize proxy group ICON icons",
   "noData": "No Data",
   "adminAutoLaunch": "Admin Auto-Launch",
   "adminAutoLaunchDesc": "Auto-start with admin privileges",
@@ -685,6 +686,7 @@
   "ageKeyPairGeneratedSuccess": "X25519 Key pair generated, please keep it safe",
   "agePrivateKeyRequired": "Please enter a correct Age private key first",
   "lineWrap": "Wrap Lines",
+  "autoStickyHeader": "Auto Sticky Header",
   "showHiddenItems": "Show Hidden Items",
   "blockComment": "Comment",
   "locate": "Locate",
@@ -766,3 +768,4 @@
   "tvScanSuccess": "Profile received, importing...",
   "tvScanNoNetwork": "No available LAN detected, please check Wi-Fi"
 }
+

@@ -130,6 +130,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "autoRunDesc": MessageLookupByLibrary.simpleMessage("應用打開後自動連線"),
     "autoScroll": MessageLookupByLibrary.simpleMessage("自動滾動"),
     "autoSetSystemDns": MessageLookupByLibrary.simpleMessage("自動設定系統 DNS"),
+    "autoStickyHeader": MessageLookupByLibrary.simpleMessage("自動吸頂"),
     "autoUpdate": MessageLookupByLibrary.simpleMessage("自動更新"),
     "autoUpdateInterval": MessageLookupByLibrary.simpleMessage("自動更新間隔（分鐘）"),
     "back": MessageLookupByLibrary.simpleMessage("返回"),
@@ -443,6 +444,9 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "icon": MessageLookupByLibrary.simpleMessage("圖片"),
     "iconConfiguration": MessageLookupByLibrary.simpleMessage("圖片設定"),
+    "iconConfigurationDesc": MessageLookupByLibrary.simpleMessage(
+      "自訂代理組 ICON 圖示",
+    ),
     "iconStyle": MessageLookupByLibrary.simpleMessage("圖示樣式"),
     "import": MessageLookupByLibrary.simpleMessage("匯入"),
     "importFailed": MessageLookupByLibrary.simpleMessage("匯入失敗"),

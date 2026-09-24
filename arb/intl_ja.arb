@@ -525,6 +525,7 @@
   "regExp": "正規表現",
   "icon": "画像",
   "iconConfiguration": "画像設定",
+  "iconConfigurationDesc": "プロキシグループのICONアイコンをカスタマイズ",
   "noData": "データがありません",
   "adminAutoLaunch": "管理者権限で自動起動",
   "adminAutoLaunchDesc": "管理者モードでOS起動時に自動開始",
@@ -686,6 +687,7 @@
   "ageKeyPairGeneratedSuccess": "X25519鍵ペアを生成しました。大切に保管してください",
   "agePrivateKeyRequired": "正しいAge秘密鍵を先に入力してください",
   "lineWrap": "折り返し",
+  "autoStickyHeader": "自動固定ヘッダー",
   "showHiddenItems": "非表示項目を表示",
   "blockComment": "コメント",
   "locate": "位置",
@@ -767,3 +769,4 @@
   "tvScanSuccess": "設定がプッシュされました。インポート中...",
   "tvScanNoNetwork": "利用可能なLANが見つかりません。Wi-Fiを確認してください"
 }
+

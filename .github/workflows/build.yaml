@@ -429,12 +429,30 @@ jobs:
             fi
           fi
 
-      - name: Upload Artifacts (Non-Linux)
-        if: matrix.platform != 'linux'
+      - name: Upload Artifacts (macOS & Android)
+        if: matrix.platform != 'linux' && matrix.platform != 'windows'
         uses: actions/upload-artifact@v7
         with:
           name: Bettbox-${{ matrix.platform }}-${{ matrix.arch }}${{ matrix.compatible == true && '-compatible' || '' }}
           path: ./dist/*
+          archive: false
+          overwrite: true
+
+      - name: Upload Windows Installer Artifact
+        if: matrix.platform == 'windows'
+        uses: actions/upload-artifact@v7
+        with:
+          name: Bettbox-${{ matrix.platform }}-${{ matrix.arch }}${{ matrix.compatible == true && '-compatible' || '' }}-installer
+          path: ./dist/*.exe
+          archive: false
+          overwrite: true
+
+      - name: Upload Windows Portable Artifact
+        if: matrix.platform == 'windows'
+        uses: actions/upload-artifact@v7
+        with:
+          name: Bettbox-${{ matrix.platform }}-${{ matrix.arch }}${{ matrix.compatible == true && '-compatible' || '' }}-portable
+          path: ./dist/*.zip
           archive: false
           overwrite: true
 
@@ -481,6 +499,7 @@ jobs:
           path: ./dist/
           pattern: Bettbox-*
           merge-multiple: true
+          skip-decompress: true
 
       - name: Generate release.md
         run: |

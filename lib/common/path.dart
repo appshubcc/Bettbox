@@ -15,22 +15,35 @@ class AppPath {
 
   AppPath._internal() {
     appDirPath = join(dirname(Platform.resolvedExecutable));
-    getApplicationSupportDirectory().then((value) {
-      if (system.isWindows && AppIdentity.isDev) {
-        dataDir.complete(
-          Directory(join(value.parent.path, AppIdentity.dataDirName)),
-        );
-      } else {
-        dataDir.complete(value);
+    final portableDir = Directory(join(appDirPath, 'portable'));
+    if (system.isWindows && portableDir.existsSync()) {
+      dataDir.complete(portableDir);
+      final portableTempDir = Directory(join(portableDir.path, 'temp'));
+      if (!portableTempDir.existsSync()) {
+        portableTempDir.createSync(recursive: true);
       }
-    });
-    getTemporaryDirectory().then((value) {
-      tempDir.complete(value);
-    });
+      tempDir.complete(portableTempDir);
+    } else {
+      getApplicationSupportDirectory().then((value) {
+        if (system.isWindows && AppIdentity.isDev) {
+          dataDir.complete(
+            Directory(join(value.parent.path, AppIdentity.dataDirName)),
+          );
+        } else {
+          dataDir.complete(value);
+        }
+      });
+      getTemporaryDirectory().then((value) {
+        tempDir.complete(value);
+      });
+    }
     getDownloadsDirectory().then((value) {
       downloadDir.complete(value);
     });
   }
+
+  bool get isPortable =>
+      system.isWindows && Directory(join(appDirPath, 'portable')).existsSync();
 
   factory AppPath() {
     _instance ??= AppPath._internal();

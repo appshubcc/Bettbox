@@ -2,6 +2,7 @@
 
 import 'dart:convert';
 import 'dart:io';
+import 'package:archive/archive_io.dart';
 import 'package:args/args.dart';
 import 'package:liquid_engine/liquid_engine.dart';
 import 'package:path/path.dart' as path;
@@ -12,12 +13,16 @@ void main(List<String> arguments) async {
     ..addOption('arch', allowed: ['amd64', 'arm64'], mandatory: true)
     ..addFlag('compatible', defaultsTo: false)
     ..addOption('env', defaultsTo: 'pre')
-    ..addFlag('dev', defaultsTo: false);
+    ..addFlag('dev', defaultsTo: false)
+    ..addFlag('portable', defaultsTo: true)
+    ..addFlag('installer', defaultsTo: true);
 
   final args = parser.parse(arguments);
   final arch = args['arch'] as String;
   final compatible = args['compatible'] as bool;
   final isDev = args['dev'] as bool;
+  final makePortable = args['portable'] as bool;
+  final makeInstaller = args['installer'] as bool;
 
   final desc = compatible ? '$arch-compatible' : arch;
 
@@ -121,42 +126,86 @@ void main(List<String> arguments) async {
   print('Generated temp_setup.iss');
 
   // 6. Run ISCC.exe
-  final isccPath = 'C:\\Program Files (x86)\\Inno Setup 6\\ISCC.exe';
-  if (!File(isccPath).existsSync()) {
-    print('Error: Inno Setup 6 is not installed at $isccPath');
-    tempIssFile.deleteSync();
-    exit(1);
+  if (makeInstaller) {
+    final isccPath = 'C:\\Program Files (x86)\\Inno Setup 6\\ISCC.exe';
+    if (!File(isccPath).existsSync()) {
+      print('Error: Inno Setup 6 is not installed at $isccPath');
+      tempIssFile.deleteSync();
+      exit(1);
+    }
+
+    print('Running ISCC.exe...');
+    final processResult = await Process.run(isccPath, [tempIssFile.path]);
+    print(processResult.stdout);
+    print(processResult.stderr);
+
+    // Clean up temp ISS file
+    if (tempIssFile.existsSync()) {
+      tempIssFile.deleteSync();
+    }
+
+    if (processResult.exitCode != 0) {
+      print('Error: ISCC.exe compilation failed.');
+      exit(processResult.exitCode);
+    }
+
+    // 7. Move generated installer to dist/
+    final generatedInstallerPath = path.join('windows/packaging/exe', '$outputBaseName.exe');
+    final generatedInstallerFile = File(generatedInstallerPath);
+    if (!generatedInstallerFile.existsSync()) {
+      print('Error: Generated installer not found at $generatedInstallerPath');
+      exit(1);
+    }
+
+    final distDir = Directory('dist');
+    if (!distDir.existsSync()) {
+      distDir.createSync(recursive: true);
+    }
+
+    final targetInstallerPath = path.join('dist', '$outputBaseName.exe');
+    generatedInstallerFile.renameSync(targetInstallerPath);
+    print('Successfully generated and moved installer to: $targetInstallerPath');
+  } else {
+    if (tempIssFile.existsSync()) {
+      tempIssFile.deleteSync();
+    }
   }
 
-  print('Running ISCC.exe...');
-  final processResult = await Process.run(isccPath, [tempIssFile.path]);
-  print(processResult.stdout);
-  print(processResult.stderr);
+  if (makePortable) {
+    final distDir = Directory('dist');
+    if (!distDir.existsSync()) {
+      distDir.createSync(recursive: true);
+    }
 
-  // Clean up temp ISS file
-  if (tempIssFile.existsSync()) {
-    tempIssFile.deleteSync();
+    final portableDir = Directory(path.join(sourceDir, 'portable'));
+    if (!portableDir.existsSync()) {
+      portableDir.createSync(recursive: true);
+    }
+    final keepFile = File(path.join(portableDir.path, '.keep'));
+    if (!keepFile.existsSync()) {
+      keepFile.writeAsStringSync('');
+    }
+
+    final portableOutputBaseName = 'Bettbox-$appVersion-windows-$desc-portable.zip';
+    final targetPortableZipPath = path.join('dist', portableOutputBaseName);
+    final targetPortableFile = File(targetPortableZipPath);
+    if (targetPortableFile.existsSync()) {
+      targetPortableFile.deleteSync();
+    }
+
+    print('Creating portable zip: $targetPortableZipPath');
+    try {
+      final zipFileEncoder = ZipFileEncoder();
+      await zipFileEncoder.zipDirectory(
+        Directory(sourceDir),
+        filename: targetPortableZipPath,
+        followLinks: true,
+      );
+      print('Successfully generated portable zip: $targetPortableZipPath');
+    } finally {
+      if (portableDir.existsSync()) {
+        portableDir.deleteSync(recursive: true);
+      }
+    }
   }
-
-  if (processResult.exitCode != 0) {
-    print('Error: ISCC.exe compilation failed.');
-    exit(processResult.exitCode);
-  }
-
-  // 7. Move generated installer to dist/
-  final generatedInstallerPath = path.join('windows/packaging/exe', '$outputBaseName.exe');
-  final generatedInstallerFile = File(generatedInstallerPath);
-  if (!generatedInstallerFile.existsSync()) {
-    print('Error: Generated installer not found at $generatedInstallerPath');
-    exit(1);
-  }
-
-  final distDir = Directory('dist');
-  if (!distDir.existsSync()) {
-    distDir.createSync(recursive: true);
-  }
-
-  final targetInstallerPath = path.join('dist', '$outputBaseName.exe');
-  generatedInstallerFile.renameSync(targetInstallerPath);
-  print('Successfully generated and moved installer to: $targetInstallerPath');
 }

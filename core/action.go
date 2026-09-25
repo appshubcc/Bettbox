@@ -256,6 +256,26 @@ func handleAction(action *Action, result ActionResult) {
 	case crashMethod:
 		result.success(true)
 		handleCrash()
+	case fetchSubscriptionMethod:
+		paramsString, ok := action.Data.(string)
+		if !ok {
+			result.error("invalid params")
+			return
+		}
+		var params FetchSubscriptionParams
+		err := json.Unmarshal([]byte(paramsString), &params)
+		if err != nil {
+			result.error(err.Error())
+			return
+		}
+		handleFetchSubscription(&params, func(res *FetchSubscriptionResult) {
+			if res.Error != "" {
+				result.error(res.Error)
+			} else {
+				result.success(res)
+			}
+		})
+		return
 	default:
 		nextHandle(action, result)
 	}

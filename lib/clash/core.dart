@@ -379,6 +379,12 @@ class ClashCore {
   Future<void> destroy() async {
     await clashInterface.destroy();
   }
+
+  Future<FetchSubscriptionResult> fetchSubscription(
+    FetchSubscriptionParams params,
+  ) {
+    return clashInterface.fetchSubscription(params);
+  }
 }
 
 final clashCore = ClashCore();

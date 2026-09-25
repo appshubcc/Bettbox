@@ -4518,4 +4518,566 @@ as String,
 
 }
 
+
+/// @nodoc
+mixin _$FetchSubscriptionParams {
+
+ String get url;@JsonKey(name: 'save-path') String get savePath; Map<String, String> get headers; int get timeout;
+/// Create a copy of FetchSubscriptionParams
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$FetchSubscriptionParamsCopyWith<FetchSubscriptionParams> get copyWith => _$FetchSubscriptionParamsCopyWithImpl<FetchSubscriptionParams>(this as FetchSubscriptionParams, _$identity);
+
+  /// Serializes this FetchSubscriptionParams to a JSON map.
+  Map<String, dynamic> toJson();
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is FetchSubscriptionParams&&(identical(other.url, url) || other.url == url)&&(identical(other.savePath, savePath) || other.savePath == savePath)&&const DeepCollectionEquality().equals(other.headers, headers)&&(identical(other.timeout, timeout) || other.timeout == timeout));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,url,savePath,const DeepCollectionEquality().hash(headers),timeout);
+
+@override
+String toString() {
+  return 'FetchSubscriptionParams(url: $url, savePath: $savePath, headers: $headers, timeout: $timeout)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $FetchSubscriptionParamsCopyWith<$Res>  {
+  factory $FetchSubscriptionParamsCopyWith(FetchSubscriptionParams value, $Res Function(FetchSubscriptionParams) _then) = _$FetchSubscriptionParamsCopyWithImpl;
+@useResult
+$Res call({
+ String url,@JsonKey(name: 'save-path') String savePath, Map<String, String> headers, int timeout
+});
+
+
+
+
+}
+/// @nodoc
+class _$FetchSubscriptionParamsCopyWithImpl<$Res>
+    implements $FetchSubscriptionParamsCopyWith<$Res> {
+  _$FetchSubscriptionParamsCopyWithImpl(this._self, this._then);
+
+  final FetchSubscriptionParams _self;
+  final $Res Function(FetchSubscriptionParams) _then;
+
+/// Create a copy of FetchSubscriptionParams
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? url = null,Object? savePath = null,Object? headers = null,Object? timeout = null,}) {
+  return _then(_self.copyWith(
+url: null == url ? _self.url : url // ignore: cast_nullable_to_non_nullable
+as String,savePath: null == savePath ? _self.savePath : savePath // ignore: cast_nullable_to_non_nullable
+as String,headers: null == headers ? _self.headers : headers // ignore: cast_nullable_to_non_nullable
+as Map<String, String>,timeout: null == timeout ? _self.timeout : timeout // ignore: cast_nullable_to_non_nullable
+as int,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [FetchSubscriptionParams].
+extension FetchSubscriptionParamsPatterns on FetchSubscriptionParams {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _FetchSubscriptionParams value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _FetchSubscriptionParams() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _FetchSubscriptionParams value)  $default,){
+final _that = this;
+switch (_that) {
+case _FetchSubscriptionParams():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _FetchSubscriptionParams value)?  $default,){
+final _that = this;
+switch (_that) {
+case _FetchSubscriptionParams() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String url, @JsonKey(name: 'save-path')  String savePath,  Map<String, String> headers,  int timeout)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _FetchSubscriptionParams() when $default != null:
+return $default(_that.url,_that.savePath,_that.headers,_that.timeout);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String url, @JsonKey(name: 'save-path')  String savePath,  Map<String, String> headers,  int timeout)  $default,) {final _that = this;
+switch (_that) {
+case _FetchSubscriptionParams():
+return $default(_that.url,_that.savePath,_that.headers,_that.timeout);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String url, @JsonKey(name: 'save-path')  String savePath,  Map<String, String> headers,  int timeout)?  $default,) {final _that = this;
+switch (_that) {
+case _FetchSubscriptionParams() when $default != null:
+return $default(_that.url,_that.savePath,_that.headers,_that.timeout);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+@JsonSerializable()
+
+class _FetchSubscriptionParams implements FetchSubscriptionParams {
+  const _FetchSubscriptionParams({required this.url, @JsonKey(name: 'save-path') required this.savePath, final  Map<String, String> headers = const {}, this.timeout = 30}): _headers = headers;
+  factory _FetchSubscriptionParams.fromJson(Map<String, dynamic> json) => _$FetchSubscriptionParamsFromJson(json);
+
+@override final  String url;
+@override@JsonKey(name: 'save-path') final  String savePath;
+ final  Map<String, String> _headers;
+@override@JsonKey() Map<String, String> get headers {
+  if (_headers is EqualUnmodifiableMapView) return _headers;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableMapView(_headers);
+}
+
+@override@JsonKey() final  int timeout;
+
+/// Create a copy of FetchSubscriptionParams
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$FetchSubscriptionParamsCopyWith<_FetchSubscriptionParams> get copyWith => __$FetchSubscriptionParamsCopyWithImpl<_FetchSubscriptionParams>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$FetchSubscriptionParamsToJson(this, );
+}
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _FetchSubscriptionParams&&(identical(other.url, url) || other.url == url)&&(identical(other.savePath, savePath) || other.savePath == savePath)&&const DeepCollectionEquality().equals(other._headers, _headers)&&(identical(other.timeout, timeout) || other.timeout == timeout));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,url,savePath,const DeepCollectionEquality().hash(_headers),timeout);
+
+@override
+String toString() {
+  return 'FetchSubscriptionParams(url: $url, savePath: $savePath, headers: $headers, timeout: $timeout)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$FetchSubscriptionParamsCopyWith<$Res> implements $FetchSubscriptionParamsCopyWith<$Res> {
+  factory _$FetchSubscriptionParamsCopyWith(_FetchSubscriptionParams value, $Res Function(_FetchSubscriptionParams) _then) = __$FetchSubscriptionParamsCopyWithImpl;
+@override @useResult
+$Res call({
+ String url,@JsonKey(name: 'save-path') String savePath, Map<String, String> headers, int timeout
+});
+
+
+
+
+}
+/// @nodoc
+class __$FetchSubscriptionParamsCopyWithImpl<$Res>
+    implements _$FetchSubscriptionParamsCopyWith<$Res> {
+  __$FetchSubscriptionParamsCopyWithImpl(this._self, this._then);
+
+  final _FetchSubscriptionParams _self;
+  final $Res Function(_FetchSubscriptionParams) _then;
+
+/// Create a copy of FetchSubscriptionParams
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? url = null,Object? savePath = null,Object? headers = null,Object? timeout = null,}) {
+  return _then(_FetchSubscriptionParams(
+url: null == url ? _self.url : url // ignore: cast_nullable_to_non_nullable
+as String,savePath: null == savePath ? _self.savePath : savePath // ignore: cast_nullable_to_non_nullable
+as String,headers: null == headers ? _self._headers : headers // ignore: cast_nullable_to_non_nullable
+as Map<String, String>,timeout: null == timeout ? _self.timeout : timeout // ignore: cast_nullable_to_non_nullable
+as int,
+  ));
+}
+
+
+}
+
+
+/// @nodoc
+mixin _$FetchSubscriptionResult {
+
+@JsonKey(name: 'status-code') int get statusCode; Map<String, String> get headers;@JsonKey(name: 'subscription-userinfo') String? get subscriptionUserInfo;@JsonKey(name: 'content-disposition') String? get contentDisposition;@JsonKey(name: 'saved-path') String? get savedPath; String? get error;
+/// Create a copy of FetchSubscriptionResult
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$FetchSubscriptionResultCopyWith<FetchSubscriptionResult> get copyWith => _$FetchSubscriptionResultCopyWithImpl<FetchSubscriptionResult>(this as FetchSubscriptionResult, _$identity);
+
+  /// Serializes this FetchSubscriptionResult to a JSON map.
+  Map<String, dynamic> toJson();
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is FetchSubscriptionResult&&(identical(other.statusCode, statusCode) || other.statusCode == statusCode)&&const DeepCollectionEquality().equals(other.headers, headers)&&(identical(other.subscriptionUserInfo, subscriptionUserInfo) || other.subscriptionUserInfo == subscriptionUserInfo)&&(identical(other.contentDisposition, contentDisposition) || other.contentDisposition == contentDisposition)&&(identical(other.savedPath, savedPath) || other.savedPath == savedPath)&&(identical(other.error, error) || other.error == error));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,statusCode,const DeepCollectionEquality().hash(headers),subscriptionUserInfo,contentDisposition,savedPath,error);
+
+@override
+String toString() {
+  return 'FetchSubscriptionResult(statusCode: $statusCode, headers: $headers, subscriptionUserInfo: $subscriptionUserInfo, contentDisposition: $contentDisposition, savedPath: $savedPath, error: $error)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $FetchSubscriptionResultCopyWith<$Res>  {
+  factory $FetchSubscriptionResultCopyWith(FetchSubscriptionResult value, $Res Function(FetchSubscriptionResult) _then) = _$FetchSubscriptionResultCopyWithImpl;
+@useResult
+$Res call({
+@JsonKey(name: 'status-code') int statusCode, Map<String, String> headers,@JsonKey(name: 'subscription-userinfo') String? subscriptionUserInfo,@JsonKey(name: 'content-disposition') String? contentDisposition,@JsonKey(name: 'saved-path') String? savedPath, String? error
+});
+
+
+
+
+}
+/// @nodoc
+class _$FetchSubscriptionResultCopyWithImpl<$Res>
+    implements $FetchSubscriptionResultCopyWith<$Res> {
+  _$FetchSubscriptionResultCopyWithImpl(this._self, this._then);
+
+  final FetchSubscriptionResult _self;
+  final $Res Function(FetchSubscriptionResult) _then;
+
+/// Create a copy of FetchSubscriptionResult
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? statusCode = null,Object? headers = null,Object? subscriptionUserInfo = freezed,Object? contentDisposition = freezed,Object? savedPath = freezed,Object? error = freezed,}) {
+  return _then(_self.copyWith(
+statusCode: null == statusCode ? _self.statusCode : statusCode // ignore: cast_nullable_to_non_nullable
+as int,headers: null == headers ? _self.headers : headers // ignore: cast_nullable_to_non_nullable
+as Map<String, String>,subscriptionUserInfo: freezed == subscriptionUserInfo ? _self.subscriptionUserInfo : subscriptionUserInfo // ignore: cast_nullable_to_non_nullable
+as String?,contentDisposition: freezed == contentDisposition ? _self.contentDisposition : contentDisposition // ignore: cast_nullable_to_non_nullable
+as String?,savedPath: freezed == savedPath ? _self.savedPath : savedPath // ignore: cast_nullable_to_non_nullable
+as String?,error: freezed == error ? _self.error : error // ignore: cast_nullable_to_non_nullable
+as String?,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [FetchSubscriptionResult].
+extension FetchSubscriptionResultPatterns on FetchSubscriptionResult {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _FetchSubscriptionResult value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _FetchSubscriptionResult() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _FetchSubscriptionResult value)  $default,){
+final _that = this;
+switch (_that) {
+case _FetchSubscriptionResult():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _FetchSubscriptionResult value)?  $default,){
+final _that = this;
+switch (_that) {
+case _FetchSubscriptionResult() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function(@JsonKey(name: 'status-code')  int statusCode,  Map<String, String> headers, @JsonKey(name: 'subscription-userinfo')  String? subscriptionUserInfo, @JsonKey(name: 'content-disposition')  String? contentDisposition, @JsonKey(name: 'saved-path')  String? savedPath,  String? error)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _FetchSubscriptionResult() when $default != null:
+return $default(_that.statusCode,_that.headers,_that.subscriptionUserInfo,_that.contentDisposition,_that.savedPath,_that.error);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function(@JsonKey(name: 'status-code')  int statusCode,  Map<String, String> headers, @JsonKey(name: 'subscription-userinfo')  String? subscriptionUserInfo, @JsonKey(name: 'content-disposition')  String? contentDisposition, @JsonKey(name: 'saved-path')  String? savedPath,  String? error)  $default,) {final _that = this;
+switch (_that) {
+case _FetchSubscriptionResult():
+return $default(_that.statusCode,_that.headers,_that.subscriptionUserInfo,_that.contentDisposition,_that.savedPath,_that.error);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function(@JsonKey(name: 'status-code')  int statusCode,  Map<String, String> headers, @JsonKey(name: 'subscription-userinfo')  String? subscriptionUserInfo, @JsonKey(name: 'content-disposition')  String? contentDisposition, @JsonKey(name: 'saved-path')  String? savedPath,  String? error)?  $default,) {final _that = this;
+switch (_that) {
+case _FetchSubscriptionResult() when $default != null:
+return $default(_that.statusCode,_that.headers,_that.subscriptionUserInfo,_that.contentDisposition,_that.savedPath,_that.error);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+@JsonSerializable()
+
+class _FetchSubscriptionResult implements FetchSubscriptionResult {
+  const _FetchSubscriptionResult({@JsonKey(name: 'status-code') this.statusCode = 0, final  Map<String, String> headers = const {}, @JsonKey(name: 'subscription-userinfo') this.subscriptionUserInfo, @JsonKey(name: 'content-disposition') this.contentDisposition, @JsonKey(name: 'saved-path') this.savedPath, this.error}): _headers = headers;
+  factory _FetchSubscriptionResult.fromJson(Map<String, dynamic> json) => _$FetchSubscriptionResultFromJson(json);
+
+@override@JsonKey(name: 'status-code') final  int statusCode;
+ final  Map<String, String> _headers;
+@override@JsonKey() Map<String, String> get headers {
+  if (_headers is EqualUnmodifiableMapView) return _headers;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableMapView(_headers);
+}
+
+@override@JsonKey(name: 'subscription-userinfo') final  String? subscriptionUserInfo;
+@override@JsonKey(name: 'content-disposition') final  String? contentDisposition;
+@override@JsonKey(name: 'saved-path') final  String? savedPath;
+@override final  String? error;
+
+/// Create a copy of FetchSubscriptionResult
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$FetchSubscriptionResultCopyWith<_FetchSubscriptionResult> get copyWith => __$FetchSubscriptionResultCopyWithImpl<_FetchSubscriptionResult>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$FetchSubscriptionResultToJson(this, );
+}
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _FetchSubscriptionResult&&(identical(other.statusCode, statusCode) || other.statusCode == statusCode)&&const DeepCollectionEquality().equals(other._headers, _headers)&&(identical(other.subscriptionUserInfo, subscriptionUserInfo) || other.subscriptionUserInfo == subscriptionUserInfo)&&(identical(other.contentDisposition, contentDisposition) || other.contentDisposition == contentDisposition)&&(identical(other.savedPath, savedPath) || other.savedPath == savedPath)&&(identical(other.error, error) || other.error == error));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,statusCode,const DeepCollectionEquality().hash(_headers),subscriptionUserInfo,contentDisposition,savedPath,error);
+
+@override
+String toString() {
+  return 'FetchSubscriptionResult(statusCode: $statusCode, headers: $headers, subscriptionUserInfo: $subscriptionUserInfo, contentDisposition: $contentDisposition, savedPath: $savedPath, error: $error)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$FetchSubscriptionResultCopyWith<$Res> implements $FetchSubscriptionResultCopyWith<$Res> {
+  factory _$FetchSubscriptionResultCopyWith(_FetchSubscriptionResult value, $Res Function(_FetchSubscriptionResult) _then) = __$FetchSubscriptionResultCopyWithImpl;
+@override @useResult
+$Res call({
+@JsonKey(name: 'status-code') int statusCode, Map<String, String> headers,@JsonKey(name: 'subscription-userinfo') String? subscriptionUserInfo,@JsonKey(name: 'content-disposition') String? contentDisposition,@JsonKey(name: 'saved-path') String? savedPath, String? error
+});
+
+
+
+
+}
+/// @nodoc
+class __$FetchSubscriptionResultCopyWithImpl<$Res>
+    implements _$FetchSubscriptionResultCopyWith<$Res> {
+  __$FetchSubscriptionResultCopyWithImpl(this._self, this._then);
+
+  final _FetchSubscriptionResult _self;
+  final $Res Function(_FetchSubscriptionResult) _then;
+
+/// Create a copy of FetchSubscriptionResult
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? statusCode = null,Object? headers = null,Object? subscriptionUserInfo = freezed,Object? contentDisposition = freezed,Object? savedPath = freezed,Object? error = freezed,}) {
+  return _then(_FetchSubscriptionResult(
+statusCode: null == statusCode ? _self.statusCode : statusCode // ignore: cast_nullable_to_non_nullable
+as int,headers: null == headers ? _self._headers : headers // ignore: cast_nullable_to_non_nullable
+as Map<String, String>,subscriptionUserInfo: freezed == subscriptionUserInfo ? _self.subscriptionUserInfo : subscriptionUserInfo // ignore: cast_nullable_to_non_nullable
+as String?,contentDisposition: freezed == contentDisposition ? _self.contentDisposition : contentDisposition // ignore: cast_nullable_to_non_nullable
+as String?,savedPath: freezed == savedPath ? _self.savedPath : savedPath // ignore: cast_nullable_to_non_nullable
+as String?,error: freezed == error ? _self.error : error // ignore: cast_nullable_to_non_nullable
+as String?,
+  ));
+}
+
+
+}
+
 // dart format on

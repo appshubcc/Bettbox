@@ -133,7 +133,24 @@ const (
 	getModeMethod                         Method = "getMode"
 	parseExternalProviderContentMethod    Method = "parseExternalProviderContent"
 	getCoreStatusMethod                   Method = "getCoreStatus"
+	fetchSubscriptionMethod               Method = "fetchSubscription"
 )
+
+type FetchSubscriptionParams struct {
+	Url      string            `json:"url"`
+	SavePath string            `json:"save-path"`
+	Headers  map[string]string `json:"headers"`
+	Timeout  int64             `json:"timeout"`
+}
+
+type FetchSubscriptionResult struct {
+	StatusCode           int               `json:"status-code"`
+	Headers              map[string]string `json:"headers"`
+	SubscriptionUserInfo string            `json:"subscription-userinfo"`
+	ContentDisposition   string            `json:"content-disposition"`
+	Error                string            `json:"error"`
+	SavedPath            string            `json:"saved-path"`
+}
 
 type Method string
 

@@ -330,6 +330,7 @@ const _$ActionMethodEnumMap = {
   ActionMethod.getMode: 'getMode',
   ActionMethod.parseExternalProviderContent: 'parseExternalProviderContent',
   ActionMethod.getCoreStatus: 'getCoreStatus',
+  ActionMethod.fetchSubscription: 'fetchSubscription',
   ActionMethod.setState: 'setState',
   ActionMethod.startTun: 'startTun',
   ActionMethod.stopTun: 'stopTun',
@@ -389,3 +390,51 @@ Map<String, dynamic> _$CoreStatusToJson(_CoreStatus instance) =>
       'proxy-providers': instance.proxyProviders,
       'geodata-use': instance.geodataUse,
     };
+
+_FetchSubscriptionParams _$FetchSubscriptionParamsFromJson(
+  Map<String, dynamic> json,
+) => _FetchSubscriptionParams(
+  url: json['url'] as String,
+  savePath: json['save-path'] as String,
+  headers:
+      (json['headers'] as Map<String, dynamic>?)?.map(
+        (k, e) => MapEntry(k, e as String),
+      ) ??
+      const {},
+  timeout: (json['timeout'] as num?)?.toInt() ?? 30,
+);
+
+Map<String, dynamic> _$FetchSubscriptionParamsToJson(
+  _FetchSubscriptionParams instance,
+) => <String, dynamic>{
+  'url': instance.url,
+  'save-path': instance.savePath,
+  'headers': instance.headers,
+  'timeout': instance.timeout,
+};
+
+_FetchSubscriptionResult _$FetchSubscriptionResultFromJson(
+  Map<String, dynamic> json,
+) => _FetchSubscriptionResult(
+  statusCode: (json['status-code'] as num?)?.toInt() ?? 0,
+  headers:
+      (json['headers'] as Map<String, dynamic>?)?.map(
+        (k, e) => MapEntry(k, e as String),
+      ) ??
+      const {},
+  subscriptionUserInfo: json['subscription-userinfo'] as String?,
+  contentDisposition: json['content-disposition'] as String?,
+  savedPath: json['saved-path'] as String?,
+  error: json['error'] as String?,
+);
+
+Map<String, dynamic> _$FetchSubscriptionResultToJson(
+  _FetchSubscriptionResult instance,
+) => <String, dynamic>{
+  'status-code': instance.statusCode,
+  'headers': instance.headers,
+  'subscription-userinfo': instance.subscriptionUserInfo,
+  'content-disposition': instance.contentDisposition,
+  'saved-path': instance.savedPath,
+  'error': instance.error,
+};

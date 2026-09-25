@@ -274,3 +274,31 @@ abstract class CoreStatus with _$CoreStatus {
   factory CoreStatus.fromJson(Map<String, Object?> json) =>
       _$CoreStatusFromJson(json);
 }
+
+@freezed
+abstract class FetchSubscriptionParams with _$FetchSubscriptionParams {
+  const factory FetchSubscriptionParams({
+    required String url,
+    @JsonKey(name: 'save-path') required String savePath,
+    @Default({}) Map<String, String> headers,
+    @Default(30) int timeout,
+  }) = _FetchSubscriptionParams;
+
+  factory FetchSubscriptionParams.fromJson(Map<String, Object?> json) =>
+      _$FetchSubscriptionParamsFromJson(json);
+}
+
+@freezed
+abstract class FetchSubscriptionResult with _$FetchSubscriptionResult {
+  const factory FetchSubscriptionResult({
+    @JsonKey(name: 'status-code') @Default(0) int statusCode,
+    @Default({}) Map<String, String> headers,
+    @JsonKey(name: 'subscription-userinfo') String? subscriptionUserInfo,
+    @JsonKey(name: 'content-disposition') String? contentDisposition,
+    @JsonKey(name: 'saved-path') String? savedPath,
+    String? error,
+  }) = _FetchSubscriptionResult;
+
+  factory FetchSubscriptionResult.fromJson(Map<String, Object?> json) =>
+      _$FetchSubscriptionResultFromJson(json);
+}

@@ -6,6 +6,7 @@ import 'dart:typed_data';
 import 'package:dio/dio.dart';
 import 'package:dio/io.dart';
 import 'package:intl/intl.dart';
+import 'package:bett_box/clash/core.dart';
 import 'package:bett_box/common/common.dart';
 import 'package:bett_box/models/models.dart';
 import 'package:bett_box/state.dart';
@@ -195,6 +196,67 @@ class Request {
     if (userInfo != null && userInfo.isNotEmpty) {
       final auth = base64Encode(utf8.encode(userInfo));
       headers['Authorization'] = 'Basic $auth';
+    }
+
+    if (requestUrl.startsWith('http://') || requestUrl.startsWith('https://')) {
+      try {
+        final tempDir = await appPath.tempPath;
+        final tempFile = File(
+          '$tempDir/sub_${DateTime.now().microsecondsSinceEpoch}.tmp',
+        );
+        final stringHeaders = headers.map((k, v) => MapEntry(k, v.toString()));
+        if (globalState.ua.isNotEmpty) {
+          stringHeaders['User-Agent'] = globalState.ua;
+        }
+        final fetchRes = await clashCore.fetchSubscription(
+          FetchSubscriptionParams(
+            url: requestUrl,
+            savePath: tempFile.path,
+            headers: stringHeaders,
+            timeout: 30,
+          ),
+        );
+
+        if (fetchRes.error == null &&
+            fetchRes.statusCode >= 200 &&
+            fetchRes.statusCode < 400 &&
+            await tempFile.exists()) {
+          final bytes = await tempFile.readAsBytes();
+          await tempFile.delete().catchError((_) => tempFile);
+          final resHeadersMap = fetchRes.headers.map(
+            (k, v) => MapEntry(k, [v]),
+          );
+          if (fetchRes.contentDisposition != null) {
+            resHeadersMap['content-disposition'] = [
+              fetchRes.contentDisposition!,
+            ];
+          }
+          if (fetchRes.subscriptionUserInfo != null) {
+            resHeadersMap['subscription-userinfo'] = [
+              fetchRes.subscriptionUserInfo!,
+            ];
+          }
+          final respHeaders = Headers.fromMap(resHeadersMap);
+          final decompressedBytes = _decompressIfNeeded(bytes, respHeaders);
+
+          if (responseType == ResponseType.plain) {
+            final text = utf8.decode(decompressedBytes, allowMalformed: true);
+            return Response(
+              requestOptions: RequestOptions(path: requestUrl),
+              data: text,
+              statusCode: fetchRes.statusCode,
+              headers: respHeaders,
+            );
+          } else {
+            return Response(
+              requestOptions: RequestOptions(path: requestUrl),
+              data: decompressedBytes,
+              statusCode: fetchRes.statusCode,
+              headers: respHeaders,
+            );
+          }
+        }
+      } catch (_) {}
     }
 
     final response = await _clashDio.get(

@@ -90,6 +90,10 @@ mixin ClashInterface {
   FutureOr<bool> flushDnsCache();
 
   Future<String> getMode();
+
+  FutureOr<FetchSubscriptionResult> fetchSubscription(
+    FetchSubscriptionParams params,
+  );
 }
 
 mixin AndroidClashInterface {
@@ -467,5 +471,16 @@ abstract class ClashHandlerInterface with ClashInterface {
       type: res.type,
       message: res.message,
     );
+  }
+
+  @override
+  Future<FetchSubscriptionResult> fetchSubscription(
+    FetchSubscriptionParams params,
+  ) async {
+    final res = await invoke<Map>(
+      method: ActionMethod.fetchSubscription,
+      data: json.encode(params),
+    );
+    return FetchSubscriptionResult.fromJson(res.cast<String, dynamic>());
   }
 }

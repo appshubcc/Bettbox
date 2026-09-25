@@ -19,31 +19,29 @@ class ThemeManager extends ConsumerWidget {
     if (!system.isAndroid) {
       return child;
     }
-    return AnnotatedRegion<SystemUiMode>(
-      sized: false,
-      value: SystemUiMode.edgeToEdge,
-      child: Consumer(
-        builder: (context, ref, _) {
-          final brightness = ref.watch(currentBrightnessProvider);
-          final iconBrightness = brightness == Brightness.light
-              ? Brightness.dark
-              : Brightness.light;
-          globalState.appState = globalState.appState.copyWith(
-            systemUiOverlayStyle: SystemUiOverlayStyle(
-              statusBarColor: Colors.transparent,
-              statusBarIconBrightness: iconBrightness,
-              systemNavigationBarIconBrightness: iconBrightness,
-              systemNavigationBarColor: Colors.transparent,
-              systemNavigationBarDividerColor: Colors.transparent,
-            ),
-          );
-          return AnnotatedRegion<SystemUiOverlayStyle>(
-            value: globalState.appState.systemUiOverlayStyle,
-            sized: false,
-            child: child,
-          );
-        },
-      ),
+    return Consumer(
+      builder: (context, ref, _) {
+        final brightness = ref.watch(currentBrightnessProvider);
+        final iconBrightness = brightness == Brightness.light
+            ? Brightness.dark
+            : Brightness.light;
+        globalState.appState = globalState.appState.copyWith(
+          systemUiOverlayStyle: SystemUiOverlayStyle(
+            statusBarColor: Colors.transparent,
+            statusBarIconBrightness: iconBrightness,
+            systemStatusBarContrastEnforced: false,
+            systemNavigationBarIconBrightness: iconBrightness,
+            systemNavigationBarColor: Colors.transparent,
+            systemNavigationBarDividerColor: Colors.transparent,
+            systemNavigationBarContrastEnforced: false,
+          ),
+        );
+        return AnnotatedRegion<SystemUiOverlayStyle>(
+          value: globalState.appState.systemUiOverlayStyle,
+          sized: false,
+          child: child,
+        );
+      },
     );
   }
 

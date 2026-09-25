@@ -8,5 +8,9 @@
     <style name="NormalTheme" parent="@android:style/Theme.NoTitleBar">
         <item name="android:windowBackground">@android:color/background_dark</item>
         <item name="android:windowIsTranslucent">false</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="android:enforceNavigationBarContrast" tools:targetApi="q">false</item>
     </style>
 </resources>

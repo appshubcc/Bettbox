@@ -209,6 +209,8 @@
   "recovery": "恢复",
   "recoveryProfiles": "仅恢复配置文件",
   "recoveryAll": "恢复所有数据",
+  "selectBackupVersion": "选择备份版本",
+  "noBackupFileFound": "未找到备份文件",
   "recoverySuccess": "恢复成功",
   "backupSuccess": "备份成功",
   "noInfo": "暂无信息",

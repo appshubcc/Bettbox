@@ -209,6 +209,8 @@
   "recovery": "復元",
   "recoveryProfiles": "プロファイルのみ復元",
   "recoveryAll": "すべてのデータを復元",
+  "selectBackupVersion": "バックアップバージョンの選択",
+  "noBackupFileFound": "バックアップファイルが見つかりません",
   "recoverySuccess": "復元成功",
   "backupSuccess": "バックアップ成功",
   "noInfo": "情報なし",

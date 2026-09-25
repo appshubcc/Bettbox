@@ -788,6 +788,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "networkType": MessageLookupByLibrary.simpleMessage("Network Type"),
     "neutralScheme": MessageLookupByLibrary.simpleMessage("Neutral"),
     "noAnimation": MessageLookupByLibrary.simpleMessage("Default"),
+    "noBackupFileFound": MessageLookupByLibrary.simpleMessage(
+      "No backup file found",
+    ),
     "noData": MessageLookupByLibrary.simpleMessage("No Data"),
     "noHotKey": MessageLookupByLibrary.simpleMessage("No Hotkeys"),
     "noIcon": MessageLookupByLibrary.simpleMessage("No Icon"),
@@ -1130,6 +1133,9 @@ class MessageLookup extends MessageLookupByLibrary {
       "Secret copied to clipboard",
     ),
     "selectAll": MessageLookupByLibrary.simpleMessage("Select All"),
+    "selectBackupVersion": MessageLookupByLibrary.simpleMessage(
+      "Select Backup Version",
+    ),
     "selected": MessageLookupByLibrary.simpleMessage("Selected"),
     "selectedCountTitle": m13,
     "serviceReady": MessageLookupByLibrary.simpleMessage("Service Ready"),

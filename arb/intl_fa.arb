@@ -209,6 +209,8 @@
   "recovery": "بازیابی",
   "recoveryProfiles": "فقط بازیابی پروفایل‌ها",
   "recoveryAll": "بازیابی تمام داده‌ها",
+  "selectBackupVersion": "انتخاب نسخه پشتیبان",
+  "noBackupFileFound": "فایل پشتیبان پیدا نشد",
   "recoverySuccess": "بازیابی با موفقیت انجام شد",
   "backupSuccess": "پشتیبان‌گیری با موفقیت انجام شد",
   "noInfo": "اطلاعاتی موجود نیست",

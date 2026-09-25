@@ -56,29 +56,123 @@ class DAVClient {
 
   String get root => '/$appName';
 
+  String get baseName =>
+      fileName.replaceAll(RegExp(r'\.zip$', caseSensitive: false), '');
+
   String get backupFile => '$root/$fileName';
+
+  Future<List<File>> getBackupFiles() async {
+    try {
+      await client.mkdir(root);
+    } catch (_) {}
+    final rawFiles = await client.readDir(root);
+    final reg = RegExp(
+      '^${RegExp.escape(baseName)}(?:_(\\d{8})_(\\d{2}))?\\.zip\$',
+      caseSensitive: false,
+    );
+    final validFiles = rawFiles.where((f) {
+      if (f.isDir == true) return false;
+      final name = f.name;
+      if (name == null || name.isEmpty) return false;
+      return reg.hasMatch(name);
+    }).toList();
+
+    validFiles.sort((a, b) {
+      final nameA = a.name ?? '';
+      final nameB = b.name ?? '';
+      final matchA = reg.firstMatch(nameA);
+      final matchB = reg.firstMatch(nameB);
+      final dateA = matchA?.group(1);
+      final seqA = matchA?.group(2);
+      final dateB = matchB?.group(1);
+      final seqB = matchB?.group(2);
+      if (dateA != null && seqA != null && dateB != null && seqB != null) {
+        final cmpDate = dateB.compareTo(dateA);
+        if (cmpDate != 0) return cmpDate;
+        return seqB.compareTo(seqA);
+      }
+      if (dateA != null && dateB == null) return -1;
+      if (dateA == null && dateB != null) return 1;
+      final timeA = a.mTime ?? DateTime.fromMillisecondsSinceEpoch(0);
+      final timeB = b.mTime ?? DateTime.fromMillisecondsSinceEpoch(0);
+      return timeB.compareTo(timeA);
+    });
+
+    return validFiles;
+  }
+
+  Future<String> getNextBackupFileName() async {
+    final now = DateTime.now();
+    final dateStr =
+        '${now.year.toString().padLeft(4, '0')}${now.month.toString().padLeft(2, '0')}${now.day.toString().padLeft(2, '0')}';
+    final reg = RegExp(
+      '^${RegExp.escape(baseName)}_${dateStr}_(\\d{2})\\.zip\$',
+      caseSensitive: false,
+    );
+    var maxSeq = 0;
+    try {
+      final files = await getBackupFiles();
+      for (final f in files) {
+        final match = reg.firstMatch(f.name ?? '');
+        if (match != null) {
+          final seq = int.tryParse(match.group(1) ?? '') ?? 0;
+          if (seq > maxSeq) {
+            maxSeq = seq;
+          }
+        }
+      }
+    } catch (_) {}
+    final nextSeq = (maxSeq + 1).toString().padLeft(2, '0');
+    return '${baseName}_${dateStr}_$nextSeq.zip';
+  }
+
+  Future<void> _pruneOldBackups() async {
+    final files = await getBackupFiles();
+    if (files.length > 10) {
+      final toRemove = files.sublist(10);
+      for (final f in toRemove) {
+        final name = f.name;
+        if (name != null && name.isNotEmpty) {
+          try {
+            await client.remove('$root/$name');
+          } catch (e) {
+            commonPrint.log('Prune backup failed: $e');
+          }
+        }
+      }
+    }
+  }
 
   Future<bool> backup(Uint8List data) async {
     return await _retryOperation(() async {
-      commonPrint.log(
-        'WebDAV backup: uploading ${data.length} bytes to $backupFile',
-      );
-
       try {
         await client.mkdir(root);
       } catch (e) {
         commonPrint.log('WebDAV mkdir warning (may already exist): $e');
       }
 
-      await client.write(backupFile, data);
+      final targetName = await getNextBackupFileName();
+      final targetPath = '$root/$targetName';
+      commonPrint.log(
+        'WebDAV backup: uploading ${data.length} bytes to $targetPath',
+      );
+
+      await client.write(targetPath, data);
       commonPrint.log('WebDAV backup successful');
+
+      try {
+        await _pruneOldBackups();
+      } catch (_) {}
+
       return true;
     }, operationName: 'backup');
   }
 
-  Future<List<int>> recovery() async {
+  Future<List<int>> recovery([String? targetFileName]) async {
     return await _retryOperation(() async {
-      commonPrint.log('WebDAV recovery: downloading from $backupFile');
+      final target = targetFileName ?? backupFile;
+      final targetPath = target.startsWith('/') ? target : '$root/$target';
+      commonPrint.log('WebDAV recovery: downloading from $targetPath');
 
       try {
         await client.mkdir(root);
@@ -86,7 +180,7 @@ class DAVClient {
         commonPrint.log('WebDAV mkdir warning: $e');
       }
 
-      final data = await client.read(backupFile);
+      final data = await client.read(targetPath);
       commonPrint.log('WebDAV recovery successful: ${data.length} bytes');
       return data;
     }, operationName: 'recovery');

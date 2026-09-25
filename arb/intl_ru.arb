@@ -209,6 +209,8 @@
   "recovery": "Восстановить",
   "recoveryProfiles": "Только профили",
   "recoveryAll": "Все данные",
+  "selectBackupVersion": "Выберите версию резервной копии",
+  "noBackupFileFound": "Файл резервной копии не найден",
   "recoverySuccess": "Восстановление успешно",
   "backupSuccess": "Резервное копирование успешно",
   "noInfo": "Нет информации",

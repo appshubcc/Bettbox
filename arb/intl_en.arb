@@ -209,6 +209,8 @@
   "recovery": "Restore",
   "recoveryProfiles": "Restore Profiles Only",
   "recoveryAll": "Restore All Data",
+  "selectBackupVersion": "Select Backup Version",
+  "noBackupFileFound": "No backup file found",
   "recoverySuccess": "Restore Successful",
   "backupSuccess": "Backup Successful",
   "noInfo": "No Info",

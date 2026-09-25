@@ -209,6 +209,8 @@
   "recovery": "還原",
   "recoveryProfiles": "僅還原設定檔",
   "recoveryAll": "還原所有資料",
+  "selectBackupVersion": "選擇備份版本",
+  "noBackupFileFound": "未找到備份檔案",
   "recoverySuccess": "還原成功",
   "backupSuccess": "備份成功",
   "noInfo": "暫無資訊",

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 import 'dart:ui';
@@ -1114,6 +1115,30 @@ class Utils {
     return patched.replaceAllMapped(regExp, (match) {
       return '${match.group(1)}false${match.group(3)}';
     });
+  }
+
+  String encryptSecret(String raw) {
+    if (raw.isEmpty) return raw;
+    const salt = 'Bettbox';
+    final step1 = base64.encode(utf8.encode(raw));
+    final step2 = base64.encode(utf8.encode('$salt:$step1'));
+    return 'ENC~$step2';
+  }
+
+  String decryptSecret(String text) {
+    if (!text.startsWith('ENC~')) return text;
+    try {
+      const salt = 'Bettbox';
+      final cipher = text.substring(4);
+      final salted = utf8.decode(base64.decode(cipher));
+      if (salted.startsWith('$salt:')) {
+        final step1 = salted.substring(salt.length + 1);
+        return utf8.decode(base64.decode(step1));
+      }
+      return text;
+    } catch (_) {
+      return text;
+    }
   }
 }
 

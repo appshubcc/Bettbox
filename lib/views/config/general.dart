@@ -479,16 +479,22 @@ class AllowLanItem extends ConsumerWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(appLocalizations.allowLan),
-          const SizedBox(width: 6),
           Tooltip(
             message: appLocalizations.userAuth,
-            child: InkResponse(
-              radius: 16,
-              onTap: _showUserAuthDialog,
-              child: Icon(
-                Icons.settings_outlined,
-                size: 18,
-                color: context.colorScheme.onSurfaceVariant,
+            child: Material(
+              color: Colors.transparent,
+              child: InkResponse(
+                radius: 16,
+                highlightShape: BoxShape.circle,
+                onTap: _showUserAuthDialog,
+                child: Padding(
+                  padding: const EdgeInsets.all(7),
+                  child: Icon(
+                    Icons.settings_outlined,
+                    size: 18,
+                    color: context.colorScheme.onSurfaceVariant,
+                  ),
+                ),
               ),
             ),
           ),

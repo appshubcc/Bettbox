@@ -38,14 +38,16 @@ Future<void> main(List<String> args) async {
     exit(0);
   }
 
-  if (system.isMacOS) {
+  if (system.isMacOS || appPath.isPortable) {
     final acquire = await singleInstanceLock.acquire();
     if (!acquire) {
       commonPrint.log(
         'SingleInstanceLock: another instance detected or lock failed, exiting',
       );
-      await _sendControlCommand('show');
-      await Future.delayed(const Duration(milliseconds: 100));
+      if (!appPath.isPortable) {
+        await _sendControlCommand('show');
+        await Future.delayed(const Duration(milliseconds: 100));
+      }
       exit(0);
     }
   }

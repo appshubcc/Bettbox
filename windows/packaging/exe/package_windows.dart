@@ -14,14 +14,15 @@ void main(List<String> arguments) async {
     ..addFlag('compatible', defaultsTo: false)
     ..addOption('env', defaultsTo: 'pre')
     ..addFlag('dev', defaultsTo: false)
-    ..addFlag('portable', defaultsTo: true)
+    ..addFlag('portable', defaultsTo: null)
     ..addFlag('installer', defaultsTo: true);
 
   final args = parser.parse(arguments);
   final arch = args['arch'] as String;
   final compatible = args['compatible'] as bool;
   final isDev = args['dev'] as bool;
-  final makePortable = args['portable'] as bool;
+  final makePortable =
+      (args['portable'] as bool?) ?? (compatible && arch == 'amd64');
   final makeInstaller = args['installer'] as bool;
 
   final desc = compatible ? '$arch-compatible' : arch;
@@ -186,6 +187,12 @@ void main(List<String> arguments) async {
       keepFile.writeAsStringSync('');
     }
 
+    final cleanBatSource = File('windows/packaging/portable/clean.bat');
+    final cleanBatDest = File(path.join(sourceDir, 'clean.bat'));
+    if (cleanBatSource.existsSync()) {
+      cleanBatSource.copySync(cleanBatDest.path);
+    }
+
     final portableOutputBaseName = 'Bettbox-$appVersion-windows-$desc-portable.zip';
     final targetPortableZipPath = path.join('dist', portableOutputBaseName);
     final targetPortableFile = File(targetPortableZipPath);
@@ -205,6 +212,9 @@ void main(List<String> arguments) async {
     } finally {
       if (portableDir.existsSync()) {
         portableDir.deleteSync(recursive: true);
+      }
+      if (cleanBatDest.existsSync()) {
+        cleanBatDest.deleteSync();
       }
     }
   }

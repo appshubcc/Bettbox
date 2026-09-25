@@ -1151,8 +1151,12 @@ class AppController {
         final versionWithoutV = tagName.startsWith('v')
             ? tagName.substring(1)
             : tagName;
+        var finalSuffix = assetSuffix;
+        if (appPath.isPortable && system.isWindows) {
+          finalSuffix = 'windows-amd64-compatible-portable.zip';
+        }
         downloadUrl =
-            'https://github.com/$repository/releases/download/$tagName/Bettbox-$versionWithoutV-$assetSuffix';
+            'https://github.com/$repository/releases/download/$tagName/Bettbox-$versionWithoutV-$finalSuffix';
       }
 
       globalState.openUrl(downloadUrl);

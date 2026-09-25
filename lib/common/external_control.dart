@@ -12,7 +12,7 @@ class ExternalControl {
   static TransportType? _transportType;
 
   static Future<void> start() async {
-    if (!system.isDesktop || _server != null) return;
+    if (!system.isDesktop || _server != null || appPath.isPortable) return;
 
     _transportType = await PlatformChecker.getRecommendedTransport();
 

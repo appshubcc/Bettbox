@@ -596,38 +596,6 @@ class TcpConcurrentItem extends ConsumerWidget {
   }
 }
 
-class GeodataLoaderItem extends ConsumerWidget {
-  const GeodataLoaderItem({super.key});
-
-  @override
-  Widget build(BuildContext context, ref) {
-    final isMemconservative = ref.watch(
-      patchClashConfigProvider.select(
-        (state) => state.geodataLoader == GeodataLoader.memconservative,
-      ),
-    );
-    return ListItem.switchItem(
-      leading: const Icon(Icons.memory),
-      title: Text(appLocalizations.geodataLoader),
-      subtitle: Text(appLocalizations.geodataLoaderDesc),
-      delegate: SwitchDelegate(
-        value: isMemconservative,
-        onChanged: (bool value) async {
-          ref
-              .read(patchClashConfigProvider.notifier)
-              .updateState(
-                (state) => state.copyWith(
-                  geodataLoader: value
-                      ? GeodataLoader.memconservative
-                      : GeodataLoader.standard,
-                ),
-              );
-        },
-      ),
-    );
-  }
-}
-
 class ExternalControllerItem extends ConsumerWidget {
   const ExternalControllerItem({super.key});
 
@@ -811,7 +779,6 @@ List<Widget> get generalItems => generateSection(
     const UnifiedDelayItem(),
     const FindProcessItem(),
     const TcpConcurrentItem(),
-    const GeodataLoaderItem(),
     const ExternalControllerItem(),
   ],
 );

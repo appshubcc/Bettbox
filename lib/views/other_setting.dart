@@ -770,7 +770,7 @@ class OtherSettingView extends ConsumerWidget {
       const SmartAutoStopSection(),
       if (system.isAndroid) const DozeSuspendItem(),
       if (system.isAndroid) const QuickResponseItem(),
-      const StoreFixItem(),
+      if (system.isAndroid) const StoreFixItem(),
       const DisableQuicSection(),
       if (system.isAndroid) const HighPriorityNotificationItem(),
       if (system.isAndroid) const NetworkSpeedNotificationItem(),

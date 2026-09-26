@@ -4,16 +4,15 @@
 
 <h1 align="center">⚡ Bettbox</h1>
 <p align="center">
-  <strong>Another Better Mihomo Client</strong>
+  <strong>Another Better Mihomo Client，Forked form FlClash</strong>
 </p>
 
-**Bettbox 是一款使用Mihomo(Clash Meta)内核、基于FlClash早期版本进行重构的、多平台网络调试及规则分流客户端**
+**Bettbox 基于强大的 Mihomo(Clash Meta) 内核深度打造，是一款多平台的网络分流和调试工具，我们注重隐私安全以及更多的使用细节，致力于提供更好的体验**
 
 秉承“Better Experience更优体验”的原则，Bettbox在继承原版优秀界面的基础上，深度优化了诸多细节与实用功能/逻辑。核心特性及实现目标: 前台流畅高帧、后台省电无感，致力于成为体验更好、以少量资源消耗即可长期稳定运行的 Mihomo 客户端
 
 Bettbox意为: Better Experience, Out of the box - 更好的体验，亦开箱可用
 
-我们的愿景: Connecting Open Source and AI，Accelerating Innovation
 
 [![Latest Release](https://img.shields.io/github/v/release/appshubcc/Bettbox?style=for-the-badge&logo=github&color=238636&label=Release)](https://github.com/appshubcc/Bettbox/releases/latest) [![Core](https://img.shields.io/github/v/release/MetaCubeX/mihomo?style=for-the-badge&logo=go&logoColor=white&color=8A2BE2&label=Mihomo)](https://github.com/MetaCubeX/mihomo/releases/latest)
 
@@ -35,33 +34,33 @@ Bettbox意为: Better Experience, Out of the box - 更好的体验，亦开箱�
 
 * **开箱即用**：稳定的权限处理与舒适的 TUN/VPN 体验，大量预置优化细节，开箱即达可用状态。
 * **精雕细琢**：打磨每处 UI 与功能交互细节，前台高帧率动画流畅，移动端低能耗，桌面端低占用。
-* **安全守护**：内核紧跟 Mihomo 主线分支且积极适配最新特性，多平台保持严格的权限控制与校验。
+* **安全守护**：内核紧跟 Mihomo 主线，遵循各平台最小权限，并获得 SignPath 官方 OV 数字签名。
 * **稳定容错**：优化多平台极端场景下的边界问题并内置双重配置检测验证，媲美企业级的使用稳定性。
-* **性能优先**：桌面端原生 ARM64 架构支持，提供硬件分级和 Flutter 以及原生优化，榨干硬件性能。
+* **性能优先**：桌面端原生 ARM64 架构支持，提供硬件分级以及 Flutter 深度优化，榨干硬件性能。
 * **增强工具**：首个多平台无感智能启停、Android端休眠支持、一键禁用QUIC、托盘菜单增强等等。
-* **可视化设置**：提供丰富参数的可视化调节界面，支持改动即时生效，无需繁琐修改配置。
-* **首页小组件**：内置多款精致 Widget 小组件，在首页直观掌控实时网速与全局运行状态。
-* **个性化定制**：支持丰富色彩主题、自定义图标/标题等，甚至还包含 10 种精美测速动画。
-* **自定义适配**：提供首个JS覆写脚本可用的分流 UI 适配，以及自定义可用的可视化便捷开关。
+* **可视化设置**：提供更加丰富参数的可视化调节界面，支持改动即时生效，无需繁琐修改配置。
+* **首页小组件**：内置多款设计精良的 Widget 小组件，在首页直观掌控实时网速与全局运行状态。
+* **个性化定制**：支持丰富的色彩主题、自定义图标/标题等，甚至还包含 30 种精美测速动画。
+* **自定义适配**：首个支持JS覆写脚本可用的分流 UI 适配以及自定义可用的可视化便捷开关。
 * **专业编辑**：多平台内置高性能重构版code-forge编辑器，甚至可媲美专业级别的编辑器体验。
 * **设备兼容**：持续维护面向旧版系统及老旧硬件的 Compatible 兼容版本，延长设备使用周期。
-* **零隐私风险**：开源、无广告，全透明的 CI/CD 流程且接受全方位审计，杜绝后台隐私收集。
+* **零隐私风险**：开源、无广告，全透明的 CI/CD 流程接受全方位审计，杜绝任何后台隐私收集。
 * **社区导向**：我们会认真评估社区反馈，优先对待高质量的 Issue，你的声音不会无故被淹没。
 
 ---
 </div>
 
 ###   🛩️ 推荐服务
-### 小众低调专线  〢  [百变小樱](https://www.bbxy01.com/v2/register?code=c09R)
+### IEPL 专线  〢  [百变小樱](https://www.bbxy01.com/v2/register?code=c09R)
 
 ### 专享68折优惠码：bettbox68
 
 **简评** : ❚ ❚  老牌小众专线，海外团队运营多年，大厂BGP入口+广港&沪日线路，折后约17元/月或127元/年，解锁流媒体与AI，延迟与口碑优秀，适合对稳定性要求较高的用户，小技巧：别忘了使用68折优惠码，以及后台个人中心签到每日可再额外领取5-10GB流量
 
 --------------------------------
-### 低价直连  〢  [良心云](https://xn--9kqz23b19z.com/#/register?code=VTnrQYAj)  〢  [吹雪云](https://xn--9kqs1lo79d.com/#/register?code=skKMTab7)  〢  [一分](https://xn--4gqx1hgtfdmt.com/#/register?code=AuCiXprV)
+### 性价比直连  〢  [良心云](https://xn--9kqz23b19z.com/#/register?code=VTnrQYAj)  〢  [吹雪云](https://xn--9kqs1lo79d.com/#/register?code=skKMTab7)  〢  [一分](https://xn--4gqx1hgtfdmt.com/#/register?code=AuCiXprV)
 
-**简评** : ❚  大流量或资源机为主，跑路风险相对较低（也许大概可能），888G / 1000G不限时套餐通常更有性价比，量大管饱，价格低廉，适合要求不高的用户或备用流量及大流量下载选择
+**简评** : ❚  大流量或资源机为主，运营相对稳定，起步价格较低，888G / 1000G不限时套餐通常更有性价比，量大管饱，价格低廉，适合要求不高的用户或备用流量及大流量下载选择
 
 ---
 ## 🛠️ 安装与下载
@@ -78,8 +77,8 @@ Bettbox意为: Better Experience, Out of the box - 更好的体验，亦开箱�
 * **鸿蒙 NEXT:** 可配合 [[卓易通]](https://harmonyos.cool/android-app) 使用
 
 **其他安装方式:**<br>
-**ArchLinux:** <code>yay -S bettbox-bin 或 paru -S bettbox-bin</code> (由[lyj404](https://github.com/lyj404/bettbox-aur)维护)<br>
-**AMD64=v1:** <code>yay -S bettbox-compatible-bin 或 paru -S bettbox-compatible-bin</code> (由[VillagerTom](https://github.com/VillagerTom)维护)
+**ArchLinux:** <code>yay -S bettbox-bin 或 paru -S bettbox-bin</code> (由[ lyj404 ](https://github.com/lyj404/bettbox-aur)维护)<br>
+**AMD64=v1:** <code>yay -S bettbox-compatible-bin 或 paru -S bettbox-compatible-bin</code> (由[ VillagerTom ](https://github.com/VillagerTom)维护)
 
 ---
 ##  常见问题
@@ -90,7 +89,7 @@ Bettbox意为: Better Experience, Out of the box - 更好的体验，亦开箱�
    - **安全相关：Bettbox 项目开源透明零隐私上传，当前代码已通过 Signpath 安全审计**
 
 2.  **桌面端常见问题**：
-   - Windows管理员权限：Bettbox在安装时已提前处理，**无需手动再次授权**
+   - Windows管理员权限：Bettbox安装版已提前处理，**无需手动再次授权**
    - 无法开启TUN虚拟网卡：macOS和Linux**请确保输入正确密码给与权限授权**
    - 其他报错：请提供Debug信息，并**确保没有冲突的代理软件或服务正在运行**
    - 其他问题如持续存在，请提交ISSUE反馈

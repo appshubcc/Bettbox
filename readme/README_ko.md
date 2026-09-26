@@ -4,16 +4,15 @@
 
 <h1 align="center">⚡ Bettbox</h1>
 <p align="center">
-  <strong>Another Better Mihomo Client</strong>
+  <strong>Another Better Mihomo Client, Forked from FlClash</strong>
 </p>
 
-**Bettbox는 Mihomo(Clash Meta) 커널 기반으로 FlClash 초기 버전을 재구축한 멀티플랫폼 네트워크 디버깅 및 규칙 분류 클라이언트입니다.**
+**Bettbox는 강력한 Mihomo(Clash Meta) 커널을 기반으로 깊이 있게 제작된 멀티플랫폼 트래픽 라우팅 및 네트워크 디버깅 도구입니다. 개인정보 보호와 보안, 세부적인 사용 경험에 집중하여 더 나은 사용자 경험을 제공하기 위해 노력하고 있습니다.**
 
 "Better Experience (더 나은 경험)"라는 원칙 아래 기존의 뛰어난 UI를 계승하면서 세부 인터랙션과 기능 로직을 한층 더 최적화했습니다. 핵심 기능 및 구현 목표: 부드러운 고프레임 화면, 전력 소비 없는 백그라운드 — 적은 리소스로 장기적으로 안정적인 실행을 유지하며 더 나은 경험을 제공하는 Mihomo 클라이언트입니다.
 
 Bettbox: Better Experience, Out of the box - 뛰어난 경험, 설치 즉시 사용.
 
-우리의 비전: Connecting Open Source and AI, Accelerating Innovation
 
 [![Latest Release](https://img.shields.io/github/v/release/appshubcc/Bettbox?style=for-the-badge&logo=github&color=238636&label=Release)](https://github.com/appshubcc/Bettbox/releases/latest) [![Core](https://img.shields.io/github/v/release/MetaCubeX/mihomo?style=for-the-badge&logo=go&logoColor=white&color=8A2BE2&label=Mihomo)](https://github.com/MetaCubeX/mihomo/releases/latest)
 
@@ -35,17 +34,17 @@ Bettbox: Better Experience, Out of the box - 뛰어난 경험, 설치 즉시 사
 
 * **설치 즉시 사용**: 안정적인 권한 처리와 쾌적한 TUN/VPN 환경. 최적화가 완비되어 설치 후 바로 사용할 수 있습니다.
 * **정교한 UI 인터랙션**: UI 세부 사항과 로직을 철저히 다듬었습니다. 부드러운 고프레임 화면, 모바일 저전력 소비, 데스크톱 최소 리소스 점유.
-* **철저한 보안**: Mihomo 메인라인을 신속하게 추적 적용하며, 멀티플랫폼에서 엄격한 권한 제어 및 검증을 유지합니다.
+* **철저한 보안**: Mihomo 메인라인을 추적하고 각 플랫폼의 최소 권한 원칙을 준수하며, SignPath 공식 OV 디지털 서명을 획득했습니다.
 * **강력한 안정성**: 극한의 멀티플랫폼 환경을 고려한 예외 처리와 이중 설정 검증 메커니즘으로 엔터프라이즈급 안정성을 제공합니다.
-* **성능 최우선**: 데스크톱 네이티브 ARM64 지원, 하드웨어 등급화 및 Flutter 전체 최적화로 하드웨어 성능을 짜냅니다.
+* **성능 최우선**: 데스크톱 네이티브 ARM64 지원, 하드웨어 등급화 및 Flutter 심층 최적화로 하드웨어 성능을 극대화합니다.
 * **스마트 유틸리티**: 최초의 멀티플랫폼 무감각 스마트 시작/중지, Android 절전 모드 지원, 원클릭 QUIC 비활성화, 확장 트레이 메뉴.
-* **시각적 설정**: 수동 파일 수정 없이 UI에서 다양한 매개변수를 조정하고 실시간으로 적용할 수 있습니다.
-* **홈 위젯**: 실시간 네트워크 속도와 실행 상태를 홈 화면에서 한눈에 모니터링하는 세련된 위젯 내장.
-* **개인화 맞춤**: 풍부한 색상 테마, 사용자 지정 아이콘/제목 및 10가지 동적 속도 측정 애니메이션 지원.
-* **높은 확장성**: 모든 JS 오버라이드 스크립트를 위한 분류 UI 지원과 편리한 시각적 토글 스위치 제공.
+* **시각적 설정**: 더욱 풍부해진 매개변수를 UI에서 시각적으로 조정하고 실시간 적용 — 번거로운 설정 파일 수정 불필요.
+* **홈 위젯**: 정교하게 디자인된 다수의 위젯이 내장되어 홈 화면에서 실시간 네트워크 속도와 전체 상태를 한눈에 파악.
+* **개인화 맞춤**: 풍부한 색상 테마, 커스텀 아이콘/타이틀 지원 및 30가지의 정교한 속도 테스트 애니메이션 포함.
+* **높은 확장성**: JS 오버라이드 스크립트를 지원하는 최초의 트래픽 분류 UI 적용 및 커스텀 가능한 편리한 시각적 스위치 제공.
 * **전문가급 에디터**: 전 플랫폼 지원 고성능 재구축 code-forge 에디터 내장으로 IDE 수준의 편집 환경 제공.
 * **구형 기기 지원**: 구형 OS 및 하드웨어를 위한 Compatible 버전을 지속 관리하여 기기 수명을 연장합니다.
-* **개인정보 위험 Zero**: 오픈소스, 무광고, 투명한 CI/CD 프로세스 및 외부 감사 수용으로 백그라운드 데이터 수집 전면 차단.
+* **개인정보 위험 Zero**: 오픈소스, 광고 없음, 전면적인 감사를 거친 투명한 CI/CD 프로세스로 어떠한 백그라운드 개인정보 수집도 원천 차단.
 * **커뮤니티 중심**: 피드백을 깊이 있게 검토하고 유용한 Issue를 우선 처리합니다. 사용자 의견을 귀담아듣습니다.
 
 ---
@@ -65,8 +64,8 @@ Bettbox: Better Experience, Out of the box - 뛰어난 경험, 설치 즉시 사
 * **HarmonyOS NEXT**: [[卓易通]](https://harmonyos.cool/android-app) 프로그램과 함께 사용하십시오.
 
 **기타 설치 방법:**<br>
-**ArchLinux:** <code>yay -S bettbox-bin 또는 paru -S bettbox-bin</code> ([lyj404](https://github.com/lyj404/bettbox-aur) 관리)<br>
-**AMD64=v1:** <code>yay -S bettbox-compatible-bin 또는 paru -S bettbox-compatible-bin</code> ([VillagerTom](https://github.com/VillagerTom) 관리)
+**ArchLinux:** <code>yay -S bettbox-bin 또는 paru -S bettbox-bin</code> ([ lyj404 ](https://github.com/lyj404/bettbox-aur) 관리)<br>
+**AMD64=v1:** <code>yay -S bettbox-compatible-bin 또는 paru -S bettbox-compatible-bin</code> ([ VillagerTom ](https://github.com/VillagerTom) 관리)
 
 ---
 ## ❓ 자주 묻는 질문
@@ -77,7 +76,7 @@ Bettbox: Better Experience, Out of the box - 뛰어난 경험, 설치 즉시 사
    - **보안 관련: Bettbox 프로젝트는 오픈 소스이며 투명하게 운영됩니다. 현재 코드는 Signpath 보안 감사를 통과했습니다.**
 
 2. **데스크톱 일반 문제**:
-   - Windows 관리자 권한: 설치 시 자동으로 처리되므로 **수동 권한 승인이 필요하지 않습니다**.
+   - Windows 관리자 권한: Bettbox 설치 버전에서 사전 처리되므로 **수동 권한 승인이 필요하지 않습니다**.
    - TUN 가상 어댑터 활성화 불가: macOS 및 Linux에서는 **권한 승인을 위해 올바른 암호를 입력했는지** 확인하십시오.
    - 기타 오류: 디버그 정보를 제공하고 **충돌하는 다른 프록시 소프트웨어나 서비스가 실행 중이지 않은지** 확인하십시오.
    - 문제가 지속되면 ISSUE를 제출하여 피드백해 주십시오.

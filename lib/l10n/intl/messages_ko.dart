@@ -533,6 +533,8 @@ class MessageLookup extends MessageLookupByLibrary {
     "keepAliveIntervalDesc": MessageLookupByLibrary.simpleMessage(
       "TCP Keep-Alive 간격",
     ),
+    "keepDockIcon": MessageLookupByLibrary.simpleMessage("Dock에 고정"),
+    "keepDockIconDesc": MessageLookupByLibrary.simpleMessage("Dock에 앱 아이콘 유지"),
     "key": MessageLookupByLibrary.simpleMessage("키"),
     "language": MessageLookupByLibrary.simpleMessage("언어"),
     "lastEdit": MessageLookupByLibrary.simpleMessage("마지막 수정"),

@@ -60,6 +60,8 @@
   "networkSpeedNotificationDesc": "Показывать скорость и подписку в панели уведомлений",
   "alwaysShowTitleBar": "Кнопки заголовка",
   "alwaysShowTitleBarDesc": "Всегда показывать кнопки в правом верхнем углу",
+  "keepDockIcon": "Закрепить в Dock",
+  "keepDockIconDesc": "Сохранять иконку приложения в Dock",
   "trayEnhancement": "Улучшение трея",
   "trayEnhancementDesc": "Управление группами прокси в меню системного трея",
   "trayClickBehavior": "Действие при нажатии на значок",

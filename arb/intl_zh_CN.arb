@@ -60,6 +60,8 @@
   "networkSpeedNotificationDesc": "在通知栏显示网速和订阅信息",
   "alwaysShowTitleBar": "标题按钮",
   "alwaysShowTitleBarDesc": "始终显示右上角的标题栏按钮",
+  "keepDockIcon": "常驻DOCK",
+  "keepDockIconDesc": "在 Dock 栏保留应用图标",
   "trayEnhancement": "托盘增强",
   "trayEnhancementDesc": "在系统托盘区菜单中控制代理组",
   "trayClickBehavior": "托盘点击行为",

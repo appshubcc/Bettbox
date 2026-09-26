@@ -60,6 +60,8 @@
   "networkSpeedNotificationDesc": "نمایش سرعت شبکه و اشتراک در نوار اعلان",
   "alwaysShowTitleBar": "دکمه‌های عنوان",
   "alwaysShowTitleBarDesc": "نمایش همیشگی دکمه‌های نوار عنوان بالا سمت راست",
+  "keepDockIcon": "نمایش دائمی در Dock",
+  "keepDockIconDesc": "نمایش آیکون برنامه در Dock",
   "trayEnhancement": "ارتقای منوی سینی",
   "trayEnhancementDesc": "کنترل گروه‌های پروکسی در منوی سینی سیستم",
   "trayClickBehavior": "رفتار کلیک روی سینی",

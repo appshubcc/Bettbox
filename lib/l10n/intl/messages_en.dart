@@ -654,6 +654,10 @@ class MessageLookup extends MessageLookupByLibrary {
     "keepAliveIntervalDesc": MessageLookupByLibrary.simpleMessage(
       "TCP keep-alive interval",
     ),
+    "keepDockIcon": MessageLookupByLibrary.simpleMessage("Keep in Dock"),
+    "keepDockIconDesc": MessageLookupByLibrary.simpleMessage(
+      "Keep the app icon in the Dock",
+    ),
     "key": MessageLookupByLibrary.simpleMessage("Key"),
     "language": MessageLookupByLibrary.simpleMessage("Language"),
     "lastEdit": MessageLookupByLibrary.simpleMessage("Last edited"),

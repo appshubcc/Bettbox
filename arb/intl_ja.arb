@@ -60,6 +60,8 @@
   "networkSpeedNotificationDesc": "通知バーに通信速度とサブスク情報を表示",
   "alwaysShowTitleBar": "タイトルボタン",
   "alwaysShowTitleBarDesc": "右上タイトルバーのボタンを常に表示",
+  "keepDockIcon": "Dockに常駐",
+  "keepDockIconDesc": "Dock にアプリアイコンを表示",
   "trayEnhancement": "トレイ拡張",
   "trayEnhancementDesc": "システムトレイメニューでプロキシグループを操作",
   "trayClickBehavior": "トレイクリック動作",

@@ -172,7 +172,9 @@ class _ConfigViewState extends State<ConfigView> {
                 titleBuilder: (item) => Text(item.key),
                 subtitleBuilder: (item) => Text(item.value),
                 canDelete: (item) =>
-                    !(storeFix && item.key == 'services.googleapis.cn') &&
+                    !(system.isAndroid &&
+                        storeFix &&
+                        item.key == 'services.googleapis.cn') &&
                     !(networkFix && item.key == 'dns.msftncsi.com'),
                 onChange: (value) {
                   ref

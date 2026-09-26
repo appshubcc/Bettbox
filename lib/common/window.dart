@@ -5,6 +5,7 @@ import 'package:bett_box/state.dart';
 import 'package:flutter/material.dart';
 import 'package:screen_retriever/screen_retriever.dart';
 import 'package:tray_manager/tray_manager.dart';
+import 'package:window_ext/window_ext.dart';
 import 'package:window_manager/window_manager.dart';
 
 class Window {
@@ -17,6 +18,13 @@ class Window {
       protocol.register('bettbox');
     }
     await windowManager.ensureInitialized();
+    if (system.isMacOS && !globalState.config.appSetting.keepDockIcon) {
+      try {
+        await windowExtManager.setDockIconVisible(false);
+      } catch (e) {
+        commonPrint.log('Apply dock icon visibility failed: $e');
+      }
+    }
     WindowOptions windowOptions = WindowOptions(
       size: Size(props.width, props.height),
       minimumSize: const Size(380, 400),

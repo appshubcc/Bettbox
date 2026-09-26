@@ -144,6 +144,28 @@ class HiddenItem extends ConsumerWidget {
   }
 }
 
+class KeepDockIconItem extends ConsumerWidget {
+  const KeepDockIconItem({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final keepDockIcon = ref.watch(
+      appSettingProvider.select((state) => state.keepDockIcon),
+    );
+    return ListItem.switchItem(
+      title: Text(appLocalizations.keepDockIcon),
+      subtitle: Text(appLocalizations.keepDockIconDesc),
+      delegate: SwitchDelegate(
+        value: keepDockIcon,
+        onChanged: (value) {
+          ref
+              .read(appSettingProvider.notifier)
+              .updateState((state) => state.copyWith(keepDockIcon: value));
+        },
+      ),
+    );
+  }
+}
 
 class ShowStartSwitchItem extends ConsumerWidget {
   const ShowStartSwitchItem({super.key});
@@ -257,6 +279,7 @@ class ApplicationSettingView extends StatelessWidget {
       ],
       const ShowStartSwitchItem(),
       if (system.isAndroid) ...[NavBarHapticFeedbackItem()],
+      if (system.isMacOS) const KeepDockIconItem(),
       CloseConnectionsItem(),
       UsageItem(),
       AutoCheckUpdateItem(),

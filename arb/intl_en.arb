@@ -60,6 +60,8 @@
   "networkSpeedNotificationDesc": "Show speed and subscription info in notification bar",
   "alwaysShowTitleBar": "Title Buttons",
   "alwaysShowTitleBarDesc": "Always show the title bar buttons in the top-right corner",
+  "keepDockIcon": "Keep in Dock",
+  "keepDockIconDesc": "Keep the app icon in the Dock",
   "trayEnhancement": "Tray Enhancement",
   "trayEnhancementDesc": "Control proxy groups in system tray menu",
   "trayClickBehavior": "Tray Click Behavior",

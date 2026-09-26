@@ -475,6 +475,8 @@ class MessageLookup extends MessageLookupByLibrary {
     "itemsCount": m6,
     "just": MessageLookupByLibrary.simpleMessage("剛剛"),
     "keepAliveIntervalDesc": MessageLookupByLibrary.simpleMessage("TCP 保持活動間隔"),
+    "keepDockIcon": MessageLookupByLibrary.simpleMessage("常駐DOCK"),
+    "keepDockIconDesc": MessageLookupByLibrary.simpleMessage("在 Dock 欄保留應用圖標"),
     "key": MessageLookupByLibrary.simpleMessage("鍵"),
     "language": MessageLookupByLibrary.simpleMessage("語言"),
     "lastEdit": MessageLookupByLibrary.simpleMessage("上次編輯"),

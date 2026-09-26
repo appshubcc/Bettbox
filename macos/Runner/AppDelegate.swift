@@ -5,6 +5,13 @@ import window_ext
 @main
 class AppDelegate: FlutterAppDelegate {
     
+    override func applicationWillFinishLaunching(_ notification: Notification) {
+        if UserDefaults.standard.object(forKey: "flutter.keepDockIcon") as? Bool == false {
+            NSApp.setActivationPolicy(.accessory)
+        }
+        super.applicationWillFinishLaunching(notification)
+    }
+
     override func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
         return false
     }

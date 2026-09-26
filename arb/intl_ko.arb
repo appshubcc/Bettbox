@@ -60,6 +60,8 @@
   "networkSpeedNotificationDesc": "알림 표시줄에 속도 및 구독 정보 표시",
   "alwaysShowTitleBar": "제목 표시줄 버튼",
   "alwaysShowTitleBarDesc": "상단 오른쪽 제목 표시줄 버튼 항상 표시",
+  "keepDockIcon": "Dock에 고정",
+  "keepDockIconDesc": "Dock에 앱 아이콘 유지",
   "trayEnhancement": "트레이 기능 향상",
   "trayEnhancementDesc": "시스템 트레이 메뉴에서 프록시 그룹 제어",
   "trayClickBehavior": "트레이 클릭 동작",

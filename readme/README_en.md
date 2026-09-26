@@ -4,16 +4,15 @@
 
 <h1 align="center">⚡ Bettbox</h1>
 <p align="center">
-  <strong>Another Better Mihomo Client</strong>
+  <strong>Another Better Mihomo Client, Forked from FlClash</strong>
 </p>
 
-**Bettbox is a cross-platform network debugging and rule-based traffic splitting client powered by the Mihomo (Clash Meta) core and refactored from an early version of FlClash.**
+**Bettbox is a cross-platform traffic routing and network debugging tool deeply built on the powerful Mihomo (Clash Meta) core. We focus on privacy, security, and refined details, dedicated to providing a better experience.**
 
 Guided by the principle of "Better Experience", Bettbox inherits the original sleek UI while deeply refining key details and feature logic. Core features and implementation goals: high-FPS fluid animations in the foreground, zero-impact power saving in the background — dedicated to delivering a better experience as a lightweight Mihomo client that runs stably and reliably over the long term with minimal resource consumption.
 
 Bettbox stands for: Better Experience, Out of the box.
 
-Our Vision: Connecting Open Source and AI, Accelerating Innovation
 
 [![Latest Release](https://img.shields.io/github/v/release/appshubcc/Bettbox?style=for-the-badge&logo=github&color=238636&label=Release)](https://github.com/appshubcc/Bettbox/releases/latest) [![Core](https://img.shields.io/github/v/release/MetaCubeX/mihomo?style=for-the-badge&logo=go&logoColor=white&color=8A2BE2&label=Mihomo)](https://github.com/MetaCubeX/mihomo/releases/latest)
 
@@ -35,33 +34,33 @@ Our Vision: Connecting Open Source and AI, Accelerating Innovation
 
 * **Out-of-the-Box**: Robust permission handling and smooth TUN/VPN experience with optimized defaults for instant usability.
 * **Meticulously Crafted**: Polished UI and interaction details. High FPS foreground animations, ultra-low mobile power consumption, and minimal desktop footprint.
-* **Security First**: Core tracks the main Mihomo branch with rapid feature adoption, maintaining strict cross-platform permission checks.
+* **Security First**: Core closely tracks the main Mihomo branch, follows the principle of least privilege across platforms, and is officially OV digitally signed by SignPath.
 * **Rock-Solid Fault Tolerance**: Edge-case optimizations for extreme multi-platform scenarios and dual config verification for enterprise-grade stability.
-* **Performance Focused**: Native desktop ARM64 support, hardware tiering, and Flutter/native optimizations to maximize performance.
+* **Performance Focused**: Native desktop ARM64 support, hardware tiering, and deep Flutter optimizations to squeeze out every drop of hardware performance.
 * **Enhanced Utilities**: Industry-first multi-platform seamless smart start/stop, Android sleep support, one-click QUIC toggle, and enhanced tray menu.
-* **Visual Settings**: Rich visual configuration parameters with real-time application — no tedious manual config editing required.
-* **Home Widgets**: Exquisite built-in widgets for real-time speed monitoring and system state tracking at a glance.
-* **Personalized Customization**: Rich color themes, custom icons/titles, and 10 dynamic speedtest animations.
-* **Custom Adaptation**: First-in-class JS script override UI adaptation with visual toggles.
+* **Visual Settings**: Even richer visual configuration parameters with real-time application — no tedious manual config editing required.
+* **Home Widgets**: Multiple beautifully designed built-in widgets for real-time speed monitoring and system status at a glance on the home page.
+* **Personalized Customization**: Rich color themes, custom icons/titles, and even 30 exquisite speedtest animations.
+* **Custom Adaptation**: The first to support rule UI adaptation for JS override scripts along with convenient visual toggles.
 * **Professional Code Editor**: Built-in refactored high-performance code-forge editor across platforms, matching IDE-level editing experience.
 * **Device Compatibility**: Actively maintained Compatible builds for legacy OS versions and older hardware, extending device lifespans.
-* **Zero Privacy Risk**: Fully open-source, ad-free, transparent CI/CD, and fully audited to ensure zero background telemetry.
+* **Zero Privacy Risk**: Fully open-source, ad-free, transparent CI/CD with full auditability, eliminating any background telemetry.
 * **Community Driven**: Community feedback is carefully evaluated, prioritizing high-quality issues to ensure your voice is heard.
 
 ---
 </div>
 
 ###   🛩️ Recommended Services
-### Premium Dedicated Line  〢  [BBXY](https://www.bbxy01.com/v2/register?code=c09R)
+### IEPL Dedicated Line  〢  [BBXY](https://www.bbxy01.com/v2/register?code=c09R)
 
 ### Exclusive Discount Code (32% OFF): bettbox68
 
 **Review** : ❚ ❚  Established premium line operated overseas for years, Tier-1 enterprise BGP ingress + GZ-HK & SH-JP dedicated lines, approx. ¥17/mo or ¥127/yr after discount, unlocking streaming media & AI, with excellent latency and reputation. Ideal for users prioritizing high stability. Pro tip: Don't forget to use the 32% OFF discount code, and check in daily in the dashboard to claim an extra 5-10GB bonus bandwidth.
 
 --------------------------------
-### Low-Cost Direct  〢  [Liangxin Cloud](https://xn--9kqz23b19z.com/#/register?code=VTnrQYAj)  〢  [Chuixue Cloud](https://xn--9kqs1lo79d.com/#/register?code=skKMTab7)  〢  [YiFen](https://xn--4gqx1hgtfdmt.com/#/register?code=AuCiXprV)
+### Cost-Effective Direct  〢  [Liangxin Cloud](https://xn--9kqz23b19z.com/#/register?code=VTnrQYAj)  〢  [Chuixue Cloud](https://xn--9kqs1lo79d.com/#/register?code=skKMTab7)  〢  [YiFen](https://xn--4gqx1hgtfdmt.com/#/register?code=AuCiXprV)
 
-**Review** : ❚  Mainly high-bandwidth or resource servers with relatively lower exit-scam risk (maybe, perhaps, probably). 888GB / 1000GB non-expiring packages offer great cost-performance. Large allowance at affordable prices, ideal for budget users, backup traffic, or heavy downloading.
+**Review** : ❚  Mainly high-bandwidth or resource servers with relatively stable operation and low starting prices. 888GB / 1000GB non-expiring packages offer great cost-performance. Large allowance at affordable prices, ideal for budget users, backup traffic, or heavy downloading.
 
 ---
 ## 🛠️ Installation & Downloads
@@ -78,8 +77,8 @@ Please visit the **[[Releases]](https://github.com/appshubcc/Bettbox/releases)**
 * **HarmonyOS NEXT:** Supported via [[ZhuoYiTong]](https://harmonyos.cool/android-app)
 
 **Other Installation Methods:**<br>
-**ArchLinux:** <code>yay -S bettbox-bin or paru -S bettbox-bin</code> (Maintained by [lyj404](https://github.com/lyj404/bettbox-aur))<br>
-**AMD64=v1:** <code>yay -S bettbox-compatible-bin or paru -S bettbox-compatible-bin</code> (Maintained by [VillagerTom](https://github.com/VillagerTom))
+**ArchLinux:** <code>yay -S bettbox-bin or paru -S bettbox-bin</code> (Maintained by [ lyj404 ](https://github.com/lyj404/bettbox-aur))<br>
+**AMD64=v1:** <code>yay -S bettbox-compatible-bin or paru -S bettbox-compatible-bin</code> (Maintained by [ VillagerTom ](https://github.com/VillagerTom))
 
 ---
 ## ❓ Frequently Asked Questions
@@ -90,7 +89,7 @@ Please visit the **[[Releases]](https://github.com/appshubcc/Bettbox/releases)**
    - **Security: Bettbox is fully open-source and transparent with zero telemetry. Current builds have passed SignPath security audit.**
 
 2.  **Desktop FAQs**:
-   - Windows Admin Permissions: Handled automatically during installation — **no manual re-authorization required**.
+   - Windows Admin Permissions: Bettbox installer handles this in advance — **no manual re-authorization required**.
    - Unable to enable TUN mode: macOS and Linux users **must enter the correct password to grant network permissions**.
    - Other errors: Provide debug logs and **ensure no conflicting proxy software or services are running**.
    - If issues persist, please submit a GitHub Issue.

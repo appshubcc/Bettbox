@@ -12,6 +12,12 @@ add_library(${PLUGIN_NAME} SHARED
   "tray_manager_plugin.cc"
 )
 apply_standard_settings(${PLUGIN_NAME})
+# The vendored tray_manager fork still uses the deprecated app_indicator_new
+# API. Suppress that here, scoped to this plugin target, rather than in the
+# shared APPLY_STANDARD_SETTINGS function. This and the appindicator dependency
+# below can go away once the plugin is upgraded to the nativeapi-based 0.7.0
+# (see upstream leanflutter/tray_manager#67).
+target_compile_options(${PLUGIN_NAME} PRIVATE -Wno-deprecated-declarations)
 set_target_properties(${PLUGIN_NAME} PROPERTIES
   CXX_VISIBILITY_PRESET hidden)
 target_compile_definitions(${PLUGIN_NAME} PRIVATE FLUTTER_PLUGIN_IMPL)

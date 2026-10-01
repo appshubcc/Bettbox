@@ -20,38 +20,52 @@ typedef String MessageIfAbsent(String messageStr, List<dynamic> args);
 class MessageLookup extends MessageLookupByLibrary {
   String get localeName => 'ko';
 
-  static String m0(count) => "${Intl.plural(count, other: '#일')}";
+  static String m0(prefix) => "비워 두면 기본값 사용: ${prefix}";
 
-  static String m1(label) => "선택한 ${label} 항목들을 삭제하시겠습니까?";
+  static String m1(prefix) => "노드 접두사: ${prefix}";
 
-  static String m2(label) => "선택한 ${label} 항목을 삭제하시겠습니까?";
+  static String m2(members, nodes) => "${members}개 멤버 · ${nodes}개 노드";
 
-  static String m3(label) => "${label} 항목은 비워둘 수 없습니다";
+  static String m3(count) => "Hosts 충돌 ${count}건, 첫 번째 값을 유지했습니다";
 
-  static String m4(label) => "${label} 항목이 이미 존재합니다";
+  static String m4(count) => "도메인 DNS 정책 ${count}건이 여러 멤버에서 공유되어 병합되었습니다";
 
-  static String m5(count) => "${Intl.plural(count, other: '#시간')}";
+  static String m5(label) => "“${label}”에 내장 재정의 스크립트를 적용할 수 없어 건너뛰었습니다";
 
-  static String m6(count) => "${count}";
+  static String m6(label) => "“${label}”에 멤버 노드 이름에 의존하는 터널이 포함되어 있어 무시했습니다";
 
-  static String m7(count) => "${Intl.plural(count, other: '#분')}";
+  static String m7(count) => "${Intl.plural(count, other: '#일')}";
 
-  static String m8(count) => "${Intl.plural(count, other: '#개월')}";
+  static String m8(label) => "선택한 ${label} 항목들을 삭제하시겠습니까?";
 
-  static String m9(label) => "${label} 항목이 없습니다";
+  static String m9(label) => "선택한 ${label} 항목을 삭제하시겠습니까?";
 
-  static String m10(label) => "${label} 항목은 숫자여야 합니다";
+  static String m10(label) => "${label} 항목은 비워둘 수 없습니다";
 
-  static String m11(label) => "${label} 항목은 1024~49151 사이여야 합니다 (0은 비활성화)";
+  static String m11(label) => "${label} 항목이 이미 존재합니다";
 
-  static String m12(statusCode) =>
+  static String m12(count) => "${Intl.plural(count, other: '#시간')}";
+
+  static String m13(count) => "${count}";
+
+  static String m14(count) => "${Intl.plural(count, other: '#분')}";
+
+  static String m15(count) => "${Intl.plural(count, other: '#개월')}";
+
+  static String m16(label) => "${label} 항목이 없습니다";
+
+  static String m17(label) => "${label} 항목은 숫자여야 합니다";
+
+  static String m18(label) => "${label} 항목은 1024~49151 사이여야 합니다 (0은 비활성화)";
+
+  static String m19(statusCode) =>
       "프로필 가져오기에 실패했습니다. 네트워크 상태를 확인하거나 구독 링크를 재설정해 보세요 ( HTTP 오류 코드: ${statusCode} )";
 
-  static String m13(count) => "${count}개 선택됨";
+  static String m20(count) => "${count}개 선택됨";
 
-  static String m14(label) => "${label} 항목은 올바른 URL이어야 합니다";
+  static String m21(label) => "${label} 항목은 올바른 URL이어야 합니다";
 
-  static String m15(count) => "${Intl.plural(count, other: '#년')}";
+  static String m22(count) => "${Intl.plural(count, other: '#년')}";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
@@ -165,6 +179,40 @@ class MessageLookup extends MessageLookupByLibrary {
     "blacklist": MessageLookupByLibrary.simpleMessage("블랙리스트"),
     "blacklistMode": MessageLookupByLibrary.simpleMessage("블랙리스트 모드"),
     "blockComment": MessageLookupByLibrary.simpleMessage("주석"),
+    "builtinScriptLabel": MessageLookupByLibrary.simpleMessage(
+      "MyClash 재정의 스크립트",
+    ),
+    "builtinScriptMissing": MessageLookupByLibrary.simpleMessage(
+      "내장 재정의 스크립트가 없습니다. 앱을 다시 시작해 주세요",
+    ),
+    "builtinScriptRequiredByBundle": MessageLookupByLibrary.simpleMessage(
+      "현재 병합 프로필에는 내장 스크립트가 필요합니다",
+    ),
+    "bundleAddMember": MessageLookupByLibrary.simpleMessage("멤버 추가"),
+    "bundleGenerate": MessageLookupByLibrary.simpleMessage("병합 프로필 생성"),
+    "bundleGenerateSuccess": MessageLookupByLibrary.simpleMessage(
+      "병합 프로필이 생성되었습니다",
+    ),
+    "bundleMemberPrefix": MessageLookupByLibrary.simpleMessage("노드 접두사"),
+    "bundleMemberPrefixHint": m0,
+    "bundleMemberPrefixValue": m1,
+    "bundleMembers": MessageLookupByLibrary.simpleMessage("멤버"),
+    "bundleMembersDesc": MessageLookupByLibrary.simpleMessage(
+      "순서가 중복 제거와 이름 지정 우선순위를 결정합니다. 드래그하여 순서를 변경하세요",
+    ),
+    "bundleMerge": MessageLookupByLibrary.simpleMessage("프로필 병합"),
+    "bundleNoAvailableMember": MessageLookupByLibrary.simpleMessage(
+      "병합할 수 있는 멤버가 없습니다",
+    ),
+    "bundleNoMember": MessageLookupByLibrary.simpleMessage("프로필을 하나 이상 선택하세요"),
+    "bundleScriptOverrideLocked": MessageLookupByLibrary.simpleMessage(
+      "내장 스크립트로 이미 재정의됨",
+    ),
+    "bundleSummary": m2,
+    "bundleWarningHostConflict": m3,
+    "bundleWarningPolicyConflict": m4,
+    "bundleWarningScriptFailed": m5,
+    "bundleWarningTunnels": m6,
     "bypassDomain": MessageLookupByLibrary.simpleMessage("우회 도메인"),
     "bypassDomainDesc": MessageLookupByLibrary.simpleMessage(
       "시스템 프록시 활성화 시에만 적용",
@@ -281,7 +329,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "darkIcon": MessageLookupByLibrary.simpleMessage("다크 아이콘"),
     "darkIconDesc": MessageLookupByLibrary.simpleMessage("앱 아이콘을 어두운 색계열로 전환"),
     "dashboard": MessageLookupByLibrary.simpleMessage("홈"),
-    "days": m0,
+    "days": m7,
     "defaultNameserver": MessageLookupByLibrary.simpleMessage("기본 네임서버"),
     "defaultNameserverDesc": MessageLookupByLibrary.simpleMessage(
       "DNS 서버 자체 해동에 사용",
@@ -295,8 +343,8 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "delaySort": MessageLookupByLibrary.simpleMessage("지연 시간순 정렬"),
     "delete": MessageLookupByLibrary.simpleMessage("삭제"),
-    "deleteMultipTip": m1,
-    "deleteTip": m2,
+    "deleteMultipTip": m8,
+    "deleteTip": m9,
     "deleteTunnel": MessageLookupByLibrary.simpleMessage("포워딩 삭제"),
     "desc": MessageLookupByLibrary.simpleMessage(
       "Bettbox는 강력하고 유연한 Mihomo(Clash.Meta) 코어를 기반으로 개발된 사용자 친화적 프록시 클라이언트입니다. 우리의 비전: Connecting Open Source and AI, Accelerating Innovation",
@@ -354,7 +402,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "edit": MessageLookupByLibrary.simpleMessage("편집"),
     "editTunnel": MessageLookupByLibrary.simpleMessage("포워딩 편집"),
     "editUser": MessageLookupByLibrary.simpleMessage("사용자 편집"),
-    "emptyTip": m3,
+    "emptyTip": m10,
     "enableCrashReport": MessageLookupByLibrary.simpleMessage("크래시 분석"),
     "enableCrashReportDesc": MessageLookupByLibrary.simpleMessage(
       "필요 시 앱 크래시 로그 전송",
@@ -378,7 +426,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "전면 차단 대신 중국 QUIC 트래픽 허용",
     ),
     "excludeDesc": MessageLookupByLibrary.simpleMessage("최근 실행 앱 목록에서 앱 숨기기"),
-    "existsTip": m4,
+    "existsTip": m11,
     "exit": MessageLookupByLibrary.simpleMessage("종료"),
     "expand": MessageLookupByLibrary.simpleMessage("표준"),
     "experimental": MessageLookupByLibrary.simpleMessage("실험적 기능"),
@@ -465,6 +513,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "global": MessageLookupByLibrary.simpleMessage("글로벌"),
     "go": MessageLookupByLibrary.simpleMessage("이동"),
     "goDownload": MessageLookupByLibrary.simpleMessage("다운로드 이동"),
+    "groupSwitches": MessageLookupByLibrary.simpleMessage("그룹 스위치"),
     "harmonyFont": MessageLookupByLibrary.simpleMessage("글꼴 복구"),
     "harmonyFontDesc": MessageLookupByLibrary.simpleMessage(
       "표시 이상 해결을 위해 내장 글꼴 사용",
@@ -491,7 +540,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "키보드로 애플리케이션 제어",
     ),
     "hourGlass": MessageLookupByLibrary.simpleMessage("모래시계"),
-    "hours": m5,
+    "hours": m12,
     "httpPortSniffer": MessageLookupByLibrary.simpleMessage("HTTP 포트 스니핑"),
     "icmpForwarding": MessageLookupByLibrary.simpleMessage("ICMP 포워딩"),
     "icmpForwardingDesc": MessageLookupByLibrary.simpleMessage(
@@ -529,7 +578,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "ipv6Desc": MessageLookupByLibrary.simpleMessage("활성화 시 IPv6 트래픽 수신 허용"),
     "ipv6InboundDesc": MessageLookupByLibrary.simpleMessage("IPv6 인바운드 허용"),
     "isp": MessageLookupByLibrary.simpleMessage("통신사"),
-    "itemsCount": m6,
+    "itemsCount": m13,
     "just": MessageLookupByLibrary.simpleMessage("방금 전"),
     "keepAliveIntervalDesc": MessageLookupByLibrary.simpleMessage(
       "TCP Keep-Alive 간격",
@@ -600,11 +649,11 @@ class MessageLookup extends MessageLookupByLibrary {
     "minimize": MessageLookupByLibrary.simpleMessage("최소화"),
     "minimizeOnExit": MessageLookupByLibrary.simpleMessage("종료 시 최소화"),
     "minimizeOnExitDesc": MessageLookupByLibrary.simpleMessage("기본 창 닫기 동작 변경"),
-    "minutes": m7,
+    "minutes": m14,
     "mixedPort": MessageLookupByLibrary.simpleMessage("혼합 포트 (Mixed)"),
     "mode": MessageLookupByLibrary.simpleMessage("모드"),
     "monochromeScheme": MessageLookupByLibrary.simpleMessage("모노크롬"),
-    "months": m8,
+    "months": m15,
     "more": MessageLookupByLibrary.simpleMessage("더보기"),
     "moreIpInfo": MessageLookupByLibrary.simpleMessage("상세 IP 정보"),
     "name": MessageLookupByLibrary.simpleMessage("이름"),
@@ -690,8 +739,8 @@ class MessageLookup extends MessageLookupByLibrary {
     "nullProfileDesc": MessageLookupByLibrary.simpleMessage(
       "프로필이 없습니다. 프로필을 추가해주세요",
     ),
-    "nullTip": m9,
-    "numberTip": m10,
+    "nullTip": m16,
+    "numberTip": m17,
     "oneColumn": MessageLookupByLibrary.simpleMessage("1열"),
     "onlinePanel": MessageLookupByLibrary.simpleMessage("온라인 패널"),
     "onlyIcon": MessageLookupByLibrary.simpleMessage("아이콘만"),
@@ -778,7 +827,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "portConflictTip": MessageLookupByLibrary.simpleMessage(
       "중복되지 않는 포트를 입력하세요",
     ),
-    "portTip": m11,
+    "portTip": m18,
     "pouringHourGlass": MessageLookupByLibrary.simpleMessage("흐르는 모래시계"),
     "pouringHourGlassRefined": MessageLookupByLibrary.simpleMessage("정밀 모래시계"),
     "powerSwitch": MessageLookupByLibrary.simpleMessage("전원 스위치"),
@@ -795,7 +844,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "profileHasUpdate": MessageLookupByLibrary.simpleMessage(
       "프로필이 수정되었습니다. 자동 업데이트를 끄시겠습니까?",
     ),
-    "profileImportFailed": m12,
+    "profileImportFailed": m19,
     "profileNameNullValidationDesc": MessageLookupByLibrary.simpleMessage(
       "프로필 이름을 입력하세요",
     ),
@@ -918,7 +967,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "selectAll": MessageLookupByLibrary.simpleMessage("전체 선택"),
     "selectBackupVersion": MessageLookupByLibrary.simpleMessage("백업 버전 선택"),
     "selected": MessageLookupByLibrary.simpleMessage("선택됨"),
-    "selectedCountTitle": m13,
+    "selectedCountTitle": m20,
     "serviceReady": MessageLookupByLibrary.simpleMessage("서비스 준비 완료"),
     "serviceRunning": MessageLookupByLibrary.simpleMessage("서비스 실행 중"),
     "settings": MessageLookupByLibrary.simpleMessage("설정"),
@@ -1110,7 +1159,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "upload": MessageLookupByLibrary.simpleMessage("업로드"),
     "url": MessageLookupByLibrary.simpleMessage("URL"),
     "urlDesc": MessageLookupByLibrary.simpleMessage("URL 주소로 프로필 가져오기"),
-    "urlTip": m14,
+    "urlTip": m21,
     "useGlobalScriptOverride": MessageLookupByLibrary.simpleMessage(
       "글로벌 스크립트 오버라이드 사용",
     ),
@@ -1148,6 +1197,6 @@ class MessageLookup extends MessageLookupByLibrary {
     "whitelistMode": MessageLookupByLibrary.simpleMessage("화이트리스트 모드"),
     "writeToSystem": MessageLookupByLibrary.simpleMessage("시스템 적용"),
     "writeToSystemDesc": MessageLookupByLibrary.simpleMessage("관리자 권한이 필요합니다"),
-    "years": m15,
+    "years": m22,
   };
 }

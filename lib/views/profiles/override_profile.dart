@@ -116,7 +116,14 @@ class _OverrideProfileViewState extends State<OverrideProfileView> {
                           (state) => state.realId != null,
                         ),
                       );
-                      if (!scriptMode) {
+                      // 合并配置的产物在生成期就跑过脚本、运行期不再套用，
+                      // 覆写规则对它依然生效，所以不给「脚本模式下不生效」的提示。
+                      final isBundle = ref.watch(
+                        currentProfileProvider.select(
+                          (p) => p?.isBundle ?? false,
+                        ),
+                      );
+                      if (!scriptMode || isBundle) {
                         return SizedBox();
                       }
                       return child!;

@@ -86,6 +86,43 @@ class OptionsDialog<T> extends StatelessWidget {
   }
 }
 
+/// 状态被固定住的开关。
+///
+/// 与用户能操作的「开启」区分开：饱和度压到 0.65 再加一层白雾（深色主题重一点、
+/// 浅色主题轻一点），并且不接受点击——既看得出是开启的，也看得出改不了。
+/// 用于「必须开启且不允许更改」的场景（合并配置的内置脚本开关、
+/// 「使用全局脚本覆写」开关）。
+class LockedSwitch extends StatelessWidget {
+  final bool value;
+
+  const LockedSwitch({super.key, required this.value});
+
+  /// 饱和度 0.65：颜色还在，但比可操作的开关淡一档。
+  static const _desaturated = ColorFilter.matrix(<double>[
+    0.7245, 0.2503, 0.0252, 0, 0, //
+    0.0746, 0.9003, 0.0252, 0, 0, //
+    0.0746, 0.2503, 0.6752, 0, 0, //
+    0, 0, 0, 1, 0, //
+  ]);
+
+  @override
+  Widget build(BuildContext context) {
+    // 白雾：只蒙在开关自己画出来的像素上，深浅主题各给一档
+    final haze = Colors.white.withValues(
+      alpha: Theme.of(context).brightness == Brightness.dark ? 0.52 : 0.36,
+    );
+    return IgnorePointer(
+      child: ColorFiltered(
+        colorFilter: _desaturated,
+        child: ColorFiltered(
+          colorFilter: ColorFilter.mode(haze, BlendMode.srcATop),
+          child: Switch(value: value, onChanged: (_) {}),
+        ),
+      ),
+    );
+  }
+}
+
 class CommonCheckBox extends StatelessWidget {
   final bool? value;
   final ValueChanged<bool?>? onChanged;

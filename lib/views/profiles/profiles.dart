@@ -15,6 +15,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 import 'add_profile.dart';
+import 'merge_profile.dart';
 
 class ProfilesView extends ConsumerStatefulWidget {
   const ProfilesView({super.key});
@@ -70,6 +71,23 @@ class _ProfilesViewState extends ConsumerState<ProfilesView> {
 
   List<Widget> _buildActions() {
     return [
+      IconButton(
+        onPressed: () {
+          showExtend(
+            context,
+            builder: (_, type) {
+              return AdaptiveSheetScaffold(
+                type: type,
+                body: const MergeProfileView(),
+                title: appLocalizations.bundleMerge,
+              );
+            },
+          );
+        },
+        tooltip: appLocalizations.bundleMerge,
+        icon: const Icon(Icons.merge_type),
+        iconSize: 24,
+      ),
       IconButton(
         onPressed: () {
           _updateProfiles();
@@ -304,7 +322,9 @@ class ProfileItem extends StatelessWidget {
   }
 
   Widget _buildTitleRow(BuildContext context) {
-    final subtitleText = profile.type == ProfileType.file
+    final subtitleText = profile.isBundle
+        ? appLocalizations.bundleMerge
+        : profile.type == ProfileType.file
         ? appLocalizations.localFile
         : profile.subscriptionInfo?.expireDesc;
 
@@ -344,7 +364,11 @@ class ProfileItem extends StatelessWidget {
             subscriptionInfo.total > 0);
 
     String bottomText;
-    if (hasUsageBar) {
+    final bundleConfig = profile.bundle;
+    if (bundleConfig != null) {
+      bottomText =
+          '${appLocalizations.bundleSummary(bundleConfig.members.length, bundleConfig.report?.nodeCount ?? 0)} · $updateTimeText';
+    } else if (hasUsageBar) {
       bottomText = '${_getTrafficText(subscriptionInfo)} · $updateTimeText';
     } else if (profile.type == ProfileType.url) {
       final trafficText = subscriptionInfo != null
@@ -474,6 +498,27 @@ class ProfileItem extends StatelessWidget {
     BaseNavigator.push(context, overrideProfileView);
   }
 
+  void _handleShowMergePage(BuildContext context) {
+    showExtend(
+      context,
+      builder: (_, type) {
+        return AdaptiveSheetScaffold(
+          type: type,
+          body: MergeProfileView(bundle: profile),
+          title: appLocalizations.bundleMerge,
+        );
+      },
+    );
+  }
+
+  Future<void> _handleRegenerateBundle() async {
+    await globalState.appController.safeRun(
+      () => globalState.appController.regenerateBundles(bundleId: profile.id),
+      needLoading: true,
+      title: appLocalizations.tip,
+    );
+  }
+
   List<PopupMenuItemData> _buildMenuItems(BuildContext context) {
     return [
       PopupMenuItemData(
@@ -483,6 +528,22 @@ class ProfileItem extends StatelessWidget {
           _handleShowEditExtendPage(context);
         },
       ),
+      if (profile.isBundle) ...[
+        PopupMenuItemData(
+          icon: Icons.merge_type,
+          label: appLocalizations.bundleMerge,
+          onPressed: () {
+            _handleShowMergePage(context);
+          },
+        ),
+        PopupMenuItemData(
+          icon: Icons.refresh,
+          label: appLocalizations.bundleGenerate,
+          onPressed: () {
+            _handleRegenerateBundle();
+          },
+        ),
+      ],
       if (profile.type == ProfileType.url) ...[
         PopupMenuItemData(
           icon: Icons.sync_alt_sharp,

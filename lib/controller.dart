@@ -466,19 +466,243 @@ class AppController {
     _ref.read(currentProfileIdProvider.notifier).value = profile.id;
   }
 
+  /// 合并配置的生成 / 重生串行化，避免成员批量更新时并发写同一份文件。
+  final Lock _bundleLock = Lock(reentrant: true);
+
+  Future<Map<String, String>> _bundleMemberStamps(
+    Iterable<String> memberIds,
+  ) async {
+    final profiles = _ref.read(profilesProvider);
+    final stamps = <String, String>{};
+    for (final id in memberIds) {
+      final member = profiles.getProfile(id);
+      if (member == null) continue;
+      stamps[id] = bundleMemberStamp(
+        label: member.label,
+        lastModified: await member.profileLastModified,
+      );
+    }
+    return stamps;
+  }
+
+  /// 生成 / 重新生成一份合并配置，产物是一个真实的本地配置条目。
+  Future<Profile> generateBundle({
+    String? bundleId,
+    String? label,
+    required List<String> memberIds,
+    Map<String, String> memberPrefixes = const {},
+  }) {
+    return _bundleLock.synchronized(() async {
+      final profiles = _ref.read(profilesProvider);
+      final members = memberIds
+          .map((id) => profiles.getProfile(id))
+          .whereType<Profile>()
+          .where((member) => !member.isBundle)
+          .toList();
+      if (members.isEmpty) {
+        throw Exception(appLocalizations.bundleNoMember);
+      }
+
+      // 逐个成员跑内置覆写脚本，再合并去重：脚本按成员自己的节点做 DNS / hosts 承接，
+      // 合并阶段只负责把结果并起来；产物上「使用全局脚本覆写」保持关闭且不允许开启。
+      final builtin = globalState.builtinScript;
+      if (builtin == null) {
+        throw Exception(appLocalizations.builtinScriptMissing);
+      }
+      // 内置脚本不支持的开关（自定义节点/链式代理）一律不传给它，
+      // 签名也必须用同一份开关，免得自己把自己判成过期。
+      final builtinOptions = builtinScriptCustomOptions(builtin.customOptions);
+
+      final memberConfigs = <BundleMemberConfig>[];
+      final memberWarnings = <BundleMergeWarning>[];
+      for (final member in members) {
+        final memberLabel = member.label ?? member.id;
+        try {
+          // 合并吃的是成员**自己的文件**，成员自身的「使用全局脚本覆写」不参与合并：
+          // 覆写统一由内置脚本在这里做一次，避免同一份配置被脚本跑两遍。
+          final rawConfig = await globalState.getProfileConfig(member.id);
+          if (rawConfig['tunnels'] is List &&
+              (rawConfig['tunnels'] as List).isNotEmpty) {
+            // 覆写脚本会重建整份配置，成员自带的 tunnels 不会保留。
+            memberWarnings.add(
+              BundleMergeWarning('tunnels', member: memberLabel),
+            );
+          }
+          final overridden = await JavaScriptRuntimeManager.evaluateScript(
+            builtin.content,
+            rawConfig,
+            customOptions: builtinOptions,
+          );
+          memberConfigs.add(
+            BundleMemberConfig(
+              id: member.id,
+              label: memberLabel,
+              config: overridden,
+            ),
+          );
+        } catch (e) {
+          // 单个成员读文件 / 套脚本失败（例如配置用了 proxy-providers、或没有可用节点）
+          // 不该拖垮整次合并：跳过它并留下提示。
+          commonPrint.log(
+            '[Bundle] Override $memberLabel failed: ${e.formatErrorLog}',
+          );
+          memberWarnings.add(
+            BundleMergeWarning('scriptFailed', member: memberLabel),
+          );
+        }
+      }
+      if (memberConfigs.isEmpty) {
+        throw Exception(appLocalizations.bundleNoAvailableMember);
+      }
+
+      final result = mergeBundleConfigs(
+        members: memberConfigs,
+        options: BundleMergeOptions(memberPrefixes: memberPrefixes),
+        extraWarnings: memberWarnings,
+      );
+      final content = await encodeYamlTask(result.config);
+
+      final existing = bundleId == null
+          ? null
+          : profiles.getProfile(bundleId);
+      final bundleConfig = BundleConfig(
+        members: members.map((member) => member.id).toList(),
+        memberPrefixes: memberPrefixes,
+        memberStamps: await _bundleMemberStamps(
+          members.map((member) => member.id),
+        ),
+        // 记下这次用的是哪版内置脚本，脚本一改这份产物就过期
+        scriptStamp: builtinScriptStamp(
+          content: builtin.content,
+          customOptions: builtinOptions,
+        ),
+        report: result.report,
+      );
+      // 传了名字就用它；否则沿用原名，新建时按成员名自动生成
+      final autoLabel = bundleDefaultLabel(
+        members.map((member) => member.label ?? member.id),
+      );
+      final resolvedLabel = (label != null && label.trim().isNotEmpty)
+          ? label.trim()
+          : existing?.label ?? autoLabel;
+      final bundle =
+          (existing ?? Profile.normal(label: resolvedLabel, url: '')).copyWith(
+            label: resolvedLabel,
+            url: '',
+            autoUpdate: false,
+            // 内置脚本在生成期已经跑过，产物上不能再跑一次。
+            useScriptOverride: false,
+            bundle: bundleConfig,
+          );
+
+      final saved = await bundle.saveFileWithString(content);
+      await addProfile(saved);
+      if (_ref.read(currentProfileIdProvider) == saved.id) {
+        applyProfileDebounce(silence: true);
+      }
+      return saved;
+    });
+  }
+
+  /// 成员文件有变化（或成员被删除、内置脚本被改动）时重生对应的合并配置。
+  /// 传入 [bundleId] 时强制重生指定的一份。
+  Future<void> regenerateBundles({
+    Set<String>? memberIds,
+    String? bundleId,
+  }) async {
+    final bundles = _ref
+        .read(profilesProvider)
+        .where((profile) => profile.isBundle)
+        .toList();
+    final builtin = globalState.builtinScript;
+    final scriptStamp = builtin == null
+        ? null
+        : builtinScriptStamp(
+            content: builtin.content,
+            customOptions: builtinScriptCustomOptions(builtin.customOptions),
+          );
+    final profiles = _ref.read(profilesProvider);
+    for (final bundle in bundles) {
+      final bundleConfig = bundle.bundle;
+      if (bundleConfig == null) continue;
+
+      final forced = bundleId == bundle.id;
+      if (bundleId != null && !forced) continue;
+      if (!forced &&
+          memberIds != null &&
+          !bundleConfig.members.any(memberIds.contains)) {
+        continue;
+      }
+
+      final existingMembers = bundleConfig.members
+          .where((id) => profiles.getProfile(id) != null)
+          .toList();
+      if (existingMembers.isEmpty) {
+        // 成员全部失效时只跳过，不在这里删用户数据；真正的删除走 deleteProfile 的级联。
+        commonPrint.log(
+          '[Bundle] ${bundle.label ?? bundle.id} has no available member, skipped',
+        );
+        continue;
+      }
+
+      if (!forced) {
+        final stamps = await _bundleMemberStamps(existingMembers);
+        // 成员增减 / 成员改名改文件 / 内置脚本编辑同步改开关，任一变化都要重生
+        if (!bundleConfig.isStale(stamps, scriptStamp: scriptStamp)) continue;
+      }
+
+      try {
+        await generateBundle(
+          bundleId: bundle.id,
+          label: bundle.label,
+          memberIds: existingMembers,
+          memberPrefixes: bundleConfig.memberPrefixes,
+        );
+      } catch (e) {
+        commonPrint.log(
+          '[Bundle] Regenerate ${bundle.label ?? bundle.id} failed: ${e.formatErrorLog}',
+        );
+      }
+    }
+  }
+
+  void _resetCurrentProfileIfNeeded(String removedId) {
+    if (globalState.config.currentProfileId != removedId) return;
+    final profiles = globalState.config.profiles;
+    final currentProfileId = _ref.read(currentProfileIdProvider.notifier);
+    if (profiles.isNotEmpty) {
+      currentProfileId.value = profiles.first.id;
+    } else {
+      currentProfileId.value = null;
+      updateStatus(false);
+    }
+  }
+
   Future<void> deleteProfile(String id) async {
+    final dependentBundles = _ref
+        .read(profilesProvider)
+        .where((profile) => profile.isBundle && profile.bundleMembers.contains(id))
+        .toList();
+
     _ref.read(profilesProvider.notifier).deleteProfileById(id);
     await clearEffect(id);
-    if (globalState.config.currentProfileId == id) {
-      final profiles = globalState.config.profiles;
-      final currentProfileId = _ref.read(currentProfileIdProvider.notifier);
-      if (profiles.isNotEmpty) {
-        final updateId = profiles.first.id;
-        currentProfileId.value = updateId;
-      } else {
-        currentProfileId.value = null;
-        updateStatus(false);
+    _resetCurrentProfileIfNeeded(id);
+
+    for (final bundle in dependentBundles) {
+      final remaining = bundle.bundleMembers.where((item) => item != id).toList();
+      if (remaining.isEmpty) {
+        _ref.read(profilesProvider.notifier).deleteProfileById(bundle.id);
+        await clearEffect(bundle.id);
+        _resetCurrentProfileIfNeeded(bundle.id);
+        continue;
       }
+      _ref.read(profilesProvider.notifier).updateProfile(
+        bundle.id,
+        (profile) => profile.copyWith(
+          bundle: profile.bundle?.copyWith(members: remaining),
+        ),
+      );
+      unawaited(regenerateBundles(bundleId: bundle.id));
     }
   }
 
@@ -509,6 +733,7 @@ class AppController {
       if (profile.id == _ref.read(currentProfileIdProvider)) {
         applyProfileDebounce(silence: true);
       }
+      unawaited(regenerateBundles(memberIds: {profile.id}));
     } finally {
       _updatingProfileIds.remove(profile.id);
     }
@@ -523,6 +748,8 @@ class AppController {
     if (profile.id == _ref.read(currentProfileIdProvider)) {
       applyProfileDebounce(silence: true);
     }
+    // 改名 / 换订阅文件都走这里，是「成员发生改动」的主要入口。
+    unawaited(regenerateBundles(memberIds: {profile.id}));
   }
 
   void setProfiles(List<Profile> profiles) {
@@ -791,6 +1018,7 @@ class AppController {
     }
 
     await _syncExternalProviders();
+    await regenerateBundles();
   }
 
   Future<void> _syncExternalProviders() async {
@@ -2071,7 +2299,7 @@ class AppController {
 
     await restoreBackupFiles(profiles, homeDirPath);
 
-    _recovery(tempConfig, recoveryOption);
+    await _recovery(tempConfig, recoveryOption);
     await savePreferences();
     if (globalState.isStart) {
       await applyProfile(silence: true);
@@ -2192,7 +2420,7 @@ class AppController {
       }
     }
 
-    _recoveryLimited(limitedConfig, recoveryOption);
+    await _recoveryLimited(limitedConfig, recoveryOption);
     await savePreferences();
     if (globalState.isStart) {
       await applyProfile(silence: true);
@@ -2282,7 +2510,10 @@ class AppController {
   }
 
   /// Partial restore
-  void _recoveryLimited(Config config, RecoveryOption recoveryOption) {
+  Future<void> _recoveryLimited(
+    Config config,
+    RecoveryOption recoveryOption,
+  ) async {
     final profiles = config.profiles;
 
     // Restore subscriptions
@@ -2300,10 +2531,14 @@ class AppController {
 
     // Ensure current profile exists
     _ensureCurrentProfile(profiles);
+
+    // 恢复出来的合并配置指向的成员文件刚被覆盖，指纹全都对不上了，
+    // 这里补一次重生（不等它跑完：每个成员都要跑一遍 JS，别卡住恢复流程）。
+    unawaited(regenerateBundles());
   }
 
   /// Full restore
-  void _recovery(Config config, RecoveryOption recoveryOption) {
+  Future<void> _recovery(Config config, RecoveryOption recoveryOption) async {
     final profiles = config.profiles;
 
     // Restore subscriptions
@@ -2390,10 +2625,22 @@ class AppController {
 
       // 11. Restore script settings
       _ref.read(scriptStateProvider.notifier).value = config.scriptProps;
+      // 备份里的脚本列表可能没有内置脚本，恢复后立刻补回来（否则本次会话无法生成合并配置）。
+      // 补种写的是 globalState.config，这里必须再把结果同步回 provider：否则脚本菜单里
+      // 看不到它，用户下一次改脚本开关还会用旧列表把它覆盖掉。
+      if (await globalState.ensureBuiltinScript()) {
+        _ref
+            .read(scriptStateProvider.notifier)
+            .value = globalState.config.scriptProps;
+      }
     }
 
     // Ensure current profile exists
     _ensureCurrentProfile(profiles);
+
+    // 恢复出来的合并配置指向的成员文件刚被覆盖，指纹全都对不上了，
+    // 这里补一次重生（不等它跑完：每个成员都要跑一遍 JS，别卡住恢复流程）。
+    unawaited(regenerateBundles());
   }
 
   Future<T?> safeRun<T>(

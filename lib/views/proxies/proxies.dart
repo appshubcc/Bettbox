@@ -2,6 +2,7 @@ import 'package:bett_box/common/common.dart';
 import 'package:bett_box/enum/enum.dart';
 import 'package:bett_box/models/common.dart';
 import 'package:bett_box/models/config.dart';
+import 'package:bett_box/models/profile.dart';
 import 'package:bett_box/models/widget.dart';
 import 'package:bett_box/providers/providers.dart';
 import 'package:bett_box/state.dart';
@@ -16,6 +17,43 @@ import '../profiles/scripts.dart'
 import 'advanced_settings.dart';
 import 'setting.dart';
 import 'tab.dart';
+
+/// 代理页右上角「自定义」应该打开哪个面板。
+///
+/// 合并配置的产物是内置脚本跑出来的，它的自定义就是**内置脚本的自定义开关**
+/// （和脚本菜单里点内置脚本的自定义是同一个面板）。
+enum CustomOptionsTarget {
+  /// 当前全局脚本的自定义开关。
+  script,
+
+  /// 内置脚本的自定义开关（合并配置）。
+  builtinScript,
+
+  /// 配置自身的策略组开关。
+  groupSwitches,
+}
+
+/// 决定「自定义」入口的目标面板。
+///
+/// 只在有当前配置时才会被调用（没有当前配置就没有可自定义的东西）。
+CustomOptionsTarget resolveCustomOptionsTarget({
+  required bool isBundle,
+  required bool builtinScriptCompatible,
+  required bool scriptOn,
+  required bool scriptCompatible,
+  required bool useScriptOverride,
+}) {
+  if (isBundle) {
+    // 内置脚本被改得不再兼容时退回策略组开关，保证入口不会点了没反应
+    return builtinScriptCompatible
+        ? CustomOptionsTarget.builtinScript
+        : CustomOptionsTarget.groupSwitches;
+  }
+  if (scriptOn && scriptCompatible && useScriptOverride) {
+    return CustomOptionsTarget.script;
+  }
+  return CustomOptionsTarget.groupSwitches;
+}
 
 class ProxiesView extends ConsumerStatefulWidget {
   const ProxiesView({super.key});
@@ -35,18 +73,7 @@ class _ProxiesViewState extends ConsumerState<ProxiesView> {
         (state) => (state.autoStickyHeader, state.showHiddenItems),
       ),
     );
-    final (scriptOn, compatible) = ref.watch(
-      scriptStateProvider.select(
-        (s) => (s.currentId != null, s.currentScript?.isCompatibleWithBettbox ?? false),
-      ),
-    );
-    final profileOverride = ref.watch(
-      currentProfileProvider.select((p) => p?.useScriptOverride ?? false),
-    );
-    final hasScriptCustom = scriptOn && compatible && profileOverride;
-    final hasGroupCustom =
-        !hasScriptCustom && ref.read(currentProfileIdProvider) != null;
-    final hasCustom = hasScriptCustom || hasGroupCustom;
+    final hasProfile = ref.watch(currentProfileIdProvider) != null;
     return [
       if (_isTab)
         IconButton(
@@ -56,7 +83,8 @@ class _ProxiesViewState extends ConsumerState<ProxiesView> {
           tooltip: appLocalizations.locate,
           icon: const Icon(Icons.adjust, weight: 1),
         ),
-      if (hasCustom)
+      // 没有当前配置就没有可自定义的东西；具体打开哪个面板在点击时再判定
+      if (hasProfile)
         IconButton(
           onPressed: _handleCustomOptions,
           icon: const Icon(Icons.tune),
@@ -185,12 +213,36 @@ class _ProxiesViewState extends ConsumerState<ProxiesView> {
   }
 
   Future<void> _handleCustomOptions() async {
-    final profileOverride =
-        ref.read(currentProfileProvider)?.useScriptOverride ?? false;
-    final script = ref.read(scriptStateProvider).currentScript;
-    if (script != null && script.isCompatibleWithBettbox && profileOverride) {
-      await showScriptCustomOptions(context, ref, script: script);
-      return;
+    final profile = ref.read(currentProfileProvider);
+    final scriptState = ref.read(scriptStateProvider);
+    final builtinIndex = scriptState.scripts.indexWhere(
+      (item) => item.id == builtinScriptId,
+    );
+    final target = resolveCustomOptionsTarget(
+      isBundle: profile?.isBundle ?? false,
+      builtinScriptCompatible:
+          builtinIndex != -1 &&
+          scriptState.scripts[builtinIndex].isCompatibleWithBettbox,
+      scriptOn: scriptState.currentId != null,
+      scriptCompatible:
+          scriptState.currentScript?.isCompatibleWithBettbox ?? false,
+      useScriptOverride: profile?.useScriptOverride ?? false,
+    );
+    if (target == CustomOptionsTarget.builtinScript) {
+      // 与脚本菜单里点内置脚本的「自定义」完全同一个面板，改完会触发重新合并
+      final builtin = builtinIndex == -1
+          ? null
+          : scriptState.scripts[builtinIndex];
+      if (builtin != null) {
+        await showScriptCustomOptions(context, ref, script: builtin);
+        return;
+      }
+    } else if (target == CustomOptionsTarget.script) {
+      final script = scriptState.currentScript;
+      if (script != null && script.isCompatibleWithBettbox) {
+        await showScriptCustomOptions(context, ref, script: script);
+        return;
+      }
     }
     final profileId = ref.read(currentProfileIdProvider);
     if (profileId != null) {

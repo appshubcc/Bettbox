@@ -20,39 +20,56 @@ typedef String MessageIfAbsent(String messageStr, List<dynamic> args);
 class MessageLookup extends MessageLookupByLibrary {
   String get localeName => 'fa';
 
-  static String m0(count) => "${Intl.plural(count, other: '# روز')}";
+  static String m0(prefix) => "خالی بگذارید تا پیش‌فرض استفاده شود: ${prefix}";
 
-  static String m1(label) => "آیا از حذف موارد انتخاب شده اطمینان دارید؟";
+  static String m1(prefix) => "پیشوند نود: ${prefix}";
 
-  static String m2(label) => "آیا از حذف ${label} اطمینان دارید؟";
+  static String m2(members, nodes) => "${members} عضو · ${nodes} نود";
 
-  static String m3(label) => "${label} نمی‌تواند خالی باشد";
+  static String m3(count) => "تداخل Hosts: ${count}؛ اولین مقدار نگه داشته شد";
 
-  static String m4(label) => "${label} از قبل وجود دارد";
+  static String m4(count) =>
+      "سیاست DNS دامنه مشترک بین چند عضو: ${count}؛ مقادیر ادغام شدند";
 
-  static String m5(count) => "${Intl.plural(count, other: '# ساعت')}";
+  static String m5(label) =>
+      "«${label}»: اسکریپت بازنویسی داخلی اعمال نشد و نادیده گرفته شد";
 
-  static String m6(count) => "${count}";
+  static String m6(label) =>
+      "«${label}» شامل تونل‌هایی است که به نام نودهای عضو وابسته‌اند؛ نادیده گرفته شد";
 
-  static String m7(count) => "${Intl.plural(count, other: '# دقیقه')}";
+  static String m7(count) => "${Intl.plural(count, other: '# روز')}";
 
-  static String m8(count) => "${Intl.plural(count, other: '# ماه')}";
+  static String m8(label) => "آیا از حذف موارد انتخاب شده اطمینان دارید؟";
 
-  static String m9(label) => "هیچ مورد ${label} یافت نشد";
+  static String m9(label) => "آیا از حذف ${label} اطمینان دارید؟";
 
-  static String m10(label) => "${label} باید عدد باشد";
+  static String m10(label) => "${label} نمی‌تواند خالی باشد";
 
-  static String m11(label) =>
+  static String m11(label) => "${label} از قبل وجود دارد";
+
+  static String m12(count) => "${Intl.plural(count, other: '# ساعت')}";
+
+  static String m13(count) => "${count}";
+
+  static String m14(count) => "${Intl.plural(count, other: '# دقیقه')}";
+
+  static String m15(count) => "${Intl.plural(count, other: '# ماه')}";
+
+  static String m16(label) => "هیچ مورد ${label} یافت نشد";
+
+  static String m17(label) => "${label} باید عدد باشد";
+
+  static String m18(label) =>
       "${label} باید بین ۱۰۲۴ تا ۴۹۱۵۱ باشد (۰ برای غیرفعال)";
 
-  static String m12(statusCode) =>
+  static String m19(statusCode) =>
       "خطا در دریافت پروفایل. لطفاً شبکه خود را بررسی کرده یا لینک را ریست کنید ( کد خطا: ${statusCode} )";
 
-  static String m13(count) => "${count} مورد انتخاب شده";
+  static String m20(count) => "${count} مورد انتخاب شده";
 
-  static String m14(label) => "${label} باید یک URL معتبر باشد";
+  static String m21(label) => "${label} باید یک URL معتبر باشد";
 
-  static String m15(count) => "${Intl.plural(count, other: '# سال')}";
+  static String m22(count) => "${Intl.plural(count, other: '# سال')}";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
@@ -202,6 +219,44 @@ class MessageLookup extends MessageLookupByLibrary {
     "blacklist": MessageLookupByLibrary.simpleMessage("لیست سیاه"),
     "blacklistMode": MessageLookupByLibrary.simpleMessage("حالت لیست سیاه"),
     "blockComment": MessageLookupByLibrary.simpleMessage("کامنت"),
+    "builtinScriptLabel": MessageLookupByLibrary.simpleMessage(
+      "اسکریپت بازنویسی MyClash",
+    ),
+    "builtinScriptMissing": MessageLookupByLibrary.simpleMessage(
+      "اسکریپت بازنویسی داخلی یافت نشد، برنامه را دوباره راه‌اندازی کنید",
+    ),
+    "builtinScriptRequiredByBundle": MessageLookupByLibrary.simpleMessage(
+      "پروفایل ادغام‌شده فعلی به اسکریپت داخلی نیاز دارد",
+    ),
+    "bundleAddMember": MessageLookupByLibrary.simpleMessage("افزودن عضو"),
+    "bundleGenerate": MessageLookupByLibrary.simpleMessage(
+      "تولید پروفایل ادغام‌شده",
+    ),
+    "bundleGenerateSuccess": MessageLookupByLibrary.simpleMessage(
+      "پروفایل ادغام‌شده تولید شد",
+    ),
+    "bundleMemberPrefix": MessageLookupByLibrary.simpleMessage("پیشوند نود"),
+    "bundleMemberPrefixHint": m0,
+    "bundleMemberPrefixValue": m1,
+    "bundleMembers": MessageLookupByLibrary.simpleMessage("اعضا"),
+    "bundleMembersDesc": MessageLookupByLibrary.simpleMessage(
+      "ترتیب، حذف تکراری و اولویت نام‌گذاری را تعیین می‌کند؛ برای جابه‌جایی بکشید",
+    ),
+    "bundleMerge": MessageLookupByLibrary.simpleMessage("ادغام پروفایل‌ها"),
+    "bundleNoAvailableMember": MessageLookupByLibrary.simpleMessage(
+      "هیچ عضوی برای ادغام در دسترس نیست",
+    ),
+    "bundleNoMember": MessageLookupByLibrary.simpleMessage(
+      "حداقل یک پروفایل انتخاب کنید",
+    ),
+    "bundleScriptOverrideLocked": MessageLookupByLibrary.simpleMessage(
+      "قبلاً با اسکریپت داخلی بازنویسی شده است",
+    ),
+    "bundleSummary": m2,
+    "bundleWarningHostConflict": m3,
+    "bundleWarningPolicyConflict": m4,
+    "bundleWarningScriptFailed": m5,
+    "bundleWarningTunnels": m6,
     "bypassDomain": MessageLookupByLibrary.simpleMessage("دامنه‌های استثنا"),
     "bypassDomainDesc": MessageLookupByLibrary.simpleMessage(
       "اعمال تنها در صورت فعال بودن پروکسی سیستم",
@@ -344,7 +399,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "تغییر آیکون برنامه به تم تاریک",
     ),
     "dashboard": MessageLookupByLibrary.simpleMessage("داشبورد"),
-    "days": m0,
+    "days": m7,
     "defaultNameserver": MessageLookupByLibrary.simpleMessage(
       "سرور نام پیش‌فرض",
     ),
@@ -362,8 +417,8 @@ class MessageLookup extends MessageLookupByLibrary {
       "مرتب‌سازی بر اساس تاخیر",
     ),
     "delete": MessageLookupByLibrary.simpleMessage("حذف"),
-    "deleteMultipTip": m1,
-    "deleteTip": m2,
+    "deleteMultipTip": m8,
+    "deleteTip": m9,
     "deleteTunnel": MessageLookupByLibrary.simpleMessage("حذف هدایت"),
     "desc": MessageLookupByLibrary.simpleMessage(
       "Bettbox یک کلاینت پروکسی بر پایه هسته قدرتمند و انعطاف‌پذیر Mihomo (Clash.Meta) با هدف تجربه کاربری برتر است. چشم‌انداز ما: Connecting Open Source and AI, Accelerating Innovation",
@@ -427,7 +482,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "edit": MessageLookupByLibrary.simpleMessage("ویرایش"),
     "editTunnel": MessageLookupByLibrary.simpleMessage("ویرایش هدایت"),
     "editUser": MessageLookupByLibrary.simpleMessage("ویرایش کاربر"),
-    "emptyTip": m3,
+    "emptyTip": m10,
     "enableCrashReport": MessageLookupByLibrary.simpleMessage("تحلیل خرابی‌ها"),
     "enableCrashReportDesc": MessageLookupByLibrary.simpleMessage(
       "ارسال گزارش خرابی در صورت لزوم",
@@ -455,7 +510,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "excludeDesc": MessageLookupByLibrary.simpleMessage(
       "پنهان کردن برنامه از لیست برنامه‌های اخیر",
     ),
-    "existsTip": m4,
+    "existsTip": m11,
     "exit": MessageLookupByLibrary.simpleMessage("خروج"),
     "expand": MessageLookupByLibrary.simpleMessage("استاندارد"),
     "experimental": MessageLookupByLibrary.simpleMessage("ویژگی‌های آزمایشی"),
@@ -566,6 +621,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "global": MessageLookupByLibrary.simpleMessage("سراسر جهان"),
     "go": MessageLookupByLibrary.simpleMessage("رفتن"),
     "goDownload": MessageLookupByLibrary.simpleMessage("رفتن به دانلود"),
+    "groupSwitches": MessageLookupByLibrary.simpleMessage("کلیدهای گروه"),
     "harmonyFont": MessageLookupByLibrary.simpleMessage("ترمیم فونت"),
     "harmonyFontDesc": MessageLookupByLibrary.simpleMessage(
       "استفاده از فونت داخلی برای رفع مشکلات نمایش",
@@ -600,7 +656,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "کنترل برنامه با صفحه کلید",
     ),
     "hourGlass": MessageLookupByLibrary.simpleMessage("ساعت شنی"),
-    "hours": m5,
+    "hours": m12,
     "httpPortSniffer": MessageLookupByLibrary.simpleMessage("اسنیف پورت HTTP"),
     "icmpForwarding": MessageLookupByLibrary.simpleMessage("هدایت ICMP"),
     "icmpForwardingDesc": MessageLookupByLibrary.simpleMessage(
@@ -650,7 +706,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "ورودی IPv6 مجاز باشد",
     ),
     "isp": MessageLookupByLibrary.simpleMessage("ارائه‌دهنده اینترنت"),
-    "itemsCount": m6,
+    "itemsCount": m13,
     "just": MessageLookupByLibrary.simpleMessage("همین الان"),
     "keepAliveIntervalDesc": MessageLookupByLibrary.simpleMessage(
       "فاصله زمانی TCP Keep-Alive",
@@ -749,11 +805,11 @@ class MessageLookup extends MessageLookupByLibrary {
     "minimizeOnExitDesc": MessageLookupByLibrary.simpleMessage(
       "تغییر رفتار پیش‌فرض بستن окно",
     ),
-    "minutes": m7,
+    "minutes": m14,
     "mixedPort": MessageLookupByLibrary.simpleMessage("پورت ترکیبی (Mixed)"),
     "mode": MessageLookupByLibrary.simpleMessage("حالت"),
     "monochromeScheme": MessageLookupByLibrary.simpleMessage("تک‌رنگ"),
-    "months": m8,
+    "months": m15,
     "more": MessageLookupByLibrary.simpleMessage("بیشتر"),
     "moreIpInfo": MessageLookupByLibrary.simpleMessage("اطلاعات بیشتر IP"),
     "name": MessageLookupByLibrary.simpleMessage("نام"),
@@ -857,8 +913,8 @@ class MessageLookup extends MessageLookupByLibrary {
     "nullProfileDesc": MessageLookupByLibrary.simpleMessage(
       "هیچ پروفایلی یافت نشد. لطفاً یکی اضافه کنید",
     ),
-    "nullTip": m9,
-    "numberTip": m10,
+    "nullTip": m16,
+    "numberTip": m17,
     "oneColumn": MessageLookupByLibrary.simpleMessage("۱ ستون"),
     "onlinePanel": MessageLookupByLibrary.simpleMessage("پنل آنلاین"),
     "onlyIcon": MessageLookupByLibrary.simpleMessage("فقط آیکون"),
@@ -967,7 +1023,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "portConflictTip": MessageLookupByLibrary.simpleMessage(
       "لطفاً پورت غیرتکراری وارد کنید",
     ),
-    "portTip": m11,
+    "portTip": m18,
     "pouringHourGlass": MessageLookupByLibrary.simpleMessage("ساعت شنی روان"),
     "pouringHourGlassRefined": MessageLookupByLibrary.simpleMessage(
       "ساعت شنی ظریف",
@@ -994,7 +1050,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "profileHasUpdate": MessageLookupByLibrary.simpleMessage(
       "پروفایل تغییر یافته است. آیا بروزرسانی خودکار غیرفعال شود؟",
     ),
-    "profileImportFailed": m12,
+    "profileImportFailed": m19,
     "profileNameNullValidationDesc": MessageLookupByLibrary.simpleMessage(
       "لطفاً نام پروفایل را وارد کنید",
     ),
@@ -1171,7 +1227,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "انتخاب نسخه پشتیبان",
     ),
     "selected": MessageLookupByLibrary.simpleMessage("انتخاب شده"),
-    "selectedCountTitle": m13,
+    "selectedCountTitle": m20,
     "serviceReady": MessageLookupByLibrary.simpleMessage("سرویس آماده است"),
     "serviceRunning": MessageLookupByLibrary.simpleMessage(
       "سرویس در حال اجرا است",
@@ -1403,7 +1459,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "urlDesc": MessageLookupByLibrary.simpleMessage(
       "دریافت پروفایل از طریق آدرس URL",
     ),
-    "urlTip": m14,
+    "urlTip": m21,
     "useGlobalScriptOverride": MessageLookupByLibrary.simpleMessage(
       "استفاده از اسکریپت اورراید سراسری",
     ),
@@ -1451,6 +1507,6 @@ class MessageLookup extends MessageLookupByLibrary {
     "writeToSystemDesc": MessageLookupByLibrary.simpleMessage(
       "نیازمند دسترسی مدیریت (Admin)",
     ),
-    "years": m15,
+    "years": m22,
   };
 }

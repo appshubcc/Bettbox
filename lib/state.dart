@@ -204,6 +204,67 @@ class GlobalState {
         utils.getLocaleForString(config.appSetting.locale) ??
         utils.getSystemLocale();
     await AppLocalizations.load(locale);
+    await ensureBuiltinScript();
+  }
+
+  /// 内置脚本（MyClash 覆写脚本），合并配置生成时用它补齐策略组与分流。
+  Script? get builtinScript {
+    final index = config.scriptProps.scripts.indexWhere(
+      (script) => script.id == builtinScriptId,
+    );
+    return index == -1 ? null : config.scriptProps.scripts[index];
+  }
+
+  /// 内置脚本：首次安装（或脚本缺失）时用随包资源播种，之后只能从上游同步、
+  /// **不开放编辑**（可改自定义开关，不能删除）。
+  ///
+  /// 启动时调用；从备份恢复会覆盖脚本列表，恢复后会再调一次，
+  /// 保证脚本菜单里始终有它。
+  ///
+  /// 返回是否改动了脚本列表：从备份恢复那条路需要据此把结果同步回
+  /// `scriptStateProvider`，否则菜单与 `globalState.config` 会不一致，
+  /// 用户下一次改脚本开关还会用旧列表把它覆盖掉。
+  Future<bool> ensureBuiltinScript() async {
+    final String content;
+    try {
+      content = await rootBundle.loadString(builtinScriptAssetPath);
+    } catch (e) {
+      // 资源缺失（构建异常）不该拖垮启动：此时脚本菜单里没有内置脚本，
+      // 生成合并配置会以「内置覆写脚本缺失」提示用户重启。
+      commonPrint.log('[BuiltinScript] load $builtinScriptAssetPath failed: $e');
+      return false;
+    }
+    final scriptProps = config.scriptProps;
+    final scripts = List<Script>.from(scriptProps.scripts);
+    final index = scripts.indexWhere((script) => script.id == builtinScriptId);
+    if (index != -1) {
+      // 已经存在就不再覆盖：内容只可能来自随包资源或上游同步。
+      // 只补一次上游地址，保证菜单里的「同步」可用。
+      final existing = scripts[index];
+      if (existing.url == null || existing.url!.isEmpty) {
+        scripts[index] = existing.copyWith(url: builtinScriptSourceUrl);
+        config = config.copyWith(
+          scriptProps: scriptProps.copyWith(scripts: scripts),
+        );
+        await preferences.saveConfig(config);
+        return true;
+      }
+      return false;
+    }
+    scripts.insert(
+      0,
+      Script(
+        id: builtinScriptId,
+        label: appLocalizations.builtinScriptLabel,
+        content: content,
+        url: builtinScriptSourceUrl,
+      ),
+    );
+    config = config.copyWith(
+      scriptProps: scriptProps.copyWith(scripts: scripts),
+    );
+    await preferences.saveConfig(config);
+    return true;
   }
 
   bool get isAndroidTV => _isAndroidTV ?? false;
@@ -1150,7 +1211,11 @@ class GlobalState {
         return await JavaScriptRuntimeManager.evaluateScript(
           currentScript.content,
           config,
-          customOptions: currentScript.customOptions,
+          // 内置脚本用不到的开关（链式代理）永远不传给它：这种开关开着只会让脚本抛错，
+          // 整份配置都覆写不出来
+          customOptions: currentScript.id == builtinScriptId
+              ? builtinScriptCustomOptions(currentScript.customOptions)
+              : currentScript.customOptions,
         );
       } catch (e) {
         commonPrint.log('Script execution failed: $e');

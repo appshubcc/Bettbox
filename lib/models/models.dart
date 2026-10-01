@@ -1,4 +1,5 @@
 export 'app.dart';
+export 'bundle.dart';
 export 'clash_config.dart';
 export 'common.dart';
 export 'config.dart';

@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="120 100 480 460" width="480" height="460" role="img" aria-label="Icon (dark mode)">
+  <g fill="#FFFFFF">
+    <path d="M 0 26 A 26 26 0 0 1 26 0 L 104 0 A 17 17 0 0 1 121 17 L 121 400 A 17 17 0 0 1 104 417 L 26 417 A 26 26 0 0 1 0 391 L 0 26 Z" transform="translate(254.3 120) skewX(-16.38)"/>
+    <path d="M 0 24 A 24 24 0 0 1 24 0 L 74 0 A 16 16 0 0 1 90 16 L 90 297 A 16 16 0 0 1 74 313 L 24 313 A 24 24 0 0 1 0 289 L 0 24 Z" transform="translate(404.9 172) skewX(-16.38)"/>
+    <path d="M 0 20 A 20 20 0 0 1 20 0 L 47 0 A 13 13 0 0 1 60 13 L 60 194 A 13 13 0 0 1 47 207 L 20 207 A 20 20 0 0 1 0 187 L 0 20 Z" transform="translate(524.2 225) skewX(-16.38)"/>
+  </g>
+</svg>
+

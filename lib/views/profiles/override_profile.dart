@@ -1,10 +1,14 @@
+import 'dart:async';
+
 import 'package:bett_box/common/common.dart';
 import 'package:bett_box/enum/enum.dart';
 import 'package:bett_box/models/models.dart';
 import 'package:bett_box/providers/providers.dart';
 import 'package:bett_box/state.dart';
 import 'package:bett_box/widgets/widgets.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class OverrideProfileView extends StatefulWidget {
@@ -99,7 +103,7 @@ class _OverrideProfileViewState extends State<OverrideProfileView> {
       },
       child: LayoutBuilder(
         builder: (_, constraints) {
-          _currentMaxWidth = constraints.maxWidth - 104;
+          _currentMaxWidth = constraints.maxWidth - 144;
           return CommonScrollBar(
             controller: _controller,
             child: CustomScrollView(
@@ -173,12 +177,12 @@ class _OverrideProfileViewState extends State<OverrideProfileView> {
         },
         child: Consumer(
           builder: (_, ref, _) {
-            final editCount = ref.watch(
+            final selectCount = ref.watch(
               profileOverrideStateProvider.select(
                 (state) => state.selectedRules.length,
               ),
             );
-            final isEdit = editCount != 0;
+            final isSelectMode = selectCount != 0;
             final overrideData = ref.watch(
               getProfileOverrideDataProvider(widget.profileId),
             );
@@ -189,7 +193,7 @@ class _OverrideProfileViewState extends State<OverrideProfileView> {
             );
             final equals = overrideData == newOverrideData;
             final hasUnsavedChanges =
-                !isEdit && !equals && newOverrideData != null;
+                !isSelectMode && !equals && newOverrideData != null;
 
             return CommonPopScope(
               onPop: () async {
@@ -199,6 +203,9 @@ class _OverrideProfileViewState extends State<OverrideProfileView> {
                 final res = await globalState.showMessage(
                   message: TextSpan(text: appLocalizations.saveChanges),
                 );
+                if (res == null) {
+                  return false;
+                }
                 if (res == true && context.mounted) {
                   _handleSave(ref, newOverrideData);
                 }
@@ -221,24 +228,7 @@ class _OverrideProfileViewState extends State<OverrideProfileView> {
                       },
                       icon: Icon(Icons.save),
                     ),
-                  if (editCount == 1)
-                    IconButton(
-                      onPressed: () {
-                        final rule = ref.read(
-                          profileOverrideStateProvider.select((state) {
-                            return state.overrideData?.rule.rules.firstWhere(
-                              (item) => item.id == state.selectedRules.first,
-                            );
-                          }),
-                        );
-                        if (rule == null) {
-                          return;
-                        }
-                        globalState.appController.handleAddOrUpdate(ref, rule);
-                      },
-                      icon: Icon(Icons.edit),
-                    ),
-                  if (editCount > 0)
+                  if (selectCount > 0)
                     IconButton(
                       onPressed: () {
                         _handleDelete(ref);
@@ -247,7 +237,7 @@ class _OverrideProfileViewState extends State<OverrideProfileView> {
                     ),
                 ],
                 editState: AppBarEditState(
-                  editCount: editCount,
+                  editCount: selectCount,
                   onExit: () {
                     ref.read(profileOverrideStateProvider.notifier).updateState(
                           (state) => state.copyWith(selectedRules: {}),
@@ -326,7 +316,7 @@ class RuleTitle extends ConsumerWidget {
         );
       }),
     );
-    final isEdit = vm3.a;
+    final isSelectMode = vm3.a;
     final isSelectAll = vm3.b;
     final isOverrideRule = vm3.c;
     return FilledButtonTheme(
@@ -351,7 +341,7 @@ class RuleTitle extends ConsumerWidget {
               : appLocalizations.addedOriginRules,
           space: 8,
           actions: [
-            if (!isEdit)
+            if (!isSelectMode)
               IconButton.filledTonal(
                 icon: Icon(
                   isOverrideRule ? Icons.edit_document : Icons.note_add,
@@ -360,7 +350,7 @@ class RuleTitle extends ConsumerWidget {
                   _handleChangeType(ref, isOverrideRule);
                 },
               ),
-            !isEdit
+            !isSelectMode
                 ? FilledButton.tonal(
                     onPressed: () {
                       globalState.appController.handleAddOrUpdate(ref);
@@ -401,54 +391,253 @@ class RuleTitle extends ConsumerWidget {
   }
 }
 
+/// 规则行。行内布局与全部拖拽交互都归它管，两种起拖方式的作用范围刻意不同：
+///
+///  - **长按起拖**（[isSelectMode] 为真时）：整张卡都是长按目标。长按本身已是
+///    一次明确承诺，目标做大没有副作用，触屏因此不必瞄准小图标。
+///  - **鼠标直接拖拽**：只认左侧 drag_indicator 图标那 20px，不做放大。普通模式
+///    下把手只随悬停浮现，触屏看不到；触屏起拖本来就是整卡长按，也不必瞄准小图标。
+///    鼠标下把手可见可瞄，同样无需放大。
+///
+/// 图标与 trailing 的复选框同一套显现规则：[isSelectMode] 或本行悬停为真即显示
+/// ——多选模式本来就能拖，把手常驻是模式的一部分；悬停只由鼠标类指针产生
+/// （[MouseRegion] 对触屏不派发事件）。两个槽位恒占位，出现/消失不挤动正文；
+/// 悬停反馈用 [InkResponse]、半径 20，与 Checkbox 的径向光晕同规格。
+///
+/// 图标层比外层深，先收到落在图标上的 pointer down；靠 [_iconDragPointer] 让
+/// 外层跳过已认领的指针，避免一次按下向列表注册两个识别器。图标单击派发
+/// [onPressed]，与卡片同一动作。
+///
+/// 多选模式下长按起拖没有竞技对手：使用方须把卡片的 onLongPress 置空——保证来自
+/// 对手缺席，不来自注册顺序。
+class RuleRow extends StatefulWidget {
+  const RuleRow({
+    super.key,
+    required this.index,
+    required this.iconColor,
+    required this.isSelectMode,
+    required this.isSelected,
+    required this.onPressed,
+    required this.onToggleSelect,
+    required this.title,
+    required this.titleTextStyle,
+  });
+
+  final int index;
+  final Color iconColor;
+
+  /// 长按起拖只在这个模式下启用；普通模式的长按归卡片（进多选）。
+  final bool isSelectMode;
+
+  final bool isSelected;
+
+  /// 图标单击，与卡片同一动作（普通=编辑，多选=切换选中）。
+  final VoidCallback onPressed;
+
+  final VoidCallback onToggleSelect;
+
+  final Widget title;
+  final TextStyle? titleTextStyle;
+
+  @override
+  State<RuleRow> createState() => _RuleRowState();
+}
+
+class _RuleRowState extends State<RuleRow> {
+  /// 与 DelayedMultiDragGestureRecognizer.delay 保持一致，两者同刻超时。
+  static const _longPressDelay = kLongPressTimeout;
+
+  Timer? _hapticTimer;
+  Offset? _pressOrigin;
+
+  /// 放弃阈值取本次按下的 hit slop，与长按识别器对齐。
+  double _slop = kTouchSlop;
+
+  /// 被图标认领的指针 id，外层据此跳过，避免重复注册识别器。
+  int? _iconDragPointer;
+
+  /// 本行悬停态。行内元素共享它，所以留在行内而不是提到列表的父状态：悬停一行
+  /// 只重建这一行。重排会重建行的 State，悬停态因此是重新推导而非迁移。
+  bool _hovered = false;
+
+  @override
+  void dispose() {
+    _cancelHaptic();
+    super.dispose();
+  }
+
+  void _cancelHaptic() {
+    _hapticTimer?.cancel();
+    _hapticTimer = null;
+    _pressOrigin = null;
+  }
+
+  void _startDrag(
+    PointerDownEvent event,
+    MultiDragGestureRecognizer recognizer,
+  ) {
+    final settings = MediaQuery.maybeGestureSettingsOf(context);
+    SliverReorderableList.maybeOf(context)?.startItemDragReorder(
+      index: widget.index,
+      event: event,
+      recognizer: recognizer..gestureSettings = settings,
+    );
+  }
+
+  void _handleCardPointerDown(PointerDownEvent event) {
+    if (!widget.isSelectMode || event.pointer == _iconDragPointer) {
+      return;
+    }
+    _cancelHaptic();
+    _pressOrigin = event.position;
+    _slop = computeHitSlop(
+      event.kind,
+      MediaQuery.maybeGestureSettingsOf(context),
+    );
+    _hapticTimer = Timer(_longPressDelay, HapticFeedback.selectionClick);
+    _startDrag(event, DelayedMultiDragGestureRecognizer());
+  }
+
+  void _handleIconPointerDown(PointerDownEvent event) {
+    if (event.kind != PointerDeviceKind.mouse) {
+      return;
+    }
+    _iconDragPointer = event.pointer;
+    _startDrag(event, ImmediateMultiDragGestureRecognizer());
+  }
+
+  /// 超过 slop 即与长按识别器同步放弃，避免想滚动列表却被震一下。
+  void _handlePointerMove(PointerMoveEvent event) {
+    final origin = _pressOrigin;
+    if (origin != null && (event.position - origin).distance > _slop) {
+      _cancelHaptic();
+    }
+  }
+
+  void _handlePointerEnd(PointerEvent event) {
+    _cancelHaptic();
+    _iconDragPointer = null;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final showHandle = widget.isSelectMode || _hovered;
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      onEnter: (_) {
+        if (!_hovered) {
+          setState(() => _hovered = true);
+        }
+      },
+      onExit: (_) {
+        if (_hovered) {
+          setState(() => _hovered = false);
+        }
+      },
+      child: Listener(
+        behavior: HitTestBehavior.opaque,
+        onPointerDown: _handleCardPointerDown,
+        onPointerMove: _handlePointerMove,
+        onPointerUp: _handlePointerEnd,
+        onPointerCancel: _handlePointerEnd,
+        child: ListTile(
+          minTileHeight: 0,
+          minVerticalPadding: 0,
+          titleTextStyle: widget.titleTextStyle,
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 16,
+          ),
+          leading: SizedBox(
+            width: 20,
+            height: 20,
+            child: showHandle
+                ? Listener(
+                    behavior: HitTestBehavior.opaque,
+                    onPointerDown: _handleIconPointerDown,
+                    child: InkResponse(
+                      onTap: widget.onPressed,
+                      mouseCursor: SystemMouseCursors.move,
+                      radius: 20,
+                      child: Icon(
+                        Icons.drag_indicator,
+                        size: 20,
+                        color: widget.iconColor,
+                      ),
+                    ),
+                  )
+                : null,
+          ),
+          title: widget.title,
+          // GestureDetector 吞掉这一格的 tap：既不落到卡片上，也不显示编辑动作
+          trailing: GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: () {},
+            child: SizedBox(
+              width: 24,
+              height: 24,
+              child: showHandle
+                  ? CommonCheckBox(
+                      value: widget.isSelected,
+                      isCircle: true,
+                      onChanged: (_) => widget.onToggleSelect(),
+                    )
+                  : null,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class RuleContent extends ConsumerWidget {
   final double maxWidth;
 
   const RuleContent({super.key, required this.maxWidth});
 
   Widget _buildItem({
+    Key? key,
     required Rule rule,
+    required int index,
     required bool isSelected,
+    required bool isSelectMode,
+    required VoidCallback onEdit,
     required VoidCallback onTab,
     required BuildContext context,
   }) {
+    // 卡片与拖拽图标共用同一单击动作；图标经 InkResponse 显式派发，
+    // 与点卡片正文效果一致
+    void handleTap() {
+      if (isSelectMode) {
+        onTab();
+      } else {
+        onEdit();
+      }
+    }
+
     return Material(
+      key: key,
       color: Colors.transparent,
       child: Container(
-        margin: EdgeInsets.symmetric(vertical: 4),
+        margin: const EdgeInsets.symmetric(vertical: 4),
         child: CommonCard(
           padding: EdgeInsets.zero,
           radius: 18,
           type: CommonCardType.filled,
           isSelected: isSelected,
-          // decoration: BoxDecoration(
-          //   color: isSelected
-          //       ? context.colorScheme.secondaryContainer.opacity80
-          //       : context.colorScheme.surfaceContainer,
-          //   borderRadius: BorderRadius.circular(18),
-          // ),
-          onPressed: () {
-            onTab();
-          },
-          child: ListTile(
-            minTileHeight: 0,
-            minVerticalPadding: 0,
+          onPressed: handleTap,
+          // 多选模式置空，让位给行内的长按起拖（契约见 RuleRow）；普通模式长按
+          // = 选中本条进入多选
+          onLongPress: isSelectMode ? null : onTab,
+          child: RuleRow(
+            index: index,
+            iconColor: context.colorScheme.outline,
+            isSelectMode: isSelectMode,
+            isSelected: isSelected,
+            onPressed: handleTap,
+            onToggleSelect: onTab,
             titleTextStyle: context.textTheme.bodyMedium?.toJetBrainsMono,
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 16,
-              vertical: 16,
-            ),
-            trailing: SizedBox(
-              width: 24,
-              height: 24,
-              child: CommonCheckBox(
-                value: isSelected,
-                isCircle: true,
-                onChanged: (_) {
-                  onTab();
-                },
-              ),
-            ),
             title: EmojiText(rule.value),
           ),
         ),
@@ -469,7 +658,7 @@ class RuleContent extends ConsumerWidget {
   }
 
   @override
-  Widget build(BuildContext context, ref) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final vm3 = ref.watch(
       profileOverrideStateProvider.select((state) {
         final overrideRule = state.overrideData?.rule;
@@ -483,6 +672,7 @@ class RuleContent extends ConsumerWidget {
     final rules = vm3.a;
     final type = vm3.b;
     final selectedRules = vm3.c;
+    final isSelectMode = selectedRules.isNotEmpty;
     if (rules.isEmpty) {
       return SliverToBoxAdapter(
         child: SizedBox(
@@ -515,17 +705,19 @@ class RuleContent extends ConsumerWidget {
       tag: CacheTag.rules,
       itemBuilder: (context, index) {
         final rule = rules[index];
-        return ReorderableDelayedDragStartListener(
+        return _buildItem(
           key: ObjectKey(rule),
+          rule: rule,
           index: index,
-          child: _buildItem(
-            rule: rule,
-            isSelected: selectedRules.contains(rule.id),
-            onTab: () {
-              _handleSelect(ref, rule.id);
-            },
-            context: context,
-          ),
+          isSelected: selectedRules.contains(rule.id),
+          isSelectMode: isSelectMode,
+          onEdit: () {
+            globalState.appController.handleAddOrUpdate(ref, rule);
+          },
+          onTab: () {
+            _handleSelect(ref, rule.id);
+          },
+          context: context,
         );
       },
       proxyDecorator: proxyDecorator,
@@ -730,11 +922,10 @@ class _AddRuleDialogState extends State<AddRuleDialog> {
                                   ),
                                 ),
                                 onPressed: () async {
-                                  final selected =
-                                      await globalState.showCommonDialog<String>(
+                                  final selected = await globalState
+                                      .showCommonDialog<String>(
                                         child: OptionsDialog<String>(
-                                          title:
-                                              appLocalizations.ruleProviders,
+                                          title: appLocalizations.ruleProviders,
                                           options: _ruleProviderItems
                                               .map((e) => e.value)
                                               .toList(),
@@ -818,8 +1009,8 @@ class _AddRuleDialogState extends State<AddRuleDialog> {
                                   ),
                                 ),
                                 onPressed: () async {
-                                  final selected =
-                                      await globalState.showCommonDialog<String>(
+                                  final selected = await globalState
+                                      .showCommonDialog<String>(
                                         child: OptionsDialog<String>(
                                           title: appLocalizations.subRule,
                                           options: _subRuleItems
@@ -883,8 +1074,8 @@ class _AddRuleDialogState extends State<AddRuleDialog> {
                                   ),
                                 ),
                                 onPressed: () async {
-                                  final selected =
-                                      await globalState.showCommonDialog<String>(
+                                  final selected = await globalState
+                                      .showCommonDialog<String>(
                                         child: OptionsDialog<String>(
                                           title: appLocalizations.ruleTarget,
                                           options: _targetItems

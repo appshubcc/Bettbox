@@ -107,6 +107,7 @@ Future<void> showScriptCustomOptions(
           data,
           script,
         );
+        // 面板只列脚本自己声明的开关，App 侧不再额外隐藏 / 过滤任何开关
 
         final targetDuration = cached != null
             ? _kCachedMinLoadingDuration
@@ -217,6 +218,12 @@ class _ScriptsViewState extends ConsumerState<ScriptsView> {
             label: appLocalizations.nullTip(appLocalizations.script),
           );
         }
+        // 合并配置的产物就是内置脚本跑出来的：当前配置是合并配置时，内置脚本按
+        // 「强制开启」展示并锁住。这里只做展示、不去改用户选中的全局脚本——否则切换
+        // 脚本的那一瞬间，别的配置会被套上另一个脚本多跑一次。
+        final bundleInUse = ref.watch(
+          currentProfileProvider.select((p) => p?.isBundle ?? false),
+        );
         return CommonScrollBar(
           controller: null,
           child: ListView(
@@ -232,26 +239,55 @@ class _ScriptsViewState extends ConsumerState<ScriptsView> {
                       Builder(
                         builder: (_) {
                           final script = scripts[i];
-                          final isSelected = script.id == currentId;
+                          final isBuiltin = script.id == builtinScriptId;
+                          final isSelected = bundleInUse && isBuiltin
+                              ? true
+                              : script.id == currentId;
                           return ListItem(
-                            onTap: () {
-                              ref
-                                  .read(scriptStateProvider.notifier)
-                                  .setId(script.id);
-                            },
+                            // 合并配置在用内置脚本，此时不允许切换成别的脚本
+                            onTap: bundleInUse
+                                ? null
+                                : () {
+                                    ref
+                                        .read(scriptStateProvider.notifier)
+                                        .setId(script.id);
+                                  },
                             padding: const EdgeInsets.symmetric(
                               horizontal: 16,
                               vertical: 8,
                             ),
                             title: EmojiText(script.label),
-                            leading: Switch(
-                              value: isSelected,
-                              onChanged: (_) {
-                                ref
-                                    .read(scriptStateProvider.notifier)
-                                    .setId(script.id);
-                              },
-                            ),
+                            subtitle: bundleInUse && isBuiltin
+                                ? Text(
+                                    appLocalizations
+                                        .builtinScriptRequiredByBundle,
+                                  )
+                                : null,
+                            leading: isSelected && bundleInUse && isBuiltin
+                                // 合并配置强制启用内置脚本：保持启用配色，但不允许改动
+                                ? const LockedSwitch(value: true)
+                                : Switch(
+                                    value: isSelected,
+                                    onChanged: bundleInUse
+                                        ? null
+                                        : (value) {
+                                            if (value) {
+                                              ref
+                                                  .read(
+                                                    scriptStateProvider
+                                                        .notifier,
+                                                  )
+                                                  .setId(script.id);
+                                            } else if (isSelected) {
+                                              ref
+                                                  .read(
+                                                    scriptStateProvider
+                                                        .notifier,
+                                                  )
+                                                  .setId(script.id);
+                                            }
+                                          },
+                                  ),
                             trailing: CommonPopupBox(
                               targetBuilder: (open) {
                                 return IconButton(
@@ -264,13 +300,16 @@ class _ScriptsViewState extends ConsumerState<ScriptsView> {
                               },
                               popup: CommonPopupMenu(
                                 items: [
-                                  PopupMenuItemData(
-                                    icon: Icons.edit,
-                                    label: appLocalizations.edit,
-                                    onPressed: () {
-                                      _handleToEditor(script: script);
-                                    },
-                                  ),
+                                  // 内置脚本随包分发，只能从上游同步、不能编辑（合并依赖它固定的输出），
+                                  // 也不能删除；自定义开关照常可改
+                                  if (!isBuiltin)
+                                    PopupMenuItemData(
+                                      icon: Icons.edit,
+                                      label: appLocalizations.edit,
+                                      onPressed: () {
+                                        _handleToEditor(script: script);
+                                      },
+                                    ),
                                   if (script.isCompatibleWithBettbox)
                                     PopupMenuItemData(
                                       icon: Icons.tune,
@@ -295,13 +334,14 @@ class _ScriptsViewState extends ConsumerState<ScriptsView> {
                                       _handleExportFile(script);
                                     },
                                   ),
-                                  PopupMenuItemData(
-                                    icon: Icons.delete,
-                                    label: appLocalizations.delete,
-                                    onPressed: () {
-                                      _handleDelScript(script.label);
-                                    },
-                                  ),
+                                  if (!isBuiltin)
+                                    PopupMenuItemData(
+                                      icon: Icons.delete,
+                                      label: appLocalizations.delete,
+                                      onPressed: () {
+                                        _handleDelScript(script.label);
+                                      },
+                                    ),
                                 ],
                               ),
                             ),
@@ -525,6 +565,9 @@ class _ScriptSettingsSheet extends ConsumerWidget {
               itemBuilder: (_, index) {
                 final profile = profiles[index];
                 final isCurrentProfile = profile.id == currentProfileId;
+                // 合并配置的生成期已经跑过内置覆写脚本，产物上不能再跑一次：
+                // 这里显示为「开启且不可更改」——它确实在用内置脚本，只是运行期不重复套用。
+                final isScriptOverrideLocked = profile.isBundle;
                 return Container(
                   padding: const EdgeInsets.symmetric(vertical: 4),
                   child: CommonCard(
@@ -532,18 +575,30 @@ class _ScriptSettingsSheet extends ConsumerWidget {
                     child: ListTile(
                       contentPadding: const EdgeInsets.only(left: 16, right: 16),
                       title: EmojiText(profile.label ?? profile.id),
-                      trailing: Switch(
-                        value: profile.useScriptOverride,
-                        onChanged: (value) async {
-                          ref.read(profilesProvider.notifier).updateProfile(
-                            profile.id,
-                            (p) => p.copyWith(useScriptOverride: value),
-                          );
-                          if (isCurrentProfile) {
-                            await globalState.appController.applyProfile(silence: true);
-                          }
-                        },
-                      ),
+                      subtitle: isScriptOverrideLocked
+                          ? Text(appLocalizations.bundleScriptOverrideLocked)
+                          : null,
+                      trailing: isScriptOverrideLocked
+                          // 合并配置固定「已由内置脚本覆写」：保持启用配色，但不允许改动
+                          ? const LockedSwitch(value: true)
+                          : Switch(
+                              value: profile.useScriptOverride,
+                              onChanged: (value) async {
+                                ref
+                                    .read(profilesProvider.notifier)
+                                    .updateProfile(
+                                      profile.id,
+                                      (p) => p.copyWith(
+                                        useScriptOverride: value,
+                                      ),
+                                    );
+                                if (isCurrentProfile) {
+                                  await globalState.appController.applyProfile(
+                                    silence: true,
+                                  );
+                                }
+                              },
+                            ),
                     ),
                   ),
                 );
@@ -1213,7 +1268,7 @@ class _GroupSwitchOptionsSheetState
         absorbing: _isSaving,
         child: AdaptiveSheetScaffold(
           type: widget.type,
-          title: appLocalizations.customScriptOptions,
+          title: appLocalizations.groupSwitches,
           actions: [
             IconButton(
               onPressed: (_dirty && !_isSaving) ? _handleSave : null,
@@ -1279,3 +1334,4 @@ class _GroupSwitchOptionsSheetState
     );
   }
 }
+

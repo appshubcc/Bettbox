@@ -1,9 +1,22 @@
+import 'dart:async';
+
 import 'package:bett_box/common/common.dart';
 import 'package:bett_box/models/models.dart';
 import 'package:bett_box/state.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'generated/config.g.dart';
+
+/// 自定义开关是否有变化（Map 没有值相等语义，这里逐项比）。
+bool _sameCustomOptions(Map<String, bool>? a, Map<String, bool>? b) {
+  if (identical(a, b)) return true;
+  if (a == null || b == null) return a == null && b == null;
+  if (a.length != b.length) return false;
+  for (final entry in a.entries) {
+    if (b[entry.key] != entry.value) return false;
+  }
+  return true;
+}
 
 @riverpod
 class AppSetting extends _$AppSetting with AutoDisposeNotifierMixin {
@@ -307,12 +320,23 @@ class ScriptState extends _$ScriptState with AutoDisposeNotifierMixin {
   void setScript(Script script) {
     final list = List<Script>.from(state.scripts);
     final index = list.indexWhere((item) => item.id == script.id);
+    final previous = index == -1 ? null : list[index];
     if (index != -1) {
       list[index] = script;
     } else {
       list.add(script);
     }
     state = state.copyWith(scripts: list);
+    // 内置脚本是合并配置的产出源：内容（编辑 / 同步）或自定义开关一改，
+    // 已有的合并配置就过期了，这里立刻触发一次重新合并。
+    final isBuiltinChanged =
+        script.id == builtinScriptId &&
+        (previous == null ||
+            previous.content != script.content ||
+            !_sameCustomOptions(previous.customOptions, script.customOptions));
+    if (isBuiltinChanged && globalState.isInit) {
+      unawaited(globalState.appController.regenerateBundles());
+    }
   }
 
   void setId(String id) {
@@ -322,9 +346,14 @@ class ScriptState extends _$ScriptState with AutoDisposeNotifierMixin {
   void del(String id) {
     final list = List<Script>.from(state.scripts);
     final index = list.indexWhere((item) => item.label == id);
-    if (index != -1) {
-      list.removeAt(index);
+    if (index == -1) {
+      return;
     }
+    // 内置脚本随包分发，用户不可删除。
+    if (list[index].id == builtinScriptId) {
+      return;
+    }
+    list.removeAt(index);
     final nextId = id == state.currentId ? null : state.currentId;
     state = state.copyWith(scripts: list, currentId: nextId);
   }

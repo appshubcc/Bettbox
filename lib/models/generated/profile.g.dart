@@ -57,6 +57,7 @@ _Profile _$ProfileFromJson(Map<String, dynamic> json) => _Profile(
         (k, e) => MapEntry(k, e as bool),
       ) ??
       const {},
+  bundle: _bundleConfigFromJson(json['bundle'] as Map<String, dynamic>?),
 );
 
 Map<String, dynamic> _$ProfileToJson(_Profile instance) => <String, dynamic>{
@@ -74,6 +75,7 @@ Map<String, dynamic> _$ProfileToJson(_Profile instance) => <String, dynamic>{
   'useScriptOverride': instance.useScriptOverride,
   'ageSecretKey': instance.ageSecretKey,
   'group-switches': instance.groupSwitches,
+  'bundle': _bundleConfigToJson(instance.bundle),
 };
 
 _OverrideData _$OverrideDataFromJson(Map<String, dynamic> json) =>

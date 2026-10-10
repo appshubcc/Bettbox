@@ -8,12 +8,18 @@ import 'package:bett_box/common/common.dart';
 import 'package:bett_box/enum/enum.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
+import 'bundle.dart';
 import 'clash_config.dart';
 
 part 'generated/profile.freezed.dart';
 part 'generated/profile.g.dart';
 
 typedef SelectedMap = Map<String, String>;
+
+Map<String, dynamic>? _bundleConfigToJson(BundleConfig? value) => value?.toJson();
+
+BundleConfig? _bundleConfigFromJson(Map<String, dynamic>? value) =>
+    value == null ? null : BundleConfig.fromJson(value);
 
 @freezed
 abstract class SubscriptionInfo with _$SubscriptionInfo {
@@ -85,6 +91,8 @@ abstract class Profile with _$Profile {
     @Default(true) bool useScriptOverride,
     String? ageSecretKey,
     @JsonKey(name: 'group-switches') @Default({}) Map<String, bool> groupSwitches,
+    @JsonKey(fromJson: _bundleConfigFromJson, toJson: _bundleConfigToJson)
+    BundleConfig? bundle,
   }) = _Profile;
 
   factory Profile.fromJson(Map<String, Object?> json) =>
@@ -157,6 +165,11 @@ extension ProfilesExt on List<Profile> {
 extension ProfileExtension on Profile {
   ProfileType get type =>
       url.isEmpty == true ? ProfileType.file : ProfileType.url;
+
+  /// 该配置由多份本地配置合并生成。
+  bool get isBundle => bundle != null;
+
+  List<String> get bundleMembers => bundle?.members ?? const [];
 
   bool get realAutoUpdate => url.isEmpty == true ? false : autoUpdate;
 

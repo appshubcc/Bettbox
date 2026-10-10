@@ -279,6 +279,211 @@ class AppLocalizations {
     );
   }
 
+  /// `Merge Profiles`
+  String get bundleMerge {
+    return Intl.message(
+      'Merge Profiles',
+      name: 'bundleMerge',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Members`
+  String get bundleMembers {
+    return Intl.message('Members', name: 'bundleMembers', desc: '', args: []);
+  }
+
+  /// `Order decides dedupe and naming priority; drag to reorder`
+  String get bundleMembersDesc {
+    return Intl.message(
+      'Order decides dedupe and naming priority; drag to reorder',
+      name: 'bundleMembersDesc',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Add Member`
+  String get bundleAddMember {
+    return Intl.message(
+      'Add Member',
+      name: 'bundleAddMember',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Select at least one profile`
+  String get bundleNoMember {
+    return Intl.message(
+      'Select at least one profile',
+      name: 'bundleNoMember',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `No member profile could be merged`
+  String get bundleNoAvailableMember {
+    return Intl.message(
+      'No member profile could be merged',
+      name: 'bundleNoAvailableMember',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Node Prefix`
+  String get bundleMemberPrefix {
+    return Intl.message(
+      'Node Prefix',
+      name: 'bundleMemberPrefix',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Node Prefix: {prefix}`
+  String bundleMemberPrefixValue(Object prefix) {
+    return Intl.message(
+      'Node Prefix: $prefix',
+      name: 'bundleMemberPrefixValue',
+      desc: '',
+      args: [prefix],
+    );
+  }
+
+  /// `Leave empty to use the default: {prefix}`
+  String bundleMemberPrefixHint(Object prefix) {
+    return Intl.message(
+      'Leave empty to use the default: $prefix',
+      name: 'bundleMemberPrefixHint',
+      desc: '',
+      args: [prefix],
+    );
+  }
+
+  /// `Group Switches`
+  String get groupSwitches {
+    return Intl.message(
+      'Group Switches',
+      name: 'groupSwitches',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Generate Merged Profile`
+  String get bundleGenerate {
+    return Intl.message(
+      'Generate Merged Profile',
+      name: 'bundleGenerate',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Merged profile generated`
+  String get bundleGenerateSuccess {
+    return Intl.message(
+      'Merged profile generated',
+      name: 'bundleGenerateSuccess',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{members} members · {nodes} nodes`
+  String bundleSummary(Object members, Object nodes) {
+    return Intl.message(
+      '$members members · $nodes nodes',
+      name: 'bundleSummary',
+      desc: '',
+      args: [members, nodes],
+    );
+  }
+
+  /// `"{label}" could not be overridden by the built-in script and was skipped`
+  String bundleWarningScriptFailed(Object label) {
+    return Intl.message(
+      '"$label" could not be overridden by the built-in script and was skipped',
+      name: 'bundleWarningScriptFailed',
+      desc: '',
+      args: [label],
+    );
+  }
+
+  /// `"{label}" contains tunnels that depend on member node names; ignored`
+  String bundleWarningTunnels(Object label) {
+    return Intl.message(
+      '"$label" contains tunnels that depend on member node names; ignored',
+      name: 'bundleWarningTunnels',
+      desc: '',
+      args: [label],
+    );
+  }
+
+  /// `{count} hosts conflicts; the first value was kept`
+  String bundleWarningHostConflict(Object count) {
+    return Intl.message(
+      '$count hosts conflicts; the first value was kept',
+      name: 'bundleWarningHostConflict',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `{count} domain DNS policies were shared by several members and have been merged`
+  String bundleWarningPolicyConflict(Object count) {
+    return Intl.message(
+      '$count domain DNS policies were shared by several members and have been merged',
+      name: 'bundleWarningPolicyConflict',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `MyClash Override Script`
+  String get builtinScriptLabel {
+    return Intl.message(
+      'MyClash Override Script',
+      name: 'builtinScriptLabel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Built-in override script is missing, please restart the app`
+  String get builtinScriptMissing {
+    return Intl.message(
+      'Built-in override script is missing, please restart the app',
+      name: 'builtinScriptMissing',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Already overridden by the built-in script`
+  String get bundleScriptOverrideLocked {
+    return Intl.message(
+      'Already overridden by the built-in script',
+      name: 'bundleScriptOverrideLocked',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The current merged profile requires the built-in script`
+  String get builtinScriptRequiredByBundle {
+    return Intl.message(
+      'The current merged profile requires the built-in script',
+      name: 'builtinScriptRequiredByBundle',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Settings`
   String get settings {
     return Intl.message('Settings', name: 'settings', desc: '', args: []);

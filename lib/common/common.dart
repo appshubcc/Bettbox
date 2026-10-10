@@ -1,5 +1,6 @@
 export 'android.dart';
 export 'app_localizations.dart';
+export 'builtin_script.dart';
 export 'color.dart';
 export 'constant.dart';
 export 'context.dart';
@@ -29,6 +30,7 @@ export 'path.dart';
 export 'picker.dart';
 export 'preferences.dart';
 export 'print.dart';
+export 'profile_merger.dart';
 export 'protocol.dart';
 export 'proxy.dart';
 export 'qr_reader.dart';

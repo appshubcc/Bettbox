@@ -206,9 +206,6 @@ class ApplicationState extends ConsumerState<Application>
       _buildState(
         Consumer(
           builder: (_, ref, child) {
-            final locale = ref.watch(
-              appSettingProvider.select((state) => state.locale),
-            );
             final themeProps = ref.watch(themeSettingProvider);
             final fontFamily = themeProps.useHarmonyFont
                 ? 'HarmonyOS_Sans'
@@ -245,9 +242,9 @@ class ApplicationState extends ConsumerState<Application>
               },
               scrollBehavior: BaseScrollBehavior(),
               title: appName,
-              locale:
-                  utils.getLocaleForString(locale) ?? utils.getSystemLocale(),
-              supportedLocales: AppLocalizations.delegate.supportedLocales,
+              // [Gamebox] 界面固定简体中文。上游使用已保存语言，没有则跟随系统。
+              locale: const Locale('zh', 'CN'),
+              supportedLocales: const [Locale('zh', 'CN')],
               themeMode: themeProps.themeMode,
               theme: ThemeData(
                 useMaterial3: true,

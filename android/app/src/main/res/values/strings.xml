@@ -1,5 +1,5 @@
 <resources>
-    <string name="bett_box">Bettbox</string>
+    <string name="bett_box">Gamebox</string>
     <string name="core_connected">Connected</string>
     <string name="service_running">Service is running</string>
     <string name="core_suspended">Suspended</string>

@@ -47,7 +47,7 @@ _AppSettingProps _$AppSettingPropsFromJson(
       json['enableNavBarHapticFeedback'] as bool? ?? true,
   autoCheckUpdate: json['autoCheckUpdate'] as bool? ?? true,
   showLabel: json['showLabel'] as bool? ?? false,
-  disclaimerAccepted: json['disclaimerAccepted'] as bool? ?? false,
+  disclaimerAccepted: json['disclaimerAccepted'] as bool? ?? true,
   minimizeOnExit: json['minimizeOnExit'] as bool? ?? true,
   hidden: json['hidden'] as bool? ?? false,
   keepDockIcon: json['keepDockIcon'] as bool? ?? true,
@@ -59,7 +59,7 @@ _AppSettingProps _$AppSettingPropsFromJson(
         json['recoveryStrategy'],
       ) ??
       RecoveryStrategy.compatible,
-  enableHighPriority: json['enableHighPriority'] as bool? ?? false,
+  enableHighPriority: json['enableHighPriority'] as bool? ?? true,
 );
 
 Map<String, dynamic> _$AppSettingPropsToJson(_AppSettingProps instance) =>
@@ -271,7 +271,7 @@ Map<String, dynamic> _$WindowPropsToJson(_WindowProps instance) =>
 
 _VpnProps _$VpnPropsFromJson(Map<String, dynamic> json) => _VpnProps(
   enable: json['enable'] as bool? ?? true,
-  systemProxy: json['systemProxy'] as bool? ?? true,
+  systemProxy: json['systemProxy'] as bool? ?? false,
   allowBypass: json['allowBypass'] as bool? ?? false,
   bypassPrivateRoute: json['bypassPrivateRoute'] as bool? ?? true,
   dozeSuspend: json['dozeSuspend'] as bool? ?? true,
@@ -284,7 +284,7 @@ _VpnProps _$VpnPropsFromJson(Map<String, dynamic> json) => _VpnProps(
   highPriorityNotification: json['highPriorityNotification'] as bool? ?? false,
   networkSpeedNotification: json['networkSpeedNotification'] as bool? ?? false,
   excludeChina: json['excludeChina'] as bool? ?? false,
-  trayEnhancement: json['trayEnhancement'] as bool? ?? false,
+  trayEnhancement: json['trayEnhancement'] as bool? ?? true,
   trayLeftClickBehavior:
       $enumDecodeNullable(
         _$TrayClickBehaviorEnumMap,
@@ -338,7 +338,7 @@ const _$TrayClickBehaviorEnumMap = {
 
 _NetworkProps _$NetworkPropsFromJson(Map<String, dynamic> json) =>
     _NetworkProps(
-      systemProxy: json['systemProxy'] as bool? ?? true,
+      systemProxy: json['systemProxy'] as bool? ?? false,
       bypassDomain: json['bypassDomain'] == null
           ? defaultBypassDomain
           : bypassDomainSafeFromJson(json['bypassDomain'] as List?),
@@ -486,7 +486,7 @@ _ThemeProps _$ThemePropsFromJson(Map<String, dynamic> json) => _ThemeProps(
       defaultPrimaryColors,
   themeMode:
       $enumDecodeNullable(_$ThemeModeEnumMap, json['themeMode']) ??
-      ThemeMode.system,
+      ThemeMode.dark,
   schemeVariant:
       $enumDecodeNullable(
         _$DynamicSchemeVariantEnumMap,

@@ -251,36 +251,40 @@ class Request {
     return MemoryImage(bytes);
   }
 
+  // [Gamebox] 版本号来自本仓库 version.json，不依赖 GitHub releases/latest。
+  // 文件地址跟着 gamebox 分支。有更高版本才返回，下载仍走网盘。
+  // 上游在这里读取 GitHub releases/latest 的跳转版本号。
   Future<Map<String, dynamic>?> checkForUpdate() async {
+    const versionFileUrl =
+        'https://raw.githubusercontent.com/mouren1988/Bettbox/gamebox/version.json';
     try {
-      final t = DateTime.now().millisecondsSinceEpoch;
-      final response = await _dio.get(
-        'https://github.com/$repository/releases/latest?t=$t',
-        options: Options(
-          followRedirects: false,
-          validateStatus: (status) =>
-              status != null && status >= 300 && status < 400,
-        ),
+      final response = await _dio.get<List<int>>(
+        versionFileUrl,
+        options: Options(responseType: ResponseType.bytes),
       );
-      final location = response.headers['location']?.firstOrNull;
-      if (location != null && location.contains('/releases/tag/')) {
-        final remoteVersion = location.split('/').last.trim();
-        if (remoteVersion.isNotEmpty) {
-          final version = globalState.packageInfo.version;
-          final hasUpdate =
-              utils.compareVersions(
-                remoteVersion.replaceAll('v', ''),
-                version,
-              ) >
-              0;
-          if (!hasUpdate) return null;
-          return {
-            'tag_name': remoteVersion,
-            'html_url': 'https://github.com/$repository/releases/latest',
-            'body': 'New version available. Please visit GitHub to download.',
-          };
-        }
-      }
+      final bytes = _decompressIfNeeded(
+        Uint8List.fromList(response.data ?? const []),
+        response.headers,
+      );
+      final decoded = jsonDecode(utf8.decode(bytes));
+      if (decoded is! Map) return null;
+      final remoteVersion = decoded['version']?.toString().trim() ?? '';
+      if (remoteVersion.isEmpty) return null;
+      final info = globalState.packageInfo;
+      final localVersion = info.buildNumber.isEmpty
+          ? info.version
+          : '${info.version}+${info.buildNumber}';
+      final hasUpdate =
+          utils.compareVersions(
+            remoteVersion.replaceAll('v', ''),
+            localVersion,
+          ) >
+          0;
+      if (!hasUpdate) return null;
+      return {
+        'tag_name': remoteVersion,
+        'body': decoded['notes']?.toString() ?? '',
+      };
     } catch (e) {
       commonPrint.log('Check update failed: ${e.formatErrorLog}');
     }

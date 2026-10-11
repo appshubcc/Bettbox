@@ -236,7 +236,7 @@ Future<void> _service(List<String> flags) async {
           final profile = globalState.config.profiles
               .where((e) => e.id == profileId)
               .firstOrNull;
-          final profileName = profile?.label ?? 'Bettbox';
+          final profileName = profile?.label ?? 'Gamebox';
           await vpn?.updateNotificationSpeed(profileName, '↑0B/s ↓0B/s');
         }
 

@@ -704,24 +704,7 @@ class Utils {
   }
 
   Locale getSystemLocale() {
-    final platformLocale = WidgetsBinding.instance.platformDispatcher.locale;
-    final supportedLocales = AppLocalizations.delegate.supportedLocales;
-    
-    if (platformLocale.languageCode.toLowerCase() == 'zh') {
-      final isTraditional = 
-        (platformLocale.countryCode?.toUpperCase() == 'TW') ||
-        (platformLocale.countryCode?.toUpperCase() == 'HK') ||
-        (platformLocale.countryCode?.toUpperCase() == 'MO') ||
-        (platformLocale.scriptCode?.toLowerCase() == 'hant');
-      return isTraditional ? const Locale('zh', 'TC') : const Locale('zh', 'CN');
-    }
-    
-    for (final locale in supportedLocales) {
-      if (locale.languageCode == platformLocale.languageCode) {
-        return locale;
-      }
-    }
-    
+    // [Gamebox] 只保留简体中文，不再跟随系统语言。上游会按系统语言在多语言里挑选。
     return const Locale('zh', 'CN');
   }
 
@@ -1276,7 +1259,8 @@ class Utils {
 
   String encryptSecret(String raw) {
     if (raw.isEmpty) return raw;
-    const salt = 'Bettbox';
+    // [Gamebox] 上游盐值是 Bettbox。改掉之后，旧的 ENC~ 密文无法再解开。
+    const salt = 'Gamebox';
     final step1 = base64.encode(utf8.encode(raw));
     final step2 = base64.encode(utf8.encode('$salt:$step1'));
     return 'ENC~$step2';
@@ -1285,7 +1269,8 @@ class Utils {
   String decryptSecret(String text) {
     if (!text.startsWith('ENC~')) return text;
     try {
-      const salt = 'Bettbox';
+      // [Gamebox] 上游盐值是 Bettbox。改掉之后，旧的 ENC~ 密文无法再解开。
+      const salt = 'Gamebox';
       final cipher = text.substring(4);
       final salted = utf8.decode(base64.decode(cipher));
       if (salted.startsWith('$salt:')) {

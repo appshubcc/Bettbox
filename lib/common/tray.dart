@@ -6,7 +6,6 @@ import 'package:bett_box/state.dart';
 import 'package:bett_box/views/proxies/common.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:intl/intl.dart';
 import 'package:restart_app/restart_app.dart';
 import 'package:tray_manager/tray_manager.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
@@ -157,18 +156,8 @@ class Tray {
     );
     menuItems.add(startMenuItem);
     menuItems.add(MenuItem.separator());
-    for (final mode in Mode.values) {
-      menuItems.add(
-        MenuItem.checkbox(
-          label: Intl.message(mode.name),
-          onClick: (_) {
-            globalState.appController.changeMode(mode);
-          },
-          checked: mode == trayState.mode,
-        ),
-      );
-    }
-    menuItems.add(MenuItem.separator());
+    // [Gamebox] 托盘右键不再显示规则、全局、直连。首页的出站模式组件仍可切换。
+    // 上游在这里遍历 Mode.values，追加三个勾选菜单。
     if (trayState.trayEnhancement) {
       for (final group in trayState.groups) {
         List<MenuItem> subMenuItems = [];

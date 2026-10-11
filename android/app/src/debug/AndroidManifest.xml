@@ -6,11 +6,11 @@
     -->
     <application
         android:icon="@mipmap/ic_launcher"
-        android:label="Bettbox Debug"
+        android:label="Gamebox Debug"
         tools:replace="android:label,android:icon">
         <service
             android:name=".services.BettboxTileService"
-            android:label="Bettbox Debug"
+            android:label="Gamebox Debug"
             tools:replace="android:label"
             tools:targetApi="24" />
     </application>

@@ -1,5 +1,5 @@
 <resources>
-    <string name="bett_box">Bettbox</string>
+    <string name="bett_box">Gamebox</string>
     <string name="core_connected">已連線</string>
     <string name="service_running">服務正在運行中</string>
     <string name="core_suspended">已暫停</string>

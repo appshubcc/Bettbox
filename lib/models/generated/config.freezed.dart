@@ -238,7 +238,7 @@ return $default(_that.locale,_that.dashboardWidgets,_that.mobileDashboardWidgets
 @JsonSerializable()
 
 class _AppSettingProps implements AppSettingProps {
-  const _AppSettingProps({this.locale, @JsonKey(fromJson: dashboardWidgetsSafeFromJson) final  List<DashboardWidget> dashboardWidgets = defaultDashboardWidgets, @JsonKey(fromJson: mobileDashboardWidgetsSafeFromJson) final  List<DashboardWidget> mobileDashboardWidgets = defaultAndroidDashboardWidgets, @JsonKey(fromJson: desktopDashboardWidgetsSafeFromJson) final  List<DashboardWidget> desktopDashboardWidgets = defaultDashboardWidgets, @JsonKey(fromJson: pinnedMediaPlatformsSafeFromJson) final  List<MediaPlatform> pinnedMediaPlatforms = defaultPinnedMediaPlatforms, this.mediaUnlockMoreStreamingPlatforms = false, this.mediaUnlockExtraDetails = false, this.mediaUnlockRefreshOnNodeChange = true, this.mediaUnlockColorfulIcons = true, this.mediaUnlockRefreshByCategory = true, this.onlyStatisticsProxy = true, this.autoLaunch = false, this.silentLaunch = false, this.smartDelayLaunch = false, this.autoRun = false, this.openLogs = true, this.closeConnections = true, this.testUrl = defaultTestUrl, this.showStartSwitch = false, this.enableNavBarHapticFeedback = true, this.autoCheckUpdate = true, this.showLabel = false, this.disclaimerAccepted = false, this.minimizeOnExit = true, this.hidden = false, this.keepDockIcon = true, this.developerMode = false, this.enableHighRefreshRate = false, this.recoveryStrategy = RecoveryStrategy.compatible, this.enableHighPriority = false}): _dashboardWidgets = dashboardWidgets,_mobileDashboardWidgets = mobileDashboardWidgets,_desktopDashboardWidgets = desktopDashboardWidgets,_pinnedMediaPlatforms = pinnedMediaPlatforms;
+  const _AppSettingProps({this.locale, @JsonKey(fromJson: dashboardWidgetsSafeFromJson) final  List<DashboardWidget> dashboardWidgets = defaultDashboardWidgets, @JsonKey(fromJson: mobileDashboardWidgetsSafeFromJson) final  List<DashboardWidget> mobileDashboardWidgets = defaultAndroidDashboardWidgets, @JsonKey(fromJson: desktopDashboardWidgetsSafeFromJson) final  List<DashboardWidget> desktopDashboardWidgets = defaultDashboardWidgets, @JsonKey(fromJson: pinnedMediaPlatformsSafeFromJson) final  List<MediaPlatform> pinnedMediaPlatforms = defaultPinnedMediaPlatforms, this.mediaUnlockMoreStreamingPlatforms = false, this.mediaUnlockExtraDetails = false, this.mediaUnlockRefreshOnNodeChange = true, this.mediaUnlockColorfulIcons = true, this.mediaUnlockRefreshByCategory = true, this.onlyStatisticsProxy = true, this.autoLaunch = false, this.silentLaunch = false, this.smartDelayLaunch = false, this.autoRun = false, this.openLogs = true, this.closeConnections = true, this.testUrl = defaultTestUrl, this.showStartSwitch = false, this.enableNavBarHapticFeedback = true, this.autoCheckUpdate = true, this.showLabel = false, this.disclaimerAccepted = true, this.minimizeOnExit = true, this.hidden = false, this.keepDockIcon = true, this.developerMode = false, this.enableHighRefreshRate = false, this.recoveryStrategy = RecoveryStrategy.compatible, this.enableHighPriority = true}): _dashboardWidgets = dashboardWidgets,_mobileDashboardWidgets = mobileDashboardWidgets,_desktopDashboardWidgets = desktopDashboardWidgets,_pinnedMediaPlatforms = pinnedMediaPlatforms;
   factory _AppSettingProps.fromJson(Map<String, dynamic> json) => _$AppSettingPropsFromJson(json);
 
 @override final  String? locale;
@@ -1192,7 +1192,7 @@ return $default(_that.enable,_that.systemProxy,_that.allowBypass,_that.bypassPri
 @JsonSerializable()
 
 class _VpnProps implements VpnProps {
-  const _VpnProps({this.enable = true, this.systemProxy = true, this.allowBypass = false, this.bypassPrivateRoute = true, this.dozeSuspend = true, this.smartAutoStop = false, this.smartAutoStopNetworks = '', this.storeFix = false, this.networkFix = false, this.loopbackProtection = true, this.disableQuic = false, this.highPriorityNotification = false, this.networkSpeedNotification = false, this.excludeChina = false, this.trayEnhancement = false, this.trayLeftClickBehavior = TrayClickBehavior.showPanel, this.trayRightClickBehavior = TrayClickBehavior.showMenu, this.enableTraySpeed = false, this.alwaysShowTitleBar = true, this.quickResponse = true, this.accessControl = defaultAccessControl});
+  const _VpnProps({this.enable = true, this.systemProxy = false, this.allowBypass = false, this.bypassPrivateRoute = true, this.dozeSuspend = true, this.smartAutoStop = false, this.smartAutoStopNetworks = '', this.storeFix = false, this.networkFix = false, this.loopbackProtection = true, this.disableQuic = false, this.highPriorityNotification = false, this.networkSpeedNotification = false, this.excludeChina = false, this.trayEnhancement = true, this.trayLeftClickBehavior = TrayClickBehavior.showPanel, this.trayRightClickBehavior = TrayClickBehavior.showMenu, this.enableTraySpeed = false, this.alwaysShowTitleBar = true, this.quickResponse = true, this.accessControl = defaultAccessControl});
   factory _VpnProps.fromJson(Map<String, dynamic> json) => _$VpnPropsFromJson(json);
 
 @override@JsonKey() final  bool enable;
@@ -1508,7 +1508,7 @@ return $default(_that.systemProxy,_that.bypassDomain,_that.bypassPrivateRoute,_t
 @JsonSerializable()
 
 class _NetworkProps implements NetworkProps {
-  const _NetworkProps({this.systemProxy = true, @JsonKey(fromJson: bypassDomainSafeFromJson) final  List<String> bypassDomain = defaultBypassDomain, this.bypassPrivateRoute = true, final  List<String> bypassPrivateRouteAddress = const [], this.autoSetSystemDns = true}): _bypassDomain = bypassDomain,_bypassPrivateRouteAddress = bypassPrivateRouteAddress;
+  const _NetworkProps({this.systemProxy = false, @JsonKey(fromJson: bypassDomainSafeFromJson) final  List<String> bypassDomain = defaultBypassDomain, this.bypassPrivateRoute = true, final  List<String> bypassPrivateRouteAddress = const [], this.autoSetSystemDns = true}): _bypassDomain = bypassDomain,_bypassPrivateRouteAddress = bypassPrivateRouteAddress;
   factory _NetworkProps.fromJson(Map<String, dynamic> json) => _$NetworkPropsFromJson(json);
 
 @override@JsonKey() final  bool systemProxy;
@@ -2373,7 +2373,7 @@ return $default(_that.primaryColor,_that.primaryColors,_that.themeMode,_that.sch
 @JsonSerializable()
 
 class _ThemeProps implements ThemeProps {
-  const _ThemeProps({this.primaryColor, final  List<int> primaryColors = defaultPrimaryColors, this.themeMode = ThemeMode.system, this.schemeVariant = DynamicSchemeVariant.content, this.pureBlack = false, this.textScale = const TextScale(), this.useDarkIcon = false, this.useHarmonyFont = false, this.invertTrayIcon = false}): _primaryColors = primaryColors;
+  const _ThemeProps({this.primaryColor, final  List<int> primaryColors = defaultPrimaryColors, this.themeMode = ThemeMode.dark, this.schemeVariant = DynamicSchemeVariant.content, this.pureBlack = false, this.textScale = const TextScale(), this.useDarkIcon = false, this.useHarmonyFont = false, this.invertTrayIcon = false}): _primaryColors = primaryColors;
   factory _ThemeProps.fromJson(Map<String, dynamic> json) => _$ThemePropsFromJson(json);
 
 @override final  int? primaryColor;

@@ -1,6 +1,6 @@
 @echo off
 setlocal EnableDelayedExpansion
-title Bettbox Portable Cleanup Tool
+title Gamebox Portable Cleanup Tool
 
 cd /d "%~dp0"
 
@@ -12,13 +12,13 @@ if %errorlevel% neq 0 (
 )
 
 echo ========================================================
-echo             Bettbox Portable Cleanup Tool
+echo             Gamebox Portable Cleanup Tool
 echo ========================================================
 echo.
 echo This tool will perform the following cleanup actions:
-echo  1. Terminate running Bettbox processes
-echo  2. Stop and delete BettboxHelperService system service
-echo  3. Delete Bettbox scheduled startup tasks
+echo  1. Terminate running Gamebox processes
+echo  2. Stop and delete GameboxHelperService system service
+echo  3. Delete Gamebox scheduled startup tasks
 echo  4. Reset Windows system proxy settings
 echo  5. Remove leftover Wintun network adapters
 echo  6. Clean up application registry entries
@@ -36,6 +36,13 @@ set /p CLEAN_DATA="Do you also want to delete the portable data folder? (Y/N): "
 echo.
 
 echo [1/6] Terminating running processes...
+REM [Gamebox] 进程名已改为 Gamebox*。下面同时结束改名前的 Bettbox*。
+taskkill /f /im Gamebox.exe >nul 2>&1
+taskkill /f /im GameboxDev.exe >nul 2>&1
+taskkill /f /im GameboxCore.exe >nul 2>&1
+taskkill /f /im GameboxDevCore.exe >nul 2>&1
+taskkill /f /im GameboxHelperService.exe >nul 2>&1
+taskkill /f /im GameboxDevHelperService.exe >nul 2>&1
 taskkill /f /im Bettbox.exe >nul 2>&1
 taskkill /f /im BettboxDev.exe >nul 2>&1
 taskkill /f /im BettboxCore.exe >nul 2>&1
@@ -44,12 +51,18 @@ taskkill /f /im BettboxHelperService.exe >nul 2>&1
 taskkill /f /im BettboxDevHelperService.exe >nul 2>&1
 
 echo [2/6] Cleaning system services...
+sc stop GameboxHelperService >nul 2>&1
+sc delete GameboxHelperService >nul 2>&1
+sc stop GameboxDevHelperService >nul 2>&1
+sc delete GameboxDevHelperService >nul 2>&1
 sc stop BettboxHelperService >nul 2>&1
 sc delete BettboxHelperService >nul 2>&1
 sc stop BettboxDevHelperService >nul 2>&1
 sc delete BettboxDevHelperService >nul 2>&1
 
 echo [3/6] Cleaning scheduled tasks...
+schtasks /Delete /TN "Gamebox" /F >nul 2>&1
+schtasks /Delete /TN "Gamebox Dev" /F >nul 2>&1
 schtasks /Delete /TN "Bettbox" /F >nul 2>&1
 schtasks /Delete /TN "Bettbox Dev" /F >nul 2>&1
 
@@ -59,9 +72,10 @@ reg delete "HKCU\Software\Microsoft\Windows\CurrentVersion\Internet Settings" /v
 reg delete "HKCU\Software\Microsoft\Windows\CurrentVersion\Internet Settings" /v AutoConfigURL /f >nul 2>&1
 
 echo [5/6] Cleaning virtual network adapters...
-powershell -NoProfile -Command "Get-NetAdapter -ErrorAction SilentlyContinue | Where-Object { $_.InterfaceDescription -like '*Bettbox*' -or $_.Name -like '*Bettbox*' } | ForEach-Object { Disable-NetAdapter $_ -Confirm:$false -ErrorAction SilentlyContinue; Remove-NetAdapter $_ -Confirm:$false -ErrorAction SilentlyContinue }" >nul 2>&1
+powershell -NoProfile -Command "Get-NetAdapter -ErrorAction SilentlyContinue | Where-Object { $_.InterfaceDescription -like '*Gamebox*' -or $_.Name -like '*Gamebox*' -or $_.InterfaceDescription -like '*Bettbox*' -or $_.Name -like '*Bettbox*' } | ForEach-Object { Disable-NetAdapter $_ -Confirm:$false -ErrorAction SilentlyContinue; Remove-NetAdapter $_ -Confirm:$false -ErrorAction SilentlyContinue }" >nul 2>&1
 
 echo [6/6] Cleaning registry entries...
+reg delete "HKCU\Software\com.appshub\Gamebox" /f >nul 2>&1
 reg delete "HKCU\Software\com.appshub.bettbox" /f >nul 2>&1
 reg delete "HKCU\Software\com.appshub\Bettbox" /f >nul 2>&1
 reg delete "HKCU\Software\Bettbox" /f >nul 2>&1

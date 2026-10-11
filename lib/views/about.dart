@@ -15,6 +15,13 @@ class Contributor {
   const Contributor({required this.avatar, required this.name});
 }
 
+// [Gamebox] 关于页外链。使用说明暂指 iGame Windows 仓库，群组和 QQ 与 iGame 客户端相同。
+// 上游分别是 Github Releases、telegram.me/appshub_chat、telegram.me/appshub_channel。
+const _usageUrl = 'https://github.com/mouren1988/iGame-for-Windows';
+const _groupUrl = 'https://t.me/+UOt2DJZ7Qyo2YzA9';
+const _qqGroupUrl = 'https://qm.qq.com/q/xjr21slB74';
+const _repoAvatarUrl = 'https://github.com/mouren1988.png';
+
 class AboutView extends StatelessWidget {
   const AboutView({super.key});
 
@@ -33,15 +40,15 @@ class AboutView extends StatelessWidget {
   }
 
   List<Widget> _buildMoreSection(BuildContext context) {
+    // [Gamebox] 关于页链接。上游是 Github Releases、Telegram Group、Channel、FlClash、Mihomo。
     return generateSection(
       title: appLocalizations.more,
       items: [
         _LinkGridRow(
           left: _LinkGridTile(
-            title: 'Github Releases',
-            icon: Icons.star,
-            onTap: () =>
-                globalState.openUrl('https://github.com/appshubcc/Bettbox'),
+            title: '使用说明',
+            icon: Icons.menu_book_outlined,
+            onTap: () => globalState.openUrl(_usageUrl),
           ),
           right: _LinkGridTile(
             title: appLocalizations.checkUpdate,
@@ -51,30 +58,14 @@ class AboutView extends StatelessWidget {
         ),
         _LinkGridRow(
           left: _LinkGridTile(
-            title: 'Telegram Group',
+            title: '我的群组',
             icon: Icons.launch,
-            onTap: () =>
-                globalState.openUrl('https://telegram.me/appshub_chat'),
+            onTap: () => globalState.openUrl(_groupUrl),
           ),
           right: _LinkGridTile(
-            title: 'Channel',
+            title: '我的QQ群',
             icon: Icons.launch,
-            onTap: () =>
-                globalState.openUrl('https://telegram.me/appshub_channel'),
-          ),
-        ),
-        _LinkGridRow(
-          left: _LinkGridTile(
-            title: 'FlClash',
-            icon: Icons.launch,
-            onTap: () =>
-                globalState.openUrl('https://github.com/chen08209/FlClash'),
-          ),
-          right: _LinkGridTile(
-            title: 'Mihomo',
-            icon: Icons.launch,
-            onTap: () =>
-                globalState.openUrl('https://github.com/MetaCubeX/mihomo'),
+            onTap: () => globalState.openUrl(_qqGroupUrl),
           ),
         ),
       ],
@@ -82,83 +73,19 @@ class AboutView extends StatelessWidget {
   }
 
   List<Widget> _buildContributorsSection() {
-    final contributors = [
-      const Contributor(
-        avatar: 'assets/images/avatars/june2.jpg',
-        name: 'June2',
-      ),
-      const Contributor(avatar: 'assets/images/avatars/arue.jpg', name: 'Arue'),
-      const Contributor(
-        avatar: 'assets/images/avatars/dabaozi.jpg',
-        name: '大包子',
-      ),
-      const Contributor(
-        avatar: 'assets/images/avatars/xiaolou.png',
-        name: '小楼',
-      ),
-      const Contributor(avatar: 'assets/images/avatars/www.jpg', name: 'Www'),
-      const Contributor(
-        avatar: 'assets/images/avatars/AIsouler.jpg',
-        name: 'AIsouler',
-      ),
-      const Contributor(
-        avatar: 'assets/images/avatars/songchenwen.jpg',
-        name: 'songchenwen',
-      ),
-      const Contributor(
-        avatar: 'assets/images/avatars/EriDeLee.jpg',
-        name: 'EriDeLee',
-      ),
-      const Contributor(
-        avatar: 'assets/images/avatars/AdySnowflake.png',
-        name: 'AdySnowflake',
-      ),
-      const Contributor(
-        avatar: 'assets/images/avatars/CyberVacation.jpg',
-        name: 'CyberVacation',
-      ),
-      const Contributor(
-        avatar: 'assets/images/avatars/VillagerTom.png',
-        name: 'VillagerTom',
-      ),
-      const Contributor(
-        avatar: 'assets/images/avatars/ZeonX.jpg',
-        name: 'ZeonX',
-      ),
-      const Contributor(
-        avatar: 'assets/images/avatars/feitianmoo.png',
-        name: 'feitianmoo',
-      ),
-      const Contributor(
-        avatar: 'assets/images/avatars/kouhe3.jpg',
-        name: 'kouhe3',
-      ),
-      const Contributor(
-        avatar: 'assets/images/avatars/soffchen.png',
-        name: 'soffchen',
-      ),
-      const Contributor(
-        avatar: 'assets/images/avatars/utafrali.jpg',
-        name: 'utafrali',
-      ),
-      const Contributor(
-        avatar: 'assets/images/avatars/wfion.png',
-        name: 'wfion',
-      ),
-    ]..shuffle();
+    // [Gamebox] 只保留仓库头像。上游是一批贡献者头像并随机排序。
     return generateSection(
       separated: false,
       title: appLocalizations.otherContributors,
       items: [
         ListItem(
-          title: SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Wrap(
-              spacing: 24,
-              children: [
-                for (final contributor in contributors)
-                  Avatar(contributor: contributor),
-              ],
+          title: const Align(
+            alignment: Alignment.centerLeft,
+            child: Avatar(
+              contributor: Contributor(
+                avatar: _repoAvatarUrl,
+                name: 'mouren1988',
+              ),
             ),
           ),
         ),
@@ -244,7 +171,15 @@ class Avatar extends StatelessWidget {
         SizedBox(
           width: 36,
           height: 36,
-          child: CircleAvatar(foregroundImage: AssetImage(contributor.avatar)),
+          child: ClipOval(
+            child: Image.network(
+              contributor.avatar,
+              width: 36,
+              height: 36,
+              fit: BoxFit.cover,
+              errorBuilder: (_, _, _) => const SizedBox(width: 36, height: 36),
+            ),
+          ),
         ),
         const SizedBox(height: 4),
         Text(contributor.name, style: context.textTheme.bodySmall),

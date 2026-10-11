@@ -97,6 +97,7 @@ class Build {
     BuildItem(target: Target.android, arch: Arch.amd64, archName: 'x86_64'),
   ];
 
+  // [Gamebox] 编译进 libclash 的文件名仍是 BettboxCore。安装和启动时再复制成 GameboxCore。
   static String get appName => 'Bettbox';
 
   static String get coreName => '${identityName}Core';

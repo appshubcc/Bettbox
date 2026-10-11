@@ -38,9 +38,10 @@ object GlobalState {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
     private val mainHandler = Handler(Looper.getMainLooper())
 
-    const val NOTIFICATION_CHANNEL = "Bettbox"
-    const val NOTIFICATION_CHANNEL_HIGH = "Bettbox_High"
-    const val NOTIFICATION_CHANNEL_SUSPENDED = "Bettbox_Suspended"
+    // [Gamebox] 上游通知渠道 id 是 Bettbox。干净安装直接用新 id。
+    const val NOTIFICATION_CHANNEL = "Gamebox"
+    const val NOTIFICATION_CHANNEL_HIGH = "Gamebox_High"
+    const val NOTIFICATION_CHANNEL_SUSPENDED = "Gamebox_Suspended"
     const val NOTIFICATION_ID = 1
 
     private const val TOGGLE_DEBOUNCE_MS = 1000L

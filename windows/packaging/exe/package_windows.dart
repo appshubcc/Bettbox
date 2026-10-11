@@ -42,7 +42,7 @@ void main(List<String> arguments) async {
   final appVersion = versionMatch.group(1)!;
   print('App Version: $appVersion');
 
-  final outputBaseName = 'Bettbox-$appVersion-windows-$desc-setup';
+  final outputBaseName = 'Gamebox-$appVersion-windows-$desc-setup';
 
   // 2. Parse make_config.yaml
   final configFile = File('windows/packaging/exe/make_config.yaml');
@@ -63,11 +63,12 @@ void main(List<String> arguments) async {
   }
 
   // 4. Map variables for Inno Setup template
-  final coreExecutableName = isDev ? 'BettboxDevCore.exe' : 'BettboxCore.exe';
-  final helperExecutableName = isDev ? 'BettboxDevHelperService.exe' : 'BettboxHelperService.exe';
-  final helperServiceName = isDev ? 'BettboxDevHelperService' : 'BettboxHelperService';
-  final helperPipeName = isDev ? r'\\.\pipe\BettboxDev.Helper' : r'\\.\pipe\Bettbox.Helper';
-  final taskName = isDev ? 'Bettbox Dev' : 'Bettbox';
+  // [Gamebox] 安装进系统的文件名。libclash 源文件仍是 Bettbox*，CMake 安装时改名。
+  final coreExecutableName = isDev ? 'GameboxDevCore.exe' : 'GameboxCore.exe';
+  final helperExecutableName = isDev ? 'GameboxDevHelperService.exe' : 'GameboxHelperService.exe';
+  final helperServiceName = isDev ? 'GameboxDevHelperService' : 'GameboxHelperService';
+  final helperPipeName = isDev ? r'\\.\pipe\GameboxDev.Helper' : r'\\.\pipe\Gamebox.Helper';
+  final taskName = isDev ? 'Gamebox Dev' : 'Gamebox';
   
   // Format locales - resolve file paths to absolute to avoid Inno Setup relative path issues
   final packagingDir = path.absolute('windows/packaging/exe');
@@ -87,14 +88,14 @@ void main(List<String> arguments) async {
     'APP_ID': makeConfig['app_id'],
     'APP_NAME': makeConfig['app_name'],
     'APP_VERSION': appVersion,
-    'EXECUTABLE_NAME': makeConfig['executable_name'] ?? 'Bettbox.exe',
-    'DISPLAY_NAME': makeConfig['display_name'] ?? 'Bettbox',
+    'EXECUTABLE_NAME': makeConfig['executable_name'] ?? 'Gamebox.exe',
+    'DISPLAY_NAME': makeConfig['display_name'] ?? 'Gamebox',
     'PUBLISHER_NAME': makeConfig['publisher'] ?? 'appshub.cc',
     'ARCH': arch == 'arm64' ? 'arm64' : 'x64',
     'PUBLISHER_URL': makeConfig['publisher_url'] ?? 'https://github.com/appshubcc/Bettbox',
     'CREATE_DESKTOP_ICON': true,
     'LAUNCH_AT_STARTUP': true,
-    'INSTALL_DIR_NAME': '{autopf64}\\${makeConfig['display_name'] ?? 'Bettbox'}',
+    'INSTALL_DIR_NAME': '{autopf64}\\${makeConfig['display_name'] ?? 'Gamebox'}',
     'SOURCE_DIR': sourceDir,
     'OUTPUT_BASE_FILENAME': outputBaseName,
     'LOCALES': locales,
@@ -195,7 +196,7 @@ void main(List<String> arguments) async {
       cleanBatSource.copySync(cleanBatDest.path);
     }
 
-    final portableOutputBaseName = 'Bettbox-$appVersion-windows-$desc-portable.zip';
+    final portableOutputBaseName = 'Gamebox-$appVersion-windows-$desc-portable.zip';
     final targetPortableZipPath = path.join('dist', portableOutputBaseName);
     final targetPortableFile = File(targetPortableZipPath);
     if (targetPortableFile.existsSync()) {

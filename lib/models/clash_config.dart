@@ -283,7 +283,8 @@ abstract class SnifferConfig with _$SnifferConfig {
 @freezed
 abstract class Tun with _$Tun {
   const factory Tun({
-    @Default(false) bool enable,
+    // [Gamebox] 内核配置 > 网络 > 虚拟网卡默认开启。上游默认 false。同步时保留 true。
+    @Default(true) bool enable,
     @Default(tunDeviceName) String device,
     @JsonKey(name: 'auto-route') @Default(false) bool autoRoute,
     @Default(TunStack.mips) TunStack stack,
@@ -715,7 +716,8 @@ abstract class ClashConfig with _$ClashConfig {
     List<String> skipAuthPrefixes,
     @Default(LogLevel.error) @JsonKey(name: 'log-level') LogLevel logLevel,
     @Default(false) bool ipv6,
-    @Default(FindProcessMode.off)
+    // [Gamebox] 内核配置 > 常规 > 查找进程默认开启。上游默认 off。同步时保留 always。
+    @Default(FindProcessMode.always)
     @JsonKey(
       name: 'find-process-mode',
       unknownEnumValue: FindProcessMode.always,
@@ -745,7 +747,9 @@ abstract class ClashConfig with _$ClashConfig {
     @Default([]) @JsonKey(name: 'proxy-groups') List<ProxyGroup> proxyGroups,
     @Default([]) List<String> rule,
     @JsonKey(name: 'global-ua') String? globalUa,
-    @Default(ExternalControllerStatus.close)
+    // [Gamebox] 内核配置 > 常规 > 外部控制默认开启，密码留空。
+    // 上游默认 close，用户手动打开时才会生成密码。同步时保留 open，且不要给 secret 填默认值。
+    @Default(ExternalControllerStatus.open)
     @JsonKey(name: 'external-controller')
     ExternalControllerStatus externalController,
     String? secret,

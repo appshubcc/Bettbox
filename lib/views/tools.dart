@@ -195,8 +195,9 @@ class _ToolViewState extends ConsumerState<ToolsView> {
     final settingsCategory = appLocalizations.settings;
     final configCategory = '$settingsCategory/${appLocalizations.basicConfig}';
     final themeCategory = '$settingsCategory/${appLocalizations.theme}';
-    final backupCategory =
-        '$settingsCategory/${appLocalizations.backupAndRecovery}';
+    // [Gamebox] 设置搜索不再列出备份与恢复。同步上游后若要恢复，把下面这行和后面的搜索项加回来。
+    // final backupCategory =
+    //     '$settingsCategory/${appLocalizations.backupAndRecovery}';
     final appCategory = '$settingsCategory/${appLocalizations.application}';
     final otherCategory = appLocalizations.other;
     final otherSettingsCategory =
@@ -237,17 +238,7 @@ class _ToolViewState extends ConsumerState<ToolsView> {
         onTap: (context, _) =>
             _pushPage(context, appLocalizations.theme, const ThemeView()),
       ),
-      _SearchItem(
-        title: appLocalizations.backupAndRecovery,
-        subtitle: appLocalizations.backupAndRecoveryDesc,
-        category: settingsCategory,
-        leading: const Icon(Icons.cloud_sync),
-        onTap: (context, _) => _pushPage(
-          context,
-          appLocalizations.backupAndRecovery,
-          const BackupAndRecovery(),
-        ),
-      ),
+      // [Gamebox] 备份与恢复已从设置搜索中隐藏。
       if (system.isDesktop)
         _SearchItem(
           title: appLocalizations.hotkeyManagement,
@@ -399,36 +390,7 @@ class _ToolViewState extends ConsumerState<ToolsView> {
       ),
     ]);
 
-    items.addAll([
-      _SearchItem(
-        title: appLocalizations.remote,
-        category: backupCategory,
-        onTap: (context, _) => _pushPage(
-          context,
-          appLocalizations.backupAndRecovery,
-          const BackupAndRecovery(),
-        ),
-      ),
-      _SearchItem(
-        title: appLocalizations.local,
-        category: backupCategory,
-        onTap: (context, _) => _pushPage(
-          context,
-          appLocalizations.backupAndRecovery,
-          const BackupAndRecovery(),
-        ),
-      ),
-      _SearchItem(
-        title: appLocalizations.recoveryStrategy,
-        category: backupCategory,
-        onTap: (context, _) => _pushPage(
-          context,
-          appLocalizations.backupAndRecovery,
-          const BackupAndRecovery(),
-        ),
-      ),
-    ]);
-
+    // [Gamebox] 远程备份、本地备份、恢复策略不再出现在设置搜索里。
     items.addAll([
       _SearchItem(
         title: appLocalizations.autoLaunch,
@@ -1411,7 +1373,8 @@ class _ToolViewState extends ConsumerState<ToolsView> {
         items: [
           _LocaleItem(),
           _ThemeItem(),
-          _BackupItem(),
+          // [Gamebox] 设置列表不再显示备份与恢复。同步上游后取消下一行注释即可恢复。
+          // _BackupItem(),
           if (system.isDesktop) _HotkeyItem(),
           if (system.isWindows) _LoopbackItem(),
           if (system.isAndroid) _AccessItem(),
@@ -1450,34 +1413,11 @@ class _ToolViewState extends ConsumerState<ToolsView> {
 class _LocaleItem extends ConsumerWidget {
   const _LocaleItem();
 
-  static final List<Locale> _localeOptions = _getOrderedLocales();
+  static const List<Locale> _localeOptions = [Locale('zh', 'CN')];
   static const Map<String, String> _nativeLocaleNames = {
+    // [Gamebox] 语言只保留简体中文。上游还有繁体、英文、俄文、波斯文、日文、韩文。
     'zh_CN': '简体中文',
-    'zh_TC': '繁體中文',
-    'en': 'English',
-    'ru': 'Русский',
-    'fa': 'فارسی',
-    'ja': '日本語',
-    'ko': '한국어',
   };
-
-  static List<Locale> _getOrderedLocales() {
-    final priority = ['zh_CN', 'zh_TC', 'en', 'ru', 'fa', 'ja', 'ko'];
-    final locales = List<Locale>.from(
-      AppLocalizations.delegate.supportedLocales,
-    );
-    locales.sort((a, b) {
-      final aKey = a.toString();
-      final bKey = b.toString();
-      final aIndex = priority.indexOf(aKey);
-      final bIndex = priority.indexOf(bKey);
-      if (aIndex != -1 && bIndex != -1) return aIndex.compareTo(bIndex);
-      if (aIndex != -1) return -1;
-      if (bIndex != -1) return 1;
-      return aKey.compareTo(bKey);
-    });
-    return locales;
-  }
 
   String _getLocaleString(Locale locale) {
     return _nativeLocaleNames[locale.toString()] ?? locale.toString();
@@ -1529,6 +1469,8 @@ class _ThemeItem extends StatelessWidget {
   }
 }
 
+// [Gamebox] 入口已隐藏，类先留着，方便以后把菜单加回去。
+// ignore: unused_element
 class _BackupItem extends StatelessWidget {
   const _BackupItem();
 

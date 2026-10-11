@@ -88,17 +88,18 @@ class InnoSetupScript {
   Future<File> createFile() async {
     final isDev = makeConfig.flavor == 'dev' ||
         (makeConfig.displayName?.contains('Dev') ?? false);
-    final coreExecutableName = isDev ? 'BettboxDevCore.exe' : 'BettboxCore.exe';
+    // [Gamebox] 安装进系统的文件名。上游是 Bettbox*。
+    final coreExecutableName = isDev ? 'GameboxDevCore.exe' : 'GameboxCore.exe';
     final helperExecutableName = isDev
-        ? 'BettboxDevHelperService.exe'
-        : 'BettboxHelperService.exe';
+        ? 'GameboxDevHelperService.exe'
+        : 'GameboxHelperService.exe';
     final helperServiceName = isDev
-        ? 'BettboxDevHelperService'
-        : 'BettboxHelperService';
+        ? 'GameboxDevHelperService'
+        : 'GameboxHelperService';
     final helperPipeName = isDev
-        ? r'\\.\pipe\BettboxDev.Helper'
-        : r'\\.\pipe\Bettbox.Helper';
-    final taskName = isDev ? 'Bettbox Dev' : 'Bettbox';
+        ? r'\\.\pipe\GameboxDev.Helper'
+        : r'\\.\pipe\Gamebox.Helper';
+    final taskName = isDev ? 'Gamebox Dev' : 'Gamebox';
     Map<String, dynamic> variables = {
       'APP_ID': makeConfig.appId,
       'APP_NAME': makeConfig.appName,

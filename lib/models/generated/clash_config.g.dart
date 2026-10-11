@@ -166,7 +166,7 @@ Map<String, dynamic> _$SnifferConfigToJson(_SnifferConfig instance) =>
     };
 
 _Tun _$TunFromJson(Map<String, dynamic> json) => _Tun(
-  enable: json['enable'] as bool? ?? false,
+  enable: json['enable'] as bool? ?? true,
   device: json['device'] as String? ?? tunDeviceName,
   autoRoute: json['auto-route'] as bool? ?? false,
   stack: $enumDecodeNullable(_$TunStackEnumMap, json['stack']) ?? TunStack.mips,
@@ -483,7 +483,7 @@ _ClashConfig _$ClashConfigFromJson(Map<String, dynamic> json) => _ClashConfig(
         json['find-process-mode'],
         unknownValue: FindProcessMode.always,
       ) ??
-      FindProcessMode.off,
+      FindProcessMode.always,
   keepAliveInterval:
       (json['keep-alive-interval'] as num?)?.toInt() ??
       defaultKeepAliveInterval,
@@ -531,7 +531,7 @@ _ClashConfig _$ClashConfigFromJson(Map<String, dynamic> json) => _ClashConfig(
         _$ExternalControllerStatusEnumMap,
         json['external-controller'],
       ) ??
-      ExternalControllerStatus.close,
+      ExternalControllerStatus.open,
   secret: json['secret'] as String?,
   externalUiName: json['external-ui-name'] as String?,
   externalUiUrl: json['external-ui-url'] as String?,

@@ -32,7 +32,7 @@
         android:hardwareAccelerated="true"
         android:icon="@mipmap/ic_launcher_light"
         android:roundIcon="@mipmap/ic_launcher_round_light"
-        android:label="Bettbox"
+        android:label="Gamebox"
         android:banner="@drawable/tv_banner"
         android:networkSecurityConfig="@xml/network_security_config"
         android:enableOnBackInvokedCallback="false">
@@ -152,7 +152,7 @@
             android:name=".services.BettboxTileService"
             android:exported="true"
             android:icon="@drawable/ic_tile"
-            android:label="Bettbox"
+            android:label="Gamebox"
             android:permission="android.permission.BIND_QUICK_SETTINGS_TILE"
             tools:targetApi="n">
             <intent-filter>

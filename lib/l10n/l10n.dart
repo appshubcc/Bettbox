@@ -1694,10 +1694,10 @@ class AppLocalizations {
     );
   }
 
-  /// `Bettbox is based on the powerful and flexible Mihomo (Clash.Meta) proxy kernel, dedicated to a superior user experience. Our vision: Connecting Open Source and AI, Accelerating Innovation`
+  /// `Gamebox 基于强大灵活的 Mihomo (Clash.Meta) 代理内核，致力于更好的体验。`
   String get desc {
     return Intl.message(
-      'Bettbox is based on the powerful and flexible Mihomo (Clash.Meta) proxy kernel, dedicated to a superior user experience. Our vision: Connecting Open Source and AI, Accelerating Innovation',
+      'Gamebox 基于强大灵活的 Mihomo (Clash.Meta) 代理内核，致力于更好的体验。',
       name: 'desc',
       desc: '',
       args: [],
@@ -2679,10 +2679,10 @@ class AppLocalizations {
     );
   }
 
-  /// `Other Contributors (Random Order)`
+  /// `贡献者`
   String get otherContributors {
     return Intl.message(
-      'Other Contributors (Random Order)',
+      '贡献者',
       name: 'otherContributors',
       desc: '',
       args: [],
@@ -6469,14 +6469,10 @@ class AppLocalizationDelegate extends LocalizationsDelegate<AppLocalizations> {
   const AppLocalizationDelegate();
 
   List<Locale> get supportedLocales {
+    // [Gamebox] 只保留简体中文。上游这里还有 en/fa/ja/ko/ru/zh_TC。
+    // intl 重新生成 l10n.dart 时会把这份列表盖回去，application.dart 里还固定了 zh_CN。
     return const <Locale>[
-      Locale.fromSubtags(languageCode: 'en'),
-      Locale.fromSubtags(languageCode: 'fa'),
-      Locale.fromSubtags(languageCode: 'ja'),
-      Locale.fromSubtags(languageCode: 'ko'),
-      Locale.fromSubtags(languageCode: 'ru'),
       Locale.fromSubtags(languageCode: 'zh', countryCode: 'CN'),
-      Locale.fromSubtags(languageCode: 'zh', countryCode: 'TC'),
     ];
   }
 

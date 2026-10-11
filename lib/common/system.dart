@@ -116,7 +116,7 @@ class System {
           corePath,
         ]);
         if (removeResult.exitCode == 0) {
-          commonPrint.log('Cleared quarantine attribute from BettboxCore');
+          commonPrint.log('Cleared quarantine attribute from GameboxCore');
         } else {
           quarantineCleared = false;
           commonPrint.log(
@@ -135,7 +135,7 @@ class System {
       if (result.exitCode != 0) {
         if (!quarantineCleared) {
           globalState.showNotifier(
-            'Failed to authorize BettboxCore. Try: xattr -dr com.apple.quarantine /Applications/Bettbox.app',
+            'Failed to authorize GameboxCore. Try: xattr -dr com.apple.quarantine /Applications/Gamebox.app',
           );
         } else {
           globalState.showNotifier(appLocalizations.tunEnableRequireAdmin);

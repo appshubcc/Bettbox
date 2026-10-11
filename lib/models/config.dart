@@ -185,14 +185,17 @@ abstract class AppSettingProps with _$AppSettingProps {
     @Default(true) bool enableNavBarHapticFeedback,
     @Default(true) bool autoCheckUpdate,
     @Default(false) bool showLabel,
-    @Default(false) bool disclaimerAccepted,
+    // [Gamebox] 默认视为已同意，配合 controller 里不再弹出免责声明。
+    // 上游默认 false。同步时若恢复弹窗，这里改回 false。
+    @Default(true) bool disclaimerAccepted,
     @Default(true) bool minimizeOnExit,
     @Default(false) bool hidden,
     @Default(true) bool keepDockIcon,
     @Default(false) bool developerMode,
     @Default(false) bool enableHighRefreshRate,
     @Default(RecoveryStrategy.compatible) RecoveryStrategy recoveryStrategy,
-    @Default(false) bool enableHighPriority,
+    // [Gamebox] 增强工具 > 高优先级默认开启。上游默认 false。同步时保留 true。
+    @Default(true) bool enableHighPriority,
   }) = _AppSettingProps;
 
   factory AppSettingProps.fromJson(Map<String, Object?> json) =>
@@ -269,7 +272,9 @@ abstract class WindowProps with _$WindowProps {
 abstract class VpnProps with _$VpnProps {
   const factory VpnProps({
     @Default(true) bool enable,
-    @Default(true) bool systemProxy,
+    // [Gamebox] Android「内核配置 > 网络」里的系统代理默认关闭。
+    // 上游默认 true。同步时保留 false。
+    @Default(false) bool systemProxy,
     @Default(false) bool allowBypass,
     @Default(true) bool bypassPrivateRoute,
     @Default(true) bool dozeSuspend,
@@ -282,13 +287,17 @@ abstract class VpnProps with _$VpnProps {
     @Default(false) bool highPriorityNotification,
     @Default(false) bool networkSpeedNotification,
     @Default(false) bool excludeChina,
-    @Default(false) bool trayEnhancement,
+    // [Gamebox] 增强工具 > 托盘增强默认开启。上游默认 false。同步时保留 true。
+    @Default(true) bool trayEnhancement,
     @Default(TrayClickBehavior.showPanel)
     TrayClickBehavior trayLeftClickBehavior,
     @Default(TrayClickBehavior.showMenu)
     TrayClickBehavior trayRightClickBehavior,
     @Default(false) bool enableTraySpeed,
     @Default(true) bool alwaysShowTitleBar,
+    // [Gamebox] 快速响应默认开启。仅 Android：Wi-Fi、流量、网线类型切换后，
+    // 延迟约 150 毫秒，把当前连接全部断开，让应用在新网络上重新连接。
+    // 上游这里已经是 true。同步时保留 true。
     @Default(true) bool quickResponse,
     @Default(defaultAccessControl) AccessControl accessControl,
   }) = _VpnProps;
@@ -316,7 +325,8 @@ List<String> bypassDomainSafeFromJson(List<dynamic>? bypassDomain) {
 @freezed
 abstract class NetworkProps with _$NetworkProps {
   const factory NetworkProps({
-    @Default(true) bool systemProxy,
+    // [Gamebox] 桌面端「内核配置 > 网络」系统代理默认关闭。上游默认 true。同步时保留 false。
+    @Default(false) bool systemProxy,
     @Default(defaultBypassDomain)
     @JsonKey(fromJson: bypassDomainSafeFromJson)
     List<String> bypassDomain,
@@ -374,7 +384,8 @@ abstract class ThemeProps with _$ThemeProps {
   const factory ThemeProps({
     int? primaryColor,
     @Default(defaultPrimaryColors) List<int> primaryColors,
-    @Default(ThemeMode.system) ThemeMode themeMode,
+    // [Gamebox] 主题模式默认深色。上游是 ThemeMode.system。同步时保留 dark。
+    @Default(ThemeMode.dark) ThemeMode themeMode,
     @Default(DynamicSchemeVariant.content) DynamicSchemeVariant schemeVariant,
     @Default(false) bool pureBlack,
     @Default(TextScale()) TextScale textScale,

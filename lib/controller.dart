@@ -438,7 +438,7 @@ class AppController {
       final profile = profiles
           .where((e) => e.id == currentProfileId)
           .firstOrNull;
-      final profileName = profile?.label ?? 'Bettbox';
+      final profileName = profile?.label ?? 'Gamebox';
       final speedInfo = traffic.toString();
       await vpn_service.service?.updateNotificationSpeed(
         profileName,
@@ -1116,18 +1116,21 @@ class AppController {
     if (globalState.isPre && !handleError) {
       return;
     }
+    // [Gamebox] 前往下载固定打开网盘。上游是 GitHub Releases 安装包地址。
+    const downloadUrl = 'https://gmbox.lanzouv.com/b013a2b1wh';
     if (data != null) {
-      final tagName = data['tag_name'];
-      final body = data['body'];
-      final submits = utils.parseReleaseBody(body);
+      final tagName = data?['tag_name'];
+      final body = data?['body'];
+      final submits = body == null ? const <String>[] : utils.parseReleaseBody(body);
       final textTheme = context.textTheme;
       final res = await globalState.showMessage(
         title: appLocalizations.discoverNewVersion,
         message: TextSpan(
-          text: '$tagName \n',
+          text: tagName == null ? '' : '$tagName \n',
           style: textTheme.headlineSmall,
           children: [
-            TextSpan(text: '\n', style: textTheme.bodyMedium),
+            // [Gamebox] 网盘文件有提取码，写在发现新版本弹窗里。
+            TextSpan(text: '网盘密码：8888\n', style: textTheme.bodyMedium),
             for (final submit in submits)
               TextSpan(text: '- $submit \n', style: textTheme.bodyMedium),
           ],
@@ -1137,21 +1140,6 @@ class AppController {
       if (res != true) {
         return;
       }
-      const String assetSuffix = String.fromEnvironment('APP_ASSET_SUFFIX');
-      String downloadUrl = 'https://github.com/$repository/releases/latest';
-
-      if (assetSuffix.isNotEmpty) {
-        final versionWithoutV = tagName.startsWith('v')
-            ? tagName.substring(1)
-            : tagName;
-        var finalSuffix = assetSuffix;
-        if (appPath.isPortable && system.isWindows) {
-          finalSuffix = 'windows-amd64-compatible-portable.zip';
-        }
-        downloadUrl =
-            'https://github.com/$repository/releases/download/$tagName/Bettbox-$versionWithoutV-$finalSuffix';
-      }
-
       globalState.openUrl(downloadUrl);
     } else if (handleError) {
       globalState.showMessage(
@@ -1342,7 +1330,10 @@ class AppController {
     await updateTray(true, false, true);
 
     await _handlePreference();
-    await _handlerDisclaimer();
+    // [Gamebox] 关闭启动时的免责声明弹窗。
+    // 上游会在 disclaimerAccepted 为 false 时弹出，点「退出」会直接结束程序。
+    // 同步新版本后若要恢复弹窗，取消下一行注释。
+    // await _handlerDisclaimer();
     if (system.isWindows) {
       unawaited(
         setProcessPriority(
@@ -1517,6 +1508,8 @@ class AppController {
         false;
   }
 
+  // [Gamebox] 启动流程已不再调用。同步上游并恢复弹窗后，可去掉这行 ignore。
+  // ignore: unused_element
   Future<void> _handlerDisclaimer() async {
     if (_ref.read(appSettingProvider).disclaimerAccepted) {
       return;
@@ -1839,14 +1832,14 @@ class AppController {
       final tempDir = Directory.systemTemp;
       final tempZipPath = join(
         tempDir.path,
-        'bettbox_backup_${DateTime.now().millisecondsSinceEpoch}.zip',
+        'gamebox_backup_${DateTime.now().millisecondsSinceEpoch}.zip',
       );
       final encoder = ZipFileEncoder();
       encoder.create(tempZipPath);
 
-      // Add marker file
+      // [Gamebox] 备份标记改为 .gamebox_marker。还原时仍认上游的 .bettbox_marker。
       final markerData = json.encode({
-        'app': 'Bettbox',
+        'app': 'Gamebox',
         'version': '1.0',
         'timestamp': DateTime.now().millisecondsSinceEpoch,
       });
@@ -1854,11 +1847,11 @@ class AppController {
       final tempMarkerFile = File(
         join(
           tempDir.path,
-          'bettbox_marker_${DateTime.now().millisecondsSinceEpoch}.tmp',
+          'gamebox_marker_${DateTime.now().millisecondsSinceEpoch}.tmp',
         ),
       );
       await tempMarkerFile.writeAsBytes(markerBytes);
-      await encoder.addFile(tempMarkerFile, '.bettbox_marker');
+      await encoder.addFile(tempMarkerFile, '.gamebox_marker');
       await tempMarkerFile.delete();
 
       // Add config file
@@ -1866,7 +1859,7 @@ class AppController {
       final tempConfigFile = File(
         join(
           tempDir.path,
-          'bettbox_config_${DateTime.now().millisecondsSinceEpoch}.tmp',
+          'gamebox_config_${DateTime.now().millisecondsSinceEpoch}.tmp',
         ),
       );
       await tempConfigFile.writeAsString(configStr);
@@ -2014,9 +2007,10 @@ class AppController {
 
     final homeDirPath = await appPath.homeDirPath;
 
-    // Check for Bettbox marker
+    // [Gamebox] 新备份是 .gamebox_marker，旧备份是 .bettbox_marker。
     final hasBettboxMarker = archive.files.any(
-      (file) => file.name == '.bettbox_marker',
+      (file) =>
+          file.name == '.gamebox_marker' || file.name == '.bettbox_marker',
     );
 
     if (hasBettboxMarker) {
@@ -2038,11 +2032,16 @@ class AppController {
     final configs = archive.files
         .where(
           (item) =>
-              item.name.endsWith('.json') && item.name != '.bettbox_marker',
+              item.name.endsWith('.json') &&
+              item.name != '.gamebox_marker' &&
+              item.name != '.bettbox_marker',
         )
         .toList();
     final profiles = archive.files.where(
-      (item) => !item.name.endsWith('.json') && item.name != '.bettbox_marker',
+      (item) =>
+          !item.name.endsWith('.json') &&
+          item.name != '.gamebox_marker' &&
+          item.name != '.bettbox_marker',
     );
 
     // Find config.json

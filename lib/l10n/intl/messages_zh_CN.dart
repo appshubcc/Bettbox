@@ -264,7 +264,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "deleteTip": m2,
     "deleteTunnel": MessageLookupByLibrary.simpleMessage("删除转发"),
     "desc": MessageLookupByLibrary.simpleMessage(
-      "Bettbox 基于强大灵活的 Mihomo (Clash.Meta) 代理内核，致力于更好的体验，我们的愿景: Connecting Open Source and AI，Accelerating Innovation",
+      "Gamebox 基于强大灵活的 Mihomo (Clash.Meta) 代理内核，致力于更好的体验。",
     ),
     "destination": MessageLookupByLibrary.simpleMessage("目标地址"),
     "destinationGeoIP": MessageLookupByLibrary.simpleMessage("目标地理定位"),
@@ -636,7 +636,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "operatorOrAsn": MessageLookupByLibrary.simpleMessage("归属 / ASN"),
     "options": MessageLookupByLibrary.simpleMessage("选项"),
     "other": MessageLookupByLibrary.simpleMessage("其他"),
-    "otherContributors": MessageLookupByLibrary.simpleMessage("其他贡献者(随机排序)"),
+    "otherContributors": MessageLookupByLibrary.simpleMessage("贡献者"),
     "otherSettings": MessageLookupByLibrary.simpleMessage("增强工具"),
     "otherSettingsDesc": MessageLookupByLibrary.simpleMessage("修改增强工具设置"),
     "outboundMode": MessageLookupByLibrary.simpleMessage("出站模式"),

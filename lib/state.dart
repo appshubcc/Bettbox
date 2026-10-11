@@ -233,9 +233,8 @@ class GlobalState {
           ),
         );
     await globalState.migrateOldData(config);
-    final locale =
-        utils.getLocaleForString(config.appSetting.locale) ??
-        utils.getSystemLocale();
+    // [Gamebox] 启动文案固定简体中文。
+    const locale = Locale('zh', 'CN');
     await AppLocalizations.load(locale);
   }
 
@@ -628,10 +627,10 @@ class GlobalState {
       preferences.saveConfig(config);
     }
 
-    if (config.appSetting.locale == null) {
-      final systemLocale = utils.getSystemLocale();
+    if (config.appSetting.locale == null || config.appSetting.locale != 'zh_CN') {
+      // [Gamebox] 语言列表只留简体中文，已保存的其它语言也改回来。
       config = config.copyWith(
-        appSetting: config.appSetting.copyWith(locale: systemLocale.toString()),
+        appSetting: config.appSetting.copyWith(locale: 'zh_CN'),
       );
       preferences.saveConfig(config);
       this.config = config;

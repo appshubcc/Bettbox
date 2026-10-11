@@ -120,6 +120,13 @@ install(PROGRAMS "${CLASH_DIR}/BettboxHelperService.exe" DESTINATION "${INSTALL_
 install(FILES "WindowsLoopbackManager.exe" DESTINATION "${INSTALL_BUNDLE_LIB_DIR}"
   COMPONENT Runtime)
 
+# [Gamebox] 使用说明。内容暂用 iGame 的 README.html，和主程序放在同一目录。
+install(FILES
+  "${CMAKE_CURRENT_SOURCE_DIR}/../assets/manual/README.html"
+  "${CMAKE_CURRENT_SOURCE_DIR}/../assets/manual/app-icon.ico"
+  DESTINATION "${INSTALL_BUNDLE_LIB_DIR}"
+  COMPONENT Runtime)
+
 if(PLUGIN_BUNDLED_LIBRARIES)
   install(FILES "${PLUGIN_BUNDLED_LIBRARIES}"
     DESTINATION "${INSTALL_BUNDLE_LIB_DIR}"

@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>iGame+ 使用说明</title>
+    <link rel="icon" href="app-icon.ico" type="image/x-icon" />
+    <style>
+      :root {
+        --text: #1a2332;
+        --text-muted: #5c6b7a;
+        --accent: #1565c0;
+        --accent-soft: #e3f2fd;
+        --border: #e4e8ec;
+        --card-bg: #ffffff;
+        --page-bg: #e8ecef;
+        --success-tint: #e8f5e9;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        font-family: system-ui, -apple-system, "Segoe UI", "Microsoft YaHei",
+          sans-serif;
+        margin: 0;
+        padding: 1.5rem 1rem 2.5rem;
+        line-height: 1.7;
+        color: var(--text);
+        background: var(--page-bg);
+        -webkit-font-smoothing: antialiased;
+      }
+      .doc {
+        max-width: 42rem;
+        margin: 0 auto;
+        background: var(--card-bg);
+        border-radius: 14px;
+        box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06),
+          0 10px 28px rgba(15, 23, 42, 0.07);
+        padding: 1.75rem 1.75rem 2.25rem;
+        border: 1px solid rgba(0, 0, 0, 0.04);
+      }
+      @media (min-width: 480px) {
+        .doc {
+          padding: 2rem 2.25rem 2.5rem;
+        }
+      }
+      .doc header {
+        text-align: center;
+        margin-bottom: 1.75rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 1px solid var(--border);
+      }
+      h1 {
+        font-size: 1.55rem;
+        font-weight: 700;
+        margin: 0 0 0.5rem;
+        color: var(--accent);
+        letter-spacing: 0.02em;
+      }
+      .muted {
+        color: var(--text-muted);
+        font-size: 0.95rem;
+        line-height: 1.6;
+        margin: 0 auto;
+        max-width: 28em;
+      }
+      h2 {
+        font-size: 1.12rem;
+        font-weight: 600;
+        margin: 0 0 0.9rem;
+        color: #0d47a1;
+        padding: 0.25rem 0 0.45rem 0.65rem;
+        border-left: 3px solid var(--accent);
+        background: linear-gradient(
+          90deg,
+          var(--accent-soft) 0%,
+          rgba(227, 242, 253, 0) 100%
+        );
+        border-radius: 0 6px 6px 0;
+      }
+      section {
+        margin-bottom: 1.5rem;
+      }
+      section:last-of-type {
+        margin-bottom: 0;
+      }
+      p,
+      li {
+        margin: 0.5rem 0;
+      }
+      .doc p:not(.muted) {
+        text-align: justify;
+        text-justify: inter-ideograph;
+        hyphens: auto;
+      }
+      ul {
+        margin: 0.5rem 0 0.25rem;
+        padding-left: 1.4rem;
+      }
+      li {
+        margin: 0.35rem 0;
+        padding-left: 0.15rem;
+      }
+      .important {
+        background: linear-gradient(180deg, #fffbf0 0%, #fff8e6 100%);
+        border: 1px solid #e6d5a8;
+        border-radius: 10px;
+        padding: 0.85rem 1.05rem;
+        margin: 0.9rem 0 0.65rem;
+        font-size: 0.98rem;
+        line-height: 1.6;
+        box-shadow: 0 1px 0 rgba(255, 255, 255, 0.6) inset;
+      }
+      .doc .important p {
+        margin: 0;
+        text-align: start;
+        line-height: 1.65;
+      }
+      .doc .important p + p {
+        margin-top: 0.4em;
+        padding-left: 1.5em;
+        color: #2d3a47;
+      }
+      code {
+        background: #f0f2f4;
+        padding: 0.12em 0.4em;
+        border-radius: 4px;
+        font-size: 0.9em;
+      }
+      figure {
+        margin: 0 0 1rem;
+        padding: 0.65rem 0.65rem 0.5rem;
+        text-align: center;
+        background: #f7f9fb;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+      }
+      figure img {
+        max-width: 100%;
+        height: auto;
+        border-radius: 7px;
+        border: 1px solid #dde3e8;
+        vertical-align: middle;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+      }
+      figcaption {
+        margin-top: 0.5rem;
+        font-size: 0.8rem;
+        color: #6b7c8c;
+        text-align: center;
+        letter-spacing: 0.06em;
+      }
+      .other-block {
+        margin-top: 0.5rem;
+        padding-top: 1.25rem;
+        border-top: 1px dashed var(--border);
+      }
+      a {
+        color: var(--accent);
+        text-decoration: none;
+        border-bottom: 1px solid rgba(21, 101, 192, 0.35);
+        transition: color 0.15s, border-color 0.15s;
+      }
+      a:hover {
+        color: #0d47a1;
+        border-bottom-color: #0d47a1;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="doc" role="main">
+      <header>
+        <h1>iGame+ 使用说明</h1>
+        <p class="muted">写给日常玩游戏的朋友：本软件开箱即用，不用研究复杂选项。</p>
+      </header>
+
+      <section aria-labelledby="step-1">
+        <h2 id="step-1">第一步：选择线路</h2>
+        <figure>
+          <img
+            src="manual/step1-choose-line.png"
+            alt="当前节点：代理组选选择节点，节点可选自动选择或具体线路，图中红箭头指向自动选择"
+            loading="lazy"
+          />
+          <figcaption>配图 1</figcaption>
+        </figure>
+        <p>
+          在「当前节点」点击 <strong>「节点」</strong>选择适合自己的线路；也可以使用默认
+          <strong>「自动选择」</strong>。
+        </p>
+        <div class="important">
+          <p><strong>「自动选择」解释说明</strong>：</p>
+          <p>故障转移策略，默认按顺序选择，当前线路不可用时自动切换下一条线路。</p>
+        </div>
+      </section>
+
+      <section aria-labelledby="step-2">
+        <h2 id="step-2">第二步：启动代理</h2>
+        <figure>
+          <img
+            src="manual/step2-enable-tun.png"
+            alt="网络设置中选中虚拟网卡模式，并打开虚拟网卡模式开关以启用 TUN"
+            loading="lazy"
+          />
+          <figcaption>配图 2</figcaption>
+        </figure>
+        <div class="important">虚拟网卡模式（TUN）：适合玩游戏场景。</div>
+        <ul>
+          <li>系统代理：适合浏览网页场景。</li>
+          <li>二者一般不必同时开启；按使用场景选一种即可。</li>
+        </ul>
+      </section>
+
+      <section aria-labelledby="step-3">
+        <h2 id="step-3">第三步：验证代理</h2>
+        <figure>
+          <img
+            src="manual/step3-ip-info.png"
+            alt="首页 IP 信息卡片，显示国家、归属地与运营商，用于确认已走代理出口"
+            loading="lazy"
+          />
+          <figcaption>配图 3</figcaption>
+        </figure>
+        <p>
+          开启代理后，查看 <strong>「IP 信息」</strong> 是否已变为与节点地区一致的出口。
+        </p>
+      </section>
+
+      <section aria-labelledby="mode-title">
+        <h2 id="mode-title">代理模式说明</h2>
+        <div class="important">
+          <strong>规则</strong>：最常用，国内外自动分流，不影响国内软件使用。
+        </div>
+        <ul>
+          <li><strong>直连</strong>：全部流量走本地。</li>
+        </ul>
+      </section>
+
+      <section class="other-block" aria-labelledby="other-title">
+        <h2 id="other-title">其他问题</h2>
+        <p>
+          连不上、延迟高、打不开网页等，先确认 <strong>线路/节点</strong> 可连接，并已按上面对应开启
+          <strong>TUN</strong>（若玩游戏）。
+        </p>
+        <p>
+          仍解决不了，请
+          <a
+            href="https://qm.qq.com/q/xjr21slB74"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <strong>联系商家</strong>
+          </a>
+          协助解决。
+        </p>
+      </section>
+    </main>
+  </body>
+</html>

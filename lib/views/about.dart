@@ -15,9 +15,8 @@ class Contributor {
   const Contributor({required this.avatar, required this.name});
 }
 
-// [Gamebox] 关于页外链。使用说明暂指 iGame Windows 仓库，群组和 QQ 与 iGame 客户端相同。
-// 上游分别是 Github Releases、telegram.me/appshub_chat、telegram.me/appshub_channel。
-const _usageUrl = 'https://github.com/mouren1988/iGame-for-Windows';
+// [Gamebox] 使用说明打开程序目录里的 README.html，内容暂用 iGame 的手册。
+// 群组链接与 iGame 相同。上游分别是 Github Releases、telegram.me/appshub_chat、telegram.me/appshub_channel。
 const _groupUrl = 'https://t.me/+UOt2DJZ7Qyo2YzA9';
 const _qqGroupUrl = 'https://qm.qq.com/q/xjr21slB74';
 const _repoAvatarUrl = 'https://github.com/mouren1988.png';
@@ -48,7 +47,7 @@ class AboutView extends StatelessWidget {
           left: _LinkGridTile(
             title: '使用说明',
             icon: Icons.menu_book_outlined,
-            onTap: () => globalState.openUrl(_usageUrl),
+            onTap: () => globalState.openUserManual(),
           ),
           right: _LinkGridTile(
             title: appLocalizations.checkUpdate,
@@ -58,12 +57,12 @@ class AboutView extends StatelessWidget {
         ),
         _LinkGridRow(
           left: _LinkGridTile(
-            title: '我的群组',
+            title: 'Telegram Group',
             icon: Icons.launch,
             onTap: () => globalState.openUrl(_groupUrl),
           ),
           right: _LinkGridTile(
-            title: '我的QQ群',
+            title: 'QQ交流群',
             icon: Icons.launch,
             onTap: () => globalState.openUrl(_qqGroupUrl),
           ),

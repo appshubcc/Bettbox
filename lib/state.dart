@@ -619,6 +619,21 @@ class GlobalState {
     launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
   }
 
+  // [Gamebox] 使用说明打开安装目录中的 README.html。上游关于页打开的是 Github Releases。
+  Future<void> openUserManual() async {
+    final manualPath =
+        '${appPath.executableDirPath}${Platform.pathSeparator}README.html';
+    if (!File(manualPath).existsSync()) {
+      showNotifier('未找到使用说明');
+      return;
+    }
+    if (Platform.isWindows) {
+      await Process.start('cmd', ['/c', 'start', '', manualPath]);
+      return;
+    }
+    await launchUrl(Uri.file(manualPath), mode: LaunchMode.externalApplication);
+  }
+
   Future<void> migrateOldData(Config config) async {
     final clashConfig = await preferences.getClashConfig();
     if (clashConfig != null) {

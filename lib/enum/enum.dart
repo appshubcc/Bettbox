@@ -312,6 +312,8 @@ enum DashboardWidget {
   ),
   outboundModeV2(GridItem(crossAxisCellCount: 8, child: OutboundModeV2())),
   outboundMode(GridItem(crossAxisCellCount: 4, child: OutboundMode())),
+  // [Gamebox] 与出站模式同宽同高。
+  userProfile(GridItem(crossAxisCellCount: 4, child: UserProfileCard())),
   trafficUsage(GridItem(crossAxisCellCount: 4, child: TrafficUsage())),
   networkDetection(GridItem(crossAxisCellCount: 4, child: NetworkDetection())),
   tunButton(

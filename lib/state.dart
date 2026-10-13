@@ -26,6 +26,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'common/common.dart';
 import 'controller.dart';
 import 'models/models.dart';
+import 'panel/panel_site.dart';
 
 typedef UpdateTasks = List<FutureOr Function()>;
 
@@ -72,6 +73,13 @@ class GlobalState {
   final navigatorKey = GlobalKey<NavigatorState>();
   final backgroundMode = ValueNotifier<bool>(false);
   final animationEnabled = ValueNotifier<bool>(true);
+  // [Gamebox] 冷启动先登录。登录成功后再走原版 init。
+  final panelUnlocked = ValueNotifier<bool>(false);
+  final panelAccountName = ValueNotifier<String>('');
+  Future<void> Function()? openMainAfterLogin;
+  Future<void> Function()? clearPanelSubscriptions;
+  bool mainStarted = false;
+  bool skipPanelAutoLogin = false;
   AppController? _appController;
   bool? _isAndroidTV;
   int _taskLoopToken = 0;
@@ -1072,6 +1080,23 @@ class GlobalState {
     } else if (rawConfig['rule'] != null) {
       rules = rawConfig['rule'];
       rawConfig.remove('rule');
+    }
+
+    // [Gamebox] 源站 + 反代域名置顶 DIRECT，并进 fake-ip-filter，避免 TUN Fake-IP。
+    final panelDirect = panelTunDirectRules();
+    if (panelDirect.isNotEmpty) {
+      rules = [...panelDirect, ...rules];
+      if (rawConfig['dns'] is Map) {
+        final dns = rawConfig['dns'] as Map;
+        final filter = dns['fake-ip-filter'];
+        final list = filter is List ? List<dynamic>.from(filter) : <dynamic>[];
+        for (final host in panelAllHosts()) {
+          if (!list.contains(host)) {
+            list.add(host);
+          }
+        }
+        dns['fake-ip-filter'] = list;
+      }
     }
 
     final scriptActive =

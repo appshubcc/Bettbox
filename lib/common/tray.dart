@@ -34,6 +34,9 @@ class Tray {
     unawaited(globalState.appController.updateTray(false, true));
   }
 
+  // [Gamebox] 登录窗口不显示托盘。退出账号后先挡住重建，等再次进入主界面再放开。
+  bool _hiddenUntilLogin = false;
+
   bool _traySpeedEnabled = false;
   bool _trayTrafficActive = false;
   bool _isSpeedTitleVisible = false;
@@ -83,13 +86,31 @@ class Tray {
     }
   }
 
+  // [Gamebox] 回到登录窗时拆掉托盘图标。之后 update 不会再把它建回来。
+  Future<void> hideUntilLogin() async {
+    _hiddenUntilLogin = true;
+    _debounceTimer?.cancel();
+    _pendingState = null;
+    _pendingFocus = false;
+    _pendingSilent = false;
+    if (system.isAndroid) return;
+    try {
+      await trayManager.destroy();
+    } catch (_) {}
+  }
+
+  // [Gamebox] 登录成功后再允许托盘。第一次进主界面由 init 创建，退出后再登录要补一次。
+  void releaseForMain() {
+    _hiddenUntilLogin = false;
+  }
+
   Future<void> update({
     required TrayState trayState,
     bool focus = false,
     bool silent = false,
     bool force = false,
   }) async {
-    if (system.isAndroid) {
+    if (system.isAndroid || _hiddenUntilLogin) {
       return;
     }
 
@@ -120,7 +141,7 @@ class Tray {
     bool focus = false,
     bool silent = false,
   }) async {
-    if (_isUpdating) return;
+    if (_hiddenUntilLogin || _isUpdating) return;
     _isUpdating = true;
 
     try {
@@ -314,7 +335,16 @@ class Tray {
     } finally {
       _isUpdating = false;
 
-      if (_pendingState != null) {
+      if (_hiddenUntilLogin) {
+        _pendingState = null;
+        _pendingFocus = false;
+        _pendingSilent = false;
+        if (!system.isAndroid) {
+          try {
+            await trayManager.destroy();
+          } catch (_) {}
+        }
+      } else if (_pendingState != null) {
         final pending = _pendingState;
         final pendingFocus = _pendingFocus;
         final pendingSilent = _pendingSilent;

@@ -90,8 +90,7 @@ begin
     '$ErrorActionPreference = ''SilentlyContinue'';' + #13#10 +
     'Write-Host "Cleaning old Wintun/Gamebox network adapters...";' + #13#10 +
     '$adapters = Get-NetAdapter | Where-Object {' + #13#10 +
-    '$_.InterfaceDescription -like "*Gamebox*" -or $_.Name -like "*Gamebox*" -or' + #13#10 +
-    '  $_.InterfaceDescription -like "*Bettbox*" -or $_.Name -like "*Bettbox*"' + #13#10 +
+    '$_.InterfaceDescription -like "*Gamebox*" -or $_.Name -like "*Gamebox*"' + #13#10 +
     '};' + #13#10 +
     'if ($adapters) {' + #13#10 +
     '  foreach ($adapter in $adapters) {' + #13#10 +
@@ -216,10 +215,9 @@ var
   RegistryKeys: TArrayOfString;
   i: Integer;
 begin
-  SetArrayLength(RegistryKeys, 2);
-  // [Gamebox] 数据目录跟着产品名走。同时清掉改名前的 Bettbox 目录。
+  SetArrayLength(RegistryKeys, 1);
+  // [Gamebox] 只清本程序的注册表。Bettbox 用同级目录，不能一起删。
   RegistryKeys[0] := 'Software\com.appshub\Gamebox';
-  RegistryKeys[1] := 'Software\com.appshub\Bettbox';
   
   for i := 0 to GetArrayLength(RegistryKeys)-1 do
   begin
@@ -235,9 +233,10 @@ var
 begin
   AppDataPath := ExpandConstant('{userappdata}');
   
-  SetArrayLength(UserDataPaths, 2);
+  SetArrayLength(UserDataPaths, 1);
+  // [Gamebox] 只删 com.appshub\Gamebox。Bettbox 的配置在同级目录里，卸载本程序不能带走。
+  // RemoveDir 只能删空目录，Bettbox 还在时父目录会留着。
   UserDataPaths[0] := AppDataPath + '\com.appshub\Gamebox';
-  UserDataPaths[1] := AppDataPath + '\com.appshub\Bettbox';
   
   for i := 0 to GetArrayLength(UserDataPaths)-1 do
   begin
@@ -334,7 +333,9 @@ chineseSimplified.RemoveUserDataPrompt=是否要删除所有用户数据？%n%n�
 {% endif %}
 
 [Tasks]
-Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: {% if CREATE_DESKTOP_ICON != true %}unchecked{% else %}checkedonce{% endif %}
+; [Gamebox] 每次安装（含覆盖升级）都默认勾选「创建桌面快捷方式」。
+; 不用 unchecked / checkedonce：后者会记住上次取消勾选，覆盖安装时桌面图标容易丢。
+Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"
 [Files]
 Source: "{{SOURCE_DIR}}\\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files

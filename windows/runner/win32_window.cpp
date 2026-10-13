@@ -18,10 +18,12 @@ namespace
 #define DWMWA_USE_IMMERSIVE_DARK_MODE 20
 #endif
 
+// [Gamebox] 窗口类必须和官方 Bettbox 分开。类名或标题仍是 Bettbox 时，
+// FindWindow 会找到正在运行的原版，本程序会直接退出。
 #ifdef BETTBOX_DEV
-  constexpr const wchar_t kWindowClassName[] = L"BETTBOX_DEV_RUNNER_WIN32_WINDOW";
+  constexpr const wchar_t kWindowClassName[] = L"GAMEBOX_DEV_RUNNER_WIN32_WINDOW";
 #else
-  constexpr const wchar_t kWindowClassName[] = L"BETTBOX_RUNNER_WIN32_WINDOW";
+  constexpr const wchar_t kWindowClassName[] = L"GAMEBOX_RUNNER_WIN32_WINDOW";
 #endif
 
   /// Registry key for app theme preference.
@@ -34,6 +36,42 @@ namespace
 
   // The number of Win32Window objects that currently exist.
   static int g_active_window_count = 0;
+
+  // [Gamebox] 登录小窗圆角开关。Dart 用 SetProp 打开，进主界面前关掉。
+  constexpr const wchar_t kLoginRoundProp[] = L"GameboxLoginRound";
+
+  void ApplyRoundCorner(HWND target, int radius) {
+    if (!target) {
+      return;
+    }
+    RECT rect;
+    if (!GetWindowRect(target, &rect)) {
+      return;
+    }
+    const int width = rect.right - rect.left;
+    const int height = rect.bottom - rect.top;
+    if (width <= 0 || height <= 0) {
+      return;
+    }
+    HRGN region = CreateRoundRectRgn(0, 0, width + 1, height + 1, radius * 2,
+                                     radius * 2);
+    if (region) {
+      SetWindowRgn(target, region, TRUE);
+    }
+  }
+
+  void UpdateLoginCorners(HWND hwnd) {
+    if (!GetProp(hwnd, kLoginRoundProp)) {
+      return;
+    }
+    UINT dpi = GetDpiForWindow(hwnd);
+    if (dpi == 0) {
+      dpi = 96;
+    }
+    const int radius = MulDiv(12, static_cast<int>(dpi), 96);
+    // [Gamebox] 只裁外层窗口。内容窗口已经铺满，再裁一次会露出白边。
+    ApplyRoundCorner(hwnd, radius);
+  }
 
   using EnableNonClientDpiScaling = BOOL __stdcall(HWND hwnd);
 
@@ -278,8 +316,17 @@ Win32Window::MessageHandler(HWND hwnd,
       MoveWindow(child_content_, rect.left, rect.top, rect.right - rect.left,
                  rect.bottom - rect.top, TRUE);
     }
+    // [Gamebox] 外层和 Flutter 内容窗口一起收圆，避免只裁外框后露出白边。
+    UpdateLoginCorners(hwnd);
     return 0;
   }
+
+  case WM_ERASEBKGND:
+    // [Gamebox] 登录圆角时不要用系统白底去填被裁掉的角。
+    if (GetProp(hwnd, kLoginRoundProp)) {
+      return 1;
+    }
+    break;
 
   case WM_ACTIVATE:
     if (child_content_ != nullptr)

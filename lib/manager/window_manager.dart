@@ -41,10 +41,13 @@ class _WindowContainerState extends ConsumerState<WindowManager>
   }
 
   void _scheduleWindowGeometryCapture() {
+    // [Gamebox] 登录小窗的尺寸不要写进主窗口配置。
+    if (!globalState.panelUnlocked.value) return;
     final revision = ++_windowGeometryRevision;
     _windowGeometryTimer?.cancel();
     _windowGeometryTimer = Timer(const Duration(milliseconds: 125), () async {
       if (!mounted || revision != _windowGeometryRevision) return;
+      if (!globalState.panelUnlocked.value) return;
       final isAbnormal = (await windowManager.isMaximized()) ||
           (await windowManager.isFullScreen()) ||
           (await windowManager.isMinimized());
@@ -376,16 +379,23 @@ class _WindowHeaderState extends ConsumerState<WindowHeader> {
                       },
                       icon: const Icon(Icons.remove),
                     ),
-                    ValueListenableBuilder(
-                      valueListenable: isMaximizedNotifier,
-                      builder: (_, value, _) {
-                        return IconButton(
-                          onPressed: () async {
-                            _updateMaximized();
+                    // [Gamebox] 登录小窗不需要最大化，按钮先藏起来。
+                    ValueListenableBuilder<bool>(
+                      valueListenable: globalState.panelUnlocked,
+                      builder: (_, unlocked, _) {
+                        if (!unlocked) return const SizedBox.shrink();
+                        return ValueListenableBuilder(
+                          valueListenable: isMaximizedNotifier,
+                          builder: (_, value, _) {
+                            return IconButton(
+                              onPressed: () async {
+                                _updateMaximized();
+                              },
+                              icon: value
+                                  ? const Icon(Icons.filter_none, size: 20)
+                                  : const Icon(Icons.crop_square),
+                            );
                           },
-                          icon: value
-                              ? const Icon(Icons.filter_none, size: 20)
-                              : const Icon(Icons.crop_square),
                         );
                       },
                     ),
@@ -423,6 +433,7 @@ class _WindowHeaderState extends ConsumerState<WindowHeader> {
                   windowManager.startDragging();
                 },
                 onDoubleTap: () {
+                  if (!globalState.panelUnlocked.value) return;
                   _updateMaximized();
                 },
               ),

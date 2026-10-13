@@ -28,6 +28,7 @@ import 'package:yaml/yaml.dart';
 import 'common/archive.dart' show restoreBackupFiles;
 import 'common/common.dart';
 import 'models/models.dart';
+import 'panel/panel_auth.dart';
 import 'views/profiles/override_profile.dart';
 
 class AppController {
@@ -469,6 +470,24 @@ class AppController {
     }
   }
 
+  // [Gamebox] 退出账号和退出软件时清掉全部订阅配置。
+  // 登录小窗阶段内核还没 init，只删配置和文件，不走原版的停代理。
+  Future<void> deleteAllProfiles({bool throughCore = true}) async {
+    final ids = globalState.config.profiles.map((profile) => profile.id).toList();
+    // [Gamebox] 退出进程时只删文件。停代理留给原来的 handleExit，避免退出被拖慢。
+    if (!globalState.mainStarted || !throughCore) {
+      for (final id in ids) {
+        _ref.read(profilesProvider.notifier).deleteProfileById(id);
+        await clearEffect(id);
+      }
+      _ref.read(currentProfileIdProvider.notifier).value = null;
+      return;
+    }
+    for (final id in ids) {
+      await deleteProfile(id);
+    }
+  }
+
   Future<void> updateProviders() async {
     _ref.read(providersProvider.notifier).value = await clashCore
         .getExternalProviders();
@@ -489,7 +508,10 @@ class AppController {
     }
     _updatingProfileIds.add(profile.id);
     try {
-      final newProfile = await profile.update(validate: validate);
+      // [Gamebox] 面板订阅：反代优先、源站兜底（勿走原版只打 Profile.url 一次）。
+      final newProfile = isPanelSubscribeUrl(profile.url)
+          ? await updatePanelSubscribeProfile(profile, validate: validate)
+          : await profile.update(validate: validate);
       _ref
           .read(profilesProvider.notifier)
           .setProfile(newProfile.copyWith(isUpdating: false));
@@ -1001,6 +1023,11 @@ class AppController {
     if (_ref.read(backBlockProvider)) {
       return;
     }
+    // [Gamebox] 登录小窗点关闭就是退出进程。
+    if (!globalState.panelUnlocked.value) {
+      await handleExit();
+      return;
+    }
     if (system.isDesktop) {
       await savePreferences();
     }
@@ -1043,6 +1070,11 @@ class AppController {
     globalState.isExiting = true;
 
     try {
+      try {
+        await globalState.clearPanelSubscriptions?.call();
+      } catch (e) {
+        commonPrint.log('clearPanelSubscriptions: $e');
+      }
       if (system.isDesktop) {
         try {
           await trayManager.destroy();
@@ -1172,6 +1204,9 @@ class AppController {
   }
 
   Future<void>? _initCoreFuture;
+
+  /// [Gamebox] 仅预热内核连接/init，不触发自动连接。供登录窗后台调用。
+  Future<void> preheatCoreWhileLogin() => _initCore();
 
   Future<void> _initCore() {
     return _initCoreFuture ??= () async {
@@ -1318,13 +1353,11 @@ class AppController {
 
     final isWindowVisible = await window?.isVisible ?? false;
     if (isWindowVisible) {
-      window?.show();
+      await window?.show();
+    } else if (!_ref.read(appSettingProvider).silentLaunch) {
+      await window?.show();
     } else {
-      if (!_ref.read(appSettingProvider).silentLaunch) {
-        window?.show();
-      } else {
-        window?.hide();
-      }
+      await window?.hide();
     }
     await syncDesktopRuntimeState(preferCurrentState: true);
     await updateTray(true, false, true);

@@ -158,11 +158,12 @@ class Build {
       workingDirectory: workingDirectory,
       runInShell: runInShell,
     );
+    // Windows 控制台常混入本机代码页字节，严格 UTF-8 会直接崩掉打包日志。
     process.stdout.listen((data) {
-      print(utf8.decode(data));
+      print(utf8.decode(data, allowMalformed: true));
     });
     process.stderr.listen((data) {
-      print(utf8.decode(data));
+      print(utf8.decode(data, allowMalformed: true));
     });
     final exitCode = await process.exitCode;
     if (exitCode != 0 && name != null) throw '$name error';
@@ -866,8 +867,8 @@ class BuildCommand extends Command {
         final token = target != Target.android
             ? await Build.calcSha256(corePaths.first)
             : null;
-        Build.buildHelper(target, token!);
-        _buildDistributor(
+        await Build.buildHelper(target, token!);
+        await _buildDistributor(
           target: target,
           targets: 'exe',
           args: ' --description $desc --build-dart-define=CORE_SHA256=$token',

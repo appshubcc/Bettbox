@@ -297,8 +297,9 @@ abstract class Tun with _$Tun {
     @Default([])
     List<String> routeExcludeAddress,
     @JsonKey(name: 'strict-route') @Default(false) bool strictRoute,
+    // [Gamebox] 默认开启 ICMP 转发。上游默认关闭，对应 disable-icmp-forwarding 为 true。
     @JsonKey(name: 'disable-icmp-forwarding')
-    @Default(true)
+    @Default(false)
     bool disableIcmpForwarding,
     @Default(9000) int mtu,
     @JsonKey(name: 'endpoint-independent-nat')

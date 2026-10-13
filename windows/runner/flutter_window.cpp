@@ -1,5 +1,7 @@
 #include "flutter_window.h"
 
+#include <d3d11.h>
+#include <dxgi.h>
 #include <shlobj.h>
 
 #include <cwchar>
@@ -8,10 +10,12 @@
 
 #include "flutter/generated_plugin_registrant.h"
 
+// [Gamebox] 图标清理只用自己的注册表项。上游是 Software\Bettbox，
+// 继续用那个键会删掉官方客户端的图标设置。
 #ifdef BETTBOX_DEV
-#define BETTBOX_REG_KEY L"Software\\BettboxDev"
+#define BETTBOX_REG_KEY L"Software\\GameboxDev"
 #else
-#define BETTBOX_REG_KEY L"Software\\Bettbox"
+#define BETTBOX_REG_KEY L"Software\\Gamebox"
 #endif
 
 // TODO: Legacy cleanup routines to revert modified shortcuts/registry for users
@@ -167,7 +171,7 @@ void CleanupLegacyIconSettings() {
 
 constexpr const char kClipboardChannel[] = "clipboard_ext";
 constexpr const char kPasteMethod[] = "paste";
-constexpr const wchar_t kFlutterWindowProp[] = L"BettboxFlutterWindow";
+constexpr const wchar_t kFlutterWindowProp[] = L"GameboxFlutterWindow";
 
 }  // namespace
 
@@ -175,6 +179,28 @@ FlutterWindow::FlutterWindow(const flutter::DartProject& project)
     : project_(project) {}
 
 FlutterWindow::~FlutterWindow() {}
+
+namespace {
+
+// [Gamebox] 虚拟机经常没有硬件显卡。Direct3D 11 建不起来时，Flutter 窗口会创建失败并立刻退出。
+bool HardwareD3D11Available() {
+  ID3D11Device* device = nullptr;
+  ID3D11DeviceContext* context = nullptr;
+  D3D_FEATURE_LEVEL feature_level = D3D_FEATURE_LEVEL_9_1;
+  const HRESULT hr = D3D11CreateDevice(
+      nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, 0, nullptr, 0,
+      D3D11_SDK_VERSION, &device, &feature_level, &context);
+  const bool usable = SUCCEEDED(hr) && feature_level >= D3D_FEATURE_LEVEL_9_3;
+  if (context) {
+    context->Release();
+  }
+  if (device) {
+    device->Release();
+  }
+  return usable;
+}
+
+}  // namespace
 
 void FlutterWindow::SubclassViewWindow() {
   if (!flutter_controller_ || !flutter_controller_->view()) {
@@ -246,12 +272,23 @@ bool FlutterWindow::OnCreate() {
   // TODO: Revert legacy shortcut and registry overrides once; remove in a future release.
   CleanupLegacyIconSettings();
 
+  // [Gamebox] 没有可用的硬件显卡时，先切到 WARP 软件渲染，再创建 Flutter 视图。
+  if (!HardwareD3D11Available()) {
+    ::SetEnvironmentVariableW(L"ANGLE_DEFAULT_PLATFORM", L"warp");
+  }
+
   RECT frame = GetClientArea();
 
   flutter_controller_ = std::make_unique<flutter::FlutterViewController>(
       frame.right - frame.left, frame.bottom - frame.top, project_);
   if (!flutter_controller_->engine() || !flutter_controller_->view()) {
-    return false;
+    flutter_controller_.reset();
+    ::SetEnvironmentVariableW(L"ANGLE_DEFAULT_PLATFORM", L"warp");
+    flutter_controller_ = std::make_unique<flutter::FlutterViewController>(
+        frame.right - frame.left, frame.bottom - frame.top, project_);
+    if (!flutter_controller_->engine() || !flutter_controller_->view()) {
+      return false;
+    }
   }
   RegisterPlugins(flutter_controller_->engine());
 
@@ -286,6 +323,13 @@ LRESULT
 FlutterWindow::MessageHandler(HWND hwnd, UINT const message,
                               WPARAM const wparam,
                               LPARAM const lparam) noexcept {
+  // [Gamebox] 登录小窗铺满整个窗口。否则 window_manager 在 Windows 10 上
+  // 会留出一圈边框，裁圆角之后这圈就变成白底。
+  if (message == WM_NCCALCSIZE && wparam &&
+      GetProp(hwnd, L"GameboxLoginRound")) {
+    return 0;
+  }
+
   if (flutter_controller_) {
     std::optional<LRESULT> result =
         flutter_controller_->HandleTopLevelWindowProc(hwnd, message, wparam,

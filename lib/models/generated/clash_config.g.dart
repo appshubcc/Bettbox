@@ -192,7 +192,7 @@ _Tun _$TunFromJson(Map<String, dynamic> json) => _Tun(
           .toList() ??
       const [],
   strictRoute: json['strict-route'] as bool? ?? false,
-  disableIcmpForwarding: json['disable-icmp-forwarding'] as bool? ?? true,
+  disableIcmpForwarding: json['disable-icmp-forwarding'] as bool? ?? false,
   mtu: (json['mtu'] as num?)?.toInt() ?? 9000,
   endpointIndependentNat: json['endpoint-independent-nat'] as bool? ?? false,
   autoRedirect: json['auto-redirect'] as bool? ?? false,

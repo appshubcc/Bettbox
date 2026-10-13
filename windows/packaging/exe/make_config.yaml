@@ -1,5 +1,6 @@
 script_template: inno_setup.iss
-app_id: 728B3532-C74B-4870-9068-BE70FE1LITES
+# [Gamebox] 必须和上游 Bettbox 的 AppId 不同，否则安装程序会装进同一个目录。
+app_id: E7A4C91B-2D58-4F63-9B10-6C8A3D5F12E4
 app_name: Gamebox
 publisher: appshub.cc
 publisher_url: https://github.com/appshubcc/Bettbox
@@ -13,3 +14,5 @@ locales:
     file: ..\windows\packaging\exe\ChineseSimplified.isl
   - lang: en
 privileges_required: admin
+# [Gamebox] 创建桌面快捷方式默认开启（配合 inno_setup.iss 去掉 unchecked/checkedonce）。
+create_desktop_icon: true

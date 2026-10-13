@@ -48,13 +48,13 @@ const defaultAccessControl = AccessControl();
 final defaultThemeProps = ThemeProps(primaryColor: defaultPrimaryColor);
 
 const List<DashboardWidget> defaultDashboardWidgets = [
+  // [Gamebox] 首页顺序按确认过的排版。用户信息在网络速度右侧。
   DashboardWidget.networkSpeed,
-  DashboardWidget.systemProxyButton,
-  DashboardWidget.tunButton,
-  DashboardWidget.outboundMode,
+  DashboardWidget.userProfile,
+  DashboardWidget.trafficUsage,
   DashboardWidget.networkDetection,
   DashboardWidget.intranetIp,
-  DashboardWidget.trafficUsage,
+  DashboardWidget.mediaUnlockSmall,
   DashboardWidget.memoryInfo,
   DashboardWidget.connectionsCount,
   DashboardWidget.startButton,
@@ -103,20 +103,32 @@ List<DashboardWidget> mobileDashboardWidgetsSafeFromJson(
 List<DashboardWidget> desktopDashboardWidgetsSafeFromJson(
   List<dynamic>? dashboardWidgets,
 ) {
+  List<DashboardWidget> widgets;
   try {
-    return dashboardWidgets
+    widgets =
+        dashboardWidgets
             ?.map((e) => $enumDecode(_$DashboardWidgetEnumMap, e))
             .toList() ??
         defaultDashboardWidgets;
   } catch (_) {
-    return defaultDashboardWidgets;
+    widgets = defaultDashboardWidgets;
   }
+  // [Gamebox] 旧配置里没有这张卡时，放在网络速度后面，和确认过的排版一致。
+  if (!widgets.contains(DashboardWidget.userProfile)) {
+    final next = List<DashboardWidget>.from(widgets);
+    final index = next.indexOf(DashboardWidget.networkSpeed);
+    next.insert(index >= 0 ? index + 1 : 0, DashboardWidget.userProfile);
+    return next;
+  }
+  return widgets;
 }
 
+// [Gamebox] 首页连通性测试默认四项。上游默认是 reddit、gemini、cloudflare。
 const List<MediaPlatform> defaultPinnedMediaPlatforms = [
-  MediaPlatform.reddit,
-  MediaPlatform.gemini,
-  MediaPlatform.cloudflare,
+  MediaPlatform.apple,
+  MediaPlatform.github,
+  MediaPlatform.steam,
+  MediaPlatform.discord,
 ];
 
 List<MediaPlatform> pinnedMediaPlatformsSafeFromJson(

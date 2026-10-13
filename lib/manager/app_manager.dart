@@ -243,13 +243,14 @@ final sidebarCollapsedProvider =
     });
 
 class SidebarCollapsedNotifier extends StateNotifier<bool> {
-  SidebarCollapsedNotifier() : super(false) {
+  // [Gamebox] 左侧菜单默认折叠。上游默认展开。
+  SidebarCollapsedNotifier() : super(true) {
     _init();
   }
 
   Future<void> _init() async {
     final prefs = await preferences.sharedPreferencesCompleter.future;
-    state = prefs?.getBool(sidebarCollapsedKey) ?? false;
+    state = prefs?.getBool(sidebarCollapsedKey) ?? true;
   }
 
   Future<void> toggle() async {

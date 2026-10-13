@@ -18,9 +18,9 @@
 namespace {
 
 #ifdef BETTBOX_DEV
-constexpr const wchar_t kAppUserModelId[] = L"Appshub.Bettbox.Dev";
+constexpr const wchar_t kAppUserModelId[] = L"Appshub.Gamebox.Dev";
 #else
-constexpr const wchar_t kAppUserModelId[] = L"Appshub.Bettbox";
+constexpr const wchar_t kAppUserModelId[] = L"Appshub.Gamebox";
 #endif
 
 static std::wstring GetDumpDirectory() {
@@ -33,7 +33,7 @@ static std::wstring GetDumpDirectory() {
   if (!dir.empty() && dir.back() != L'\\') {
     dir += L'\\';
   }
-  dir += L"Bettbox\\crash_dumps";
+  dir += L"Gamebox\\crash_dumps";
   return dir;
 }
 
@@ -116,13 +116,26 @@ int APIENTRY wWinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE prev,
 
   FlutterWindow window(project);
   Win32Window::Point origin(10, 10);
-  Win32Window::Size size(1280, 720);
+  // [Gamebox] 冷启动登录小窗固定宽 360、高 420。登录成功后 Dart 再恢复主窗口。
+  Win32Window::Size size(360, 420);
 #ifdef BETTBOX_DEV
-  const wchar_t *window_title = L"Bettbox Dev";
+  const wchar_t *window_title = L"Gamebox Dev";
+  const wchar_t *window_class = L"GAMEBOX_DEV_RUNNER_WIN32_WINDOW";
 #else
-  const wchar_t *window_title = L"Bettbox";
+  const wchar_t *window_title = L"Gamebox";
+  const wchar_t *window_class = L"GAMEBOX_RUNNER_WIN32_WINDOW";
 #endif
+  // [Gamebox] 已经有一个 Gamebox 窗口时，Create 会把本次启动交给它然后返回失败。
+  // 这种情况不要弹「无法创建窗口」。
+  const bool already_running =
+      ::FindWindow(window_class, window_title) != nullptr;
   if (!window.Create(window_title, origin, size, !is_control_command)) {
+    if (!already_running) {
+      ::MessageBoxW(
+          nullptr,
+          L"Gamebox \u65e0\u6cd5\u521b\u5efa\u7a97\u53e3\u3002\u865a\u62df\u673a\u8bf7\u5728\u8bbe\u7f6e\u91cc\u6253\u5f00 3D \u52a0\u901f\u540e\u518d\u8bd5\u3002",
+          L"Gamebox", MB_OK | MB_ICONERROR);
+    }
     return EXIT_FAILURE;
   }
   window.SetQuitOnClose(true);

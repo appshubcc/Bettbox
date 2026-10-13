@@ -19,7 +19,9 @@ class Contributor {
 // 群组链接与 iGame 相同。上游分别是 Github Releases、telegram.me/appshub_chat、telegram.me/appshub_channel。
 const _groupUrl = 'https://t.me/+UOt2DJZ7Qyo2YzA9';
 const _qqGroupUrl = 'https://qm.qq.com/q/xjr21slB74';
-const _repoAvatarUrl = 'https://github.com/mouren1988.png';
+// [Gamebox] 贡献者头像放在安装包内，打开关于页立即显示。
+// 上游同样使用本地图片。不要改回网络地址，国内打开 GitHub 头像会等几秒。
+const _repoAvatar = 'assets/images/avatars/mouren1988.jpg';
 
 class AboutView extends StatelessWidget {
   const AboutView({super.key});
@@ -46,7 +48,8 @@ class AboutView extends StatelessWidget {
         _LinkGridRow(
           left: _LinkGridTile(
             title: '使用说明',
-            icon: Icons.menu_book_outlined,
+            // [Gamebox] 沿用上游 Github Releases 的星星图标，只改打开的是使用说明。
+            icon: Icons.star,
             onTap: () => globalState.openUserManual(),
           ),
           right: _LinkGridTile(
@@ -57,7 +60,8 @@ class AboutView extends StatelessWidget {
         ),
         _LinkGridRow(
           left: _LinkGridTile(
-            title: 'Telegram Group',
+            // [Gamebox] 上游文案是 Telegram Group。
+            title: 'Telegram群组',
             icon: Icons.launch,
             onTap: () => globalState.openUrl(_groupUrl),
           ),
@@ -82,7 +86,7 @@ class AboutView extends StatelessWidget {
             alignment: Alignment.centerLeft,
             child: Avatar(
               contributor: Contributor(
-                avatar: _repoAvatarUrl,
+                avatar: _repoAvatar,
                 name: 'mouren1988',
               ),
             ),
@@ -170,14 +174,8 @@ class Avatar extends StatelessWidget {
         SizedBox(
           width: 36,
           height: 36,
-          child: ClipOval(
-            child: Image.network(
-              contributor.avatar,
-              width: 36,
-              height: 36,
-              fit: BoxFit.cover,
-              errorBuilder: (_, _, _) => const SizedBox(width: 36, height: 36),
-            ),
+          child: CircleAvatar(
+            foregroundImage: AssetImage(contributor.avatar),
           ),
         ),
         const SizedBox(height: 4),

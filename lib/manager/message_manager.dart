@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:bett_box/common/common.dart';
 import 'package:bett_box/models/models.dart';
+import 'package:bett_box/state.dart';
 import 'package:bett_box/widgets/fade_box.dart';
 import 'package:bett_box/widgets/text.dart';
 import 'package:flutter/material.dart';
@@ -76,79 +77,89 @@ class MessageManagerState extends State<MessageManager> {
     return Stack(
       children: [
         widget.child,
-        ValueListenableBuilder(
-          valueListenable: _messagesNotifier,
-          builder: (_, messages, _) {
-            return FadeThroughBox(
-              margin: EdgeInsets.only(
-                top: kToolbarHeight + 8,
-                left: 12,
-                right: 12,
-              ),
-              alignment: Alignment.topCenter,
-              child: messages.isEmpty
-                  ? SizedBox()
-                  : LayoutBuilder(
-                      key: Key(messages.last.id),
-                      builder: (_, constraints) {
-                        final message = messages.last;
-                        return Card(
-                          shape: const RoundedRectangleBorder(
-                            borderRadius: BorderRadius.all(
-                              Radius.circular(12.0),
-                            ),
-                          ),
-                          elevation: 10,
-                          color: context.colorScheme.surfaceContainerHigh,
-                          child: Container(
-                            width: min(constraints.maxWidth, 500),
-                            padding: EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 12,
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                if (message.showCountdown)
-                                  _CountdownWidget(
-                                    duration: message.duration,
-                                  ),
-                                Expanded(
-                                  child: EmojiText(
-                                    message.text,
-                                    textAlign: TextAlign.center,
-                                  ),
+        ValueListenableBuilder<bool>(
+          valueListenable: globalState.panelUnlocked,
+          builder: (_, unlocked, _) {
+            return ValueListenableBuilder(
+              valueListenable: _messagesNotifier,
+              builder: (_, messages, _) {
+                // [Gamebox] 登录窗无标题栏，通知贴顶；加宽左右边距、限制宽度，避免挡住关闭按钮。
+                // 主界面仍避开 AppBar（kToolbarHeight）。
+                return FadeThroughBox(
+                  margin: EdgeInsets.only(
+                    top: unlocked ? kToolbarHeight + 8 : 8,
+                    left: unlocked ? 12 : 56,
+                    right: unlocked ? 12 : 56,
+                  ),
+                  alignment: Alignment.topCenter,
+                  child: messages.isEmpty
+                      ? SizedBox()
+                      : LayoutBuilder(
+                          key: Key(messages.last.id),
+                          builder: (_, constraints) {
+                            final message = messages.last;
+                            return Card(
+                              shape: const RoundedRectangleBorder(
+                                borderRadius: BorderRadius.all(
+                                  Radius.circular(12.0),
                                 ),
-                                if (message.actionLabel != null &&
-                                    message.onAction != null) ...[
-                                  const SizedBox(width: 8),
-                                  TextButton(
-                                    onPressed: () {
-                                      _handleRemove(message);
-                                      message.onAction?.call();
-                                    },
-                                    style: TextButton.styleFrom(
-                                      minimumSize: Size.zero,
-                                      tapTargetSize:
-                                          MaterialTapTargetSize.shrinkWrap,
-                                      visualDensity: VisualDensity.compact,
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 8,
-                                        vertical: 4,
+                              ),
+                              elevation: 10,
+                              color: context.colorScheme.surfaceContainerHigh,
+                              child: Container(
+                                width: min(
+                                  constraints.maxWidth,
+                                  unlocked ? 500.0 : 240.0,
+                                ),
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 12,
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    if (message.showCountdown)
+                                      _CountdownWidget(
+                                        duration: message.duration,
                                       ),
-                                      foregroundColor:
-                                          context.colorScheme.primary,
+                                    Expanded(
+                                      child: EmojiText(
+                                        message.text,
+                                        textAlign: TextAlign.center,
+                                      ),
                                     ),
-                                    child: Text(message.actionLabel!),
-                                  ),
-                                ],
-                              ],
-                            ),
-                          ),
-                        );
-                      },
-                    ),
+                                    if (message.actionLabel != null &&
+                                        message.onAction != null) ...[
+                                      const SizedBox(width: 8),
+                                      TextButton(
+                                        onPressed: () {
+                                          _handleRemove(message);
+                                          message.onAction?.call();
+                                        },
+                                        style: TextButton.styleFrom(
+                                          minimumSize: Size.zero,
+                                          tapTargetSize: MaterialTapTargetSize
+                                              .shrinkWrap,
+                                          visualDensity: VisualDensity.compact,
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 8,
+                                            vertical: 4,
+                                          ),
+                                          foregroundColor:
+                                              context.colorScheme.primary,
+                                        ),
+                                        child: Text(message.actionLabel!),
+                                      ),
+                                    ],
+                                  ],
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                );
+              },
             );
           },
         ),

@@ -378,6 +378,24 @@ class PatchClashConfig extends _$PatchClashConfig
 }
 
 @riverpod
+class TailscaleSetting extends _$TailscaleSetting
+    with AutoDisposeNotifierMixin {
+  @override
+  TailscaleProps build() {
+    return globalState.config.tailscaleProps;
+  }
+
+  @override
+  onUpdate(value) {
+    globalState.config = globalState.config.copyWith(tailscaleProps: value);
+  }
+
+  void updateState(TailscaleProps Function(TailscaleProps state) builder) {
+    state = builder(state);
+  }
+}
+
+@riverpod
 class NodeExcludeFilter extends _$NodeExcludeFilter
     with AutoDisposeNotifierMixin {
   @override

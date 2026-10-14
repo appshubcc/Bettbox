@@ -102,6 +102,23 @@ class AppController {
     _ref.read(checkIpNumProvider.notifier).add();
   }
 
+  /// The core keeps macOS TUN routes off connected subnets; re-check them
+  /// after a network change, under the lifecycle lock so a stop cannot race.
+  Future<void> refreshTunRoutes() => _coreLifecycleLock.synchronized(() async {
+    // Only Tailscale's route carve-outs can collide with a LAN; without them
+    // keep the behaviour unchanged.
+    if (_ref.read(runTimeProvider) == null ||
+        !_ref.read(patchClashConfigProvider).tun.enable ||
+        _ref.read(tailscaleSettingProvider).tunRouteCidrs.isEmpty) {
+      return;
+    }
+    try {
+      await clashCore.startListener();
+    } catch (e) {
+      commonPrint.log('refreshTunRoutes failed: $e');
+    }
+  });
+
   void applyProfileDebounce({bool silence = false}) {
     debouncer.call(FunctionTag.applyProfile, (silence) {
       applyProfile(silence: silence);
@@ -380,6 +397,18 @@ class AppController {
     if (message.isNotEmpty) {
       commonPrint.error('[Core] Setup config failed: $message');
       throw message;
+    }
+    if (params.resetTailscaleDirs.isNotEmpty) {
+      final deleted = params.resetTailscaleDirs.toSet();
+      _ref
+          .read(tailscaleSettingProvider.notifier)
+          .updateState(
+            (state) => state.copyWith(
+              retiredDirs: state.retiredDirs
+                  .where((dir) => !deleted.contains(dir))
+                  .toList(),
+            ),
+          );
     }
     _applyGlobalSelection(result.global);
     if (system.isDesktop) {
@@ -1889,6 +1918,17 @@ class AppController {
       }
       configJson['dav'] = davMap;
     }
+    // Auth keys can enroll new devices; keep them out of backups.
+    final tailscaleProps = globalState.config.tailscaleProps;
+    configJson['tailscaleProps'] = tailscaleProps
+        .copyWith(
+          networks: [
+            for (final network in tailscaleProps.networks)
+              network.copyWith(authKey: ''),
+          ],
+          retiredDirs: [],
+        )
+        .toJson();
     if (configJson['appSetting'] case final Map<String, dynamic> appSetting) {
       appSetting.remove('backupPassword');
     }
@@ -2651,6 +2691,53 @@ class AppController {
                   config.scriptProps.currentId ?? currentScriptProps.currentId,
               scripts: [...config.scriptProps.scripts, ...localScripts],
             );
+      }
+
+      // 12. Restore Tailscale settings (absent in older backups). A local
+      // auth key and node state are kept only for the very same network.
+      if (config.tailscaleProps != defaultTailscaleProps) {
+        final local = {
+          for (final network in _ref.read(tailscaleSettingProvider).networks)
+            network.id: network,
+        };
+        final ids = <String, String>{};
+        final networks = <TailscaleNetwork>[];
+        final kept = <String>{};
+        for (final network in config.tailscaleProps.networks) {
+          final same = local[network.id];
+          if (same == null) {
+            // Keeping the id lets later restores of either device's backup
+            // match it; a fresh state dir keeps the two nodes apart.
+            networks.add(network.copyWith(authKey: '', stateKey: utils.id));
+          } else if (same.controlUrl == network.controlUrl) {
+            kept.add(same.id);
+            networks.add(
+              network.copyWith(authKey: same.authKey, stateKey: same.stateKey),
+            );
+          } else {
+            final id = ids[network.id] = utils.id;
+            networks.add(network.copyWith(id: id, authKey: '', stateKey: ''));
+          }
+        }
+        // Merging keeps the local networks the backup does not have.
+        if (_ref.read(appSettingProvider).recoveryStrategy !=
+            RecoveryStrategy.override) {
+          networks.addAll(local.values.where((n) => !kept.contains(n.id)));
+        }
+        final activeId = config.tailscaleProps.activeId;
+        final prev = _ref.read(tailscaleSettingProvider);
+        // Local nodes no longer listed would stay logged in with no UI left.
+        final next = config.tailscaleProps
+            .copyWith(
+              networks: networks,
+              activeId: ids[activeId] ?? activeId,
+              retiredDirs: prev.retiredDirs,
+            )
+            .retire(local.values);
+        _ref.read(tailscaleSettingProvider.notifier).value = next;
+        if (prev.runningNetwork?.id != next.runningNetwork?.id) {
+          _ref.read(tailscaleAuthUrlProvider.notifier).value = null;
+        }
       }
     }
 

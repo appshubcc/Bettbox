@@ -4,4 +4,6 @@ package main
 
 func initPermissionGuard(homeDir string) {}
 
+func syncPermissionsNow() {}
+
 func schedulePermissionSync() {}

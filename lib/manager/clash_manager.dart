@@ -24,6 +24,9 @@ class _ClashContainerState extends ConsumerState<ClashManager>
     with AppMessageListener {
   final List<TrackerInfo> _pendingRequests = [];
   static const _flushDuration = Duration(milliseconds: 300);
+  // The Tailscale node that last reported, and its state.
+  String _tailscaleDir = '';
+  String _tailscaleState = '';
 
   @override
   Widget build(BuildContext context) {
@@ -111,6 +114,46 @@ class _ClashContainerState extends ConsumerState<ClashManager>
       duration: _flushDuration,
     );
     super.onRequest(trackerInfo);
+  }
+
+  @override
+  void onTailscaleAuth({
+    required String dir,
+    required String url,
+    required String state,
+  }) {
+    final network = ref.read(tailscaleSettingProvider).runningNetwork;
+    final scheme = Uri.tryParse(url)?.scheme;
+    // A message from the node of a network that was just switched away from.
+    if (network == null ||
+        !isTailscaleStateDir(dir, network.stateDir) ||
+        (url.isNotEmpty && scheme != 'https' && scheme != 'http')) {
+      return;
+    }
+    if (dir != _tailscaleDir) {
+      _tailscaleDir = dir;
+      _tailscaleState = '';
+    }
+    final wasPending = ref.read(tailscaleAuthUrlProvider)?.isNotEmpty == true;
+    final wasAwaiting = _tailscaleState == 'NeedsMachineAuth';
+    _tailscaleState = state;
+    ref.read(tailscaleAuthUrlProvider.notifier).value = url;
+    if (url.isNotEmpty) {
+      globalState.showNotifier(
+        '${network.label}: ${appLocalizations.tailscaleLoginNeeded}',
+        actionLabel: appLocalizations.tailscaleLogin,
+        onAction: () => globalState.openUrl(url),
+      );
+    } else if (state == 'NeedsMachineAuth') {
+      if (!wasAwaiting) {
+        globalState.showNotifier(
+          '${network.label}: ${appLocalizations.tailscaleNeedsApproval}',
+        );
+      }
+    } else if (wasPending || wasAwaiting) {
+      globalState.showNotifier(appLocalizations.tailscaleLoggedIn);
+    }
+    super.onTailscaleAuth(dir: dir, url: url, state: state);
   }
 
   @override

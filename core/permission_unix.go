@@ -110,6 +110,15 @@ func initPermissionGuard(homeDir string) {
 	schedulePermissionSync()
 }
 
+// syncPermissionsNow hands files written as root after the last scheduled
+// sync (e.g. lazily by tsnet) back to the user before the core stops.
+func syncPermissionsNow() {
+	permLock.Lock()
+	dir := activeHomeDir
+	permLock.Unlock()
+	syncDirectoryPermissions(dir, os.Getuid(), os.Getgid())
+}
+
 func schedulePermissionSync() {
 	if !isPrivileged() || permSyncChan == nil {
 		return

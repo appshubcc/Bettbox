@@ -324,6 +324,8 @@ extension TunExt on Tun {
     String? fakeIpRange,
     String? fakeIpRangeV6,
     List<String>? bypassPrivateRouteAddress,
+    // Must reach TUN even when private routes are bypassed (e.g. tailnet).
+    List<String> forceRouteAddress = const [],
   }) {
     if (system.isDesktop) {
       final dnsMode = dnsHijack.isNotEmpty
@@ -335,9 +337,11 @@ extension TunExt on Tun {
           autoRedirect: system.isLinux,
           dnsMode: dnsMode,
           routeAddress: [],
-          routeExcludeAddress:
-              bypassPrivateRouteAddress ??
-              defaultDesktopBypassPrivateRouteAddress,
+          routeExcludeAddress: subtractCidrs(
+            bypassPrivateRouteAddress ??
+                defaultDesktopBypassPrivateRouteAddress,
+            forceRouteAddress,
+          ),
         );
       }
       return copyWith(
@@ -350,11 +354,19 @@ extension TunExt on Tun {
     }
 
     if (bypassPrivateRoute) {
+      final base =
+          bypassPrivateRouteAddress ?? defaultBypassPrivateRouteAddress;
+      // A family without entries is fully routed; adding one would narrow it.
+      bool hasFamily(bool v6) => base.any((cidr) => cidr.contains(':') == v6);
       return copyWith(
         autoRoute: true,
-        routeAddress: List<String>.from(
-          bypassPrivateRouteAddress ?? defaultBypassPrivateRouteAddress,
-        ),
+        // Without forced routes this is exactly the bypass list.
+        routeAddress: [
+          ...base,
+          ...forceRouteAddress.where(
+            (cidr) => hasFamily(cidr.contains(':')) && !base.contains(cidr),
+          ),
+        ],
       );
     }
 

@@ -325,6 +325,7 @@ class ListInputPage extends StatelessWidget {
   final Widget Function(String item)? subtitleBuilder;
   final Widget Function(String item)? leadingBuilder;
   final String? valueLabel;
+  final FormFieldValidator<String>? validator;
   final Function(List<String> items) onChange;
 
   const ListInputPage({
@@ -336,6 +337,7 @@ class ListInputPage extends StatelessWidget {
     this.leadingBuilder,
     this.valueLabel,
     this.subtitleBuilder,
+    this.validator,
   });
 
   Future<void> _handleAddOrEdit([String? item]) async {
@@ -347,7 +349,7 @@ class ListInputPage extends StatelessWidget {
       if (index != -1 && !current) {
         return appLocalizations.existsTip(appLocalizations.value);
       }
-      return null;
+      return validator?.call(value);
     }
 
     final valueField = Field(

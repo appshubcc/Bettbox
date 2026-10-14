@@ -336,12 +336,18 @@ class ApplicationState extends ConsumerState<Application>
                 ),
               );
             }
-            if (system.isLinux) {
+            if (system.isLinux || system.isMacOS) {
               // Wait for DHCP and the default route to settle before moving the
               // managed DNS from the previous network to the new one.
               await Future.delayed(const Duration(seconds: 1));
               if (!mounted) return;
-              await system.updateDns(!ref.read(systemDnsTakeoverProvider));
+              if (system.isLinux) {
+                await system.updateDns(!ref.read(systemDnsTakeoverProvider));
+              }
+              if (system.isMacOS) {
+                // TUN routes must be re-checked against the new LAN's subnets.
+                unawaited(globalState.appController.refreshTunRoutes());
+              }
             }
             globalState.appController.updateLocalNetwork();
             globalState.appController.addCheckIpNumDebounce();

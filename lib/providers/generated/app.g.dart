@@ -571,6 +571,58 @@ abstract class _$LocalNetwork extends $Notifier<NetworkInfo?> {
   }
 }
 
+@ProviderFor(TailscaleAuthUrl)
+final tailscaleAuthUrlProvider = TailscaleAuthUrlProvider._();
+
+final class TailscaleAuthUrlProvider
+    extends $NotifierProvider<TailscaleAuthUrl, String?> {
+  TailscaleAuthUrlProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'tailscaleAuthUrlProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$tailscaleAuthUrlHash();
+
+  @$internal
+  @override
+  TailscaleAuthUrl create() => TailscaleAuthUrl();
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(String? value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<String?>(value),
+    );
+  }
+}
+
+String _$tailscaleAuthUrlHash() => r'7c254faf6b8bcadf365a848219ab64a7ff874a78';
+
+abstract class _$TailscaleAuthUrl extends $Notifier<String?> {
+  String? build();
+  @$mustCallSuper
+  @override
+  WhenComplete runBuild() {
+    final ref = this.ref as $Ref<String?, String?>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<String?, String?>,
+              String?,
+              Object?,
+              Object?
+            >;
+    return element.handleCreate(ref, build);
+  }
+}
+
 @ProviderFor(RunTime)
 final runTimeProvider = RunTimeProvider._();
 

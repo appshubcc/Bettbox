@@ -18,4 +18,6 @@ func openOutputFile(path string) (*os.File, error) {
 
 func initPermissionGuard(homeDir string) {}
 
+func syncPermissionsNow() {}
+
 func schedulePermissionSync() {}

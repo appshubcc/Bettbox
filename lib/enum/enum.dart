@@ -142,6 +142,7 @@ enum AppMessageType {
   stunTest,
   iperf,
   localPing,
+  tailscaleAuth,
 }
 
 enum InvokeMessageType { protect, process }
@@ -285,6 +286,8 @@ enum ActionMethod {
   parseExternalProviderContent,
   getCoreStatus,
   getInterfaces,
+  getTailscaleStatus,
+  startTailscale,
   startSpeedTest,
   cancelSpeedTest,
   probeSpeedTest,

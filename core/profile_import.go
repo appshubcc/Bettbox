@@ -324,7 +324,11 @@ func validateProfileContent(data []byte, ageSecretKey string) string {
 		age.SetGlobalSecretKeys(ageSecretKey)
 		defer age.SetGlobalSecretKeys()
 	}
-	if _, err := config.Parse(patchYamlShortID(data)); err != nil {
+	rawCfg, err := config.UnmarshalRawConfig(patchYamlShortID(data))
+	if err != nil {
+		return err.Error()
+	}
+	if _, _, err := parseRawConfigStaged(rawCfg); err != nil {
 		return err.Error()
 	}
 	return ""

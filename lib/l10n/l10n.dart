@@ -470,6 +470,431 @@ class AppLocalizations {
     );
   }
 
+  /// `Tailscale`
+  String get tailscale {
+    return Intl.message('Tailscale', name: 'tailscale', desc: '', args: []);
+  }
+
+  /// `Route chosen domains and IPs through your tailnet`
+  String get tailscaleDesc {
+    return Intl.message(
+      'Route chosen domains and IPs through your tailnet',
+      name: 'tailscaleDesc',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Enable Tailscale`
+  String get tailscaleEnable {
+    return Intl.message(
+      'Enable Tailscale',
+      name: 'tailscaleEnable',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Join the tailnet with the built-in Tailscale node`
+  String get tailscaleEnableDesc {
+    return Intl.message(
+      'Join the tailnet with the built-in Tailscale node',
+      name: 'tailscaleEnableDesc',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Auth key`
+  String get tailscaleAuthKey {
+    return Intl.message(
+      'Auth key',
+      name: 'tailscaleAuthKey',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Optional; without one, use Log in (SSO/OIDC)`
+  String get tailscaleAuthKeyDesc {
+    return Intl.message(
+      'Optional; without one, use Log in (SSO/OIDC)',
+      name: 'tailscaleAuthKeyDesc',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Device name`
+  String get tailscaleHostname {
+    return Intl.message(
+      'Device name',
+      name: 'tailscaleHostname',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Control server`
+  String get tailscaleControlUrl {
+    return Intl.message(
+      'Control server',
+      name: 'tailscaleControlUrl',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Empty uses Tailscale. Set a URL for Headscale`
+  String get tailscaleControlUrlDesc {
+    return Intl.message(
+      'Empty uses Tailscale. Set a URL for Headscale',
+      name: 'tailscaleControlUrlDesc',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Exit node`
+  String get tailscaleExitNode {
+    return Intl.message(
+      'Exit node',
+      name: 'tailscaleExitNode',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Tailnet device name or IP, or auto:any. Needed for public sites`
+  String get tailscaleExitNodeDesc {
+    return Intl.message(
+      'Tailnet device name or IP, or auto:any. Needed for public sites',
+      name: 'tailscaleExitNodeDesc',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Allow LAN access`
+  String get tailscaleExitNodeLan {
+    return Intl.message(
+      'Allow LAN access',
+      name: 'tailscaleExitNodeLan',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Keep the local network reachable while using the exit node`
+  String get tailscaleExitNodeLanDesc {
+    return Intl.message(
+      'Keep the local network reachable while using the exit node',
+      name: 'tailscaleExitNodeLanDesc',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Accept subnet routes`
+  String get tailscaleAcceptRoutes {
+    return Intl.message(
+      'Accept subnet routes',
+      name: 'tailscaleAcceptRoutes',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Use subnet routes advertised in the tailnet`
+  String get tailscaleAcceptRoutesDesc {
+    return Intl.message(
+      'Use subnet routes advertised in the tailnet',
+      name: 'tailscaleAcceptRoutesDesc',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `UDP`
+  String get tailscaleUdp {
+    return Intl.message('UDP', name: 'tailscaleUdp', desc: '', args: []);
+  }
+
+  /// `Send UDP traffic through Tailscale`
+  String get tailscaleUdpDesc {
+    return Intl.message(
+      'Send UDP traffic through Tailscale',
+      name: 'tailscaleUdpDesc',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Routing list`
+  String get tailscaleRoutes {
+    return Intl.message(
+      'Routing list',
+      name: 'tailscaleRoutes',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Domains and IPs/CIDRs sent through Tailscale in Rule mode. Private subnets need TUN on desktop`
+  String get tailscaleRoutesDesc {
+    return Intl.message(
+      'Domains and IPs/CIDRs sent through Tailscale in Rule mode. Private subnets need TUN on desktop',
+      name: 'tailscaleRoutesDesc',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Enter a domain, IP or CIDR`
+  String get tailscaleInvalidEntry {
+    return Intl.message(
+      'Enter a domain, IP or CIDR',
+      name: 'tailscaleInvalidEntry',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Reset node`
+  String get tailscaleReset {
+    return Intl.message(
+      'Reset node',
+      name: 'tailscaleReset',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Forget this device's tailnet identity and join as a new device; remove the old one in the admin console`
+  String get tailscaleResetDesc {
+    return Intl.message(
+      'Forget this device\'s tailnet identity and join as a new device; remove the old one in the admin console',
+      name: 'tailscaleResetDesc',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Log in`
+  String get tailscaleLogin {
+    return Intl.message('Log in', name: 'tailscaleLogin', desc: '', args: []);
+  }
+
+  /// `Sign in in the browser with your tailnet's SSO/OIDC; no auth key needed`
+  String get tailscaleLoginDesc {
+    return Intl.message(
+      'Sign in in the browser with your tailnet\'s SSO/OIDC; no auth key needed',
+      name: 'tailscaleLoginDesc',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Tailscale needs login`
+  String get tailscaleLoginNeeded {
+    return Intl.message(
+      'Tailscale needs login',
+      name: 'tailscaleLoginNeeded',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Tailscale logged in`
+  String get tailscaleLoggedIn {
+    return Intl.message(
+      'Tailscale logged in',
+      name: 'tailscaleLoggedIn',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Starting Tailscale…`
+  String get tailscaleStarting {
+    return Intl.message(
+      'Starting Tailscale…',
+      name: 'tailscaleStarting',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Network`
+  String get tailscaleNetwork {
+    return Intl.message(
+      'Network',
+      name: 'tailscaleNetwork',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Networks`
+  String get tailscaleNetworks {
+    return Intl.message(
+      'Networks',
+      name: 'tailscaleNetworks',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Add network`
+  String get tailscaleAddNetwork {
+    return Intl.message(
+      'Add network',
+      name: 'tailscaleAddNetwork',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Delete network`
+  String get tailscaleDeleteNetwork {
+    return Intl.message(
+      'Delete network',
+      name: 'tailscaleDeleteNetwork',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Tailnet DNS`
+  String get tailscaleDns {
+    return Intl.message(
+      'Tailnet DNS',
+      name: 'tailscaleDns',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Domains resolved by a DNS server inside the tailnet, as domain=server (e.g. corp.example.com=10.1.0.53). Add the subnets they resolve to under Routing list`
+  String get tailscaleDnsDesc {
+    return Intl.message(
+      'Domains resolved by a DNS server inside the tailnet, as domain=server (e.g. corp.example.com=10.1.0.53). Add the subnets they resolve to under Routing list',
+      name: 'tailscaleDnsDesc',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Use domain=server with an IP server or a tls:// / https:// URL, e.g. corp.example.com=10.1.0.53`
+  String get tailscaleInvalidDns {
+    return Intl.message(
+      'Use domain=server with an IP server or a tls:// / https:// URL, e.g. corp.example.com=10.1.0.53',
+      name: 'tailscaleInvalidDns',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Connected`
+  String get tailscaleConnected {
+    return Intl.message(
+      'Connected',
+      name: 'tailscaleConnected',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Not started`
+  String get tailscaleNotStarted {
+    return Intl.message(
+      'Not started',
+      name: 'tailscaleNotStarted',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Starts on first use; tap to start now`
+  String get tailscaleNotStartedDesc {
+    return Intl.message(
+      'Starts on first use; tap to start now',
+      name: 'tailscaleNotStartedDesc',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `This device`
+  String get tailscaleThisDevice {
+    return Intl.message(
+      'This device',
+      name: 'tailscaleThisDevice',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Subnet routes`
+  String get tailscaleSubnetRoutes {
+    return Intl.message(
+      'Subnet routes',
+      name: 'tailscaleSubnetRoutes',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Devices`
+  String get tailscaleDevices {
+    return Intl.message(
+      'Devices',
+      name: 'tailscaleDevices',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{online} / {total} online`
+  String tailscaleOnlineCount(Object online, Object total) {
+    return Intl.message(
+      '$online / $total online',
+      name: 'tailscaleOnlineCount',
+      desc: '',
+      args: [online, total],
+    );
+  }
+
+  /// `Warnings`
+  String get tailscaleWarnings {
+    return Intl.message(
+      'Warnings',
+      name: 'tailscaleWarnings',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Notes`
+  String get tailscaleNotesTitle {
+    return Intl.message(
+      'Notes',
+      name: 'tailscaleNotesTitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `• Built-in node: Bettbox joins your tailnet itself, no Tailscale app needed. Only the Routing list and Tailnet DNS go through it.\n• Rule mode only: Global and Direct modes skip these rules.\n• Use full names like host.tailnet.ts.net; short names like nas don't resolve.\n• Subnets: add them to the Routing list and turn on Accept subnet routes. On desktop without TUN, private subnets (10.x, 172.16–31.x, 192.168.x) bypass the system proxy.\n• Public sites through the tailnet need an exit node.\n• Tailnet IPv6 addresses need IPv6 turned on.\n• The node starts on first use. Its login link is only shown while Bettbox is open.\n• Android: Routing list changes apply after the VPN restarts.`
+  String get tailscaleNotes {
+    return Intl.message(
+      '• Built-in node: Bettbox joins your tailnet itself, no Tailscale app needed. Only the Routing list and Tailnet DNS go through it.\n• Rule mode only: Global and Direct modes skip these rules.\n• Use full names like host.tailnet.ts.net; short names like nas don\'t resolve.\n• Subnets: add them to the Routing list and turn on Accept subnet routes. On desktop without TUN, private subnets (10.x, 172.16–31.x, 192.168.x) bypass the system proxy.\n• Public sites through the tailnet need an exit node.\n• Tailnet IPv6 addresses need IPv6 turned on.\n• The node starts on first use. Its login link is only shown while Bettbox is open.\n• Android: Routing list changes apply after the VPN restarts.',
+      name: 'tailscaleNotes',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Disable QUIC`
   String get disableQuic {
     return Intl.message(

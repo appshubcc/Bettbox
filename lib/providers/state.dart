@@ -45,6 +45,7 @@ Config configState(Ref ref) {
   final overrideExperimental = ref.watch(overrideExperimentalProvider);
   final overrideTestUrl = ref.watch(overrideTestUrlProvider);
   final networkProps = ref.watch(networkSettingProvider);
+  final tailscaleProps = ref.watch(tailscaleSettingProvider);
   final vpnProps = ref.watch(vpnSettingProvider);
   final proxiesStyle = ref.watch(proxiesStyleSettingProvider);
   final scriptProps = ref.watch(scriptStateProvider);
@@ -59,6 +60,7 @@ Config configState(Ref ref) {
     proxiesStyle: proxiesStyle,
     vpnProps: vpnProps,
     networkProps: networkProps,
+    tailscaleProps: tailscaleProps,
     overrideDns: overrideDns,
     overrideNtp: overrideNtp,
     overrideSniffer: overrideSniffer,
@@ -163,6 +165,9 @@ UpdateParams updateParams(Ref ref) {
       ),
     ),
   );
+  final tailscaleRouteCidrs = ref.watch(
+    tailscaleSettingProvider.select((state) => state.tunRouteCidrs),
+  );
   return ref.watch(
     patchClashConfigProvider.select(
       (state) => UpdateParams(
@@ -173,6 +178,7 @@ UpdateParams updateParams(Ref ref) {
             ipv6Enabled: state.ipv6,
           ),
           bypassPrivateRouteAddress: realBypassPrivateRouteAddress,
+          forceRouteAddress: tailscaleRouteCidrs,
         ),
         allowLan: state.allowLan,
         findProcessMode: state.findProcessMode,

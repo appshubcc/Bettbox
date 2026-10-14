@@ -47,6 +47,11 @@ type SetupParams struct {
 	AgeSecretKey    string            `json:"age-secret-key"`
 	ScriptedConfig  string            `json:"scripted-config"`
 	Patch           *PatchParams      `json:"patch"`
+	// Tailscale node state dirs to delete before applying.
+	ResetTailscaleDirs []string `json:"reset-tailscale-dirs"`
+
+	// Set for configs that are only validated (see stubTailscaleProxies).
+	validating bool
 }
 
 type SetupResult struct {
@@ -128,6 +133,8 @@ const (
 	getExternalProviderMethod      Method = "getExternalProvider"
 	getCountryCodeMethod           Method = "getCountryCode"
 	getMemoryMethod                Method = "getMemory"
+	getTailscaleStatusMethod       Method = "getTailscaleStatus"
+	startTailscaleMethod           Method = "startTailscale"
 	updateGeoDataMethod            Method = "updateGeoData"
 	updateExternalProviderMethod   Method = "updateExternalProvider"
 	sideLoadExternalProviderMethod Method = "sideLoadExternalProvider"
@@ -180,6 +187,8 @@ const (
 	DelayMessage   MessageType = "delay"
 	RequestMessage MessageType = "request"
 	LoadedMessage  MessageType = "loaded"
+	// Data is tsnet's interactive (SSO/OIDC) login URL; "" once login ends.
+	TailscaleAuthMessage MessageType = "tailscaleAuth"
 )
 
 func (message *Message) Json() (string, error) {

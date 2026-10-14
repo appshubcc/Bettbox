@@ -92,6 +92,23 @@ class AppController {
     _ref.read(checkIpNumProvider.notifier).add();
   }
 
+  /// The core keeps macOS TUN routes off connected subnets; re-check them
+  /// after a network change, under the lifecycle lock so a stop cannot race.
+  Future<void> refreshTunRoutes() => _coreLifecycleLock.synchronized(() async {
+    // Only Tailscale's route carve-outs can collide with a LAN; without them
+    // keep the behaviour unchanged.
+    if (_ref.read(runTimeProvider) == null ||
+        !_ref.read(patchClashConfigProvider).tun.enable ||
+        _ref.read(tailscaleSettingProvider).tunRouteCidrs.isEmpty) {
+      return;
+    }
+    try {
+      await clashCore.startListener();
+    } catch (e) {
+      commonPrint.log('refreshTunRoutes failed: $e');
+    }
+  });
+
   void applyProfileDebounce({bool silence = false}) {
     debouncer.call(FunctionTag.applyProfile, (silence) {
       applyProfile(silence: silence);
@@ -1862,6 +1879,16 @@ class AppController {
       }
       configJson['dav'] = davMap;
     }
+    // Auth keys can enroll new devices; keep them out of backups.
+    final tailscaleProps = globalState.config.tailscaleProps;
+    configJson['tailscaleProps'] = tailscaleProps
+        .copyWith(
+          networks: [
+            for (final network in tailscaleProps.networks)
+              network.copyWith(authKey: ''),
+          ],
+        )
+        .toJson();
 
     // Get valid profile IDs
     final validProfileIds = globalState.config.profiles
@@ -2457,6 +2484,42 @@ class AppController {
         }
       }
       _ref.read(scriptStateProvider.notifier).value = config.scriptProps;
+
+      // 12. Restore Tailscale settings (absent in older backups). A local
+      // auth key and node state are kept only for the very same network.
+      if (config.tailscaleProps != defaultTailscaleProps) {
+        final local = {
+          for (final network in _ref.read(tailscaleSettingProvider).networks)
+            network.id: network,
+        };
+        final ids = <String, String>{};
+        final networks = <TailscaleNetwork>[];
+        for (final network in config.tailscaleProps.networks) {
+          final same = local[network.id];
+          if (same != null && same.controlUrl == network.controlUrl) {
+            networks.add(network.copyWith(authKey: same.authKey));
+          } else {
+            final id = ids[network.id] = utils.id;
+            networks.add(network.copyWith(id: id, authKey: ''));
+          }
+        }
+        final activeId = config.tailscaleProps.activeId;
+        final prev = _ref.read(tailscaleSettingProvider);
+        final next = config.tailscaleProps.copyWith(
+          networks: networks,
+          activeId: ids[activeId] ?? activeId,
+        );
+        _ref.read(tailscaleSettingProvider.notifier).value = next;
+        if (prev.runningNetwork?.id != next.runningNetwork?.id) {
+          _ref.read(tailscaleAuthUrlProvider.notifier).value = null;
+        }
+        // Local nodes no longer listed would stay logged in with no UI left.
+        final kept = {for (final network in networks) network.id};
+        globalState.resetTailscaleDirs.addAll([
+          for (final network in local.values)
+            if (!kept.contains(network.id)) network.stateDir,
+        ]);
+      }
     }
 
     // Ensure current profile exists

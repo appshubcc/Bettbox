@@ -21,6 +21,8 @@ class ClashMessage {
             listener.onRequest(TrackerInfo.fromJson(m.data));
           case AppMessageType.loaded:
             listener.onLoaded(m.data);
+          case AppMessageType.tailscaleAuth:
+            listener.onTailscaleAuth(m.data as String? ?? '');
         }
       }
     });

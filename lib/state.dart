@@ -37,6 +37,8 @@ class GlobalState {
   bool isService = false;
   bool isExiting = false;
   bool isScreenOn = true;
+  // One-shot: the next core setup deletes these Tailscale node state dirs.
+  List<String> resetTailscaleDirs = [];
   Timer? timer;
   Timer? groupsUpdateTimer;
   Config? _config;
@@ -672,8 +674,11 @@ class GlobalState {
     );
   }
 
-  Future<SetupParams> getSetupParams({required ClashConfig pathConfig}) {
-    return buildSetupParams(patchConfig: pathConfig);
+  Future<SetupParams> getSetupParams({required ClashConfig pathConfig}) async {
+    final params = await buildSetupParams(patchConfig: pathConfig);
+    final resetTailscaleDirs = this.resetTailscaleDirs;
+    this.resetTailscaleDirs = [];
+    return params.copyWith(resetTailscaleDirs: resetTailscaleDirs);
   }
 
   Future<SetupParams> buildSetupParams({
@@ -865,6 +870,7 @@ class GlobalState {
       fakeIpRangeV6: fakeIpRangeV6,
       bypassPrivateRouteAddress:
           config.networkProps.realBypassPrivateRouteAddress,
+      forceRouteAddress: config.tailscaleProps.tunRouteCidrs,
     );
     final externalController = patchConfig.externalController;
     final secret = patchConfig.secret;
@@ -988,6 +994,58 @@ class GlobalState {
                 if (!entry.value) entry.key,
             ],
       'select-global': profile.selectedMap['GLOBAL'] == null,
+      'tailscale': _buildTailscalePatch(),
+    };
+  }
+
+  /// The running Tailscale network's proxy, and the rules and DNS policy
+  /// sending its entries to it. They target [tailscaleProxyName]; the core
+  /// renames the proxy if the profile already uses that name.
+  Map<String, dynamic>? _buildTailscalePatch() {
+    final tailscale = config.tailscaleProps.runningNetwork;
+    if (tailscale == null) return null;
+    const name = tailscaleProxyName;
+    // tsnet resolves its control server through mihomo DNS and must reach
+    // it directly; keep it off a routed `+.domain`.
+    final host = Uri.tryParse(tailscale.controlUrl)?.host ?? '';
+    final controlHost = host.isNotEmpty ? host : 'controlplane.tailscale.com';
+    final selfResolve = tailscaleRoutesCover([
+      ...tailscale.routes,
+      ...tailscaleDnsDomains(tailscale.dns),
+    ], controlHost);
+    return {
+      'proxy': {
+        'type': 'tailscale',
+        'hostname': tailscale.hostname.isNotEmpty
+            ? tailscale.hostname
+            : 'bettbox',
+        if (tailscale.authKey.isNotEmpty) 'auth-key': tailscale.authKey,
+        if (tailscale.controlUrl.isNotEmpty)
+          'control-url': tailscale.controlUrl,
+        'state-dir': tailscale.stateDir,
+        'udp': tailscale.udp,
+        'accept-routes': tailscale.acceptRoutes,
+        if (tailscale.exitNode.isNotEmpty) ...{
+          'exit-node': tailscale.exitNode,
+          'exit-node-allow-lan-access': tailscale.exitNodeAllowLanAccess,
+        },
+      },
+      'rules': tailscaleRules(
+        tailscale.routes,
+        name,
+        dns: tailscale.dns,
+        except: selfResolve ? controlHost : null,
+      ),
+      'nameserver-policy': tailscaleNameserverPolicy(
+        tailscale.routes,
+        name,
+        dns: tailscale.dns,
+        udp: tailscale.udp,
+      ),
+      // Sniffed domains would otherwise clear DstIP and miss the IP rules.
+      'skip-dst-address': tailscaleRouteCidrs(tailscale.routes),
+      if (selfResolve) 'control-host': controlHost,
+      'dns-domains': tailscaleDnsDomains(tailscale.dns),
     };
   }
 

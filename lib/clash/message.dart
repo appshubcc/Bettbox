@@ -21,6 +21,13 @@ class ClashMessage {
             listener.onRequest(TrackerInfo.fromJson(m.data));
           case AppMessageType.loaded:
             listener.onLoaded(m.data);
+          case AppMessageType.tailscaleAuth:
+            final data = m.data is Map ? m.data as Map : const {};
+            listener.onTailscaleAuth(
+              dir: data['dir'] as String? ?? '',
+              url: data['url'] as String? ?? '',
+              state: data['state'] as String? ?? '',
+            );
         }
       }
     });

@@ -42,6 +42,7 @@ const defaultBypassDomain = [
 const defaultAppSettingProps = AppSettingProps();
 const defaultVpnProps = VpnProps();
 const defaultNetworkProps = NetworkProps();
+const defaultTailscaleProps = TailscaleProps();
 const defaultProxiesStyle = ProxiesStyle();
 const defaultWindowProps = WindowProps();
 const defaultAccessControl = AccessControl();
@@ -364,6 +365,83 @@ abstract class NetworkProps with _$NetworkProps {
       json == null ? const NetworkProps() : _$NetworkPropsFromJson(json);
 }
 
+@freezed
+abstract class TailscaleNetwork with _$TailscaleNetwork {
+  const factory TailscaleNetwork({
+    required String id,
+    @Default('Tailscale') String label,
+    @Default('') String authKey,
+    @Default('') String hostname,
+    @Default('') String controlUrl,
+    @Default('') String exitNode,
+    @Default(false) bool exitNodeAllowLanAccess,
+    @Default(true) bool acceptRoutes,
+    @Default(true) bool udp,
+    @Default(defaultTailscaleRoutes) List<String> routes,
+    // `domain=server` entries resolved by a DNS server inside the tailnet.
+    @Default([]) List<String> dns,
+    // Picks the node's state dir; resetting the node gives it a new one.
+    @Default('') String stateKey,
+  }) = _TailscaleNetwork;
+
+  factory TailscaleNetwork.fromJson(Map<String, Object?> json) =>
+      _$TailscaleNetworkFromJson(json);
+}
+
+extension TailscaleNetworkExt on TailscaleNetwork {
+  String get stateDir =>
+      '$tailscaleStateDir/$id${stateKey.isEmpty ? '' : '-$stateKey'}';
+}
+
+/// Saved tailnets; only the active one runs.
+@freezed
+abstract class TailscaleProps with _$TailscaleProps {
+  const factory TailscaleProps({
+    @Default(false) bool enable,
+    String? activeId,
+    @Default([]) List<TailscaleNetwork> networks,
+    // State dirs of deleted or reset nodes, which no network uses any more;
+    // each setup has the core delete them until one succeeds.
+    @Default([]) List<String> retiredDirs,
+  }) = _TailscaleProps;
+
+  factory TailscaleProps.fromJson(Map<String, Object?> json) =>
+      _$TailscalePropsFromJson(json);
+
+  factory TailscaleProps.safeFromJson(Map<String, Object?>? json) {
+    if (json == null) return defaultTailscaleProps;
+    try {
+      return TailscaleProps.fromJson(json);
+    } catch (_) {
+      return defaultTailscaleProps;
+    }
+  }
+}
+
+extension TailscalePropsExt on TailscaleProps {
+  TailscaleNetwork? get activeNetwork =>
+      networks.where((n) => n.id == activeId).firstOrNull ??
+      networks.firstOrNull;
+
+  /// The network that runs, if any.
+  TailscaleNetwork? get runningNetwork => enable ? activeNetwork : null;
+
+  /// Retires the state dirs of [removed] that no network in this state uses.
+  TailscaleProps retire(Iterable<TailscaleNetwork> removed) {
+    final inUse = {for (final network in networks) network.stateDir};
+    final dirs = {
+      ...retiredDirs,
+      for (final network in removed)
+        if (!inUse.contains(network.stateDir)) network.stateDir,
+    };
+    return copyWith(retiredDirs: dirs.toList());
+  }
+
+  /// CIDRs that TUN must capture for the tailscale rules to see them.
+  List<String> get tunRouteCidrs =>
+      tailscaleRouteCidrs(runningNetwork?.routes ?? const []);
+}
+
 extension NetworkPropsExt on NetworkProps {
   List<String> get realBypassPrivateRouteAddress {
     if (bypassPrivateRouteAddress.isNotEmpty) return bypassPrivateRouteAddress;
@@ -498,6 +576,9 @@ abstract class Config with _$Config {
     @Default(true) bool overrideTestUrl,
     DAV? dav,
     @Default(defaultNetworkProps) NetworkProps networkProps,
+    @JsonKey(fromJson: TailscaleProps.safeFromJson)
+    @Default(defaultTailscaleProps)
+    TailscaleProps tailscaleProps,
     @JsonKey(fromJson: VpnProps.safeFromJson)
     @Default(defaultVpnProps)
     VpnProps vpnProps,

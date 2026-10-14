@@ -105,6 +105,8 @@ func handleForceGc(forceFreeOSMemory bool) {
 
 func handleShutdown() bool {
 	stopListeners()
+	closeTailscaleProxies()
+	appTailscaleProxy.Store(nil)
 	executor.Shutdown()
 	tryUnloadGeoData()
 	handleClearRequests()
@@ -147,8 +149,11 @@ func handleValidateConfig(params *ValidateConfigParams) string {
 	}
 
 	data := patchYamlShortID([]byte(params.Data))
-	_, err := config.Parse(data)
+	rawCfg, err := config.UnmarshalRawConfig(data)
 	if err != nil {
+		return err.Error()
+	}
+	if _, _, err = parseRawConfigStaged(rawCfg); err != nil {
 		return err.Error()
 	}
 	return ""
@@ -665,6 +670,7 @@ func ensureLogSubscriber() {
 	logSubscriber = log.Subscribe()
 	go func() {
 		for logData := range logSubscriber {
+			notifyTailscaleAuth(logData.Payload)
 			if logData.LogLevel < log.Level() {
 				continue
 			}

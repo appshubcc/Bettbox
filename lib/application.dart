@@ -238,6 +238,9 @@ class ApplicationState extends ConsumerState<Application>
               if (!mounted) return;
               final dnsState = ref.read(autoSetSystemDnsStateProvider);
               await system.updateDns(!(dnsState.a && dnsState.b));
+              if (system.isMacOS) {
+                unawaited(globalState.appController.refreshTunRoutes());
+              }
             }
             globalState.appController.updateLocalNetwork();
             globalState.appController.addCheckIpNumDebounce();

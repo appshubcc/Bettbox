@@ -62,9 +62,11 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m17(count) => "${count} items selected";
 
-  static String m18(label) => "${label} must be a URL";
+  static String m18(online, total) => "${online} / ${total} online";
 
-  static String m19(count) =>
+  static String m19(label) => "${label} must be a URL";
+
+  static String m20(count) =>
       "${Intl.plural(count, one: 'year', other: 'years')}";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
@@ -1328,6 +1330,98 @@ class MessageLookup extends MessageLookupByLibrary {
     "systemProxy": MessageLookupByLibrary.simpleMessage("System Proxy"),
     "systemProxyDesc": MessageLookupByLibrary.simpleMessage("Set system proxy"),
     "tab": MessageLookupByLibrary.simpleMessage("Tab"),
+    "tailscale": MessageLookupByLibrary.simpleMessage("Tailscale"),
+    "tailscaleAcceptRoutes": MessageLookupByLibrary.simpleMessage(
+      "Accept subnet routes",
+    ),
+    "tailscaleAcceptRoutesDesc": MessageLookupByLibrary.simpleMessage(
+      "Use subnet routes advertised in the tailnet",
+    ),
+    "tailscaleAddNetwork": MessageLookupByLibrary.simpleMessage("Add network"),
+    "tailscaleAuthKey": MessageLookupByLibrary.simpleMessage("Auth key"),
+    "tailscaleAuthKeyDesc": MessageLookupByLibrary.simpleMessage(
+      "Optional; without one, use Log in (SSO/OIDC)",
+    ),
+    "tailscaleConnected": MessageLookupByLibrary.simpleMessage("Connected"),
+    "tailscaleControlUrl": MessageLookupByLibrary.simpleMessage(
+      "Control server",
+    ),
+    "tailscaleControlUrlDesc": MessageLookupByLibrary.simpleMessage(
+      "Empty uses Tailscale. Set a URL for Headscale",
+    ),
+    "tailscaleDeleteNetwork": MessageLookupByLibrary.simpleMessage(
+      "Delete network",
+    ),
+    "tailscaleDesc": MessageLookupByLibrary.simpleMessage(
+      "Route chosen domains and IPs through your tailnet",
+    ),
+    "tailscaleDevices": MessageLookupByLibrary.simpleMessage("Devices"),
+    "tailscaleDns": MessageLookupByLibrary.simpleMessage("Tailnet DNS"),
+    "tailscaleDnsDesc": MessageLookupByLibrary.simpleMessage(
+      "Domains resolved by a DNS server inside the tailnet, as domain=server (e.g. corp.example.com=10.1.0.53). Add the subnets they resolve to under Routing list",
+    ),
+    "tailscaleEnable": MessageLookupByLibrary.simpleMessage("Enable Tailscale"),
+    "tailscaleEnableDesc": MessageLookupByLibrary.simpleMessage(
+      "Join the tailnet with the built-in Tailscale node",
+    ),
+    "tailscaleExitNode": MessageLookupByLibrary.simpleMessage("Exit node"),
+    "tailscaleExitNodeDesc": MessageLookupByLibrary.simpleMessage(
+      "Tailnet device name or IP, or auto:any. Needed for public sites",
+    ),
+    "tailscaleExitNodeLan": MessageLookupByLibrary.simpleMessage(
+      "Allow LAN access",
+    ),
+    "tailscaleExitNodeLanDesc": MessageLookupByLibrary.simpleMessage(
+      "Keep the local network reachable while using the exit node",
+    ),
+    "tailscaleHostname": MessageLookupByLibrary.simpleMessage("Device name"),
+    "tailscaleInvalidDns": MessageLookupByLibrary.simpleMessage(
+      "Use domain=server with an IP server or a tls:// / https:// URL, e.g. corp.example.com=10.1.0.53",
+    ),
+    "tailscaleInvalidEntry": MessageLookupByLibrary.simpleMessage(
+      "Enter a domain, IP or CIDR",
+    ),
+    "tailscaleLoggedIn": MessageLookupByLibrary.simpleMessage(
+      "Tailscale logged in",
+    ),
+    "tailscaleLogin": MessageLookupByLibrary.simpleMessage("Log in"),
+    "tailscaleLoginDesc": MessageLookupByLibrary.simpleMessage(
+      "Sign in in the browser with your tailnet\'s SSO/OIDC; no auth key needed",
+    ),
+    "tailscaleLoginNeeded": MessageLookupByLibrary.simpleMessage(
+      "Tailscale needs login",
+    ),
+    "tailscaleNetwork": MessageLookupByLibrary.simpleMessage("Network"),
+    "tailscaleNetworks": MessageLookupByLibrary.simpleMessage("Networks"),
+    "tailscaleNotStarted": MessageLookupByLibrary.simpleMessage("Not started"),
+    "tailscaleNotStartedDesc": MessageLookupByLibrary.simpleMessage(
+      "Starts on first use; tap to start now",
+    ),
+    "tailscaleNotes": MessageLookupByLibrary.simpleMessage(
+      "• Built-in node: Bettbox joins your tailnet itself, no Tailscale app needed. Only the Routing list and Tailnet DNS go through it.\n• Rule mode only: Global and Direct modes skip these rules.\n• Use full names like host.tailnet.ts.net; short names like nas don\'t resolve.\n• Subnets: add them to the Routing list and turn on Accept subnet routes. On desktop without TUN, private subnets (10.x, 172.16–31.x, 192.168.x) bypass the system proxy.\n• Public sites through the tailnet need an exit node.\n• Tailnet IPv6 addresses need IPv6 turned on.\n• The node starts on first use. Its login link is only shown while Bettbox is open.\n• Android: Routing list changes apply after the VPN restarts.",
+    ),
+    "tailscaleNotesTitle": MessageLookupByLibrary.simpleMessage("Notes"),
+    "tailscaleOnlineCount": m18,
+    "tailscaleReset": MessageLookupByLibrary.simpleMessage("Reset node"),
+    "tailscaleResetDesc": MessageLookupByLibrary.simpleMessage(
+      "Forget this device\'s tailnet identity and join as a new device; remove the old one in the admin console",
+    ),
+    "tailscaleRoutes": MessageLookupByLibrary.simpleMessage("Routing list"),
+    "tailscaleRoutesDesc": MessageLookupByLibrary.simpleMessage(
+      "Domains and IPs/CIDRs sent through Tailscale in Rule mode. Private subnets need TUN on desktop",
+    ),
+    "tailscaleStarting": MessageLookupByLibrary.simpleMessage(
+      "Starting Tailscale…",
+    ),
+    "tailscaleSubnetRoutes": MessageLookupByLibrary.simpleMessage(
+      "Subnet routes",
+    ),
+    "tailscaleThisDevice": MessageLookupByLibrary.simpleMessage("This device"),
+    "tailscaleUdp": MessageLookupByLibrary.simpleMessage("UDP"),
+    "tailscaleUdpDesc": MessageLookupByLibrary.simpleMessage(
+      "Send UDP traffic through Tailscale",
+    ),
+    "tailscaleWarnings": MessageLookupByLibrary.simpleMessage("Warnings"),
     "tcpConcurrent": MessageLookupByLibrary.simpleMessage("TCP Concurrent"),
     "tcpConcurrentDesc": MessageLookupByLibrary.simpleMessage(
       "Allow concurrent TCP connections",
@@ -1445,7 +1539,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "upload": MessageLookupByLibrary.simpleMessage("Upload"),
     "url": MessageLookupByLibrary.simpleMessage("URL"),
     "urlDesc": MessageLookupByLibrary.simpleMessage("Get profile via URL"),
-    "urlTip": m18,
+    "urlTip": m19,
     "useGlobalScriptOverride": MessageLookupByLibrary.simpleMessage(
       "Use Global Script Override",
     ),
@@ -1491,6 +1585,6 @@ class MessageLookup extends MessageLookupByLibrary {
     "writeToSystemDesc": MessageLookupByLibrary.simpleMessage(
       "Requires administrator privileges",
     ),
-    "years": m19,
+    "years": m20,
   };
 }

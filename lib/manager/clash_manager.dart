@@ -114,6 +114,24 @@ class _ClashContainerState extends ConsumerState<ClashManager>
   }
 
   @override
+  void onTailscaleAuth(String url) {
+    final network = ref.read(tailscaleSettingProvider).runningNetwork;
+    if (network == null) return;
+    final wasPending = ref.read(tailscaleAuthUrlProvider)?.isNotEmpty == true;
+    ref.read(tailscaleAuthUrlProvider.notifier).value = url;
+    if (url.isNotEmpty) {
+      globalState.showNotifier(
+        '${network.label}: ${appLocalizations.tailscaleLoginNeeded}',
+        actionLabel: appLocalizations.tailscaleLogin,
+        onAction: () => globalState.openUrl(url),
+      );
+    } else if (wasPending) {
+      globalState.showNotifier(appLocalizations.tailscaleLoggedIn);
+    }
+    super.onTailscaleAuth(url);
+  }
+
+  @override
   Future<void> onLoaded(String providerName) async {
     final provider = await clashCore.getExternalProvider(providerName);
     if (!mounted) return;

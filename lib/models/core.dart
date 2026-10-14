@@ -15,6 +15,9 @@ abstract mixin class AppMessageListener {
   void onRequest(TrackerInfo connection) {}
 
   void onLoaded(String providerName) {}
+
+  /// Tailscale's SSO/OIDC login URL, or '' once login finished.
+  void onTailscaleAuth(String url) {}
 }
 
 // abstract mixin class ServiceMessageListener {
@@ -33,6 +36,10 @@ abstract class SetupParams with _$SetupParams {
     @JsonKey(name: 'age-secret-key') @Default('') String ageSecretKey,
     @JsonKey(name: 'scripted-config') @Default('') String scriptedConfig,
     Map<String, dynamic>? patch,
+    // Tailscale node state dirs the core deletes before applying.
+    @JsonKey(name: 'reset-tailscale-dirs')
+    @Default([])
+    List<String> resetTailscaleDirs,
   }) = _SetupParams;
 
   factory SetupParams.fromJson(Map<String, dynamic> json) =>
@@ -274,6 +281,47 @@ extension ActionResultExt on ActionResult {
       return Result.error(data);
     }
   }
+}
+
+@freezed
+abstract class TailscalePeer with _$TailscalePeer {
+  const factory TailscalePeer({
+    @Default('') String name,
+    @Default('') String dnsName,
+    @Default('') String os,
+    @Default([]) List<String> ips,
+    // Subnet routes this device serves.
+    @Default([]) List<String> routes,
+    @Default(false) bool online,
+    // The exit node in use.
+    @Default(false) bool exitNode,
+    @Default(false) bool exitNodeOption,
+    @Default(false) bool direct,
+    // DERP region relaying the traffic when not direct.
+    @Default('') String relay,
+    @Default(0) int rxBytes,
+    @Default(0) int txBytes,
+  }) = _TailscalePeer;
+
+  factory TailscalePeer.fromJson(Map<String, Object?> json) =>
+      _$TailscalePeerFromJson(json);
+}
+
+@freezed
+abstract class TailscaleStatus with _$TailscaleStatus {
+  const factory TailscaleStatus({
+    // tsnet backend state (Running, NeedsLogin, ...), NotStarted or Error.
+    @Default('') String state,
+    // State dir of the reporting node, i.e. which network it belongs to.
+    @Default('') String dir,
+    @Default('') String tailnet,
+    TailscalePeer? self,
+    @Default([]) List<TailscalePeer> peers,
+    @Default([]) List<String> health,
+  }) = _TailscaleStatus;
+
+  factory TailscaleStatus.fromJson(Map<String, Object?> json) =>
+      _$TailscaleStatusFromJson(json);
 }
 
 @freezed

@@ -57,9 +57,11 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m17(count) => "已选择 ${count} 项";
 
-  static String m18(label) => "${label}必须为URL";
+  static String m18(online, total) => "${online} / ${total} 在线";
 
-  static String m19(count) => "${Intl.plural(count, other: '年')}";
+  static String m19(label) => "${label}必须为URL";
+
+  static String m20(count) => "${Intl.plural(count, other: '年')}";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
@@ -952,6 +954,86 @@ class MessageLookup extends MessageLookupByLibrary {
     "systemProxy": MessageLookupByLibrary.simpleMessage("系统代理"),
     "systemProxyDesc": MessageLookupByLibrary.simpleMessage("设置系统代理"),
     "tab": MessageLookupByLibrary.simpleMessage("标签页"),
+    "tailscale": MessageLookupByLibrary.simpleMessage("Tailscale"),
+    "tailscaleAcceptRoutes": MessageLookupByLibrary.simpleMessage("接受子网路由"),
+    "tailscaleAcceptRoutesDesc": MessageLookupByLibrary.simpleMessage(
+      "使用 tailnet 中发布的子网路由",
+    ),
+    "tailscaleAddNetwork": MessageLookupByLibrary.simpleMessage("添加网络"),
+    "tailscaleAuthKey": MessageLookupByLibrary.simpleMessage("认证密钥"),
+    "tailscaleAuthKeyDesc": MessageLookupByLibrary.simpleMessage(
+      "可选；不填写时请使用“登录”（SSO/OIDC）",
+    ),
+    "tailscaleConnected": MessageLookupByLibrary.simpleMessage("已连接"),
+    "tailscaleControlUrl": MessageLookupByLibrary.simpleMessage("控制服务器"),
+    "tailscaleControlUrlDesc": MessageLookupByLibrary.simpleMessage(
+      "留空使用 Tailscale 官方服务器，Headscale 请填写其地址",
+    ),
+    "tailscaleDeleteNetwork": MessageLookupByLibrary.simpleMessage("删除网络"),
+    "tailscaleDesc": MessageLookupByLibrary.simpleMessage(
+      "让指定的域名和 IP 通过 Tailscale 网络访问",
+    ),
+    "tailscaleDevices": MessageLookupByLibrary.simpleMessage("设备"),
+    "tailscaleDns": MessageLookupByLibrary.simpleMessage("Tailnet DNS"),
+    "tailscaleDnsDesc": MessageLookupByLibrary.simpleMessage(
+      "由 tailnet 内 DNS 服务器解析的域名，格式为 域名=服务器（如 corp.example.com=10.1.0.53）。请将解析到的网段加入分流列表",
+    ),
+    "tailscaleEnable": MessageLookupByLibrary.simpleMessage("启用 Tailscale"),
+    "tailscaleEnableDesc": MessageLookupByLibrary.simpleMessage(
+      "使用内置 Tailscale 节点加入 tailnet",
+    ),
+    "tailscaleExitNode": MessageLookupByLibrary.simpleMessage("出口节点"),
+    "tailscaleExitNodeDesc": MessageLookupByLibrary.simpleMessage(
+      "tailnet 中的设备名称或 IP，也可填 auto:any。访问公网站点时需要",
+    ),
+    "tailscaleExitNodeLan": MessageLookupByLibrary.simpleMessage("允许访问局域网"),
+    "tailscaleExitNodeLanDesc": MessageLookupByLibrary.simpleMessage(
+      "使用出口节点时仍可访问本地网络",
+    ),
+    "tailscaleHostname": MessageLookupByLibrary.simpleMessage("设备名称"),
+    "tailscaleInvalidDns": MessageLookupByLibrary.simpleMessage(
+      "请使用 域名=服务器 格式，服务器为 IP 或 tls:// / https:// 地址，如 corp.example.com=10.1.0.53",
+    ),
+    "tailscaleInvalidEntry": MessageLookupByLibrary.simpleMessage(
+      "请输入域名、IP 或 CIDR",
+    ),
+    "tailscaleLoggedIn": MessageLookupByLibrary.simpleMessage("Tailscale 已登录"),
+    "tailscaleLogin": MessageLookupByLibrary.simpleMessage("登录"),
+    "tailscaleLoginDesc": MessageLookupByLibrary.simpleMessage(
+      "在浏览器中通过 tailnet 的 SSO/OIDC 登录，无需认证密钥",
+    ),
+    "tailscaleLoginNeeded": MessageLookupByLibrary.simpleMessage(
+      "Tailscale 需要登录",
+    ),
+    "tailscaleNetwork": MessageLookupByLibrary.simpleMessage("网络"),
+    "tailscaleNetworks": MessageLookupByLibrary.simpleMessage("网络列表"),
+    "tailscaleNotStarted": MessageLookupByLibrary.simpleMessage("未启动"),
+    "tailscaleNotStartedDesc": MessageLookupByLibrary.simpleMessage(
+      "首次使用时启动，点击立即启动",
+    ),
+    "tailscaleNotes": MessageLookupByLibrary.simpleMessage(
+      "• 内置节点：Bettbox 自身加入 tailnet，无需安装 Tailscale 客户端；只有分流列表和 Tailnet DNS 中的流量经过它。\n• 仅在规则模式下生效：全局和直连模式会跳过这些规则。\n• 请使用完整名称，如 host.tailnet.ts.net；nas 这类短名称无法解析。\n• 子网：请加入分流列表并开启「接受子网路由」。桌面端未开启 TUN 时，私有网段（10.x、172.16–31.x、192.168.x）会被系统代理绕过。\n• 经 tailnet 访问公网站点需要设置出口节点。\n• tailnet 的 IPv6 地址需开启 IPv6。\n• 节点在首次使用时启动；登录链接仅在 Bettbox 打开时显示。\n• Android：分流列表的修改需重启 VPN 后生效。",
+    ),
+    "tailscaleNotesTitle": MessageLookupByLibrary.simpleMessage("使用说明"),
+    "tailscaleOnlineCount": m18,
+    "tailscaleReset": MessageLookupByLibrary.simpleMessage("重置节点"),
+    "tailscaleResetDesc": MessageLookupByLibrary.simpleMessage(
+      "清除本设备的 tailnet 身份并作为新设备加入；旧设备需在管理后台中删除",
+    ),
+    "tailscaleRoutes": MessageLookupByLibrary.simpleMessage("分流列表"),
+    "tailscaleRoutesDesc": MessageLookupByLibrary.simpleMessage(
+      "规则模式下通过 Tailscale 访问的域名和 IP/CIDR。桌面端私有网段需开启 TUN",
+    ),
+    "tailscaleStarting": MessageLookupByLibrary.simpleMessage(
+      "正在启动 Tailscale…",
+    ),
+    "tailscaleSubnetRoutes": MessageLookupByLibrary.simpleMessage("子网路由"),
+    "tailscaleThisDevice": MessageLookupByLibrary.simpleMessage("本设备"),
+    "tailscaleUdp": MessageLookupByLibrary.simpleMessage("UDP"),
+    "tailscaleUdpDesc": MessageLookupByLibrary.simpleMessage(
+      "允许 UDP 流量通过 Tailscale",
+    ),
+    "tailscaleWarnings": MessageLookupByLibrary.simpleMessage("警告"),
     "tcpConcurrent": MessageLookupByLibrary.simpleMessage("TCP并发"),
     "tcpConcurrentDesc": MessageLookupByLibrary.simpleMessage("开启后允许 TCP 并发连接"),
     "testUrl": MessageLookupByLibrary.simpleMessage("测试链接"),
@@ -1037,7 +1119,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "upload": MessageLookupByLibrary.simpleMessage("上传"),
     "url": MessageLookupByLibrary.simpleMessage("URL"),
     "urlDesc": MessageLookupByLibrary.simpleMessage("通过 URL 获取配置文件"),
-    "urlTip": m18,
+    "urlTip": m19,
     "useGlobalScriptOverride": MessageLookupByLibrary.simpleMessage("使用全局脚本覆写"),
     "useHosts": MessageLookupByLibrary.simpleMessage("使用Hosts"),
     "useSystemHosts": MessageLookupByLibrary.simpleMessage("使用系统 Hosts"),
@@ -1071,6 +1153,6 @@ class MessageLookup extends MessageLookupByLibrary {
     "whitelistMode": MessageLookupByLibrary.simpleMessage("白名单模式"),
     "writeToSystem": MessageLookupByLibrary.simpleMessage("写入系统"),
     "writeToSystemDesc": MessageLookupByLibrary.simpleMessage("需要管理员权限"),
-    "years": m19,
+    "years": m20,
   };
 }

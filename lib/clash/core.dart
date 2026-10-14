@@ -465,6 +465,21 @@ class ClashCore {
     return CoreStatus.fromJson(Map<String, dynamic>.from(decoded));
   }
 
+  /// Status of the app's Tailscale node; null when none is configured.
+  Future<TailscaleStatus?> getTailscaleStatus() async {
+    final value = await clashInterface.getTailscaleStatus();
+    if (value.isEmpty) return null;
+    final decoded = json.decode(value);
+    if (decoded is! Map) return null;
+    return TailscaleStatus.fromJson(Map<String, dynamic>.from(decoded));
+  }
+
+  /// Starts the app's Tailscale node (a no-op if running); a login URL then
+  /// arrives as a tailscaleAuth message.
+  Future<void> startTailscale() async {
+    await clashInterface.startTailscale();
+  }
+
   void resetTraffic() {
     clashInterface.resetTraffic();
   }

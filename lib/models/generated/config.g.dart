@@ -420,6 +420,60 @@ Map<String, dynamic> _$NetworkPropsToJson(_NetworkProps instance) =>
       'autoSetSystemDns': instance.autoSetSystemDns,
     };
 
+_TailscaleNetwork _$TailscaleNetworkFromJson(Map<String, dynamic> json) =>
+    _TailscaleNetwork(
+      id: json['id'] as String,
+      label: json['label'] as String? ?? 'Tailscale',
+      authKey: json['authKey'] as String? ?? '',
+      hostname: json['hostname'] as String? ?? '',
+      controlUrl: json['controlUrl'] as String? ?? '',
+      exitNode: json['exitNode'] as String? ?? '',
+      exitNodeAllowLanAccess: json['exitNodeAllowLanAccess'] as bool? ?? false,
+      acceptRoutes: json['acceptRoutes'] as bool? ?? true,
+      udp: json['udp'] as bool? ?? true,
+      routes:
+          (json['routes'] as List<dynamic>?)
+              ?.map((e) => e as String)
+              .toList() ??
+          defaultTailscaleRoutes,
+      dns:
+          (json['dns'] as List<dynamic>?)?.map((e) => e as String).toList() ??
+          const [],
+    );
+
+Map<String, dynamic> _$TailscaleNetworkToJson(_TailscaleNetwork instance) =>
+    <String, dynamic>{
+      'id': instance.id,
+      'label': instance.label,
+      'authKey': instance.authKey,
+      'hostname': instance.hostname,
+      'controlUrl': instance.controlUrl,
+      'exitNode': instance.exitNode,
+      'exitNodeAllowLanAccess': instance.exitNodeAllowLanAccess,
+      'acceptRoutes': instance.acceptRoutes,
+      'udp': instance.udp,
+      'routes': instance.routes,
+      'dns': instance.dns,
+    };
+
+_TailscaleProps _$TailscalePropsFromJson(Map<String, dynamic> json) =>
+    _TailscaleProps(
+      enable: json['enable'] as bool? ?? false,
+      activeId: json['activeId'] as String?,
+      networks:
+          (json['networks'] as List<dynamic>?)
+              ?.map((e) => TailscaleNetwork.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          const [],
+    );
+
+Map<String, dynamic> _$TailscalePropsToJson(_TailscaleProps instance) =>
+    <String, dynamic>{
+      'enable': instance.enable,
+      'activeId': instance.activeId,
+      'networks': instance.networks,
+    };
+
 _ProxiesStyle _$ProxiesStyleFromJson(Map<String, dynamic> json) =>
     _ProxiesStyle(
       type:
@@ -639,6 +693,11 @@ _Config _$ConfigFromJson(Map<String, dynamic> json) => _Config(
   networkProps: json['networkProps'] == null
       ? defaultNetworkProps
       : NetworkProps.fromJson(json['networkProps'] as Map<String, dynamic>?),
+  tailscaleProps: json['tailscaleProps'] == null
+      ? defaultTailscaleProps
+      : TailscaleProps.safeFromJson(
+          json['tailscaleProps'] as Map<String, Object?>?,
+        ),
   vpnProps: json['vpnProps'] == null
       ? defaultVpnProps
       : VpnProps.safeFromJson(json['vpnProps'] as Map<String, Object?>?),
@@ -676,6 +735,7 @@ Map<String, dynamic> _$ConfigToJson(_Config instance) => <String, dynamic>{
   'overrideTestUrl': instance.overrideTestUrl,
   'dav': instance.dav,
   'networkProps': instance.networkProps,
+  'tailscaleProps': instance.tailscaleProps,
   'vpnProps': instance.vpnProps,
   'themeProps': instance.themeProps,
   'proxiesStyle': instance.proxiesStyle,

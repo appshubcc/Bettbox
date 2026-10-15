@@ -146,6 +146,18 @@ class App {
     final result = await methodChannel.invokeMethod<bool>('isAndroidTV');
     return result ?? false;
   }
+
+  /// Whether the system Private DNS is set to a provider hostname (strict mode).
+  Future<bool> isPrivateDnsStrict() async {
+    try {
+      final result = await methodChannel.invokeMethod<bool>(
+        'isPrivateDnsStrict',
+      );
+      return result ?? false;
+    } catch (_) {
+      return false;
+    }
+  }
 }
 
 final app = App();

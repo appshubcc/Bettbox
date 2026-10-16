@@ -37,6 +37,8 @@ class GlobalState {
   bool isService = false;
   bool isExiting = false;
   bool isScreenOn = true;
+  // Private DNS mode the current prepend rules were built for (Android).
+  bool? _privateDnsStrict;
   Timer? timer;
   Timer? groupsUpdateTimer;
   Config? _config;
@@ -327,6 +329,17 @@ class GlobalState {
     }
 
     dashboardRefreshManager.stop();
+  }
+
+  /// Re-applies the config when the system Private DNS mode changed (e.g. it
+  /// was switched in system settings), so loopback protection follows it.
+  Future<void> refreshPrivateDnsMode() async {
+    final last = _privateDnsStrict;
+    if (isService || last == null || !config.vpnProps.loopbackProtection) {
+      return;
+    }
+    if (await app.isPrivateDnsStrict() == last) return;
+    await appController.handleChangeProfile();
   }
 
   void handleForeground() {
@@ -928,6 +941,15 @@ class GlobalState {
     final isChinese =
         config.appSetting.locale?.toLowerCase().startsWith('zh') ?? false;
     final listenPorts = patchConfig.listenPorts;
+    // The Android 853 rule below is meant for opportunistic Private DNS, which
+    // probes DoT on the TUN DNS address. In strict mode (a hostname is set) the
+    // system's Private DNS check over the VPN is rejected by it as well and
+    // fails ("cannot access private DNS server"), so leave it out then.
+    final privateDnsStrict =
+        system.isAndroid &&
+        config.vpnProps.loopbackProtection &&
+        await app.isPrivateDnsStrict();
+    _privateDnsStrict = privateDnsStrict;
 
     return {
       'general': general,
@@ -973,7 +995,7 @@ class GlobalState {
             'AND,((DST-PORT,$listenPorts),(IP-CIDR,127.0.0.0/8,no-resolve)),REJECT',
             'AND,((DST-PORT,$listenPorts),(IP-CIDR6,::1/128,no-resolve)),REJECT',
           ],
-          if (system.isAndroid)
+          if (system.isAndroid && !privateDnsStrict)
             'AND,((DST-PORT,853),(IP-CIDR,198.51.100.0/30,no-resolve)),REJECT',
         ],
         if (config.vpnProps.disableQuic)

@@ -203,6 +203,11 @@ class _AppStateManagerState extends ConsumerState<AppStateManager>
       mediaUnlockState.checkOnForegroundResume();
     }
     if (state == AppLifecycleState.resumed && system.isAndroid) {
+      unawaited(
+        globalState.refreshPrivateDnsMode().catchError((Object e) {
+          commonPrint.warn('Private DNS mode refresh failed: $e');
+        }),
+      );
       final hidden = ref.read(appSettingProvider.select((s) => s.hidden));
       app.updateExcludeFromRecents(hidden);
       SystemChrome.setSystemUIOverlayStyle(

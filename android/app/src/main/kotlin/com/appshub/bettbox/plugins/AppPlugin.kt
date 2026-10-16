@@ -9,6 +9,8 @@ import android.content.Intent
 import android.content.pm.ApplicationInfo
 import android.content.pm.ComponentInfo
 import android.content.pm.PackageManager
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import android.net.VpnService
 import android.os.Build
 import android.provider.Settings
@@ -190,6 +192,23 @@ class AppPlugin : FlutterPlugin, MethodChannel.MethodCallHandler, ActivityAware 
         return (uiMode and Configuration.UI_MODE_TYPE_MASK) == Configuration.UI_MODE_TYPE_TELEVISION
     }
 
+    // System Private DNS is in strict mode (a provider hostname is set): the underlying
+    // (non-VPN) networks then carry that hostname in their LinkProperties.
+    private fun isPrivateDnsStrict(): Boolean {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) return false
+        val cm = BettboxApplication.getAppContext().getSystemService<ConnectivityManager>()
+            ?: return false
+        return runCatching {
+            @Suppress("DEPRECATION")
+            val networks = cm.allNetworks
+            networks.any { network ->
+                val caps = cm.getNetworkCapabilities(network) ?: return@any false
+                !caps.hasTransport(NetworkCapabilities.TRANSPORT_VPN) &&
+                    !cm.getLinkProperties(network)?.privateDnsServerName.isNullOrEmpty()
+            }
+        }.getOrDefault(false)
+    }
+
     override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {
         channel.setMethodCallHandler(null)
         scope.cancel()
@@ -269,6 +288,9 @@ class AppPlugin : FlutterPlugin, MethodChannel.MethodCallHandler, ActivityAware 
             }
             "isAndroidTV" -> {
                 result.success(isAndroidTV())
+            }
+            "isPrivateDnsStrict" -> {
+                result.success(isPrivateDnsStrict())
             }
             "openFcmDiagnostics" -> {
                 result.success(openFcmDiagnostics())

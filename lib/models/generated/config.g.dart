@@ -550,11 +550,14 @@ _ThemeProps _$ThemePropsFromJson(Map<String, dynamic> json) => _ThemeProps(
       $enumDecodeNullable(_$ThemeModeEnumMap, json['themeMode']) ??
       ThemeMode.system,
   schemeVariant:
+      $enumDecodeNullable(_$ThemeSchemeVariantEnumMap, json['schemeVariant']) ??
+      ThemeSchemeVariant.content,
+  colorSpecVersion:
       $enumDecodeNullable(
-        _$DynamicSchemeVariantEnumMap,
-        json['schemeVariant'],
+        _$ColorSpecVersionEnumMap,
+        json['colorSpecVersion'],
       ) ??
-      DynamicSchemeVariant.content,
+      ColorSpecVersion.spec2021,
   pureBlack: json['pureBlack'] as bool? ?? false,
   textScale: json['textScale'] == null
       ? const TextScale()
@@ -569,7 +572,8 @@ Map<String, dynamic> _$ThemePropsToJson(_ThemeProps instance) =>
       'primaryColor': instance.primaryColor,
       'primaryColors': instance.primaryColors,
       'themeMode': _$ThemeModeEnumMap[instance.themeMode]!,
-      'schemeVariant': _$DynamicSchemeVariantEnumMap[instance.schemeVariant]!,
+      'schemeVariant': _$ThemeSchemeVariantEnumMap[instance.schemeVariant]!,
+      'colorSpecVersion': _$ColorSpecVersionEnumMap[instance.colorSpecVersion]!,
       'pureBlack': instance.pureBlack,
       'textScale': instance.textScale,
       'useDarkIcon': instance.useDarkIcon,
@@ -583,16 +587,23 @@ const _$ThemeModeEnumMap = {
   ThemeMode.dark: 'dark',
 };
 
-const _$DynamicSchemeVariantEnumMap = {
-  DynamicSchemeVariant.tonalSpot: 'tonalSpot',
-  DynamicSchemeVariant.fidelity: 'fidelity',
-  DynamicSchemeVariant.monochrome: 'monochrome',
-  DynamicSchemeVariant.neutral: 'neutral',
-  DynamicSchemeVariant.vibrant: 'vibrant',
-  DynamicSchemeVariant.expressive: 'expressive',
-  DynamicSchemeVariant.content: 'content',
-  DynamicSchemeVariant.rainbow: 'rainbow',
-  DynamicSchemeVariant.fruitSalad: 'fruitSalad',
+const _$ThemeSchemeVariantEnumMap = {
+  ThemeSchemeVariant.tonalSpot: 'tonalSpot',
+  ThemeSchemeVariant.fidelity: 'fidelity',
+  ThemeSchemeVariant.monochrome: 'monochrome',
+  ThemeSchemeVariant.neutral: 'neutral',
+  ThemeSchemeVariant.vibrant: 'vibrant',
+  ThemeSchemeVariant.expressive: 'expressive',
+  ThemeSchemeVariant.content: 'content',
+  ThemeSchemeVariant.rainbow: 'rainbow',
+  ThemeSchemeVariant.fruitSalad: 'fruitSalad',
+  ThemeSchemeVariant.cmf: 'cmf',
+};
+
+const _$ColorSpecVersionEnumMap = {
+  ColorSpecVersion.spec2021: 'spec2021',
+  ColorSpecVersion.spec2025: 'spec2025',
+  ColorSpecVersion.spec2026: 'spec2026',
 };
 
 _ScriptProps _$ScriptPropsFromJson(Map<String, dynamic> json) => _ScriptProps(

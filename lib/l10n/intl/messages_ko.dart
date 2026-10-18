@@ -236,9 +236,19 @@ class MessageLookup extends MessageLookupByLibrary {
     "clipboardImport": MessageLookupByLibrary.simpleMessage("클립보드에서 가져오기"),
     "close": MessageLookupByLibrary.simpleMessage("닫기"),
     "closeAll": MessageLookupByLibrary.simpleMessage("모두 닫기"),
+    "cmfScheme": MessageLookupByLibrary.simpleMessage("CMF"),
     "collapse": MessageLookupByLibrary.simpleMessage("접기"),
     "color": MessageLookupByLibrary.simpleMessage("색상"),
     "colorSchemes": MessageLookupByLibrary.simpleMessage("색상 팔레트"),
+    "colorSpec": MessageLookupByLibrary.simpleMessage("SPEC2025 색상 사양"),
+    "colorSpec2021Desc": MessageLookupByLibrary.simpleMessage(
+      "SPEC2021 - Android16 QPR0-",
+    ),
+    "colorSpec2025Desc": MessageLookupByLibrary.simpleMessage(
+      "SPEC2025 - Android16 QPR1+",
+    ),
+    "colorSpec2026": MessageLookupByLibrary.simpleMessage("SPEC2026 색상 사양"),
+    "colorSpec2026Desc": MessageLookupByLibrary.simpleMessage("SPEC2026 - CMF"),
     "columns": MessageLookupByLibrary.simpleMessage("열 수"),
     "compatible": MessageLookupByLibrary.simpleMessage("호환 모드"),
     "compatibleDesc": MessageLookupByLibrary.simpleMessage(

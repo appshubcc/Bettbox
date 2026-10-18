@@ -293,9 +293,23 @@ class MessageLookup extends MessageLookupByLibrary {
     "clipboardImport": MessageLookupByLibrary.simpleMessage("Импорт из буфера"),
     "close": MessageLookupByLibrary.simpleMessage("Закрыть"),
     "closeAll": MessageLookupByLibrary.simpleMessage("Закрыть все"),
+    "cmfScheme": MessageLookupByLibrary.simpleMessage("CMF"),
     "collapse": MessageLookupByLibrary.simpleMessage("Свернуть"),
     "color": MessageLookupByLibrary.simpleMessage("Цвет"),
     "colorSchemes": MessageLookupByLibrary.simpleMessage("Цветовые схемы"),
+    "colorSpec": MessageLookupByLibrary.simpleMessage(
+      "Цветовая спецификация SPEC2025",
+    ),
+    "colorSpec2021Desc": MessageLookupByLibrary.simpleMessage(
+      "SPEC2021 - Android16 QPR0-",
+    ),
+    "colorSpec2025Desc": MessageLookupByLibrary.simpleMessage(
+      "SPEC2025 - Android16 QPR1+",
+    ),
+    "colorSpec2026": MessageLookupByLibrary.simpleMessage(
+      "Цветовая спецификация SPEC2026",
+    ),
+    "colorSpec2026Desc": MessageLookupByLibrary.simpleMessage("SPEC2026 - CMF"),
     "columns": MessageLookupByLibrary.simpleMessage("Колонки"),
     "compatible": MessageLookupByLibrary.simpleMessage("Режим совместимости"),
     "compatibleDesc": MessageLookupByLibrary.simpleMessage(

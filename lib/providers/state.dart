@@ -921,24 +921,22 @@ ColorScheme genColorScheme(
       (state) => VM2(a: state.primaryColor, b: state.schemeVariant),
     ),
   );
-  if (color == null && (ignoreConfig == true || vm2.a == null)) {
-    // if (globalState.corePalette != null) {
-    //   return globalState.corePalette!.toColorScheme(brightness: brightness);
-    // }
-    return ColorScheme.fromSeed(
-      seedColor:
-          globalState.corePalette
-              ?.toColorScheme(brightness: brightness)
-              .primary ??
-          globalState.accentColor,
-      brightness: brightness,
-      dynamicSchemeVariant: vm2.b,
-    );
-  }
-  return ColorScheme.fromSeed(
-    seedColor: color ?? Color(vm2.a!),
+  final colorSpecVersion = ref.watch(
+    themeSettingProvider.select((state) => state.colorSpecVersion),
+  );
+  final useDynamicColor =
+      color == null && (ignoreConfig == true || vm2.a == null);
+  final seedColor = useDynamicColor
+      ? globalState.corePalette
+                ?.toColorScheme(brightness: brightness)
+                .primary ??
+            globalState.accentColor
+      : color ?? Color(vm2.a!);
+  return AppColorScheme.generate(
+    seedColor: seedColor,
     brightness: brightness,
-    dynamicSchemeVariant: vm2.b,
+    variant: vm2.b,
+    spec: colorSpecVersion,
   );
 }
 

@@ -502,30 +502,18 @@ abstract class ColorSchemes with _$ColorSchemes {
 extension ColorSchemesExt on ColorSchemes {
   ColorScheme getColorSchemeForBrightness(
     Brightness brightness,
-    DynamicSchemeVariant schemeVariant,
-  ) {
-    if (brightness == Brightness.dark) {
-      return darkColorScheme != null
-          ? ColorScheme.fromSeed(
-              seedColor: darkColorScheme!.primary,
-              brightness: Brightness.dark,
-              dynamicSchemeVariant: schemeVariant,
-            )
-          : ColorScheme.fromSeed(
-              seedColor: Color(defaultPrimaryColor),
-              brightness: Brightness.dark,
-              dynamicSchemeVariant: schemeVariant,
-            );
-    }
-    return lightColorScheme != null
-        ? ColorScheme.fromSeed(
-            seedColor: lightColorScheme!.primary,
-            dynamicSchemeVariant: schemeVariant,
-          )
-        : ColorScheme.fromSeed(
-            seedColor: Color(defaultPrimaryColor),
-            dynamicSchemeVariant: schemeVariant,
-          );
+    ThemeSchemeVariant schemeVariant, {
+    ColorSpecVersion spec = ColorSpecVersion.spec2021,
+  }) {
+    final scheme = brightness == Brightness.dark
+        ? darkColorScheme
+        : lightColorScheme;
+    return AppColorScheme.generate(
+      seedColor: scheme?.primary ?? Color(defaultPrimaryColor),
+      brightness: brightness,
+      variant: schemeVariant,
+      spec: spec,
+    );
   }
 }
 

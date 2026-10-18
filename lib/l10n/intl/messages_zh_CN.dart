@@ -206,9 +206,19 @@ class MessageLookup extends MessageLookupByLibrary {
     "clipboardImport": MessageLookupByLibrary.simpleMessage("剪贴板导入"),
     "close": MessageLookupByLibrary.simpleMessage("关闭"),
     "closeAll": MessageLookupByLibrary.simpleMessage("关闭全部"),
+    "cmfScheme": MessageLookupByLibrary.simpleMessage("CMF"),
     "collapse": MessageLookupByLibrary.simpleMessage("收起"),
     "color": MessageLookupByLibrary.simpleMessage("颜色"),
     "colorSchemes": MessageLookupByLibrary.simpleMessage("配色方案"),
+    "colorSpec": MessageLookupByLibrary.simpleMessage("SPEC2025色彩规范"),
+    "colorSpec2021Desc": MessageLookupByLibrary.simpleMessage(
+      "SPEC2021 - Android16 QPR0-",
+    ),
+    "colorSpec2025Desc": MessageLookupByLibrary.simpleMessage(
+      "SPEC2025 - Android16 QPR1+",
+    ),
+    "colorSpec2026": MessageLookupByLibrary.simpleMessage("SPEC2026色彩规范"),
+    "colorSpec2026Desc": MessageLookupByLibrary.simpleMessage("SPEC2026 - CMF"),
     "columns": MessageLookupByLibrary.simpleMessage("列数"),
     "compatible": MessageLookupByLibrary.simpleMessage("兼容模式"),
     "compatibleDesc": MessageLookupByLibrary.simpleMessage(

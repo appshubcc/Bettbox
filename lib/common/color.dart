@@ -84,7 +84,7 @@ extension ColorExtension on Color {
         .toUpperCase();
   }
 
-  Color darken([final int amount = 10]) {
+  Color darken([int amount = 10]) {
     if (amount <= 0) return this;
     if (amount > 100) return Colors.black;
     final HSLColor hsl = HSLColor.fromColor(this);

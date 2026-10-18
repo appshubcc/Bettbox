@@ -539,3 +539,34 @@ enum DelayAnimationType {
   wanderingCubes,
   waveSpinner,
 }
+
+/// Palette style used to generate the Material 3 color scheme.
+///
+/// Mirrors the variants supported by Material Color Utilities. [cmf] is the
+/// CMF palette style introduced with the 2026 spec.
+enum ThemeSchemeVariant {
+  tonalSpot,
+  fidelity,
+  monochrome,
+  neutral,
+  vibrant,
+  expressive,
+  content,
+  rainbow,
+  fruitSalad,
+  cmf,
+}
+
+/// Material Design color specification used to generate the theme.
+///
+/// Android 16 QPR1 (Material 3 Expressive) switched the system Monet palette to
+/// the 2025 spec. The 2026 spec is used by the [ThemeSchemeVariant.cmf] palette.
+enum ColorSpecVersion {
+  spec2021,
+  spec2025,
+  spec2026;
+
+  bool get is2025 => this == ColorSpecVersion.spec2025;
+
+  bool get is2026 => this == ColorSpecVersion.spec2026;
+}

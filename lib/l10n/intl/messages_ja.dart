@@ -226,9 +226,19 @@ class MessageLookup extends MessageLookupByLibrary {
     "clipboardImport": MessageLookupByLibrary.simpleMessage("クリップボードから取り込み"),
     "close": MessageLookupByLibrary.simpleMessage("閉じる"),
     "closeAll": MessageLookupByLibrary.simpleMessage("すべて閉じる"),
+    "cmfScheme": MessageLookupByLibrary.simpleMessage("CMF"),
     "collapse": MessageLookupByLibrary.simpleMessage("折りたたむ"),
     "color": MessageLookupByLibrary.simpleMessage("カラー"),
     "colorSchemes": MessageLookupByLibrary.simpleMessage("カラーパレット"),
+    "colorSpec": MessageLookupByLibrary.simpleMessage("SPEC2025 カラースペック"),
+    "colorSpec2021Desc": MessageLookupByLibrary.simpleMessage(
+      "SPEC2021 - Android16 QPR0-",
+    ),
+    "colorSpec2025Desc": MessageLookupByLibrary.simpleMessage(
+      "SPEC2025 - Android16 QPR1+",
+    ),
+    "colorSpec2026": MessageLookupByLibrary.simpleMessage("SPEC2026 カラースペック"),
+    "colorSpec2026Desc": MessageLookupByLibrary.simpleMessage("SPEC2026 - CMF"),
     "columns": MessageLookupByLibrary.simpleMessage("列数"),
     "compatible": MessageLookupByLibrary.simpleMessage("互換モード"),
     "compatibleDesc": MessageLookupByLibrary.simpleMessage(

@@ -5055,6 +5055,61 @@ class AppLocalizations {
     );
   }
 
+  /// `SPEC2025 Color Spec`
+  String get colorSpec {
+    return Intl.message(
+      'SPEC2025 Color Spec',
+      name: 'colorSpec',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `SPEC2021 - Android16 QPR0-`
+  String get colorSpec2021Desc {
+    return Intl.message(
+      'SPEC2021 - Android16 QPR0-',
+      name: 'colorSpec2021Desc',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `SPEC2025 - Android16 QPR1+`
+  String get colorSpec2025Desc {
+    return Intl.message(
+      'SPEC2025 - Android16 QPR1+',
+      name: 'colorSpec2025Desc',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `SPEC2026 Color Spec`
+  String get colorSpec2026 {
+    return Intl.message(
+      'SPEC2026 Color Spec',
+      name: 'colorSpec2026',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `SPEC2026 - CMF`
+  String get colorSpec2026Desc {
+    return Intl.message(
+      'SPEC2026 - CMF',
+      name: 'colorSpec2026Desc',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `CMF`
+  String get cmfScheme {
+    return Intl.message('CMF', name: 'cmfScheme', desc: '', args: []);
+  }
+
   /// `Palette`
   String get palette {
     return Intl.message('Palette', name: 'palette', desc: '', args: []);

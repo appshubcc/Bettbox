@@ -47,6 +47,7 @@ class ThemeView extends ConsumerWidget {
         locale?.startsWith('zh') == true || locale?.startsWith('en') == true;
 
     final toggleItems = [
+      const _ColorSpecItem(),
       if (shouldShowHarmonyFont) _HarmonyFontItem(),
       if (system.isAndroid) const _DarkIconItem(),
       if (system.isWindows) _TrayIconInvertItem(),
@@ -186,7 +187,7 @@ class _PrimaryColorItemState extends ConsumerState<_PrimaryColorItem> {
       return state.copyWith(
         primaryColors: defaultPrimaryColors,
         primaryColor: defaultPrimaryColor,
-        schemeVariant: DynamicSchemeVariant.content,
+        schemeVariant: ThemeSchemeVariant.content,
       );
     });
   }
@@ -245,10 +246,10 @@ class _PrimaryColorItemState extends ConsumerState<_PrimaryColorItem> {
     final schemeVariant = ref.read(
       themeSettingProvider.select((state) => state.schemeVariant),
     );
-    final value = await globalState.showCommonDialog<DynamicSchemeVariant>(
-      child: OptionsDialog<DynamicSchemeVariant>(
+    final value = await globalState.showCommonDialog<ThemeSchemeVariant>(
+      child: OptionsDialog<ThemeSchemeVariant>(
         title: appLocalizations.colorSchemes,
-        options: DynamicSchemeVariant.values,
+        options: ThemeSchemeVariant.values,
         textBuilder: (item) => Intl.message('${item.name}Scheme'),
         value: schemeVariant,
       ),
@@ -374,6 +375,57 @@ class _PrueBlackItem extends ConsumerWidget {
               .read(themeSettingProvider.notifier)
               .updateState((state) => state.copyWith(pureBlack: value));
         },
+      ),
+    );
+  }
+}
+
+class _ColorSpecItem extends ConsumerWidget {
+  const _ColorSpecItem();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final vm2 = ref.watch(
+      themeSettingProvider.select(
+        (state) => VM2(a: state.schemeVariant, b: state.colorSpecVersion),
+      ),
+    );
+    final isCmf = vm2.a == ThemeSchemeVariant.cmf;
+    final spec2025 = vm2.b.is2025;
+    return ListItem.switchItem(
+      leading: const Icon(Icons.palette_outlined),
+      horizontalTitleGap: 12,
+      title: Text(
+        isCmf ? appLocalizations.colorSpec2026 : appLocalizations.colorSpec,
+        style: Theme.of(context).textTheme.titleSmall?.copyWith(
+          color: context.colorScheme.onSurfaceVariant,
+        ),
+      ),
+      subtitle: Text(
+        isCmf
+            ? appLocalizations.colorSpec2026Desc
+            : spec2025
+            ? appLocalizations.colorSpec2025Desc
+            : appLocalizations.colorSpec2021Desc,
+        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+          color: context.colorScheme.onSurfaceVariant.withOpacity(0.7),
+        ),
+      ),
+      delegate: SwitchDelegate(
+        value: isCmf || spec2025,
+        onChanged: isCmf
+            ? null
+            : (value) {
+                ref
+                    .read(themeSettingProvider.notifier)
+                    .updateState(
+                      (state) => state.copyWith(
+                        colorSpecVersion: value
+                            ? ColorSpecVersion.spec2025
+                            : ColorSpecVersion.spec2021,
+                      ),
+                    );
+              },
       ),
     );
   }

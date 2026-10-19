@@ -20,12 +20,17 @@ import (
 	"github.com/metacubex/mihomo/constant"
 	"github.com/metacubex/mihomo/constant/features"
 	cp "github.com/metacubex/mihomo/constant/provider"
+	"github.com/metacubex/mihomo/dns"
 	"github.com/metacubex/mihomo/hub"
 	"github.com/metacubex/mihomo/hub/route"
 	"github.com/metacubex/mihomo/listener"
+	LC "github.com/metacubex/mihomo/listener/config"
 	"github.com/metacubex/mihomo/log"
 	rp "github.com/metacubex/mihomo/rules/provider"
 	"github.com/metacubex/mihomo/tunnel"
+	"go4.org/netipx"
+	"net"
+	"net/netip"
 	"os"
 	"runtime"
 	"runtime/debug"
@@ -137,8 +142,72 @@ func updateListeners() {
 	listener.ReCreateVmess(general.VmessConfig, tunnel.Tunnel)
 	listener.ReCreateTuic(general.TuicServer, tunnel.Tunnel)
 	if !features.Android {
-		listener.ReCreateTun(general.Tun, tunnel.Tunnel)
+		listener.ReCreateTun(keepConnectedSubnetsExcluded(general.Tun), tunnel.Tunnel)
 	}
+}
+
+// keepConnectedSubnetsExcluded stops macOS TUN from installing a route equal
+// to a connected subnet (e.g. a Tailscale subnet route while on that LAN): the
+// darwin route add fails with EEXIST and takes TUN down. It mirrors sing-tun's
+// BuildAutoRouteRanges and only re-excludes such exact matches.
+func keepConnectedSubnetsExcluded(tun LC.Tun) LC.Tun {
+	if runtime.GOOS != "darwin" || !tun.Enable || !tun.AutoRoute || len(tun.RouteExcludeAddress) == 0 {
+		return tun
+	}
+	var builder netipx.IPSetBuilder
+	if len(tun.RouteAddress) > 0 {
+		for _, prefix := range tun.RouteAddress {
+			builder.AddPrefix(prefix)
+		}
+	} else {
+		builder.AddPrefix(netip.MustParsePrefix("0.0.0.0/0"))
+		builder.RemovePrefix(netip.MustParsePrefix("0.0.0.0/8"))
+		builder.AddPrefix(netip.MustParsePrefix("::/0"))
+		builder.RemovePrefix(netip.MustParsePrefix("::/8"))
+	}
+	for _, prefix := range tun.RouteExcludeAddress {
+		builder.RemovePrefix(prefix)
+	}
+	routeSet, err := builder.IPSet()
+	if err != nil {
+		return tun
+	}
+	routes := map[netip.Prefix]bool{}
+	for _, prefix := range routeSet.Prefixes() {
+		routes[prefix] = true
+	}
+	ifaces, err := net.Interfaces()
+	if err != nil {
+		return tun
+	}
+	exclude := append([]netip.Prefix(nil), tun.RouteExcludeAddress...)
+	for _, iface := range ifaces {
+		if iface.Flags&net.FlagUp == 0 || iface.Flags&net.FlagLoopback != 0 {
+			continue
+		}
+		addrs, _ := iface.Addrs()
+		for _, addr := range addrs {
+			ipNet, ok := addr.(*net.IPNet)
+			if !ok {
+				continue
+			}
+			ip, ok := netip.AddrFromSlice(ipNet.IP)
+			if !ok {
+				continue
+			}
+			ones, bits := ipNet.Mask.Size()
+			if bits == 128 && ip.Unmap().Is4() {
+				ones -= 96
+			}
+			prefix := netip.PrefixFrom(ip.Unmap(), ones).Masked()
+			if routes[prefix] {
+				exclude = append(exclude, prefix)
+				delete(routes, prefix)
+			}
+		}
+	}
+	tun.RouteExcludeAddress = exclude
+	return tun
 }
 
 func stopListeners() {
@@ -379,6 +448,11 @@ type preparedSetup struct {
 	global string
 	expire time.Time
 	reused bool
+	// The app's Tailscale proxy and its tailnet DNS domains, and the
+	// tailscale:// clients the parse registered (see parseRawConfigStaged).
+	tailscale           string
+	tailscaleDnsDomains []string
+	tailscaleDns        *dns.TailscaleStage
 }
 
 var (
@@ -472,11 +546,16 @@ func prepareSetup(params *SetupParams) (*preparedSetup, error) {
 		}
 	}
 
-	cfg, err := config.ParseRawConfig(rawCfg)
+	cfg, tailscaleDns, err := parseRawConfigStaged(rawCfg)
 	if err != nil {
 		return nil, err
 	}
-	return &preparedSetup{key: key, rawCfg: rawCfg, cfg: cfg, global: global}, nil
+	prepared := &preparedSetup{key: key, rawCfg: rawCfg, cfg: cfg, global: global, tailscaleDns: tailscaleDns}
+	if params.Patch != nil && params.Patch.Tailscale != nil {
+		prepared.tailscale = params.Patch.Tailscale.name
+		prepared.tailscaleDnsDomains = params.Patch.Tailscale.DnsDomains
+	}
+	return prepared, nil
 }
 
 func setupConfig(params *SetupParams) (string, error) {
@@ -492,9 +571,22 @@ func setupConfig(params *SetupParams) (string, error) {
 	}
 	preloadBundledRuleSets(prepared.rawCfg)
 	applyStart := time.Now()
+	// The new tailscale nodes become reachable only once the old ones,
+	// which may use the same state dirs, are closed.
+	closeTailscaleProxies()
+	prepared.tailscaleDns.Commit()
+	// No network uses these any more, and their old nodes are closed now.
+	for _, dir := range params.ResetTailscaleDirs {
+		resetTailscaleState(dir)
+	}
+	resolveTailscaleByPolicy(prepared.cfg.Proxies, prepared.tailscale, prepared.tailscaleDnsDomains)
+	storeAppTailscale(prepared.tailscale, prepared.cfg.Proxies)
 	currentConfig = prepared.cfg
 	currentRawConfig = prepared.rawCfg
 	hub.ApplyConfig(currentConfig)
+	if prepared.tailscale != "" {
+		requestTailscaleAuthCheck()
+	}
 	resetGroupShapes()
 	selectedMap := params.SelectedMap
 	if prepared.global != "" {

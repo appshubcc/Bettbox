@@ -59,9 +59,13 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m17(count) => "${count} مورد انتخاب شده";
 
-  static String m18(label) => "${label} باید یک URL معتبر باشد";
+  static String m18(online, total) => "${online} / ${total} آنلاین";
 
-  static String m19(count) => "${Intl.plural(count, other: '# سال')}";
+  static String m19(region) => "رله ${region}";
+
+  static String m20(label) => "${label} باید یک URL معتبر باشد";
+
+  static String m21(count) => "${Intl.plural(count, other: '# سال')}";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
@@ -1370,6 +1374,102 @@ class MessageLookup extends MessageLookupByLibrary {
       "تنظیمات پروکسی سیستم",
     ),
     "tab": MessageLookupByLibrary.simpleMessage("زبانه"),
+    "tailscale": MessageLookupByLibrary.simpleMessage("Tailscale"),
+    "tailscaleAcceptRoutes": MessageLookupByLibrary.simpleMessage(
+      "پذیرش مسیرهای زیرشبکه",
+    ),
+    "tailscaleAcceptRoutesDesc": MessageLookupByLibrary.simpleMessage(
+      "استفاده از مسیرهای زیرشبکه اعلام‌شده در tailnet",
+    ),
+    "tailscaleAddNetwork": MessageLookupByLibrary.simpleMessage("افزودن شبکه"),
+    "tailscaleAuthKey": MessageLookupByLibrary.simpleMessage("کلید احراز هویت"),
+    "tailscaleAuthKeyDesc": MessageLookupByLibrary.simpleMessage(
+      "اختیاری؛ بدون آن از «ورود» (SSO/OIDC) استفاده کنید",
+    ),
+    "tailscaleConnected": MessageLookupByLibrary.simpleMessage("متصل"),
+    "tailscaleControlUrl": MessageLookupByLibrary.simpleMessage("سرور کنترل"),
+    "tailscaleControlUrlDesc": MessageLookupByLibrary.simpleMessage(
+      "خالی یعنی Tailscale. برای Headscale نشانی URL را وارد کنید",
+    ),
+    "tailscaleDeleteNetwork": MessageLookupByLibrary.simpleMessage("حذف شبکه"),
+    "tailscaleDesc": MessageLookupByLibrary.simpleMessage(
+      "ارسال دامنه‌ها و IPهای انتخابی از طریق tailnet",
+    ),
+    "tailscaleDevices": MessageLookupByLibrary.simpleMessage("دستگاه‌ها"),
+    "tailscaleDns": MessageLookupByLibrary.simpleMessage("DNS شبکه tailnet"),
+    "tailscaleDnsDesc": MessageLookupByLibrary.simpleMessage(
+      "دامنه‌هایی که سرور DNS داخل tailnet آن‌ها را resolve می‌کند: دامنه=سرور (مثلاً corp.example.com=10.1.0.53). زیرشبکه‌های مقصد را به فهرست مسیریابی اضافه کنید",
+    ),
+    "tailscaleEnable": MessageLookupByLibrary.simpleMessage(
+      "فعال‌سازی Tailscale",
+    ),
+    "tailscaleEnableDesc": MessageLookupByLibrary.simpleMessage(
+      "پیوستن به tailnet با گره داخلی Tailscale",
+    ),
+    "tailscaleExitNode": MessageLookupByLibrary.simpleMessage("گره خروجی"),
+    "tailscaleExitNodeDesc": MessageLookupByLibrary.simpleMessage(
+      "نام یا IP دستگاه در tailnet، یا auto:any. برای سایت‌های عمومی لازم است",
+    ),
+    "tailscaleExitNodeLan": MessageLookupByLibrary.simpleMessage(
+      "اجازه دسترسی به LAN",
+    ),
+    "tailscaleExitNodeLanDesc": MessageLookupByLibrary.simpleMessage(
+      "دسترسی به شبکه محلی هنگام استفاده از گره خروجی",
+    ),
+    "tailscaleHostname": MessageLookupByLibrary.simpleMessage("نام دستگاه"),
+    "tailscaleInvalidDns": MessageLookupByLibrary.simpleMessage(
+      "از قالب دامنه=سرور استفاده کنید؛ سرور یک IP یا نشانی tls:// / https:// باشد، مثلاً corp.example.com=10.1.0.53",
+    ),
+    "tailscaleInvalidEntry": MessageLookupByLibrary.simpleMessage(
+      "یک دامنه، IP یا CIDR وارد کنید",
+    ),
+    "tailscaleLoggedIn": MessageLookupByLibrary.simpleMessage(
+      "ورود به Tailscale انجام شد",
+    ),
+    "tailscaleLogin": MessageLookupByLibrary.simpleMessage("ورود"),
+    "tailscaleLoginDesc": MessageLookupByLibrary.simpleMessage(
+      "ورود در مرورگر با SSO/OIDC شبکه tailnet، بدون نیاز به کلید احراز هویت",
+    ),
+    "tailscaleLoginNeeded": MessageLookupByLibrary.simpleMessage(
+      "Tailscale نیاز به ورود دارد",
+    ),
+    "tailscaleNeedsApproval": MessageLookupByLibrary.simpleMessage(
+      "در انتظار تأیید این دستگاه توسط مدیر",
+    ),
+    "tailscaleNetwork": MessageLookupByLibrary.simpleMessage("شبکه"),
+    "tailscaleNetworks": MessageLookupByLibrary.simpleMessage("شبکه‌ها"),
+    "tailscaleNotStarted": MessageLookupByLibrary.simpleMessage(
+      "راه‌اندازی نشده",
+    ),
+    "tailscaleNotStartedDesc": MessageLookupByLibrary.simpleMessage(
+      "در اولین استفاده راه‌اندازی می‌شود؛ برای راه‌اندازی ضربه بزنید",
+    ),
+    "tailscaleNotes": MessageLookupByLibrary.simpleMessage(
+      "• گره داخلی: Bettbox خودش به tailnet می‌پیوندد و به برنامه Tailscale نیازی نیست. فقط ترافیک فهرست مسیریابی و Tailnet DNS از آن عبور می‌کند.\n• فقط در حالت قانون: حالت‌های سراسری و مستقیم این قوانین را نادیده می‌گیرند.\n• از نام کامل مانند host.tailnet.ts.net استفاده کنید؛ نام‌های کوتاه مانند nas resolve نمی‌شوند.\n• زیرشبکه‌ها: آن‌ها را به فهرست مسیریابی اضافه کنید و «پذیرش مسیرهای زیرشبکه» را روشن کنید. در دسکتاپ بدون TUN، زیرشبکه‌های خصوصی (10.x، 172.16–31.x، 192.168.x) از پروکسی سیستم عبور نمی‌کنند.\n• برای دسترسی به سایت‌های عمومی از طریق tailnet به گره خروجی نیاز است.\n• آدرس‌های IPv6 شبکه tailnet به روشن بودن IPv6 نیاز دارند.\n• گره در اولین استفاده راه‌اندازی می‌شود. پیوند ورود فقط وقتی Bettbox باز است نمایش داده می‌شود.\n• Android: تغییرات فهرست مسیریابی پس از راه‌اندازی دوباره VPN اعمال می‌شوند.",
+    ),
+    "tailscaleNotesTitle": MessageLookupByLibrary.simpleMessage("توضیحات"),
+    "tailscaleOnlineCount": m18,
+    "tailscaleRelay": m19,
+    "tailscaleReset": MessageLookupByLibrary.simpleMessage("بازنشانی گره"),
+    "tailscaleResetDesc": MessageLookupByLibrary.simpleMessage(
+      "حذف هویت tailnet این دستگاه و پیوستن به‌عنوان دستگاه جدید؛ دستگاه قبلی را در کنسول مدیریت حذف کنید",
+    ),
+    "tailscaleRoutes": MessageLookupByLibrary.simpleMessage("فهرست مسیریابی"),
+    "tailscaleRoutesDesc": MessageLookupByLibrary.simpleMessage(
+      "دامنه‌ها و IP/CIDRهایی که در حالت قانون از Tailscale عبور می‌کنند. زیرشبکه‌های خصوصی در دسکتاپ به TUN نیاز دارند",
+    ),
+    "tailscaleStarting": MessageLookupByLibrary.simpleMessage(
+      "در حال راه‌اندازی Tailscale…",
+    ),
+    "tailscaleSubnetRoutes": MessageLookupByLibrary.simpleMessage(
+      "مسیرهای زیرشبکه",
+    ),
+    "tailscaleThisDevice": MessageLookupByLibrary.simpleMessage("این دستگاه"),
+    "tailscaleUdp": MessageLookupByLibrary.simpleMessage("UDP"),
+    "tailscaleUdpDesc": MessageLookupByLibrary.simpleMessage(
+      "ارسال ترافیک UDP از طریق Tailscale",
+    ),
+    "tailscaleWarnings": MessageLookupByLibrary.simpleMessage("هشدارها"),
     "tcpConcurrent": MessageLookupByLibrary.simpleMessage("اتصال همزمان TCP"),
     "tcpConcurrentDesc": MessageLookupByLibrary.simpleMessage(
       "اجازه به اتصال‌های همزمان TCP",
@@ -1495,7 +1595,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "urlDesc": MessageLookupByLibrary.simpleMessage(
       "دریافت پروفایل از طریق آدرس URL",
     ),
-    "urlTip": m18,
+    "urlTip": m20,
     "useGlobalScriptOverride": MessageLookupByLibrary.simpleMessage(
       "استفاده از اسکریپت اورراید سراسری",
     ),
@@ -1546,6 +1646,6 @@ class MessageLookup extends MessageLookupByLibrary {
     "xattrUnsupportedFallback": MessageLookupByLibrary.simpleMessage(
       "سیستم فایل از قابلیت‌های فایل (xattr) پشتیبانی نمی‌کند؛ به setuid بازگشت داده شد",
     ),
-    "years": m19,
+    "years": m21,
   };
 }

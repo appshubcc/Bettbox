@@ -48,6 +48,8 @@ type SetupParams struct {
 	AgeSecretKey    string            `json:"age-secret-key"`
 	ScriptedConfig  string            `json:"scripted-config"`
 	Patch           *PatchParams      `json:"patch"`
+	// Tailscale node state dirs to delete when applying.
+	ResetTailscaleDirs []string `json:"reset-tailscale-dirs"`
 }
 
 type SetupResult struct {
@@ -129,6 +131,8 @@ const (
 	getExternalProviderMethod      Method = "getExternalProvider"
 	getCountryCodeMethod           Method = "getCountryCode"
 	getMemoryMethod                Method = "getMemory"
+	getTailscaleStatusMethod       Method = "getTailscaleStatus"
+	startTailscaleMethod           Method = "startTailscale"
 	updateGeoDataMethod            Method = "updateGeoData"
 	updateExternalProviderMethod   Method = "updateExternalProvider"
 	sideLoadExternalProviderMethod Method = "sideLoadExternalProvider"
@@ -181,6 +185,9 @@ const (
 	DelayMessage   MessageType = "delay"
 	RequestMessage MessageType = "request"
 	LoadedMessage  MessageType = "loaded"
+	// Data is a tailscaleAuth: the app node's interactive (SSO/OIDC) login
+	// URL ("" past login) and its backend state.
+	TailscaleAuthMessage MessageType = "tailscaleAuth"
 )
 
 func (message *Message) Json() (string, error) {

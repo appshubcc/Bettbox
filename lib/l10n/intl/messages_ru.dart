@@ -63,9 +63,13 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m17(count) => "Выбрано: ${count}";
 
-  static String m18(label) => "${label} должен быть URL";
+  static String m18(online, total) => "${online} / ${total} в сети";
 
-  static String m19(count) =>
+  static String m19(region) => "Ретранслятор ${region}";
+
+  static String m20(label) => "${label} должен быть URL";
+
+  static String m21(count) =>
       "${Intl.plural(count, one: 'год', few: 'года', many: 'лет', other: 'лет')}";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
@@ -1391,6 +1395,112 @@ class MessageLookup extends MessageLookupByLibrary {
       "Настроить системный прокси",
     ),
     "tab": MessageLookupByLibrary.simpleMessage("Вкладки"),
+    "tailscale": MessageLookupByLibrary.simpleMessage("Tailscale"),
+    "tailscaleAcceptRoutes": MessageLookupByLibrary.simpleMessage(
+      "Принимать маршруты подсетей",
+    ),
+    "tailscaleAcceptRoutesDesc": MessageLookupByLibrary.simpleMessage(
+      "Использовать маршруты подсетей, объявленные в tailnet",
+    ),
+    "tailscaleAddNetwork": MessageLookupByLibrary.simpleMessage(
+      "Добавить сеть",
+    ),
+    "tailscaleAuthKey": MessageLookupByLibrary.simpleMessage(
+      "Ключ авторизации",
+    ),
+    "tailscaleAuthKeyDesc": MessageLookupByLibrary.simpleMessage(
+      "Необязательно; без ключа используйте «Войти» (SSO/OIDC)",
+    ),
+    "tailscaleConnected": MessageLookupByLibrary.simpleMessage("Подключено"),
+    "tailscaleControlUrl": MessageLookupByLibrary.simpleMessage(
+      "Сервер управления",
+    ),
+    "tailscaleControlUrlDesc": MessageLookupByLibrary.simpleMessage(
+      "Пусто — Tailscale. Для Headscale укажите URL",
+    ),
+    "tailscaleDeleteNetwork": MessageLookupByLibrary.simpleMessage(
+      "Удалить сеть",
+    ),
+    "tailscaleDesc": MessageLookupByLibrary.simpleMessage(
+      "Направлять выбранные домены и IP через tailnet",
+    ),
+    "tailscaleDevices": MessageLookupByLibrary.simpleMessage("Устройства"),
+    "tailscaleDns": MessageLookupByLibrary.simpleMessage("DNS tailnet"),
+    "tailscaleDnsDesc": MessageLookupByLibrary.simpleMessage(
+      "Домены, которые разрешает DNS-сервер внутри tailnet: домен=сервер (например, corp.example.com=10.1.0.53). Добавьте их подсети в список маршрутизации",
+    ),
+    "tailscaleEnable": MessageLookupByLibrary.simpleMessage(
+      "Включить Tailscale",
+    ),
+    "tailscaleEnableDesc": MessageLookupByLibrary.simpleMessage(
+      "Подключаться к tailnet через встроенный узел Tailscale",
+    ),
+    "tailscaleExitNode": MessageLookupByLibrary.simpleMessage("Выходной узел"),
+    "tailscaleExitNodeDesc": MessageLookupByLibrary.simpleMessage(
+      "Имя или IP устройства в tailnet либо auto:any. Нужен для публичных сайтов",
+    ),
+    "tailscaleExitNodeLan": MessageLookupByLibrary.simpleMessage(
+      "Доступ к локальной сети",
+    ),
+    "tailscaleExitNodeLanDesc": MessageLookupByLibrary.simpleMessage(
+      "Оставлять локальную сеть доступной при выходном узле",
+    ),
+    "tailscaleHostname": MessageLookupByLibrary.simpleMessage("Имя устройства"),
+    "tailscaleInvalidDns": MessageLookupByLibrary.simpleMessage(
+      "Формат домен=сервер, где сервер — IP или URL tls:// / https://, например corp.example.com=10.1.0.53",
+    ),
+    "tailscaleInvalidEntry": MessageLookupByLibrary.simpleMessage(
+      "Введите домен, IP или CIDR",
+    ),
+    "tailscaleLoggedIn": MessageLookupByLibrary.simpleMessage(
+      "Вход в Tailscale выполнен",
+    ),
+    "tailscaleLogin": MessageLookupByLibrary.simpleMessage("Войти"),
+    "tailscaleLoginDesc": MessageLookupByLibrary.simpleMessage(
+      "Вход в браузере через SSO/OIDC вашей tailnet, без ключа авторизации",
+    ),
+    "tailscaleLoginNeeded": MessageLookupByLibrary.simpleMessage(
+      "Требуется вход в Tailscale",
+    ),
+    "tailscaleNeedsApproval": MessageLookupByLibrary.simpleMessage(
+      "Ожидание одобрения устройства администратором",
+    ),
+    "tailscaleNetwork": MessageLookupByLibrary.simpleMessage("Сеть"),
+    "tailscaleNetworks": MessageLookupByLibrary.simpleMessage("Сети"),
+    "tailscaleNotStarted": MessageLookupByLibrary.simpleMessage("Не запущено"),
+    "tailscaleNotStartedDesc": MessageLookupByLibrary.simpleMessage(
+      "Запускается при первом использовании; нажмите, чтобы запустить",
+    ),
+    "tailscaleNotes": MessageLookupByLibrary.simpleMessage(
+      "• Встроенный узел: Bettbox сам подключается к tailnet, приложение Tailscale не нужно. Через него идёт только трафик из списка маршрутизации и Tailnet DNS.\n• Только в режиме правил: глобальный и прямой режимы пропускают эти правила.\n• Используйте полные имена вроде host.tailnet.ts.net; короткие имена вроде nas не разрешаются.\n• Подсети: добавьте их в список маршрутизации и включите приём маршрутов подсетей. На ПК без TUN частные подсети (10.x, 172.16–31.x, 192.168.x) обходят системный прокси.\n• Для публичных сайтов через tailnet нужен выходной узел.\n• Для IPv6-адресов tailnet нужно включить IPv6.\n• Узел запускается при первом использовании. Ссылка для входа показывается, только пока Bettbox открыт.\n• Android: изменения списка маршрутизации применяются после перезапуска VPN.",
+    ),
+    "tailscaleNotesTitle": MessageLookupByLibrary.simpleMessage("Пояснения"),
+    "tailscaleOnlineCount": m18,
+    "tailscaleRelay": m19,
+    "tailscaleReset": MessageLookupByLibrary.simpleMessage("Сбросить узел"),
+    "tailscaleResetDesc": MessageLookupByLibrary.simpleMessage(
+      "Удалить данные tailnet этого устройства и подключиться как новое; старое удалите в консоли администратора",
+    ),
+    "tailscaleRoutes": MessageLookupByLibrary.simpleMessage(
+      "Список маршрутизации",
+    ),
+    "tailscaleRoutesDesc": MessageLookupByLibrary.simpleMessage(
+      "Домены и IP/CIDR, идущие через Tailscale в режиме правил. Частным подсетям на ПК нужен TUN",
+    ),
+    "tailscaleStarting": MessageLookupByLibrary.simpleMessage(
+      "Запуск Tailscale…",
+    ),
+    "tailscaleSubnetRoutes": MessageLookupByLibrary.simpleMessage(
+      "Маршруты подсетей",
+    ),
+    "tailscaleThisDevice": MessageLookupByLibrary.simpleMessage(
+      "Это устройство",
+    ),
+    "tailscaleUdp": MessageLookupByLibrary.simpleMessage("UDP"),
+    "tailscaleUdpDesc": MessageLookupByLibrary.simpleMessage(
+      "Передавать UDP-трафик через Tailscale",
+    ),
+    "tailscaleWarnings": MessageLookupByLibrary.simpleMessage("Предупреждения"),
     "tcpConcurrent": MessageLookupByLibrary.simpleMessage(
       "Параллельные TCP-соединения",
     ),
@@ -1524,7 +1634,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "upload": MessageLookupByLibrary.simpleMessage("Отправка"),
     "url": MessageLookupByLibrary.simpleMessage("URL"),
     "urlDesc": MessageLookupByLibrary.simpleMessage("Получить профиль по URL"),
-    "urlTip": m18,
+    "urlTip": m20,
     "useGlobalScriptOverride": MessageLookupByLibrary.simpleMessage(
       "Глобальное переопределение",
     ),
@@ -1579,6 +1689,6 @@ class MessageLookup extends MessageLookupByLibrary {
     "xattrUnsupportedFallback": MessageLookupByLibrary.simpleMessage(
       "Файловая система не поддерживает file capabilities (xattr), выполнен откат на setuid",
     ),
-    "years": m19,
+    "years": m21,
   };
 }

@@ -14,6 +14,11 @@ _SetupParams _$SetupParamsFromJson(Map<String, dynamic> json) => _SetupParams(
   ageSecretKey: json['age-secret-key'] as String? ?? '',
   scriptedConfig: json['scripted-config'] as String? ?? '',
   patch: json['patch'] as Map<String, dynamic>?,
+  resetTailscaleDirs:
+      (json['reset-tailscale-dirs'] as List<dynamic>?)
+          ?.map((e) => e as String)
+          .toList() ??
+      const [],
 );
 
 Map<String, dynamic> _$SetupParamsToJson(_SetupParams instance) =>
@@ -25,6 +30,7 @@ Map<String, dynamic> _$SetupParamsToJson(_SetupParams instance) =>
       'age-secret-key': instance.ageSecretKey,
       'scripted-config': instance.scriptedConfig,
       'patch': instance.patch,
+      'reset-tailscale-dirs': instance.resetTailscaleDirs,
     };
 
 _SetupResult _$SetupResultFromJson(Map<String, dynamic> json) => _SetupResult(
@@ -209,6 +215,7 @@ const _$AppMessageTypeEnumMap = {
   AppMessageType.delay: 'delay',
   AppMessageType.request: 'request',
   AppMessageType.loaded: 'loaded',
+  AppMessageType.tailscaleAuth: 'tailscaleAuth',
 };
 
 _InvokeMessage _$InvokeMessageFromJson(Map<String, dynamic> json) =>
@@ -354,6 +361,8 @@ const _$ActionMethodEnumMap = {
   ActionMethod.getMode: 'getMode',
   ActionMethod.parseExternalProviderContent: 'parseExternalProviderContent',
   ActionMethod.getCoreStatus: 'getCoreStatus',
+  ActionMethod.getTailscaleStatus: 'getTailscaleStatus',
+  ActionMethod.startTailscale: 'startTailscale',
   ActionMethod.setState: 'setState',
   ActionMethod.startTun: 'startTun',
   ActionMethod.stopTun: 'stopTun',
@@ -382,6 +391,74 @@ Map<String, dynamic> _$ActionResultToJson(_ActionResult instance) =>
     };
 
 const _$ResultTypeEnumMap = {ResultType.success: 0, ResultType.error: -1};
+
+_TailscalePeer _$TailscalePeerFromJson(Map<String, dynamic> json) =>
+    _TailscalePeer(
+      name: json['name'] as String? ?? '',
+      dnsName: json['dnsName'] as String? ?? '',
+      os: json['os'] as String? ?? '',
+      ips:
+          (json['ips'] as List<dynamic>?)?.map((e) => e as String).toList() ??
+          const [],
+      routes:
+          (json['routes'] as List<dynamic>?)
+              ?.map((e) => e as String)
+              .toList() ??
+          const [],
+      online: json['online'] as bool? ?? false,
+      exitNode: json['exitNode'] as bool? ?? false,
+      exitNodeOption: json['exitNodeOption'] as bool? ?? false,
+      direct: json['direct'] as bool? ?? false,
+      relay: json['relay'] as String? ?? '',
+      rxBytes: (json['rxBytes'] as num?)?.toInt() ?? 0,
+      txBytes: (json['txBytes'] as num?)?.toInt() ?? 0,
+    );
+
+Map<String, dynamic> _$TailscalePeerToJson(_TailscalePeer instance) =>
+    <String, dynamic>{
+      'name': instance.name,
+      'dnsName': instance.dnsName,
+      'os': instance.os,
+      'ips': instance.ips,
+      'routes': instance.routes,
+      'online': instance.online,
+      'exitNode': instance.exitNode,
+      'exitNodeOption': instance.exitNodeOption,
+      'direct': instance.direct,
+      'relay': instance.relay,
+      'rxBytes': instance.rxBytes,
+      'txBytes': instance.txBytes,
+    };
+
+_TailscaleStatus _$TailscaleStatusFromJson(Map<String, dynamic> json) =>
+    _TailscaleStatus(
+      state: json['state'] as String? ?? '',
+      dir: json['dir'] as String? ?? '',
+      tailnet: json['tailnet'] as String? ?? '',
+      self: json['self'] == null
+          ? null
+          : TailscalePeer.fromJson(json['self'] as Map<String, dynamic>),
+      peers:
+          (json['peers'] as List<dynamic>?)
+              ?.map((e) => TailscalePeer.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          const [],
+      health:
+          (json['health'] as List<dynamic>?)
+              ?.map((e) => e as String)
+              .toList() ??
+          const [],
+    );
+
+Map<String, dynamic> _$TailscaleStatusToJson(_TailscaleStatus instance) =>
+    <String, dynamic>{
+      'state': instance.state,
+      'dir': instance.dir,
+      'tailnet': instance.tailnet,
+      'self': instance.self,
+      'peers': instance.peers,
+      'health': instance.health,
+    };
 
 _CoreStatus _$CoreStatusFromJson(Map<String, dynamic> json) => _CoreStatus(
   physical: (json['physical'] as num?)?.toInt() ?? 0,

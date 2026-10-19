@@ -275,6 +275,22 @@ class LocalNetwork extends _$LocalNetwork with AutoDisposeNotifierMixin {
 }
 
 @riverpod
+class TailscaleAuthUrl extends _$TailscaleAuthUrl
+    with AutoDisposeNotifierMixin {
+  @override
+  String? build() {
+    return globalState.appState.tailscaleAuthUrl;
+  }
+
+  @override
+  onUpdate(value) {
+    globalState.appState = globalState.appState.copyWith(
+      tailscaleAuthUrl: value,
+    );
+  }
+}
+
+@riverpod
 class RunTime extends _$RunTime with AutoDisposeNotifierMixin {
   @override
   int? build() {

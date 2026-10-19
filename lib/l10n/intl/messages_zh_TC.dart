@@ -57,9 +57,13 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m17(count) => "已選擇 ${count} 項";
 
-  static String m18(label) => "${label}必須為 URL";
+  static String m18(online, total) => "${online} / ${total} 在線";
 
-  static String m19(count) => "${Intl.plural(count, other: '年')}";
+  static String m19(region) => "中繼 ${region}";
+
+  static String m20(label) => "${label}必須為 URL";
+
+  static String m21(count) => "${Intl.plural(count, other: '年')}";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
@@ -976,6 +980,90 @@ class MessageLookup extends MessageLookupByLibrary {
     "systemProxy": MessageLookupByLibrary.simpleMessage("系統代理"),
     "systemProxyDesc": MessageLookupByLibrary.simpleMessage("設定系統代理"),
     "tab": MessageLookupByLibrary.simpleMessage("分頁"),
+    "tailscale": MessageLookupByLibrary.simpleMessage("Tailscale"),
+    "tailscaleAcceptRoutes": MessageLookupByLibrary.simpleMessage("接受子網路由"),
+    "tailscaleAcceptRoutesDesc": MessageLookupByLibrary.simpleMessage(
+      "使用 tailnet 中發佈的子網路由",
+    ),
+    "tailscaleAddNetwork": MessageLookupByLibrary.simpleMessage("新增網路"),
+    "tailscaleAuthKey": MessageLookupByLibrary.simpleMessage("驗證金鑰"),
+    "tailscaleAuthKeyDesc": MessageLookupByLibrary.simpleMessage(
+      "可選；不填寫時請使用「登入」（SSO/OIDC）",
+    ),
+    "tailscaleConnected": MessageLookupByLibrary.simpleMessage("已連線"),
+    "tailscaleControlUrl": MessageLookupByLibrary.simpleMessage("控制伺服器"),
+    "tailscaleControlUrlDesc": MessageLookupByLibrary.simpleMessage(
+      "留空使用 Tailscale 官方伺服器，Headscale 請填寫其位址",
+    ),
+    "tailscaleDeleteNetwork": MessageLookupByLibrary.simpleMessage("刪除網路"),
+    "tailscaleDesc": MessageLookupByLibrary.simpleMessage(
+      "讓指定的網域和 IP 透過 Tailscale 網路存取",
+    ),
+    "tailscaleDevices": MessageLookupByLibrary.simpleMessage("裝置"),
+    "tailscaleDns": MessageLookupByLibrary.simpleMessage("Tailnet DNS"),
+    "tailscaleDnsDesc": MessageLookupByLibrary.simpleMessage(
+      "由 tailnet 內 DNS 伺服器解析的網域，格式為 網域=伺服器（如 corp.example.com=10.1.0.53）。請將解析到的網段加入分流清單",
+    ),
+    "tailscaleEnable": MessageLookupByLibrary.simpleMessage("啟用 Tailscale"),
+    "tailscaleEnableDesc": MessageLookupByLibrary.simpleMessage(
+      "使用內建 Tailscale 節點加入 tailnet",
+    ),
+    "tailscaleExitNode": MessageLookupByLibrary.simpleMessage("出口節點"),
+    "tailscaleExitNodeDesc": MessageLookupByLibrary.simpleMessage(
+      "tailnet 中的裝置名稱或 IP，也可填 auto:any。存取公開網站時需要",
+    ),
+    "tailscaleExitNodeLan": MessageLookupByLibrary.simpleMessage("允許存取區域網路"),
+    "tailscaleExitNodeLanDesc": MessageLookupByLibrary.simpleMessage(
+      "使用出口節點時仍可存取本地網路",
+    ),
+    "tailscaleHostname": MessageLookupByLibrary.simpleMessage("裝置名稱"),
+    "tailscaleInvalidDns": MessageLookupByLibrary.simpleMessage(
+      "請使用 網域=伺服器 格式，伺服器為 IP 或 tls:// / https:// 位址，如 corp.example.com=10.1.0.53",
+    ),
+    "tailscaleInvalidEntry": MessageLookupByLibrary.simpleMessage(
+      "請輸入網域、IP 或 CIDR",
+    ),
+    "tailscaleLoggedIn": MessageLookupByLibrary.simpleMessage("Tailscale 已登入"),
+    "tailscaleLogin": MessageLookupByLibrary.simpleMessage("登入"),
+    "tailscaleLoginDesc": MessageLookupByLibrary.simpleMessage(
+      "在瀏覽器中透過 tailnet 的 SSO/OIDC 登入，無需驗證金鑰",
+    ),
+    "tailscaleLoginNeeded": MessageLookupByLibrary.simpleMessage(
+      "Tailscale 需要登入",
+    ),
+    "tailscaleNeedsApproval": MessageLookupByLibrary.simpleMessage(
+      "等待管理員核准此裝置",
+    ),
+    "tailscaleNetwork": MessageLookupByLibrary.simpleMessage("網路"),
+    "tailscaleNetworks": MessageLookupByLibrary.simpleMessage("網路清單"),
+    "tailscaleNotStarted": MessageLookupByLibrary.simpleMessage("未啟動"),
+    "tailscaleNotStartedDesc": MessageLookupByLibrary.simpleMessage(
+      "首次使用時啟動，點擊立即啟動",
+    ),
+    "tailscaleNotes": MessageLookupByLibrary.simpleMessage(
+      "• 內建節點：Bettbox 自身加入 tailnet，無需安裝 Tailscale 用戶端；只有分流清單和 Tailnet DNS 中的流量經過它。\n• 僅在規則模式下生效：全域和直連模式會略過這些規則。\n• 請使用完整名稱，如 host.tailnet.ts.net；nas 這類短名稱無法解析。\n• 子網：請加入分流清單並開啟「接受子網路由」。桌面端未開啟 TUN 時，私有網段（10.x、172.16–31.x、192.168.x）會被系統代理略過。\n• 經 tailnet 存取公開網站需要設定出口節點。\n• tailnet 的 IPv6 位址需開啟 IPv6。\n• 節點在首次使用時啟動；登入連結僅在 Bettbox 開啟時顯示。\n• Android：分流清單的修改需重新啟動 VPN 後生效。",
+    ),
+    "tailscaleNotesTitle": MessageLookupByLibrary.simpleMessage("使用說明"),
+    "tailscaleOnlineCount": m18,
+    "tailscaleRelay": m19,
+    "tailscaleReset": MessageLookupByLibrary.simpleMessage("重設節點"),
+    "tailscaleResetDesc": MessageLookupByLibrary.simpleMessage(
+      "清除本裝置的 tailnet 身分並以新裝置加入；舊裝置需在管理後台中刪除",
+    ),
+    "tailscaleRoutes": MessageLookupByLibrary.simpleMessage("分流清單"),
+    "tailscaleRoutesDesc": MessageLookupByLibrary.simpleMessage(
+      "規則模式下透過 Tailscale 存取的網域和 IP/CIDR。桌面端私有網段需開啟 TUN",
+    ),
+    "tailscaleStarting": MessageLookupByLibrary.simpleMessage(
+      "正在啟動 Tailscale…",
+    ),
+    "tailscaleSubnetRoutes": MessageLookupByLibrary.simpleMessage("子網路由"),
+    "tailscaleThisDevice": MessageLookupByLibrary.simpleMessage("本裝置"),
+    "tailscaleUdp": MessageLookupByLibrary.simpleMessage("UDP"),
+    "tailscaleUdpDesc": MessageLookupByLibrary.simpleMessage(
+      "允許 UDP 流量透過 Tailscale",
+    ),
+    "tailscaleWarnings": MessageLookupByLibrary.simpleMessage("警告"),
     "tcpConcurrent": MessageLookupByLibrary.simpleMessage("TCP 並發"),
     "tcpConcurrentDesc": MessageLookupByLibrary.simpleMessage("開啟後允許 TCP 併發連接"),
     "testUrl": MessageLookupByLibrary.simpleMessage("測試連結"),
@@ -1063,7 +1151,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "upload": MessageLookupByLibrary.simpleMessage("上傳"),
     "url": MessageLookupByLibrary.simpleMessage("URL"),
     "urlDesc": MessageLookupByLibrary.simpleMessage("透過 URL 獲取設定檔"),
-    "urlTip": m18,
+    "urlTip": m20,
     "useGlobalScriptOverride": MessageLookupByLibrary.simpleMessage(
       "使用全域指令碼覆寫",
     ),
@@ -1102,6 +1190,6 @@ class MessageLookup extends MessageLookupByLibrary {
     "xattrUnsupportedFallback": MessageLookupByLibrary.simpleMessage(
       "檔案系統不支援檔案能力（xattr），已回退到 setuid",
     ),
-    "years": m19,
+    "years": m21,
   };
 }

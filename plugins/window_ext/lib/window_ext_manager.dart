@@ -50,6 +50,19 @@ class WindowExtManager {
       'size': size,
     });
   }
+
+  /// Resolves an icon name with the running GTK icon theme.
+  ///
+  /// The returned path is the file GTK would use, which may be an SVG. Returns
+  /// null when the theme and its fallbacks do not contain the icon.
+  ///
+  /// Linux only; the macOS and Windows implementations do not provide this.
+  Future<String?> getIconPath(String name, {int size = 96}) {
+    return _channel.invokeMethod<String>('getIconPath', {
+      'name': name,
+      'size': size,
+    });
+  }
 }
 
 final windowExtManager = WindowExtManager.instance;

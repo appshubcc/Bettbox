@@ -7,10 +7,20 @@ import 'dart:ui' as ui;
 
 import 'package:bett_box/common/system.dart';
 import 'package:ffi/ffi.dart';
-import 'package:image/image.dart' as img;
 import 'package:path/path.dart' as p;
 import 'package:win32/win32.dart';
 import 'package:window_ext/window_ext.dart';
+
+class ProcessIconData {
+  final Uint8List? bytes;
+  final String? path;
+
+  const ProcessIconData.bytes(this.bytes) : path = null;
+
+  const ProcessIconData.path(this.path) : bytes = null;
+
+  bool get isSvg => path?.toLowerCase().endsWith('.svg') ?? false;
+}
 
 class ProcessIcon {
   static const _size = 96;
@@ -35,14 +45,14 @@ class ProcessIcon {
     return path;
   }
 
-  Future<Uint8List?> get(String path) async {
+  Future<ProcessIconData?> get(String path) async {
     if (path.isEmpty) return null;
     final task = _tail.then((_) => _load(path));
     _tail = task.then((_) {}, onError: (_) {});
     return task;
   }
 
-  Future<Uint8List?> _load(String path) async {
+  Future<ProcessIconData?> _load(String path) async {
     try {
       if (system.isMacOS) return await _getMacOS(path);
       if (system.isWindows) return await _getWindows(path);
@@ -51,10 +61,11 @@ class ProcessIcon {
     return null;
   }
 
-  Future<Uint8List?> _getMacOS(String path) {
+  Future<ProcessIconData?> _getMacOS(String path) async {
     final bundle = _macBundle(path);
-    if (!bundle.endsWith('.app')) return Future.value();
-    return windowExtManager.getFileIcon(bundle, _size);
+    if (!bundle.endsWith('.app')) return null;
+    final bytes = await windowExtManager.getFileIcon(bundle, _size);
+    return bytes == null ? null : ProcessIconData.bytes(bytes);
   }
 
   static String _macBundle(String path) {
@@ -68,7 +79,7 @@ class ProcessIcon {
     return path;
   }
 
-  Future<Uint8List?> _getWindows(String path) async {
+  Future<ProcessIconData?> _getWindows(String path) async {
     final bitmap = _readWindowsIcon(path);
     if (bitmap == null) return null;
     final (pixels, width, height) = bitmap;
@@ -86,7 +97,8 @@ class ProcessIcon {
     final image = await completer.future;
     final data = await image.toByteData(format: ui.ImageByteFormat.png);
     image.dispose();
-    return data?.buffer.asUint8List();
+    final bytes = data?.buffer.asUint8List();
+    return bytes == null ? null : ProcessIconData.bytes(bytes);
   }
 
   (Uint8List, int, int)? _readWindowsIcon(String path) {
@@ -186,30 +198,21 @@ class ProcessIcon {
     });
   }
 
-  Future<Uint8List?> _getLinux(String path) async {
+  Future<ProcessIconData?> _getLinux(String path) async {
     final index = await (_linuxIndex ??= Isolate.run(_buildLinuxIndex));
     final name = p.basename(path).toLowerCase();
     final icon = index[name];
     if (icon == null) return null;
-    return Isolate.run(() => _loadLinuxIcon(icon));
-  }
-
-  static Uint8List? _loadLinuxIcon(String icon) {
-    final file = _resolveLinuxIcon(icon);
-    if (file == null) return null;
-    final bytes = File(file).readAsBytesSync();
-    final image = img.decodePng(bytes);
-    if (image == null || image.width <= _size && image.height <= _size) {
-      return bytes;
+    if (p.isAbsolute(icon)) {
+      return File(icon).existsSync() ? ProcessIconData.path(icon) : null;
     }
-    final wide = image.width >= image.height;
-    final scaled = img.copyResize(
-      image,
-      width: wide ? _size : null,
-      height: wide ? null : _size,
-      interpolation: img.Interpolation.average,
+    // Let GTK resolve the name against the active icon theme. It returns the
+    // real file path, which may be an SVG; rendering is the caller's job.
+    final resolved = await windowExtManager.getIconPath(
+      _stripIconExtension(icon),
+      size: _size,
     );
-    return img.encodePng(scaled);
+    return resolved == null ? null : ProcessIconData.path(resolved);
   }
 
   static List<String> get _linuxDataDirs {
@@ -268,27 +271,14 @@ class ProcessIcon {
     return null;
   }
 
-  static String? _resolveLinuxIcon(String icon) {
-    if (p.isAbsolute(icon)) {
-      return icon.toLowerCase().endsWith('.png') && File(icon).existsSync()
-          ? icon
-          : null;
-    }
-    const sizes = ['96x96', '128x128', '256x256', '64x64', '48x48', '32x32'];
-    for (final size in sizes) {
-      for (final dataDir in _linuxDataDirs) {
-        final file = p.join(
-          dataDir,
-          'icons/hicolor',
-          size,
-          'apps',
-          '$icon.png',
-        );
-        if (File(file).existsSync()) return file;
+  static String _stripIconExtension(String name) {
+    final lower = name.toLowerCase();
+    for (final ext in const ['.png', '.svg', '.xpm', '.ico']) {
+      if (lower.endsWith(ext)) {
+        return name.substring(0, name.length - ext.length);
       }
     }
-    final pixmap = '/usr/share/pixmaps/$icon.png';
-    return File(pixmap).existsSync() ? pixmap : null;
+    return name;
   }
 }
 

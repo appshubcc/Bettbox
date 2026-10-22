@@ -10,21 +10,23 @@ import 'package:bett_box/state.dart';
 import 'package:bett_box/widgets/widgets.dart';
 import 'package:collection/collection.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:bett_box/providers/providers.dart';
 
-final _iconCache = <String, Uint8List?>{};
-final _iconPending = <String, Future<Uint8List?>>{};
+final _iconCache = <String, ProcessIconData?>{};
+final _iconPending = <String, Future<ProcessIconData?>>{};
 const _maxIconCacheSize = 100;
 Uint8List? _defaultIconCache;
 Future<Uint8List?>? _defaultIconFuture;
 
-void _addToIconCache(String key, Uint8List? value) {
+void _addToIconCache(String key, ProcessIconData? value) {
   _iconCache.remove(key);
   while (_iconCache.length >= _maxIconCacheSize) {
     final evicted = _iconCache.remove(_iconCache.keys.first);
-    if (evicted != null) {
-      imageCache.evict(MemoryImage(evicted), includeLive: false);
+    final bytes = evicted?.bytes;
+    if (bytes != null) {
+      imageCache.evict(MemoryImage(bytes), includeLive: false);
     }
   }
   _iconCache[key] = value;
@@ -244,16 +246,20 @@ class TrackerInfoItem extends ConsumerWidget {
   }
 }
 
-Future<Uint8List?> _loadIcon(String key) async {
+Future<ProcessIconData?> _loadIcon(String key) async {
   if (system.isDesktop) {
     return processIcon.get(key);
   }
-  return await app.getPackageIcon(key) ?? await _getDefaultPackageIcon();
+  final bytes = await app.getPackageIcon(key) ?? await _getDefaultPackageIcon();
+  return bytes == null ? null : ProcessIconData.bytes(bytes);
 }
 
-Future<Uint8List?> _getIcon(String key) {
+Future<ProcessIconData?> _getIcon(String key) {
   if (key.isEmpty) {
-    return system.isDesktop ? Future.value() : _getDefaultPackageIcon();
+    if (system.isDesktop) return Future.value();
+    return _getDefaultPackageIcon().then(
+      (bytes) => bytes == null ? null : ProcessIconData.bytes(bytes),
+    );
   }
   if (_iconCache.containsKey(key)) {
     final icon = _iconCache[key];
@@ -304,7 +310,7 @@ class _ProcessIcon extends StatefulWidget {
 }
 
 class _ProcessIconState extends State<_ProcessIcon> {
-  late Future<Uint8List?> _iconFuture;
+  late Future<ProcessIconData?> _iconFuture;
 
   String get _cacheKey =>
       system.isDesktop ? processIcon.keyOf(widget.path) : widget.process;
@@ -319,6 +325,24 @@ class _ProcessIconState extends State<_ProcessIcon> {
     if (widget.port == '53') return Icons.dns_outlined;
     if (widget.path.isNotEmpty) return Icons.settings_suggest_outlined;
     return Icons.terminal;
+  }
+
+  Widget get _fallbackIconWidget {
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: context.colorScheme.onSurfaceVariant.opacity10,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: SizedBox(
+        width: 38,
+        height: 38,
+        child: Icon(
+          _fallbackIcon,
+          size: 22,
+          color: context.colorScheme.onSurfaceVariant.opacity80,
+        ),
+      ),
+    );
   }
 
   @override
@@ -344,44 +368,71 @@ class _ProcessIconState extends State<_ProcessIcon> {
           width: 38,
           height: 38,
           alignment: Alignment.center,
-          child: FutureBuilder<Uint8List?>(
+          child: FutureBuilder<ProcessIconData?>(
             initialData: _iconCache[_cacheKey],
             future: _iconFuture,
             builder: (context, snapshot) {
-              final iconBytes = snapshot.data;
-              if (iconBytes == null) {
+              final icon = snapshot.data;
+              if (icon == null) {
                 if (system.isDesktop &&
                     snapshot.connectionState == ConnectionState.done) {
-                  return DecoratedBox(
-                    decoration: BoxDecoration(
-                      color: context.colorScheme.onSurfaceVariant.opacity10,
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: SizedBox(
-                      width: 38,
-                      height: 38,
-                      child: Icon(
-                        _fallbackIcon,
-                        size: 22,
-                        color: context.colorScheme.onSurfaceVariant.opacity80,
-                      ),
-                    ),
-                  );
+                  return _fallbackIconWidget;
                 }
                 return const SizedBox(width: 38, height: 38);
               }
               if (system.isDesktop) {
+                final path = icon.path;
+                if (path != null) {
+                  final file = File(path);
+                  if (icon.isSvg) {
+                    return SvgPicture.file(
+                      file,
+                      width: 38,
+                      height: 38,
+                      fit: BoxFit.contain,
+                      placeholderBuilder: (_) =>
+                          const SizedBox(width: 38, height: 38),
+                      errorBuilder: (_, error, _) {
+                        commonPrint.warn('Failed to load SVG $path: $error');
+                        return _fallbackIconWidget;
+                      },
+                    );
+                  }
+                  return Image.file(
+                    file,
+                    width: 38,
+                    height: 38,
+                    // Decoding exactly at the 38px slot aliases thin diagonal
+                    // strokes into a wavy staircase. Decode at a few times the
+                    // slot size and let the renderer downscale with mipmaps.
+                    cacheWidth: cacheSize * 4,
+                    filterQuality: FilterQuality.medium,
+                    gaplessPlayback: true,
+                    errorBuilder: (_, error, _) {
+                      commonPrint.warn('Failed to load icon $path: $error');
+                      return _fallbackIconWidget;
+                    },
+                  );
+                }
+                final bytes = icon.bytes;
+                if (bytes == null) {
+                  return const SizedBox(width: 38, height: 38);
+                }
                 return Image.memory(
-                  iconBytes,
+                  bytes,
                   width: 38,
                   height: 38,
                   filterQuality: FilterQuality.medium,
                   gaplessPlayback: true,
                 );
               }
+              final bytes = icon.bytes;
+              if (bytes == null) {
+                return const SizedBox(width: 38, height: 38);
+              }
               return Image(
                 image: ResizeImage(
-                  MemoryImage(iconBytes),
+                  MemoryImage(bytes),
                   width: cacheSize,
                   height: cacheSize,
                   allowUpscaling: false,

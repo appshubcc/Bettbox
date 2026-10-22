@@ -38,6 +38,8 @@ flutter:
         pluginClass: WindowExtPluginCApi
       macos:
         pluginClass: WindowExtPlugin
+      linux:
+        pluginClass: WindowExtPlugin
 
   # To add assets to your plugin package, add an assets section, like this:
   # assets:

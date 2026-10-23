@@ -27,19 +27,18 @@ class _ScanPageState extends State<ScanPage> with WidgetsBindingObserver {
   StreamSubscription<Object?>? _subscription;
   bool _handled = false;
   bool _permissionDenied = false;
-  bool _permissionChecking = false;
+  bool _starting = false;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     _subscription = controller.barcodes.listen(_handleBarcode);
-    // Check permission and start camera
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       context.afterRouteTransition(() {
         if (!mounted) return;
-        _checkCameraPermission();
+        _ensureCameraStarted();
       });
     });
   }
@@ -69,7 +68,7 @@ class _ScanPageState extends State<ScanPage> with WidgetsBindingObserver {
       case AppLifecycleState.resumed:
         _subscription ??= controller.barcodes.listen(_handleBarcode);
         // Recheck permission when returning from settings
-        _checkCameraPermission();
+        _ensureCameraStarted();
         return;
       case AppLifecycleState.inactive:
         unawaited(_subscription?.cancel());
@@ -81,35 +80,39 @@ class _ScanPageState extends State<ScanPage> with WidgetsBindingObserver {
     }
   }
 
-  Future<void> _checkCameraPermission() async {
-    if (_permissionChecking) return; // Prevent concurrent checks
+  /// 启动相机；未授权时由 mobile_scanner 的 `start()` 发起系统授权申请。
+  ///
+  /// Android 的 `checkSelfPermission` 只能区分「已授权 / 未授权」：未授权既可能是
+  /// 尚未申请，也可能是用户拒绝过。若据此提前判定为「权限被拒绝」，系统授权框就
+  /// 永远不会弹出（「每次使用时询问」下必现），因此是否被拒只以 `start()` 的结果
+  /// 为准。
+  Future<void> _ensureCameraStarted() async {
+    if (_starting) return; // 授权框的弹出与收起会触发 lifecycle 重入
 
-    setState(() {
-      _permissionChecking = true;
-    });
-
-    final granted = await app.hasCameraPermission();
-    if (!mounted) return;
-
-    setState(() {
-      _permissionDenied = !granted;
-      _permissionChecking = false;
-    });
-
-    if (!granted) {
-      if (controller.value.isRunning) {
-        await controller.stop();
+    _starting = true;
+    try {
+      if (_permissionDenied && !await app.hasCameraPermission()) {
+        // 处于拒绝视图：用户可能刚在系统设置里打开权限，没打开就保持现状，
+        // 不再重复弹框。
+        return;
       }
-    } else {
-      // Start camera only if not already running
-      if (!controller.value.isRunning && !controller.value.isInitialized) {
-        try {
-          await controller.start();
-        } catch (e) {
-          // Handle start error silently
-          commonPrint.warn('Camera start error: $e');
-        }
+      if (!controller.value.isRunning) {
+        await controller.start();
       }
+      if (!mounted) return;
+      final denied =
+          controller.value.error?.errorCode ==
+          MobileScannerErrorCode.permissionDenied;
+      if (denied != _permissionDenied) {
+        setState(() {
+          _permissionDenied = denied;
+        });
+      }
+    } catch (e) {
+      // Handle start error silently
+      commonPrint.log('Camera start error: $e');
+    } finally {
+      _starting = false;
     }
   }
 
@@ -124,34 +127,33 @@ class _ScanPageState extends State<ScanPage> with WidgetsBindingObserver {
     return Scaffold(
       body: Stack(
         children: [
+          // scanner 始终挂载：系统授权申请由它的 start() 发起，权限被拒时由下面的
+          // 拒绝视图盖住。
           Center(
-            child: _permissionChecking
-                ? Container(color: Colors.black)
-                : (_permissionDenied
-                      ? _buildPermissionDeniedView(context)
-                      : MobileScanner(
-                          controller: controller,
-                          scanWindow: scanWindow,
-                          errorBuilder: (context, error) {
-                            if (error.errorCode ==
-                                MobileScannerErrorCode.permissionDenied) {
-                              if (!_permissionDenied && mounted) {
-                                WidgetsBinding.instance.addPostFrameCallback((
-                                  _,
-                                ) {
-                                  if (!mounted) return;
-                                  setState(() {
-                                    _permissionDenied = true;
-                                  });
-                                });
-                              }
-                              unawaited(controller.stop());
-                              return _buildPermissionDeniedView(context);
-                            }
-                            return _buildErrorView(context, error);
-                          },
-                        )),
+            child: MobileScanner(
+              controller: controller,
+              scanWindow: scanWindow,
+              errorBuilder: (context, error) {
+                if (error.errorCode ==
+                    MobileScannerErrorCode.permissionDenied) {
+                  // _ensureCameraStarted 在途时不打断它：它会在 start() 返回后统一
+                  // 结算权限状态（否则刚起的相机会被这里停掉）。
+                  if (!_starting && !_permissionDenied && mounted) {
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      if (!mounted) return;
+                      setState(() {
+                        _permissionDenied = true;
+                      });
+                    });
+                    unawaited(controller.stop());
+                  }
+                  return _buildPermissionDeniedView(context);
+                }
+                return _buildErrorView(context, error);
+              },
+            ),
           ),
+          if (_permissionDenied) _buildPermissionDeniedView(context),
           if (!_permissionDenied)
             CustomPaint(painter: ScannerOverlay(scanWindow: scanWindow)),
           AppBar(

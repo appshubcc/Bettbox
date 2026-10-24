@@ -120,24 +120,23 @@ jobs:
         shell: bash
         run: |
           NDK_VERSION="28.2.13676358"
-          yes | "${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager" --install "ndk;${NDK_VERSION}" >/dev/null 2>&1 || true
-          echo "ANDROID_NDK=${ANDROID_SDK_ROOT}/ndk/${NDK_VERSION}" >> "$GITHUB_ENV"
-
-      - name: Configure Cargo for Android
-        if: matrix.platform == 'android'
-        shell: bash
-        run: |
-          mkdir -p ~/.cargo
-          cat > ~/.cargo/config.toml <<EOF
-          [target.aarch64-linux-android]
-          linker = "${ANDROID_NDK}/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android26-clang"
-          [target.armv7-linux-androideabi]
-          linker = "${ANDROID_NDK}/toolchains/llvm/prebuilt/linux-x86_64/bin/armv7a-linux-androideabi26-clang"
-          [target.x86_64-linux-android]
-          linker = "${ANDROID_NDK}/toolchains/llvm/prebuilt/linux-x86_64/bin/x86_64-linux-android26-clang"
-          [target.i686-linux-android]
-          linker = "${ANDROID_NDK}/toolchains/llvm/prebuilt/linux-x86_64/bin/i686-linux-android26-clang"
-          EOF
+          ANDROID_NDK=${ANDROID_SDK_ROOT}/ndk/${NDK_VERSION}
+          SDKMANAGER="${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager"
+          attempt=0
+          while true; do
+            if [[ -d "${ANDROID_NDK}" ]]; then
+              if [[ -e "${ANDROID_NDK}/package.xml" ]]; then
+                echo "ANDROID_NDK=${ANDROID_NDK}" >> "$GITHUB_ENV"
+                exit 0
+              fi
+              echo "NDK install attempt ${attempt}/3 failed" >&2
+              rm -rf "${ANDROID_NDK}"
+              sleep 5
+            fi
+            [[ "$attempt" -gt 3 ]] && exit 1
+            : $((attempt++))
+            timeout -k 10 600 "${SDKMANAGER}" --install "ndk;${NDK_VERSION}" <<< "y" >/dev/null || true
+          done
 
       - name: Install Dependencies (Linux)
         if: matrix.platform == 'linux'

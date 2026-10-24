@@ -136,8 +136,23 @@ jobs:
         shell: bash
         run: |
           NDK_VERSION="28.2.13676358"
-          yes | "${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager" --install "ndk;${NDK_VERSION}" >/dev/null 2>&1 || true
-          echo "ANDROID_NDK=${ANDROID_SDK_ROOT}/ndk/${NDK_VERSION}" >> "$GITHUB_ENV"
+          ANDROID_NDK=${ANDROID_SDK_ROOT}/ndk/${NDK_VERSION}
+          SDKMANAGER="${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager"
+          attempt=0
+          while true; do
+            if [[ -d "${ANDROID_NDK}" ]]; then
+              if [[ -e "${ANDROID_NDK}/package.xml" ]]; then
+                echo "ANDROID_NDK=${ANDROID_NDK}" >> "$GITHUB_ENV"
+                exit 0
+              fi
+              echo "NDK install attempt ${attempt}/3 failed" >&2
+              rm -rf "${ANDROID_NDK}"
+              sleep 5
+            fi
+            [[ "$attempt" -gt 3 ]] && exit 1
+            : $((attempt++))
+            timeout -k 10 600 "${SDKMANAGER}" --install "ndk;${NDK_VERSION}" <<< "y" >/dev/null || true
+          done
 
       - name: Configure Cargo for Android
         if: matrix.platform == 'android'

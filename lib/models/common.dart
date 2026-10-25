@@ -45,11 +45,16 @@ abstract class Metadata with _$Metadata {
   const factory Metadata({
     @Default(0) int uid,
     @Default('') String network,
+    @Default('') String type,
     @Default('') String sourceIP,
     @Default('') String sourcePort,
     @Default('') String destinationIP,
     @Default('') String destinationPort,
     @Default('') String host,
+    @Default('') String sniffHost,
+    @Default('') String inboundName,
+    @Default('') String inboundPort,
+    @Default('') String inboundUser,
     DnsMode? dnsMode,
     @Default('') String process,
     @Default('') String processPath,
@@ -528,6 +533,58 @@ extension ColorSchemesExt on ColorSchemes {
             dynamicSchemeVariant: schemeVariant,
           );
   }
+}
+
+@freezed
+abstract class IpRiskCheck with _$IpRiskCheck {
+  const factory IpRiskCheck({
+    required IpRiskGroup group,
+    required String name,
+    bool? hit,
+  }) = _IpRiskCheck;
+
+  factory IpRiskCheck.fromJson(Map<String, Object?> json) =>
+      _$IpRiskCheckFromJson(json);
+}
+
+@freezed
+abstract class IpRiskNote with _$IpRiskNote {
+  const factory IpRiskNote({
+    bool? direct,
+    @Default('') String isp,
+    IpRiskAmount? amount,
+    IpRiskShare? share,
+    @Default('') String operatorName,
+    IpRiskLevel? operatorLevel,
+    @Default('') String ownerName,
+    IpRiskLevel? ownerLevel,
+    IpRiskConnection? connection,
+    IpRiskLevel? warning,
+  }) = _IpRiskNote;
+
+  factory IpRiskNote.fromJson(Map<String, Object?> json) =>
+      _$IpRiskNoteFromJson(json);
+}
+
+@freezed
+abstract class IpRisk with _$IpRisk {
+  const factory IpRisk({
+    required String ip,
+    required int score,
+    required IpRiskLevel level,
+    @Default('') String hostname,
+    @Default('') String asn,
+    @Default('') String isp,
+    @Default('') String organization,
+    @Default('') String country,
+    @Default('') String countryCode,
+    @Default('') String region,
+    @Default('') String city,
+    @Default([]) List<IpRiskCheck> checks,
+    IpRiskNote? note,
+  }) = _IpRisk;
+
+  factory IpRisk.fromJson(Map<String, Object?> json) => _$IpRiskFromJson(json);
 }
 
 class IpInfo {

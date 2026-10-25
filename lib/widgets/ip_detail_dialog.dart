@@ -1,9 +1,13 @@
+import 'dart:io';
+
 import 'package:bett_box/common/common.dart';
 import 'package:bett_box/enum/enum.dart';
 import 'package:bett_box/models/models.dart';
+import 'package:bett_box/providers/config.dart';
 import 'package:bett_box/state.dart';
 import 'package:bett_box/widgets/widgets.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 void showIpDetailDialog(
@@ -28,25 +32,42 @@ void showIpDetailDialog(
   );
 }
 
-class _IpDetailDialog extends StatefulWidget {
+class _IpDetailDialog extends ConsumerStatefulWidget {
   final String ip;
   final IpInfo? preloaded;
 
   const _IpDetailDialog({required this.ip, this.preloaded});
 
   @override
-  State<_IpDetailDialog> createState() => _IpDetailDialogState();
+  ConsumerState<_IpDetailDialog> createState() => _IpDetailDialogState();
 }
 
-class _IpDetailDialogState extends State<_IpDetailDialog> {
+class _IpDetailDialogState extends ConsumerState<_IpDetailDialog> {
   bool _isLoading = true;
   String? _errorMessage;
   IpCategory? _category;
   IpInfo? _ipInfo;
+  String? _riskIp;
+  IpRisk? _risk;
+  bool _riskFailed = false;
+  bool _editing = false;
+  int _riskSerial = 0;
+  final _ipController = TextEditingController();
+
+  @override
+  void dispose() {
+    _ipController.dispose();
+    super.dispose();
+  }
 
   @override
   void initState() {
     super.initState();
+    if (ref.read(appSettingProvider).ipRiskDetail &&
+        utils.classifyIp(widget.ip) == IpCategory.public) {
+      _riskIp = widget.ip;
+      _fetchRisk(widget.ip);
+    }
     final preloaded = widget.preloaded;
     if (preloaded != null) {
       _ipInfo = preloaded;
@@ -172,6 +193,274 @@ class _IpDetailDialogState extends State<_IpDetailDialog> {
     );
   }
 
+  void _loadRisk(String ip, {bool force = false}) {
+    setState(() {
+      _riskIp = ip;
+      _risk = null;
+      _riskFailed = false;
+      _editing = false;
+    });
+    _fetchRisk(ip, force: force);
+  }
+
+  Future<void> _fetchRisk(String ip, {bool force = false}) async {
+    final serial = ++_riskSerial;
+    final res = await request.queryIpRisk(ip, force: force);
+    if (!mounted || serial != _riskSerial) return;
+    setState(() {
+      _risk = res.data;
+      _riskFailed = res.isError || res.data == null;
+    });
+  }
+
+  void _submitIp(String value) {
+    final address = InternetAddress.tryParse(value.trim());
+    if (address == null ||
+        utils.classifyIp(address.address) != IpCategory.public) {
+      context.showNotifier(appLocalizations.ipRiskInvalid);
+      return;
+    }
+    if (address.address == _riskIp && _risk != null) {
+      setState(() => _editing = false);
+      return;
+    }
+    _loadRisk(address.address);
+  }
+
+  void _toggleRisk() {
+    final detail = _riskIp == null;
+    ref
+        .read(appSettingProvider.notifier)
+        .updateState((state) => state.copyWith(ipRiskDetail: detail));
+    if (detail) {
+      _loadRisk(widget.ip);
+      return;
+    }
+    setState(() {
+      _riskSerial++;
+      _riskIp = null;
+      _risk = null;
+      _riskFailed = false;
+      _editing = false;
+    });
+  }
+
+  Widget _buildRiskButton() {
+    return _buildIconButton(
+      icon: Icons.swap_horiz_rounded,
+      tooltip: appLocalizations.toggle,
+      onPressed: _toggleRisk,
+    );
+  }
+
+  Widget _buildRiskCard(Widget child) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
+      decoration: BoxDecoration(
+        color: context.colorScheme.surfaceContainerLow,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: child,
+    );
+  }
+
+  Widget _buildRiskIpTile(String ip) {
+    final valueStyle = context.textTheme.titleSmall?.copyWith(
+      fontWeight: FontWeight.bold,
+    );
+    return _buildStatTile(
+      icon: Icons.location_on_rounded,
+      iconColor: context.colorScheme.primary,
+      label: appLocalizations.ipAddress,
+      value: ip,
+      customValue: _editing
+          ? TextField(
+              controller: _ipController,
+              autofocus: true,
+              style: valueStyle,
+              keyboardType: TextInputType.url,
+              textInputAction: TextInputAction.search,
+              decoration: InputDecoration.collapsed(
+                hintText: appLocalizations.ipRiskHint,
+              ),
+              onSubmitted: _submitIp,
+            )
+          : GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: () {
+                _ipController.text = ip;
+                setState(() => _editing = true);
+              },
+              child: Row(
+                children: [
+                  Flexible(
+                    child: Text(
+                      ip,
+                      style: valueStyle,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  const SizedBox(width: 4),
+                  Icon(
+                    Icons.edit_outlined,
+                    size: 13,
+                    color: context.colorScheme.onSurfaceVariant,
+                  ),
+                ],
+              ),
+            ),
+      action: _editing
+          ? _buildIconButton(
+              icon: Icons.search_rounded,
+              tooltip: appLocalizations.search,
+              onPressed: () => _submitIp(_ipController.text),
+            )
+          : _buildRiskButton(),
+    );
+  }
+
+  Widget _buildRiskInfo(IpRisk risk) {
+    final muted = context.textTheme.labelSmall?.copyWith(
+      color: context.colorScheme.onSurfaceVariant,
+    );
+    final valueStyle = context.textTheme.bodyMedium?.copyWith(
+      fontWeight: FontWeight.w600,
+    );
+    Widget? cell(String label, String value, {Widget? leading}) {
+      if (value.isEmpty) return null;
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(label, style: muted),
+          const SizedBox(height: 1),
+          Row(
+            children: [
+              ?leading,
+              Flexible(child: SelectableText(value, style: valueStyle)),
+            ],
+          ),
+        ],
+      );
+    }
+
+    final country = cell(
+      appLocalizations.countryOrRegion,
+      risk.country.isNotEmpty ? risk.country : risk.countryCode,
+      leading: risk.countryCode.length == 2
+          ? Padding(
+              padding: const EdgeInsets.only(right: 4),
+              child: Text(
+                utils.countryCodeToEmoji(risk.countryCode),
+                style: TextStyle(
+                  fontFamily: FontFamily.twEmoji.value,
+                  fontFamilyFallback: [FontFamily.twEmoji.value],
+                  fontSize: 14,
+                ),
+              ),
+            )
+          : null,
+    );
+    final region = cell(
+      appLocalizations.provinceAndCity,
+      [
+        if (risk.region.isNotEmpty) risk.region,
+        if (risk.city.isNotEmpty && risk.city != risk.region) risk.city,
+      ].join(' · '),
+    );
+    final rows = <Widget>[
+      if (country != null && region != null)
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(child: country),
+            const SizedBox(width: 12),
+            Expanded(child: region),
+          ],
+        )
+      else
+        ?(country ?? region),
+      ?cell(
+        appLocalizations.operatorOrAsn,
+        [
+          if (risk.organization.isNotEmpty) risk.organization,
+          if (risk.asn.isNotEmpty) risk.asn,
+        ].join(' · '),
+      ),
+      if (risk.isp != risk.organization) ?cell(appLocalizations.isp, risk.isp),
+      ?cell(appLocalizations.ipRiskHostname, risk.hostname),
+    ];
+    return _buildRiskCard(
+      Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          for (int i = 0; i < rows.length; i++) ...[
+            rows[i],
+            if (i < rows.length - 1) const SizedBox(height: 8),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildRiskContent(String ip) {
+    final risk = _risk;
+    final items = <Widget>[
+      _buildRiskIpTile(ip),
+      if (risk != null) ...[
+        _buildRiskCard(IpRiskScore(risk: risk)),
+        if (risk.checks.isNotEmpty) _buildRiskCard(IpRiskChecks(risk: risk)),
+        _buildRiskInfo(risk),
+        IpRiskSource(
+          onTap: () {
+            Navigator.of(context, rootNavigator: true).pop();
+            globalState.openUrl(ipRiskUrl(ip));
+          },
+        ),
+      ] else
+        _buildRiskCard(
+          SizedBox(
+            height: 84,
+            child: _riskFailed
+                ? Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        appLocalizations.networkErrorRetryLater,
+                        style: context.textTheme.bodyMedium?.copyWith(
+                          color: context.colorScheme.error,
+                        ),
+                      ),
+                      TextButton.icon(
+                        onPressed: () => _loadRisk(ip, force: true),
+                        icon: const Icon(Icons.refresh_rounded, size: 16),
+                        label: Text(appLocalizations.retry),
+                      ),
+                    ],
+                  )
+                : Center(
+                    child: SpinKitThreeBounce(
+                      color: context.colorScheme.primary,
+                      size: 16,
+                    ),
+                  ),
+          ),
+        ),
+    ];
+    return Column(
+      key: const ValueKey('risk'),
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        for (int i = 0; i < items.length; i++) ...[
+          items[i],
+          if (i < items.length - 1) const SizedBox(height: 8),
+        ],
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final ipInfo = _ipInfo;
@@ -276,14 +565,7 @@ class _IpDetailDialogState extends State<_IpDetailDialog> {
             iconColor: context.colorScheme.primary,
             label: appLocalizations.ipAddress,
             value: widget.ip,
-            action: _buildIconButton(
-              icon: Icons.open_in_new,
-              tooltip: appLocalizations.viewDetailedIpData,
-              onPressed: () {
-                Navigator.of(context, rootNavigator: true).pop();
-                globalState.openUrl('https://www.ip2location.com/${widget.ip}');
-              },
-            ),
+            action: _buildRiskButton(),
           ),
           const SizedBox(height: 8),
           _buildStatTile(
@@ -304,14 +586,7 @@ class _IpDetailDialogState extends State<_IpDetailDialog> {
           iconColor: context.colorScheme.primary,
           label: appLocalizations.ipAddress,
           value: widget.ip,
-          action: _buildIconButton(
-            icon: Icons.open_in_new,
-            tooltip: appLocalizations.viewDetailedIpData,
-            onPressed: () {
-              Navigator.of(context, rootNavigator: true).pop();
-              globalState.openUrl('https://www.ip2location.com/${widget.ip}');
-            },
-          ),
+          action: _buildRiskButton(),
         ),
         if (countryText.isNotEmpty || flagEmoji.isNotEmpty)
           _buildStatTile(
@@ -387,6 +662,10 @@ class _IpDetailDialogState extends State<_IpDetailDialog> {
       );
     }
 
+    if (_riskIp case final riskIp?) {
+      content = _buildRiskContent(riskIp);
+    }
+
     return CommonDialog(
       title: appLocalizations.moreIpInfo,
       padding: const EdgeInsets.fromLTRB(16, 14, 16, 8),
@@ -398,7 +677,9 @@ class _IpDetailDialogState extends State<_IpDetailDialog> {
           child: Text(appLocalizations.confirm),
         ),
       ],
-      child: SingleChildScrollView(child: content),
+      child: SingleChildScrollView(
+        child: FadeThroughBox(alignment: Alignment.topLeft, child: content),
+      ),
     );
   }
 }

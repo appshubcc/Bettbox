@@ -27,11 +27,16 @@ Map<String, dynamic> _$PackageToJson(_Package instance) => <String, dynamic>{
 _Metadata _$MetadataFromJson(Map<String, dynamic> json) => _Metadata(
   uid: (json['uid'] as num?)?.toInt() ?? 0,
   network: json['network'] as String? ?? '',
+  type: json['type'] as String? ?? '',
   sourceIP: json['sourceIP'] as String? ?? '',
   sourcePort: json['sourcePort'] as String? ?? '',
   destinationIP: json['destinationIP'] as String? ?? '',
   destinationPort: json['destinationPort'] as String? ?? '',
   host: json['host'] as String? ?? '',
+  sniffHost: json['sniffHost'] as String? ?? '',
+  inboundName: json['inboundName'] as String? ?? '',
+  inboundPort: json['inboundPort'] as String? ?? '',
+  inboundUser: json['inboundUser'] as String? ?? '',
   dnsMode: $enumDecodeNullable(_$DnsModeEnumMap, json['dnsMode']),
   process: json['process'] as String? ?? '',
   processPath: json['processPath'] as String? ?? '',
@@ -55,11 +60,16 @@ _Metadata _$MetadataFromJson(Map<String, dynamic> json) => _Metadata(
 Map<String, dynamic> _$MetadataToJson(_Metadata instance) => <String, dynamic>{
   'uid': instance.uid,
   'network': instance.network,
+  'type': instance.type,
   'sourceIP': instance.sourceIP,
   'sourcePort': instance.sourcePort,
   'destinationIP': instance.destinationIP,
   'destinationPort': instance.destinationPort,
   'host': instance.host,
+  'sniffHost': instance.sniffHost,
+  'inboundName': instance.inboundName,
+  'inboundPort': instance.inboundPort,
+  'inboundUser': instance.inboundUser,
   'dnsMode': _$DnsModeEnumMap[instance.dnsMode],
   'process': instance.process,
   'processPath': instance.processPath,
@@ -215,6 +225,123 @@ const _$GroupTypeEnumMap = {
   GroupType.URLTest: 'URLTest',
   GroupType.Fallback: 'Fallback',
   GroupType.LoadBalance: 'LoadBalance',
+};
+
+_IpRiskCheck _$IpRiskCheckFromJson(Map<String, dynamic> json) => _IpRiskCheck(
+  group: $enumDecode(_$IpRiskGroupEnumMap, json['group']),
+  name: json['name'] as String,
+  hit: json['hit'] as bool?,
+);
+
+Map<String, dynamic> _$IpRiskCheckToJson(_IpRiskCheck instance) =>
+    <String, dynamic>{
+      'group': _$IpRiskGroupEnumMap[instance.group]!,
+      'name': instance.name,
+      'hit': instance.hit,
+    };
+
+const _$IpRiskGroupEnumMap = {
+  IpRiskGroup.datacenter: 'datacenter',
+  IpRiskGroup.blacklist: 'blacklist',
+  IpRiskGroup.proxy: 'proxy',
+};
+
+_IpRiskNote _$IpRiskNoteFromJson(Map<String, dynamic> json) => _IpRiskNote(
+  direct: json['direct'] as bool?,
+  isp: json['isp'] as String? ?? '',
+  amount: $enumDecodeNullable(_$IpRiskAmountEnumMap, json['amount']),
+  share: $enumDecodeNullable(_$IpRiskShareEnumMap, json['share']),
+  operatorName: json['operatorName'] as String? ?? '',
+  operatorLevel: $enumDecodeNullable(
+    _$IpRiskLevelEnumMap,
+    json['operatorLevel'],
+  ),
+  ownerName: json['ownerName'] as String? ?? '',
+  ownerLevel: $enumDecodeNullable(_$IpRiskLevelEnumMap, json['ownerLevel']),
+  connection: $enumDecodeNullable(
+    _$IpRiskConnectionEnumMap,
+    json['connection'],
+  ),
+  warning: $enumDecodeNullable(_$IpRiskLevelEnumMap, json['warning']),
+);
+
+Map<String, dynamic> _$IpRiskNoteToJson(_IpRiskNote instance) =>
+    <String, dynamic>{
+      'direct': instance.direct,
+      'isp': instance.isp,
+      'amount': _$IpRiskAmountEnumMap[instance.amount],
+      'share': _$IpRiskShareEnumMap[instance.share],
+      'operatorName': instance.operatorName,
+      'operatorLevel': _$IpRiskLevelEnumMap[instance.operatorLevel],
+      'ownerName': instance.ownerName,
+      'ownerLevel': _$IpRiskLevelEnumMap[instance.ownerLevel],
+      'connection': _$IpRiskConnectionEnumMap[instance.connection],
+      'warning': _$IpRiskLevelEnumMap[instance.warning],
+    };
+
+const _$IpRiskAmountEnumMap = {
+  IpRiskAmount.low: 'low',
+  IpRiskAmount.medium: 'medium',
+  IpRiskAmount.high: 'high',
+};
+
+const _$IpRiskShareEnumMap = {
+  IpRiskShare.little: 'little',
+  IpRiskShare.some: 'some',
+  IpRiskShare.almostAll: 'almostAll',
+};
+
+const _$IpRiskLevelEnumMap = {
+  IpRiskLevel.low: 'low',
+  IpRiskLevel.medium: 'medium',
+  IpRiskLevel.high: 'high',
+  IpRiskLevel.veryHigh: 'veryHigh',
+};
+
+const _$IpRiskConnectionEnumMap = {
+  IpRiskConnection.server: 'server',
+  IpRiskConnection.vpn: 'vpn',
+  IpRiskConnection.publicProxy: 'publicProxy',
+  IpRiskConnection.tor: 'tor',
+  IpRiskConnection.webProxy: 'webProxy',
+};
+
+_IpRisk _$IpRiskFromJson(Map<String, dynamic> json) => _IpRisk(
+  ip: json['ip'] as String,
+  score: (json['score'] as num).toInt(),
+  level: $enumDecode(_$IpRiskLevelEnumMap, json['level']),
+  hostname: json['hostname'] as String? ?? '',
+  asn: json['asn'] as String? ?? '',
+  isp: json['isp'] as String? ?? '',
+  organization: json['organization'] as String? ?? '',
+  country: json['country'] as String? ?? '',
+  countryCode: json['countryCode'] as String? ?? '',
+  region: json['region'] as String? ?? '',
+  city: json['city'] as String? ?? '',
+  checks:
+      (json['checks'] as List<dynamic>?)
+          ?.map((e) => IpRiskCheck.fromJson(e as Map<String, dynamic>))
+          .toList() ??
+      const [],
+  note: json['note'] == null
+      ? null
+      : IpRiskNote.fromJson(json['note'] as Map<String, dynamic>),
+);
+
+Map<String, dynamic> _$IpRiskToJson(_IpRisk instance) => <String, dynamic>{
+  'ip': instance.ip,
+  'score': instance.score,
+  'level': _$IpRiskLevelEnumMap[instance.level]!,
+  'hostname': instance.hostname,
+  'asn': instance.asn,
+  'isp': instance.isp,
+  'organization': instance.organization,
+  'country': instance.country,
+  'countryCode': instance.countryCode,
+  'region': instance.region,
+  'city': instance.city,
+  'checks': instance.checks,
+  'note': instance.note,
 };
 
 _HotKeyAction _$HotKeyActionFromJson(Map<String, dynamic> json) =>

@@ -90,10 +90,7 @@ class Request {
     return Uint8List.fromList((data as List).cast<int>());
   }
 
-  Future<Response> _getFileResponseForUrl(
-    String url,
-    ResponseType responseType,
-  ) async {
+  Future<({File file, String? fileName})> _localFileForUrl(String url) async {
     final uri = Uri.parse(url);
     final segments = uri.pathSegments
         .where((segment) => segment.isNotEmpty)
@@ -108,13 +105,29 @@ class Request {
     if (!await file.exists()) {
       throw Exception('Local file not found: $filePath');
     }
+    return (file: file, fileName: segments.lastOrNull);
+  }
 
-    final bytes = await file.readAsBytes();
+  Headers? _fileHeaders(String? fileName) {
+    if (fileName == null) return null;
+    return Headers.fromMap({
+      'content-disposition': [
+        'attachment; filename*=UTF-8\'\'${Uri.encodeComponent(fileName)}',
+      ],
+    });
+  }
+
+  Future<Response> _getFileResponseForUrl(
+    String url,
+    ResponseType responseType,
+  ) async {
+    final local = await _localFileForUrl(url);
+    final bytes = await local.file.readAsBytes();
     return _buildResponseFromBytes(
       url: url,
       bytes: bytes,
       responseType: responseType,
-      fileName: segments.lastOrNull,
+      fileName: local.fileName,
     );
   }
 
@@ -139,14 +152,7 @@ class Request {
     String? fileName,
   }) {
     final requestOptions = RequestOptions(path: url);
-    final disposition = fileName == null
-        ? null
-        : 'attachment; filename*=UTF-8\'\'${Uri.encodeComponent(fileName)}';
-    final headers = disposition == null
-        ? null
-        : Headers.fromMap({
-            'content-disposition': [disposition],
-          });
+    final headers = _fileHeaders(fileName);
     if (responseType == ResponseType.plain) {
       return Response(
         requestOptions: requestOptions,
@@ -163,14 +169,7 @@ class Request {
     );
   }
 
-  Future<Response> _getResponseForUrl(
-    String url,
-    ResponseType responseType,
-  ) async {
-    if (url.isFileUrl) {
-      return _getFileResponseForUrl(url, responseType);
-    }
-
+  (String, Map<String, dynamic>) _authorizedRequest(String url) {
     String? userInfo;
     String requestUrl = url;
 
@@ -200,6 +199,40 @@ class Request {
       headers['Authorization'] = 'Basic $auth';
     }
 
+    return (requestUrl, headers);
+  }
+
+  Future<({String path, Headers? headers, bool remote})> fetchProfileSource(
+    String url,
+    String downloadPath,
+  ) async {
+    if (url.isFileUrl) {
+      final local = await _localFileForUrl(url);
+      await local.file.copy(downloadPath);
+      return (
+        path: downloadPath,
+        headers: _fileHeaders(local.fileName),
+        remote: false,
+      );
+    }
+    final (requestUrl, headers) = _authorizedRequest(url);
+    final response = await _clashDio.download(
+      requestUrl,
+      downloadPath,
+      options: Options(headers: headers),
+    );
+    return (path: downloadPath, headers: response.headers, remote: true);
+  }
+
+  Future<Response> _getResponseForUrl(
+    String url,
+    ResponseType responseType,
+  ) async {
+    if (url.isFileUrl) {
+      return _getFileResponseForUrl(url, responseType);
+    }
+
+    final (requestUrl, headers) = _authorizedRequest(url);
     final response = await _clashDio.get(
       requestUrl,
       options: Options(responseType: ResponseType.bytes, headers: headers),
@@ -234,10 +267,6 @@ class Request {
     }
   }
 
-  Future<Response> getFileResponseForUrl(String url) async {
-    return _getResponseForUrl(url, ResponseType.bytes);
-  }
-
   Future<Response> getTextResponseForUrl(String url) async {
     return _getResponseForUrl(url, ResponseType.plain);
   }
@@ -252,6 +281,17 @@ class Request {
     if (data == null) return null;
     final bytes = _decompressIfNeeded(data, response.headers);
     return MemoryImage(bytes);
+  }
+
+  Future<Uint8List?> getBytes(String url, {CancelToken? cancelToken}) async {
+    final response = await _dio.get<Uint8List>(
+      url,
+      cancelToken: cancelToken,
+      options: Options(responseType: ResponseType.bytes),
+    );
+    final data = response.data;
+    if (data == null) return null;
+    return _decompressIfNeeded(data, response.headers);
   }
 
   Future<Map<String, dynamic>?> checkForUpdate() async {
@@ -489,6 +529,22 @@ class Request {
 
   static const _cacheDuration = Duration(days: 30);
 
+  Future<void> _ipCacheTask = Future.value();
+
+  Future<T> _serialIpCache<T>(Future<T> Function() task) {
+    final result = _ipCacheTask.then((_) => task());
+    _ipCacheTask = result.then<void>((_) {}, onError: (_) {});
+    return result;
+  }
+
+  @visibleForTesting
+  Future<Map<String, dynamic>?> readIpCache(String cacheKey) =>
+      _serialIpCache(() => _getValidCacheData(cacheKey));
+
+  @visibleForTesting
+  Future<void> writeIpCache(String cacheKey, Map<String, dynamic> data) =>
+      _serialIpCache(() => _saveCacheData(cacheKey, data));
+
   Future<File> _getIpCacheFile() async {
     final filePath = await appPath.ipCacheFilePath;
     final file = File(filePath);
@@ -519,7 +575,7 @@ class Request {
     } catch (_) {}
   }
 
-  Future<IpInfo?> _getValidCachedIp(String cacheKey) async {
+  Future<Map<String, dynamic>?> _getValidCacheData(String cacheKey) async {
     try {
       final file = await _getIpCacheFile();
       if (!await file.exists()) return null;
@@ -536,7 +592,7 @@ class Request {
 
       bool hasExpired = false;
       final validEntries = <String, dynamic>{};
-      IpInfo? matchedIpInfo;
+      Map<String, dynamic>? matched;
 
       for (final entry in rawMap.entries) {
         final val = entry.value;
@@ -546,11 +602,7 @@ class Request {
           if (timestamp != null && (now - timestamp) < maxAgeMs) {
             validEntries[entry.key] = valMap;
             if (entry.key == cacheKey && valMap['data'] is Map) {
-              try {
-                matchedIpInfo = IpInfo.fromJson(
-                  Map<String, dynamic>.from(valMap['data'] as Map),
-                );
-              } catch (_) {}
+              matched = Map<String, dynamic>.from(valMap['data'] as Map);
             }
           } else {
             hasExpired = true;
@@ -562,13 +614,16 @@ class Request {
         await _writeIpCacheFile(file, validEntries);
       }
 
-      return matchedIpInfo;
+      return matched;
     } catch (_) {
       return null;
     }
   }
 
-  Future<void> _saveCachedIp(String cacheKey, IpInfo ipInfo) async {
+  Future<void> _saveCacheData(
+    String cacheKey,
+    Map<String, dynamic> data,
+  ) async {
     try {
       final file = await _getIpCacheFile();
       Map<String, dynamic> rawMap = {};
@@ -596,7 +651,7 @@ class Request {
         }
       }
 
-      validEntries[cacheKey] = {'timestamp': now, 'data': ipInfo.toJson()};
+      validEntries[cacheKey] = {'timestamp': now, 'data': data};
 
       await _writeIpCacheFile(file, validEntries);
     } catch (_) {}
@@ -610,9 +665,11 @@ class Request {
     final isZh = Intl.getCurrentLocale().toLowerCase().startsWith('zh');
     final cacheKey = '${ip}_${isZh ? 'zh' : 'en'}';
 
-    final cached = await _getValidCachedIp(cacheKey);
+    final cached = await readIpCache(cacheKey);
     if (cached != null) {
-      return Result.success(cached);
+      try {
+        return Result.success(IpInfo.fromJson(cached));
+      } catch (_) {}
     }
 
     final effectiveTimeout = timeout ?? const Duration(seconds: 5);
@@ -639,10 +696,57 @@ class Request {
           return Result.error(message);
         }
         final ipInfo = IpInfo.fromJson(data);
-        await _saveCachedIp(cacheKey, ipInfo);
+        await writeIpCache(cacheKey, ipInfo.toJson());
         return Result.success(ipInfo);
       }
       return Result.error('query failed');
+    } catch (e) {
+      if (e is DioException && e.type == DioExceptionType.cancel) {
+        return Result.error('cancelled');
+      }
+      return Result.error(e.toString());
+    }
+  }
+
+  Future<Result<IpRisk?>> queryIpRisk(
+    String ip, {
+    bool force = false,
+    CancelToken? cancelToken,
+  }) async {
+    final cacheKey = 'risk_$ip';
+    if (!force) {
+      final cached = await readIpCache(cacheKey);
+      if (cached != null) {
+        try {
+          return Result.success(IpRisk.fromJson(cached));
+        } catch (_) {}
+      }
+    }
+    const timeout = Duration(seconds: 10);
+    try {
+      final res = await _dio.get<List<int>>(
+        'https://scamalytics.com/ip/${Uri.encodeComponent(ip)}',
+        cancelToken: cancelToken,
+        options: Options(
+          responseType: ResponseType.bytes,
+          receiveTimeout: timeout,
+          sendTimeout: timeout,
+        ),
+      );
+      final data = res.data;
+      if (res.statusCode != HttpStatus.ok || data == null) {
+        return Result.error('query failed');
+      }
+      final bytes = data.length > 2 && data[0] == 0x1f && data[1] == 0x8b
+          ? gzip.decode(data)
+          : data;
+      final risk = parseScamalytics(
+        ip,
+        utf8.decode(bytes, allowMalformed: true),
+      );
+      if (risk == null) return Result.error('parse failed');
+      await writeIpCache(cacheKey, risk.toJson());
+      return Result.success(risk);
     } catch (e) {
       if (e is DioException && e.type == DioExceptionType.cancel) {
         return Result.error('cancelled');

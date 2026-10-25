@@ -431,7 +431,7 @@ List<Widget> buildIpInfoRows(IpInfo info) {
   ];
 }
 
-class _IpCard extends StatelessWidget {
+class _IpCard extends StatefulWidget {
   final _IpEntry entry;
   final bool showLabel;
   final VoidCallback? onRetry;
@@ -439,7 +439,85 @@ class _IpCard extends StatelessWidget {
   const _IpCard({required this.entry, this.showLabel = true, this.onRetry});
 
   @override
+  State<_IpCard> createState() => _IpCardState();
+}
+
+class _IpCardState extends State<_IpCard> {
+  String? _riskIp;
+  IpRisk? _risk;
+  bool _riskLoading = false;
+  bool _riskFailed = false;
+
+  @override
+  void didUpdateWidget(covariant _IpCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.entry.ip != _riskIp) {
+      _riskIp = null;
+      _risk = null;
+      _riskLoading = false;
+      _riskFailed = false;
+    }
+  }
+
+  Future<void> _toggleRisk() async {
+    final ip = widget.entry.ip;
+    if (_riskIp == ip && !_riskFailed) {
+      setState(() => _riskIp = null);
+      return;
+    }
+    setState(() {
+      _riskIp = ip;
+      _riskLoading = true;
+      _riskFailed = false;
+    });
+    final res = await request.queryIpRisk(ip);
+    if (!mounted || _riskIp != ip) return;
+    setState(() {
+      _risk = res.data;
+      _riskLoading = false;
+      _riskFailed = res.isError || res.data == null;
+    });
+  }
+
+  List<Widget> _buildRisk(BuildContext context) {
+    final risk = _risk;
+    if (_riskIp == null) return const [];
+    return [
+      const SizedBox(height: 8),
+      const Divider(height: 1),
+      const SizedBox(height: 10),
+      if (_riskLoading)
+        const LinearProgressIndicator(minHeight: 2)
+      else if (_riskFailed || risk == null)
+        ToolNote(
+          icon: Icons.error_outline_rounded,
+          text: appLocalizations.networkErrorRetryLater,
+          color: context.colorScheme.error,
+        )
+      else ...[
+        IpRiskScore(risk: risk),
+        if (risk.checks.isNotEmpty) ...[
+          const SizedBox(height: 10),
+          IpRiskChecks(risk: risk),
+        ],
+        if (risk.hostname.isNotEmpty) ...[
+          const SizedBox(height: 6),
+          ToolKeyValue(
+            icon: Icons.dns_rounded,
+            label: appLocalizations.ipRiskHostname,
+            value: risk.hostname,
+          ),
+        ],
+        IpRiskSource(onTap: () => globalState.openUrl(ipRiskUrl(risk.ip))),
+      ],
+    ];
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final entry = widget.entry;
+    final showLabel = widget.showLabel;
+    final onRetry = widget.onRetry;
     final colorScheme = context.colorScheme;
     final info = entry.info;
     final category = entry.ip.isEmpty ? null : utils.classifyIp(entry.ip);
@@ -496,6 +574,18 @@ class _IpCard extends StatelessWidget {
                   ],
                 ),
               ),
+              if (category == IpCategory.public && !entry.loading)
+                IconButton(
+                  tooltip: appLocalizations.ipRiskCheck,
+                  onPressed: _riskLoading ? null : _toggleRisk,
+                  icon: Icon(
+                    _riskIp != null
+                        ? Icons.shield_rounded
+                        : Icons.shield_outlined,
+                    size: 18,
+                    color: _riskIp != null ? colorScheme.primary : null,
+                  ),
+                ),
               if (entry.ip.isNotEmpty)
                 IconButton(
                   tooltip: appLocalizations.copy,
@@ -543,6 +633,7 @@ class _IpCard extends StatelessWidget {
                 color: colorScheme.error,
               ),
             ),
+          ..._buildRisk(context),
         ],
       ),
     );

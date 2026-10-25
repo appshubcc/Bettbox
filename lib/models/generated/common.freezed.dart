@@ -589,7 +589,7 @@ as int,
 /// @nodoc
 mixin _$Metadata {
 
- int get uid; String get network; String get sourceIP; String get sourcePort; String get destinationIP; String get destinationPort; String get host; DnsMode? get dnsMode; String get process; String get processPath; String get remoteDestination; List<String> get sourceGeoIP; List<String> get destinationGeoIP; String get destinationIPASN; String get sourceIPASN; String get specialRules; String get specialProxy;
+ int get uid; String get network; String get type; String get sourceIP; String get sourcePort; String get destinationIP; String get destinationPort; String get host; String get sniffHost; String get inboundName; String get inboundPort; String get inboundUser; DnsMode? get dnsMode; String get process; String get processPath; String get remoteDestination; List<String> get sourceGeoIP; List<String> get destinationGeoIP; String get destinationIPASN; String get sourceIPASN; String get specialRules; String get specialProxy;
 /// Create a copy of Metadata
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -603,20 +603,20 @@ $MetadataCopyWith<Metadata> get copyWith => _$MetadataCopyWithImpl<Metadata>(thi
 @override
 bool operator ==(Object other) {
   final _this = this as Metadata;
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Metadata&&(identical(other.uid, _this.uid) || other.uid == _this.uid)&&(identical(other.network, _this.network) || other.network == _this.network)&&(identical(other.sourceIP, _this.sourceIP) || other.sourceIP == _this.sourceIP)&&(identical(other.sourcePort, _this.sourcePort) || other.sourcePort == _this.sourcePort)&&(identical(other.destinationIP, _this.destinationIP) || other.destinationIP == _this.destinationIP)&&(identical(other.destinationPort, _this.destinationPort) || other.destinationPort == _this.destinationPort)&&(identical(other.host, _this.host) || other.host == _this.host)&&(identical(other.dnsMode, _this.dnsMode) || other.dnsMode == _this.dnsMode)&&(identical(other.process, _this.process) || other.process == _this.process)&&(identical(other.processPath, _this.processPath) || other.processPath == _this.processPath)&&(identical(other.remoteDestination, _this.remoteDestination) || other.remoteDestination == _this.remoteDestination)&&const DeepCollectionEquality().equals(other.sourceGeoIP, _this.sourceGeoIP)&&const DeepCollectionEquality().equals(other.destinationGeoIP, _this.destinationGeoIP)&&(identical(other.destinationIPASN, _this.destinationIPASN) || other.destinationIPASN == _this.destinationIPASN)&&(identical(other.sourceIPASN, _this.sourceIPASN) || other.sourceIPASN == _this.sourceIPASN)&&(identical(other.specialRules, _this.specialRules) || other.specialRules == _this.specialRules)&&(identical(other.specialProxy, _this.specialProxy) || other.specialProxy == _this.specialProxy));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Metadata&&(identical(other.uid, _this.uid) || other.uid == _this.uid)&&(identical(other.network, _this.network) || other.network == _this.network)&&(identical(other.type, _this.type) || other.type == _this.type)&&(identical(other.sourceIP, _this.sourceIP) || other.sourceIP == _this.sourceIP)&&(identical(other.sourcePort, _this.sourcePort) || other.sourcePort == _this.sourcePort)&&(identical(other.destinationIP, _this.destinationIP) || other.destinationIP == _this.destinationIP)&&(identical(other.destinationPort, _this.destinationPort) || other.destinationPort == _this.destinationPort)&&(identical(other.host, _this.host) || other.host == _this.host)&&(identical(other.sniffHost, _this.sniffHost) || other.sniffHost == _this.sniffHost)&&(identical(other.inboundName, _this.inboundName) || other.inboundName == _this.inboundName)&&(identical(other.inboundPort, _this.inboundPort) || other.inboundPort == _this.inboundPort)&&(identical(other.inboundUser, _this.inboundUser) || other.inboundUser == _this.inboundUser)&&(identical(other.dnsMode, _this.dnsMode) || other.dnsMode == _this.dnsMode)&&(identical(other.process, _this.process) || other.process == _this.process)&&(identical(other.processPath, _this.processPath) || other.processPath == _this.processPath)&&(identical(other.remoteDestination, _this.remoteDestination) || other.remoteDestination == _this.remoteDestination)&&const DeepCollectionEquality().equals(other.sourceGeoIP, _this.sourceGeoIP)&&const DeepCollectionEquality().equals(other.destinationGeoIP, _this.destinationGeoIP)&&(identical(other.destinationIPASN, _this.destinationIPASN) || other.destinationIPASN == _this.destinationIPASN)&&(identical(other.sourceIPASN, _this.sourceIPASN) || other.sourceIPASN == _this.sourceIPASN)&&(identical(other.specialRules, _this.specialRules) || other.specialRules == _this.specialRules)&&(identical(other.specialProxy, _this.specialProxy) || other.specialProxy == _this.specialProxy));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
 int get hashCode {
   final _this = this as Metadata;
-  return Object.hash(runtimeType,_this.uid,_this.network,_this.sourceIP,_this.sourcePort,_this.destinationIP,_this.destinationPort,_this.host,_this.dnsMode,_this.process,_this.processPath,_this.remoteDestination,const DeepCollectionEquality().hash(_this.sourceGeoIP),const DeepCollectionEquality().hash(_this.destinationGeoIP),_this.destinationIPASN,_this.sourceIPASN,_this.specialRules,_this.specialProxy);
+  return Object.hashAll([runtimeType,_this.uid,_this.network,_this.type,_this.sourceIP,_this.sourcePort,_this.destinationIP,_this.destinationPort,_this.host,_this.sniffHost,_this.inboundName,_this.inboundPort,_this.inboundUser,_this.dnsMode,_this.process,_this.processPath,_this.remoteDestination,const DeepCollectionEquality().hash(_this.sourceGeoIP),const DeepCollectionEquality().hash(_this.destinationGeoIP),_this.destinationIPASN,_this.sourceIPASN,_this.specialRules,_this.specialProxy]);
 }
 
 @override
 String toString() {
   final _this = this as Metadata;
-  return 'Metadata(uid: ${_this.uid}, network: ${_this.network}, sourceIP: ${_this.sourceIP}, sourcePort: ${_this.sourcePort}, destinationIP: ${_this.destinationIP}, destinationPort: ${_this.destinationPort}, host: ${_this.host}, dnsMode: ${_this.dnsMode}, process: ${_this.process}, processPath: ${_this.processPath}, remoteDestination: ${_this.remoteDestination}, sourceGeoIP: ${_this.sourceGeoIP}, destinationGeoIP: ${_this.destinationGeoIP}, destinationIPASN: ${_this.destinationIPASN}, sourceIPASN: ${_this.sourceIPASN}, specialRules: ${_this.specialRules}, specialProxy: ${_this.specialProxy})';
+  return 'Metadata(uid: ${_this.uid}, network: ${_this.network}, type: ${_this.type}, sourceIP: ${_this.sourceIP}, sourcePort: ${_this.sourcePort}, destinationIP: ${_this.destinationIP}, destinationPort: ${_this.destinationPort}, host: ${_this.host}, sniffHost: ${_this.sniffHost}, inboundName: ${_this.inboundName}, inboundPort: ${_this.inboundPort}, inboundUser: ${_this.inboundUser}, dnsMode: ${_this.dnsMode}, process: ${_this.process}, processPath: ${_this.processPath}, remoteDestination: ${_this.remoteDestination}, sourceGeoIP: ${_this.sourceGeoIP}, destinationGeoIP: ${_this.destinationGeoIP}, destinationIPASN: ${_this.destinationIPASN}, sourceIPASN: ${_this.sourceIPASN}, specialRules: ${_this.specialRules}, specialProxy: ${_this.specialProxy})';
 }
 
 
@@ -627,7 +627,7 @@ abstract mixin class $MetadataCopyWith<$Res>  {
   factory $MetadataCopyWith(Metadata value, $Res Function(Metadata) _then) = _$MetadataCopyWithImpl;
 @useResult
 $Res call({
- int uid, String network, String sourceIP, String sourcePort, String destinationIP, String destinationPort, String host, DnsMode? dnsMode, String process, String processPath, String remoteDestination, List<String> sourceGeoIP, List<String> destinationGeoIP, String destinationIPASN, String sourceIPASN, String specialRules, String specialProxy
+ int uid, String network, String type, String sourceIP, String sourcePort, String destinationIP, String destinationPort, String host, String sniffHost, String inboundName, String inboundPort, String inboundUser, DnsMode? dnsMode, String process, String processPath, String remoteDestination, List<String> sourceGeoIP, List<String> destinationGeoIP, String destinationIPASN, String sourceIPASN, String specialRules, String specialProxy
 });
 
 
@@ -644,15 +644,20 @@ class _$MetadataCopyWithImpl<$Res>
 
 /// Create a copy of Metadata
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? uid = null,Object? network = null,Object? sourceIP = null,Object? sourcePort = null,Object? destinationIP = null,Object? destinationPort = null,Object? host = null,Object? dnsMode = freezed,Object? process = null,Object? processPath = null,Object? remoteDestination = null,Object? sourceGeoIP = null,Object? destinationGeoIP = null,Object? destinationIPASN = null,Object? sourceIPASN = null,Object? specialRules = null,Object? specialProxy = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? uid = null,Object? network = null,Object? type = null,Object? sourceIP = null,Object? sourcePort = null,Object? destinationIP = null,Object? destinationPort = null,Object? host = null,Object? sniffHost = null,Object? inboundName = null,Object? inboundPort = null,Object? inboundUser = null,Object? dnsMode = freezed,Object? process = null,Object? processPath = null,Object? remoteDestination = null,Object? sourceGeoIP = null,Object? destinationGeoIP = null,Object? destinationIPASN = null,Object? sourceIPASN = null,Object? specialRules = null,Object? specialProxy = null,}) {
   return _then(Metadata(
 uid: null == uid ? _self.uid : uid // ignore: cast_nullable_to_non_nullable
 as int,network: null == network ? _self.network : network // ignore: cast_nullable_to_non_nullable
+as String,type: null == type ? _self.type : type // ignore: cast_nullable_to_non_nullable
 as String,sourceIP: null == sourceIP ? _self.sourceIP : sourceIP // ignore: cast_nullable_to_non_nullable
 as String,sourcePort: null == sourcePort ? _self.sourcePort : sourcePort // ignore: cast_nullable_to_non_nullable
 as String,destinationIP: null == destinationIP ? _self.destinationIP : destinationIP // ignore: cast_nullable_to_non_nullable
 as String,destinationPort: null == destinationPort ? _self.destinationPort : destinationPort // ignore: cast_nullable_to_non_nullable
 as String,host: null == host ? _self.host : host // ignore: cast_nullable_to_non_nullable
+as String,sniffHost: null == sniffHost ? _self.sniffHost : sniffHost // ignore: cast_nullable_to_non_nullable
+as String,inboundName: null == inboundName ? _self.inboundName : inboundName // ignore: cast_nullable_to_non_nullable
+as String,inboundPort: null == inboundPort ? _self.inboundPort : inboundPort // ignore: cast_nullable_to_non_nullable
+as String,inboundUser: null == inboundUser ? _self.inboundUser : inboundUser // ignore: cast_nullable_to_non_nullable
 as String,dnsMode: freezed == dnsMode ? _self.dnsMode : dnsMode // ignore: cast_nullable_to_non_nullable
 as DnsMode?,process: null == process ? _self.process : process // ignore: cast_nullable_to_non_nullable
 as String,processPath: null == processPath ? _self.processPath : processPath // ignore: cast_nullable_to_non_nullable
@@ -748,10 +753,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int uid,  String network,  String sourceIP,  String sourcePort,  String destinationIP,  String destinationPort,  String host,  DnsMode? dnsMode,  String process,  String processPath,  String remoteDestination,  List<String> sourceGeoIP,  List<String> destinationGeoIP,  String destinationIPASN,  String sourceIPASN,  String specialRules,  String specialProxy)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int uid,  String network,  String type,  String sourceIP,  String sourcePort,  String destinationIP,  String destinationPort,  String host,  String sniffHost,  String inboundName,  String inboundPort,  String inboundUser,  DnsMode? dnsMode,  String process,  String processPath,  String remoteDestination,  List<String> sourceGeoIP,  List<String> destinationGeoIP,  String destinationIPASN,  String sourceIPASN,  String specialRules,  String specialProxy)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Metadata() when $default != null:
-return $default(_that.uid,_that.network,_that.sourceIP,_that.sourcePort,_that.destinationIP,_that.destinationPort,_that.host,_that.dnsMode,_that.process,_that.processPath,_that.remoteDestination,_that.sourceGeoIP,_that.destinationGeoIP,_that.destinationIPASN,_that.sourceIPASN,_that.specialRules,_that.specialProxy);case _:
+return $default(_that.uid,_that.network,_that.type,_that.sourceIP,_that.sourcePort,_that.destinationIP,_that.destinationPort,_that.host,_that.sniffHost,_that.inboundName,_that.inboundPort,_that.inboundUser,_that.dnsMode,_that.process,_that.processPath,_that.remoteDestination,_that.sourceGeoIP,_that.destinationGeoIP,_that.destinationIPASN,_that.sourceIPASN,_that.specialRules,_that.specialProxy);case _:
   return orElse();
 
 }
@@ -769,10 +774,10 @@ return $default(_that.uid,_that.network,_that.sourceIP,_that.sourcePort,_that.de
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int uid,  String network,  String sourceIP,  String sourcePort,  String destinationIP,  String destinationPort,  String host,  DnsMode? dnsMode,  String process,  String processPath,  String remoteDestination,  List<String> sourceGeoIP,  List<String> destinationGeoIP,  String destinationIPASN,  String sourceIPASN,  String specialRules,  String specialProxy)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int uid,  String network,  String type,  String sourceIP,  String sourcePort,  String destinationIP,  String destinationPort,  String host,  String sniffHost,  String inboundName,  String inboundPort,  String inboundUser,  DnsMode? dnsMode,  String process,  String processPath,  String remoteDestination,  List<String> sourceGeoIP,  List<String> destinationGeoIP,  String destinationIPASN,  String sourceIPASN,  String specialRules,  String specialProxy)  $default,) {final _that = this;
 switch (_that) {
 case _Metadata():
-return $default(_that.uid,_that.network,_that.sourceIP,_that.sourcePort,_that.destinationIP,_that.destinationPort,_that.host,_that.dnsMode,_that.process,_that.processPath,_that.remoteDestination,_that.sourceGeoIP,_that.destinationGeoIP,_that.destinationIPASN,_that.sourceIPASN,_that.specialRules,_that.specialProxy);case _:
+return $default(_that.uid,_that.network,_that.type,_that.sourceIP,_that.sourcePort,_that.destinationIP,_that.destinationPort,_that.host,_that.sniffHost,_that.inboundName,_that.inboundPort,_that.inboundUser,_that.dnsMode,_that.process,_that.processPath,_that.remoteDestination,_that.sourceGeoIP,_that.destinationGeoIP,_that.destinationIPASN,_that.sourceIPASN,_that.specialRules,_that.specialProxy);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -789,10 +794,10 @@ return $default(_that.uid,_that.network,_that.sourceIP,_that.sourcePort,_that.de
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int uid,  String network,  String sourceIP,  String sourcePort,  String destinationIP,  String destinationPort,  String host,  DnsMode? dnsMode,  String process,  String processPath,  String remoteDestination,  List<String> sourceGeoIP,  List<String> destinationGeoIP,  String destinationIPASN,  String sourceIPASN,  String specialRules,  String specialProxy)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int uid,  String network,  String type,  String sourceIP,  String sourcePort,  String destinationIP,  String destinationPort,  String host,  String sniffHost,  String inboundName,  String inboundPort,  String inboundUser,  DnsMode? dnsMode,  String process,  String processPath,  String remoteDestination,  List<String> sourceGeoIP,  List<String> destinationGeoIP,  String destinationIPASN,  String sourceIPASN,  String specialRules,  String specialProxy)?  $default,) {final _that = this;
 switch (_that) {
 case _Metadata() when $default != null:
-return $default(_that.uid,_that.network,_that.sourceIP,_that.sourcePort,_that.destinationIP,_that.destinationPort,_that.host,_that.dnsMode,_that.process,_that.processPath,_that.remoteDestination,_that.sourceGeoIP,_that.destinationGeoIP,_that.destinationIPASN,_that.sourceIPASN,_that.specialRules,_that.specialProxy);case _:
+return $default(_that.uid,_that.network,_that.type,_that.sourceIP,_that.sourcePort,_that.destinationIP,_that.destinationPort,_that.host,_that.sniffHost,_that.inboundName,_that.inboundPort,_that.inboundUser,_that.dnsMode,_that.process,_that.processPath,_that.remoteDestination,_that.sourceGeoIP,_that.destinationGeoIP,_that.destinationIPASN,_that.sourceIPASN,_that.specialRules,_that.specialProxy);case _:
   return null;
 
 }
@@ -804,16 +809,21 @@ return $default(_that.uid,_that.network,_that.sourceIP,_that.sourcePort,_that.de
 @JsonSerializable()
 
 class _Metadata implements Metadata {
-  const _Metadata({this.uid = 0, this.network = '', this.sourceIP = '', this.sourcePort = '', this.destinationIP = '', this.destinationPort = '', this.host = '', this.dnsMode, this.process = '', this.processPath = '', this.remoteDestination = '',  List<String> sourceGeoIP = const [],  List<String> destinationGeoIP = const [], this.destinationIPASN = '', this.sourceIPASN = '', this.specialRules = '', this.specialProxy = ''}): _sourceGeoIP = sourceGeoIP,_destinationGeoIP = destinationGeoIP;
+  const _Metadata({this.uid = 0, this.network = '', this.type = '', this.sourceIP = '', this.sourcePort = '', this.destinationIP = '', this.destinationPort = '', this.host = '', this.sniffHost = '', this.inboundName = '', this.inboundPort = '', this.inboundUser = '', this.dnsMode, this.process = '', this.processPath = '', this.remoteDestination = '',  List<String> sourceGeoIP = const [],  List<String> destinationGeoIP = const [], this.destinationIPASN = '', this.sourceIPASN = '', this.specialRules = '', this.specialProxy = ''}): _sourceGeoIP = sourceGeoIP,_destinationGeoIP = destinationGeoIP;
   factory _Metadata.fromJson(Map<String, dynamic> json) => _$MetadataFromJson(json);
 
 @override@JsonKey() final  int uid;
 @override@JsonKey() final  String network;
+@override@JsonKey() final  String type;
 @override@JsonKey() final  String sourceIP;
 @override@JsonKey() final  String sourcePort;
 @override@JsonKey() final  String destinationIP;
 @override@JsonKey() final  String destinationPort;
 @override@JsonKey() final  String host;
+@override@JsonKey() final  String sniffHost;
+@override@JsonKey() final  String inboundName;
+@override@JsonKey() final  String inboundPort;
+@override@JsonKey() final  String inboundUser;
 @override final  DnsMode? dnsMode;
 @override@JsonKey() final  String process;
 @override@JsonKey() final  String processPath;
@@ -850,18 +860,18 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _Metadata&&(identical(other.uid, uid) || other.uid == uid)&&(identical(other.network, network) || other.network == network)&&(identical(other.sourceIP, sourceIP) || other.sourceIP == sourceIP)&&(identical(other.sourcePort, sourcePort) || other.sourcePort == sourcePort)&&(identical(other.destinationIP, destinationIP) || other.destinationIP == destinationIP)&&(identical(other.destinationPort, destinationPort) || other.destinationPort == destinationPort)&&(identical(other.host, host) || other.host == host)&&(identical(other.dnsMode, dnsMode) || other.dnsMode == dnsMode)&&(identical(other.process, process) || other.process == process)&&(identical(other.processPath, processPath) || other.processPath == processPath)&&(identical(other.remoteDestination, remoteDestination) || other.remoteDestination == remoteDestination)&&const DeepCollectionEquality().equals(other.sourceGeoIP, _sourceGeoIP)&&const DeepCollectionEquality().equals(other.destinationGeoIP, _destinationGeoIP)&&(identical(other.destinationIPASN, destinationIPASN) || other.destinationIPASN == destinationIPASN)&&(identical(other.sourceIPASN, sourceIPASN) || other.sourceIPASN == sourceIPASN)&&(identical(other.specialRules, specialRules) || other.specialRules == specialRules)&&(identical(other.specialProxy, specialProxy) || other.specialProxy == specialProxy));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _Metadata&&(identical(other.uid, uid) || other.uid == uid)&&(identical(other.network, network) || other.network == network)&&(identical(other.type, type) || other.type == type)&&(identical(other.sourceIP, sourceIP) || other.sourceIP == sourceIP)&&(identical(other.sourcePort, sourcePort) || other.sourcePort == sourcePort)&&(identical(other.destinationIP, destinationIP) || other.destinationIP == destinationIP)&&(identical(other.destinationPort, destinationPort) || other.destinationPort == destinationPort)&&(identical(other.host, host) || other.host == host)&&(identical(other.sniffHost, sniffHost) || other.sniffHost == sniffHost)&&(identical(other.inboundName, inboundName) || other.inboundName == inboundName)&&(identical(other.inboundPort, inboundPort) || other.inboundPort == inboundPort)&&(identical(other.inboundUser, inboundUser) || other.inboundUser == inboundUser)&&(identical(other.dnsMode, dnsMode) || other.dnsMode == dnsMode)&&(identical(other.process, process) || other.process == process)&&(identical(other.processPath, processPath) || other.processPath == processPath)&&(identical(other.remoteDestination, remoteDestination) || other.remoteDestination == remoteDestination)&&const DeepCollectionEquality().equals(other.sourceGeoIP, _sourceGeoIP)&&const DeepCollectionEquality().equals(other.destinationGeoIP, _destinationGeoIP)&&(identical(other.destinationIPASN, destinationIPASN) || other.destinationIPASN == destinationIPASN)&&(identical(other.sourceIPASN, sourceIPASN) || other.sourceIPASN == sourceIPASN)&&(identical(other.specialRules, specialRules) || other.specialRules == specialRules)&&(identical(other.specialProxy, specialProxy) || other.specialProxy == specialProxy));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
 int get hashCode {
-    return Object.hash(runtimeType,uid,network,sourceIP,sourcePort,destinationIP,destinationPort,host,dnsMode,process,processPath,remoteDestination,const DeepCollectionEquality().hash(_sourceGeoIP),const DeepCollectionEquality().hash(_destinationGeoIP),destinationIPASN,sourceIPASN,specialRules,specialProxy);
+    return Object.hashAll([runtimeType,uid,network,type,sourceIP,sourcePort,destinationIP,destinationPort,host,sniffHost,inboundName,inboundPort,inboundUser,dnsMode,process,processPath,remoteDestination,const DeepCollectionEquality().hash(_sourceGeoIP),const DeepCollectionEquality().hash(_destinationGeoIP),destinationIPASN,sourceIPASN,specialRules,specialProxy]);
 }
 
 @override
 String toString() {
-    return 'Metadata(uid: $uid, network: $network, sourceIP: $sourceIP, sourcePort: $sourcePort, destinationIP: $destinationIP, destinationPort: $destinationPort, host: $host, dnsMode: $dnsMode, process: $process, processPath: $processPath, remoteDestination: $remoteDestination, sourceGeoIP: $sourceGeoIP, destinationGeoIP: $destinationGeoIP, destinationIPASN: $destinationIPASN, sourceIPASN: $sourceIPASN, specialRules: $specialRules, specialProxy: $specialProxy)';
+    return 'Metadata(uid: $uid, network: $network, type: $type, sourceIP: $sourceIP, sourcePort: $sourcePort, destinationIP: $destinationIP, destinationPort: $destinationPort, host: $host, sniffHost: $sniffHost, inboundName: $inboundName, inboundPort: $inboundPort, inboundUser: $inboundUser, dnsMode: $dnsMode, process: $process, processPath: $processPath, remoteDestination: $remoteDestination, sourceGeoIP: $sourceGeoIP, destinationGeoIP: $destinationGeoIP, destinationIPASN: $destinationIPASN, sourceIPASN: $sourceIPASN, specialRules: $specialRules, specialProxy: $specialProxy)';
 }
 
 
@@ -872,7 +882,7 @@ abstract mixin class _$MetadataCopyWith<$Res> implements $MetadataCopyWith<$Res>
   factory _$MetadataCopyWith(_Metadata value, $Res Function(_Metadata) _then) = __$MetadataCopyWithImpl;
 @override @useResult
 $Res call({
- int uid, String network, String sourceIP, String sourcePort, String destinationIP, String destinationPort, String host, DnsMode? dnsMode, String process, String processPath, String remoteDestination, List<String> sourceGeoIP, List<String> destinationGeoIP, String destinationIPASN, String sourceIPASN, String specialRules, String specialProxy
+ int uid, String network, String type, String sourceIP, String sourcePort, String destinationIP, String destinationPort, String host, String sniffHost, String inboundName, String inboundPort, String inboundUser, DnsMode? dnsMode, String process, String processPath, String remoteDestination, List<String> sourceGeoIP, List<String> destinationGeoIP, String destinationIPASN, String sourceIPASN, String specialRules, String specialProxy
 });
 
 
@@ -889,15 +899,20 @@ class __$MetadataCopyWithImpl<$Res>
 
 /// Create a copy of Metadata
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? uid = null,Object? network = null,Object? sourceIP = null,Object? sourcePort = null,Object? destinationIP = null,Object? destinationPort = null,Object? host = null,Object? dnsMode = freezed,Object? process = null,Object? processPath = null,Object? remoteDestination = null,Object? sourceGeoIP = null,Object? destinationGeoIP = null,Object? destinationIPASN = null,Object? sourceIPASN = null,Object? specialRules = null,Object? specialProxy = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? uid = null,Object? network = null,Object? type = null,Object? sourceIP = null,Object? sourcePort = null,Object? destinationIP = null,Object? destinationPort = null,Object? host = null,Object? sniffHost = null,Object? inboundName = null,Object? inboundPort = null,Object? inboundUser = null,Object? dnsMode = freezed,Object? process = null,Object? processPath = null,Object? remoteDestination = null,Object? sourceGeoIP = null,Object? destinationGeoIP = null,Object? destinationIPASN = null,Object? sourceIPASN = null,Object? specialRules = null,Object? specialProxy = null,}) {
   return _then(_Metadata(
 uid: null == uid ? _self.uid : uid // ignore: cast_nullable_to_non_nullable
 as int,network: null == network ? _self.network : network // ignore: cast_nullable_to_non_nullable
+as String,type: null == type ? _self.type : type // ignore: cast_nullable_to_non_nullable
 as String,sourceIP: null == sourceIP ? _self.sourceIP : sourceIP // ignore: cast_nullable_to_non_nullable
 as String,sourcePort: null == sourcePort ? _self.sourcePort : sourcePort // ignore: cast_nullable_to_non_nullable
 as String,destinationIP: null == destinationIP ? _self.destinationIP : destinationIP // ignore: cast_nullable_to_non_nullable
 as String,destinationPort: null == destinationPort ? _self.destinationPort : destinationPort // ignore: cast_nullable_to_non_nullable
 as String,host: null == host ? _self.host : host // ignore: cast_nullable_to_non_nullable
+as String,sniffHost: null == sniffHost ? _self.sniffHost : sniffHost // ignore: cast_nullable_to_non_nullable
+as String,inboundName: null == inboundName ? _self.inboundName : inboundName // ignore: cast_nullable_to_non_nullable
+as String,inboundPort: null == inboundPort ? _self.inboundPort : inboundPort // ignore: cast_nullable_to_non_nullable
+as String,inboundUser: null == inboundUser ? _self.inboundUser : inboundUser // ignore: cast_nullable_to_non_nullable
 as String,dnsMode: freezed == dnsMode ? _self.dnsMode : dnsMode // ignore: cast_nullable_to_non_nullable
 as DnsMode?,process: null == process ? _self.process : process // ignore: cast_nullable_to_non_nullable
 as String,processPath: null == processPath ? _self.processPath : processPath // ignore: cast_nullable_to_non_nullable
@@ -4312,6 +4327,915 @@ as ColorScheme?,
 }
 
 
+}
+
+
+/// @nodoc
+mixin _$IpRiskCheck {
+
+ IpRiskGroup get group; String get name; bool? get hit;
+/// Create a copy of IpRiskCheck
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$IpRiskCheckCopyWith<IpRiskCheck> get copyWith => _$IpRiskCheckCopyWithImpl<IpRiskCheck>(this as IpRiskCheck, _$identity);
+
+  /// Serializes this IpRiskCheck to a JSON map.
+  Map<String, dynamic> toJson();
+
+
+@override
+bool operator ==(Object other) {
+  final _this = this as IpRiskCheck;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is IpRiskCheck&&(identical(other.group, _this.group) || other.group == _this.group)&&(identical(other.name, _this.name) || other.name == _this.name)&&(identical(other.hit, _this.hit) || other.hit == _this.hit));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode {
+  final _this = this as IpRiskCheck;
+  return Object.hash(runtimeType,_this.group,_this.name,_this.hit);
+}
+
+@override
+String toString() {
+  final _this = this as IpRiskCheck;
+  return 'IpRiskCheck(group: ${_this.group}, name: ${_this.name}, hit: ${_this.hit})';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $IpRiskCheckCopyWith<$Res>  {
+  factory $IpRiskCheckCopyWith(IpRiskCheck value, $Res Function(IpRiskCheck) _then) = _$IpRiskCheckCopyWithImpl;
+@useResult
+$Res call({
+ IpRiskGroup group, String name, bool? hit
+});
+
+
+
+
+}
+/// @nodoc
+class _$IpRiskCheckCopyWithImpl<$Res>
+    implements $IpRiskCheckCopyWith<$Res> {
+  _$IpRiskCheckCopyWithImpl(this._self, this._then);
+
+  final IpRiskCheck _self;
+  final $Res Function(IpRiskCheck) _then;
+
+/// Create a copy of IpRiskCheck
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? group = null,Object? name = null,Object? hit = freezed,}) {
+  return _then(IpRiskCheck(
+group: null == group ? _self.group : group // ignore: cast_nullable_to_non_nullable
+as IpRiskGroup,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
+as String,hit: freezed == hit ? _self.hit : hit // ignore: cast_nullable_to_non_nullable
+as bool?,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [IpRiskCheck].
+extension IpRiskCheckPatterns on IpRiskCheck {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _IpRiskCheck value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _IpRiskCheck() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _IpRiskCheck value)  $default,){
+final _that = this;
+switch (_that) {
+case _IpRiskCheck():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _IpRiskCheck value)?  $default,){
+final _that = this;
+switch (_that) {
+case _IpRiskCheck() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( IpRiskGroup group,  String name,  bool? hit)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _IpRiskCheck() when $default != null:
+return $default(_that.group,_that.name,_that.hit);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( IpRiskGroup group,  String name,  bool? hit)  $default,) {final _that = this;
+switch (_that) {
+case _IpRiskCheck():
+return $default(_that.group,_that.name,_that.hit);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( IpRiskGroup group,  String name,  bool? hit)?  $default,) {final _that = this;
+switch (_that) {
+case _IpRiskCheck() when $default != null:
+return $default(_that.group,_that.name,_that.hit);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+@JsonSerializable()
+
+class _IpRiskCheck implements IpRiskCheck {
+  const _IpRiskCheck({required this.group, required this.name, this.hit});
+  factory _IpRiskCheck.fromJson(Map<String, dynamic> json) => _$IpRiskCheckFromJson(json);
+
+@override final  IpRiskGroup group;
+@override final  String name;
+@override final  bool? hit;
+
+/// Create a copy of IpRiskCheck
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$IpRiskCheckCopyWith<_IpRiskCheck> get copyWith => __$IpRiskCheckCopyWithImpl<_IpRiskCheck>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$IpRiskCheckToJson(this, );
+}
+
+@override
+bool operator ==(Object other) {
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _IpRiskCheck&&(identical(other.group, group) || other.group == group)&&(identical(other.name, name) || other.name == name)&&(identical(other.hit, hit) || other.hit == hit));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode {
+    return Object.hash(runtimeType,group,name,hit);
+}
+
+@override
+String toString() {
+    return 'IpRiskCheck(group: $group, name: $name, hit: $hit)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$IpRiskCheckCopyWith<$Res> implements $IpRiskCheckCopyWith<$Res> {
+  factory _$IpRiskCheckCopyWith(_IpRiskCheck value, $Res Function(_IpRiskCheck) _then) = __$IpRiskCheckCopyWithImpl;
+@override @useResult
+$Res call({
+ IpRiskGroup group, String name, bool? hit
+});
+
+
+
+
+}
+/// @nodoc
+class __$IpRiskCheckCopyWithImpl<$Res>
+    implements _$IpRiskCheckCopyWith<$Res> {
+  __$IpRiskCheckCopyWithImpl(this._self, this._then);
+
+  final _IpRiskCheck _self;
+  final $Res Function(_IpRiskCheck) _then;
+
+/// Create a copy of IpRiskCheck
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? group = null,Object? name = null,Object? hit = freezed,}) {
+  return _then(_IpRiskCheck(
+group: null == group ? _self.group : group // ignore: cast_nullable_to_non_nullable
+as IpRiskGroup,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
+as String,hit: freezed == hit ? _self.hit : hit // ignore: cast_nullable_to_non_nullable
+as bool?,
+  ));
+}
+
+
+}
+
+
+/// @nodoc
+mixin _$IpRiskNote {
+
+ bool? get direct; String get isp; IpRiskAmount? get amount; IpRiskShare? get share; String get operatorName; IpRiskLevel? get operatorLevel; String get ownerName; IpRiskLevel? get ownerLevel; IpRiskConnection? get connection; IpRiskLevel? get warning;
+/// Create a copy of IpRiskNote
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$IpRiskNoteCopyWith<IpRiskNote> get copyWith => _$IpRiskNoteCopyWithImpl<IpRiskNote>(this as IpRiskNote, _$identity);
+
+  /// Serializes this IpRiskNote to a JSON map.
+  Map<String, dynamic> toJson();
+
+
+@override
+bool operator ==(Object other) {
+  final _this = this as IpRiskNote;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is IpRiskNote&&(identical(other.direct, _this.direct) || other.direct == _this.direct)&&(identical(other.isp, _this.isp) || other.isp == _this.isp)&&(identical(other.amount, _this.amount) || other.amount == _this.amount)&&(identical(other.share, _this.share) || other.share == _this.share)&&(identical(other.operatorName, _this.operatorName) || other.operatorName == _this.operatorName)&&(identical(other.operatorLevel, _this.operatorLevel) || other.operatorLevel == _this.operatorLevel)&&(identical(other.ownerName, _this.ownerName) || other.ownerName == _this.ownerName)&&(identical(other.ownerLevel, _this.ownerLevel) || other.ownerLevel == _this.ownerLevel)&&(identical(other.connection, _this.connection) || other.connection == _this.connection)&&(identical(other.warning, _this.warning) || other.warning == _this.warning));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode {
+  final _this = this as IpRiskNote;
+  return Object.hash(runtimeType,_this.direct,_this.isp,_this.amount,_this.share,_this.operatorName,_this.operatorLevel,_this.ownerName,_this.ownerLevel,_this.connection,_this.warning);
+}
+
+@override
+String toString() {
+  final _this = this as IpRiskNote;
+  return 'IpRiskNote(direct: ${_this.direct}, isp: ${_this.isp}, amount: ${_this.amount}, share: ${_this.share}, operatorName: ${_this.operatorName}, operatorLevel: ${_this.operatorLevel}, ownerName: ${_this.ownerName}, ownerLevel: ${_this.ownerLevel}, connection: ${_this.connection}, warning: ${_this.warning})';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $IpRiskNoteCopyWith<$Res>  {
+  factory $IpRiskNoteCopyWith(IpRiskNote value, $Res Function(IpRiskNote) _then) = _$IpRiskNoteCopyWithImpl;
+@useResult
+$Res call({
+ bool? direct, String isp, IpRiskAmount? amount, IpRiskShare? share, String operatorName, IpRiskLevel? operatorLevel, String ownerName, IpRiskLevel? ownerLevel, IpRiskConnection? connection, IpRiskLevel? warning
+});
+
+
+
+
+}
+/// @nodoc
+class _$IpRiskNoteCopyWithImpl<$Res>
+    implements $IpRiskNoteCopyWith<$Res> {
+  _$IpRiskNoteCopyWithImpl(this._self, this._then);
+
+  final IpRiskNote _self;
+  final $Res Function(IpRiskNote) _then;
+
+/// Create a copy of IpRiskNote
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? direct = freezed,Object? isp = null,Object? amount = freezed,Object? share = freezed,Object? operatorName = null,Object? operatorLevel = freezed,Object? ownerName = null,Object? ownerLevel = freezed,Object? connection = freezed,Object? warning = freezed,}) {
+  return _then(IpRiskNote(
+direct: freezed == direct ? _self.direct : direct // ignore: cast_nullable_to_non_nullable
+as bool?,isp: null == isp ? _self.isp : isp // ignore: cast_nullable_to_non_nullable
+as String,amount: freezed == amount ? _self.amount : amount // ignore: cast_nullable_to_non_nullable
+as IpRiskAmount?,share: freezed == share ? _self.share : share // ignore: cast_nullable_to_non_nullable
+as IpRiskShare?,operatorName: null == operatorName ? _self.operatorName : operatorName // ignore: cast_nullable_to_non_nullable
+as String,operatorLevel: freezed == operatorLevel ? _self.operatorLevel : operatorLevel // ignore: cast_nullable_to_non_nullable
+as IpRiskLevel?,ownerName: null == ownerName ? _self.ownerName : ownerName // ignore: cast_nullable_to_non_nullable
+as String,ownerLevel: freezed == ownerLevel ? _self.ownerLevel : ownerLevel // ignore: cast_nullable_to_non_nullable
+as IpRiskLevel?,connection: freezed == connection ? _self.connection : connection // ignore: cast_nullable_to_non_nullable
+as IpRiskConnection?,warning: freezed == warning ? _self.warning : warning // ignore: cast_nullable_to_non_nullable
+as IpRiskLevel?,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [IpRiskNote].
+extension IpRiskNotePatterns on IpRiskNote {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _IpRiskNote value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _IpRiskNote() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _IpRiskNote value)  $default,){
+final _that = this;
+switch (_that) {
+case _IpRiskNote():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _IpRiskNote value)?  $default,){
+final _that = this;
+switch (_that) {
+case _IpRiskNote() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( bool? direct,  String isp,  IpRiskAmount? amount,  IpRiskShare? share,  String operatorName,  IpRiskLevel? operatorLevel,  String ownerName,  IpRiskLevel? ownerLevel,  IpRiskConnection? connection,  IpRiskLevel? warning)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _IpRiskNote() when $default != null:
+return $default(_that.direct,_that.isp,_that.amount,_that.share,_that.operatorName,_that.operatorLevel,_that.ownerName,_that.ownerLevel,_that.connection,_that.warning);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( bool? direct,  String isp,  IpRiskAmount? amount,  IpRiskShare? share,  String operatorName,  IpRiskLevel? operatorLevel,  String ownerName,  IpRiskLevel? ownerLevel,  IpRiskConnection? connection,  IpRiskLevel? warning)  $default,) {final _that = this;
+switch (_that) {
+case _IpRiskNote():
+return $default(_that.direct,_that.isp,_that.amount,_that.share,_that.operatorName,_that.operatorLevel,_that.ownerName,_that.ownerLevel,_that.connection,_that.warning);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( bool? direct,  String isp,  IpRiskAmount? amount,  IpRiskShare? share,  String operatorName,  IpRiskLevel? operatorLevel,  String ownerName,  IpRiskLevel? ownerLevel,  IpRiskConnection? connection,  IpRiskLevel? warning)?  $default,) {final _that = this;
+switch (_that) {
+case _IpRiskNote() when $default != null:
+return $default(_that.direct,_that.isp,_that.amount,_that.share,_that.operatorName,_that.operatorLevel,_that.ownerName,_that.ownerLevel,_that.connection,_that.warning);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+@JsonSerializable()
+
+class _IpRiskNote implements IpRiskNote {
+  const _IpRiskNote({this.direct, this.isp = '', this.amount, this.share, this.operatorName = '', this.operatorLevel, this.ownerName = '', this.ownerLevel, this.connection, this.warning});
+  factory _IpRiskNote.fromJson(Map<String, dynamic> json) => _$IpRiskNoteFromJson(json);
+
+@override final  bool? direct;
+@override@JsonKey() final  String isp;
+@override final  IpRiskAmount? amount;
+@override final  IpRiskShare? share;
+@override@JsonKey() final  String operatorName;
+@override final  IpRiskLevel? operatorLevel;
+@override@JsonKey() final  String ownerName;
+@override final  IpRiskLevel? ownerLevel;
+@override final  IpRiskConnection? connection;
+@override final  IpRiskLevel? warning;
+
+/// Create a copy of IpRiskNote
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$IpRiskNoteCopyWith<_IpRiskNote> get copyWith => __$IpRiskNoteCopyWithImpl<_IpRiskNote>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$IpRiskNoteToJson(this, );
+}
+
+@override
+bool operator ==(Object other) {
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _IpRiskNote&&(identical(other.direct, direct) || other.direct == direct)&&(identical(other.isp, isp) || other.isp == isp)&&(identical(other.amount, amount) || other.amount == amount)&&(identical(other.share, share) || other.share == share)&&(identical(other.operatorName, operatorName) || other.operatorName == operatorName)&&(identical(other.operatorLevel, operatorLevel) || other.operatorLevel == operatorLevel)&&(identical(other.ownerName, ownerName) || other.ownerName == ownerName)&&(identical(other.ownerLevel, ownerLevel) || other.ownerLevel == ownerLevel)&&(identical(other.connection, connection) || other.connection == connection)&&(identical(other.warning, warning) || other.warning == warning));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode {
+    return Object.hash(runtimeType,direct,isp,amount,share,operatorName,operatorLevel,ownerName,ownerLevel,connection,warning);
+}
+
+@override
+String toString() {
+    return 'IpRiskNote(direct: $direct, isp: $isp, amount: $amount, share: $share, operatorName: $operatorName, operatorLevel: $operatorLevel, ownerName: $ownerName, ownerLevel: $ownerLevel, connection: $connection, warning: $warning)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$IpRiskNoteCopyWith<$Res> implements $IpRiskNoteCopyWith<$Res> {
+  factory _$IpRiskNoteCopyWith(_IpRiskNote value, $Res Function(_IpRiskNote) _then) = __$IpRiskNoteCopyWithImpl;
+@override @useResult
+$Res call({
+ bool? direct, String isp, IpRiskAmount? amount, IpRiskShare? share, String operatorName, IpRiskLevel? operatorLevel, String ownerName, IpRiskLevel? ownerLevel, IpRiskConnection? connection, IpRiskLevel? warning
+});
+
+
+
+
+}
+/// @nodoc
+class __$IpRiskNoteCopyWithImpl<$Res>
+    implements _$IpRiskNoteCopyWith<$Res> {
+  __$IpRiskNoteCopyWithImpl(this._self, this._then);
+
+  final _IpRiskNote _self;
+  final $Res Function(_IpRiskNote) _then;
+
+/// Create a copy of IpRiskNote
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? direct = freezed,Object? isp = null,Object? amount = freezed,Object? share = freezed,Object? operatorName = null,Object? operatorLevel = freezed,Object? ownerName = null,Object? ownerLevel = freezed,Object? connection = freezed,Object? warning = freezed,}) {
+  return _then(_IpRiskNote(
+direct: freezed == direct ? _self.direct : direct // ignore: cast_nullable_to_non_nullable
+as bool?,isp: null == isp ? _self.isp : isp // ignore: cast_nullable_to_non_nullable
+as String,amount: freezed == amount ? _self.amount : amount // ignore: cast_nullable_to_non_nullable
+as IpRiskAmount?,share: freezed == share ? _self.share : share // ignore: cast_nullable_to_non_nullable
+as IpRiskShare?,operatorName: null == operatorName ? _self.operatorName : operatorName // ignore: cast_nullable_to_non_nullable
+as String,operatorLevel: freezed == operatorLevel ? _self.operatorLevel : operatorLevel // ignore: cast_nullable_to_non_nullable
+as IpRiskLevel?,ownerName: null == ownerName ? _self.ownerName : ownerName // ignore: cast_nullable_to_non_nullable
+as String,ownerLevel: freezed == ownerLevel ? _self.ownerLevel : ownerLevel // ignore: cast_nullable_to_non_nullable
+as IpRiskLevel?,connection: freezed == connection ? _self.connection : connection // ignore: cast_nullable_to_non_nullable
+as IpRiskConnection?,warning: freezed == warning ? _self.warning : warning // ignore: cast_nullable_to_non_nullable
+as IpRiskLevel?,
+  ));
+}
+
+
+}
+
+
+/// @nodoc
+mixin _$IpRisk {
+
+ String get ip; int get score; IpRiskLevel get level; String get hostname; String get asn; String get isp; String get organization; String get country; String get countryCode; String get region; String get city; List<IpRiskCheck> get checks; IpRiskNote? get note;
+/// Create a copy of IpRisk
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$IpRiskCopyWith<IpRisk> get copyWith => _$IpRiskCopyWithImpl<IpRisk>(this as IpRisk, _$identity);
+
+  /// Serializes this IpRisk to a JSON map.
+  Map<String, dynamic> toJson();
+
+
+@override
+bool operator ==(Object other) {
+  final _this = this as IpRisk;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is IpRisk&&(identical(other.ip, _this.ip) || other.ip == _this.ip)&&(identical(other.score, _this.score) || other.score == _this.score)&&(identical(other.level, _this.level) || other.level == _this.level)&&(identical(other.hostname, _this.hostname) || other.hostname == _this.hostname)&&(identical(other.asn, _this.asn) || other.asn == _this.asn)&&(identical(other.isp, _this.isp) || other.isp == _this.isp)&&(identical(other.organization, _this.organization) || other.organization == _this.organization)&&(identical(other.country, _this.country) || other.country == _this.country)&&(identical(other.countryCode, _this.countryCode) || other.countryCode == _this.countryCode)&&(identical(other.region, _this.region) || other.region == _this.region)&&(identical(other.city, _this.city) || other.city == _this.city)&&const DeepCollectionEquality().equals(other.checks, _this.checks)&&(identical(other.note, _this.note) || other.note == _this.note));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode {
+  final _this = this as IpRisk;
+  return Object.hash(runtimeType,_this.ip,_this.score,_this.level,_this.hostname,_this.asn,_this.isp,_this.organization,_this.country,_this.countryCode,_this.region,_this.city,const DeepCollectionEquality().hash(_this.checks),_this.note);
+}
+
+@override
+String toString() {
+  final _this = this as IpRisk;
+  return 'IpRisk(ip: ${_this.ip}, score: ${_this.score}, level: ${_this.level}, hostname: ${_this.hostname}, asn: ${_this.asn}, isp: ${_this.isp}, organization: ${_this.organization}, country: ${_this.country}, countryCode: ${_this.countryCode}, region: ${_this.region}, city: ${_this.city}, checks: ${_this.checks}, note: ${_this.note})';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $IpRiskCopyWith<$Res>  {
+  factory $IpRiskCopyWith(IpRisk value, $Res Function(IpRisk) _then) = _$IpRiskCopyWithImpl;
+@useResult
+$Res call({
+ String ip, int score, IpRiskLevel level, String hostname, String asn, String isp, String organization, String country, String countryCode, String region, String city, List<IpRiskCheck> checks, IpRiskNote? note
+});
+
+
+$IpRiskNoteCopyWith<$Res>? get note;
+
+}
+/// @nodoc
+class _$IpRiskCopyWithImpl<$Res>
+    implements $IpRiskCopyWith<$Res> {
+  _$IpRiskCopyWithImpl(this._self, this._then);
+
+  final IpRisk _self;
+  final $Res Function(IpRisk) _then;
+
+/// Create a copy of IpRisk
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? ip = null,Object? score = null,Object? level = null,Object? hostname = null,Object? asn = null,Object? isp = null,Object? organization = null,Object? country = null,Object? countryCode = null,Object? region = null,Object? city = null,Object? checks = null,Object? note = freezed,}) {
+  return _then(IpRisk(
+ip: null == ip ? _self.ip : ip // ignore: cast_nullable_to_non_nullable
+as String,score: null == score ? _self.score : score // ignore: cast_nullable_to_non_nullable
+as int,level: null == level ? _self.level : level // ignore: cast_nullable_to_non_nullable
+as IpRiskLevel,hostname: null == hostname ? _self.hostname : hostname // ignore: cast_nullable_to_non_nullable
+as String,asn: null == asn ? _self.asn : asn // ignore: cast_nullable_to_non_nullable
+as String,isp: null == isp ? _self.isp : isp // ignore: cast_nullable_to_non_nullable
+as String,organization: null == organization ? _self.organization : organization // ignore: cast_nullable_to_non_nullable
+as String,country: null == country ? _self.country : country // ignore: cast_nullable_to_non_nullable
+as String,countryCode: null == countryCode ? _self.countryCode : countryCode // ignore: cast_nullable_to_non_nullable
+as String,region: null == region ? _self.region : region // ignore: cast_nullable_to_non_nullable
+as String,city: null == city ? _self.city : city // ignore: cast_nullable_to_non_nullable
+as String,checks: null == checks ? _self.checks : checks // ignore: cast_nullable_to_non_nullable
+as List<IpRiskCheck>,note: freezed == note ? _self.note : note // ignore: cast_nullable_to_non_nullable
+as IpRiskNote?,
+  ));
+}
+/// Create a copy of IpRisk
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$IpRiskNoteCopyWith<$Res>? get note {
+    if (_self.note == null) {
+    return null;
+  }
+
+  return $IpRiskNoteCopyWith<$Res>(_self.note!, (value) {
+    return _then(_self.copyWith(note: value));
+  });
+}
+}
+
+
+/// Adds pattern-matching-related methods to [IpRisk].
+extension IpRiskPatterns on IpRisk {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _IpRisk value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _IpRisk() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _IpRisk value)  $default,){
+final _that = this;
+switch (_that) {
+case _IpRisk():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _IpRisk value)?  $default,){
+final _that = this;
+switch (_that) {
+case _IpRisk() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String ip,  int score,  IpRiskLevel level,  String hostname,  String asn,  String isp,  String organization,  String country,  String countryCode,  String region,  String city,  List<IpRiskCheck> checks,  IpRiskNote? note)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _IpRisk() when $default != null:
+return $default(_that.ip,_that.score,_that.level,_that.hostname,_that.asn,_that.isp,_that.organization,_that.country,_that.countryCode,_that.region,_that.city,_that.checks,_that.note);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String ip,  int score,  IpRiskLevel level,  String hostname,  String asn,  String isp,  String organization,  String country,  String countryCode,  String region,  String city,  List<IpRiskCheck> checks,  IpRiskNote? note)  $default,) {final _that = this;
+switch (_that) {
+case _IpRisk():
+return $default(_that.ip,_that.score,_that.level,_that.hostname,_that.asn,_that.isp,_that.organization,_that.country,_that.countryCode,_that.region,_that.city,_that.checks,_that.note);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String ip,  int score,  IpRiskLevel level,  String hostname,  String asn,  String isp,  String organization,  String country,  String countryCode,  String region,  String city,  List<IpRiskCheck> checks,  IpRiskNote? note)?  $default,) {final _that = this;
+switch (_that) {
+case _IpRisk() when $default != null:
+return $default(_that.ip,_that.score,_that.level,_that.hostname,_that.asn,_that.isp,_that.organization,_that.country,_that.countryCode,_that.region,_that.city,_that.checks,_that.note);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+@JsonSerializable()
+
+class _IpRisk implements IpRisk {
+  const _IpRisk({required this.ip, required this.score, required this.level, this.hostname = '', this.asn = '', this.isp = '', this.organization = '', this.country = '', this.countryCode = '', this.region = '', this.city = '',  List<IpRiskCheck> checks = const [], this.note}): _checks = checks;
+  factory _IpRisk.fromJson(Map<String, dynamic> json) => _$IpRiskFromJson(json);
+
+@override final  String ip;
+@override final  int score;
+@override final  IpRiskLevel level;
+@override@JsonKey() final  String hostname;
+@override@JsonKey() final  String asn;
+@override@JsonKey() final  String isp;
+@override@JsonKey() final  String organization;
+@override@JsonKey() final  String country;
+@override@JsonKey() final  String countryCode;
+@override@JsonKey() final  String region;
+@override@JsonKey() final  String city;
+ final  List<IpRiskCheck> _checks;
+@override@JsonKey() List<IpRiskCheck> get checks {
+  if (_checks is EqualUnmodifiableListView) return _checks;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_checks);
+}
+
+@override final  IpRiskNote? note;
+
+/// Create a copy of IpRisk
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$IpRiskCopyWith<_IpRisk> get copyWith => __$IpRiskCopyWithImpl<_IpRisk>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$IpRiskToJson(this, );
+}
+
+@override
+bool operator ==(Object other) {
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _IpRisk&&(identical(other.ip, ip) || other.ip == ip)&&(identical(other.score, score) || other.score == score)&&(identical(other.level, level) || other.level == level)&&(identical(other.hostname, hostname) || other.hostname == hostname)&&(identical(other.asn, asn) || other.asn == asn)&&(identical(other.isp, isp) || other.isp == isp)&&(identical(other.organization, organization) || other.organization == organization)&&(identical(other.country, country) || other.country == country)&&(identical(other.countryCode, countryCode) || other.countryCode == countryCode)&&(identical(other.region, region) || other.region == region)&&(identical(other.city, city) || other.city == city)&&const DeepCollectionEquality().equals(other.checks, _checks)&&(identical(other.note, note) || other.note == note));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode {
+    return Object.hash(runtimeType,ip,score,level,hostname,asn,isp,organization,country,countryCode,region,city,const DeepCollectionEquality().hash(_checks),note);
+}
+
+@override
+String toString() {
+    return 'IpRisk(ip: $ip, score: $score, level: $level, hostname: $hostname, asn: $asn, isp: $isp, organization: $organization, country: $country, countryCode: $countryCode, region: $region, city: $city, checks: $checks, note: $note)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$IpRiskCopyWith<$Res> implements $IpRiskCopyWith<$Res> {
+  factory _$IpRiskCopyWith(_IpRisk value, $Res Function(_IpRisk) _then) = __$IpRiskCopyWithImpl;
+@override @useResult
+$Res call({
+ String ip, int score, IpRiskLevel level, String hostname, String asn, String isp, String organization, String country, String countryCode, String region, String city, List<IpRiskCheck> checks, IpRiskNote? note
+});
+
+
+@override $IpRiskNoteCopyWith<$Res>? get note;
+
+}
+/// @nodoc
+class __$IpRiskCopyWithImpl<$Res>
+    implements _$IpRiskCopyWith<$Res> {
+  __$IpRiskCopyWithImpl(this._self, this._then);
+
+  final _IpRisk _self;
+  final $Res Function(_IpRisk) _then;
+
+/// Create a copy of IpRisk
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? ip = null,Object? score = null,Object? level = null,Object? hostname = null,Object? asn = null,Object? isp = null,Object? organization = null,Object? country = null,Object? countryCode = null,Object? region = null,Object? city = null,Object? checks = null,Object? note = freezed,}) {
+  return _then(_IpRisk(
+ip: null == ip ? _self.ip : ip // ignore: cast_nullable_to_non_nullable
+as String,score: null == score ? _self.score : score // ignore: cast_nullable_to_non_nullable
+as int,level: null == level ? _self.level : level // ignore: cast_nullable_to_non_nullable
+as IpRiskLevel,hostname: null == hostname ? _self.hostname : hostname // ignore: cast_nullable_to_non_nullable
+as String,asn: null == asn ? _self.asn : asn // ignore: cast_nullable_to_non_nullable
+as String,isp: null == isp ? _self.isp : isp // ignore: cast_nullable_to_non_nullable
+as String,organization: null == organization ? _self.organization : organization // ignore: cast_nullable_to_non_nullable
+as String,country: null == country ? _self.country : country // ignore: cast_nullable_to_non_nullable
+as String,countryCode: null == countryCode ? _self.countryCode : countryCode // ignore: cast_nullable_to_non_nullable
+as String,region: null == region ? _self.region : region // ignore: cast_nullable_to_non_nullable
+as String,city: null == city ? _self.city : city // ignore: cast_nullable_to_non_nullable
+as String,checks: null == checks ? _self._checks : checks // ignore: cast_nullable_to_non_nullable
+as List<IpRiskCheck>,note: freezed == note ? _self.note : note // ignore: cast_nullable_to_non_nullable
+as IpRiskNote?,
+  ));
+}
+
+/// Create a copy of IpRisk
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$IpRiskNoteCopyWith<$Res>? get note {
+    if (_self.note == null) {
+    return null;
+  }
+
+  return $IpRiskNoteCopyWith<$Res>(_self.note!, (value) {
+    return _then(_self.copyWith(note: value));
+  });
+}
 }
 
 

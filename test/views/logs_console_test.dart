@@ -433,27 +433,25 @@ void main() {
     expect(_rows, findsOneWidget);
   });
 
-  testWidgets('标签宽度随文字自适应，下划线滑动到选中项下方', (tester) async {
+  testWidgets('标签宽度随文字自适应，点击后切换选中项', (tester) async {
     await _pump(tester, logs: [_log('plain'), _log('[APP] y')]);
-    final indicator = find.byType(AnimatedPositionedDirectional);
-    Rect line() => tester.getRect(
-      find.descendant(of: indicator, matching: find.byType(DecoratedBox)),
+    Finder segment(String label) => find.ancestor(
+      of: find.text(label),
+      matching: find.byType(SegmentButton),
     );
+    bool selected(String label) =>
+        tester.widget<SegmentButton>(segment(label)).selected;
     expect(
-      tester.getSize(find.text('DNS')).width,
-      isNot(tester.getSize(find.text('全部')).width),
+      tester.getSize(segment('DNS')).width,
+      isNot(tester.getSize(segment('全部')).width),
     );
-    expect(line().center.dx, closeTo(tester.getCenter(find.text('全部')).dx, 1));
+    expect(selected('全部'), isTrue);
+    expect(selected('DNS'), isFalse);
 
     await tester.tap(find.text('DNS'));
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 100));
-    final moving = line().center.dx;
-    expect(moving, greaterThan(tester.getCenter(find.text('全部')).dx));
-    expect(moving, lessThan(tester.getCenter(find.text('DNS')).dx));
     await tester.pumpAndSettle();
-    expect(line().center.dx, closeTo(tester.getCenter(find.text('DNS')).dx, 1));
-    expect(line().width, closeTo(tester.getSize(find.text('DNS')).width, 1));
+    expect(selected('全部'), isFalse);
+    expect(selected('DNS'), isTrue);
   });
 
   testWidgets('非 debug 等级下没有 DNS 标签，行用更宽松的排版', (tester) async {

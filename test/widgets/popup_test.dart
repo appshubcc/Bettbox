@@ -22,6 +22,37 @@ Future<void> _pumpMenu(WidgetTester tester, VoidCallback onPressed) async {
   );
 }
 
+Future<ValueNotifier<bool>> _pumpRemovableMenu(WidgetTester tester) async {
+  final visible = ValueNotifier(true);
+  addTearDown(visible.dispose);
+  await tester.pumpWidget(
+    MaterialApp(
+      home: Scaffold(
+        body: ValueListenableBuilder<bool>(
+          valueListenable: visible,
+          builder: (_, value, _) => value
+              ? Align(
+                  alignment: Alignment.topRight,
+                  child: CommonPopupBox(
+                    targetBuilder: (open) => IconButton(
+                      onPressed: open,
+                      icon: const Icon(Icons.more_vert),
+                    ),
+                    popup: CommonPopupMenu(
+                      items: [
+                        PopupMenuItemData(label: 'action', onPressed: () {}),
+                      ],
+                    ),
+                  ),
+                )
+              : const SizedBox(),
+        ),
+      ),
+    ),
+  );
+  return visible;
+}
+
 double _menuOpacity(WidgetTester tester) {
   return tester
       .widget<FadeTransition>(
@@ -69,5 +100,42 @@ void main() {
     await tester.pumpAndSettle();
     expect(pressed, 1);
     expect(find.byType(CommonPopupMenu), findsNothing);
+  });
+
+  testWidgets('从未打开过的菜单被移除时正常释放', (tester) async {
+    final visible = await _pumpRemovableMenu(tester);
+    visible.value = false;
+    await tester.pumpAndSettle();
+    expect(find.byType(CommonPopupBox), findsNothing);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('菜单打开期间锚点被移除，菜单仍可正常关闭', (tester) async {
+    final visible = await _pumpRemovableMenu(tester);
+    await tester.tap(find.byIcon(Icons.more_vert));
+    await tester.pumpAndSettle();
+    visible.value = false;
+    await tester.pumpAndSettle();
+    expect(find.byType(CommonPopupBox), findsNothing);
+    expect(find.byType(CommonPopupMenu), findsOneWidget);
+
+    await tester.tapAt(const Offset(10, 590));
+    await tester.pumpAndSettle();
+    expect(find.byType(CommonPopupMenu), findsNothing);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('推入菜单的同一帧锚点被移除，菜单首帧构建不报错', (tester) async {
+    final visible = await _pumpRemovableMenu(tester);
+    await tester.tap(find.byIcon(Icons.more_vert));
+    visible.value = false;
+    await tester.pump();
+    await tester.pumpAndSettle();
+    expect(find.byType(CommonPopupMenu), findsOneWidget);
+
+    await tester.tapAt(const Offset(10, 590));
+    await tester.pumpAndSettle();
+    expect(find.byType(CommonPopupMenu), findsNothing);
+    expect(tester.takeException(), isNull);
   });
 }

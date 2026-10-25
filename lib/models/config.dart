@@ -236,6 +236,7 @@ abstract class AppSettingProps with _$AppSettingProps {
     @Default(MrsRawSource.bettRules)
     MrsRawSource mrsRawSource,
     @Default(true) bool mrsResolveDns,
+    @Default(false) bool ipRiskDetail,
     @Default(IperfOptions()) IperfOptions iperfOptions,
     @Default(LocalPingOptions()) LocalPingOptions localPingOptions,
     @Default(<String, String>{}) Map<String, String> mobileDashboardSizes,
@@ -369,7 +370,6 @@ abstract class NetworkProps with _$NetworkProps {
     List<String> bypassDomain,
     @Default(true) bool bypassPrivateRoute,
     @Default([]) List<String> bypassPrivateRouteAddress,
-    @Default(true) bool autoSetSystemDns,
   }) = _NetworkProps;
 
   factory NetworkProps.fromJson(Map<String, Object?>? json) =>
@@ -399,6 +399,7 @@ abstract class ProxiesStyle with _$ProxiesStyle {
     @Default(250) int concurrencyLimit,
     @Default(false) bool autoStickyHeader,
     @Default(false) bool showHiddenItems,
+    @Default(false) bool hideTimeoutProxies,
     @Default(false) bool hasCustomizedStyle,
   }) = _ProxiesStyle;
 
@@ -515,6 +516,7 @@ abstract class Config with _$Config {
     VpnProps vpnProps,
     @JsonKey(fromJson: ThemeProps.safeFromJson) required ThemeProps themeProps,
     @Default(defaultProxiesStyle) ProxiesStyle proxiesStyle,
+    @Default(defaultTrafficStatsProps) TrafficStatsProps trafficStatsProps,
     @Default(defaultWindowProps) WindowProps windowProps,
     @JsonKey(fromJson: ClashConfig.safeFormJson)
     @Default(defaultClashConfig)

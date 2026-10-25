@@ -18,7 +18,9 @@ class Measure {
       textScaler: _textScaler,
       textDirection: text.textDirection ?? TextDirection.ltr,
     )..layout(maxWidth: maxWidth);
-    return textPainter.size;
+    final size = textPainter.size;
+    textPainter.dispose();
+    return size;
   }
 
   double get bodyMediumHeight {

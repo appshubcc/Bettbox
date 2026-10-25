@@ -144,8 +144,7 @@ class RenderSliverStickyHeader extends RenderSliver
         remainingCacheExtent:
             constraints.remainingCacheExtent -
             calculateCacheOffset(constraints, from: 0.0, to: beforeExtent),
-        precedingScrollExtent:
-            constraints.precedingScrollExtent + beforeExtent,
+        precedingScrollExtent: constraints.precedingScrollExtent + beforeExtent,
       ),
       parentUsesSize: true,
     );

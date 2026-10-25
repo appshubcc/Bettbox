@@ -1412,3 +1412,56 @@ abstract class _$IsSmartStopped extends $Notifier<bool> {
     return element.handleCreate(ref, build);
   }
 }
+
+@ProviderFor(ConnectionsUdpOnly)
+final connectionsUdpOnlyProvider = ConnectionsUdpOnlyProvider._();
+
+final class ConnectionsUdpOnlyProvider
+    extends $NotifierProvider<ConnectionsUdpOnly, bool> {
+  ConnectionsUdpOnlyProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'connectionsUdpOnlyProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$connectionsUdpOnlyHash();
+
+  @$internal
+  @override
+  ConnectionsUdpOnly create() => ConnectionsUdpOnly();
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(bool value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<bool>(value),
+    );
+  }
+}
+
+String _$connectionsUdpOnlyHash() =>
+    r'4e84aaccc85a37da35c29a002d13513a4ff1fc50';
+
+abstract class _$ConnectionsUdpOnly extends $Notifier<bool> {
+  bool build();
+  @$mustCallSuper
+  @override
+  WhenComplete runBuild() {
+    final ref = this.ref as $Ref<bool, bool>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<bool, bool>,
+              bool,
+              Object?,
+              Object?
+            >;
+    return element.handleCreate(ref, build);
+  }
+}

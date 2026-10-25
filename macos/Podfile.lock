@@ -2,7 +2,7 @@ PODS:
   - code_forge (10.12.0):
     - FlutterMacOS
   - FlutterMacOS (1.0.0)
-  - HotKey (0.2.0)
+  - HotKey (0.2.1)
   - hotkey_manager_macos (0.0.1):
     - FlutterMacOS
     - HotKey
@@ -37,7 +37,7 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   code_forge: af53ecf524f9cd221e7070eca8087cac1f893f16
   FlutterMacOS: c232990155153907050900a2e175c7773903ba4e
-  HotKey: e96d8a2ddbf4591131e2bb3f54e69554d90cdca6
+  HotKey: 400beb7caa29054ea8d864c96f5ba7e5b4852277
   hotkey_manager_macos: a4317849af96d2430fa89944d3c58977ca089fbe
   tray_manager: a104b5c81b578d83f3c3d0f40a997c8b10810166
   window_ext: 4afef727fe428b30c68ce800ba92e890fd329f63

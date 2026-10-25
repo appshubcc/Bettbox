@@ -136,7 +136,13 @@ class Requests extends _$Requests with AutoDisposeNotifierMixin {
   }
 }
 
-bool _matchTrackerInfo(TrackerInfo item, String query, List<String> keywords) {
+bool _matchTrackerInfo(
+  TrackerInfo item,
+  String query,
+  List<String> keywords,
+  bool udpOnly,
+) {
+  if (udpOnly && item.metadata.network != 'udp') return false;
   if (query.isNotEmpty) {
     final meta = item.metadata;
     final matchesQuery =
@@ -162,9 +168,10 @@ final filteredRequestsProvider = Provider<List<TrackerInfo>>((ref) {
   final requests = ref.watch(requestsProvider.select((s) => s.list));
   final query = ref.watch(connectionsSearchProvider).toLowerCase().trim();
   final keywords = ref.watch(connectionsKeywordsProvider);
+  final udpOnly = ref.watch(connectionsUdpOnlyProvider);
 
   return requests
-      .where((item) => _matchTrackerInfo(item, query, keywords))
+      .where((item) => _matchTrackerInfo(item, query, keywords, udpOnly))
       .toList();
 });
 
@@ -533,6 +540,14 @@ class IsSmartStopped extends _$IsSmartStopped {
   }
 }
 
+@Riverpod(keepAlive: true)
+class ConnectionsUdpOnly extends _$ConnectionsUdpOnly {
+  @override
+  bool build() => false;
+
+  void toggle() => state = !state;
+}
+
 // Connections providers
 final connectionsProvider = StateProvider<List<TrackerInfo>>((ref) => []);
 final connectionsSearchProvider = StateProvider<String>((ref) => '');
@@ -567,6 +582,7 @@ final filteredConnectionsProvider = Provider<List<TrackerInfo>>((ref) {
   final closed = ref.watch(requestsProvider.select((state) => state.list));
   final query = ref.watch(connectionsSearchProvider).toLowerCase().trim();
   final keywords = ref.watch(connectionsKeywordsProvider);
+  final udpOnly = ref.watch(connectionsUdpOnlyProvider);
   final sortType = ref.watch(connectionsSortProvider);
   final closedIds = {for (final item in closed) item.id};
 
@@ -574,7 +590,7 @@ final filteredConnectionsProvider = Provider<List<TrackerInfo>>((ref) {
       .where(
         (item) =>
             !closedIds.contains(item.id) &&
-            _matchTrackerInfo(item, query, keywords),
+            _matchTrackerInfo(item, query, keywords, udpOnly),
       )
       .toList()
     ..sort((a, b) => _compareTrackerInfo(sortType, a, b));

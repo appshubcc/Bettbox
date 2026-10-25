@@ -295,6 +295,24 @@ class ProxiesStyleSetting extends _$ProxiesStyleSetting
 }
 
 @riverpod
+class TrafficStatsSetting extends _$TrafficStatsSetting
+    with AutoDisposeNotifierMixin {
+  @override
+  TrafficStatsProps build() {
+    return globalState.config.trafficStatsProps;
+  }
+
+  @override
+  onUpdate(value) {
+    globalState.config = globalState.config.copyWith(trafficStatsProps: value);
+  }
+
+  void updateState(TrafficStatsProps Function(TrafficStatsProps state) builder) {
+    state = builder(state);
+  }
+}
+
+@riverpod
 class ScriptState extends _$ScriptState with AutoDisposeNotifierMixin {
   @override
   ScriptProps build() {

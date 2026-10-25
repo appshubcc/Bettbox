@@ -485,6 +485,12 @@ class _UpdateGeoUrlFormDialogState extends State<UpdateGeoUrlFormDialog> {
     urlController = TextEditingController(text: widget.url);
   }
 
+  @override
+  void dispose() {
+    urlController.dispose();
+    super.dispose();
+  }
+
   Future<void> _handleReset() async {
     if (widget.defaultValue == null) {
       return;

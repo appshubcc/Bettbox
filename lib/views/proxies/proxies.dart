@@ -30,9 +30,13 @@ class _ProxiesViewState extends ConsumerState<ProxiesView> {
   bool _isTab = false;
 
   List<Widget> _buildActions() {
-    final (autoStickyHeader, showHiddenItems) = ref.watch(
+    final (autoStickyHeader, showHiddenItems, hideTimeoutProxies) = ref.watch(
       proxiesStyleSettingProvider.select(
-        (state) => (state.autoStickyHeader, state.showHiddenItems),
+        (state) => (
+          state.autoStickyHeader,
+          state.showHiddenItems,
+          state.hideTimeoutProxies,
+        ),
       ),
     );
     final (scriptOn, compatible) = ref.watch(
@@ -146,6 +150,21 @@ class _ProxiesViewState extends ConsumerState<ProxiesView> {
                     .updateState(
                       (state) =>
                           state.copyWith(showHiddenItems: !showHiddenItems),
+                    );
+              },
+            ),
+            PopupMenuItemData(
+              icon: hideTimeoutProxies
+                  ? Icons.check_circle_rounded
+                  : Icons.circle_outlined,
+              label: appLocalizations.hideTimeoutProxies,
+              onPressed: () {
+                ref
+                    .read(proxiesStyleSettingProvider.notifier)
+                    .updateState(
+                      (state) => state.copyWith(
+                        hideTimeoutProxies: !hideTimeoutProxies,
+                      ),
                     );
               },
             ),

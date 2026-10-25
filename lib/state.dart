@@ -323,18 +323,34 @@ class GlobalState {
     }
     render?.pause();
 
-    final vpnProps = appController.ref.read(vpnSettingProvider);
-    final keepTrafficUpdates =
-        (system.isAndroid && vpnProps.networkSpeedNotification) ||
-        (system.isMacOS && vpnProps.enableTraySpeed);
-    if (!keepTrafficUpdates) {
+    if (!_keepBackgroundTrafficUpdates) {
       stopUpdateTasks();
     }
 
     dashboardRefreshManager.stop();
   }
 
+  bool get _keepBackgroundTrafficUpdates {
+    final vpnProps = appController.ref.read(vpnSettingProvider);
+    return system.isMacOS && vpnProps.enableTraySpeed;
+  }
+
+  Future<void> handleScreenStateChanged(bool isOn) async {
+    isScreenOn = isOn;
+    if (!backgroundMode.value) return;
+    if (!_keepBackgroundTrafficUpdates) {
+      stopUpdateTasks();
+      return;
+    }
+    if (!isStart) return;
+    await startUpdateTasks([
+      appController.updateRunTime,
+      appController.updateTraffic,
+    ]);
+  }
+
   void handleForeground() {
+    isScreenOn = true;
     if (system.isDesktop) {
       animationEnabled.value = true;
     }
@@ -354,18 +370,14 @@ class GlobalState {
     if (!system.isAndroid) return;
     try {
       final actuallyRunning = await service?.getStatus() ?? false;
-      final flutterState = appState.runTime != null;
-
-      if (actuallyRunning && !flutterState) {
-        await updateStartTime();
-        if (startTime != null) {
-          appState = appState.copyWith(runTime: 0);
-          await startUpdateTasks([appController.updateTraffic]);
-        }
-      } else if (!actuallyRunning && flutterState) {
-        appState = appState.copyWith(runTime: null);
-        startTime = null;
-      }
+      if (!actuallyRunning || isStart) return;
+      await updateStartTime();
+      if (!isStart) return;
+      appController.ref.read(runTimeProvider.notifier).value = 0;
+      await startUpdateTasks([
+        appController.updateRunTime,
+        appController.updateTraffic,
+      ]);
     } catch (e) {
       commonPrint.warn('Sync VPN state error: $e');
     }
@@ -396,13 +408,16 @@ class GlobalState {
     });
 
     _backgroundCleanupTimer?.cancel();
-    _backgroundCleanupTimer = Timer(const Duration(seconds: 300), () {
-      _backgroundCleanupTimer = null;
-      if (!backgroundMode.value) {
-        return;
-      }
-      cleanupBackgroundResources();
-    });
+    _backgroundCleanupTimer = Timer(
+      Duration(seconds: system.isAndroid ? 180 : 300),
+      () {
+        _backgroundCleanupTimer = null;
+        if (!backgroundMode.value) {
+          return;
+        }
+        cleanupBackgroundResources();
+      },
+    );
   }
 
   Future<void> _checkAndRunBackgroundCoreGc() async {
@@ -424,12 +439,12 @@ class GlobalState {
       }
     }
 
-    if (consecutiveBusyCount == 3) {
-      return;
-    }
-
     if (!backgroundMode.value) return;
-    await clashCore.requestGc(forceFreeOSMemory: false);
+    if (consecutiveBusyCount < 3) {
+      await clashCore.requestGc(forceFreeOSMemory: system.isAndroid);
+      if (!backgroundMode.value) return;
+    }
+    android?.purgeMemory();
   }
 
   void cleanupBackgroundResources() async {
@@ -575,10 +590,7 @@ class GlobalState {
       transitionDuration: const Duration(milliseconds: 250),
       pageBuilder: (context, animation, secondaryAnimation) => child,
       transitionBuilder: (context, animation, secondaryAnimation, child) {
-        final curved = CurvedAnimation(
-          parent: animation,
-          curve: Curves.easeOutCubic,
-        );
+        final curved = animation.drive(CurveTween(curve: Curves.easeOutCubic));
         return FadeTransition(
           opacity: curved,
           child: ScaleTransition(
@@ -715,6 +727,7 @@ class GlobalState {
       onlyStatisticsProxy: config.appSetting.onlyStatisticsProxy,
       currentProfileName: currentProfile?.label ?? currentProfile?.id ?? '',
       bypassDomain: config.networkProps.bypassDomain,
+      trafficStats: TrafficStatsOptions.fromProps(config.trafficStatsProps),
     );
   }
 
@@ -914,14 +927,13 @@ class GlobalState {
     );
     final externalController = patchConfig.externalController;
     final secret = patchConfig.secret;
+    final hasSecret = secret != null && secret.isNotEmpty;
     final hasAuthentication = patchConfig.authentication.isNotEmpty;
     final general = <String, dynamic>{
-      'external-controller': patchConfig.allowLan
+      'external-controller': patchConfig.allowLan && hasSecret
           ? externalController.value.replaceAll('127.0.0.1', '0.0.0.0')
           : externalController.value,
-      if (externalController == ExternalControllerStatus.open &&
-          secret != null &&
-          secret.isNotEmpty)
+      if (externalController == ExternalControllerStatus.open && hasSecret)
         'secret': secret,
       'external-ui': await appPath.uiPath,
       'external-ui-url':
@@ -949,9 +961,8 @@ class GlobalState {
         'enable': tun.enable,
         'device': tun.device,
         if (tun.dnsMode case final dnsMode?) 'dns-mode': dnsMode.name,
-        'dns-hijack': tun.dnsHijack.isEmpty ? const ['any:53'] : tun.dnsHijack,
+        'dns-hijack': tun.dnsHijack,
         'stack': tun.stack.name,
-        'congestion-controller': tun.congestionController.name,
         'route-address': tun.routeAddress,
         'route-exclude-address': tun.routeExcludeAddress,
         'auto-route': !system.isAndroid,
@@ -1035,15 +1046,18 @@ class GlobalState {
     };
   }
 
-  Future<Map<String, dynamic>?> _readScriptedConfig(Profile profile) async {
+  Future<Map<String, dynamic>?> _readScriptedSnippet(Profile profile) async {
     final path = await _writeScriptedConfig(profile);
     if (path.isEmpty) return null;
     final file = File(path);
     try {
-      final content = await file.readAsString();
-      return await Isolate.run(
-        () => Map<String, dynamic>.from(json.decode(content) as Map),
-      );
+      return await Isolate.run(() {
+        final decoded = json.decode(file.readAsStringSync()) as Map;
+        return <String, dynamic>{
+          for (final key in _profileSnippetKeys)
+            if (decoded.containsKey(key)) key: decoded[key],
+        };
+      });
     } finally {
       if (await file.exists()) {
         await file.delete();
@@ -1051,13 +1065,20 @@ class GlobalState {
     }
   }
 
-  Future<Map<String, dynamic>> getProfileConfig(
+  static const _profileSnippetKeys = [
+    'proxy-groups',
+    'rules',
+    'rule-providers',
+    'sub-rules',
+  ];
+
+  Future<Map<String, dynamic>> getProfileSnippet(
     String profileId, {
     bool effective = false,
   }) async {
     final profile = config.profiles.getProfile(profileId);
     if (effective && profile != null) {
-      final scripted = await _readScriptedConfig(profile);
+      final scripted = await _readScriptedSnippet(profile);
       if (scripted != null) return scripted;
     }
     final ageSecretKey = profile?.ageSecretKey;
@@ -1067,21 +1088,20 @@ class GlobalState {
               if (!entry.value) entry.key,
           ]
         : const <String>[];
-    final configMap = await switch (clashLibHandler != null) {
+    return await switch (clashLibHandler != null) {
       true => clashLibHandler!.getConfig(
         profileId,
         ageSecretKey: ageSecretKey,
         disabledGroups: disabledGroups,
+        snippet: true,
       ),
       false => clashCore.getConfig(
         profileId,
         ageSecretKey: ageSecretKey,
         disabledGroups: disabledGroups,
+        snippet: true,
       ),
     };
-    configMap['rules'] = configMap['rule'];
-    configMap.remove('rule');
-    return configMap;
   }
 }
 

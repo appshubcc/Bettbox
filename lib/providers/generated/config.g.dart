@@ -840,6 +840,59 @@ abstract class _$ProxiesStyleSetting extends $Notifier<ProxiesStyle> {
   }
 }
 
+@ProviderFor(TrafficStatsSetting)
+final trafficStatsSettingProvider = TrafficStatsSettingProvider._();
+
+final class TrafficStatsSettingProvider
+    extends $NotifierProvider<TrafficStatsSetting, TrafficStatsProps> {
+  TrafficStatsSettingProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'trafficStatsSettingProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$trafficStatsSettingHash();
+
+  @$internal
+  @override
+  TrafficStatsSetting create() => TrafficStatsSetting();
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(TrafficStatsProps value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<TrafficStatsProps>(value),
+    );
+  }
+}
+
+String _$trafficStatsSettingHash() =>
+    r'5f758a4baa884a3be0e11e5876d7e8908a02bf6c';
+
+abstract class _$TrafficStatsSetting extends $Notifier<TrafficStatsProps> {
+  TrafficStatsProps build();
+  @$mustCallSuper
+  @override
+  WhenComplete runBuild() {
+    final ref = this.ref as $Ref<TrafficStatsProps, TrafficStatsProps>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<TrafficStatsProps, TrafficStatsProps>,
+              TrafficStatsProps,
+              Object?,
+              Object?
+            >;
+    return element.handleCreate(ref, build);
+  }
+}
+
 @ProviderFor(ScriptState)
 final scriptStateProvider = ScriptStateProvider._();
 

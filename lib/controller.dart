@@ -53,6 +53,7 @@ class AppController {
   Timer? _updateGroupsRetryTimer;
   int _coreGeneration = 0;
   int _setupGeneration = 0;
+  String? _loadedProfileId;
   final Set<String> _updatingProfileIds = {};
   int _localNetworkId = 0;
   Timer? _idleGcTimer;
@@ -382,6 +383,7 @@ class AppController {
       throw message;
     }
     _applyGlobalSelection(result.global);
+    _loadedProfileId = currentProfile.id;
     if (system.isDesktop) {
       final prefs = await preferences.sharedPreferencesCompleter.future;
       await prefs?.setBool('is_tun_running', realTunEnable);
@@ -437,26 +439,37 @@ class AppController {
     return dashboardRefreshManager.isActive();
   }
 
+  String? _speedNotificationProfileToSync() {
+    if (!system.isAndroid ||
+        !globalState.isScreenOn ||
+        !_ref.read(vpnSettingProvider).networkSpeedNotification) {
+      return null;
+    }
+    final currentProfileId = _ref.read(currentProfileIdProvider);
+    final profiles = _ref.read(profilesProvider);
+    final profile = profiles.where((e) => e.id == currentProfileId).firstOrNull;
+    final profileName = profile?.label ?? 'Bettbox';
+    final needsSync =
+        vpn_service.service?.needsSpeedNotificationSync(profileName) ?? false;
+    return needsSync ? profileName : null;
+  }
+
   Future<void> updateTraffic() async {
     final shouldUpdateDashboard = await _shouldUpdateDashboardTick();
-    final networkSpeedNotification =
-        system.isAndroid &&
-        _ref.read(vpnSettingProvider).networkSpeedNotification;
+    final speedNotificationProfile = _speedNotificationProfileToSync();
     final enableTraySpeed =
         system.isMacOS && _ref.read(vpnSettingProvider).enableTraySpeed;
 
-    final isScreenOn = globalState.isScreenOn;
-
     if (!shouldUpdateDashboard &&
-        !(networkSpeedNotification && isScreenOn) &&
+        speedNotificationProfile == null &&
         !enableTraySpeed) {
       return;
     }
 
-    final totalTraffic = await clashCore.getTotalTraffic();
-    _ref.read(totalTrafficProvider.notifier).value = totalTraffic;
+    final snapshot = await clashCore.getTrafficSnapshot();
+    _ref.read(totalTrafficProvider.notifier).value = snapshot.total;
 
-    final traffic = await clashCore.getTraffic();
+    final traffic = snapshot.now;
 
     if (shouldUpdateDashboard) {
       _ref.read(trafficsProvider.notifier).addTraffic(traffic);
@@ -466,17 +479,10 @@ class AppController {
       await tray.updateSpeed(traffic);
     }
 
-    if (networkSpeedNotification && isScreenOn) {
-      final currentProfileId = _ref.read(currentProfileIdProvider);
-      final profiles = _ref.read(profilesProvider);
-      final profile = profiles
-          .where((e) => e.id == currentProfileId)
-          .firstOrNull;
-      final profileName = profile?.label ?? 'Bettbox';
-      final speedInfo = traffic.toString();
+    if (speedNotificationProfile != null) {
       await vpn_service.service?.updateNotificationSpeed(
-        profileName,
-        speedInfo,
+        speedNotificationProfile,
+        traffic.toString(),
       );
     }
   }
@@ -505,8 +511,26 @@ class AppController {
 
   Future<void> updateProviders() async {
     final providers = await clashCore.getExternalProviders();
+    _syncProviderSubscriptions(providers);
     if (listEquals(_ref.read(providersProvider), providers)) return;
     _ref.read(providersProvider.notifier).value = providers;
+  }
+
+  void _setProviders(List<ExternalProvider> providers) {
+    _ref.read(providersProvider.notifier).value = providers;
+    _syncProviderSubscriptions(providers);
+  }
+
+  void _syncProviderSubscriptions(List<ExternalProvider> providers) {
+    final profileId = _loadedProfileId ?? _ref.read(currentProfileIdProvider);
+    final profile = _ref.read(profilesProvider).getProfile(profileId);
+    if (profile == null) return;
+    final subscriptions = {
+      for (final provider in providers)
+        if (provider.type == 'Proxy') provider.name: ?provider.subscriptionInfo,
+    };
+    if (mapEquals(profile.providerSubscriptions, subscriptions)) return;
+    setProfile(profile.copyWith(providerSubscriptions: subscriptions));
   }
 
   Future<void> updateLocalNetwork({bool silent = false}) async {
@@ -662,6 +686,9 @@ class AppController {
 
   Future<void> _updateClashConfig() async {
     await _initCore();
+    if (await vpn_service.service?.isSmartStopped() ?? false) {
+      await vpn_service.service?.resumeCore();
+    }
     final updateParams = _ref.read(updateParamsProvider);
     final tunResult = await _requestAdmin(updateParams.tun.enable);
     if (tunResult.isError) return;
@@ -732,9 +759,8 @@ class AppController {
     );
     final configured = await _setupCoreConfig();
     if (!configured) return;
-    final providers = await clashCore.getExternalProviders();
-    _ref.read(providersProvider.notifier).value = providers;
-    await updateGroups(preloadedProviders: providers);
+    _setProviders(await clashCore.getExternalProviders());
+    await updateGroups();
     scheduleIdleGc();
   }
 
@@ -859,16 +885,14 @@ class AppController {
     try {
       final providers = await clashCore.getExternalProviders();
       if (providers.isEmpty) return;
-      _ref.read(providersProvider.notifier).value = providers;
+      _setProviders(providers);
     } catch (e) {
       commonPrint.warn('[Sync] Failed to sync external providers: $e');
     }
   }
 
-  Future<void> updateGroups({List<ExternalProvider>? preloadedProviders}) {
-    return _coreLifecycleLock.synchronized(
-      () => _updateGroups(preloadedProviders: preloadedProviders),
-    );
+  Future<void> updateGroups() {
+    return _coreLifecycleLock.synchronized(_updateGroups);
   }
 
   static const List<Duration> _kGroupRetryDelays = [
@@ -878,16 +902,12 @@ class AppController {
     Duration(milliseconds: 400),
   ];
 
-  Future<List<Group>> _retryGetProxiesGroups(
-    List<ExternalProvider>? preloadedProviders,
-  ) async {
+  Future<List<Group>> _retryGetProxiesGroups() async {
     for (var attempt = 0; attempt < _kGroupRetryDelays.length; attempt++) {
       if (attempt > 0) {
         await Future.delayed(_kGroupRetryDelays[attempt]);
       }
-      final groups = await clashCore.getProxiesGroups(
-        preloadedProviders: preloadedProviders,
-      );
+      final groups = await clashCore.getProxiesGroups();
       if (groups.isNotEmpty) return groups;
     }
     return [];
@@ -922,9 +942,7 @@ class AppController {
     });
   }
 
-  Future<void> _updateGroups({
-    List<ExternalProvider>? preloadedProviders,
-  }) async {
+  Future<void> _updateGroups() async {
     if (_isUpdatingGroups) {
       commonPrint.debug('updateGroups already in progress, skipping');
       return;
@@ -935,7 +953,7 @@ class AppController {
     try {
       final currentGroups = _ref.read(groupsProvider);
 
-      final newGroups = await _retryGetProxiesGroups(preloadedProviders);
+      final newGroups = await _retryGetProxiesGroups();
 
       if (newGroups.isEmpty) {
         _handleUpdateGroupsError(
@@ -1349,6 +1367,8 @@ class AppController {
         if (state == 'STOP' && globalState.isStart) {
           await updateStatus(false);
         }
+      } else if (method == 'screenStateChanged') {
+        await globalState.handleScreenStateChanged(arguments as bool? ?? true);
       }
     });
 
@@ -1427,15 +1447,20 @@ class AppController {
     if (needRecovery) {
       commonPrint.warn('Abnormal exit detected');
       if (system.isAndroid) {
-        try {
-          await applyProfile(silence: true);
-        } catch (e) {
-          commonPrint.error('Recovery failed: $e');
-        }
+        final prefs = await preferences.sharedPreferencesCompleter.future;
+        await prefs?.setBool('is_vpn_running', false);
       }
     }
     if (!globalState.isStart) {
       await system.updateDns(true);
+    }
+    if (system.isAndroid && globalState.isStart) {
+      await _coreLifecycleLock.synchronized(() async {
+        await globalState.handleStart([updateRunTime, updateTraffic]);
+      });
+      _scheduleCheckIpRefresh();
+      _backgroundLoad();
+      return;
     }
     final hasProfile = _ref.read(currentProfileProvider) != null;
     final shouldStart =
@@ -1517,8 +1542,26 @@ class AppController {
     toPage(PageLabel.profiles);
   }
 
+  bool _isRemoteFileUri(Uri uri) {
+    if (!uri.isScheme('file')) return false;
+    final host = uri.host.toLowerCase();
+    final remoteHost =
+        host.isNotEmpty &&
+        host != 'localhost' &&
+        !RegExp(r'^[a-z]$').hasMatch(host);
+    return remoteHost ||
+        uri.pathSegments.any((segment) => segment.contains('\\'));
+  }
+
   void initLink() {
     linkManager.initAppLinksListen((url) async {
+      final uri = Uri.tryParse(url);
+      if (uri == null || _isRemoteFileUri(uri)) {
+        globalState.showNotifier(
+          appLocalizations.profileUrlInvalidValidationDesc,
+        );
+        return;
+      }
       final res = await globalState.showMessage(
         title: appLocalizations.add,
         message: TextSpan(
@@ -1678,6 +1721,8 @@ class AppController {
 
   void setProvider(ExternalProvider? provider) {
     _ref.read(providersProvider.notifier).setProvider(provider);
+    if (provider == null || provider.isUpdating) return;
+    _syncProviderSubscriptions(_ref.read(providersProvider));
   }
 
   List<Proxy> getSortProxies({

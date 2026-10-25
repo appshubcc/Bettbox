@@ -165,6 +165,7 @@ class CommonScaffoldState extends State<CommonScaffold> {
     _appBarState.dispose();
     _textController.dispose();
     _floatingActionButton.dispose();
+    _keywordsNotifier.dispose();
     super.dispose();
   }
 

@@ -732,11 +732,21 @@ class _PortDialogState extends ConsumerState<_PortDialog> {
     _tProxyPortController = TextEditingController(text: vm5.e.toString());
   }
 
+  @override
+  void dispose() {
+    _mixedPortController.dispose();
+    _portController.dispose();
+    _socksPortController.dispose();
+    _redirPortController.dispose();
+    _tProxyPortController.dispose();
+    super.dispose();
+  }
+
   Future<void> _handleReset() async {
     final res = await globalState.showMessage(
       message: TextSpan(text: appLocalizations.resetTip),
     );
-    if (res != true) {
+    if (res != true || !mounted) {
       return;
     }
     ref

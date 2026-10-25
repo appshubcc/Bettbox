@@ -231,13 +231,12 @@ class ApplicationState extends ConsumerState<Application>
                 ),
               );
             }
-            if (system.isMacOS || system.isLinux) {
+            if (system.isLinux) {
               // Wait for DHCP and the default route to settle before moving the
               // managed DNS from the previous network to the new one.
               await Future.delayed(const Duration(seconds: 1));
               if (!mounted) return;
-              final dnsState = ref.read(autoSetSystemDnsStateProvider);
-              await system.updateDns(!(dnsState.a && dnsState.b));
+              await system.updateDns(!ref.read(systemDnsTakeoverProvider));
             }
             globalState.appController.updateLocalNetwork();
             globalState.appController.addCheckIpNumDebounce();

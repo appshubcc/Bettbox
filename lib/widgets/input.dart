@@ -622,6 +622,13 @@ class _AddDialogState extends State<AddDialog> {
     valueController = TextEditingController(text: valueField.value);
   }
 
+  @override
+  void dispose() {
+    keyController?.dispose();
+    valueController.dispose();
+    super.dispose();
+  }
+
   void _submit() {
     if (!_formKey.currentState!.validate()) return;
     if (keyField != null) {

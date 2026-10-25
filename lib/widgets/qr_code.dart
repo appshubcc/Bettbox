@@ -108,4 +108,3 @@ class _QrCodePainter extends CustomPainter {
       oldDelegate.color != color ||
       oldDelegate.backgroundColor != backgroundColor;
 }
-

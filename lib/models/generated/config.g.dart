@@ -98,6 +98,7 @@ _AppSettingProps _$AppSettingPropsFromJson(
       ) ??
       MrsRawSource.bettRules,
   mrsResolveDns: json['mrsResolveDns'] as bool? ?? true,
+  ipRiskDetail: json['ipRiskDetail'] as bool? ?? false,
   iperfOptions: json['iperfOptions'] == null
       ? const IperfOptions()
       : IperfOptions.fromJson(json['iperfOptions'] as Map<String, dynamic>),
@@ -177,6 +178,7 @@ Map<String, dynamic> _$AppSettingPropsToJson(_AppSettingProps instance) =>
       'mrsCopyRawLink': instance.mrsCopyRawLink,
       'mrsRawSource': _$MrsRawSourceEnumMap[instance.mrsRawSource]!,
       'mrsResolveDns': instance.mrsResolveDns,
+      'ipRiskDetail': instance.ipRiskDetail,
       'iperfOptions': instance.iperfOptions,
       'localPingOptions': instance.localPingOptions,
       'mobileDashboardSizes': instance.mobileDashboardSizes,
@@ -209,6 +211,7 @@ const _$DashboardWidgetEnumMap = {
   DashboardWidget.networkSpeedSmall: 'networkSpeedSmall',
   DashboardWidget.outboundModeV2: 'outboundModeV2',
   DashboardWidget.outboundMode: 'outboundMode',
+  DashboardWidget.profileInfo: 'profileInfo',
   DashboardWidget.trafficUsage: 'trafficUsage',
   DashboardWidget.networkDetection: 'networkDetection',
   DashboardWidget.tunButton: 'tunButton',
@@ -456,7 +459,6 @@ _NetworkProps _$NetworkPropsFromJson(Map<String, dynamic> json) =>
               ?.map((e) => e as String)
               .toList() ??
           const [],
-      autoSetSystemDns: json['autoSetSystemDns'] as bool? ?? true,
     );
 
 Map<String, dynamic> _$NetworkPropsToJson(_NetworkProps instance) =>
@@ -465,7 +467,6 @@ Map<String, dynamic> _$NetworkPropsToJson(_NetworkProps instance) =>
       'bypassDomain': instance.bypassDomain,
       'bypassPrivateRoute': instance.bypassPrivateRoute,
       'bypassPrivateRouteAddress': instance.bypassPrivateRouteAddress,
-      'autoSetSystemDns': instance.autoSetSystemDns,
     };
 
 _ProxiesStyle _$ProxiesStyleFromJson(Map<String, dynamic> json) =>
@@ -500,6 +501,7 @@ _ProxiesStyle _$ProxiesStyleFromJson(Map<String, dynamic> json) =>
       concurrencyLimit: (json['concurrencyLimit'] as num?)?.toInt() ?? 250,
       autoStickyHeader: json['autoStickyHeader'] as bool? ?? false,
       showHiddenItems: json['showHiddenItems'] as bool? ?? false,
+      hideTimeoutProxies: json['hideTimeoutProxies'] as bool? ?? false,
       hasCustomizedStyle: json['hasCustomizedStyle'] as bool? ?? false,
     );
 
@@ -516,6 +518,7 @@ Map<String, dynamic> _$ProxiesStyleToJson(_ProxiesStyle instance) =>
       'concurrencyLimit': instance.concurrencyLimit,
       'autoStickyHeader': instance.autoStickyHeader,
       'showHiddenItems': instance.showHiddenItems,
+      'hideTimeoutProxies': instance.hideTimeoutProxies,
       'hasCustomizedStyle': instance.hasCustomizedStyle,
     };
 
@@ -696,6 +699,11 @@ _Config _$ConfigFromJson(Map<String, dynamic> json) => _Config(
   proxiesStyle: json['proxiesStyle'] == null
       ? defaultProxiesStyle
       : ProxiesStyle.fromJson(json['proxiesStyle'] as Map<String, dynamic>?),
+  trafficStatsProps: json['trafficStatsProps'] == null
+      ? defaultTrafficStatsProps
+      : TrafficStatsProps.fromJson(
+          json['trafficStatsProps'] as Map<String, dynamic>,
+        ),
   windowProps: json['windowProps'] == null
       ? defaultWindowProps
       : WindowProps.fromJson(json['windowProps'] as Map<String, dynamic>?),
@@ -727,6 +735,7 @@ Map<String, dynamic> _$ConfigToJson(_Config instance) => <String, dynamic>{
   'vpnProps': instance.vpnProps,
   'themeProps': instance.themeProps,
   'proxiesStyle': instance.proxiesStyle,
+  'trafficStatsProps': instance.trafficStatsProps,
   'windowProps': instance.windowProps,
   'patchClashConfig': instance.patchClashConfig,
   'scriptProps': instance.scriptProps,

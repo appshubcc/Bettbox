@@ -111,8 +111,6 @@ enum TunStack { gvisor, system, mixed, mips }
 
 enum TunDnsMode { disabled, native, hijack }
 
-enum CongestionController { cubic, reno, bbr, bbr3 }
-
 enum AccessControlMode { acceptSelected, rejectSelected }
 
 enum AccessSortType { none, installTime, updateTime }
@@ -135,7 +133,8 @@ enum ResultType {
 
 enum AppMessageType {
   log,
-  delay,
+  delays,
+  groupsChanged,
   request,
   loaded,
   speedTest,
@@ -237,6 +236,7 @@ enum ActionMethod {
   forceGc,
   shutdown,
   validateConfig,
+  importProfile,
   updateConfig,
   getConfig,
   getRuntimeConfig,
@@ -244,10 +244,13 @@ enum ActionMethod {
   getProxies,
   changeProxy,
   getTraffic,
-  getTotalTraffic,
+  getTrafficSnapshot,
   resetTraffic,
   asyncTestDelay,
+  asyncTestDelays,
+  setForeground,
   getConnections,
+  getConnectionsSummary,
   closeConnections,
   resetConnections,
   closeConnection,
@@ -289,6 +292,8 @@ enum ActionMethod {
   mrsPrepare,
   mrsLookup,
   cancelMrsLookup,
+  getTrafficStats,
+  clearTrafficStats,
   startToolProxy,
   stopToolProxy,
   ageCrypt,
@@ -360,6 +365,7 @@ enum AuthorizeCode { none, success, error }
 enum WindowsHelperServiceStatus { none, presence, running }
 
 enum FunctionTag {
+  homeWidget,
   updateClashConfig,
   setupClashConfig,
   updateStatus,
@@ -369,7 +375,6 @@ enum FunctionTag {
   savePreferences,
   changeProxy,
   checkIp,
-  updateDelay,
   vpnTip,
   autoLaunch,
   renderPause,
@@ -389,6 +394,7 @@ enum DashboardWidget {
   ),
   outboundModeV2(GridItem(crossAxisCellCount: 8, child: OutboundModeV2())),
   outboundMode(GridItem(crossAxisCellCount: 4, child: OutboundMode())),
+  profileInfo(GridItem(crossAxisCellCount: 8, child: ProfileInfo())),
   trafficUsage(GridItem(crossAxisCellCount: 4, child: TrafficUsage())),
   networkDetection(GridItem(crossAxisCellCount: 4, child: NetworkDetection())),
   tunButton(
@@ -444,7 +450,7 @@ enum DashboardWidget {
 
   DashboardTileSize get nativeSize => switch (this) {
     networkSpeed || mediaUnlock => DashboardTileSize.large,
-    outboundModeV2 => DashboardTileSize.wide,
+    outboundModeV2 || profileInfo => DashboardTileSize.wide,
     outboundMode || mediaUnlockSmall || trafficUsage => DashboardTileSize.tall,
     _ => DashboardTileSize.small,
   };
@@ -457,6 +463,11 @@ enum DashboardWidget {
       DashboardTileSize.large,
     ],
     trafficUsage => const [DashboardTileSize.tall, DashboardTileSize.wide],
+    profileInfo => const [
+      DashboardTileSize.wide,
+      DashboardTileSize.large,
+      DashboardTileSize.tall,
+    ],
     networkDetection ||
     intranetIp ||
     memoryInfo ||
@@ -588,6 +599,8 @@ enum RecoveryStrategy { compatible, override }
 
 enum StartSwitchStyle { tonal, outlined }
 
+enum ProfileUsageStyle { bar, ring, concentric }
+
 enum SidebarFlyoutEntry {
   resources,
   script,
@@ -686,3 +699,13 @@ enum MrsRawSource {
 
   const MrsRawSource(this.label, this.baseUrl);
 }
+
+enum IpRiskLevel { low, medium, high, veryHigh }
+
+enum IpRiskGroup { datacenter, blacklist, proxy }
+
+enum IpRiskAmount { low, medium, high }
+
+enum IpRiskShare { little, some, almostAll }
+
+enum IpRiskConnection { server, vpn, publicProxy, tor, webProxy }

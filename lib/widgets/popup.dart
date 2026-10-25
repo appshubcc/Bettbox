@@ -166,24 +166,33 @@ class _CommonPopupBoxState extends State<CommonPopupBox> {
   bool _isOpen = false;
   final _targetOffsetValueNotifier = ValueNotifier<Offset>(Offset.zero);
   Offset _offset = Offset.zero;
+  CommonPopupRoute? _route;
 
   Future<void> _open({Offset offset = Offset.zero}) {
     _offset = offset;
     _updateOffset();
     _isOpen = true;
-    return Navigator.of(context)
-        .push(
-          CommonPopupRoute(
-            barrierLabel: utils.id,
-            builder: (BuildContext context) {
-              return widget.popup;
-            },
-            offsetNotifier: _targetOffsetValueNotifier,
-          ),
-        )
-        .then((_) {
-          _isOpen = false;
-        });
+    final route = _route = CommonPopupRoute(
+      barrierLabel: utils.id,
+      builder: (BuildContext context) {
+        return widget.popup;
+      },
+      offsetNotifier: _targetOffsetValueNotifier,
+    );
+    return Navigator.of(context).push(route).then((_) {
+      _isOpen = false;
+    });
+  }
+
+  @override
+  void dispose() {
+    final route = _route;
+    if (route == null) {
+      _targetOffsetValueNotifier.dispose();
+    } else {
+      route.completed.whenComplete(_targetOffsetValueNotifier.dispose);
+    }
+    super.dispose();
   }
 
   void _updateOffset() {
@@ -204,7 +213,7 @@ class _CommonPopupBoxState extends State<CommonPopupBox> {
     return LayoutBuilder(
       builder: (_, _) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (_isOpen) {
+          if (_isOpen && mounted) {
             _updateOffset();
           }
         });

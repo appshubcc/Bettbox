@@ -15,7 +15,7 @@ void showTunSheet(BuildContext context) {
           generateSection(
             items: [
               if (system.isDesktop) const TUNItem(),
-              if (system.isMacOS) const AutoSetSystemDnsItem(),
+              if (system.isDesktop) const DnsHijackItem(),
               if (!system.isAndroid) const StrictRouteItem(),
               const IcmpForwardingItem(),
               const TunStackItem(),

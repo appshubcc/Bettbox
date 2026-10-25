@@ -87,12 +87,11 @@ class _AppStateManagerState extends ConsumerState<AppStateManager>
     if (window == null) {
       return;
     }
-    ref.listenManual(autoSetSystemDnsStateProvider, (prev, next) async {
+    ref.listenManual(systemDnsTakeoverProvider, (prev, next) async {
       if (prev == next) {
         return;
       }
-      final shouldSet = next.a == true && next.b == true;
-      await system.updateDns(!shouldSet);
+      await system.updateDns(!next);
     });
     ref.listenManual(currentBrightnessProvider, (prev, next) {
       if (prev == next) {
@@ -413,6 +412,14 @@ class _SidebarOverlayState extends State<_SidebarOverlay> {
   void didUpdateWidget(_SidebarOverlay oldWidget) {
     super.didUpdateWidget(oldWidget);
     _entry.markNeedsBuild();
+  }
+
+  @override
+  void dispose() {
+    _entry
+      ..remove()
+      ..dispose();
+    super.dispose();
   }
 
   @override

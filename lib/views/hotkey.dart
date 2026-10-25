@@ -107,6 +107,7 @@ class _HotKeyRecorderState extends State<HotKeyRecorder> {
   @override
   void dispose() {
     HardwareKeyboard.instance.removeHandler(_handleKeyEvent);
+    hotKeyActionNotifier.dispose();
     super.dispose();
   }
 

@@ -582,6 +582,9 @@ class _WebDAVFormDialogState extends ConsumerState<WebDAVFormDialog> {
 
   @override
   void dispose() {
+    uriController.dispose();
+    userController.dispose();
+    passwordController.dispose();
     _obscureController.dispose();
     super.dispose();
   }

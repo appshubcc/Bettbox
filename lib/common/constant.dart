@@ -26,6 +26,7 @@ final baseInfoEdgeInsets = EdgeInsets.symmetric(
 final defaultTextScaleFactor =
     WidgetsBinding.instance.platformDispatcher.textScaleFactor;
 const httpTimeoutDuration = Duration(milliseconds: 5000);
+const maxDelayTestConcurrency = 50;
 const moreDuration = Duration(milliseconds: 100);
 const animateDuration = Duration(milliseconds: 100);
 const midDuration = Duration(milliseconds: 200);
@@ -126,7 +127,7 @@ const profilesStoreKey = PageStorageKey<String>('profiles');
 
 const defaultPrimaryColor = 0xFF00897B;
 
-const maxLength = 512;
+const maxLength = 1024;
 const maxLogLength = 512;
 
 final mainIsolate = 'BettboxMainIsolate';

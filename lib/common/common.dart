@@ -11,6 +11,7 @@ export 'identity.dart';
 export 'function.dart';
 export 'future.dart';
 export 'http.dart';
+export 'ip_risk.dart';
 export 'icons.dart';
 export 'iterable.dart';
 export 'js_runtime_manager.dart';

@@ -11,6 +11,7 @@ import 'intranet_ip.dart';
 import 'memory_info.dart';
 import 'network_detection.dart';
 import 'network_speed.dart';
+import 'profile_info.dart';
 import 'start_button.dart';
 import 'traffic_usage.dart';
 
@@ -38,6 +39,7 @@ Widget buildDashboardTile(DashboardTile tile) {
   return switch (widget.family) {
     DashboardWidget.networkSpeed => NetworkSpeed(size: size),
     DashboardWidget.trafficUsage => TrafficUsage(size: size),
+    DashboardWidget.profileInfo => ProfileInfo(size: size),
     DashboardWidget.networkDetection => NetworkDetection(size: size),
     DashboardWidget.intranetIp => IntranetIP(size: size),
     DashboardWidget.memoryInfo => MemoryInfo(size: size),

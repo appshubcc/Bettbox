@@ -32,6 +32,8 @@ class _ConnectionsViewState extends ConsumerState<ConnectionsView>
   ProviderSubscription? _pageLabelSubscription;
   var _isScrolling = false;
   var _isTrackingRequests = false;
+  var _isUpdating = false;
+  var _needsUpdate = false;
   var _autoScrollToEnd = false;
   var _tab = _ConnectionsTab.active;
   List<TrackerInfo>? _pendingConnections;
@@ -158,6 +160,28 @@ class _ConnectionsViewState extends ConsumerState<ConnectionsView>
   }
 
   Future<void> _updateConnections() async {
+    if (_isUpdating) {
+      _needsUpdate = true;
+      return;
+    }
+    _isUpdating = true;
+    try {
+      do {
+        _needsUpdate = false;
+        await _refreshConnections();
+      } while (_needsUpdate && mounted);
+    } finally {
+      _isUpdating = false;
+    }
+  }
+
+  bool _isSameTraffic(TrackerInfo a, TrackerInfo b) =>
+      a.upload == b.upload &&
+      a.download == b.download &&
+      a.uploadSpeed == b.uploadSpeed &&
+      a.downloadSpeed == b.downloadSpeed;
+
+  Future<void> _refreshConnections() async {
     if (!mounted || !await _shouldRunTimer()) {
       _stopUpdate();
       return;
@@ -170,21 +194,16 @@ class _ConnectionsViewState extends ConsumerState<ConnectionsView>
     final oldConnections = ref.read(connectionsProvider);
     final oldMap = {for (final e in oldConnections) e.id: e};
     var hasChanges = oldConnections.length != connections.length;
-    final newConnections = connections.map((item) {
+    final newConnections = <TrackerInfo>[];
+    for (final item in connections) {
       final oldItem = oldMap[item.id];
-      if (oldItem != null) {
-        final upSpeed = item.upload - oldItem.upload;
-        final downSpeed = item.download - oldItem.download;
-        final newItem = item.copyWith(
-          uploadSpeed: upSpeed > 0 ? upSpeed : 0,
-          downloadSpeed: downSpeed > 0 ? downSpeed : 0,
-        );
-        if (newItem != oldItem) hasChanges = true;
-        return newItem;
+      if (oldItem != null && _isSameTraffic(oldItem, item)) {
+        newConnections.add(oldItem);
+      } else {
+        hasChanges = true;
+        newConnections.add(item);
       }
-      hasChanges = true;
-      return item.copyWith(uploadSpeed: 0, downloadSpeed: 0);
-    }).toList();
+    }
     if (hasChanges) {
       if (_isScrolling) {
         _pendingConnections = newConnections;
@@ -348,25 +367,40 @@ class _ConnectionsViewState extends ConsumerState<ConnectionsView>
         final closedCount = ref.watch(
           filteredRequestsProvider.select((state) => state.length),
         );
+        final udpOnly = ref.watch(connectionsUdpOnlyProvider);
+        const tabs = _ConnectionsTab.values;
         return SingleChildScrollView(
           scrollDirection: Axis.horizontal,
           padding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
           child: Row(
-            spacing: 8,
             children: [
-              for (final tab in _ConnectionsTab.values)
-                FilterChip(
-                  selected: tab == _tab,
-                  showCheckmark: false,
-                  label: Text(switch (tab) {
-                    _ConnectionsTab.active =>
-                      '${appLocalizations.connectionsActive} $activeCount',
-                    _ConnectionsTab.closed =>
-                      '${appLocalizations.connectionsClosed} $closedCount',
-                    _ConnectionsTab.all => appLocalizations.categoryAll,
-                  }),
-                  onSelected: (_) => _handleTabChanged(tab),
-                ),
+              Row(
+                spacing: 2,
+                children: [
+                  for (final tab in tabs)
+                    SegmentButton(
+                      selected: tab == _tab,
+                      first: tab == tabs.first,
+                      last: tab == tabs.last,
+                      label: switch (tab) {
+                        _ConnectionsTab.active =>
+                          '${appLocalizations.connectionsActive} $activeCount',
+                        _ConnectionsTab.closed =>
+                          '${appLocalizations.connectionsClosed} $closedCount',
+                        _ConnectionsTab.all => appLocalizations.categoryAll,
+                      },
+                      onTap: () => _handleTabChanged(tab),
+                    ),
+                ],
+              ),
+              const SizedBox(width: 8),
+              SegmentButton(
+                selected: udpOnly,
+                leading: const Icon(Icons.stream_rounded),
+                label: 'UDP',
+                onTap: () =>
+                    ref.read(connectionsUdpOnlyProvider.notifier).toggle(),
+              ),
             ],
           ),
         );
@@ -397,7 +431,8 @@ class _ConnectionsViewState extends ConsumerState<ConnectionsView>
     );
   }
 
-  Widget _buildItem({
+  Widget _buildItem(
+    BuildContext itemContext, {
     required TrackerInfo trackerInfo,
     required int index,
     required int count,
@@ -412,7 +447,7 @@ class _ConnectionsViewState extends ConsumerState<ConnectionsView>
       showSpeed: !closed && showSpeed,
       trackerInfo: trackerInfo,
       onClickKeyword: (value) {
-        context.commonScaffoldState?.addKeyword(value);
+        itemContext.commonScaffoldState?.addKeyword(value);
       },
       trailing: closed
           ? (markClosed ? _buildClosedMark() : null)
@@ -426,7 +461,7 @@ class _ConnectionsViewState extends ConsumerState<ConnectionsView>
   Widget _buildList({
     required int count,
     required String Function(int index) idOf,
-    required Widget Function(int index) itemOf,
+    required Widget Function(BuildContext context, int index) itemOf,
     bool autoScroll = false,
     List<Object>? dataSource,
   }) {
@@ -447,7 +482,7 @@ class _ConnectionsViewState extends ConsumerState<ConnectionsView>
             sliver: SliverFixedExtentList(
               itemExtent: TrackerInfoItem.height + 1,
               delegate: SliverChildBuilderDelegate(
-                (_, index) => itemOf(index),
+                (context, index) => itemOf(context, index),
                 childCount: count,
                 findChildIndexCallback: (key) {
                   indexById ??= {for (var i = 0; i < count; i++) idOf(i): i};
@@ -495,7 +530,8 @@ class _ConnectionsViewState extends ConsumerState<ConnectionsView>
         return _buildList(
           count: connections.length,
           idOf: (index) => connections[index].id,
-          itemOf: (index) => _buildItem(
+          itemOf: (context, index) => _buildItem(
+            context,
             trackerInfo: connections[index],
             index: index,
             count: connections.length,
@@ -536,7 +572,8 @@ class _ConnectionsViewState extends ConsumerState<ConnectionsView>
           autoScroll: true,
           dataSource: requests,
           idOf: (index) => requests[count - 1 - index].id,
-          itemOf: (index) => _buildItem(
+          itemOf: (context, index) => _buildItem(
+            context,
             trackerInfo: requests[count - 1 - index],
             index: index,
             count: count,
@@ -559,7 +596,8 @@ class _ConnectionsViewState extends ConsumerState<ConnectionsView>
         return _buildList(
           count: items.length,
           idOf: (index) => items[index].info.id,
-          itemOf: (index) => _buildItem(
+          itemOf: (context, index) => _buildItem(
+            context,
             trackerInfo: items[index].info,
             index: index,
             count: items.length,

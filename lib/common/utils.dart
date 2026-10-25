@@ -1237,10 +1237,20 @@ class Utils {
   }
 
   String generateSecret() {
-    final random = Random();
-    // Generate an 8-digit number (10000000 to 99999999)
-    final secret = 10000000 + random.nextInt(90000000);
-    return secret.toString();
+    const groups = [
+      'ABCDEFGHJKLMNPQRSTUVWXYZ',
+      'abcdefghijkmnpqrstuvwxyz',
+      '23456789',
+      '!@*-_~',
+    ];
+    final random = Random.secure();
+    final all = groups.join();
+    String pick(String chars) => chars[random.nextInt(chars.length)];
+    final chars = [
+      for (final group in groups) pick(group),
+      for (var i = groups.length; i < 10; i++) pick(all),
+    ]..shuffle(random);
+    return chars.join();
   }
 
   String patchYamlConfig(String content) {

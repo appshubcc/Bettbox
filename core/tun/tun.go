@@ -24,7 +24,7 @@ type Props struct {
 	Dns6     string `json:"dns6"`
 }
 
-func Start(fd int, device string, stack constant.TUNStack, disableIcmpForwarding bool, mtu uint32, ipv6Enabled bool, congestionController string) (*sing_tun.Listener, error) {
+func Start(fd int, device string, stack constant.TUNStack, disableIcmpForwarding bool, mtu uint32, congestionController string) (*sing_tun.Listener, error) {
 	var prefix4 []netip.Prefix
 	tempPrefix4, err := netip.ParsePrefix(state.DefaultIpv4Address)
 	if err != nil {
@@ -33,14 +33,12 @@ func Start(fd int, device string, stack constant.TUNStack, disableIcmpForwarding
 	}
 	prefix4 = append(prefix4, tempPrefix4)
 	var prefix6 []netip.Prefix
-	if ipv6Enabled {
-		tempPrefix6, err := netip.ParsePrefix(state.DefaultIpv6Address)
-		if err != nil {
-			log.Errorln("startTUN error:", err)
-			return nil, err
-		}
-		prefix6 = append(prefix6, tempPrefix6)
+	tempPrefix6, err := netip.ParsePrefix(state.DefaultIpv6Address)
+	if err != nil {
+		log.Errorln("startTUN error:", err)
+		return nil, err
 	}
+	prefix6 = append(prefix6, tempPrefix6)
 
 	var dnsHijack []string
 	dnsHijack = append(dnsHijack, net.JoinHostPort(state.GetDnsServerAddress(), "53"))
@@ -69,6 +67,9 @@ func Start(fd int, device string, stack constant.TUNStack, disableIcmpForwarding
 
 	if err != nil {
 		log.Errorln("startTUN error:", err)
+		if listener != nil {
+			_ = listener.Close()
+		}
 		return nil, err
 	}
 

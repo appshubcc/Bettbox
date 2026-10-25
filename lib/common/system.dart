@@ -63,7 +63,7 @@ class System {
   }
 
   Future<void> updateDns(bool restore) async {
-    await macOS?.updateDns(restore);
+    await macOS?.restoreDns();
     await linux?.updateDns(restore);
   }
 
@@ -923,7 +923,6 @@ final windows = system.isWindows ? Windows() : null;
 class MacOS {
   static MacOS? _instance;
   static const _dnsBackupFileName = 'macos_system_dns_backup.json';
-  static const _hijackDns = '223.5.5.5';
   final Lock _dnsLock = Lock();
 
   MacOS._internal();
@@ -987,53 +986,8 @@ class MacOS {
         : output.split('\n');
   }
 
-  Future<void> updateDns(bool restore) {
-    return _dnsLock.synchronized(() async {
-      if (restore) {
-        await _restoreDns();
-      } else {
-        await _setDns();
-      }
-    });
-  }
-
-  Future<void> _setDns() async {
-    // Restore a previous managed value first so repeated enable operations never
-    // overwrite the real system DNS backup with Bettbox's own hijack DNS.
-    if (!await _restoreDns()) return;
-
-    final serviceName = await defaultServiceName;
-    if (serviceName == null) return;
-
-    final currentDns = await _getSystemDns(serviceName);
-    if (currentDns == null || currentDns.contains(_hijackDns)) return;
-
-    final backup = jsonEncode({
-      'serviceName': serviceName,
-      'servers': currentDns,
-    });
-    try {
-      final backupFile = await _dnsBackupFile;
-      await backupFile.parent.create(recursive: true);
-      final temporaryFile = File('${backupFile.path}.tmp');
-      await temporaryFile.writeAsString(backup, flush: true);
-      await temporaryFile.rename(backupFile.path);
-    } catch (e) {
-      commonPrint.warn('Failed to persist the original macOS system DNS: $e');
-      return;
-    }
-
-    final result = await Process.run('networksetup', [
-      '-setdnsservers',
-      serviceName,
-      ...currentDns,
-      _hijackDns,
-    ]);
-    if (result.exitCode != 0) {
-      commonPrint.warn(
-        'Failed to set macOS system DNS: ${result.stderr.toString().trim()}',
-      );
-    }
+  Future<void> restoreDns() {
+    return _dnsLock.synchronized(_restoreDns);
   }
 
   Future<bool> _restoreDns() async {

@@ -1007,16 +1007,6 @@ class _ToolViewState extends ConsumerState<ToolsView> {
             const NetworkListView(),
           ),
         ),
-      if (system.isMacOS)
-        _SearchItem(
-          title: appLocalizations.autoSetSystemDns,
-          category: networkCategory,
-          onTap: (context, _) => _pushPage(
-            context,
-            appLocalizations.network,
-            const NetworkListView(),
-          ),
-        ),
       if (!system.isAndroid)
         _SearchItem(
           title: appLocalizations.strictRoute,
@@ -1038,16 +1028,17 @@ class _ToolViewState extends ConsumerState<ToolsView> {
           const NetworkListView(),
         ),
       ),
-      _SearchItem(
-        title: appLocalizations.dnsHijack,
-        subtitle: appLocalizations.dnsHijackDesc,
-        category: networkCategory,
-        onTap: (context, _) => _pushPage(
-          context,
-          appLocalizations.network,
-          const NetworkListView(),
+      if (system.isDesktop)
+        _SearchItem(
+          title: appLocalizations.dnsHijack,
+          subtitle: appLocalizations.dnsHijackDesc,
+          category: networkCategory,
+          onTap: (context, _) => _pushPage(
+            context,
+            appLocalizations.network,
+            const NetworkListView(),
+          ),
         ),
-      ),
       _SearchItem(
         title: appLocalizations.endpointIndependentNat,
         subtitle: appLocalizations.endpointIndependentNatDesc,

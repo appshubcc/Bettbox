@@ -170,12 +170,6 @@ _Tun _$TunFromJson(Map<String, dynamic> json) => _Tun(
   device: json['device'] as String? ?? tunDeviceName,
   autoRoute: json['auto-route'] as bool? ?? false,
   stack: $enumDecodeNullable(_$TunStackEnumMap, json['stack']) ?? TunStack.mips,
-  congestionController:
-      $enumDecodeNullable(
-        _$CongestionControllerEnumMap,
-        json['congestion-controller'],
-      ) ??
-      CongestionController.bbr3,
   dnsMode: $enumDecodeNullable(_$TunDnsModeEnumMap, json['dns-mode']),
   dnsHijack:
       (json['dns-hijack'] as List<dynamic>?)
@@ -204,8 +198,6 @@ Map<String, dynamic> _$TunToJson(_Tun instance) => <String, dynamic>{
   'device': instance.device,
   'auto-route': instance.autoRoute,
   'stack': _$TunStackEnumMap[instance.stack]!,
-  'congestion-controller':
-      _$CongestionControllerEnumMap[instance.congestionController]!,
   'dns-mode': _$TunDnsModeEnumMap[instance.dnsMode],
   'dns-hijack': instance.dnsHijack,
   'route-address': instance.routeAddress,
@@ -222,13 +214,6 @@ const _$TunStackEnumMap = {
   TunStack.system: 'system',
   TunStack.mixed: 'mixed',
   TunStack.mips: 'mips',
-};
-
-const _$CongestionControllerEnumMap = {
-  CongestionController.cubic: 'cubic',
-  CongestionController.reno: 'reno',
-  CongestionController.bbr: 'bbr',
-  CongestionController.bbr3: 'bbr3',
 };
 
 const _$TunDnsModeEnumMap = {

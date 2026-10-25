@@ -146,32 +146,6 @@ class SystemProxyItem extends ConsumerWidget {
   }
 }
 
-class AutoSetSystemDnsItem extends ConsumerWidget {
-  const AutoSetSystemDnsItem({super.key});
-
-  @override
-  Widget build(BuildContext context, ref) {
-    final autoSetSystemDnsState = ref.watch(autoSetSystemDnsStateProvider);
-    final canSetSystemDns = autoSetSystemDnsState.a;
-    final autoSetSystemDns = autoSetSystemDnsState.b;
-    return ListItem.switchItem(
-      title: Text(appLocalizations.autoSetSystemDns),
-      delegate: SwitchDelegate(
-        value: autoSetSystemDns,
-        onChanged: canSetSystemDns
-            ? (bool value) async {
-                ref
-                    .read(networkSettingProvider.notifier)
-                    .updateState(
-                      (state) => state.copyWith(autoSetSystemDns: value),
-                    );
-              }
-            : null,
-      ),
-    );
-  }
-}
-
 class StrictRouteItem extends ConsumerWidget {
   const StrictRouteItem({super.key});
 
@@ -326,45 +300,6 @@ class TunStackItem extends ConsumerWidget {
           await _handleNetworkConfigChange(ref);
         },
         title: appLocalizations.stackMode,
-      ),
-    );
-  }
-}
-
-class TunCongestionControllerItem extends ConsumerWidget {
-  const TunCongestionControllerItem({super.key});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final (stack, congestionController) = ref.watch(
-      patchClashConfigProvider.select(
-        (state) => (state.tun.stack, state.tun.congestionController),
-      ),
-    );
-
-    if (stack != TunStack.mips) {
-      return const SizedBox.shrink();
-    }
-
-    return ListItem.options(
-      title: Text(appLocalizations.congestionController),
-      subtitle: Text(congestionController.name),
-      delegate: OptionsDelegate<CongestionController>(
-        value: congestionController,
-        options: CongestionController.values,
-        textBuilder: (value) => value.name,
-        onChanged: (value) async {
-          if (value == null) {
-            return;
-          }
-          ref
-              .read(patchClashConfigProvider.notifier)
-              .updateState(
-                (state) => state.copyWith.tun(congestionController: value),
-              );
-          await _handleNetworkConfigChange(ref);
-        },
-        title: appLocalizations.congestionController,
       ),
     );
   }
@@ -687,11 +622,6 @@ class NetworkListView extends ConsumerWidget {
     final vpnSystemProxy =
         system.isAndroid &&
         ref.watch(vpnSettingProvider.select((state) => state.systemProxy));
-    final isMipsStack = ref.watch(
-      patchClashConfigProvider.select(
-        (state) => state.tun.stack == TunStack.mips,
-      ),
-    );
     final networkItems = [
       if (system.isAndroid) ...generateSection(items: const [VPNItem()]),
       if (system.isAndroid)
@@ -712,13 +642,11 @@ class NetworkListView extends ConsumerWidget {
         title: appLocalizations.options,
         items: [
           if (system.isDesktop) const TUNItem(),
-          if (system.isMacOS || system.isLinux) const AutoSetSystemDnsItem(),
           if (!system.isAndroid) const StrictRouteItem(),
           const IcmpForwardingItem(),
-          const DnsHijackItem(),
+          if (system.isDesktop) const DnsHijackItem(),
           const EndpointIndependentNatItem(),
           const TunStackItem(),
-          if (isMipsStack) const TunCongestionControllerItem(),
           const MtuItem(),
           const BypassPrivateRouteItem(),
         ],

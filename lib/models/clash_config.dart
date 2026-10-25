@@ -287,9 +287,6 @@ abstract class Tun with _$Tun {
     @Default(tunDeviceName) String device,
     @JsonKey(name: 'auto-route') @Default(false) bool autoRoute,
     @Default(TunStack.mips) TunStack stack,
-    @JsonKey(name: 'congestion-controller')
-    @Default(CongestionController.bbr3)
-    CongestionController congestionController,
     @JsonKey(name: 'dns-mode') TunDnsMode? dnsMode,
     @JsonKey(name: 'dns-hijack') @Default(['any:53']) List<String> dnsHijack,
     @JsonKey(name: 'route-address') @Default([]) List<String> routeAddress,
@@ -329,10 +326,14 @@ extension TunExt on Tun {
     List<String>? bypassPrivateRouteAddress,
   }) {
     if (system.isDesktop) {
+      final dnsMode = dnsHijack.isNotEmpty
+          ? TunDnsMode.hijack
+          : TunDnsMode.disabled;
       if (bypassPrivateRoute) {
         return copyWith(
           autoRoute: true,
           autoRedirect: system.isLinux,
+          dnsMode: dnsMode,
           routeAddress: [],
           routeExcludeAddress:
               bypassPrivateRouteAddress ??
@@ -342,6 +343,7 @@ extension TunExt on Tun {
       return copyWith(
         autoRoute: true,
         autoRedirect: system.isLinux,
+        dnsMode: dnsMode,
         routeAddress: [],
         routeExcludeAddress: [],
       );

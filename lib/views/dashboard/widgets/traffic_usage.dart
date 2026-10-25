@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:bett_box/common/common.dart';
 import 'package:bett_box/enum/enum.dart';
 import 'package:bett_box/models/models.dart';
+import 'package:bett_box/pages/toolbox/traffic_stats.dart';
 import 'package:bett_box/providers/providers.dart';
 import 'package:bett_box/state.dart';
 import 'package:bett_box/widgets/widgets.dart';
@@ -129,7 +130,7 @@ class _TrafficUsageState extends ConsumerState<TrafficUsage> {
     return SizedBox(
       height: getWidgetHeight(context, size.rows),
       child: CommonCard(
-        onPressed: () {},
+        onPressed: () => BaseNavigator.push(context, const TrafficStatsPage()),
         child: DashboardDecor(
           mark: DashboardDecor.icon(context, Icons.data_saver_off, 80),
           bottom: true,
@@ -220,7 +221,7 @@ class _TrafficUsageState extends ConsumerState<TrafficUsage> {
           label: appLocalizations.trafficUsage,
           iconData: Icons.data_saver_off,
         ),
-        onPressed: () {},
+        onPressed: () => BaseNavigator.push(context, const TrafficStatsPage()),
         child: ValueListenableBuilder<int>(
           valueListenable: dashboardRefreshManager.tick1s,
           builder: (_, _, _) {

@@ -160,6 +160,14 @@ List<_ToolItem> _buildTools() {
         builder: (_, type) => MediaUnlockPage(type: type),
       ),
     ),
+    _ToolItem(
+      id: 'trafficStats',
+      icon: Icons.data_usage_rounded,
+      color: const Color(0xFFAA47BC),
+      title: appLocalizations.trafficUsage,
+      description: appLocalizations.trafficStatsDesc,
+      open: (context) => push(context, const TrafficStatsPage()),
+    ),
   ];
 }
 

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:bett_box/clash/clash.dart';
 import 'package:bett_box/common/common.dart';
 import 'package:bett_box/enum/enum.dart';
@@ -54,6 +56,9 @@ class DelayTestRequestPool {
   final Map<DelayTestTarget, Future<Delay>> _pendingRequests = {};
 
   int get pendingCount => _pendingRequests.length;
+
+  Future<Delay>? pendingRequest(DelayTestTarget target) =>
+      _pendingRequests[target];
 
   Future<Delay> run(DelayTestTarget target, Future<Delay> Function() action) {
     final pendingRequest = _pendingRequests[target];
@@ -114,6 +119,76 @@ Future<Delay> _testProxyDelay(DelayTestTarget target) {
   });
 }
 
+class _DelayProgressListener with AppMessageListener {
+  final Future<void> Function() onDelayUpdated;
+
+  _DelayProgressListener(this.onDelayUpdated);
+
+  @override
+  void onDelays(List<Delay> delays) {
+    unawaited(onDelayUpdated());
+  }
+}
+
+Future<void> _testProxyDelays(
+  Iterable<DelayTestTarget> targets, {
+  Future<void> Function()? onDelayUpdated,
+}) async {
+  final appController = globalState.appController;
+  final pending = <Future<Delay>>[];
+  final batch = <DelayTestTarget>[];
+  for (final target in targets) {
+    final request = _delayTestRequestPool.pendingRequest(target);
+    if (request != null) {
+      pending.add(request);
+    } else {
+      batch.add(target);
+    }
+  }
+  final listener = batch.isNotEmpty && onDelayUpdated != null
+      ? _DelayProgressListener(onDelayUpdated)
+      : null;
+  if (listener != null) clashMessage.addListener(listener);
+  try {
+    if (batch.isNotEmpty) {
+      for (final target in batch) {
+        appController.setDelay(
+          Delay(url: target.url, name: target.name, value: 0),
+        );
+      }
+      final results = clashCore
+          .getDelays([
+            for (final target in batch) (name: target.name, url: target.url),
+          ], concurrency: globalState.config.proxiesStyle.concurrencyLimit)
+          .then(
+            (delays) => {
+              for (final delay in delays)
+                DelayTestTarget(name: delay.name, url: delay.url): delay,
+            },
+            onError: (Object e) {
+              commonPrint.warn('Batch delay test failed: $e');
+              return <DelayTestTarget, Delay>{};
+            },
+          );
+      for (final target in batch) {
+        pending.add(
+          _delayTestRequestPool.run(target, () async {
+            final delay =
+                (await results)[target] ??
+                Delay(name: target.name, url: target.url, value: -1);
+            appController.setDelay(delay);
+            return delay;
+          }),
+        );
+      }
+    }
+    await Future.wait(pending);
+  } finally {
+    if (listener != null) clashMessage.removeListener(listener);
+  }
+  await onDelayUpdated?.call();
+}
+
 bool _isNonTestableProxyName(String proxyName) {
   final name = proxyName.toUpperCase();
   return name == 'REJECT' || name == 'REJECT-DROP' || name == 'PASS';
@@ -155,38 +230,7 @@ Future<void> delayTest(
       }
       targets.add(DelayTestTarget(name: name, url: url));
     }
-    final concurrencyLimit = globalState.config.proxiesStyle.concurrencyLimit;
-
-    // 按实际节点和实际测试地址创建任务，避免多个代理组别名重复测速。
-    final delayTasks = targets.map((target) {
-      return () async {
-        await _testProxyDelay(target);
-        await onDelayUpdated?.call();
-      };
-    }).toList();
-
-    if (concurrencyLimit <= 1 || delayTasks.length <= 1) {
-      for (final task in delayTasks) {
-        await task();
-      }
-    } else {
-      var nextIndex = 0;
-      final running = <Future<void>>{};
-      while (nextIndex < delayTasks.length || running.isNotEmpty) {
-        while (nextIndex < delayTasks.length &&
-            running.length < concurrencyLimit) {
-          final task = delayTasks[nextIndex++];
-          late final Future<void> future;
-          future = task().whenComplete(() {
-            running.remove(future);
-          });
-          running.add(future);
-        }
-        if (running.isNotEmpty) {
-          await Future.any(running);
-        }
-      }
-    }
+    await _testProxyDelays(targets, onDelayUpdated: onDelayUpdated);
     appController.addSortNum();
   }
 

@@ -24,6 +24,8 @@ mixin ClashInterface {
     SetupParams? setup,
   });
 
+  Future<String> importProfile(String params);
+
   Future<Result> getRuntimeConfig(SetupParams setupParams);
 
   Future<Result> exportConfig(
@@ -38,6 +40,7 @@ mixin ClashInterface {
     String path, {
     String? ageSecretKey,
     List<String> disabledGroups,
+    bool snippet,
   });
 
   Future<Map<String, String>> generateAgeKeyPair({bool hybrid = false});
@@ -45,6 +48,10 @@ mixin ClashInterface {
   Future<Result<String>> convertAgeSecretKeyToPublicKey(String secretKey);
 
   Future<String> asyncTestDelay(String url, String proxyName);
+
+  Future<String> asyncTestDelays(String params, Duration timeout);
+
+  Future<bool> setForeground(bool value);
 
   FutureOr<String> updateConfig(UpdateParams updateParams);
 
@@ -75,7 +82,7 @@ mixin ClashInterface {
 
   FutureOr<String> getTraffic();
 
-  FutureOr<String> getTotalTraffic();
+  FutureOr<String> getTrafficSnapshot();
 
   FutureOr<String> getCountryCode(String ip);
 
@@ -123,6 +130,8 @@ mixin ClashInterface {
 
   FutureOr<String> getConnections();
 
+  FutureOr<String> getConnectionsSummary();
+
   FutureOr<bool> closeConnection(String id);
 
   FutureOr<bool> closeConnections();
@@ -160,6 +169,32 @@ class CoreDisconnectedException implements Exception {
   const CoreDisconnectedException();
 }
 
+const _isolateDecodeThreshold = 64 * 1024;
+
+({Map<String, Object?> header, String payload})? _splitActionResult(
+  String message,
+) {
+  final index = message.indexOf('\n');
+  if (index == -1) return null;
+  final header = json.decode(message.substring(0, index));
+  if (header is! Map<String, Object?>) return null;
+  return (header: header, payload: message.substring(index + 1));
+}
+
+ActionResult _toActionResult(Map<String, Object?> header, Object? data) {
+  return ActionResult.fromJson({...header, 'data': data});
+}
+
+ActionResult? decodeActionResult(String message) {
+  final parts = _splitActionResult(message);
+  if (parts == null) return null;
+  final (:header, :payload) = parts;
+  return _toActionResult(
+    header,
+    header['raw'] == true ? payload : json.decode(payload),
+  );
+}
+
 abstract class ClashHandlerInterface with ClashInterface {
   Map<String, Completer> callbackCompleterMap = {};
   final Map<String, Object> _requestChannels = {};
@@ -188,6 +223,26 @@ abstract class ClashHandlerInterface with ClashInterface {
       }
     } catch (e) {
       commonPrint.warn('${result.id} error $e');
+    }
+  }
+
+  Future<void> handleResultMessage(String message) async {
+    try {
+      final parts = _splitActionResult(message);
+      if (parts == null) {
+        commonPrint.warn('Ignored malformed core result');
+        return;
+      }
+      final (:header, :payload) = parts;
+      final data = header['raw'] == true
+          ? payload
+          : payload.length >= _isolateDecodeThreshold &&
+                header['method'] != ActionMethod.message.name
+          ? await Isolate.run(() => json.decode(payload))
+          : json.decode(payload);
+      await handleResult(_toActionResult(header, data));
+    } catch (e) {
+      commonPrint.warn('Failed to decode core result: $e');
     }
   }
 
@@ -327,6 +382,16 @@ abstract class ClashHandlerInterface with ClashInterface {
   }
 
   @override
+  Future<String> importProfile(String params) {
+    return invoke<String>(
+      method: ActionMethod.importProfile,
+      data: params,
+      timeout: const Duration(minutes: 3),
+      onTimeout: () => throw TimeoutException('importProfile timeout'),
+    );
+  }
+
+  @override
   Future<Result> getRuntimeConfig(SetupParams setupParams) {
     return invoke<Result>(
       method: ActionMethod.getRuntimeConfig,
@@ -377,11 +442,13 @@ abstract class ClashHandlerInterface with ClashInterface {
     String path, {
     String? ageSecretKey,
     List<String> disabledGroups = const [],
+    bool snippet = false,
   }) async {
     final params = {
       'path': path,
       'age-secret-key': ageSecretKey ?? '',
       'disabled-groups': disabledGroups,
+      'snippet': snippet,
     };
     final res = await invoke<Result>(
       method: ActionMethod.getConfig,
@@ -481,6 +548,11 @@ abstract class ClashHandlerInterface with ClashInterface {
   }
 
   @override
+  FutureOr<String> getConnectionsSummary() {
+    return invoke<String>(method: ActionMethod.getConnectionsSummary);
+  }
+
+  @override
   Future<bool> closeConnections() {
     return invoke<bool>(method: ActionMethod.closeConnections);
   }
@@ -496,8 +568,8 @@ abstract class ClashHandlerInterface with ClashInterface {
   }
 
   @override
-  FutureOr<String> getTotalTraffic() {
-    return invoke<String>(method: ActionMethod.getTotalTraffic);
+  FutureOr<String> getTrafficSnapshot() {
+    return invoke<String>(method: ActionMethod.getTrafficSnapshot);
   }
 
   @override
@@ -574,6 +646,23 @@ abstract class ClashHandlerInterface with ClashInterface {
       onTimeout: () {
         return json.encode(Delay(name: proxyName, value: -1, url: url));
       },
+    );
+  }
+
+  @override
+  Future<String> asyncTestDelays(String params, Duration timeout) {
+    return invoke<String>(
+      method: ActionMethod.asyncTestDelays,
+      data: params,
+      timeout: timeout,
+    );
+  }
+
+  @override
+  Future<bool> setForeground(bool value) {
+    return invoke<bool>(
+      method: ActionMethod.setForeground,
+      data: value ? 'true' : 'false',
     );
   }
 

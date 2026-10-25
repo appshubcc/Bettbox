@@ -50,16 +50,14 @@ class _ConnectionsCountState extends State<ConnectionsCount> {
     _isUpdating = true;
 
     try {
-      final connections = await clashCore.getConnections();
-      _lastCount = connections.length;
-      _lastUdp = connections
-          .where((item) => item.metadata.network.toLowerCase() == 'udp')
-          .length;
-      _lastTcp = connections.length - _lastUdp;
-      pushDashboardSample(_history, connections.length.toDouble());
+      final summary = await clashCore.getConnectionsSummary();
+      _lastCount = summary.total;
+      _lastUdp = summary.udp;
+      _lastTcp = summary.tcp;
+      pushDashboardSample(_history, summary.total.toDouble());
       if (mounted) {
         setState(() {
-          _count = connections.length;
+          _count = summary.total;
         });
       }
     } catch (e) {

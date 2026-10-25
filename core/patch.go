@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"net"
 	"path/filepath"
 	"runtime"
 	"strconv"
@@ -82,6 +83,7 @@ func applyPatch(raw *config.RawConfig, params *PatchParams) (string, error) {
 			raw.GlobalUA = defaults.GlobalUA
 		}
 	}
+	restrictProfileServices(raw, defaults)
 	if hasPatchValue(params.GeoXUrl) {
 		raw.GeoXUrl = defaults.GeoXUrl
 		if err := yaml.Unmarshal(params.GeoXUrl, &raw.GeoXUrl); err != nil {
@@ -91,8 +93,12 @@ func applyPatch(raw *config.RawConfig, params *PatchParams) (string, error) {
 	patchProviderPaths(raw.ProxyProvider, params.ProvidersPath, "proxies")
 	patchProviderPaths(raw.RuleProvider, params.ProvidersPath, "rules")
 	patchHosts(raw, params.Hosts)
+	profileDns := raw.DNS.Enable && !params.OverrideDns
 	if err := patchDns(raw, params, defaults); err != nil {
 		return "", err
+	}
+	if profileDns && !raw.AllowLan {
+		raw.DNS.Listen = loopbackAddress(raw.DNS.Listen)
 	}
 	if hasPatchValue(params.Ntp) {
 		raw.NTP = defaults.NTP
@@ -201,6 +207,41 @@ func patchHosts(raw *config.RawConfig, hosts []PatchHost) {
 	for _, host := range hosts {
 		raw.Hosts[host.Key] = host.Value
 	}
+}
+
+func restrictProfileServices(raw *config.RawConfig, defaults *config.RawConfig) {
+	raw.ExternalControllerTLS = ""
+	raw.ExternalControllerUnix = ""
+	raw.ExternalControllerPipe = ""
+	raw.ExternalDohServer = ""
+	raw.ShadowSocksConfig = ""
+	raw.VmessConfig = ""
+	raw.TuicServer = defaults.TuicServer
+	listeners := raw.Listeners[:0]
+	for _, item := range raw.Listeners {
+		if kind, _ := item["type"].(string); strings.EqualFold(kind, "tun") {
+			continue
+		}
+		if !raw.AllowLan {
+			item["listen"] = "127.0.0.1"
+		}
+		listeners = append(listeners, item)
+	}
+	raw.Listeners = listeners
+	if raw.AllowLan {
+		return
+	}
+	for i := range raw.Tunnels {
+		raw.Tunnels[i].Address = loopbackAddress(raw.Tunnels[i].Address)
+	}
+}
+
+func loopbackAddress(address string) string {
+	_, port, err := net.SplitHostPort(address)
+	if err != nil {
+		return address
+	}
+	return net.JoinHostPort("127.0.0.1", port)
 }
 
 func patchDns(raw *config.RawConfig, params *PatchParams, defaults *config.RawConfig) error {

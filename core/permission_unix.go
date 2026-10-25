@@ -24,6 +24,12 @@ func isPrivileged() bool {
 	return os.Geteuid() == 0 && os.Getuid() != 0
 }
 
+func syncFileOwner(path string) {
+	if isPrivileged() {
+		_ = os.Lchown(path, os.Getuid(), os.Getgid())
+	}
+}
+
 func syncDirectoryPermissions(baseDir string, targetUid, targetGid int) {
 	if baseDir == "" || !isPrivileged() {
 		return

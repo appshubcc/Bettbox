@@ -30,10 +30,18 @@ class _ClashContainerState extends ConsumerState<ClashManager>
     return widget.child;
   }
 
+  void _syncForeground() {
+    clashCore.setForeground(!globalState.backgroundMode.value);
+  }
+
   @override
   void initState() {
     super.initState();
     clashMessage.addListener(this);
+    if (system.isAndroid) {
+      globalState.backgroundMode.addListener(_syncForeground);
+      unawaited(clashCore.preload().then((_) => _syncForeground()));
+    }
     ref.listenManual(needSetupProvider, (prev, next) {
       if (prev != next) {
         final profileChanged = prev?.a != next.a;
@@ -77,20 +85,26 @@ class _ClashContainerState extends ConsumerState<ClashManager>
   }
 
   @override
-  Future<void> dispose() async {
+  void dispose() {
     throttler.cancel(FunctionTag.requests);
     clashMessage.removeListener(this);
+    globalState.backgroundMode.removeListener(_syncForeground);
     super.dispose();
   }
 
   @override
-  Future<void> onDelay(Delay delay) async {
-    super.onDelay(delay);
+  void onDelays(List<Delay> delays) {
+    super.onDelays(delays);
     final appController = globalState.appController;
-    appController.setDelay(delay);
-    debouncer.call(FunctionTag.updateDelay, () async {
-      appController.updateGroupsDebounce();
-    }, duration: const Duration(milliseconds: 5000));
+    for (final delay in delays) {
+      appController.setDelay(delay);
+    }
+  }
+
+  @override
+  void onGroupsChanged() {
+    super.onGroupsChanged();
+    globalState.appController.updateGroupsDebounce();
   }
 
   @override
@@ -117,7 +131,7 @@ class _ClashContainerState extends ConsumerState<ClashManager>
   Future<void> onLoaded(String providerName) async {
     final provider = await clashCore.getExternalProvider(providerName);
     if (!mounted) return;
-    ref.read(providersProvider.notifier).setProvider(provider);
+    globalState.appController.setProvider(provider);
     globalState.appController.updateGroupsDebounce();
     super.onLoaded(providerName);
   }

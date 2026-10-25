@@ -70,7 +70,6 @@ func toExternalProvider(p cp.Provider) (*ExternalProvider, error) {
 			UpdateAt:         p.UpdatedAt(),
 			Path:             p.Vehicle().Path(),
 			SubscriptionInfo: p.GetSubscriptionInfo(),
-			Proxies:          p.Proxies(),
 		}, nil
 	case *provider.InlineProvider:
 		return &ExternalProvider{
@@ -81,7 +80,6 @@ func toExternalProvider(p cp.Provider) (*ExternalProvider, error) {
 			UpdateAt:         time.Now(),
 			Path:             "",
 			SubscriptionInfo: nil,
-			Proxies:          p.Proxies(),
 		}, nil
 	case *rp.RuleSetProvider:
 		return &ExternalProvider{
@@ -269,9 +267,6 @@ func updateConfig(params *UpdateParams) {
 		general.Tun.DNSHijack = *params.Tun.DNSHijack
 		general.Tun.Stack = *params.Tun.Stack
 		general.Tun.DisableICMPForwarding = *params.Tun.DisableICMPForwarding
-		if params.Tun.CongestionController != nil {
-			general.Tun.CongestionController = *params.Tun.CongestionController
-		}
 	}
 
 	updateListeners()
@@ -478,6 +473,7 @@ func prepareSetup(params *SetupParams) (*preparedSetup, error) {
 	if err != nil {
 		return nil, err
 	}
+	ensureTunInet6(cfg)
 	return &preparedSetup{key: key, rawCfg: rawCfg, cfg: cfg, global: global}, nil
 }
 
@@ -498,6 +494,7 @@ func setupConfig(params *SetupParams) (string, error) {
 	currentRawConfig = prepared.rawCfg
 	hub.ApplyConfig(currentConfig)
 	resetGroupShapes()
+	resetDelayState()
 	selectedMap := params.SelectedMap
 	if prepared.global != "" {
 		selectedMap = make(map[string]string, len(params.SelectedMap)+1)

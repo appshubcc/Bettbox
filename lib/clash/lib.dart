@@ -41,8 +41,8 @@ class ClashLib extends ClashHandlerInterface with AndroidClashInterface {
           if (!_canSendCompleter.isCompleted) {
             _canSendCompleter.complete(true);
           }
-        } else {
-          handleResult(ActionResult.fromJson(json.decode(message)));
+        } else if (message is String) {
+          handleResultMessage(message);
         }
       });
     }
@@ -190,6 +190,15 @@ class ClashLibHandler {
     return completer.future;
   }
 
+  Future<void> freeOSMemory() async {
+    final action = Action(
+      id: '${ActionMethod.forceGc.name}#${utils.id}',
+      method: ActionMethod.forceGc,
+      data: 'true',
+    );
+    await invokeAction(json.encode(action));
+  }
+
   Future<void> exportConfig(
     String id,
     String output, {
@@ -204,9 +213,12 @@ class ClashLibHandler {
         'output': output,
       }),
     );
-    final result = ActionResult.fromJson(
-      json.decode(await invokeAction(json.encode(action))),
-    ).toResult;
+    final result = decodeActionResult(
+      await invokeAction(json.encode(action)),
+    )?.toResult;
+    if (result == null) {
+      throw 'Invalid core result';
+    }
     if (result.isError) {
       throw result.message;
     }
@@ -282,12 +294,14 @@ class ClashLibHandler {
     String id, {
     String? ageSecretKey,
     List<String> disabledGroups = const [],
+    bool snippet = false,
   }) async {
     final path = await appPath.getProfilePath(id);
     final params = {
       'path': path,
       'age-secret-key': ageSecretKey ?? '',
       'disabled-groups': disabledGroups,
+      'snippet': snippet,
     };
     return using((arena) {
       final pathChar = json

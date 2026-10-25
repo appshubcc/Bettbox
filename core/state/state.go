@@ -1,6 +1,9 @@
 package state
 
-import "net/netip"
+import (
+	"net/netip"
+	"time"
+)
 
 var DefaultIpv4Address = "198.51.100.1/30"
 var DefaultDnsAddress = "198.51.100.2"
@@ -24,10 +27,10 @@ type AndroidVpnOptions struct {
 }
 
 type AccessControl struct {
-	Enable            bool     `json:"enable"`
-	Mode              string   `json:"mode"`
-	AcceptList        []string `json:"acceptList"`
-	RejectList        []string `json:"rejectList"`
+	Enable     bool     `json:"enable"`
+	Mode       string   `json:"mode"`
+	AcceptList []string `json:"acceptList"`
+	RejectList []string `json:"rejectList"`
 }
 
 type AndroidVpnRawOptions struct {
@@ -39,19 +42,36 @@ type AndroidVpnRawOptions struct {
 	DozeSuspend   bool           `json:"dozeSuspend"`
 }
 
+type TrafficStatsOptions struct {
+	Enable        bool `json:"enable"`
+	Detail        bool `json:"detail"`
+	RetentionDays int  `json:"retention-days"`
+	TzOffset      int  `json:"tz-offset"`
+}
+
+func DefaultTrafficStatsOptions() TrafficStatsOptions {
+	_, offset := time.Now().Zone()
+	return TrafficStatsOptions{
+		Enable:        false,
+		Detail:        true,
+		RetentionDays: 7,
+		TzOffset:      offset / 60,
+	}
+}
+
 type State struct {
 	VpnProps            AndroidVpnRawOptions `json:"vpn-props"`
 	CurrentProfileName  string               `json:"current-profile-name"`
 	OnlyStatisticsProxy bool                 `json:"only-statistics-proxy"`
 	BypassDomain        []string             `json:"bypass-domain"`
+	TrafficStats        TrafficStatsOptions  `json:"traffic-stats"`
 }
 
 var CurrentState = &State{
 	OnlyStatisticsProxy: false,
 	CurrentProfileName:  "",
+	TrafficStats:        DefaultTrafficStatsOptions(),
 }
-
-
 
 func GetDnsServerAddress() string {
 	return DefaultDnsAddress

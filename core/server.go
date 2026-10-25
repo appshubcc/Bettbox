@@ -42,6 +42,8 @@ func writeFrame(w io.Writer, data []byte) error {
 	return err
 }
 
+const maxFrameLength = 256 * 1024 * 1024
+
 func readFrame(r io.Reader) ([]byte, error) {
 	lenBuf := make([]byte, 4)
 	if _, err := io.ReadFull(r, lenBuf); err != nil {
@@ -49,7 +51,7 @@ func readFrame(r io.Reader) ([]byte, error) {
 	}
 	length := binary.LittleEndian.Uint32(lenBuf)
 
-	if length > 10*1024*1024 {
+	if length > maxFrameLength {
 		return nil, fmt.Errorf("frame too large: %d", length)
 	}
 

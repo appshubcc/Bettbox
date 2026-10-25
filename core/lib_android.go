@@ -8,6 +8,7 @@ import (
 	bridge "core/dart-bridge"
 	"core/platform"
 	"core/state"
+	"core/toolbox"
 	t "core/tun"
 	"encoding/json"
 	"errors"
@@ -114,9 +115,10 @@ func handleStopTun() {
 	if handler != nil {
 		handler.close()
 	}
+	toolbox.FlushTrafficStats()
 }
 
-func handleStartTun(fd int, callback unsafe.Pointer) {
+func handleStartTun(fd int, callback unsafe.Pointer) bool {
 	handleStopTun()
 	tunLock.Lock()
 	defer tunLock.Unlock()
@@ -125,8 +127,9 @@ func handleStartTun(fd int, callback unsafe.Pointer) {
 	if fd != 0 {
 		if currentConfig == nil {
 			log.Warnln("[APP] handleStartTun called before setupConfig")
-			handleStopTun()
-			return
+			runTime = nil
+			releaseObject(callback)
+			return false
 		}
 		handler := &TunHandler{
 			callback: callback,
@@ -134,15 +137,17 @@ func handleStartTun(fd int, callback unsafe.Pointer) {
 		}
 		tunHandler.Store(handler)
 		initTunHook()
-		tunListener, _ := t.Start(fd, currentConfig.General.Tun.Device, currentConfig.General.Tun.Stack, currentConfig.General.Tun.DisableICMPForwarding, uint32(currentConfig.General.Tun.MTU), currentConfig.General.IPv6, currentConfig.General.Tun.CongestionController)
-		if tunListener != nil {
-			log.Infoln("TUN address: %v", tunListener.Address())
-			handler.listener = tunListener
-		} else {
-			removeTunHook()
+		tunListener, _ := t.Start(fd, currentConfig.General.Tun.Device, currentConfig.General.Tun.Stack, currentConfig.General.Tun.DisableICMPForwarding, uint32(currentConfig.General.Tun.MTU), currentConfig.General.Tun.CongestionController)
+		if tunListener == nil {
 			tunHandler.Store(nil)
+			handler.close()
+			runTime = nil
+			return false
 		}
+		log.Infoln("TUN address: %v", tunListener.Address())
+		handler.listener = tunListener
 	}
+	return true
 }
 
 func handleGetRunTime() string {
@@ -177,15 +182,11 @@ func handleGetAndroidVpnOptions() string {
 		log.Warnln("[APP] handleGetAndroidVpnOptions called before setupConfig")
 		return ""
 	}
-	ipv6Address := ""
-	if currentConfig.General.IPv6 {
-		ipv6Address = state.DefaultIpv6Address
-	}
 	options := state.AndroidVpnOptions{
 		Enable:                state.CurrentState.VpnProps.Enable,
 		Port:                  currentConfig.General.MixedPort,
 		Ipv4Address:           state.DefaultIpv4Address,
-		Ipv6Address:           ipv6Address,
+		Ipv6Address:           state.DefaultIpv6Address,
 		AccessControl:         state.CurrentState.VpnProps.AccessControl,
 		SystemProxy:           state.CurrentState.VpnProps.SystemProxy,
 		AllowBypass:           state.CurrentState.VpnProps.AllowBypass,
@@ -260,8 +261,7 @@ func quickStart(initParamsChar *C.char, paramsChar *C.char, stateParamsChar *C.c
 
 //export startTUN
 func startTUN(fd C.int, callback unsafe.Pointer) bool {
-	handleStartTun(int(fd), callback)
-	return true
+	return handleStartTun(int(fd), callback)
 }
 
 //export getRunTime
@@ -282,6 +282,11 @@ func getCurrentProfileName() *C.char {
 //export getAndroidVpnOptions
 func getAndroidVpnOptions() *C.char {
 	return C.CString(handleGetAndroidVpnOptions())
+}
+
+//export setScreenState
+func setScreenState(on C.int) {
+	toolbox.SetTrafficScreenOn(on != 0)
 }
 
 //export setState

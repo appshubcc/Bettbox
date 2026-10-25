@@ -15,95 +15,41 @@ import 'package:flutter/services.dart';
 import 'package:path/path.dart';
 
 @visibleForTesting
-List<Group> buildGroups(String proxiesRaw, List<ExternalProvider> providers) {
+List<Group> buildGroups(String proxiesRaw) {
   final decoded = json.decode(proxiesRaw);
   if (decoded is! Map) return [];
   final names = (decoded['names'] as List? ?? const []).cast<String>();
   final types = (decoded['types'] as List? ?? const []).cast<String>();
-  final allProxies = <String, dynamic>{
-    for (var i = 0; i < names.length; i++)
-      names[i]: <String, dynamic>{'name': names[i], 'type': types[i]},
+  final rawGroups = (decoded['groups'] as List? ?? const [])
+      .whereType<Map>()
+      .toList();
+  final nows = <String, String>{
+    for (final group in rawGroups)
+      if (group['now'] case final String now) group['name'] as String: now,
   };
-  for (final entry in (decoded['groups'] as Map? ?? const {}).entries) {
-    final group = Map<String, dynamic>.from(entry.value as Map);
-    group['all'] = [
-      for (final member in (group['all'] ?? const []) as List)
-        member is int ? names[member] : member,
-    ];
-    allProxies[entry.key as String] = group;
-  }
-  for (final provider in providers) {
-    if (provider.proxies != null) {
-      for (final proxy in provider.proxies!) {
-        if (proxy is Map) {
-          final proxyMap = Map<String, dynamic>.from(proxy);
-          final name = proxyMap['name'];
-          if (name != null) {
-            allProxies[name] = proxyMap;
-            final suffix = '[${provider.name}]';
-            if (!name.endsWith(suffix)) {
-              allProxies['$name$suffix'] = proxyMap;
-            }
-          }
-        }
-      }
-    }
-  }
-
-  final globalProxy = allProxies[UsedProxy.GLOBAL.name];
-  final groupNames = <String>[];
-  final seenGroupNames = <String>{};
-
-  if (globalProxy != null) {
-    groupNames.add(UsedProxy.GLOBAL.name);
-    seenGroupNames.add(UsedProxy.GLOBAL.name);
-
-    final allList = globalProxy['all'] as List?;
-    if (allList != null) {
-      for (final item in allList) {
-        final name = item.toString();
-        final proxy = allProxies[name];
-        if (proxy is Map &&
-            GroupTypeExtension.valueList.contains(proxy['type'])) {
-          if (seenGroupNames.add(name)) {
-            groupNames.add(name);
-          }
-        }
-      }
-    }
-  }
-
-  for (final entry in allProxies.entries) {
-    final proxy = entry.value;
-    if (proxy is Map && GroupTypeExtension.valueList.contains(proxy['type'])) {
-      final name = entry.key;
-      if (seenGroupNames.add(name)) {
-        groupNames.add(name);
-      }
-    }
-  }
-
-  final members = <Object?, Proxy>{};
-  final groups = <Group>[];
-  for (final groupName in groupNames) {
-    final proxyData = allProxies[groupName];
-    if (proxyData is! Map) continue;
-    final all = <Proxy>[];
-    for (final name in (proxyData['all'] ?? const []) as List) {
-      final data = allProxies[name];
-      if (data is! Map) continue;
-      all.add(
-        members[name] ??= Proxy.fromJson(Map<String, dynamic>.from(data)),
-      );
-    }
-    groups.add(
-      Group.fromJson({
-        ...proxyData.cast<String, dynamic>(),
-        'all': const <dynamic>[],
-      }).copyWith(all: all),
-    );
-  }
-  return groups;
+  final members = <int, Proxy>{};
+  return [
+    for (final group in rawGroups)
+      if (GroupTypeExtension.getGroupType(group['type'] as String? ?? '')
+          case final type?)
+        Group(
+          type: type,
+          name: group['name'] as String,
+          now: group['now'] as String?,
+          hidden: group['hidden'] as bool?,
+          testUrl: group['testUrl'] as String?,
+          icon: group['icon'] as String? ?? '',
+          all: [
+            for (final index in (group['all'] as List? ?? const []).cast<int>())
+              if (index >= 0 && index < names.length)
+                members[index] ??= Proxy(
+                  name: names[index],
+                  type: types[index],
+                  now: nows[names[index]],
+                ),
+          ],
+        ),
+  ];
 }
 
 class ClashCore {
@@ -215,6 +161,27 @@ class ClashCore {
     );
   }
 
+  Future<String> importProfile({
+    required String source,
+    required String output,
+    List<String>? encodings,
+    required String ageSecretKey,
+    required bool validate,
+    SetupParams? setup,
+  }) {
+    return clashInterface.importProfile(
+      json.encode({
+        'source': source,
+        'output': output,
+        'decompress': encodings != null,
+        'encodings': encodings ?? const <String>[],
+        'age-secret-key': ageSecretKey,
+        'validate': validate,
+        'setup': ?setup,
+      }),
+    );
+  }
+
   Future<String> getRuntimeConfig(SetupParams setupParams) async {
     final res = await clashInterface.getRuntimeConfig(setupParams);
     if (res.isError) {
@@ -250,15 +217,10 @@ class ClashCore {
     return await clashInterface.setupConfig(setupParams);
   }
 
-  Future<List<Group>> getProxiesGroups({
-    List<ExternalProvider>? preloadedProviders,
-  }) async {
+  Future<List<Group>> getProxiesGroups() async {
     final proxiesRaw = await clashInterface.getProxies();
     if (proxiesRaw.isEmpty) return [];
-
-    final providers = preloadedProviders ?? await getExternalProviders();
-
-    return Isolate.run<List<Group>>(() => buildGroups(proxiesRaw, providers));
+    return Isolate.run<List<Group>>(() => buildGroups(proxiesRaw));
   }
 
   FutureOr<String> changeProxy(ChangeProxyParams changeProxyParams) async {
@@ -280,8 +242,7 @@ class ClashCore {
     }
     try {
       return await Isolate.run<List<TrackerInfo>>(() {
-        final connectionsData = json.decode(res) as Map;
-        final connectionsRaw = connectionsData['connections'] as List? ?? [];
+        final connectionsRaw = json.decode(res) as List? ?? [];
         return connectionsRaw.map((e) => TrackerInfo.fromJson(e)).toList();
       });
     } catch (e) {
@@ -290,11 +251,23 @@ class ClashCore {
     }
   }
 
+  Future<ConnectionsSummary> getConnectionsSummary() async {
+    final res = await clashInterface.getConnectionsSummary();
+    if (res.isEmpty) return const ConnectionsSummary();
+    final decoded = json.decode(res);
+    if (decoded is! Map) return const ConnectionsSummary();
+    return ConnectionsSummary.fromJson(Map<String, Object?>.from(decoded));
+  }
+
   void _forget(FutureOr<Object?> request, String name) {
     Future.value(request).then<void>(
       (_) {},
       onError: (Object e) => commonPrint.debug('$name ignored: $e'),
     );
+  }
+
+  void setForeground(bool value) {
+    _forget(clashInterface.setForeground(value), 'setForeground');
   }
 
   void closeConnection(String id) {
@@ -389,16 +362,46 @@ class ClashCore {
     }
   }
 
+  Future<List<Delay>> getDelays(
+    List<({String name, String url})> targets, {
+    required int concurrency,
+  }) async {
+    if (targets.isEmpty) return const [];
+    final effective = concurrency.clamp(1, maxDelayTestConcurrency);
+    final rounds = (targets.length / effective).ceil();
+    final data = await clashInterface.asyncTestDelays(
+      json.encode({
+        'targets': [
+          for (final target in targets)
+            {'name': target.name, 'url': target.url},
+        ],
+        'timeout': httpTimeoutDuration.inMilliseconds,
+        'concurrency': effective,
+      }),
+      (httpTimeoutDuration + const Duration(seconds: 1)) * rounds +
+          const Duration(seconds: 10),
+    );
+    if (data.isEmpty) return const [];
+    final decoded = json.decode(data);
+    if (decoded is! List) return const [];
+    return [
+      for (final item in decoded)
+        if (item is Map) Delay.fromJson(Map<String, Object?>.from(item)),
+    ];
+  }
+
   Future<Map<String, dynamic>> getConfig(
     String id, {
     String? ageSecretKey,
     List<String> disabledGroups = const [],
+    bool snippet = false,
   }) async {
     final profilePath = await appPath.getProfilePath(id);
     final res = await clashInterface.getConfig(
       profilePath,
       ageSecretKey: ageSecretKey,
       disabledGroups: disabledGroups,
+      snippet: snippet,
     );
     if (res.isSuccess) {
       final data = res.data;
@@ -435,17 +438,20 @@ class ClashCore {
     return IpInfo(ip: ip, countryCode: countryCode);
   }
 
-  Future<Traffic> getTotalTraffic() async {
-    final totalTrafficString = await clashInterface.getTotalTraffic();
-    if (totalTrafficString.isEmpty) {
-      return Traffic();
+  Future<({Traffic now, Traffic total})> getTrafficSnapshot() async {
+    final value = await clashInterface.getTrafficSnapshot();
+    if (value.isNotEmpty) {
+      try {
+        final decoded = json.decode(value) as Map<String, dynamic>;
+        return (
+          now: Traffic.fromMap(decoded['now'] as Map<String, dynamic>),
+          total: Traffic.fromMap(decoded['total'] as Map<String, dynamic>),
+        );
+      } catch (e) {
+        commonPrint.warn('Failed to parse traffic snapshot: $e');
+      }
     }
-    try {
-      return Traffic.fromMap(json.decode(totalTrafficString));
-    } catch (e) {
-      commonPrint.warn('Failed to parse total traffic: $e');
-      return Traffic();
-    }
+    return (now: Traffic(), total: Traffic());
   }
 
   Future<int> getMemory() async {
@@ -661,6 +667,27 @@ class ClashCore {
 
   Future<void> cancelMrsLookup() async {
     await clashInterface.toolboxInvoke(ActionMethod.cancelMrsLookup);
+  }
+
+  Future<TrafficStatsResult> getTrafficStats({
+    required String start,
+    required String end,
+    int top = 50,
+    String host = '',
+  }) async => TrafficStatsResult.fromJson(
+    await _toolboxJson(
+      ActionMethod.getTrafficStats,
+      data: json.encode({
+        'start': start,
+        'end': end,
+        'top': top,
+        'host': host,
+      }),
+    ),
+  );
+
+  Future<void> clearTrafficStats() async {
+    await clashInterface.toolboxInvoke(ActionMethod.clearTrafficStats);
   }
 
   Future<int> startToolProxy() async {

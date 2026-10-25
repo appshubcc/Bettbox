@@ -103,6 +103,9 @@ _CoreState _$CoreStateFromJson(Map<String, dynamic> json) => _CoreState(
           ?.map((e) => e as String)
           .toList() ??
       const [],
+  trafficStats: TrafficStatsOptions.fromJson(
+    json['traffic-stats'] as Map<String, dynamic>,
+  ),
 );
 
 Map<String, dynamic> _$CoreStateToJson(_CoreState instance) =>
@@ -111,6 +114,7 @@ Map<String, dynamic> _$CoreStateToJson(_CoreState instance) =>
       'only-statistics-proxy': instance.onlyStatisticsProxy,
       'current-profile-name': instance.currentProfileName,
       'bypass-domain': instance.bypassDomain,
+      'traffic-stats': instance.trafficStats,
     };
 
 _AndroidVpnOptions _$AndroidVpnOptionsFromJson(Map<String, dynamic> json) =>
@@ -206,7 +210,8 @@ Map<String, dynamic> _$AppMessageToJson(_AppMessage instance) =>
 
 const _$AppMessageTypeEnumMap = {
   AppMessageType.log: 'log',
-  AppMessageType.delay: 'delay',
+  AppMessageType.delays: 'delays',
+  AppMessageType.groupsChanged: 'groupsChanged',
   AppMessageType.request: 'request',
   AppMessageType.loaded: 'loaded',
   AppMessageType.speedTest: 'speedTest',
@@ -282,7 +287,6 @@ _ExternalProvider _$ExternalProviderFromJson(Map<String, dynamic> json) =>
       isUpdating: json['isUpdating'] as bool? ?? false,
       vehicleType: json['vehicle-type'] as String,
       updateAt: DateTime.parse(json['update-at'] as String),
-      proxies: json['proxies'] as List<dynamic>?,
     );
 
 Map<String, dynamic> _$ExternalProviderToJson(_ExternalProvider instance) =>
@@ -295,7 +299,6 @@ Map<String, dynamic> _$ExternalProviderToJson(_ExternalProvider instance) =>
       'isUpdating': instance.isUpdating,
       'vehicle-type': instance.vehicleType,
       'update-at': instance.updateAt.toIso8601String(),
-      'proxies': instance.proxies,
     };
 
 _Action _$ActionFromJson(Map<String, dynamic> json) => _Action(
@@ -317,6 +320,7 @@ const _$ActionMethodEnumMap = {
   ActionMethod.forceGc: 'forceGc',
   ActionMethod.shutdown: 'shutdown',
   ActionMethod.validateConfig: 'validateConfig',
+  ActionMethod.importProfile: 'importProfile',
   ActionMethod.updateConfig: 'updateConfig',
   ActionMethod.getConfig: 'getConfig',
   ActionMethod.getRuntimeConfig: 'getRuntimeConfig',
@@ -324,10 +328,13 @@ const _$ActionMethodEnumMap = {
   ActionMethod.getProxies: 'getProxies',
   ActionMethod.changeProxy: 'changeProxy',
   ActionMethod.getTraffic: 'getTraffic',
-  ActionMethod.getTotalTraffic: 'getTotalTraffic',
+  ActionMethod.getTrafficSnapshot: 'getTrafficSnapshot',
   ActionMethod.resetTraffic: 'resetTraffic',
   ActionMethod.asyncTestDelay: 'asyncTestDelay',
+  ActionMethod.asyncTestDelays: 'asyncTestDelays',
+  ActionMethod.setForeground: 'setForeground',
   ActionMethod.getConnections: 'getConnections',
+  ActionMethod.getConnectionsSummary: 'getConnectionsSummary',
   ActionMethod.closeConnections: 'closeConnections',
   ActionMethod.resetConnections: 'resetConnections',
   ActionMethod.closeConnection: 'closeConnection',
@@ -369,6 +376,8 @@ const _$ActionMethodEnumMap = {
   ActionMethod.mrsPrepare: 'mrsPrepare',
   ActionMethod.mrsLookup: 'mrsLookup',
   ActionMethod.cancelMrsLookup: 'cancelMrsLookup',
+  ActionMethod.getTrafficStats: 'getTrafficStats',
+  ActionMethod.clearTrafficStats: 'clearTrafficStats',
   ActionMethod.startToolProxy: 'startToolProxy',
   ActionMethod.stopToolProxy: 'stopToolProxy',
   ActionMethod.ageCrypt: 'ageCrypt',
@@ -406,6 +415,22 @@ Map<String, dynamic> _$ActionResultToJson(_ActionResult instance) =>
     };
 
 const _$ResultTypeEnumMap = {ResultType.success: 0, ResultType.error: -1};
+
+_ConnectionsSummary _$ConnectionsSummaryFromJson(Map<String, dynamic> json) =>
+    _ConnectionsSummary(
+      total: (json['total'] as num?)?.toInt() ?? 0,
+      tcp: (json['tcp'] as num?)?.toInt() ?? 0,
+      udp: (json['udp'] as num?)?.toInt() ?? 0,
+      fcmStart: (json['fcm-start'] as num?)?.toInt() ?? 0,
+    );
+
+Map<String, dynamic> _$ConnectionsSummaryToJson(_ConnectionsSummary instance) =>
+    <String, dynamic>{
+      'total': instance.total,
+      'tcp': instance.tcp,
+      'udp': instance.udp,
+      'fcm-start': instance.fcmStart,
+    };
 
 _CoreStatus _$CoreStatusFromJson(Map<String, dynamic> json) => _CoreStatus(
   physical: (json['physical'] as num?)?.toInt() ?? 0,

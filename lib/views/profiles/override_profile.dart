@@ -31,7 +31,7 @@ class _OverrideProfileViewState extends State<OverrideProfileView> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       context.afterRouteTransition(() async {
-        final rawConfig = await globalState.getProfileConfig(
+        final rawConfig = await globalState.getProfileSnippet(
           widget.profileId,
           effective: true,
         );
@@ -48,6 +48,12 @@ class _OverrideProfileViewState extends State<OverrideProfileView> {
             );
       });
     });
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
   }
 
   void _handleSave(WidgetRef ref, OverrideData overrideData) {
@@ -864,6 +870,15 @@ class _AddRuleDialogState extends State<AddRuleDialog> {
     }
   }
 
+  @override
+  void dispose() {
+    _ruleTargetController.dispose();
+    _contentController.dispose();
+    _ruleProviderController.dispose();
+    _subRuleController.dispose();
+    super.dispose();
+  }
+
   void _handleSubmit() {
     final res = _formKey.currentState?.validate();
     if (res == false) {
@@ -898,7 +913,7 @@ class _AddRuleDialogState extends State<AddRuleDialog> {
         value: controller.text,
       ),
     );
-    if (selected == null) return;
+    if (selected == null || !mounted) return;
     setState(() {
       controller.text = selected;
     });
@@ -913,7 +928,7 @@ class _AddRuleDialogState extends State<AddRuleDialog> {
         value: _ruleAction,
       ),
     );
-    if (selected == null) return;
+    if (selected == null || !mounted) return;
     setState(() {
       _ruleAction = selected;
     });

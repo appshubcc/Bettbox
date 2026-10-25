@@ -79,9 +79,11 @@ func handleInitClash(paramsString string) bool {
 	version = params.Version
 	if !isInit {
 		constant.SetHomeDir(params.HomeDir)
+		toolbox.InitTrafficStats(params.HomeDir)
 		isInit = true
 		ensureLogSubscriber()
 		initPermissionGuard(params.HomeDir)
+		startIPv6Monitor()
 	}
 	return isInit
 }
@@ -100,6 +102,7 @@ func handleStopListener() bool {
 	defer runLock.Unlock()
 	isRunning = false
 	listener.StopListener()
+	toolbox.FlushTrafficStats()
 	return true
 }
 
@@ -120,6 +123,7 @@ func handleForceGc(forceFreeOSMemory bool) {
 }
 
 func handleShutdown() bool {
+	toolbox.FlushTrafficStats()
 	stopListeners()
 	executor.Shutdown()
 	tryUnloadGeoData()
@@ -153,20 +157,7 @@ func handleValidateConfig(params *ValidateConfigParams) string {
 		}
 		return ""
 	}
-	ageMutex.Lock()
-	defer ageMutex.Unlock()
-
-	if params.AgeSecretKey != "" {
-		age.SetGlobalSecretKeys(params.AgeSecretKey)
-		defer age.SetGlobalSecretKeys()
-	}
-
-	data := patchYamlShortID([]byte(params.Data))
-	_, err := config.Parse(data)
-	if err != nil {
-		return err.Error()
-	}
-	return ""
+	return validateProfileContent([]byte(params.Data), params.AgeSecretKey)
 }
 
 func handleDecryptAgeConfig(params *DecryptAgeConfigParams) string {
@@ -181,9 +172,9 @@ func handleDecryptAgeConfig(params *DecryptAgeConfigParams) string {
 }
 
 type proxiesPayload struct {
-	Names  []string                   `json:"names"`
-	Types  []string                   `json:"types"`
-	Groups map[string]json.RawMessage `json:"groups"`
+	Names  []string       `json:"names"`
+	Types  []string       `json:"types"`
+	Groups []groupPayload `json:"groups"`
 }
 
 type groupPayload struct {
@@ -193,7 +184,7 @@ type groupPayload struct {
 	TestUrl *string `json:"testUrl,omitempty"`
 	Hidden  bool    `json:"hidden"`
 	Icon    string  `json:"icon"`
-	All     []any   `json:"all"`
+	All     []int   `json:"all"`
 }
 
 type groupShape struct {
@@ -234,63 +225,101 @@ func groupShapeOf(outbound *adapter.Proxy) (groupShape, error) {
 	return shape, nil
 }
 
-func marshalGroup(outbound *adapter.Proxy, group outboundgroup.ProxyGroup, indexes map[string]int) (json.RawMessage, error) {
-	shape, err := groupShapeOf(outbound)
-	if err != nil {
-		return nil, err
+func proxyGroupOf(proxy constant.Proxy) (*adapter.Proxy, outboundgroup.ProxyGroup, bool) {
+	outbound, ok := proxy.(*adapter.Proxy)
+	if !ok {
+		return nil, nil, false
 	}
-	members := group.Proxies()
-	payload := groupPayload{
-		Name:    outbound.Name(),
-		Type:    outbound.Type().String(),
-		TestUrl: shape.testUrl,
-		Hidden:  group.Hidden(),
-		Icon:    group.Icon(),
-		All:     make([]any, len(members)),
+	group, ok := outbound.ProxyAdapter.(outboundgroup.ProxyGroup)
+	return outbound, group, ok
+}
+
+func orderedGroupNames(proxies map[string]constant.Proxy) []string {
+	seen := map[string]bool{}
+	names := make([]string, 0)
+	add := func(name string) {
+		if seen[name] {
+			return
+		}
+		if _, _, ok := proxyGroupOf(proxies[name]); !ok {
+			return
+		}
+		seen[name] = true
+		names = append(names, name)
 	}
-	if shape.hasNow {
-		now := group.Now()
-		payload.Now = &now
-	}
-	for i, member := range members {
-		name := member.Name()
-		if index, exist := indexes[name]; exist {
-			payload.All[i] = index
-		} else {
-			payload.All[i] = name
+	if _, global, ok := proxyGroupOf(proxies["GLOBAL"]); ok {
+		add("GLOBAL")
+		for _, member := range global.Proxies() {
+			add(member.Name())
 		}
 	}
-	return json.Marshal(payload)
+	rest := make([]string, 0)
+	for name, proxy := range proxies {
+		if seen[name] {
+			continue
+		}
+		if _, _, ok := proxyGroupOf(proxy); ok {
+			rest = append(rest, name)
+		}
+	}
+	sort.Strings(rest)
+	return append(names, rest...)
 }
 
 func marshalProxies(proxies map[string]constant.Proxy) ([]byte, error) {
+	groupNames := orderedGroupNames(proxies)
 	payload := proxiesPayload{
 		Names:  make([]string, 0, len(proxies)),
 		Types:  make([]string, 0, len(proxies)),
-		Groups: map[string]json.RawMessage{},
+		Groups: make([]groupPayload, 0, len(groupNames)),
 	}
 	indexes := make(map[string]int, len(proxies))
-	for name, proxy := range proxies {
-		indexes[name] = len(payload.Names)
+	indexOf := func(member constant.Proxy) int {
+		name := member.Name()
+		if index, exist := indexes[name]; exist {
+			return index
+		}
+		if top, exist := proxies[name]; exist {
+			member = top
+		}
+		index := len(payload.Names)
+		indexes[name] = index
 		payload.Names = append(payload.Names, name)
-		payload.Types = append(payload.Types, proxy.Type().String())
+		payload.Types = append(payload.Types, member.Type().String())
+		return index
 	}
-	for name, proxy := range proxies {
-		outbound, ok := proxy.(*adapter.Proxy)
-		if !ok {
-			continue
-		}
-		group, isGroup := outbound.ProxyAdapter.(outboundgroup.ProxyGroup)
-		if !isGroup {
-			continue
-		}
-		data, err := marshalGroup(outbound, group, indexes)
+	nows := make(map[string]string, len(groupNames))
+	for _, name := range groupNames {
+		outbound, group, _ := proxyGroupOf(proxies[name])
+		shape, err := groupShapeOf(outbound)
 		if err != nil {
 			return nil, err
 		}
-		payload.Groups[name] = data
+		members := group.Proxies()
+		item := groupPayload{
+			Name:    outbound.Name(),
+			Type:    outbound.Type().String(),
+			TestUrl: shape.testUrl,
+			Hidden:  group.Hidden(),
+			Icon:    group.Icon(),
+			All:     make([]int, len(members)),
+		}
+		if shape.hasNow {
+			now := group.Now()
+			item.Now = &now
+			nows[name] = now
+		}
+		for i, member := range members {
+			item.All[i] = indexOf(member)
+		}
+		payload.Groups = append(payload.Groups, item)
 	}
-	return json.Marshal(payload)
+	data, err := json.Marshal(payload)
+	if err != nil {
+		return nil, err
+	}
+	rememberGroupNows(nows)
+	return data, nil
 }
 
 func handleGetProxies() string {
@@ -376,73 +405,65 @@ func handleGetTotalTraffic() string {
 	return string(data)
 }
 
+type trafficPair struct {
+	Up   int64 `json:"up"`
+	Down int64 `json:"down"`
+}
+
+type trafficSnapshot struct {
+	Now   trafficPair `json:"now"`
+	Total trafficPair `json:"total"`
+}
+
+func handleGetTrafficSnapshot() string {
+	onlyProxy := state.CurrentState.OnlyStatisticsProxy
+	var snapshot trafficSnapshot
+	snapshot.Total.Up, snapshot.Total.Down = statistic.DefaultManager.TotalTraffic(onlyProxy)
+	snapshot.Now.Up, snapshot.Now.Down = statistic.DefaultManager.NowTraffic(onlyProxy)
+	data, err := json.Marshal(snapshot)
+	if err != nil {
+		return ""
+	}
+	return string(data)
+}
+
 func handleResetTraffic() {
 	statistic.DefaultManager.ResetStatistic()
+}
+
+func testProxyDelay(name, testUrl string, timeout int64) Delay {
+	if testUrl == "" {
+		testUrl = constant.DefaultTestURL
+	}
+	delay := Delay{Name: name, Url: testUrl, Value: -1}
+	proxy, _ := toolbox.FindProxy(name)
+	if proxy == nil {
+		return delay
+	}
+	expectedStatus, err := utils.NewUnsignedRanges[uint16]("")
+	if err != nil {
+		return delay
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), time.Millisecond*time.Duration(timeout))
+	defer cancel()
+	value, err := proxy.URLTest(ctx, testUrl, expectedStatus)
+	if err == nil && value != 0 {
+		delay.Value = int32(value)
+	}
+	return delay
 }
 
 func handleAsyncTestDelay(paramsString string, fn func(string)) {
 	mBatch.Go(paramsString, func() (bool, error) {
 		var params = &TestDelayParams{}
-		err := json.Unmarshal([]byte(paramsString), params)
-		if err != nil {
+		if err := json.Unmarshal([]byte(paramsString), params); err != nil {
 			fn("")
 			return false, nil
 		}
-
-		expectedStatus, err := utils.NewUnsignedRanges[uint16]("")
-		if err != nil {
-			fn("")
-			return false, nil
-		}
-
-		ctx, cancel := context.WithTimeout(context.Background(), time.Millisecond*time.Duration(params.Timeout))
-		defer cancel()
-
-		proxy, _ := toolbox.FindProxy(params.ProxyName)
-
-		delayData := &Delay{
-			Name: params.ProxyName,
-		}
-
-		if proxy == nil {
-			delayData.Value = -1
-			data, _ := json.Marshal(delayData)
-			fn(string(data))
-			return false, nil
-		}
-
-		testUrl := constant.DefaultTestURL
-
-		if params.TestUrl != "" {
-			testUrl = params.TestUrl
-		}
-		delayData.Url = testUrl
-
-		delay, err := proxy.URLTest(ctx, testUrl, expectedStatus)
-		if err != nil || delay == 0 {
-			delayData.Value = -1
-			data, _ := json.Marshal(delayData)
-			fn(string(data))
-			return false, nil
-		}
-
-		delayData.Value = int32(delay)
-		data, _ := json.Marshal(delayData)
+		data, _ := json.Marshal(testProxyDelay(params.ProxyName, params.TestUrl, params.Timeout))
 		fn(string(data))
 		return false, nil
 	})
-}
-
-func handleGetConnections() string {
-	runLock.Lock()
-	defer runLock.Unlock()
-	snapshot := statistic.DefaultManager.Snapshot()
-	data, err := json.Marshal(snapshot)
-	if err != nil {
-		fmt.Println("Error:", err)
-		return ""
-	}
-	return string(data)
 }
 
 func handleCloseConnections() bool {
@@ -840,18 +861,36 @@ func handleGetMode() string {
 
 func handleSetState(params string) {
 	_ = json.Unmarshal([]byte(params), state.CurrentState)
+	toolbox.ConfigureTrafficStats(
+		state.CurrentState.TrafficStats,
+		state.CurrentState.CurrentProfileName,
+	)
 }
 
-func handleGetConfig(params *GetConfigParams) (*config.RawConfig, error) {
+func configSnippet(rawCfg *config.RawConfig) map[string]any {
+	return map[string]any{
+		"proxy-groups":   rawCfg.ProxyGroup,
+		"rules":          rawCfg.Rule,
+		"rule-providers": rawCfg.RuleProvider,
+		"sub-rules":      rawCfg.SubRules,
+	}
+}
+
+func handleGetConfig(params *GetConfigParams) (any, error) {
 	rawCfg, err := readProfile(params.Path, params.AgeSecretKey)
-	if err != nil || len(params.DisabledGroups) == 0 {
-		return rawCfg, err
+	if err != nil {
+		return nil, err
 	}
-	disabled := make(map[string]bool, len(params.DisabledGroups))
-	for _, name := range params.DisabledGroups {
-		disabled[name] = true
+	if len(params.DisabledGroups) > 0 {
+		disabled := make(map[string]bool, len(params.DisabledGroups))
+		for _, name := range params.DisabledGroups {
+			disabled[name] = true
+		}
+		rawCfg.ProxyGroup = disableGroups(rawCfg.ProxyGroup, disabled)
 	}
-	rawCfg.ProxyGroup = disableGroups(rawCfg.ProxyGroup, disabled)
+	if params.Snippet {
+		return configSnippet(rawCfg), nil
+	}
 	return rawCfg, nil
 }
 
@@ -1114,6 +1153,7 @@ func handleSetupConfig(bytes []byte) *SetupResult {
 	clearSuspendedWireGuard()
 	suspendModeLock.Lock()
 	currentSuspendMode = 0
+	toolbox.SuspendTrafficStats(false)
 	suspendModeLock.Unlock()
 	global, err := setupConfig(params)
 	if err != nil {
@@ -1160,6 +1200,7 @@ func handleSuspend(mode int) bool {
 		}
 		log.Infoln("[APP] Doze suspend mode enabled")
 		pauseHealthChecks()
+		toolbox.SuspendTrafficStats(true)
 		runtime.GC()
 		currentSuspendMode = 2
 
@@ -1170,6 +1211,7 @@ func handleSuspend(mode int) bool {
 		log.Infoln("[APP] Resume from suspend")
 		prevMode := currentSuspendMode
 		currentSuspendMode = 0
+		toolbox.SuspendTrafficStats(false)
 
 		if prevMode == 1 {
 			tunnel.OnRunning()
@@ -1201,23 +1243,16 @@ func handleSuspend(mode int) bool {
 
 func init() {
 	adapter.UrlTestHook = func(url string, name string, delay uint16) {
-		delayData := &Delay{
-			Url:  url,
-			Name: name,
+		value := int32(-1)
+		if delay != 0 {
+			value = int32(delay)
 		}
-		if delay == 0 {
-			delayData.Value = -1
-		} else {
-			delayData.Value = int32(delay)
-		}
-		sendMessage(Message{
-			Type: DelayMessage,
-			Data: delayData,
-		})
+		pushDelay(Delay{Url: url, Name: name, Value: value})
 	}
 	statistic.DefaultRequestNotify = func(c statistic.Tracker) {
 		info := c.Info()
 		toolbox.ObserveSpeedTestTracker(info)
+		toolbox.ObserveTrafficTracker(info)
 		recordRequestHistory(info)
 		if !isStreamingRequests.Load() {
 			return
@@ -1235,7 +1270,7 @@ func init() {
 	}
 }
 
-const maxRequestHistory = 512
+const maxRequestHistory = 1024
 
 func recordRequestHistory(info *statistic.TrackerInfo) {
 	requestHistoryLock.Lock()
@@ -1275,4 +1310,3 @@ func handleClearRequests() bool {
 	requestHistory = nil
 	return true
 }
-

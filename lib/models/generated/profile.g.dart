@@ -38,6 +38,12 @@ _Profile _$ProfileFromJson(Map<String, dynamic> json) => _Profile(
       : SubscriptionInfo.fromJson(
           json['subscriptionInfo'] as Map<String, dynamic>,
         ),
+  providerSubscriptions:
+      (json['providerSubscriptions'] as Map<String, dynamic>?)?.map(
+        (k, e) =>
+            MapEntry(k, SubscriptionInfo.fromJson(e as Map<String, dynamic>)),
+      ) ??
+      const {},
   autoUpdate: json['autoUpdate'] as bool? ?? true,
   selectedMap:
       (json['selectedMap'] as Map<String, dynamic>?)?.map(
@@ -57,6 +63,9 @@ _Profile _$ProfileFromJson(Map<String, dynamic> json) => _Profile(
         (k, e) => MapEntry(k, e as bool),
       ) ??
       const {},
+  usageStyle:
+      $enumDecodeNullable(_$ProfileUsageStyleEnumMap, json['usageStyle']) ??
+      ProfileUsageStyle.bar,
 );
 
 Map<String, dynamic> _$ProfileToJson(_Profile instance) => <String, dynamic>{
@@ -67,6 +76,7 @@ Map<String, dynamic> _$ProfileToJson(_Profile instance) => <String, dynamic>{
   'lastUpdateDate': instance.lastUpdateDate?.toIso8601String(),
   'autoUpdateDuration': instance.autoUpdateDuration.inMicroseconds,
   'subscriptionInfo': instance.subscriptionInfo,
+  'providerSubscriptions': instance.providerSubscriptions,
   'autoUpdate': instance.autoUpdate,
   'selectedMap': instance.selectedMap,
   'unfoldSet': instance.unfoldSet.toList(),
@@ -74,6 +84,13 @@ Map<String, dynamic> _$ProfileToJson(_Profile instance) => <String, dynamic>{
   'useScriptOverride': instance.useScriptOverride,
   'ageSecretKey': instance.ageSecretKey,
   'group-switches': instance.groupSwitches,
+  'usageStyle': _$ProfileUsageStyleEnumMap[instance.usageStyle]!,
+};
+
+const _$ProfileUsageStyleEnumMap = {
+  ProfileUsageStyle.bar: 'bar',
+  ProfileUsageStyle.ring: 'ring',
+  ProfileUsageStyle.concentric: 'concentric',
 };
 
 _OverrideData _$OverrideDataFromJson(Map<String, dynamic> json) =>

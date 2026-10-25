@@ -11,12 +11,15 @@ class ClashMessage {
     controller.stream.listen((message) {
       if (message.isEmpty) return;
       final m = AppMessage.fromJson(message);
+      List<Delay>? delays;
       for (final AppMessageListener listener in _listeners) {
         switch (m.type) {
           case AppMessageType.log:
             listener.onLog(Log.core(m.data));
-          case AppMessageType.delay:
-            listener.onDelay(Delay.fromJson(m.data));
+          case AppMessageType.delays:
+            listener.onDelays(delays ??= _decodeDelays(m.data));
+          case AppMessageType.groupsChanged:
+            listener.onGroupsChanged();
           case AppMessageType.request:
             listener.onRequest(TrackerInfo.fromJson(m.data));
           case AppMessageType.loaded:
@@ -33,6 +36,12 @@ class ClashMessage {
       }
     });
   }
+
+  static List<Delay> _decodeDelays(Object? data) => [
+    if (data is List)
+      for (final item in data)
+        if (item is Map) Delay.fromJson(Map<String, Object?>.from(item)),
+  ];
 
   static final ClashMessage instance = ClashMessage._();
 

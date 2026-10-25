@@ -1,6 +1,9 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:math';
 import 'dart:typed_data';
+
+const maxFrameLength = 256 * 1024 * 1024;
 
 class FrameCodec {
   static Uint8List encode(String data) {
@@ -14,54 +17,71 @@ class FrameCodec {
 }
 
 class FrameDecoder {
-  final BytesBuilder _builder = BytesBuilder();
+  static const _initialCapacity = 64 * 1024;
+  static const _retainedCapacity = 1024 * 1024;
+
+  Uint8List _buffer = Uint8List(0);
+  int _start = 0;
+  int _end = 0;
+
+  void _append(Uint8List data) {
+    final pending = _end - _start;
+    if (_end + data.length > _buffer.length) {
+      final required = pending + data.length;
+      final next = Uint8List(
+        max(required, max(_buffer.length * 2, _initialCapacity)),
+      );
+      next.setRange(0, pending, _buffer, _start);
+      _buffer = next;
+      _start = 0;
+      _end = pending;
+    }
+    _buffer.setRange(_end, _end + data.length, data);
+    _end += data.length;
+  }
 
   List<String> decode(Uint8List data) {
     final results = <String>[];
-    _builder.add(data);
-
-    final Uint8List buffer = _builder.takeBytes();
-    int offset = 0;
-
+    if (data.isEmpty) return results;
+    _append(data);
     try {
-      while (buffer.length - offset >= 4) {
-        final view = ByteData.view(buffer.buffer, buffer.offsetInBytes + offset, 4);
-        final length = view.getUint32(0, Endian.little);
-
-        if (length > 10 * 1024 * 1024 || length < 0) {
+      while (_end - _start >= 4) {
+        final length = ByteData.sublistView(
+          _buffer,
+          _start,
+          _start + 4,
+        ).getUint32(0, Endian.little);
+        if (length > maxFrameLength) {
           throw FormatException('Invalid or too large frame length: $length');
         }
-
-        if (buffer.length - offset < 4 + length) {
+        if (_end - _start < 4 + length) {
           break;
         }
-
-        final frame = Uint8List.view(
-          buffer.buffer,
-          buffer.offsetInBytes + offset + 4,
-          length,
+        results.add(
+          utf8.decode(
+            Uint8List.sublistView(_buffer, _start + 4, _start + 4 + length),
+          ),
         );
-        results.add(utf8.decode(frame));
-        offset += 4 + length;
+        _start += 4 + length;
       }
-
-      if (offset < buffer.length) {
-        _builder.add(Uint8List.view(
-          buffer.buffer,
-          buffer.offsetInBytes + offset,
-          buffer.length - offset,
-        ));
-      }
-    } catch (e) {
-      _builder.clear();
+    } catch (_) {
+      reset();
       rethrow;
     }
-
+    if (_start == _end) {
+      _start = 0;
+      _end = 0;
+      if (_buffer.length > _retainedCapacity) {
+        _buffer = Uint8List(0);
+      }
+    }
     return results;
   }
 
   void reset() {
-    _builder.clear();
+    _buffer = Uint8List(0);
+    _start = 0;
+    _end = 0;
   }
 }
 

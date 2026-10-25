@@ -51,22 +51,13 @@ class _FcmStatusState extends State<FcmStatus> {
     _isUpdating = true;
 
     try {
-      final connections = await clashCore.getConnections();
+      final summary = await clashCore.getConnectionsSummary();
 
-      final fcmConnections = connections.where((conn) {
-        final host = conn.metadata.host.toLowerCase();
-        final port = conn.metadata.destinationPort;
-        return host.contains('google.com') &&
-            (port == '5228' || port == '5229' || port == '5230');
-      }).toList();
-
-      if (fcmConnections.isEmpty) {
+      if (summary.fcmStart <= 0) {
         _fcmStatusNotifier.value = const FcmStatusData(isConnected: false);
       } else {
-        final longestConnection = fcmConnections.reduce(
-          (a, b) => a.start.isBefore(b.start) ? a : b,
-        );
-        final duration = DateTime.now().difference(longestConnection.start);
+        final start = DateTime.fromMillisecondsSinceEpoch(summary.fcmStart);
+        final duration = DateTime.now().difference(start);
         final minutes = duration.inMinutes;
         _fcmStatusNotifier.value = FcmStatusData(
           minutes: minutes,

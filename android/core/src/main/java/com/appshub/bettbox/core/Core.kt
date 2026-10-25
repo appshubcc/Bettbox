@@ -5,8 +5,10 @@ import java.net.InetSocketAddress
 
 object Core {
 
-    private external fun startTun(fd: Int, cb: TunInterface)
+    private external fun startTun(fd: Int, cb: TunInterface): Boolean
     private external fun suspend(suspended: Int)
+    private external fun setScreenState(on: Int)
+    private external fun getTraffic(): String
     external fun stopTun()
 
     init {
@@ -29,8 +31,8 @@ object Core {
         fd: Int,
         protect: (Int) -> Boolean,
         resolverProcess: (protocol: Int, source: InetSocketAddress, target: InetSocketAddress, uid: Int) -> String
-    ) {
-        startTun(fd, object : TunInterface {
+    ): Boolean {
+        return startTun(fd, object : TunInterface {
             override fun protect(fd: Int) {
                 runCatching { protect(fd) }
                     .onFailure { Log.e("Core", "protect JNI callback error: ${it.message}") }
@@ -54,6 +56,8 @@ object Core {
         })
     }
 
+    fun trafficJson(): String? = runCatching { getTraffic() }.getOrNull()
+
     fun suspended(value: Boolean) {
         runCatching {
             Log.d("Core", "suspended called with value: $value")
@@ -61,6 +65,14 @@ object Core {
             Log.d("Core", "suspend JNI call completed")
         }.onFailure {
             Log.e("Core", "Error calling suspend: ${it.message}", it)
+        }
+    }
+
+    fun screenStateChanged(isOn: Boolean) {
+        runCatching {
+            setScreenState(if (isOn) 1 else 0)
+        }.onFailure {
+            Log.e("Core", "Error calling setScreenState: ${it.message}", it)
         }
     }
 

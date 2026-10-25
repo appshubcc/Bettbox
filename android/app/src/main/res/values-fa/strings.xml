@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="home_widget_large_label">اشتراک · بزرگ</string>
+    <string name="home_widget_wide_label">اشتراک · عریض</string>
+    <string name="home_widget_square_label">اشتراک · مربع</string>
+    <string name="home_widget_large_desc">مصرف، تاریخ انقضا، گره فعلی و کلید VPN</string>
+    <string name="home_widget_wide_desc">مصرف، گره فعلی و کلید VPN</string>
+    <string name="home_widget_square_desc">حلقهٔ مصرف، گره فعلی و به‌روزرسانی</string>
+    <string name="home_widget_empty">برای تکمیل تنظیمات Bettbox را باز کنید</string>
+</resources>

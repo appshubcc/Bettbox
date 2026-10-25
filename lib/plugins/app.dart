@@ -10,6 +10,8 @@ class App {
   static App? _instance;
   late MethodChannel methodChannel;
   Function()? onExit;
+  void Function(String action)? onHomeWidgetAction;
+  void Function(bool active)? onHomeWidgetsChanged;
 
   App._internal() {
     methodChannel = const MethodChannel('app');
@@ -17,6 +19,10 @@ class App {
       switch (call.method) {
         case 'exit':
           await onExit?.call();
+        case 'homeWidgetAction':
+          onHomeWidgetAction?.call(call.arguments as String);
+        case 'homeWidgetsChanged':
+          onHomeWidgetsChanged?.call(call.arguments as bool);
         case 'getText':
           try {
             return Intl.message(call.arguments as String);
@@ -39,10 +45,12 @@ class App {
   }
 
   Future<List<Package>> getPackages({bool forceRefresh = false}) async {
-    final packagesRaw = await methodChannel.invokeListMethod<Map<dynamic, dynamic>>(
-      'getPackages',
-      {'forceRefresh': forceRefresh},
-    ) ?? const [];
+    final packagesRaw =
+        await methodChannel.invokeListMethod<Map<dynamic, dynamic>>(
+          'getPackages',
+          {'forceRefresh': forceRefresh},
+        ) ??
+        const [];
     return packagesRaw
         .map((e) => Package.fromJson(Map<String, Object?>.from(e)))
         .toList();
@@ -95,20 +103,15 @@ class App {
 
   Future<bool?> tip(String? message) async {
     if (message == null || message.isEmpty) return false;
-    return await methodChannel.invokeMethod<bool>('tip', {
-      'message': message,
-    });
+    return await methodChannel.invokeMethod<bool>('tip', {'message': message});
   }
 
   Future<bool?> initShortcuts() async {
-    return await methodChannel.invokeMethod<bool>(
-      'initShortcuts',
-      {
-        'toggle': appLocalizations.toggle,
-        'start': appLocalizations.start,
-        'stop': appLocalizations.stop,
-      },
-    );
+    return await methodChannel.invokeMethod<bool>('initShortcuts', {
+      'toggle': appLocalizations.toggle,
+      'start': appLocalizations.start,
+      'stop': appLocalizations.stop,
+    });
   }
 
   Future<bool?> updateExcludeFromRecents(bool value) async {
@@ -140,6 +143,18 @@ class App {
       'useDarkIcon': useDarkIcon,
     });
     return result ?? false;
+  }
+
+  Future<void> updateHomeWidget(String data) async {
+    await methodChannel.invokeMethod('updateHomeWidget', data);
+  }
+
+  Future<bool> hasHomeWidgets() async {
+    return await methodChannel.invokeMethod<bool>('hasHomeWidgets') ?? false;
+  }
+
+  Future<String?> consumeHomeWidgetAction() async {
+    return await methodChannel.invokeMethod<String>('consumeHomeWidgetAction');
   }
 
   Future<bool> isAndroidTV() async {

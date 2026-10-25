@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:ffi';
 import 'dart:io';
 import 'dart:isolate';
@@ -108,8 +109,24 @@ Future<void> _service(List<String> flags) async {
     final clashLibHandler = ClashLibHandler();
     final smartAutoStopLock = Lock();
 
+    Future<void> refreshVpnProps() async {
+      try {
+        final configFile = File(await appPath.appConfigPath);
+        if (!await configFile.exists()) return;
+        final latestConfig = Config.compatibleFromJson(
+          json.decode(await configFile.readAsString()),
+        );
+        globalState.config = globalState.config.copyWith(
+          vpnProps: latestConfig.vpnProps,
+        );
+      } catch (e) {
+        commonPrint.warn('Refresh vpn props failed: $e');
+      }
+    }
+
     Future<void> checkSmartAutoStop() async {
       try {
+        await refreshVpnProps();
         final vpnProps = globalState.config.vpnProps;
         if (!vpnProps.smartAutoStop) return;
         final networks = vpnProps.smartAutoStopNetworks;
@@ -145,12 +162,58 @@ Future<void> _service(List<String> flags) async {
       }
     }
 
+    Future<void> startCore() async {
+      await ClashCore.initGeo();
+      app.tip(appLocalizations.startVpn);
+      final homeDirPath = await appPath.homeDirPath;
+      final version = await system.version;
+      final clashConfig = globalState.config.patchClashConfig.copyWith.tun(
+        enable: false,
+      );
+
+      Future(() async {
+        try {
+          final profileId = globalState.config.currentProfileId;
+          if (profileId == null) {
+            return;
+          }
+          final params = await globalState.getSetupParams(
+            pathConfig: clashConfig,
+          );
+          final res = await clashLibHandler.quickStart(
+            InitParams(homeDir: homeDirPath, version: version),
+            params,
+            globalState.getCoreState(),
+          );
+          final message = res.message;
+          debugPrint(message);
+          if (message.isNotEmpty) {
+            commonPrint.error('QuickStart failed with error: $message');
+            await vpn?.stop();
+            return;
+          }
+          await vpn?.start(clashLibHandler.getAndroidVpnOptions());
+          Future.delayed(const Duration(seconds: 2), checkSmartAutoStop);
+
+          if (globalState.config.vpnProps.networkSpeedNotification) {
+            final profile = globalState.config.profiles
+                .where((e) => e.id == profileId)
+                .firstOrNull;
+            final profileName = profile?.label ?? 'Bettbox';
+            await vpn?.updateNotificationSpeed(profileName, '↑0B/s ↓0B/s');
+          }
+
+          clashLibHandler.startListener();
+        } catch (e) {
+          commonPrint.error('Fatal error during service background start: $e');
+          await vpn?.stop();
+        }
+      });
+    }
+
     tile?.addListener(
       _TileListenerWithService(
-        onStart: () async {
-          await app.tip(appLocalizations.startVpn);
-          await globalState.handleStart();
-        },
+        onStart: startCore,
         onStop: () async {
           await app.tip(appLocalizations.stopVpn);
           clashLibHandler.stopListener();
@@ -188,52 +251,7 @@ Future<void> _service(List<String> flags) async {
     }
 
     commonPrint.log('Executing ${bootStart ? "boot" : "quick"} start sequence');
-    await ClashCore.initGeo();
-    app.tip(appLocalizations.startVpn);
-    final homeDirPath = await appPath.homeDirPath;
-    final version = await system.version;
-    final clashConfig = globalState.config.patchClashConfig.copyWith.tun(
-      enable: false,
-    );
-
-    Future(() async {
-      try {
-        final params = await globalState.getSetupParams(
-          pathConfig: clashConfig,
-        );
-        final profileId = globalState.config.currentProfileId;
-        if (profileId == null) {
-          return;
-        }
-        final res = await clashLibHandler.quickStart(
-          InitParams(homeDir: homeDirPath, version: version),
-          params,
-          globalState.getCoreState(),
-        );
-        final message = res.message;
-        debugPrint(message);
-        if (message.isNotEmpty) {
-          commonPrint.error('QuickStart failed with error: $message');
-          await vpn?.stop();
-          return;
-        }
-        await vpn?.start(clashLibHandler.getAndroidVpnOptions());
-        Future.delayed(const Duration(seconds: 2), checkSmartAutoStop);
-
-        if (globalState.config.vpnProps.networkSpeedNotification) {
-          final profile = globalState.config.profiles
-              .where((e) => e.id == profileId)
-              .firstOrNull;
-          final profileName = profile?.label ?? 'Bettbox';
-          await vpn?.updateNotificationSpeed(profileName, '↑0B/s ↓0B/s');
-        }
-
-        clashLibHandler.startListener();
-      } catch (e) {
-        commonPrint.error('Fatal error during service background start: $e');
-        await vpn?.stop();
-      }
-    });
+    await startCore();
   }
 }
 
@@ -262,7 +280,9 @@ void _handleMainIpc(ClashLibHandler clashLibHandler) {
     _safeSend(sendPort, message);
   });
 
-  clashLibHandler.startListener();
+  if (clashLibHandler.getRunTime() != null) {
+    clashLibHandler.startListener();
+  }
 }
 
 void _safeSend(SendPort sendPort, dynamic message) {

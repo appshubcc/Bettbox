@@ -4,4 +4,11 @@
     <string name="service_running">服务正在运行中</string>
     <string name="core_suspended">已挂起</string>
     <string name="smart_auto_stop_service_running">智能启停运行中</string>
+    <string name="home_widget_large_label">订阅 · 大号</string>
+    <string name="home_widget_wide_label">订阅 · 宽条</string>
+    <string name="home_widget_square_label">订阅 · 方块</string>
+    <string name="home_widget_large_desc">流量用量、到期时间、当前节点与 VPN 开关</string>
+    <string name="home_widget_wide_desc">流量用量、当前节点与 VPN 开关</string>
+    <string name="home_widget_square_desc">用量圆环、当前节点与刷新</string>
+    <string name="home_widget_empty">打开 Bettbox 完成设置</string>
 </resources>

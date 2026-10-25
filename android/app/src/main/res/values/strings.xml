@@ -4,4 +4,11 @@
     <string name="service_running">Service is running</string>
     <string name="core_suspended">Suspended</string>
     <string name="smart_auto_stop_service_running">Auto-stop is running</string>
+    <string name="home_widget_large_label">Subscription · Large</string>
+    <string name="home_widget_wide_label">Subscription · Wide</string>
+    <string name="home_widget_square_label">Subscription · Square</string>
+    <string name="home_widget_large_desc">Usage, expiry, current node and a VPN switch</string>
+    <string name="home_widget_wide_desc">Usage, current node and a VPN switch</string>
+    <string name="home_widget_square_desc">Usage ring, current node and refresh</string>
+    <string name="home_widget_empty">Open Bettbox to finish setup</string>
 </resources>

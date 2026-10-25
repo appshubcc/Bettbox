@@ -10,6 +10,7 @@ import com.appshub.bettbox.plugins.ServicePlugin
 import com.appshub.bettbox.plugins.TilePlugin
 import com.appshub.bettbox.plugins.VpnPlugin
 import com.appshub.bettbox.services.BettboxTileService
+import com.appshub.bettbox.widget.HomeWidgets
 import io.flutter.FlutterInjector
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.embedding.engine.dart.DartExecutor
@@ -99,6 +100,7 @@ object GlobalState {
         currentRunState = newState
         _runState.value = newState
         requestTileUpdate()
+        mainHandler.post { HomeWidgets.refreshAll(BettboxApplication.getAppContext()) }
     }
 
     private val tileRetryRunnable = Runnable {

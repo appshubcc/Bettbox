@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:bett_box/clash/clash.dart';
+import 'package:bett_box/common/common.dart';
 import 'package:bett_box/models/models.dart';
 import 'package:bett_box/state.dart';
 import 'package:flutter/foundation.dart';
@@ -22,7 +23,8 @@ class Vpn {
     methodChannel.setMethodCallHandler((call) async {
       switch (call.method) {
         case 'gc':
-          clashCore.requestGc(forceFreeOSMemory: true);
+          await clashLibHandler?.freeOSMemory();
+          android?.purgeMemory(call.arguments as int?);
           break;
         case 'closeConnections':
           clashCore.closeConnections();
@@ -71,15 +73,12 @@ class Vpn {
   }
 
   Future<List<String>> getLocalGateways() async {
-    return await methodChannel.invokeListMethod<String>(
-          'getLocalGateways',
-        ) ??
+    return await methodChannel.invokeListMethod<String>('getLocalGateways') ??
         const [];
   }
 
   Future<String?> getCurrentDns() =>
       methodChannel.invokeMethod<String>('getCurrentDns');
-
 
   Future<void> setSmartStopped(bool value) async {
     await methodChannel.invokeMethod<bool>('setSmartStopped', {'value': value});

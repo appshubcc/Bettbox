@@ -22,10 +22,10 @@ class ServicePlugin : FlutterPlugin, MethodChannel.MethodCallHandler {
         private val gson = Gson()
         private const val TAG = "ServicePlugin"
 
-        private fun notify(method: String) {
+        private fun notify(method: String, arguments: Any? = null) {
             mainHandler.post {
                 activeChannels.forEach { ch ->
-                    runCatching { ch.invokeMethod(method, null) }
+                    runCatching { ch.invokeMethod(method, arguments) }
                         .onFailure { Log.e(TAG, "$method notify error: ${it.message}") }
                 }
             }
@@ -34,6 +34,7 @@ class ServicePlugin : FlutterPlugin, MethodChannel.MethodCallHandler {
         fun notifyNetworkChanged() = notify("networkChanged")
         fun notifyQuickResponse() = notify("quickResponse")
         fun notifyVpnStartFailed() = notify("vpnStartFailed")
+        fun notifyScreenStateChanged(isOn: Boolean) = notify("screenStateChanged", isOn)
         fun notifyRunStateChanged(state: RunState) {
             mainHandler.post {
                 activeChannels.forEach { ch ->
@@ -72,6 +73,12 @@ class ServicePlugin : FlutterPlugin, MethodChannel.MethodCallHandler {
                 val options = gson.fromJson(data, VpnOptions::class.java)
                 VpnPlugin.handleSmartResume(options)
                 result.success(true)
+            }
+            "resumeCore" -> {
+                Thread {
+                    VpnPlugin.resumeCore()
+                    mainHandler.post { result.success(true) }
+                }.start()
             }
             "setSmartStopped" -> {
                 GlobalState.isSmartStopped = call.argument<Boolean>("value") ?: false

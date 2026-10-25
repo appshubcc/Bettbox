@@ -23,13 +23,6 @@ class Service {
   factory Service() => _instance;
 
   Future<dynamic> _handleMethodCall(MethodCall call) async {
-    if (call.method == 'runStateChanged') {
-      final state = call.arguments as String?;
-      if (state == 'STOP') {
-        globalState.startTime = null;
-        globalState.appState = globalState.appState.copyWith(runTime: null);
-      }
-    }
     for (final callback in _nativeEventCallbacks) {
       await callback(call.method, call.arguments);
     }
@@ -103,6 +96,11 @@ class Service {
     return await methodChannel.invokeMethod<bool>('status') ?? false;
   }
 
+  String? _speedNotificationProfile;
+
+  bool needsSpeedNotificationSync(String profileName) =>
+      _speedNotificationProfile != profileName;
+
   Future<void> updateNotificationSpeed(
     String profileName,
     String speedInfo,
@@ -111,9 +109,11 @@ class Service {
       'profileName': profileName,
       'speedInfo': speedInfo,
     });
+    _speedNotificationProfile = profileName;
   }
 
   Future<void> restoreNotification() async {
+    _speedNotificationProfile = null;
     await methodChannel.invokeMethod<void>('restoreNotification');
   }
 
@@ -123,6 +123,8 @@ class Service {
       {'enabled': enabled},
     );
   }
+
+  Future<bool?> resumeCore() => methodChannel.invokeMethod<bool>('resumeCore');
 
   Future<bool?> reconnectIpc() =>
       methodChannel.invokeMethod<bool>('reconnectIpc');

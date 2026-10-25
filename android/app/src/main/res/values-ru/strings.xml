@@ -4,4 +4,11 @@
     <string name="service_running">Сервис запущен</string>
     <string name="core_suspended">Приостановлено</string>
     <string name="smart_auto_stop_service_running">Автостоп запущен</string>
+    <string name="home_widget_large_label">Подписка · большой</string>
+    <string name="home_widget_wide_label">Подписка · широкий</string>
+    <string name="home_widget_square_label">Подписка · квадрат</string>
+    <string name="home_widget_large_desc">Трафик, срок действия, текущий узел и переключатель VPN</string>
+    <string name="home_widget_wide_desc">Трафик, текущий узел и переключатель VPN</string>
+    <string name="home_widget_square_desc">Кольцо трафика, текущий узел и обновление</string>
+    <string name="home_widget_empty">Откройте Bettbox, чтобы завершить настройку</string>
 </resources>

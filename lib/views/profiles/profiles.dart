@@ -302,9 +302,12 @@ class ProfileItem extends StatelessWidget {
   }
 
   Widget _buildTitleRow(BuildContext context) {
-    final subtitleText = profile.type == ProfileType.file
+    final usages = profile.subscriptionUsages;
+    final subtitleText = usages.length > 1
+        ? profile.usageExpireText(ProfileUsage.of(profile))
+        : profile.type == ProfileType.file
         ? appLocalizations.localFile
-        : profile.subscriptionInfo?.expireDesc;
+        : (usages.firstOrNull?.value ?? profile.subscriptionInfo)?.expireDesc;
 
     return Row(
       children: [
@@ -331,8 +334,291 @@ class ProfileItem extends StatelessWidget {
     );
   }
 
+  double? _usageRatio(SubscriptionInfo info) => info.total > 0
+      ? ((info.upload + info.download) / info.total).clamp(0.0, 1.0)
+      : null;
+
+  String _usagePercent(SubscriptionInfo info) => switch (_usageRatio(info)) {
+    final ratio? => '${(ratio * 100).round()}%',
+    null => '∞',
+  };
+
+  String _compactTrafficText(SubscriptionInfo info) {
+    final used = TrafficValue(value: info.upload + info.download);
+    if (info.total <= 0) return '${used.shortShow} / ∞';
+    final total = TrafficValue(value: info.total);
+    if (used.showUnit != total.showUnit) {
+      return '${used.shortShow} / ${total.shortShow}';
+    }
+    return '${used.trafficValueShow.value.fixed(decimals: 1)} / ${total.shortShow}';
+  }
+
+  TextStyle? _providerTrafficStyle(
+    BuildContext context,
+    SubscriptionInfo info,
+  ) {
+    final expired =
+        info.expire > 0 &&
+        info.expire * 1000 < DateTime.now().millisecondsSinceEpoch;
+    return expired
+        ? context.textTheme.labelSmall?.copyWith(
+            color: context.colorScheme.error,
+          )
+        : context.textTheme.labelSmall?.toLight;
+  }
+
+  Widget _buildProviderName(BuildContext context, String name) {
+    return EmojiText(
+      name,
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
+      style: context.textTheme.labelSmall?.copyWith(
+        fontWeight: FontWeight.w600,
+      ),
+    );
+  }
+
+  Widget _buildUsageBar(BuildContext context, double value) {
+    final primary = context.colorScheme.primary;
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(2),
+      child: Container(
+        height: 4,
+        alignment: Alignment.centerLeft,
+        color: primary.withValues(alpha: 0.15),
+        child: FractionallySizedBox(
+          widthFactor: value,
+          heightFactor: 1,
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              color: primary,
+              borderRadius: BorderRadius.circular(2),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  TableRow _buildBarRow(
+    BuildContext context,
+    MapEntry<String, SubscriptionInfo> usage,
+    double top,
+  ) {
+    final info = usage.value;
+    return TableRow(
+      children: [
+        Padding(
+          padding: EdgeInsets.only(top: top, right: 10),
+          child: _buildProviderName(context, usage.key),
+        ),
+        Padding(
+          padding: EdgeInsets.only(top: top),
+          child: _buildUsageBar(context, _usageRatio(info) ?? 0),
+        ),
+        Padding(
+          padding: EdgeInsets.only(top: top, left: 10),
+          child: Text(
+            _compactTrafficText(info),
+            maxLines: 1,
+            textAlign: TextAlign.right,
+            style: _providerTrafficStyle(context, info),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildBarUsages(
+    BuildContext context,
+    List<MapEntry<String, SubscriptionInfo>> usages,
+  ) {
+    return Table(
+      columnWidths: const {
+        0: MinColumnWidth(IntrinsicColumnWidth(), FractionColumnWidth(0.3)),
+        1: FlexColumnWidth(),
+        2: IntrinsicColumnWidth(),
+      },
+      defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+      children: [
+        for (final (index, usage) in usages.indexed)
+          _buildBarRow(context, usage, index > 0 ? 7 : 0),
+      ],
+    );
+  }
+
+  Widget _buildRingUsage(
+    BuildContext context,
+    MapEntry<String, SubscriptionInfo> usage,
+    bool compact,
+  ) {
+    final info = usage.value;
+    final primary = context.colorScheme.primary;
+    return Row(
+      children: [
+        RingChart(
+          size: 36,
+          strokeWidth: 4,
+          total: 1,
+          trackColor: primary.withValues(alpha: 0.15),
+          segments: [
+            RingSegment(value: _usageRatio(info) ?? 0, color: primary),
+          ],
+          centerChild: Text(
+            _usagePercent(info),
+            style: context.textTheme.labelSmall?.copyWith(
+              fontSize: 10,
+              fontWeight: FontWeight.w600,
+              height: 1,
+            ),
+          ),
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildProviderName(context, usage.key),
+              Text(
+                compact
+                    ? TrafficValue(value: info.upload + info.download).shortShow
+                    : _compactTrafficText(info),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: _providerTrafficStyle(context, info),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildRingUsages(
+    BuildContext context,
+    List<MapEntry<String, SubscriptionInfo>> usages,
+  ) {
+    return Row(
+      children: [
+        for (final (index, usage) in usages.indexed) ...[
+          if (index > 0) const SizedBox(width: 10),
+          Expanded(child: _buildRingUsage(context, usage, usages.length > 2)),
+        ],
+      ],
+    );
+  }
+
+  Widget _buildConcentricUsages(
+    BuildContext context,
+    List<MapEntry<String, SubscriptionInfo>> usages,
+  ) {
+    final primary = context.colorScheme.primary;
+    final colors = [
+      for (final alpha in const [1.0, 0.7, 0.45])
+        primary.withValues(alpha: alpha),
+    ];
+    return Row(
+      children: [
+        SizedBox.square(
+          dimension: 52,
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              for (final (index, usage) in usages.indexed)
+                RingChart(
+                  size: 52 - index * 14,
+                  strokeWidth: 5,
+                  total: 1,
+                  trackColor: primary.withValues(alpha: 0.12),
+                  segments: [
+                    RingSegment(
+                      value: _usageRatio(usage.value) ?? 0,
+                      color: colors[index],
+                    ),
+                  ],
+                ),
+            ],
+          ),
+        ),
+        const SizedBox(width: 14),
+        Expanded(
+          child: Column(
+            children: [
+              for (final (index, usage) in usages.indexed) ...[
+                if (index > 0) const SizedBox(height: 2),
+                Row(
+                  children: [
+                    SizedBox.square(
+                      dimension: 6,
+                      child: DecoratedBox(
+                        decoration: BoxDecoration(
+                          color: colors[index],
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 6),
+                    Expanded(child: _buildProviderName(context, usage.key)),
+                    const SizedBox(width: 8),
+                    Text(
+                      [
+                        if (_usageRatio(usage.value) != null)
+                          _usagePercent(usage.value),
+                        _compactTrafficText(usage.value),
+                      ].join(' · '),
+                      maxLines: 1,
+                      style: _providerTrafficStyle(context, usage.value),
+                    ),
+                  ],
+                ),
+              ],
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildProviderUsages(
+    BuildContext context,
+    List<MapEntry<String, SubscriptionInfo>> usages,
+  ) {
+    final shown = usages.topByUsage(3);
+    final more = usages.length - shown.length;
+    final bottomText = [
+      ?ProfileUsage.of(profile)?.usageText,
+      profile.lastUpdateDate?.lastUpdateTimeDesc ?? '',
+      if (more > 0) '+$more',
+    ].join(' · ');
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        const SizedBox(height: 8),
+        switch (profile.usageStyle) {
+          ProfileUsageStyle.bar => _buildBarUsages(context, shown),
+          ProfileUsageStyle.ring => _buildRingUsages(context, shown),
+          ProfileUsageStyle.concentric => _buildConcentricUsages(
+            context,
+            shown,
+          ),
+        },
+        const SizedBox(height: 8),
+        Text(
+          bottomText,
+          style: context.textTheme.labelMedium?.toLight,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
+      ],
+    );
+  }
+
   Widget _buildContentInfo(BuildContext context) {
-    final subscriptionInfo = profile.subscriptionInfo;
+    final usages = profile.subscriptionUsages;
+    if (usages.length > 1) return _buildProviderUsages(context, usages);
+    final subscriptionInfo =
+        usages.firstOrNull?.value ?? profile.subscriptionInfo;
     final updateTimeText = profile.lastUpdateDate?.lastUpdateTimeDesc ?? '';
     final hasUsageBar =
         subscriptionInfo != null &&
@@ -443,28 +729,26 @@ class ProfileItem extends StatelessWidget {
   //   }
   // }
 
-  Future<void> _handleExportFile(BuildContext context) async {
-    final res = await globalState.appController.safeRun<bool>(
-      () async {
-        final file = await profile.getFile();
-        final rawName = (profile.label ?? profile.id).trim();
-        final fileName = (rawName.endsWith('.yaml') || rawName.endsWith('.yml'))
-            ? rawName
-            : '$rawName.yaml';
-        final value = await picker.saveFile(
-          fileName,
-          await file.readAsBytes(),
-          allowedExtensions: ['yaml', 'yml'],
-        );
-        if (value == null) return false;
-        return true;
-      },
-      needLoading: true,
-      title: appLocalizations.tip,
+  Future<void> _handleChangeUsageStyle() async {
+    final value = await globalState.showCommonDialog<ProfileUsageStyle>(
+      child: OptionsDialog<ProfileUsageStyle>(
+        title: appLocalizations.usageStyle,
+        options: ProfileUsageStyle.values,
+        textBuilder: (style) => switch (style) {
+          ProfileUsageStyle.bar => appLocalizations.usageStyleBar,
+          ProfileUsageStyle.ring => appLocalizations.usageStyleRing,
+          ProfileUsageStyle.concentric => appLocalizations.usageStyleConcentric,
+        },
+        value: profile.usageStyle,
+      ),
     );
-    if (res == true && context.mounted) {
-      context.showNotifier(appLocalizations.exportSuccess);
-    }
+    if (value == null) return;
+    final appController = globalState.appController;
+    final latest = appController.ref
+        .read(profilesProvider)
+        .getProfile(profile.id);
+    if (latest == null || latest.usageStyle == value) return;
+    appController.setProfile(latest.copyWith(usageStyle: value));
   }
 
   void _handlePushGenProfilePage(BuildContext context, String id) {
@@ -497,13 +781,12 @@ class ProfileItem extends StatelessWidget {
           _handlePushGenProfilePage(context, profile.id);
         },
       ),
-      PopupMenuItemData(
-        icon: Icons.file_copy_outlined,
-        label: appLocalizations.exportFile,
-        onPressed: () {
-          _handleExportFile(context);
-        },
-      ),
+      if (profile.subscriptionUsages.length > 1)
+        PopupMenuItemData(
+          icon: Icons.donut_large_outlined,
+          label: appLocalizations.usageStyle,
+          onPressed: _handleChangeUsageStyle,
+        ),
       PopupMenuItemData(
         icon: Icons.delete_outlined,
         label: appLocalizations.delete,

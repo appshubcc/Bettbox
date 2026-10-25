@@ -32,113 +32,125 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m5(label) => "آیا از حذف ${label} اطمینان دارید؟";
 
-  static String m6(reason) => "Fake-IP · ${reason}: IP واقعی";
+  static String m6(reason) => "Fake-IP · ${reason}: IP واقعی برگردانده می‌شود";
 
   static String m7(reason, range) =>
-      "Fake-IP · ${reason}: آدرس مجازی از ${range}";
+      "Fake-IP · ${reason}: آدرس مجازی از ${range} برگردانده می‌شود";
 
-  static String m8(ips) => "تطبیق با Hosts: ${ips}";
+  static String m8(ips) => "تطبیق با Hosts: ${ips} برگردانده می‌شود";
 
   static String m9(outbound) =>
-      "از طریق «${outbound}»، گره دامنه را تفکیک می‌کند";
+      "خروجی نهایی «${outbound}»، گره دامنه را تفکیک می‌کند";
 
   static String m10(outbound) =>
-      "از طریق «${outbound}»، گره دامنه را تفکیک می‌کند؛ Hosts اعمال نمی‌شود";
+      "خروجی نهایی «${outbound}»، گره دامنه را تفکیک می‌کند؛ Hosts اعمال نمی‌شود";
 
   static String m11(label) => "${label} نمی‌تواند خالی باشد";
 
   static String m12(label) => "${label} از قبل وجود دارد";
 
-  static String m13(count) => "${Intl.plural(count, other: '# ساعت')}";
+  static String m13(count) => "${Intl.plural(count, other: '${count} بار')}";
 
-  static String m14(port) =>
+  static String m14(count) => "${Intl.plural(count, other: '# ساعت')}";
+
+  static String m15(inbound, user) => "${inbound} (کاربر ${user})";
+
+  static String m16(score) =>
+      "Scamalytics ترافیک وب این IP را مستقیماً مشاهده می‌کند. امتیاز ${score} نشان‌دهنده سهم ترافیک مشکوک به تقلب از آن است.";
+
+  static String m17(score, isp) =>
+      "Scamalytics ترافیک وب این IP را مستقیماً نمی‌بیند. امتیاز ${score} بر اساس ریسک کلی IPهای ${isp} تخمین زده شده است.";
+
+  static String m18(port) =>
       "پورت ${port} در حال استفاده است؛ پورت دیگری انتخاب کنید";
 
-  static String m15(code) => "سرور آزمون را رد کرد (خطای ${code})";
+  static String m19(code) => "سرور آزمون را رد کرد (خطای ${code})";
 
-  static String m16(lost, total) => "${lost}/${total} بسته";
+  static String m20(lost, total) => "${lost}/${total} بسته";
 
-  static String m17(name) => "اسکن شد: ${name}";
+  static String m21(name) => "اسکن شد: ${name}";
 
-  static String m18(value) => "${value} ثانیه";
+  static String m22(value) => "${value} ثانیه";
 
-  static String m19(port) => "در حال گوش دادن روی پورت ${port}";
+  static String m23(port) => "در حال گوش دادن روی پورت ${port}";
 
-  static String m20(count) => "${count} جریان";
+  static String m24(count) => "${count} جریان";
 
-  static String m21(count) => "${count}";
+  static String m25(count) => "${count}";
 
-  static String m22(count) => "${count} بایت";
+  static String m26(count) => "${count} بایت";
 
-  static String m23(address) => "از ${address}";
+  static String m27(address) => "از ${address}";
 
-  static String m24(count) =>
+  static String m28(count) =>
       "فقط ${count} مورد آخر نمایش داده می‌شود. برای دیدن همه، نتیجه را کپی کنید";
 
-  static String m25(min, avg, max, jitter) =>
+  static String m29(min, avg, max, jitter) =>
       "زمان رفت‌وبرگشت: کمینه ${min} / میانگین ${avg} / بیشینه ${max} / لرزش ${jitter} ms";
 
-  static String m26(target) => "آمار Ping برای ${target}";
+  static String m30(target) => "آمار Ping برای ${target}";
 
-  static String m27(sent, received, lost, loss) =>
+  static String m31(sent, received, lost, loss) =>
       "ارسال ${sent}، دریافت ${received}، از دست رفته ${lost} (${loss}٪ افت)";
 
-  static String m28(level) =>
+  static String m32(level) =>
       "حالت ${level} برای اشکال‌زدایی شبکه مناسب است؛ در استفاده روزمره آن را خاموش کنید";
 
-  static String m29(done, total, unlocked) =>
+  static String m33(done, total, unlocked) =>
       "${done}/${total} بررسی شد · ${unlocked} در دسترس";
 
-  static String m30(count) => "${Intl.plural(count, other: '# دقیقه')}";
+  static String m34(count) => "${Intl.plural(count, other: '# دقیقه')}";
 
-  static String m31(count) => "${Intl.plural(count, other: '# ماه')}";
+  static String m35(count) => "${Intl.plural(count, other: '# ماه')}";
 
-  static String m32(count) => "${count} مورد";
+  static String m36(count) => "${count} مورد";
 
-  static String m33(ip) => "از طریق ${ip}";
+  static String m37(ip) => "از طریق ${ip}";
 
-  static String m34(count) => "${count} گزارش جدید";
+  static String m38(count) => "${count} گزارش جدید";
 
-  static String m35(label) => "هیچ مورد ${label} یافت نشد";
+  static String m39(label) => "هیچ مورد ${label} یافت نشد";
 
-  static String m36(min, max) => "یک عدد صحیح بین ${min} تا ${max} وارد کنید";
+  static String m40(min, max) => "یک عدد صحیح بین ${min} تا ${max} وارد کنید";
 
-  static String m37(label) => "${label} باید عدد باشد";
+  static String m41(label) => "${label} باید عدد باشد";
 
-  static String m38(label) => "فقط ${label}";
+  static String m42(label) => "فقط ${label}";
 
-  static String m39(label) =>
+  static String m43(label) =>
       "${label} باید بین ۱۰۲۴ تا ۴۹۱۵۱ باشد (۰ برای غیرفعال)";
 
-  static String m40(statusCode) =>
+  static String m44(statusCode) =>
       "خطا در دریافت پروفایل. لطفاً شبکه خود را بررسی کرده یا لینک را ریست کنید ( کد خطا: ${statusCode} )";
 
-  static String m41(index, time) => "تفکیک با قانون #${index} · ${time} ms";
+  static String m45(count) => "${count} ارائه‌دهنده";
 
-  static String m42(ips) => "تطبیق Hosts: ${ips}";
+  static String m46(index, time) => "تفکیک با قانون #${index} · ${time} ms";
 
-  static String m43(total, index) => "${total} قانون، تطبیق با #${index}";
+  static String m47(ips) => "تطبیق Hosts: ${ips}";
 
-  static String m44(total) => "${total} قانون";
+  static String m48(total, index) => "${total} قانون، تطبیق با #${index}";
 
-  static String m45(count) => "${count} مورد انتخاب شده";
+  static String m49(total) => "${total} قانون";
 
-  static String m46(count) =>
+  static String m50(count) => "${count} مورد انتخاب شده";
+
+  static String m51(count) =>
       "حالت چندرشته از ${count} اتصال موازی برای اشباع پهنای باند استفاده می‌کند";
 
-  static String m47(provider) =>
+  static String m52(provider) =>
       "ممکن است خروجی تست سرعت ${provider} را مسدود کند. منبع تست یا خروجی را تغییر دهید.";
 
-  static String m48(protocol, fallback) =>
+  static String m53(protocol, fallback) =>
       "${protocol} در دسترس نیست، به ${fallback} بازگشت";
 
-  static String m49(count) => "${count} اتصال";
+  static String m54(count) => "${count} اتصال";
 
-  static String m50(provider) => "تغییر به ${provider}";
+  static String m55(provider) => "تغییر به ${provider}";
 
-  static String m51(label) => "${label} باید یک URL معتبر باشد";
+  static String m56(label) => "${label} باید یک URL معتبر باشد";
 
-  static String m52(count) => "${Intl.plural(count, other: '# سال')}";
+  static String m57(count) => "${Intl.plural(count, other: '# سال')}";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
@@ -312,9 +324,6 @@ class MessageLookup extends MessageLookupByLibrary {
       "اتصال خودکار پروکسی پس از باز شدن برنامه",
     ),
     "autoScroll": MessageLookupByLibrary.simpleMessage("پیمایش خودکار"),
-    "autoSetSystemDns": MessageLookupByLibrary.simpleMessage(
-      "تنظیم خودکار DNS سیستم",
-    ),
     "autoStickyHeader": MessageLookupByLibrary.simpleMessage(
       "چسبندگی خودکار سربرگ",
     ),
@@ -450,9 +459,6 @@ class MessageLookup extends MessageLookupByLibrary {
       "حداکثر تعداد تست همزمان تاخیر",
     ),
     "confirm": MessageLookupByLibrary.simpleMessage("تایید"),
-    "congestionController": MessageLookupByLibrary.simpleMessage(
-      "کنترل ازدحام",
-    ),
     "connection": MessageLookupByLibrary.simpleMessage("اتصال فعال"),
     "connections": MessageLookupByLibrary.simpleMessage("اتصالات"),
     "connectionsActive": MessageLookupByLibrary.simpleMessage("فعال"),
@@ -499,6 +505,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "create": MessageLookupByLibrary.simpleMessage("ایجاد"),
     "creationTime": MessageLookupByLibrary.simpleMessage("زمان ایجاد"),
     "cubeGrid": MessageLookupByLibrary.simpleMessage("شبکه مکعب‌ها"),
+    "currentSelection": MessageLookupByLibrary.simpleMessage("انتخاب فعلی"),
     "custom": MessageLookupByLibrary.simpleMessage("سفارشی"),
     "customDashboardTitle": MessageLookupByLibrary.simpleMessage(
       "عنوان سفارشی",
@@ -585,7 +592,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "dnsDesc": MessageLookupByLibrary.simpleMessage("تنظیمات مربوط به DNS"),
     "dnsHijack": MessageLookupByLibrary.simpleMessage("ربودن DNS"),
     "dnsHijackDesc": MessageLookupByLibrary.simpleMessage(
-      "هدایت استعلام‌های DNS به ماژول داخلی",
+      "در دست گرفتن DNS سیستم و ارسال آن به هسته",
     ),
     "dnsMode": MessageLookupByLibrary.simpleMessage("حالت DNS"),
     "dnsQuery": MessageLookupByLibrary.simpleMessage("جستجوی DNS"),
@@ -622,10 +629,10 @@ class MessageLookup extends MessageLookupByLibrary {
       "رکوردی وجود ندارد",
     ),
     "dnsQueryNormalMode": MessageLookupByLibrary.simpleMessage(
-      "Normal: IP واقعی، تطبیق قوانین با IP",
+      "Normal: IP واقعی برگردانده می‌شود، تطبیق قوانین با IP",
     ),
     "dnsQueryRedirHost": MessageLookupByLibrary.simpleMessage(
-      "Redir-Host: IP واقعی، دامنه هنگام اتصال بازیابی می‌شود",
+      "Redir-Host: IP واقعی برگردانده می‌شود، دامنه هنگام اتصال بازیابی می‌شود",
     ),
     "dnsQueryServer": MessageLookupByLibrary.simpleMessage("سرور DNS"),
     "dnsQueryServerHint": MessageLookupByLibrary.simpleMessage(
@@ -639,10 +646,10 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "dnsQuerySystem": MessageLookupByLibrary.simpleMessage("DNS سیستم"),
     "dnsQueryViaDirect": MessageLookupByLibrary.simpleMessage(
-      "DIRECT، هسته به‌صورت محلی تفکیک و مستقیم وصل می‌شود",
+      "خروجی نهایی DIRECT، هسته به‌صورت محلی تفکیک و مستقیم وصل می‌شود",
     ),
     "dnsQueryViaDirectHosts": MessageLookupByLibrary.simpleMessage(
-      "DIRECT، اتصال مستقیم به آدرس Hosts",
+      "خروجی نهایی DIRECT، اتصال مستقیم به آدرس Hosts",
     ),
     "dnsQueryViaProxy": m9,
     "dnsQueryViaProxyHosts": m10,
@@ -828,6 +835,9 @@ class MessageLookup extends MessageLookupByLibrary {
       "مهلت زمانی تست سلامت نودها",
     ),
     "heapObjects": MessageLookupByLibrary.simpleMessage("Objects"),
+    "hideTimeoutProxies": MessageLookupByLibrary.simpleMessage(
+      "پنهان کردن گره‌های نامعتبر",
+    ),
     "highPriority": MessageLookupByLibrary.simpleMessage("اولویت بالا"),
     "highPriorityDesc": MessageLookupByLibrary.simpleMessage(
       "افزایش اولویت پردازش برنامه و هسته",
@@ -836,6 +846,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "highRefreshRateDesc": MessageLookupByLibrary.simpleMessage(
       "فعالسازی حداکثر نرخ نوسازی",
     ),
+    "hitCount": m13,
     "host": MessageLookupByLibrary.simpleMessage("هاست"),
     "hostsDesc": MessageLookupByLibrary.simpleMessage(
       "افزودن Hosts به پروفایل فعلی",
@@ -848,7 +859,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "کنترل برنامه با صفحه کلید",
     ),
     "hourGlass": MessageLookupByLibrary.simpleMessage("ساعت شنی"),
-    "hours": m13,
+    "hours": m14,
     "httpPortSniffer": MessageLookupByLibrary.simpleMessage("اسنیف پورت HTTP"),
     "icmpForwarding": MessageLookupByLibrary.simpleMessage("هدایت ICMP"),
     "icmpForwardingDesc": MessageLookupByLibrary.simpleMessage(
@@ -870,6 +881,8 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "importFromURL": MessageLookupByLibrary.simpleMessage("وارد کردن از URL"),
     "importUrl": MessageLookupByLibrary.simpleMessage("وارد کردن از URL"),
+    "inbound": MessageLookupByLibrary.simpleMessage("ورودی"),
+    "inboundWithUser": m15,
     "infiniteTime": MessageLookupByLibrary.simpleMessage("نامحدود"),
     "init": MessageLookupByLibrary.simpleMessage("راه‌اندازی اولیه"),
     "inputCorrectHotkey": MessageLookupByLibrary.simpleMessage(
@@ -879,6 +892,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "intelligentSelected": MessageLookupByLibrary.simpleMessage(
       "انتخاب هوشمند",
     ),
+    "internalTraffic": MessageLookupByLibrary.simpleMessage("ترافیک داخلی"),
     "internet": MessageLookupByLibrary.simpleMessage("اینترنت"),
     "interval": MessageLookupByLibrary.simpleMessage("فاصله زمانی"),
     "intranetAndGateway": MessageLookupByLibrary.simpleMessage(
@@ -911,6 +925,80 @@ class MessageLookup extends MessageLookupByLibrary {
     "ipPrivacyProtection": MessageLookupByLibrary.simpleMessage(
       "پنهان‌سازی IP",
     ),
+    "ipRiskAmountHigh": MessageLookupByLibrary.simpleMessage("زیاد"),
+    "ipRiskAmountLow": MessageLookupByLibrary.simpleMessage("کم"),
+    "ipRiskAmountMedium": MessageLookupByLibrary.simpleMessage("متوسط"),
+    "ipRiskAnonymousVpn": MessageLookupByLibrary.simpleMessage("VPN ناشناس"),
+    "ipRiskBlacklist": MessageLookupByLibrary.simpleMessage(
+      "نشانه‌های لیست سیاه",
+    ),
+    "ipRiskCheck": MessageLookupByLibrary.simpleMessage("بررسی پاکی IP"),
+    "ipRiskCommercialServer": MessageLookupByLibrary.simpleMessage(
+      "سرور تجاری",
+    ),
+    "ipRiskDatacenter": MessageLookupByLibrary.simpleMessage("دیتاسنتر"),
+    "ipRiskHigh": MessageLookupByLibrary.simpleMessage("ریسک بالا"),
+    "ipRiskHint": MessageLookupByLibrary.simpleMessage(
+      "IP مورد نظر را وارد کنید",
+    ),
+    "ipRiskHomeBroadband": MessageLookupByLibrary.simpleMessage(
+      "اینترنت خانگی",
+    ),
+    "ipRiskHostingOrProxy": MessageLookupByLibrary.simpleMessage(
+      "میزبانی یا پروکسی",
+    ),
+    "ipRiskHostname": MessageLookupByLibrary.simpleMessage("نام میزبان"),
+    "ipRiskInvalid": MessageLookupByLibrary.simpleMessage(
+      "یک IP عمومی معتبر وارد کنید",
+    ),
+    "ipRiskLow": MessageLookupByLibrary.simpleMessage("ریسک پایین"),
+    "ipRiskMedium": MessageLookupByLibrary.simpleMessage("ریسک متوسط"),
+    "ipRiskNoteAmount": MessageLookupByLibrary.simpleMessage(
+      "ترافیک مشاهده‌شده",
+    ),
+    "ipRiskNoteAmountIsp": MessageLookupByLibrary.simpleMessage(
+      "ترافیک اپراتور",
+    ),
+    "ipRiskNoteConnection": MessageLookupByLibrary.simpleMessage("نوع اتصال"),
+    "ipRiskNoteDirect": m16,
+    "ipRiskNoteFootnote": MessageLookupByLibrary.simpleMessage(
+      "این ارزیابی فقط ترافیک وب را در بر می‌گیرد؛ ریسک سایر ترافیک‌ها ممکن است متفاوت باشد.",
+    ),
+    "ipRiskNoteGeneric": MessageLookupByLibrary.simpleMessage(
+      "امتیاز تقلب (0 تا 100) سهمی از ترافیک وب این IP را نشان می‌دهد که Scamalytics به تقلب مشکوک است.",
+    ),
+    "ipRiskNoteIndirect": m17,
+    "ipRiskNoteOwner": MessageLookupByLibrary.simpleMessage("مالک"),
+    "ipRiskNoteProxying": MessageLookupByLibrary.simpleMessage(
+      "ممکن است ترافیک مناطق دیگر را پروکسی کند؛ کاربر واقعی می‌تواند هر جایی باشد",
+    ),
+    "ipRiskNoteShare": MessageLookupByLibrary.simpleMessage("مشکوک به تقلب"),
+    "ipRiskNoteTitle": MessageLookupByLibrary.simpleMessage(
+      "درباره امتیاز تقلب",
+    ),
+    "ipRiskNoteWarningHigh": MessageLookupByLibrary.simpleMessage(
+      "ترافیک وب این IP به احتمال زیاد مربوط به کلاهبرداران است.",
+    ),
+    "ipRiskNoteWarningVeryHigh": MessageLookupByLibrary.simpleMessage(
+      "ترافیک وب این IP به احتمال بسیار زیاد مربوط به کلاهبرداران است.",
+    ),
+    "ipRiskProxyType": MessageLookupByLibrary.simpleMessage("نوع پروکسی"),
+    "ipRiskPublicProxy": MessageLookupByLibrary.simpleMessage("پروکسی عمومی"),
+    "ipRiskResidentialProxy": MessageLookupByLibrary.simpleMessage(
+      "پروکسی خانگی",
+    ),
+    "ipRiskScore": MessageLookupByLibrary.simpleMessage("امتیاز تقلب"),
+    "ipRiskSearchRobot": MessageLookupByLibrary.simpleMessage(
+      "ربات موتور جستجو",
+    ),
+    "ipRiskServer": MessageLookupByLibrary.simpleMessage("سرور"),
+    "ipRiskShareAlmostAll": MessageLookupByLibrary.simpleMessage("تقریباً همه"),
+    "ipRiskShareLittle": MessageLookupByLibrary.simpleMessage("بسیار کم"),
+    "ipRiskShareSome": MessageLookupByLibrary.simpleMessage("بخشی"),
+    "ipRiskSource": MessageLookupByLibrary.simpleMessage("منبع"),
+    "ipRiskTorExit": MessageLookupByLibrary.simpleMessage("گره خروجی Tor"),
+    "ipRiskVeryHigh": MessageLookupByLibrary.simpleMessage("ریسک بسیار بالا"),
+    "ipRiskWebProxy": MessageLookupByLibrary.simpleMessage("پروکسی وب"),
     "ipcidr": MessageLookupByLibrary.simpleMessage("IP / ماسک"),
     "iperfAddressHint": MessageLookupByLibrary.simpleMessage(
       "نشانی سرور، مثلاً 192.168.1.5",
@@ -938,14 +1026,14 @@ class MessageLookup extends MessageLookupByLibrary {
     "iperfErrorListen": MessageLookupByLibrary.simpleMessage(
       "راه‌اندازی سرور ممکن نشد",
     ),
-    "iperfErrorPortInUse": m14,
+    "iperfErrorPortInUse": m18,
     "iperfErrorProtocol": MessageLookupByLibrary.simpleMessage(
       "پاسخ نامعتبر است؛ ممکن است طرف مقابل سرور iPerf3 نباشد",
     ),
     "iperfErrorRefused": MessageLookupByLibrary.simpleMessage(
       "اتصال رد شد. مطمئن شوید سرور iPerf3 در حال اجراست",
     ),
-    "iperfErrorServer": m15,
+    "iperfErrorServer": m19,
     "iperfErrorTimeout": MessageLookupByLibrary.simpleMessage(
       "زمان اتصال تمام شد. نشانی و شبکه را بررسی کنید",
     ),
@@ -958,7 +1046,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "iperfFirewallTip": MessageLookupByLibrary.simpleMessage(
       "اگر دستگاه‌های دیگر نمی‌توانند وصل شوند، اتصال‌های ورودی هستهٔ Bettbox را در دیوارهٔ آتش سیستم مجاز کنید.",
     ),
-    "iperfLostPackets": m16,
+    "iperfLostPackets": m20,
     "iperfNoAddress": MessageLookupByLibrary.simpleMessage(
       "نشانی شبکهٔ محلی یافت نشد. از اتصال Wi-Fi یا شبکهٔ سیمی مطمئن شوید",
     ),
@@ -985,11 +1073,11 @@ class MessageLookup extends MessageLookupByLibrary {
     "iperfScanInvalid": MessageLookupByLibrary.simpleMessage(
       "این کد QR اتصال iPerf3 نیست",
     ),
-    "iperfScanned": m17,
-    "iperfSeconds": m18,
+    "iperfScanned": m21,
+    "iperfSeconds": m22,
     "iperfSend": MessageLookupByLibrary.simpleMessage("ارسال"),
     "iperfServer": MessageLookupByLibrary.simpleMessage("سرور"),
-    "iperfServerListening": m19,
+    "iperfServerListening": m23,
     "iperfServerOff": MessageLookupByLibrary.simpleMessage("سرور اجرا نمی‌شود"),
     "iperfServerOffHint": MessageLookupByLibrary.simpleMessage(
       "پس از راه‌اندازی، دستگاه‌های دیگر با اسکن کد QR یا وارد کردن نشانی این دستگاه وصل می‌شوند",
@@ -1000,7 +1088,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "سرور فقط وقتی این صفحه باز است اجرا می‌شود و با خروج متوقف می‌شود. در این مدت صفحه روشن می‌ماند.",
     ),
     "iperfStart": MessageLookupByLibrary.simpleMessage("شروع آزمون"),
-    "iperfStreams": m20,
+    "iperfStreams": m24,
     "iperfTest": MessageLookupByLibrary.simpleMessage("ابزار iPerf3"),
     "iperfTestDesc": MessageLookupByLibrary.simpleMessage(
       "اندازه‌گیری پهنای باند بین دستگاه‌های شبکهٔ محلی، سازگار با iperf3",
@@ -1020,7 +1108,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "ورودی IPv6 مجاز باشد",
     ),
     "isp": MessageLookupByLibrary.simpleMessage("ارائه‌دهنده اینترنت"),
-    "itemsCount": m21,
+    "itemsCount": m25,
     "just": MessageLookupByLibrary.simpleMessage("همین الان"),
     "keepAliveIntervalDesc": MessageLookupByLibrary.simpleMessage(
       "فاصله زمانی TCP Keep-Alive",
@@ -1049,7 +1137,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "localFile": MessageLookupByLibrary.simpleMessage("فایل محلی"),
     "localPing": MessageLookupByLibrary.simpleMessage("Ping محلی"),
     "localPingAverage": MessageLookupByLibrary.simpleMessage("میانگین"),
-    "localPingBytes": m22,
+    "localPingBytes": m26,
     "localPingClosed": MessageLookupByLibrary.simpleMessage("درگاه بسته است"),
     "localPingCount": MessageLookupByLibrary.simpleMessage("تعداد"),
     "localPingDesc": MessageLookupByLibrary.simpleMessage(
@@ -1066,9 +1154,9 @@ class MessageLookup extends MessageLookupByLibrary {
       "دامنه پیدا نشد",
     ),
     "localPingFailed": MessageLookupByLibrary.simpleMessage("ارسال ناموفق"),
-    "localPingFrom": m23,
+    "localPingFrom": m27,
     "localPingGateway": MessageLookupByLibrary.simpleMessage("دروازه"),
-    "localPingListLimit": m24,
+    "localPingListLimit": m28,
     "localPingMax": MessageLookupByLibrary.simpleMessage("بیشینه"),
     "localPingMin": MessageLookupByLibrary.simpleMessage("کمینه"),
     "localPingReady": MessageLookupByLibrary.simpleMessage(
@@ -1079,13 +1167,13 @@ class MessageLookup extends MessageLookupByLibrary {
       "در حال یافتن نشانی",
     ),
     "localPingResult": MessageLookupByLibrary.simpleMessage("نتیجه Ping"),
-    "localPingRttSummary": m25,
+    "localPingRttSummary": m29,
     "localPingRunning": MessageLookupByLibrary.simpleMessage("در حال Ping"),
     "localPingSent": MessageLookupByLibrary.simpleMessage("ارسال‌شده"),
     "localPingSize": MessageLookupByLibrary.simpleMessage("اندازه بسته"),
     "localPingStart": MessageLookupByLibrary.simpleMessage("شروع Ping"),
-    "localPingStats": m26,
-    "localPingSummary": m27,
+    "localPingStats": m30,
+    "localPingSummary": m31,
     "localPingTargetHint": MessageLookupByLibrary.simpleMessage(
       "دامنه یا نشانی IP",
     ),
@@ -1108,7 +1196,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "log": MessageLookupByLibrary.simpleMessage("گزارش"),
     "logAiSearch": MessageLookupByLibrary.simpleMessage("جستجوی هوش مصنوعی"),
     "logLevel": MessageLookupByLibrary.simpleMessage("سطح گزارش"),
-    "logLevelDebugHint": m28,
+    "logLevelDebugHint": m32,
     "logcat": MessageLookupByLibrary.simpleMessage("ثبت گزارش‌ها"),
     "logcatDesc": MessageLookupByLibrary.simpleMessage(
       "نمایش ورودی گزارش‌ها در صورت فعال بودن",
@@ -1144,7 +1232,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "mediaBatchScope": MessageLookupByLibrary.simpleMessage(
       "انتخاب محدودهٔ آزمون",
     ),
-    "mediaBatchSummary": m29,
+    "mediaBatchSummary": m33,
     "mediaBatchTest": MessageLookupByLibrary.simpleMessage("آزمون گروهی نودها"),
     "mediaUnlock": MessageLookupByLibrary.simpleMessage("تست اتصال"),
     "mediaUnlockColorfulIcons": MessageLookupByLibrary.simpleMessage(
@@ -1197,11 +1285,11 @@ class MessageLookup extends MessageLookupByLibrary {
     "minimizeOnExitDesc": MessageLookupByLibrary.simpleMessage(
       "تغییر رفتار پیش‌فرض بستن پنجره",
     ),
-    "minutes": m30,
+    "minutes": m34,
     "mixedPort": MessageLookupByLibrary.simpleMessage("پورت ترکیبی (Mixed)"),
     "mode": MessageLookupByLibrary.simpleMessage("حالت"),
     "monochromeScheme": MessageLookupByLibrary.simpleMessage("تک‌رنگ"),
-    "months": m31,
+    "months": m35,
     "more": MessageLookupByLibrary.simpleMessage("بیشتر"),
     "moreIpInfo": MessageLookupByLibrary.simpleMessage("اطلاعات بیشتر IP"),
     "mrsCopyRawLink": MessageLookupByLibrary.simpleMessage(
@@ -1209,7 +1297,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "mrsLookup": MessageLookupByLibrary.simpleMessage("جستجوی MRS"),
     "mrsLookupDesc": MessageLookupByLibrary.simpleMessage(
-      "یافتن مجموعه‌های GEODATA / RULE-SET برای دامنه یا IP",
+      "یافتن مجموعه‌های GEO / RULE-SET برای دامنه یا IP",
     ),
     "mrsLookupHint": MessageLookupByLibrary.simpleMessage("دامنه یا IP"),
     "mrsMissing": MessageLookupByLibrary.simpleMessage(
@@ -1230,8 +1318,8 @@ class MessageLookup extends MessageLookupByLibrary {
     "mrsResolveDnsDesc": MessageLookupByLibrary.simpleMessage(
       "در حالت روشن، دامنه با تنظیمات فعلی DNS به IP تفکیک می‌شود و آن IP هم تطبیق داده می‌شود",
     ),
-    "mrsRules": m32,
-    "mrsVia": m33,
+    "mrsRules": m36,
+    "mrsVia": m37,
     "name": MessageLookupByLibrary.simpleMessage("نام"),
     "nameSort": MessageLookupByLibrary.simpleMessage("مرتب‌سازی بر اساس نام"),
     "nameserver": MessageLookupByLibrary.simpleMessage("سرور نام (Nameserver)"),
@@ -1357,7 +1445,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "networkType": MessageLookupByLibrary.simpleMessage("نوع شبکه"),
     "neutralScheme": MessageLookupByLibrary.simpleMessage("خنثی"),
-    "newLogsCount": m34,
+    "newLogsCount": m38,
     "noAnimation": MessageLookupByLibrary.simpleMessage("پیش‌فرض"),
     "noBackupFileFound": MessageLookupByLibrary.simpleMessage(
       "فایل پشتیبان پیدا نشد",
@@ -1385,6 +1473,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "وضعیتی یافت نشد",
     ),
     "noUsageData": MessageLookupByLibrary.simpleMessage("بدون آمار مصرف"),
+    "node": MessageLookupByLibrary.simpleMessage("گره"),
     "nodeExclusion": MessageLookupByLibrary.simpleMessage("استثنای نودها"),
     "nodeExclusionDesc": MessageLookupByLibrary.simpleMessage(
       "حذف نودهای مطابقت یافته با عبارت",
@@ -1421,16 +1510,16 @@ class MessageLookup extends MessageLookupByLibrary {
     "nullProfileDesc": MessageLookupByLibrary.simpleMessage(
       "هیچ پروفایلی یافت نشد. لطفاً یکی اضافه کنید",
     ),
-    "nullTip": m35,
-    "numberRangeInvalid": m36,
-    "numberTip": m37,
+    "nullTip": m39,
+    "numberRangeInvalid": m40,
+    "numberTip": m41,
     "oneColumn": MessageLookupByLibrary.simpleMessage("۱ ستون"),
     "onlinePanel": MessageLookupByLibrary.simpleMessage("پنل آنلاین"),
     "onlyIcon": MessageLookupByLibrary.simpleMessage("فقط آیکون"),
     "onlyOtherApps": MessageLookupByLibrary.simpleMessage(
       "فقط برنامه‌های جانبی",
     ),
-    "onlyShow": m38,
+    "onlyShow": m42,
     "onlyStatisticsProxy": MessageLookupByLibrary.simpleMessage(
       "آمار ترافیک پروکسی",
     ),
@@ -1534,7 +1623,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "portConflictTip": MessageLookupByLibrary.simpleMessage(
       "لطفاً پورت غیرتکراری وارد کنید",
     ),
-    "portTip": m39,
+    "portTip": m43,
     "pouringHourGlass": MessageLookupByLibrary.simpleMessage("ساعت شنی روان"),
     "pouringHourGlassRefined": MessageLookupByLibrary.simpleMessage(
       "ساعت شنی ظریف",
@@ -1550,6 +1639,8 @@ class MessageLookup extends MessageLookupByLibrary {
     "privateIp": MessageLookupByLibrary.simpleMessage(
       "آدرس IP خصوصی / شبکه محلی",
     ),
+    "process": MessageLookupByLibrary.simpleMessage("فرایند"),
+    "processPath": MessageLookupByLibrary.simpleMessage("مسیر فرآیند"),
     "profile": MessageLookupByLibrary.simpleMessage("پروفایل"),
     "profileAndRules": MessageLookupByLibrary.simpleMessage("پروفایل و قوانین"),
     "profileAutoUpdateIntervalInvalidValidationDesc":
@@ -1561,7 +1652,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "profileHasUpdate": MessageLookupByLibrary.simpleMessage(
       "پروفایل تغییر یافته است. آیا بروزرسانی خودکار غیرفعال شود؟",
     ),
-    "profileImportFailed": m40,
+    "profileImportFailed": m44,
     "profileNameNullValidationDesc": MessageLookupByLibrary.simpleMessage(
       "لطفاً نام پروفایل را وارد کنید",
     ),
@@ -1581,6 +1672,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "progress": MessageLookupByLibrary.simpleMessage("پردازش"),
     "project": MessageLookupByLibrary.simpleMessage("پروژه"),
     "providers": MessageLookupByLibrary.simpleMessage("ارائه‌دهندگان"),
+    "providersCount": m45,
     "provinceAndCity": MessageLookupByLibrary.simpleMessage("استان / شهر"),
     "proxies": MessageLookupByLibrary.simpleMessage("پروکسی‌ها"),
     "proxiesCount": MessageLookupByLibrary.simpleMessage("گره‌های پروکسی"),
@@ -1666,6 +1758,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "regExp": MessageLookupByLibrary.simpleMessage("عبارت باقاعده (RegEx)"),
     "relatedSettings": MessageLookupByLibrary.simpleMessage("تنظیمات مرتبط"),
+    "remainingTraffic": MessageLookupByLibrary.simpleMessage("باقی‌مانده"),
     "remote": MessageLookupByLibrary.simpleMessage("از راه دور"),
     "remoteBackupDesc": MessageLookupByLibrary.simpleMessage(
       "پشتیبان‌گیری داده‌ها روی WebDAV",
@@ -1728,7 +1821,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "روند DNS و تطبیق قوانین دامنه یا IP در هسته",
     ),
     "routeTraceDns": MessageLookupByLibrary.simpleMessage("تفکیک DNS"),
-    "routeTraceDnsBy": m41,
+    "routeTraceDnsBy": m46,
     "routeTraceDnsIp": MessageLookupByLibrary.simpleMessage(
       "هدف IP است و نیازی به تفکیک نیست",
     ),
@@ -1737,7 +1830,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "routeTraceFinal": MessageLookupByLibrary.simpleMessage("خروجی نهایی"),
     "routeTraceHint": MessageLookupByLibrary.simpleMessage("دامنه، IP یا آدرس"),
-    "routeTraceHostsHit": m42,
+    "routeTraceHostsHit": m47,
     "routeTraceInput": MessageLookupByLibrary.simpleMessage("هدف"),
     "routeTraceModeDirect": MessageLookupByLibrary.simpleMessage(
       "حالت مستقیم: همه ترافیک مستقیم",
@@ -1749,8 +1842,8 @@ class MessageLookup extends MessageLookupByLibrary {
       "هیچ قانونی تطبیق نیافت؛ DIRECT استفاده می‌شود",
     ),
     "routeTraceRules": MessageLookupByLibrary.simpleMessage("تطبیق قوانین"),
-    "routeTraceRulesSummary": m43,
-    "routeTraceRulesTotal": m44,
+    "routeTraceRulesSummary": m48,
+    "routeTraceRulesTotal": m49,
     "routeTraceSkipMissing": MessageLookupByLibrary.simpleMessage(
       "رد شد؛ مقصد پیدا نشد",
     ),
@@ -1774,6 +1867,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "نمایش قوانین بررسی‌شده",
     ),
     "rule": MessageLookupByLibrary.simpleMessage("قوانین"),
+    "ruleHits": MessageLookupByLibrary.simpleMessage("تطابق قوانین"),
     "ruleName": MessageLookupByLibrary.simpleMessage("نام قانون"),
     "ruleProviders": MessageLookupByLibrary.simpleMessage(
       "ارائه‌دهندگان قوانین",
@@ -1806,7 +1900,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "انتخاب نسخه پشتیبان",
     ),
     "selected": MessageLookupByLibrary.simpleMessage("انتخاب شده"),
-    "selectedCountTitle": m45,
+    "selectedCountTitle": m50,
     "serviceReady": MessageLookupByLibrary.simpleMessage("سرویس آماده است"),
     "serviceRunning": MessageLookupByLibrary.simpleMessage(
       "سرویس در حال اجرا است",
@@ -1821,7 +1915,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "sharedAddress": MessageLookupByLibrary.simpleMessage("آدرس اشتراکی"),
     "show": MessageLookupByLibrary.simpleMessage("نمایش"),
     "showHiddenItems": MessageLookupByLibrary.simpleMessage(
-      "نمایش موارد پنهان",
+      "نمایش گروه‌های پنهان",
     ),
     "showMenu": MessageLookupByLibrary.simpleMessage("باز کردن منو"),
     "showPanel": MessageLookupByLibrary.simpleMessage("نمایش پنجره"),
@@ -1865,6 +1959,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "smartDelayLaunchDesc": MessageLookupByLibrary.simpleMessage(
       "اجرا تنها پس از اتصال موفق شبکه",
     ),
+    "sniffHost": MessageLookupByLibrary.simpleMessage("هاست شنودشده"),
     "sniffer": MessageLookupByLibrary.simpleMessage("اسنیفر (Sniffer)"),
     "snifferAddressHint": MessageLookupByLibrary.simpleMessage(
       "هر سطر یک آدرس",
@@ -1899,7 +1994,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "speedTestConnecting": MessageLookupByLibrary.simpleMessage("در حال اتصال"),
     "speedTestConnections": MessageLookupByLibrary.simpleMessage("اتصالات"),
-    "speedTestConnectionsDesc": m46,
+    "speedTestConnectionsDesc": m51,
     "speedTestCoreStopped": MessageLookupByLibrary.simpleMessage(
       "فعال نیست · تست مستقیم",
     ),
@@ -1911,7 +2006,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "speedTestErrorBlocked": MessageLookupByLibrary.simpleMessage(
       "تست سرعت در دسترس نیست",
     ),
-    "speedTestErrorBlockedDesc": m47,
+    "speedTestErrorBlockedDesc": m52,
     "speedTestErrorNetworkDesc": MessageLookupByLibrary.simpleMessage(
       "در دسترس بودن خروجی را بررسی و دوباره تلاش کنید.",
     ),
@@ -1954,7 +2049,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "speedTestProtocolDesc": MessageLookupByLibrary.simpleMessage(
       "HTTP/3 روی QUIC (UDP) اجرا می‌شود؛ اگر در دسترس نباشد به HTTP/2 و اگر HTTP/2 هم نباشد به HTTP/1.1 بازمی‌گردد",
     ),
-    "speedTestProtocolFallback": m48,
+    "speedTestProtocolFallback": m53,
     "speedTestQuality": MessageLookupByLibrary.simpleMessage("کیفیت شبکه"),
     "speedTestReady": MessageLookupByLibrary.simpleMessage("آماده"),
     "speedTestRealtime": MessageLookupByLibrary.simpleMessage("سرعت لحظه‌ای"),
@@ -1967,8 +2062,8 @@ class MessageLookup extends MessageLookupByLibrary {
     "speedTestSettings": MessageLookupByLibrary.simpleMessage("تنظیمات تست"),
     "speedTestSingleThread": MessageLookupByLibrary.simpleMessage("تک‌رشته"),
     "speedTestStart": MessageLookupByLibrary.simpleMessage("شروع تست"),
-    "speedTestStreams": m49,
-    "speedTestSwitchProvider": m50,
+    "speedTestStreams": m54,
+    "speedTestSwitchProvider": m55,
     "speedTestUseSystemDns": MessageLookupByLibrary.simpleMessage(
       "تفکیک با DNS سیستم",
     ),
@@ -2009,6 +2104,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "style": MessageLookupByLibrary.simpleMessage("سبک"),
     "subRule": MessageLookupByLibrary.simpleMessage("زیرقانون"),
+    "subdomains": MessageLookupByLibrary.simpleMessage("زیردامنه‌ها"),
     "submit": MessageLookupByLibrary.simpleMessage("ارسال"),
     "success": MessageLookupByLibrary.simpleMessage("موفقیت‌آمیز"),
     "switchLabel": MessageLookupByLibrary.simpleMessage("کلید"),
@@ -2043,6 +2139,8 @@ class MessageLookup extends MessageLookupByLibrary {
       "تنظیمات مربوط به رنگ و پوسته",
     ),
     "themeMode": MessageLookupByLibrary.simpleMessage("حالت پوسته"),
+    "thisMonth": MessageLookupByLibrary.simpleMessage("این ماه"),
+    "thisWeek": MessageLookupByLibrary.simpleMessage("این هفته"),
     "threeBounce": MessageLookupByLibrary.simpleMessage("جهش سه گانه"),
     "threeColumns": MessageLookupByLibrary.simpleMessage("۳ ستون"),
     "threeInOut": MessageLookupByLibrary.simpleMessage("سه دایره"),
@@ -2053,6 +2151,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "عنوان بیش از حد طولانی است (حداکثر ۲۰ کاراکتر)",
     ),
     "tlsPortSniffer": MessageLookupByLibrary.simpleMessage("اسنیف پورت TLS"),
+    "today": MessageLookupByLibrary.simpleMessage("امروز"),
     "toggle": MessageLookupByLibrary.simpleMessage("تغییر"),
     "tonalSpotScheme": MessageLookupByLibrary.simpleMessage("تونال اسپات"),
     "tooManyRules": MessageLookupByLibrary.simpleMessage(
@@ -2083,6 +2182,33 @@ class MessageLookup extends MessageLookupByLibrary {
     "tools": MessageLookupByLibrary.simpleMessage("ابزارها"),
     "totalTraffic": MessageLookupByLibrary.simpleMessage("مجموع ترافیک"),
     "tproxyPort": MessageLookupByLibrary.simpleMessage("پورت Tproxy"),
+    "trafficRanking": MessageLookupByLibrary.simpleMessage("رتبه‌بندی"),
+    "trafficStatsClearTip": MessageLookupByLibrary.simpleMessage(
+      "همهٔ آمار ترافیک پاک شود؟",
+    ),
+    "trafficStatsDesc": MessageLookupByLibrary.simpleMessage(
+      "مشاهدهٔ جزئیات مقصد ترافیک به تفکیک روز، هفته و ماه",
+    ),
+    "trafficStatsDetail": MessageLookupByLibrary.simpleMessage("ثبت جزئیات"),
+    "trafficStatsDetailDesc": MessageLookupByLibrary.simpleMessage(
+      "ثبت دامنه‌ها، فرایندها، گره‌ها و قوانین. در حالت خاموش فقط مجموع ذخیره می‌شود",
+    ),
+    "trafficStatsDisabledTip": MessageLookupByLibrary.simpleMessage(
+      "به‌طور پیش‌فرض خاموش است. پس از روشن کردن، ثبت آغاز می‌شود و داده‌ها فقط روی همین دستگاه ذخیره می‌شوند",
+    ),
+    "trafficStatsEnable": MessageLookupByLibrary.simpleMessage(
+      "فعال‌سازی آمار ترافیک",
+    ),
+    "trafficStatsRetention": MessageLookupByLibrary.simpleMessage(
+      "مدت نگهداری داده",
+    ),
+    "trafficStatsSiteIcon": MessageLookupByLibrary.simpleMessage(
+      "نمایش آیکون سایت‌ها",
+    ),
+    "trafficStatsSiteIconDesc": MessageLookupByLibrary.simpleMessage(
+      "ابتدا آیکون از خود سایت‌ها دریافت می‌شود و اگر آیکون واضحی نباشد از سرویس آیکون Google استفاده و به‌صورت محلی ذخیره می‌شود",
+    ),
+    "trafficTrend": MessageLookupByLibrary.simpleMessage("روند"),
     "trafficUsage": MessageLookupByLibrary.simpleMessage("مصرف ترافیک"),
     "trayClickBehavior": MessageLookupByLibrary.simpleMessage(
       "رفتار کلیک روی سینی",
@@ -2177,7 +2303,13 @@ class MessageLookup extends MessageLookupByLibrary {
     "urlDesc": MessageLookupByLibrary.simpleMessage(
       "دریافت پروفایل از طریق آدرس URL",
     ),
-    "urlTip": m51,
+    "urlTip": m56,
+    "usageStyle": MessageLookupByLibrary.simpleMessage("سبک نمایش مصرف"),
+    "usageStyleBar": MessageLookupByLibrary.simpleMessage("نواری"),
+    "usageStyleConcentric": MessageLookupByLibrary.simpleMessage(
+      "حلقه‌های هم‌مرکز",
+    ),
+    "usageStyleRing": MessageLookupByLibrary.simpleMessage("حلقه‌ای"),
     "useGlobalScriptOverride": MessageLookupByLibrary.simpleMessage(
       "استفاده از اسکریپت اورراید سراسری",
     ),
@@ -2228,6 +2360,6 @@ class MessageLookup extends MessageLookupByLibrary {
     "xattrUnsupportedFallback": MessageLookupByLibrary.simpleMessage(
       "سیستم فایل از قابلیت‌های فایل (xattr) پشتیبانی نمی‌کند؛ به setuid بازگشت داده شد",
     ),
-    "years": m52,
+    "years": m57,
   };
 }

@@ -593,6 +593,7 @@ extension _RendererGutter on _CodeFieldRenderer {
         _screenY(offset, contentTop) + (_lineHeight - iconPainter.height) / 2,
       ),
     );
+    iconPainter.dispose();
   }
 
   void _drawIndentGuides(

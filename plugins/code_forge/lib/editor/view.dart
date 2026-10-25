@@ -315,6 +315,7 @@ class _CodeForgeState extends State<CodeForge>
     implements CodeForgeView {
   late final ScrollController _hscrollController, _vscrollController;
   late CodeForgeController _controller;
+  TwoDimensionalChildBuilderDelegate? _viewportDelegate;
   late final FocusNode _focusNode;
   late final AnimationController _caretBlinkController;
   late final AnimationController _lineHighlightController;
@@ -506,8 +507,20 @@ class _CodeForgeState extends State<CodeForge>
     );
   }
 
+  TwoDimensionalChildBuilderDelegate _replaceViewportDelegate(
+    TwoDimensionalChildBuilderDelegate delegate,
+  ) {
+    final previous = _viewportDelegate;
+    _viewportDelegate = delegate;
+    if (previous != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => previous.dispose());
+    }
+    return delegate;
+  }
+
   @override
   void dispose() {
+    _viewportDelegate?.dispose();
     WidgetsBinding.instance.removeObserver(this);
     _vscrollController.removeListener(_scrollbarLineNumberListener);
     _detachController();
@@ -842,50 +855,53 @@ class _CodeForgeState extends State<CodeForge>
                                                 AxisDirection.right,
                                             mainAxis: Axis.vertical,
                                             lineWrap: widget.lineWrap,
-                                            delegate: TwoDimensionalChildBuilderDelegate(
-                                              maxXIndex: 0,
-                                              maxYIndex: 0,
-                                              builder: (_, vic) {
-                                                return Focus(
-                                                  focusNode: _focusNode,
-                                                  onKeyEvent: _handleKeyEvent,
-                                                  child: _CodeField(
-                                                    key: _codeFieldKey,
-                                                    controller: _controller,
-                                                    editorTheme:
-                                                        widget.editorTheme,
-                                                    language: widget.language,
-                                                    innerPadding:
-                                                        widget.innerPadding,
-                                                    vscrollController:
-                                                        _vscrollController,
-                                                    hscrollController:
-                                                        _hscrollController,
+                                            delegate: _replaceViewportDelegate(
+                                              TwoDimensionalChildBuilderDelegate(
+                                                maxXIndex: 0,
+                                                maxYIndex: 0,
+                                                builder: (_, vic) {
+                                                  return Focus(
                                                     focusNode: _focusNode,
-                                                    readOnly: _readOnly,
-                                                    caretBlinkController:
-                                                        _caretBlinkController,
-                                                    lineHighlightController:
-                                                        _lineHighlightController,
-                                                    textStyle: widget.textStyle,
-                                                    gutterStyle: _gutterStyle,
-                                                    selectionStyle:
-                                                        _selectionStyle,
-                                                    isMobile: _isMobile,
-                                                    selectionActiveNotifier:
-                                                        _selectionActiveNotifier,
-                                                    onContextMenuRequest:
-                                                        _handleContextMenuRequest,
-                                                    onPointerSignal:
-                                                        _handlePointerSignal,
-                                                    lineWrap: widget.lineWrap,
-                                                    caretRectNotifier:
-                                                        _caretRectNotifier,
-                                                    magnifierNotifier:
-                                                        _magnifierNotifier,
-                                                  ),
-                                                );
-                                              },
+                                                    onKeyEvent: _handleKeyEvent,
+                                                    child: _CodeField(
+                                                      key: _codeFieldKey,
+                                                      controller: _controller,
+                                                      editorTheme:
+                                                          widget.editorTheme,
+                                                      language: widget.language,
+                                                      innerPadding:
+                                                          widget.innerPadding,
+                                                      vscrollController:
+                                                          _vscrollController,
+                                                      hscrollController:
+                                                          _hscrollController,
+                                                      focusNode: _focusNode,
+                                                      readOnly: _readOnly,
+                                                      caretBlinkController:
+                                                          _caretBlinkController,
+                                                      lineHighlightController:
+                                                          _lineHighlightController,
+                                                      textStyle:
+                                                          widget.textStyle,
+                                                      gutterStyle: _gutterStyle,
+                                                      selectionStyle:
+                                                          _selectionStyle,
+                                                      isMobile: _isMobile,
+                                                      selectionActiveNotifier:
+                                                          _selectionActiveNotifier,
+                                                      onContextMenuRequest:
+                                                          _handleContextMenuRequest,
+                                                      onPointerSignal:
+                                                          _handlePointerSignal,
+                                                      lineWrap: widget.lineWrap,
+                                                      caretRectNotifier:
+                                                          _caretRectNotifier,
+                                                      magnifierNotifier:
+                                                          _magnifierNotifier,
+                                                    ),
+                                                  );
+                                                },
+                                              ),
                                             ),
                                           ),
                                     ),

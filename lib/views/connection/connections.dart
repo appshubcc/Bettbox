@@ -576,6 +576,7 @@ class _ConnectionsViewState extends ConsumerState<ConnectionsView>
   Widget build(BuildContext context) {
     return CommonScaffold(
       title: appLocalizations.connections,
+      keywords: ref.watch(connectionsKeywordsProvider),
       onKeywordsUpdate: _onKeywordsUpdate,
       searchState: AppBarSearchState(onSearch: _onSearch),
       actions: _buildActions(),

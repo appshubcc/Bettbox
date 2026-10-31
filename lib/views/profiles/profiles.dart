@@ -74,7 +74,7 @@ class _ProfilesViewState extends ConsumerState<ProfilesView> {
         onPressed: () {
           _updateProfiles();
         },
-        icon: const Icon(Icons.sync),
+        icon: const Icon(ReIcons.refresh),
         tooltip: appLocalizations.syncAll,
       ),
       IconButton(
@@ -93,7 +93,7 @@ class _ProfilesViewState extends ConsumerState<ProfilesView> {
               scriptStateProvider.select((state) => state.realId != null),
             );
             return Icon(
-              Icons.terminal_outlined,
+              ReIcons.terminalSquare,
               color: isScriptMode ? context.colorScheme.primary : null,
             );
           },
@@ -110,7 +110,7 @@ class _ProfilesViewState extends ConsumerState<ProfilesView> {
           );
         },
         tooltip: appLocalizations.sort,
-        icon: const Icon(Icons.sort),
+        icon: const Icon(ReIcons.sort),
         iconSize: 26,
       ),
     ];
@@ -127,7 +127,7 @@ class _ProfilesViewState extends ConsumerState<ProfilesView> {
       child: FloatingActionButton.extended(
         heroTag: null,
         onPressed: _handleShowAddExtendPage,
-        icon: const Icon(Icons.add),
+        icon: const Icon(ReIcons.add),
         label: Text(appLocalizations.addProfile),
       ),
     );
@@ -283,7 +283,7 @@ class ProfileItem extends StatelessWidget {
           type: type,
           actions: [
             IconButton(
-              icon: const Icon(Icons.security),
+              icon: const Icon(ReIcons.securitySafe),
               tooltip: appLocalizations.ageKeyGenerateTitle,
               onPressed: () {
                 editKey.currentState?.showAgeKeyGenerator();
@@ -475,7 +475,7 @@ class ProfileItem extends StatelessWidget {
   List<PopupMenuItemData> _buildMenuItems(BuildContext context) {
     return [
       PopupMenuItemData(
-        icon: Icons.edit_outlined,
+        icon: ReIcons.edit,
         label: appLocalizations.edit,
         onPressed: () {
           _handleShowEditExtendPage(context);
@@ -483,7 +483,7 @@ class ProfileItem extends StatelessWidget {
       ),
       if (profile.type == ProfileType.url) ...[
         PopupMenuItemData(
-          icon: Icons.sync_alt_sharp,
+          icon: ReIcons.transferH,
           label: appLocalizations.sync,
           onPressed: () {
             updateProfile();
@@ -491,21 +491,21 @@ class ProfileItem extends StatelessWidget {
         ),
       ],
       PopupMenuItemData(
-        icon: Icons.extension_outlined,
+        icon: ReIcons.puzzle,
         label: appLocalizations.override,
         onPressed: () {
           _handlePushGenProfilePage(context, profile.id);
         },
       ),
       PopupMenuItemData(
-        icon: Icons.file_copy_outlined,
+        icon: ReIcons.documentCopy,
         label: appLocalizations.exportFile,
         onPressed: () {
           _handleExportFile(context);
         },
       ),
       PopupMenuItemData(
-        icon: Icons.delete_outlined,
+        icon: ReIcons.trash4,
         label: appLocalizations.delete,
         onPressed: () {
           _handleDeleteProfile(context);
@@ -562,7 +562,7 @@ class ProfileItem extends StatelessWidget {
                       open();
                     },
                     tooltip: appLocalizations.more,
-                    icon: const Icon(Icons.more_vert, size: 20),
+                    icon: const Icon(ReIcons.moreVCircle, size: 20),
                   );
                 },
               ),
@@ -607,7 +607,7 @@ class ProfileItem extends StatelessWidget {
         ),
         IconButton(
           onPressed: () => _showTVMenu(context),
-          icon: const Icon(Icons.more_vert),
+          icon: const Icon(ReIcons.moreVCircle),
         ),
       ],
     );
@@ -682,7 +682,7 @@ class _ReorderableProfilesSheetState extends State<ReorderableProfilesSheet> {
             Navigator.of(context).pop();
             globalState.appController.setProfiles(profiles);
           },
-          icon: Icon(Icons.save),
+          icon: Icon(ReIcons.floppy),
         ),
       ],
       body: ReorderableListView.builder(
@@ -716,7 +716,7 @@ class _ReorderableProfilesSheetState extends State<ReorderableProfilesSheet> {
                 title: EmojiText(profile.label ?? profile.id),
                 trailing: ReorderableDragStartListener(
                   index: index,
-                  child: const Icon(Icons.drag_handle),
+                  child: const Icon(ReIcons.reorder),
                 ),
               ),
             ),

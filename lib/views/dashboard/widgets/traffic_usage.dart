@@ -131,7 +131,7 @@ class _TrafficUsageState extends ConsumerState<TrafficUsage> {
       child: CommonCard(
         onPressed: () {},
         child: DashboardDecor(
-          mark: DashboardDecor.icon(context, Icons.data_saver_off, 80),
+          mark: DashboardDecor.icon(context, ReIcons.pie, 80),
           bottom: true,
           angle: 0.12,
           child: ValueListenableBuilder<int>(
@@ -216,10 +216,7 @@ class _TrafficUsageState extends ConsumerState<TrafficUsage> {
     return SizedBox(
       height: getWidgetHeight(context, 2),
       child: CommonCard(
-        info: Info(
-          label: appLocalizations.trafficUsage,
-          iconData: Icons.data_saver_off,
-        ),
+        info: Info(label: appLocalizations.trafficUsage, iconData: ReIcons.pie),
         onPressed: () {},
         child: ValueListenableBuilder<int>(
           valueListenable: dashboardRefreshManager.tick1s,
@@ -337,13 +334,13 @@ class _TrafficUsageState extends ConsumerState<TrafficUsage> {
                   ),
                   _buildTrafficDataItem(
                     context,
-                    Icon(Icons.arrow_upward, color: primaryColor, size: 14),
+                    Icon(ReIcons.arrowUp, color: primaryColor, size: 14),
                     upTotalTrafficValue,
                   ),
                   const SizedBox(height: 8),
                   _buildTrafficDataItem(
                     context,
-                    Icon(Icons.arrow_downward, color: secondaryColor, size: 14),
+                    Icon(ReIcons.arrowDown, color: secondaryColor, size: 14),
                     downTotalTrafficValue,
                   ),
                 ],

@@ -287,7 +287,7 @@ class _LocalPingPageState extends ConsumerState<LocalPingPage>
           IconButton(
             tooltip: appLocalizations.natCopyResult,
             onPressed: () => _copy(localPingReport(state, _replies)),
-            icon: const Icon(Icons.copy_rounded),
+            icon: const Icon(ReIcons.copy),
           ),
       ],
       body: ToolPageBody(
@@ -357,7 +357,7 @@ class _LocalPingPageState extends ConsumerState<LocalPingPage>
           if (options.protocol != LocalPingProtocol.icmp) ...[
             const SizedBox(height: 12),
             ToolNote(
-              icon: Icons.info_outline_rounded,
+              icon: ReIcons.infoCircle,
               text: options.protocol == LocalPingProtocol.tcp
                   ? appLocalizations.localPingTcpTip
                   : appLocalizations.localPingUdpTip,
@@ -392,11 +392,7 @@ class _TargetField extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(14, 4, 6, 4),
       child: Row(
         children: [
-          Icon(
-            Icons.my_location_rounded,
-            size: 20,
-            color: colorScheme.onSurfaceVariant,
-          ),
+          Icon(ReIcons.gps, size: 20, color: colorScheme.onSurfaceVariant),
           const SizedBox(width: 10),
           Expanded(
             child: ToolTvField(
@@ -427,7 +423,7 @@ class _TargetField extends StatelessWidget {
                 ? const SizedBox.shrink()
                 : IconButton(
                     onPressed: controller.clear,
-                    icon: const Icon(Icons.close_rounded, size: 18),
+                    icon: const Icon(ReIcons.x, size: 18),
                   ),
           ),
           if (port != null)
@@ -459,7 +455,7 @@ class _QuickTargets extends StatelessWidget {
     if (network != null) {
       if (network.gateway.isNotEmpty) {
         items.add((
-          Icons.router_rounded,
+          ReIcons.router,
           appLocalizations.localPingGateway,
           network.gateway,
           false,
@@ -470,7 +466,7 @@ class _QuickTargets extends StatelessWidget {
         ...network.dns.where((item) => item.contains(':')),
       ];
       for (final server in dns.toSet().take(3)) {
-        items.add((Icons.dns_rounded, 'DNS', server, true));
+        items.add((ReIcons.globalSearch, 'DNS', server, true));
       }
     }
     final colorScheme = context.colorScheme;
@@ -686,10 +682,10 @@ class _LiveCard extends StatelessWidget {
                       )
                     : Icon(
                         hasError
-                            ? Icons.error_outline_rounded
+                            ? ReIcons.alertCircle
                             : state == null
-                            ? Icons.network_ping_rounded
-                            : Icons.check_rounded,
+                            ? ReIcons.pulse
+                            : ReIcons.check,
                         color: color,
                         size: 24,
                       ),
@@ -727,7 +723,7 @@ class _LiveCard extends StatelessWidget {
           if (hasError) ...[
             const SizedBox(height: 14),
             ToolNote(
-              icon: Icons.error_outline_rounded,
+              icon: ReIcons.alertCircle,
               text: localPingErrorText(state.error),
               color: colorScheme.error,
             ),
@@ -904,29 +900,29 @@ class _StatsGrid extends StatelessWidget {
     return ToolInfoGrid(
       children: [
         ToolInfoTile(
-          icon: Icons.swap_vert_rounded,
+          icon: ReIcons.transferV,
           label:
               '${appLocalizations.localPingSent} / ${appLocalizations.localPingReceived}',
           value: '${stats.sent} / ${stats.received}',
         ),
         state.protocol == LocalPingProtocol.icmp
             ? ToolInfoTile(
-                icon: Icons.route_rounded,
+                icon: ReIcons.route,
                 label: 'TTL',
                 value: stats.ttl > 0 ? '${stats.ttl}' : '—',
               )
             : ToolInfoTile(
-                icon: Icons.settings_ethernet_rounded,
+                icon: ReIcons.plug,
                 label: appLocalizations.port,
                 value: '${state.port}',
               ),
         ToolInfoTile(
-          icon: Icons.south_rounded,
+          icon: ReIcons.arrowDown,
           label: appLocalizations.localPingMin,
           value: _ms(stats.min),
         ),
         ToolInfoTile(
-          icon: Icons.north_rounded,
+          icon: ReIcons.arrowUp,
           label: appLocalizations.localPingMax,
           value: _ms(stats.max),
         ),

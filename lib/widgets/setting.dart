@@ -87,7 +87,7 @@ class TitleSettingButton extends StatelessWidget {
           child: Padding(
             padding: const EdgeInsets.all(7),
             child: Icon(
-              Icons.settings_outlined,
+              ReIcons.setting2,
               size: 18,
               color: context.colorScheme.onSurfaceVariant,
             ),

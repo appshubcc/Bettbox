@@ -113,7 +113,7 @@ class _FcmStatusState extends State<FcmStatus> {
                 mainAxisSize: MainAxisSize.max,
                 children: [
                   Icon(
-                    Icons.cloud_outlined,
+                    ReIcons.bell,
                     color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
                   const SizedBox(width: 8),
@@ -138,7 +138,7 @@ class _FcmStatusState extends State<FcmStatus> {
                       onPressed: () => _showFcmInfoDialog(context),
                       icon: Icon(
                         size: 16.ap,
-                        Icons.info_outline,
+                        ReIcons.infoCircle,
                         color: context.colorScheme.onSurfaceVariant,
                       ),
                     ),

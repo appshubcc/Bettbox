@@ -195,16 +195,13 @@ class _AgeToolPageState extends ConsumerState<AgeToolPage> {
           if (_error.isNotEmpty) ...[
             const SizedBox(height: 12),
             ToolNote(
-              icon: Icons.error_outline_rounded,
+              icon: ReIcons.alertCircle,
               text: _error,
               color: context.colorScheme.error,
             ),
           ],
           const SizedBox(height: 12),
-          ToolNote(
-            icon: Icons.shield_outlined,
-            text: appLocalizations.ageToolTip,
-          ),
+          ToolNote(icon: ReIcons.shield, text: appLocalizations.ageToolTip),
         ],
       ),
     );
@@ -213,7 +210,7 @@ class _AgeToolPageState extends ConsumerState<AgeToolPage> {
   Widget _copyButton(String Function() text) => IconButton(
     tooltip: appLocalizations.copy,
     onPressed: () => _copy(text()),
-    icon: const Icon(Icons.copy_rounded, size: 18),
+    icon: const Icon(ReIcons.copy, size: 18),
   );
 
   List<Widget> _buildKeys() => [
@@ -237,7 +234,7 @@ class _AgeToolPageState extends ConsumerState<AgeToolPage> {
           if (_keyType == _AgeKeyType.hybrid) ...[
             const SizedBox(height: 10),
             ToolNote(
-              icon: Icons.info_outline_rounded,
+              icon: ReIcons.infoCircle,
               text: appLocalizations.ageKeyHybridTip,
               color: context.colorScheme.tertiary,
             ),
@@ -258,9 +255,7 @@ class _AgeToolPageState extends ConsumerState<AgeToolPage> {
                       onPressed: () =>
                           setState(() => _showSecret = !_showSecret),
                       icon: Icon(
-                        _showSecret
-                            ? Icons.visibility_off_rounded
-                            : Icons.visibility_rounded,
+                        _showSecret ? ReIcons.eyeSlash : ReIcons.eye,
                         size: 18,
                       ),
                     ),
@@ -296,12 +291,12 @@ class _AgeToolPageState extends ConsumerState<AgeToolPage> {
             children: [
               FilledButton.icon(
                 onPressed: _generate,
-                icon: const Icon(Icons.key_rounded, size: 18),
+                icon: const Icon(ReIcons.key, size: 18),
                 label: Text(appLocalizations.ageGenerateKeyPair),
               ),
               OutlinedButton.icon(
                 onPressed: _derive,
-                icon: const Icon(Icons.sync_alt_rounded, size: 18),
+                icon: const Icon(ReIcons.transferH, size: 18),
                 label: Text(appLocalizations.generateFromPrivateKey),
               ),
               if (_publicController.text.isNotEmpty)
@@ -311,7 +306,7 @@ class _AgeToolPageState extends ConsumerState<AgeToolPage> {
                     _decryptKey.text = _secretController.text;
                     setState(() => _tab = _AgeTab.encrypt);
                   },
-                  icon: const Icon(Icons.arrow_forward_rounded, size: 18),
+                  icon: const Icon(ReIcons.arrowRight, size: 18),
                   label: Text(appLocalizations.ageUseForEncrypt),
                 ),
             ],
@@ -345,12 +340,12 @@ class _AgeToolPageState extends ConsumerState<AgeToolPage> {
                 final data = await Clipboard.getData(Clipboard.kTextPlain);
                 if (data?.text case final text?) controller.text = text;
               },
-              icon: const Icon(Icons.content_paste_rounded, size: 18),
+              icon: const Icon(ReIcons.clipboardText, size: 18),
             ),
             IconButton(
               tooltip: appLocalizations.file,
               onPressed: () => _pickFile(controller),
-              icon: const Icon(Icons.folder_open_rounded, size: 18),
+              icon: const Icon(ReIcons.folderOpen, size: 18),
             ),
           ],
         ),
@@ -376,7 +371,7 @@ class _AgeToolPageState extends ConsumerState<AgeToolPage> {
             IconButton(
               tooltip: appLocalizations.save,
               onPressed: () => _save(text, fileName),
-              icon: const Icon(Icons.save_alt_rounded, size: 18),
+              icon: const Icon(ReIcons.download, size: 18),
             ),
           ],
         ),
@@ -462,7 +457,7 @@ class _AgeToolPageState extends ConsumerState<AgeToolPage> {
               alignment: AlignmentDirectional.centerStart,
               child: TextButton.icon(
                 onPressed: () => setState(() => _decryptKey.text = profileKey),
-                icon: const Icon(Icons.key_rounded, size: 16),
+                icon: const Icon(ReIcons.key, size: 16),
                 label: Text(appLocalizations.ageUseProfileKey),
               ),
             ),

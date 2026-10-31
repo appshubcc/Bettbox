@@ -25,7 +25,7 @@ class OutboundMode extends StatelessWidget {
           return CommonCard(
             info: Info(
               label: appLocalizations.outboundMode,
-              iconData: Icons.call_split_sharp,
+              iconData: ReIcons.routing2,
             ),
             child: Padding(
               padding: const EdgeInsets.only(top: 12, bottom: 16),
@@ -70,8 +70,8 @@ class OutboundMode extends StatelessWidget {
                                     children: [
                                       Icon(
                                         item == mode
-                                            ? Icons.check_circle_rounded
-                                            : Icons.circle_outlined,
+                                            ? ReIcons.tickCircleFilled
+                                            : ReIcons.record4,
                                         size: 21,
                                         color: item == mode
                                             ? context.colorScheme.primary
@@ -123,7 +123,7 @@ class OutboundModeV2 extends StatelessWidget {
               padding: EdgeInsets.fromLTRB(16.ap, 11.ap, 12.ap, 0),
               info: Info(
                 label: appLocalizations.runningMode,
-                iconData: Icons.call_split_sharp,
+                iconData: ReIcons.routing2,
               ),
               actions: const [_OutboundStatusChips()],
             ),
@@ -177,9 +177,9 @@ class _OutboundModeButton extends StatelessWidget {
   });
 
   IconData get _icon => switch (mode) {
-    Mode.rule => Icons.list_alt_rounded,
-    Mode.global => Icons.language_rounded,
-    Mode.direct => Icons.east_rounded,
+    Mode.rule => ReIcons.listSquare,
+    Mode.global => ReIcons.global,
+    Mode.direct => ReIcons.arrowRight,
   };
 
   @override

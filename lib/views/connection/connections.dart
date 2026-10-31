@@ -309,7 +309,7 @@ class _ConnectionsViewState extends ConsumerState<ConnectionsView>
         IconButton(
           onPressed: _handleClearClosed,
           tooltip: appLocalizations.clear,
-          icon: const Icon(Icons.delete_sweep_outlined),
+          icon: const Icon(ReIcons.trash9),
         ),
         IconButton(
           style: _autoScrollToEnd
@@ -321,7 +321,7 @@ class _ConnectionsViewState extends ConsumerState<ConnectionsView>
               : null,
           onPressed: _toggleAutoScroll,
           tooltip: appLocalizations.autoScroll,
-          icon: const Icon(Icons.vertical_align_top_outlined),
+          icon: const Icon(ReIcons.alignTop),
         ),
       ];
     }
@@ -329,12 +329,12 @@ class _ConnectionsViewState extends ConsumerState<ConnectionsView>
       IconButton(
         onPressed: _handleCloseAll,
         tooltip: appLocalizations.closeAll,
-        icon: const Icon(Icons.delete_sweep_outlined),
+        icon: const Icon(ReIcons.trash9),
       ),
       IconButton(
         tooltip: appLocalizations.connectionsSort,
         onPressed: _handleSort,
-        icon: const Icon(Icons.sort),
+        icon: const Icon(ReIcons.sort),
       ),
     ];
   }
@@ -380,7 +380,7 @@ class _ConnectionsViewState extends ConsumerState<ConnectionsView>
       onTap: () => _handleBlockConnection(id),
       child: SizedBox.square(
         dimension: 40,
-        child: Icon(Icons.block, color: context.colorScheme.onSurfaceVariant),
+        child: Icon(ReIcons.ban, color: context.colorScheme.onSurfaceVariant),
       ),
     );
   }

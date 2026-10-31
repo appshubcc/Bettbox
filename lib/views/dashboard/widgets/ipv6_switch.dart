@@ -13,7 +13,7 @@ class Ipv6Switch extends StatelessWidget {
     return SizedBox(
       height: getWidgetHeight(context, 1),
       child: CommonCard(
-        info: Info(label: 'IPv6', iconData: Icons.filter_6_rounded),
+        info: Info(label: 'IPv6', iconData: ReIcons.earth),
         onPressed: () {
           // Open general settings
           showExtend(

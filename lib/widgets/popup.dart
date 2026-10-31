@@ -274,7 +274,7 @@ class CommonPopupMenu extends StatelessWidget {
         : colorScheme.onSurface;
     final iconColor = disabled
         ? colorScheme.onSurface.opacity30
-        : item.icon == Icons.check_circle_rounded
+        : item.icon == ReIcons.tickCircleFilled
         ? colorScheme.primary
         : colorScheme.onSurfaceVariant;
     return InkWell(

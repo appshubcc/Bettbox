@@ -221,7 +221,7 @@ class ToolOutboundCard extends StatelessWidget {
             Padding(
               padding: const EdgeInsetsDirectional.only(start: 6),
               child: Icon(
-                Icons.unfold_more_rounded,
+                ReIcons.chevronExpandY,
                 size: 20,
                 color: enabled
                     ? colorScheme.onSurfaceVariant
@@ -257,7 +257,7 @@ class ToolSearchField extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(14, 4, 6, 4),
       child: Row(
         children: [
-          Icon(Icons.search_rounded, color: colorScheme.onSurfaceVariant),
+          Icon(ReIcons.search4, color: colorScheme.onSurfaceVariant),
           const SizedBox(width: 10),
           Expanded(
             child: ToolTvField(
@@ -286,7 +286,7 @@ class ToolSearchField extends StatelessWidget {
                 ? const SizedBox.shrink()
                 : IconButton(
                     onPressed: controller.clear,
-                    icon: const Icon(Icons.close_rounded, size: 18),
+                    icon: const Icon(ReIcons.x, size: 18),
                   ),
           ),
           ?trailing,
@@ -301,7 +301,7 @@ class ToolSearchField extends StatelessWidget {
                 )
               : IconButton.filledTonal(
                   onPressed: () => onSubmitted(controller.text.trim()),
-                  icon: const Icon(Icons.arrow_forward_rounded),
+                  icon: const Icon(ReIcons.arrowRight),
                 ),
         ],
       ),
@@ -361,7 +361,7 @@ class ToolInfoTile extends StatelessWidget {
               ),
               if (onTap != null)
                 Icon(
-                  Icons.chevron_right_rounded,
+                  ReIcons.chevronRight,
                   size: 18,
                   color: colorScheme.outline,
                 ),
@@ -592,7 +592,7 @@ class ToolOutboundValue extends StatelessWidget {
                 if (onTap != null) ...[
                   const SizedBox(width: 6),
                   Icon(
-                    Icons.info_outline_rounded,
+                    ReIcons.infoCircle,
                     size: 15,
                     color: colorScheme.primary,
                   ),
@@ -792,7 +792,7 @@ class ToolNumberSegmented extends StatelessWidget {
           : custom
           ? labelOf(value)
           : appLocalizations.custom,
-      iconOf: (item) => item == _custom && !custom ? Icons.edit_rounded : null,
+      iconOf: (item) => item == _custom && !custom ? ReIcons.edit : null,
       onChanged: (item) => item == _custom ? _input() : onChanged(item),
     );
   }
@@ -873,7 +873,7 @@ class ToolHistoryBar extends StatelessWidget {
                               visualDensity: VisualDensity.compact,
                               side: toolChipSide(context),
                               avatar: Icon(
-                                Icons.history_rounded,
+                                ReIcons.history,
                                 size: 15,
                                 color: colorScheme.onSurfaceVariant,
                               ),
@@ -893,7 +893,7 @@ class ToolHistoryBar extends StatelessWidget {
                       tooltip: appLocalizations.toolHistoryClear,
                       onPressed: onClear,
                       icon: Icon(
-                        Icons.delete_sweep_outlined,
+                        ReIcons.trash9,
                         size: 20,
                         color: colorScheme.onSurfaceVariant,
                       ),

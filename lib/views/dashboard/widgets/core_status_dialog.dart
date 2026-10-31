@@ -491,7 +491,7 @@ class _CoreStatusDialogState extends State<CoreStatusDialog> {
               shape: BoxShape.circle,
             ),
             child: Icon(
-              Icons.travel_explore_rounded,
+              ReIcons.globalSearch,
               size: 14,
               color: context.colorScheme.secondary,
             ),
@@ -542,29 +542,29 @@ class _CoreStatusDialogState extends State<CoreStatusDialog> {
 
     final metricItems = <_MetricItem>[
       _MetricItem(
-        icon: Icons.rule_rounded,
+        icon: ReIcons.listCheck,
         label: appLocalizations.rulesCount,
         value: rulesText,
       ),
       _MetricItem(
-        icon: Icons.dns_rounded,
+        icon: ReIcons.server,
         label: appLocalizations.proxiesCount,
         value: proxiesText,
       ),
       _MetricItem(
-        icon: Icons.cable_rounded,
+        icon: ReIcons.plug,
         label: appLocalizations.proxyGroupsCount,
         value: proxyGroupsText,
       ),
       if ((status?.ruleProviders ?? 0) > 0)
         _MetricItem(
-          icon: Icons.library_books_rounded,
+          icon: ReIcons.book,
           label: appLocalizations.ruleProvidersCount,
           value: ruleProvidersText,
         ),
       if ((status?.proxyProviders ?? 0) > 0)
         _MetricItem(
-          icon: Icons.cloud_sync_rounded,
+          icon: ReIcons.cloudChange,
           label: appLocalizations.proxyProvidersCount,
           value: proxyProvidersText,
         ),
@@ -596,7 +596,7 @@ class _CoreStatusDialogState extends State<CoreStatusDialog> {
             children: [
               Expanded(
                 child: _buildMiniStatCard(
-                  icon: Icons.alt_route_rounded,
+                  icon: ReIcons.routing,
                   iconColor: context.colorScheme.primary,
                   label: appLocalizations.activeGoroutines,
                   value: goroutinesText,
@@ -605,7 +605,7 @@ class _CoreStatusDialogState extends State<CoreStatusDialog> {
               const SizedBox(width: 8),
               Expanded(
                 child: _buildMiniStatCard(
-                  icon: Icons.layers_rounded,
+                  icon: ReIcons.layer,
                   iconColor: context.colorScheme.tertiary,
                   label: appLocalizations.heapObjects,
                   value: heapObjectsText,

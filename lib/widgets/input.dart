@@ -83,7 +83,7 @@ class OptionItem extends StatelessWidget {
             child: Row(
               children: [
                 Icon(
-                  selected ? Icons.check_circle_rounded : Icons.circle_outlined,
+                  selected ? ReIcons.tickCircleFilled : ReIcons.record4,
                   size: 21,
                   color: selected
                       ? colorScheme.primary
@@ -285,9 +285,7 @@ class _InputDialogState extends State<InputDialog> {
                 labelText: widget.labelText,
                 suffixIcon: widget.obscureText == true
                     ? IconButton(
-                        icon: Icon(
-                          _obscure ? Icons.visibility : Icons.visibility_off,
-                        ),
+                        icon: Icon(_obscure ? ReIcons.eye : ReIcons.eyeSlash),
                         onPressed: () {
                           setState(() {
                             _obscure = !_obscure;
@@ -377,7 +375,7 @@ class ListInputPage extends StatelessWidget {
           onPressed: () async {
             _handleAddOrEdit();
           },
-          child: const Icon(Icons.add),
+          child: const Icon(ReIcons.add),
         ),
       ),
       child: items.isEmpty
@@ -407,7 +405,7 @@ class ListInputPage extends StatelessWidget {
                               ? subtitleBuilder!(e)
                               : null,
                           trailing: IconButton(
-                            icon: const Icon(Icons.delete_outline),
+                            icon: const Icon(ReIcons.trash4),
                             onPressed: () {
                               _handleDelete(e);
                             },
@@ -526,7 +524,7 @@ class MapInputPage extends StatelessWidget {
           onPressed: () async {
             _handleAddOrEdit();
           },
-          child: const Icon(Icons.add),
+          child: const Icon(ReIcons.add),
         ),
       ),
       child: items.isEmpty
@@ -558,7 +556,7 @@ class MapInputPage extends StatelessWidget {
                               : null,
                           trailing: (canDelete == null || canDelete!(e))
                               ? IconButton(
-                                  icon: const Icon(Icons.delete_outline),
+                                  icon: const Icon(ReIcons.trash4),
                                   onPressed: () {
                                     _handleDelete(e);
                                   },

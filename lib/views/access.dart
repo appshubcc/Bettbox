@@ -113,7 +113,7 @@ class _AccessViewState extends ConsumerState<AccessView>
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(
-              Icons.apps_outlined,
+              ReIcons.category,
               size: 72,
               color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
@@ -142,7 +142,7 @@ class _AccessViewState extends ConsumerState<AccessView>
                     _requestedPackageListPermission = true;
                     await app.requestPackageListPermission();
                   },
-                  icon: const Icon(Icons.settings),
+                  icon: const Icon(ReIcons.setting2),
                   label: Text(appLocalizations.openSettings),
                 ),
               ],
@@ -314,7 +314,7 @@ class _AccessViewState extends ConsumerState<AccessView>
           }
         });
       },
-      icon: const Icon(Icons.search),
+      icon: const Icon(ReIcons.search4),
     );
   }
 
@@ -351,7 +351,7 @@ class _AccessViewState extends ConsumerState<AccessView>
           });
         }
       },
-      icon: const Icon(Icons.sync),
+      icon: const Icon(ReIcons.refresh),
     );
   }
 
@@ -382,8 +382,8 @@ class _AccessViewState extends ConsumerState<AccessView>
         });
       },
       icon: isSelectedAll
-          ? const Icon(Icons.deselect)
-          : const Icon(Icons.select_all),
+          ? const Icon(ReIcons.closeSquare)
+          : const Icon(ReIcons.tickSquare),
     );
   }
 
@@ -437,7 +437,7 @@ class _AccessViewState extends ConsumerState<AccessView>
           _intelligentSelected();
         }
       },
-      icon: const Icon(Icons.tune),
+      icon: const Icon(ReIcons.setting4),
     );
   }
 
@@ -775,7 +775,7 @@ class PackageListItem extends ConsumerWidget {
         borderRadius: BorderRadius.circular(8),
       ),
       child: Icon(
-        Icons.apps,
+        ReIcons.category,
         size: 24,
         color: Theme.of(context).colorScheme.onSurfaceVariant,
       ),
@@ -803,7 +803,7 @@ class AccessControlSearchDelegate extends SearchDelegate {
           }
           query = '';
         },
-        icon: const Icon(Icons.clear),
+        icon: const Icon(ReIcons.x),
       ),
       const SizedBox(width: 8),
     ];
@@ -815,7 +815,7 @@ class AccessControlSearchDelegate extends SearchDelegate {
       onPressed: () {
         close(context, null);
       },
-      icon: const Icon(Icons.arrow_back),
+      icon: const Icon(ReIcons.arrowLeft),
     );
   }
 
@@ -933,8 +933,8 @@ class AccessControlPanel extends ConsumerStatefulWidget {
 class _AccessControlPanelState extends ConsumerState<AccessControlPanel> {
   IconData _getIconWithAccessControlMode(AccessControlMode mode) {
     return switch (mode) {
-      AccessControlMode.acceptSelected => Icons.adjust_outlined,
-      AccessControlMode.rejectSelected => Icons.block_outlined,
+      AccessControlMode.acceptSelected => ReIcons.recordCircle3,
+      AccessControlMode.rejectSelected => ReIcons.ban,
     };
   }
 
@@ -955,9 +955,9 @@ class _AccessControlPanelState extends ConsumerState<AccessControlPanel> {
 
   IconData _getIconWithProxiesSortType(AccessSortType type) {
     return switch (type) {
-      AccessSortType.none => Icons.sort,
-      AccessSortType.installTime => Icons.install_mobile,
-      AccessSortType.updateTime => Icons.update,
+      AccessSortType.none => ReIcons.sort,
+      AccessSortType.installTime => ReIcons.mobile,
+      AccessSortType.updateTime => ReIcons.timeFwd,
     };
   }
 
@@ -1165,19 +1165,19 @@ class _AccessControlPanelState extends ConsumerState<AccessControlPanel> {
             spacing: 16,
             children: [
               CommonChip(
-                avatar: const Icon(Icons.auto_awesome),
+                avatar: const Icon(ReIcons.magicStar),
                 label: appLocalizations.intelligentSelected,
                 onPressed: () {
                   Navigator.of(context).pop(1);
                 },
               ),
               CommonChip(
-                avatar: const Icon(Icons.paste),
+                avatar: const Icon(ReIcons.clipboardText),
                 label: appLocalizations.clipboardImport,
                 onPressed: _pasteToClipboard,
               ),
               CommonChip(
-                avatar: const Icon(Icons.content_copy),
+                avatar: const Icon(ReIcons.copy),
                 label: appLocalizations.clipboardExport,
                 onPressed: _copyToClipboard,
               ),

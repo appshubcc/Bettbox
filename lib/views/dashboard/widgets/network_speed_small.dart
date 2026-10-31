@@ -73,7 +73,7 @@ class NetworkSpeedSmall extends ConsumerWidget {
                   BaseNavigator.push(context, const SpeedTestPage()),
               info: Info(
                 label: speedText,
-                iconData: Icons.speed_sharp,
+                iconData: ReIcons.speedometer,
                 style: speedStyle,
               ),
               child: Padding(

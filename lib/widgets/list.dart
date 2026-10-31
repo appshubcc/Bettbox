@@ -440,9 +440,7 @@ class ListItem<T> extends StatelessWidget {
         trailing: Padding(
           padding: const EdgeInsets.only(right: 8),
           child: Icon(
-            checkboxDelegate.value
-                ? Icons.check_circle_rounded
-                : Icons.circle_outlined,
+            checkboxDelegate.value ? ReIcons.tickCircleFilled : ReIcons.record4,
             size: 24,
             color: checkboxDelegate.value
                 ? context.colorScheme.primary
@@ -489,7 +487,7 @@ class ListItem<T> extends StatelessWidget {
           }
         },
         leading: Icon(
-          isSelected ? Icons.check_circle_rounded : Icons.circle_outlined,
+          isSelected ? ReIcons.tickCircleFilled : ReIcons.record4,
           size: 21,
           color: isSelected
               ? context.colorScheme.primary

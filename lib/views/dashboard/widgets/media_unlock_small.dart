@@ -218,7 +218,7 @@ class _MediaUnlockSmallState extends ConsumerState<MediaUnlockSmall> {
                   child: Row(
                     children: [
                       Icon(
-                        Icons.link_rounded,
+                        ReIcons.link,
                         size: 18.ap,
                         color: context.colorScheme.onSurfaceVariant,
                       ),
@@ -257,7 +257,7 @@ class _MediaUnlockSmallState extends ConsumerState<MediaUnlockSmall> {
                                   ),
                                 )
                               : Icon(
-                                  Icons.sync,
+                                  ReIcons.refresh,
                                   size: 16.ap,
                                   color: context.colorScheme.onSurfaceVariant,
                                 ),

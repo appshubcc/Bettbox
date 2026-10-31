@@ -111,6 +111,9 @@ flutter:
     - family: Icons
       fonts:
         - asset: assets/fonts/Icons.ttf
+    - family: Reicons
+      fonts:
+        - asset: assets/fonts/Reicons.ttf
     - family: HarmonyOS_Sans
       fonts:
         - asset: assets/fonts/HarmonyOS_Sans_SC_Regular.ttf

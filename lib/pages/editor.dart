@@ -342,36 +342,36 @@ class _EditorPageState extends ConsumerState<EditorPage> {
     final items = [
       if (request.hasSelection && !request.readOnly)
         PopupMenuItemData(
-          icon: Icons.content_cut,
+          icon: ReIcons.scissor,
           label: appLocalizations.cut,
           onPressed: request.cut,
         ),
       if (request.hasSelection)
         PopupMenuItemData(
-          icon: Icons.content_copy,
+          icon: ReIcons.copy,
           label: appLocalizations.copy,
           onPressed: request.copy,
         ),
       if (!request.readOnly)
         PopupMenuItemData(
-          icon: Icons.content_paste,
+          icon: ReIcons.clipboardText,
           label: appLocalizations.paste,
           onPressed: request.paste,
         ),
       PopupMenuItemData(
-        icon: Icons.search,
+        icon: ReIcons.search4,
         label: appLocalizations.search,
         onPressed: _handleSearch,
       ),
       if (!request.readOnly && _controller.lineCommentPrefix != null)
         PopupMenuItemData(
-          icon: Icons.code,
+          icon: ReIcons.code,
           label: appLocalizations.blockComment,
           onPressed: _controller.toggleLineComment,
         ),
       if (!request.isAllSelected)
         PopupMenuItemData(
-          icon: Icons.select_all,
+          icon: ReIcons.tickSquare,
           label: appLocalizations.selectAll,
           onPressed: request.selectAll,
         ),
@@ -527,32 +527,32 @@ class _EditorPageState extends ConsumerState<EditorPage> {
   List<PopupMenuItemData> _menuItems(bool canReplace) {
     return [
       PopupMenuItemData(
-        icon: Icons.search,
+        icon: ReIcons.search4,
         label: appLocalizations.search,
         onPressed: _handleSearch,
       ),
       if (canReplace)
         PopupMenuItemData(
-          icon: Icons.find_replace,
+          icon: ReIcons.search4,
           label: appLocalizations.replace,
           onPressed: _handleReplace,
         ),
       PopupMenuItemData(
-        icon: Icons.undo,
+        icon: ReIcons.undo,
         label: appLocalizations.undo,
         onPressed: _undoController.canUndo
             ? () => _undoController.undo()
             : null,
       ),
       PopupMenuItemData(
-        icon: Icons.redo,
+        icon: ReIcons.redo,
         label: appLocalizations.redo,
         onPressed: _undoController.canRedo
             ? () => _undoController.redo()
             : null,
       ),
       PopupMenuItemData(
-        icon: _lineWrap ? Icons.check : Icons.wrap_text,
+        icon: _lineWrap ? ReIcons.check : ReIcons.textalignJustifyleft,
         label: appLocalizations.lineWrap,
         onPressed: _toggleLineWrap,
       ),
@@ -678,14 +678,14 @@ class _EditorPageState extends ConsumerState<EditorPage> {
                           : null,
                       onPressed: canSave ? () => _handleSave(context) : null,
                       tooltip: appLocalizations.save,
-                      icon: const Icon(Icons.save_sharp),
+                      icon: const Icon(ReIcons.floppy),
                     );
                   }),
                 if (widget.supportRemoteDownload && !readOnly)
                   IconButton(
                     onPressed: _isLoading ? null : _handleImport,
                     tooltip: appLocalizations.download,
-                    icon: const Icon(Icons.arrow_downward),
+                    icon: const Icon(ReIcons.arrowDown),
                   ),
                 ListenableBuilder(
                   listenable: _undoController,
@@ -698,7 +698,7 @@ class _EditorPageState extends ConsumerState<EditorPage> {
                                 open(offset: const Offset(-20, 20));
                               },
                         tooltip: appLocalizations.more,
-                        icon: const Icon(Icons.more_vert),
+                        icon: const Icon(ReIcons.moreVCircle),
                       );
                     },
                     popup: CommonPopupMenu(
@@ -921,27 +921,27 @@ class FindPanel extends StatelessWidget implements PreferredSizeWidget {
                   onPressed: controller.matchCount == 0
                       ? null
                       : controller.previous,
-                  icon: Icons.keyboard_arrow_up,
+                  icon: ReIcons.chevronUp,
                 ),
                 _buildIconButton(
                   onPressed: controller.matchCount == 0
                       ? null
                       : controller.next,
-                  icon: Icons.keyboard_arrow_down,
+                  icon: ReIcons.chevronDown,
                 ),
                 if (isMobileView && showReplace) ...[
                   _buildIconButton(
                     onPressed: controller.matchCount == 0
                         ? null
                         : controller.replace,
-                    icon: Icons.find_replace,
+                    icon: ReIcons.search4,
                     tooltip: appLocalizations.replace,
                   ),
                   _buildIconButton(
                     onPressed: controller.matchCount == 0
                         ? null
                         : controller.replaceAll,
-                    icon: Icons.published_with_changes,
+                    icon: ReIcons.tickSquare,
                     tooltip: appLocalizations.replaceAll,
                   ),
                 ],
@@ -949,8 +949,8 @@ class FindPanel extends StatelessWidget implements PreferredSizeWidget {
                   _buildIconButton(
                     onPressed: () => controller.toggleReplaceMode(),
                     icon: controller.isReplaceMode
-                        ? Icons.unfold_less
-                        : Icons.unfold_more,
+                        ? ReIcons.minimize
+                        : ReIcons.chevronExpandY,
                     tooltip: appLocalizations.replace,
                   ),
                 const SizedBox(width: 2),
@@ -966,7 +966,7 @@ class FindPanel extends StatelessWidget implements PreferredSizeWidget {
                     ),
                     padding: const WidgetStatePropertyAll(EdgeInsets.all(0)),
                   ),
-                  icon: const Icon(Icons.close, size: 16),
+                  icon: const Icon(ReIcons.x, size: 16),
                 ),
               ],
             ),
@@ -1019,14 +1019,14 @@ class FindPanel extends StatelessWidget implements PreferredSizeWidget {
           const SizedBox(width: 10),
           _buildIconButton(
             onPressed: controller.matchCount == 0 ? null : controller.replace,
-            icon: Icons.find_replace,
+            icon: ReIcons.search4,
             tooltip: appLocalizations.replace,
           ),
           _buildIconButton(
             onPressed: controller.matchCount == 0
                 ? null
                 : controller.replaceAll,
-            icon: Icons.published_with_changes,
+            icon: ReIcons.tickSquare,
             tooltip: appLocalizations.replaceAll,
           ),
         ],
@@ -1041,7 +1041,7 @@ class FindPanel extends StatelessWidget implements PreferredSizeWidget {
         _buildTextField(
           context: context,
           hintText: appLocalizations.search,
-          prefixIcon: Icons.search,
+          prefixIcon: ReIcons.search4,
           onSubmitted: () {
             if (controller.matchCount == 0) {
               return;
@@ -1079,7 +1079,7 @@ class FindPanel extends StatelessWidget implements PreferredSizeWidget {
     return _buildTextField(
       context: context,
       hintText: appLocalizations.replace,
-      prefixIcon: Icons.find_replace,
+      prefixIcon: ReIcons.search4,
       onSubmitted: () {
         if (controller.matchCount == 0) return;
         controller.replace();

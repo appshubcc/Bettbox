@@ -97,11 +97,8 @@ class _ConnectionsCountState extends State<ConnectionsCount> {
     );
     return DashboardTileCard(
       size: size,
-      info: Info(
-        iconData: Icons.cable_rounded,
-        label: appLocalizations.connection,
-      ),
-      mark: DashboardDecor.icon(context, Icons.cable_rounded, 80),
+      info: Info(iconData: ReIcons.plug, label: appLocalizations.connection),
+      mark: DashboardDecor.icon(context, ReIcons.plug, 80),
       markAngle: -0.32,
       onPressed: _openConnections,
       child: isTall
@@ -146,10 +143,7 @@ class _ConnectionsCountState extends State<ConnectionsCount> {
     return SizedBox(
       height: getWidgetHeight(context, 1),
       child: CommonCard(
-        info: Info(
-          iconData: Icons.cable_rounded,
-          label: appLocalizations.connection,
-        ),
+        info: Info(iconData: ReIcons.plug, label: appLocalizations.connection),
         onPressed: () {
           showExtend(
             context,

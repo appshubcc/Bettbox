@@ -149,7 +149,7 @@ class _DashboardViewState extends ConsumerState<DashboardView> {
           },
           child: IconButton(
             onPressed: _showAddWidgetsModal,
-            icon: const Icon(Icons.add_circle),
+            icon: const Icon(ReIcons.addCircle),
           ),
         );
       }),
@@ -158,7 +158,7 @@ class _DashboardViewState extends ConsumerState<DashboardView> {
           return IconButton(
             onPressed: _handleUpdateIsEdit,
             tooltip: appLocalizations.save,
-            icon: const Icon(Icons.save),
+            icon: const Icon(ReIcons.floppy),
           );
         }
         return CommonPopupBox(
@@ -176,7 +176,7 @@ class _DashboardViewState extends ConsumerState<DashboardView> {
                       valueListenable: _menuOpenNotifier,
                       builder: (_, isOpen, _) => _MenuDots(isOpen: isOpen),
                     )
-                  : const Icon(Icons.more_vert),
+                  : const Icon(ReIcons.moreVCircle),
             );
             if (!showStartSwitch) return button;
             return Transform.translate(
@@ -187,12 +187,12 @@ class _DashboardViewState extends ConsumerState<DashboardView> {
           popup: CommonPopupMenu(
             items: [
               PopupMenuItemData(
-                icon: Icons.edit,
+                icon: ReIcons.edit,
                 label: appLocalizations.edit,
                 onPressed: _handleUpdateIsEdit,
               ),
               PopupMenuItemData(
-                icon: isDark ? Icons.light_mode : Icons.dark_mode,
+                icon: isDark ? ReIcons.sun : ReIcons.moon,
                 label: isDark ? appLocalizations.light : appLocalizations.dark,
                 onPressed: () {
                   ref
@@ -205,12 +205,12 @@ class _DashboardViewState extends ConsumerState<DashboardView> {
                 },
               ),
               PopupMenuItemData(
-                icon: Icons.title,
+                icon: ReIcons.textTool,
                 label: appLocalizations.customDashboardTitle,
                 onPressed: _showEditTitleDialog,
               ),
               PopupMenuItemData(
-                icon: Icons.restart_alt,
+                icon: ReIcons.restart,
                 label: appLocalizations.restartCoreTitle,
                 onPressed: _handleRestartCore,
               ),
@@ -524,7 +524,7 @@ class _AddedContainer extends StatelessWidget {
                 iconSize: 20,
                 padding: const EdgeInsets.all(2),
                 onPressed: onAdd,
-                icon: const Icon(Icons.add),
+                icon: const Icon(ReIcons.add),
               ),
             ),
           ),
@@ -804,11 +804,7 @@ class _DashboardStartSwitchState extends ConsumerState<_DashboardStartSwitch> {
                                 ),
                               ),
                             )
-                          : Icon(
-                              Icons.power_settings_new,
-                              size: 18,
-                              color: iconColor,
-                            ),
+                          : Icon(ReIcons.powerOff, size: 18, color: iconColor),
                     ),
                   ),
                 ),

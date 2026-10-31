@@ -13,7 +13,7 @@ class NtpOverride extends StatelessWidget {
     return SizedBox(
       height: getWidgetHeight(context, 1),
       child: CommonCard(
-        info: Info(label: 'NTP', iconData: Icons.access_time),
+        info: Info(label: 'NTP', iconData: ReIcons.clock),
         onPressed: () {
           // Open NTP settings
           showExtend(

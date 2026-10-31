@@ -83,7 +83,7 @@ class TUNButton extends StatelessWidget {
         onPressed: () => showTunSheet(context),
         info: Info(
           label: appLocalizations.tun,
-          iconData: Icons.stacked_line_chart,
+          iconData: ReIcons.shieldNetwork,
         ),
         child: Container(
           padding: baseInfoEdgeInsets.copyWith(top: 4, bottom: 8, right: 8),
@@ -143,7 +143,7 @@ class SystemProxyButton extends StatelessWidget {
         onPressed: () => showSystemProxySheet(context),
         info: Info(
           label: appLocalizations.systemProxy,
-          iconData: Icons.shuffle,
+          iconData: ReIcons.shuffle,
         ),
         child: Container(
           padding: baseInfoEdgeInsets.copyWith(top: 4, bottom: 8, right: 8),
@@ -200,7 +200,7 @@ class VpnButton extends StatelessWidget {
       height: getWidgetHeight(context, 1),
       child: CommonCard(
         onPressed: () => showVpnSheet(context),
-        info: Info(label: 'VPN', iconData: Icons.stacked_line_chart),
+        info: Info(label: 'VPN', iconData: ReIcons.shieldNetwork),
         child: Container(
           padding: baseInfoEdgeInsets.copyWith(top: 4, bottom: 8, right: 8),
           child: Row(

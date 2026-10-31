@@ -173,7 +173,7 @@ class _ResourcesViewState extends ConsumerState<ResourcesView> {
           IconButton(
             onPressed: () => updateExternalProviders(ref, context),
             tooltip: appLocalizations.update,
-            icon: const Icon(Icons.sync),
+            icon: const Icon(ReIcons.refresh),
           ),
         ],
         body: const ProvidersBody(),
@@ -201,18 +201,18 @@ class _ResourcesViewState extends ConsumerState<ResourcesView> {
                               child: CircularProgressIndicator(strokeWidth: 2),
                             ),
                           )
-                        : const Icon(Icons.more_vert),
+                        : const Icon(ReIcons.moreVCircle),
                   );
                 },
                 popup: CommonPopupMenu(
                   items: [
                     PopupMenuItemData(
-                      icon: Icons.sync,
+                      icon: ReIcons.refresh,
                       label: appLocalizations.syncAll,
                       onPressed: isUpdating ? null : _handleSyncAll,
                     ),
                     PopupMenuItemData(
-                      icon: Icons.replay,
+                      icon: ReIcons.rotateLeft,
                       label: appLocalizations.reset,
                       onPressed: _handleResetAll,
                     ),
@@ -222,7 +222,7 @@ class _ResourcesViewState extends ConsumerState<ResourcesView> {
             ]
           : [
               IconButton(
-                icon: const Icon(Icons.replay),
+                icon: const Icon(ReIcons.rotateLeft),
                 onPressed: _handleResetAll,
                 tooltip: appLocalizations.reset,
               ),
@@ -236,7 +236,7 @@ class _ResourcesViewState extends ConsumerState<ResourcesView> {
                           child: CircularProgressIndicator(strokeWidth: 2),
                         ),
                       )
-                    : const Icon(Icons.sync),
+                    : const Icon(ReIcons.refresh),
                 onPressed: isUpdating ? null : _handleSyncAll,
                 tooltip: appLocalizations.syncAll,
               ),
@@ -423,7 +423,7 @@ class _GeoDataListItemState extends ConsumerState<GeoDataListItem> {
                     runAlignment: WrapAlignment.center,
                     children: [
                       CommonChip(
-                        avatar: const Icon(Icons.edit),
+                        avatar: const Icon(ReIcons.edit),
                         label: appLocalizations.edit,
                         onPressed: isSyncing || url == null
                             ? null
@@ -445,7 +445,7 @@ class _GeoDataListItemState extends ConsumerState<GeoDataListItem> {
                                   ),
                                 )
                               : CommonChip(
-                                  avatar: const Icon(Icons.sync),
+                                  avatar: const Icon(ReIcons.refresh),
                                   label: appLocalizations.sync,
                                   onPressed: _handleUpdateGeoDataItem,
                                 ),

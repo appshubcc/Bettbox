@@ -365,7 +365,7 @@ class _LogsViewState extends ConsumerState<LogsView>
               : null,
           onPressed: _toggleAutoScroll,
           tooltip: appLocalizations.autoScroll,
-          icon: const Icon(Icons.vertical_align_top_outlined),
+          icon: const Icon(ReIcons.alignTop),
         ),
         CommonPopupBox(
           targetBuilder: (open) {
@@ -374,20 +374,18 @@ class _LogsViewState extends ConsumerState<LogsView>
                 open(offset: const Offset(0, 20));
               },
               tooltip: appLocalizations.more,
-              icon: const Icon(Icons.more_vert),
+              icon: const Icon(ReIcons.moreVCircle),
             );
           },
           popup: CommonPopupMenu(
             items: [
               PopupMenuItemData(
-                icon: Icons.tune,
+                icon: ReIcons.setting4,
                 label: '${appLocalizations.logLevel} · ${level.label}',
                 onPressed: _handleLogLevelSettings,
               ),
               PopupMenuItemData(
-                icon: aiSearch
-                    ? Icons.check_circle_rounded
-                    : Icons.circle_outlined,
+                icon: aiSearch ? ReIcons.tickCircleFilled : ReIcons.record4,
                 label: appLocalizations.logAiSearch,
                 onPressed: () {
                   ref
@@ -398,12 +396,12 @@ class _LogsViewState extends ConsumerState<LogsView>
                 },
               ),
               PopupMenuItemData(
-                icon: Icons.file_copy_outlined,
+                icon: ReIcons.documentCopy,
                 label: appLocalizations.export,
                 onPressed: _handleExport,
               ),
               PopupMenuItemData(
-                icon: Icons.delete_sweep_outlined,
+                icon: ReIcons.trash9,
                 label: appLocalizations.clear,
                 onPressed: _handleClearLogs,
               ),
@@ -974,14 +972,14 @@ class _LogRow extends StatelessWidget {
                   TextButton.icon(
                     onPressed: onCopy,
                     style: buttonStyle,
-                    icon: const Icon(Icons.copy_rounded, size: 16),
+                    icon: const Icon(ReIcons.copy, size: 16),
                     label: Text(appLocalizations.copy),
                   ),
                   if (onSearch != null)
                     TextButton.icon(
                       onPressed: onSearch,
                       style: buttonStyle,
-                      icon: const Icon(Icons.search_rounded, size: 16),
+                      icon: const Icon(ReIcons.search4, size: 16),
                       label: Text(appLocalizations.search),
                     ),
                   Expanded(
@@ -992,7 +990,7 @@ class _LogRow extends StatelessWidget {
                         child: TextButton.icon(
                           onPressed: onFilter,
                           style: buttonStyle,
-                          icon: const Icon(Icons.filter_list_rounded, size: 16),
+                          icon: const Icon(ReIcons.filter, size: 16),
                           label: Text(
                             '[ ${log.tag} ]',
                             maxLines: 1,
@@ -1007,7 +1005,7 @@ class _LogRow extends StatelessWidget {
                     visualDensity: VisualDensity.compact,
                     iconSize: 20,
                     tooltip: appLocalizations.collapse,
-                    icon: const Icon(Icons.expand_less_rounded),
+                    icon: const Icon(ReIcons.chevronUp),
                   ),
                 ],
               ),
@@ -1136,7 +1134,7 @@ class _LogsFilterBar extends ConsumerWidget {
                     tooltip: appLocalizations.clearFilter,
                     color: context.colorScheme.primary,
                     selected: true,
-                    trailing: const Icon(Icons.close_rounded, size: 14),
+                    trailing: const Icon(ReIcons.x, size: 14),
                     onTap: () => notifier.setModule(null),
                   ),
                 ),
@@ -1357,7 +1355,7 @@ class _NewLogsPill extends StatelessWidget {
             spacing: 4,
             children: [
               Icon(
-                Icons.arrow_upward_rounded,
+                ReIcons.arrowUp,
                 size: 14,
                 color: scheme.onSecondaryContainer,
               ),

@@ -224,7 +224,7 @@ class _NatTestPageState extends ConsumerState<NatTestPage>
           IconButton(
             tooltip: appLocalizations.natCopyResult,
             onPressed: () => _copy(result),
-            icon: const Icon(Icons.copy_rounded),
+            icon: const Icon(ReIcons.copy),
           ),
       ],
       body: ToolPageBody(
@@ -251,7 +251,7 @@ class _NatTestPageState extends ConsumerState<NatTestPage>
             onTap: _selectOutbound,
             rows: [
               ToolOutboundRow(
-                icon: Icons.arrow_outward_rounded,
+                icon: ReIcons.arrowUpRight,
                 label: appLocalizations.speedTestExitNode,
                 value: toolOutboundNode(
                   isStart: isStart,
@@ -261,7 +261,7 @@ class _NatTestPageState extends ConsumerState<NatTestPage>
                 primary: true,
               ),
               ToolOutboundRow(
-                icon: Icons.alt_route_rounded,
+                icon: ReIcons.routing,
                 label: appLocalizations.speedTestRoute,
                 value: toolOutboundRoute(
                   isStart: isStart,
@@ -311,11 +311,7 @@ class _ServerCard extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(16, 14, 10, 14),
       child: Row(
         children: [
-          Icon(
-            Icons.dns_rounded,
-            size: 14,
-            color: colorScheme.onSurfaceVariant,
-          ),
+          Icon(ReIcons.server, size: 14, color: colorScheme.onSurfaceVariant),
           const SizedBox(width: 6),
           Text(
             appLocalizations.natServer,
@@ -333,7 +329,7 @@ class _ServerCard extends StatelessWidget {
             ),
           ),
           Icon(
-            Icons.chevron_right_rounded,
+            ReIcons.chevronRight,
             size: 20,
             color: enabled
                 ? colorScheme.onSurfaceVariant
@@ -365,11 +361,11 @@ class _ResultCard extends StatelessWidget {
     final icon = result != null
         ? (result.natType == NatType.blocked ||
                   result.natType == NatType.unknown
-              ? Icons.error_outline_rounded
-              : Icons.check_rounded)
+              ? ReIcons.alertCircle
+              : ReIcons.check)
         : hasError
-        ? Icons.error_outline_rounded
-        : Icons.radar_rounded;
+        ? ReIcons.alertCircle
+        : ReIcons.radar3;
 
     return ToolSurface(
       padding: const EdgeInsets.all(20),
@@ -475,7 +471,7 @@ class _Verdict extends StatelessWidget {
         if (!state.direct) ...[
           const SizedBox(height: 10),
           ToolNote(
-            icon: Icons.alt_route_rounded,
+            icon: ReIcons.routing,
             text: appLocalizations.natProxyTip,
             color: colorScheme.onSurfaceVariant,
           ),
@@ -511,10 +507,10 @@ class _PhaseSteps extends StatelessWidget {
                   children: [
                     Icon(
                       index < current
-                          ? Icons.check_circle_rounded
+                          ? ReIcons.tickCircleFilled
                           : index == current
-                          ? Icons.radio_button_checked_rounded
-                          : Icons.circle_outlined,
+                          ? ReIcons.recordCircle3
+                          : ReIcons.record4,
                       size: 16,
                       color: index <= current
                           ? colorScheme.primary
@@ -560,36 +556,36 @@ class _InfoGrid extends StatelessWidget {
     final tiles = <ToolInfoTile>[
       if (state.externalIp.isNotEmpty)
         ToolInfoTile(
-          icon: Icons.public_rounded,
+          icon: ReIcons.globe,
           label: appLocalizations.natExternalIp,
           value: state.externalIp,
           onTap: () => showIpDetailDialog(context, state.externalIp),
         ),
       if (state.externalPort > 0)
         ToolInfoTile(
-          icon: Icons.router_rounded,
+          icon: ReIcons.router,
           label: appLocalizations.natExternalPort,
           value: '${state.externalPort}',
         ),
       if (state.localIp.isNotEmpty)
         ToolInfoTile(
-          icon: Icons.wifi_rounded,
+          icon: ReIcons.wifi,
           label: appLocalizations.natLocalIp,
           value: state.localIp,
         ),
       ToolInfoTile(
-        icon: Icons.swap_horiz_rounded,
+        icon: ReIcons.arrowSwapHorizontal,
         label: appLocalizations.natMapping,
         value: natBehaviorName(state.mapping),
       ),
       ToolInfoTile(
-        icon: Icons.filter_alt_rounded,
+        icon: ReIcons.filter,
         label: appLocalizations.natFiltering,
         value: natBehaviorName(state.filtering),
       ),
       if (state.portPreserved >= 0)
         ToolInfoTile(
-          icon: Icons.pin_outlined,
+          icon: ReIcons.password2,
           label: appLocalizations.natPortPreserve,
           value: state.portPreserved == 1
               ? appLocalizations.natPreserved
@@ -701,7 +697,7 @@ class _ServerDialogState extends State<_ServerDialog> {
                 errorText: _invalid ? appLocalizations.natServerInvalid : null,
                 suffixIcon: IconButton(
                   onPressed: _submitCustom,
-                  icon: const Icon(Icons.check_rounded),
+                  icon: const Icon(ReIcons.check),
                 ),
               ),
             ),

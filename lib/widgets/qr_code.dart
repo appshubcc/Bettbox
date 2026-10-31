@@ -1,3 +1,4 @@
+import 'package:bett_box/common/reicons.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:zxing2/qrcode.dart';
 
@@ -33,7 +34,7 @@ class QrCodeWidget extends StatelessWidget {
       return SizedBox(
         width: size,
         height: size,
-        child: const Center(child: Icon(Icons.error_outline)),
+        child: const Center(child: Icon(ReIcons.alertCircle)),
       );
     }
 
@@ -108,4 +109,3 @@ class _QrCodePainter extends CustomPainter {
       oldDelegate.color != color ||
       oldDelegate.backgroundColor != backgroundColor;
 }
-

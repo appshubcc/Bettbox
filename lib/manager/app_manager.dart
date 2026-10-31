@@ -707,7 +707,7 @@ class AppSidebarContainer extends ConsumerWidget {
           isTools &&
           !(sidebarFlyoutOutsideTools && isSelected);
       final sidebarItem = _SidebarItem(
-        icon: isTools ? const Icon(Icons.settings) : item.icon,
+        icon: isTools ? const Icon(ReIcons.setting2) : item.icon,
         label: _sidebarLabelOf(item.label),
         isSelected: isSelected,
         isCollapsed: isCollapsed,

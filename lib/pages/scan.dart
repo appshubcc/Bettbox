@@ -165,27 +165,27 @@ class _ScanPageState extends State<ScanPage> with WidgetsBindingObserver {
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              icon: const Icon(Icons.close),
+              icon: const Icon(ReIcons.x),
             ),
             actions: [
               if (!_permissionDenied)
                 ValueListenableBuilder<MobileScannerState>(
                   valueListenable: controller,
                   builder: (context, state, _) {
-                    var icon = const Icon(Icons.flash_off);
+                    var icon = const Icon(ReIcons.flashSlash);
                     var backgroundColor = Colors.black12;
                     switch (state.torchState) {
                       case TorchState.off:
-                        icon = const Icon(Icons.flash_off);
+                        icon = const Icon(ReIcons.flashSlash);
                         backgroundColor = Colors.black12;
                       case TorchState.on:
-                        icon = const Icon(Icons.flash_on);
+                        icon = const Icon(ReIcons.bolt);
                         backgroundColor = Colors.orange;
                       case TorchState.unavailable:
-                        icon = const Icon(Icons.flash_off);
+                        icon = const Icon(ReIcons.flashSlash);
                         backgroundColor = Colors.transparent;
                       case TorchState.auto:
-                        icon = const Icon(Icons.flash_auto);
+                        icon = const Icon(ReIcons.flashCircle);
                         backgroundColor = Colors.orange;
                     }
                     return Container(
@@ -224,7 +224,7 @@ class _ScanPageState extends State<ScanPage> with WidgetsBindingObserver {
                 padding: const EdgeInsets.all(16),
                 iconSize: 32.0,
                 onPressed: globalState.appController.addProfileFormQrCode,
-                icon: const Icon(Icons.photo_camera_back),
+                icon: const Icon(ReIcons.gallery),
               ),
             ),
         ],
@@ -242,11 +242,7 @@ class _ScanPageState extends State<ScanPage> with WidgetsBindingObserver {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(
-                Icons.camera_alt_outlined,
-                size: 80,
-                color: Colors.white54,
-              ),
+              const Icon(ReIcons.camera, size: 80, color: Colors.white54),
               const SizedBox(height: 24),
               Text(
                 appLocalizations.cameraPermissionDenied,
@@ -294,7 +290,7 @@ class _ScanPageState extends State<ScanPage> with WidgetsBindingObserver {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.error_outline, size: 80, color: Colors.red),
+              const Icon(ReIcons.alertCircle, size: 80, color: Colors.red),
               const SizedBox(height: 24),
               Text(
                 errorMessage,

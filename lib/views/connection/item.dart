@@ -316,9 +316,9 @@ class _ProcessIconState extends State<_ProcessIcon> {
   }
 
   IconData get _fallbackIcon {
-    if (widget.port == '53') return Icons.dns_outlined;
-    if (widget.path.isNotEmpty) return Icons.settings_suggest_outlined;
-    return Icons.terminal;
+    if (widget.port == '53') return ReIcons.globalSearch;
+    if (widget.path.isNotEmpty) return ReIcons.cpuSetting;
+    return ReIcons.terminalSquare;
   }
 
   @override
@@ -499,7 +499,7 @@ class TrackerInfoDetailView extends ConsumerWidget {
               alignment: WrapAlignment.end,
               children: [
                 chip(
-                  Icons.route_rounded,
+                  ReIcons.route,
                   appLocalizations.routeTrace,
                   () => RouteTracePage(
                     initialTarget: target,
@@ -509,17 +509,17 @@ class TrackerInfoDetailView extends ConsumerWidget {
                 ),
                 if (isDomain)
                   chip(
-                    Icons.dns_rounded,
+                    ReIcons.globalSearch,
                     appLocalizations.dnsQuery,
                     () => DnsQueryPage(initialDomain: target),
                   ),
                 chip(
-                  Icons.manage_search_rounded,
+                  ReIcons.search4,
                   appLocalizations.mrsLookup,
                   () => MrsLookupPage(initialQuery: target),
                 ),
                 chip(
-                  Icons.travel_explore_rounded,
+                  ReIcons.globalSearch,
                   appLocalizations.ipLookup,
                   () => IpLookupPage(initialQuery: target),
                 ),
@@ -539,9 +539,9 @@ class TrackerInfoDetailView extends ConsumerWidget {
   }) {
     final category = utils.classifyIp(ip);
     final IconData icon = switch (category) {
-      IpCategory.tun => Icons.stacked_line_chart,
-      IpCategory.lan => Icons.shuffle,
-      IpCategory.public => Icons.search_rounded,
+      IpCategory.tun => ReIcons.shieldNetwork,
+      IpCategory.lan => ReIcons.sitemap,
+      IpCategory.public => ReIcons.globe,
     };
 
     return ListItem(
@@ -625,7 +625,7 @@ class TrackerInfoDetailView extends ConsumerWidget {
                   child: IconButton(
                     visualDensity: VisualDensity.compact,
                     padding: EdgeInsets.zero,
-                    icon: Icon(Icons.content_copy, size: 18),
+                    icon: Icon(ReIcons.copy, size: 18),
                     onPressed: () {},
                   ),
                 ),

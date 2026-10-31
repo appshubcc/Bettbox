@@ -317,7 +317,7 @@ class _MediaUnlockState extends ConsumerState<MediaUnlock> {
                   child: Row(
                     children: [
                       Icon(
-                        Icons.link_rounded,
+                        ReIcons.link,
                         size: 18.ap,
                         color: context.colorScheme.onSurfaceVariant,
                       ),
@@ -359,7 +359,7 @@ class _MediaUnlockState extends ConsumerState<MediaUnlock> {
                                   ),
                                 )
                               : Icon(
-                                  Icons.sync,
+                                  ReIcons.refresh,
                                   size: 16.ap,
                                   color: context.colorScheme.onSurfaceVariant,
                                 ),

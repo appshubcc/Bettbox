@@ -30,10 +30,7 @@ class WakelockSwitch extends StatelessWidget {
     return SizedBox(
       height: getWidgetHeight(context, 1),
       child: CommonCard(
-        info: Info(
-          label: appLocalizations.wakelock,
-          iconData: Icons.lightbulb_outline,
-        ),
+        info: Info(label: appLocalizations.wakelock, iconData: ReIcons.lampOn),
         onPressed: () async {
           // click: show function description dialog
           await globalState.showCommonDialog<void>(

@@ -238,7 +238,7 @@ class _IpLookupPageState extends ConsumerState<IpLookupPage>
         IconButton(
           tooltip: appLocalizations.retry,
           onPressed: _mineLoading ? null : _loadMine,
-          icon: const Icon(Icons.refresh_rounded),
+          icon: const Icon(ReIcons.refresh),
         ),
       ],
       body: ToolPageBody(
@@ -260,7 +260,7 @@ class _IpLookupPageState extends ConsumerState<IpLookupPage>
           if (_error.isNotEmpty) ...[
             const SizedBox(height: 12),
             ToolNote(
-              icon: Icons.error_outline_rounded,
+              icon: ReIcons.alertCircle,
               text: _error,
               color: context.colorScheme.error,
             ),
@@ -399,32 +399,32 @@ List<Widget> buildIpInfoRows(IpInfo info) {
   return [
     if (country.isNotEmpty)
       ToolKeyValue(
-        icon: Icons.flag_rounded,
+        icon: ReIcons.flag,
         label: appLocalizations.countryOrRegion,
         value: country,
         leading: toolFlag(info.countryCode),
       ),
     if (region.isNotEmpty)
       ToolKeyValue(
-        icon: Icons.location_city_rounded,
+        icon: ReIcons.buildings,
         label: appLocalizations.provinceAndCity,
         value: region,
       ),
     if (operator.isNotEmpty)
       ToolKeyValue(
-        icon: Icons.business_rounded,
+        icon: ReIcons.building,
         label: appLocalizations.operatorOrAsn,
         value: operator,
       ),
     if (info.isp?.isNotEmpty ?? false)
       ToolKeyValue(
-        icon: Icons.router_rounded,
+        icon: ReIcons.router,
         label: appLocalizations.isp,
         value: info.isp ?? '',
       ),
     if (info.asDomain?.isNotEmpty ?? false)
       ToolKeyValue(
-        icon: Icons.link_rounded,
+        icon: ReIcons.link,
         label: appLocalizations.organizationDomain,
         value: info.asDomain ?? '',
       ),
@@ -503,13 +503,13 @@ class _IpCard extends StatelessWidget {
                     Clipboard.setData(ClipboardData(text: entry.ip));
                     context.showNotifier(appLocalizations.copySuccess);
                   },
-                  icon: const Icon(Icons.copy_rounded, size: 18),
+                  icon: const Icon(ReIcons.copy, size: 18),
                 )
               else if (entry.failed && onRetry != null)
                 IconButton(
                   tooltip: appLocalizations.retry,
                   onPressed: onRetry,
-                  icon: const Icon(Icons.refresh_rounded, size: 18),
+                  icon: const Icon(ReIcons.refresh, size: 18),
                 ),
             ],
           ),
@@ -522,7 +522,7 @@ class _IpCard extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.only(top: 8),
               child: ToolKeyValue(
-                icon: Icons.shuffle_rounded,
+                icon: ReIcons.shuffle,
                 label: appLocalizations.privateIp,
                 value: category == IpCategory.tun
                     ? appLocalizations.tunVirtualAddress
@@ -538,7 +538,7 @@ class _IpCard extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.only(top: 8),
               child: ToolNote(
-                icon: Icons.error_outline_rounded,
+                icon: ReIcons.alertCircle,
                 text: appLocalizations.networkErrorRetryLater,
                 color: colorScheme.error,
               ),
@@ -571,13 +571,13 @@ class _LocalNetworkCard extends StatelessWidget {
           const SizedBox(height: 6),
           if (info == null || info.ip.isEmpty)
             ToolKeyValue(
-              icon: Icons.wifi_off_rounded,
+              icon: ReIcons.wifiOff,
               label: appLocalizations.networkType,
               value: info == null ? '…' : appLocalizations.noNetwork,
             )
           else ...[
             ToolKeyValue(
-              icon: Icons.wifi_rounded,
+              icon: ReIcons.wifi,
               label: appLocalizations.networkType,
               value: [
                 if (info.type.isNotEmpty) info.type,
@@ -585,19 +585,19 @@ class _LocalNetworkCard extends StatelessWidget {
               ].join(' · '),
             ),
             ToolKeyValue(
-              icon: Icons.lan_rounded,
+              icon: ReIcons.sitemap,
               label: appLocalizations.intranetIP,
               value: info.ip,
             ),
             if (info.gateway.isNotEmpty)
               ToolKeyValue(
-                icon: Icons.router_rounded,
+                icon: ReIcons.router,
                 label: appLocalizations.defaultGateway,
                 value: info.gateway,
               ),
             if (info.dns.isNotEmpty)
               ToolKeyValue(
-                icon: Icons.dns_rounded,
+                icon: ReIcons.globalSearch,
                 label: appLocalizations.systemDns,
                 value: info.dns.join('\n'),
               ),

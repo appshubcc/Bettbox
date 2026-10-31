@@ -774,12 +774,12 @@ class _TrayClickBehaviorDialogState extends State<_TrayClickBehaviorDialog> {
   List<ButtonSegment<TrayClickBehavior>> get _segments => [
     ButtonSegment(
       value: TrayClickBehavior.showPanel,
-      icon: const Icon(Icons.dashboard_outlined),
+      icon: const Icon(ReIcons.element3),
       label: Text(appLocalizations.showPanel),
     ),
     ButtonSegment(
       value: TrayClickBehavior.showMenu,
-      icon: const Icon(Icons.menu),
+      icon: const Icon(ReIcons.menu),
       label: Text(appLocalizations.showMenu),
     ),
   ];

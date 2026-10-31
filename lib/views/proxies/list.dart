@@ -480,7 +480,7 @@ class _GroupHeader extends ConsumerWidget {
                       child: IconButton(
                         padding: EdgeInsets.zero,
                         visualDensity: VisualDensity.compact,
-                        icon: const Icon(Icons.adjust),
+                        icon: const Icon(ReIcons.recordCircle3),
                         onPressed: onScrollToSelected,
                         tooltip: appLocalizations.locate,
                       ),
@@ -508,7 +508,7 @@ class _GroupHeader extends ConsumerWidget {
                                       ),
                                     ),
                                   )
-                                : const Icon(Icons.network_ping),
+                                : const Icon(ReIcons.pulse),
                             onPressed: delayTestCoordinator.isTesting
                                 ? null
                                 : () => _delayTest(context),

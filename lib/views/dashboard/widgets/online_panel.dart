@@ -16,7 +16,10 @@ class OnlinePanel extends ConsumerWidget {
     return SizedBox(
       height: getWidgetHeight(context, 1),
       child: CommonCard(
-        info: Info(label: appLocalizations.onlinePanel, iconData: Icons.launch),
+        info: Info(
+          label: appLocalizations.onlinePanel,
+          iconData: ReIcons.browserCode,
+        ),
         onPressed: () async {
           // Get external controller status and secret
           final clashConfig = ref.read(patchClashConfigProvider);

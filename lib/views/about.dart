@@ -37,37 +37,37 @@ class AboutView extends StatelessWidget {
     final links = [
       _LinkTile(
         title: 'Github Releases',
-        icon: Icons.star,
+        icon: ReIcons.starFilled,
         onTap: () =>
             globalState.openUrl('https://github.com/appshubcc/Bettbox'),
       ),
       _LinkTile(
         title: appLocalizations.checkUpdate,
-        icon: Icons.refresh,
+        icon: ReIcons.refresh,
         external: false,
         onTap: () => _checkUpdate(context),
       ),
       _LinkTile(
         title: 'Telegram Group',
-        icon: Icons.forum_outlined,
+        icon: ReIcons.messages,
         onTap: () => globalState.openUrl('https://telegram.me/appshub_chat'),
       ),
       _LinkTile(
         title: 'Channel',
-        icon: Icons.campaign_outlined,
+        icon: ReIcons.bullhorn,
         onTap: () => globalState.openUrl('https://telegram.me/appshub_channel'),
       ),
       _LinkTile(
         prefix: 'Forked from',
         title: 'FlClash',
-        icon: Icons.code,
+        icon: ReIcons.code,
         onTap: () =>
             globalState.openUrl('https://github.com/chen08209/FlClash'),
       ),
       _LinkTile(
         prefix: 'Powered by',
         title: 'Mihomo',
-        icon: Icons.memory,
+        icon: ReIcons.microchip,
         onTap: () => globalState.openUrl('https://github.com/MetaCubeX/mihomo'),
       ),
     ];
@@ -427,7 +427,7 @@ class _LinkTile extends StatelessWidget {
                 ),
                 const Spacer(),
                 Icon(
-                  external ? Icons.arrow_outward : Icons.arrow_forward,
+                  external ? ReIcons.arrowUpRight : ReIcons.arrowRight,
                   size: 16,
                   color: colorScheme.onSurfaceVariant.opacity50,
                 ),

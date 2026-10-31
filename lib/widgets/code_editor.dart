@@ -494,7 +494,7 @@ class _EditorZoomMenuItemState extends State<EditorZoomMenuItem> {
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
       child: Row(
         children: [
-          _button(Icons.remove, _zoom - widget.minZoom > _step / 2, -1),
+          _button(ReIcons.minus, _zoom - widget.minZoom > _step / 2, -1),
           Expanded(
             child: Text(
               '${(_zoom * 100).round()}%',
@@ -505,7 +505,7 @@ class _EditorZoomMenuItemState extends State<EditorZoomMenuItem> {
               ),
             ),
           ),
-          _button(Icons.add, widget.maxZoom - _zoom > _step / 2, 1),
+          _button(ReIcons.add, widget.maxZoom - _zoom > _step / 2, 1),
         ],
       ),
     );

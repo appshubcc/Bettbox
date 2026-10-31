@@ -207,7 +207,7 @@ class _OverrideProfileViewState extends State<OverrideProfileView> {
                         _handleSave(ref, newOverrideData);
                       },
                       tooltip: appLocalizations.save,
-                      icon: Icon(Icons.save),
+                      icon: Icon(ReIcons.floppy),
                     ),
                   if (selectCount > 0)
                     IconButton(
@@ -215,7 +215,7 @@ class _OverrideProfileViewState extends State<OverrideProfileView> {
                         _handleDelete(ref);
                       },
                       tooltip: appLocalizations.delete,
-                      icon: Icon(Icons.delete),
+                      icon: Icon(ReIcons.trash4),
                     ),
                 ],
                 editState: AppBarEditState(
@@ -331,7 +331,7 @@ class RuleTitle extends ConsumerWidget {
             if (!isSelectMode)
               IconButton.filledTonal(
                 icon: Icon(
-                  isOverrideRule ? Icons.edit_document : Icons.note_add,
+                  isOverrideRule ? ReIcons.documentText : ReIcons.noteAdd,
                 ),
                 tooltip: isOverrideRule
                     ? appLocalizations.addedOriginRules
@@ -585,7 +585,7 @@ class _RuleRowState extends State<RuleRow> {
                                 ),
                                 if (parts.target.isNotEmpty) ...[
                                   Icon(
-                                    Icons.arrow_right_alt,
+                                    ReIcons.arrowRight,
                                     size: 16,
                                     color: context.colorScheme.outline,
                                   ),
@@ -641,7 +641,7 @@ class _RuleRowState extends State<RuleRow> {
                                     width: 24,
                                     height: 24,
                                     child: Icon(
-                                      Icons.drag_indicator,
+                                      ReIcons.reorder,
                                       size: 20,
                                       color: context.colorScheme.outline,
                                     ),
@@ -1057,7 +1057,7 @@ class _PickerField extends StatelessWidget {
         decoration: InputDecoration(
           labelText: label,
           errorText: errorText,
-          suffixIcon: const Icon(Icons.arrow_drop_down),
+          suffixIcon: const Icon(ReIcons.chevronDown),
         ),
         child: Text(
           value,

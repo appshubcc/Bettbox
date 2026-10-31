@@ -84,9 +84,9 @@ class NetworkSpeed extends ConsumerWidget {
       size: size,
       info: Info(
         label: appLocalizations.networkSpeed,
-        iconData: Icons.speed_sharp,
+        iconData: ReIcons.speedometer,
       ),
-      mark: DashboardDecor.icon(context, Icons.speed_sharp, 80),
+      mark: DashboardDecor.icon(context, ReIcons.speedometer, 80),
       markAngle: -0.2,
       onPressed: () => BaseNavigator.push(context, const SpeedTestPage()),
       child: RepaintBoundary(
@@ -98,13 +98,13 @@ class NetworkSpeed extends ConsumerWidget {
             final traffic = _getLastTraffic(traffics);
             final down = _speedValue(
               context,
-              Icons.arrow_downward_rounded,
+              ReIcons.arrowDown,
               traffic.down,
               primary: true,
             );
             final up = _speedValue(
               context,
-              Icons.arrow_upward_rounded,
+              ReIcons.arrowUp,
               traffic.up,
               primary: false,
             );
@@ -177,7 +177,7 @@ class NetworkSpeed extends ConsumerWidget {
         onPressed: () => BaseNavigator.push(context, const SpeedTestPage()),
         info: Info(
           label: appLocalizations.networkSpeed,
-          iconData: Icons.speed_sharp,
+          iconData: ReIcons.speedometer,
         ),
         child: RepaintBoundary(
           child: ValueListenableBuilder<int>(

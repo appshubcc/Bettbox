@@ -293,7 +293,7 @@ class _EditTile<T extends Object> extends StatelessWidget {
             child: IgnorePointer(
               child: _badge(
                 context,
-                Icons.open_in_full_rounded,
+                ReIcons.maximize,
                 colorScheme.primary,
                 colorScheme.onPrimary,
               ),
@@ -310,7 +310,7 @@ class _EditTile<T extends Object> extends StatelessWidget {
                   padding: const EdgeInsets.all(2),
                   child: _badge(
                     context,
-                    Icons.close_rounded,
+                    ReIcons.x,
                     colorScheme.error,
                     colorScheme.onError,
                   ),

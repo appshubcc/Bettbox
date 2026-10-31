@@ -19,7 +19,7 @@ class LogLevelItem extends ConsumerWidget {
       patchClashConfigProvider.select((state) => state.logLevel),
     );
     return ListItem<LogLevel>.options(
-      leading: const Icon(Icons.info_outline),
+      leading: const Icon(ReIcons.infoCircle),
       title: Text(appLocalizations.logLevel),
       subtitle: Text(logLevel.label),
       delegate: OptionsDelegate<LogLevel>(
@@ -62,7 +62,7 @@ class _UaItemState extends ConsumerState<UaItem> {
     }
 
     return ListItem(
-      leading: const Icon(Icons.computer_outlined),
+      leading: const Icon(ReIcons.monitor),
       title: const Text('UA'),
       subtitle: Text(
         isCustom ? appLocalizations.custom : appLocalizations.defaultText,
@@ -159,7 +159,7 @@ class KeepAliveIntervalItem extends ConsumerWidget {
       patchClashConfigProvider.select((state) => state.keepAliveInterval),
     );
     return ListItem.input(
-      leading: const Icon(Icons.timer_outlined),
+      leading: const Icon(ReIcons.timer),
       title: Text(appLocalizations.keepAliveIntervalDesc),
       subtitle: Text('$keepAliveInterval ${appLocalizations.seconds}'),
       delegate: InputDelegate(
@@ -203,7 +203,7 @@ class TestUrlItem extends ConsumerWidget {
     );
 
     return ListItem(
-      leading: const Icon(Icons.timeline),
+      leading: const Icon(ReIcons.diagram),
       title: Text(appLocalizations.testUrl),
       subtitle: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
@@ -330,7 +330,7 @@ class PortItem extends ConsumerWidget {
       patchClashConfigProvider.select((state) => state.mixedPort),
     );
     return ListItem(
-      leading: const Icon(Icons.adjust_outlined),
+      leading: const Icon(ReIcons.recordCircle3),
       title: Text(appLocalizations.port),
       subtitle: Text('$mixedPort'),
       onTap: () {
@@ -349,7 +349,7 @@ class Ipv6Item extends ConsumerWidget {
       patchClashConfigProvider.select((state) => state.ipv6),
     );
     return ListItem.switchItem(
-      leading: const Icon(Icons.filter_6_rounded),
+      leading: const Icon(ReIcons.earth),
       title: const Text('IPv6'),
       subtitle: Text(appLocalizations.ipv6Desc),
       delegate: SwitchDelegate(
@@ -377,7 +377,7 @@ class AllowLanItem extends ConsumerWidget {
       patchClashConfigProvider.select((state) => state.allowLan),
     );
     return ListItem.switchItem(
-      leading: const Icon(Icons.device_hub),
+      leading: const Icon(ReIcons.nodes),
       title: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -393,7 +393,7 @@ class AllowLanItem extends ConsumerWidget {
                 child: Padding(
                   padding: const EdgeInsets.all(7),
                   child: Icon(
-                    Icons.settings_outlined,
+                    ReIcons.setting2,
                     size: 18,
                     color: context.colorScheme.onSurfaceVariant,
                   ),
@@ -426,7 +426,7 @@ class UnifiedDelayItem extends ConsumerWidget {
     );
 
     return ListItem.switchItem(
-      leading: const Icon(Icons.compress_outlined),
+      leading: const Icon(ReIcons.compress),
       title: Text(appLocalizations.unifiedDelay),
       subtitle: Text(appLocalizations.unifiedDelayDesc),
       delegate: SwitchDelegate(
@@ -453,7 +453,7 @@ class FindProcessItem extends ConsumerWidget {
     );
 
     return ListItem.switchItem(
-      leading: const Icon(Icons.polymer_outlined),
+      leading: const Icon(ReIcons.component2),
       title: Text(appLocalizations.findProcessMode),
       subtitle: Text(appLocalizations.findProcessModeDesc),
       delegate: SwitchDelegate(
@@ -483,7 +483,7 @@ class TcpConcurrentItem extends ConsumerWidget {
       patchClashConfigProvider.select((state) => state.tcpConcurrent),
     );
     return ListItem.switchItem(
-      leading: const Icon(Icons.double_arrow_outlined),
+      leading: const Icon(ReIcons.anglesRight),
       title: Text(appLocalizations.tcpConcurrent),
       subtitle: Text(appLocalizations.tcpConcurrentDesc),
       delegate: SwitchDelegate(
@@ -517,7 +517,7 @@ class ExternalControllerItem extends ConsumerWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         ListItem.switchItem(
-          leading: const Icon(Icons.api_outlined),
+          leading: const Icon(ReIcons.component),
           title: Text(appLocalizations.externalController),
           subtitle: Text(appLocalizations.externalControllerDesc),
           delegate: SwitchDelegate(
@@ -560,7 +560,7 @@ class ExternalControllerItem extends ConsumerWidget {
             endIndent: 16,
           ),
           ListItem(
-            leading: const Icon(Icons.password_outlined),
+            leading: const Icon(ReIcons.password),
             title: Text(appLocalizations.controlSecret),
             subtitle: Text(
               secret.isEmpty ? appLocalizations.controlSecretDesc : secret,
@@ -570,7 +570,7 @@ class ExternalControllerItem extends ConsumerWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       IconButton(
-                        icon: const Icon(Icons.open_in_new),
+                        icon: const Icon(ReIcons.export),
                         tooltip: appLocalizations.onlinePanel,
                         onPressed: () async {
                           final uri = Uri.parse(
@@ -585,7 +585,7 @@ class ExternalControllerItem extends ConsumerWidget {
                         },
                       ),
                       IconButton(
-                        icon: const Icon(Icons.copy),
+                        icon: const Icon(ReIcons.copy),
                         tooltip: appLocalizations.copy,
                         onPressed: () {
                           Clipboard.setData(ClipboardData(text: secret));

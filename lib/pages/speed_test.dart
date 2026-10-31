@@ -486,7 +486,7 @@ class _SpeedTestPageState extends ConsumerState<SpeedTestPage>
     final credit = Padding(
       padding: const EdgeInsets.symmetric(horizontal: 4),
       child: ToolNote(
-        icon: Icons.info_outline_rounded,
+        icon: ReIcons.infoCircle,
         text: appLocalizations.speedTestCredit,
         color: context.colorScheme.tertiary,
       ),
@@ -506,12 +506,12 @@ class _SpeedTestPageState extends ConsumerState<SpeedTestPage>
         IconButton(
           tooltip: appLocalizations.speedTestHistory,
           onPressed: _openHistory,
-          icon: const Icon(Icons.history_rounded),
+          icon: const Icon(ReIcons.history),
         ),
         IconButton(
           tooltip: appLocalizations.speedTestSettings,
           onPressed: _testing ? null : _openSettings,
-          icon: const Icon(Icons.settings_outlined),
+          icon: const Icon(ReIcons.setting2),
         ),
       ],
       body: LayoutBuilder(
@@ -803,7 +803,7 @@ class _ProviderSelector extends StatelessWidget {
         return IconButton(
           tooltip: _providerName(value),
           onPressed: enabled ? () => open(offset: const Offset(0, 20)) : null,
-          icon: const Icon(Icons.speed_rounded),
+          icon: const Icon(ReIcons.speedometer),
         );
       },
       popup: CommonPopupMenu(
@@ -811,8 +811,8 @@ class _ProviderSelector extends StatelessWidget {
           for (final provider in SpeedTestProvider.values)
             PopupMenuItemData(
               icon: provider == value
-                  ? Icons.check_circle_rounded
-                  : Icons.circle_outlined,
+                  ? ReIcons.tickCircleFilled
+                  : ReIcons.record4,
               label: _providerName(provider),
               onPressed: () => onChanged(provider),
             ),
@@ -878,7 +878,7 @@ class _StartButton extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Icon(
-                  testing ? Icons.stop_rounded : Icons.play_arrow_rounded,
+                  testing ? ReIcons.stopFilled : ReIcons.playFilled,
                   size: (isCompact ? 18.0 : 20.0) * scale,
                 ),
                 SizedBox(width: (6 * scale).roundToDouble()),
@@ -1038,7 +1038,7 @@ class _SpeedGauge extends StatelessWidget {
                                         )
                                       : Icon(
                                           isUpload
-                                              ? Icons.arrow_circle_up_outlined
+                                              ? ReIcons.arrowUpCircle
                                               : Icons
                                                     .arrow_circle_down_outlined,
                                           key: ValueKey((isUpload, false)),
@@ -1369,7 +1369,7 @@ class _SpeedTiles extends StatelessWidget {
     final jitter = (state?.latency ?? 0) > 0 ? state?.jitter : null;
 
     final downloadTile = _SpeedTile(
-      icon: Icons.arrow_downward_rounded,
+      icon: ReIcons.arrowDown,
       color: colorScheme.primary,
       label: appLocalizations.download,
       value: download != null ? formatSpeedValue(download) : '—',
@@ -1378,7 +1378,7 @@ class _SpeedTiles extends StatelessWidget {
       scale: scale,
     );
     final uploadTile = _SpeedTile(
-      icon: Icons.arrow_upward_rounded,
+      icon: ReIcons.arrowUp,
       color: colorScheme.tertiary,
       label: appLocalizations.upload,
       value: upload != null ? formatSpeedValue(upload) : '—',
@@ -1387,7 +1387,7 @@ class _SpeedTiles extends StatelessWidget {
       scale: scale,
     );
     final latencyTile = _SpeedTile(
-      icon: Icons.timer_outlined,
+      icon: ReIcons.timer,
       color: colorScheme.primary,
       label: appLocalizations.delay,
       value: latency != null ? _formatMs(latency) : '—',
@@ -1396,7 +1396,7 @@ class _SpeedTiles extends StatelessWidget {
       scale: scale,
     );
     final jitterTile = _SpeedTile(
-      icon: Icons.show_chart_rounded,
+      icon: ReIcons.chartLine,
       color: colorScheme.secondary,
       label: appLocalizations.speedTestJitter,
       value: jitter != null ? jitter.toStringAsFixed(1) : '—',
@@ -1594,21 +1594,21 @@ class _OutboundCard extends StatelessWidget {
         !isError && probing && outbound == null && state?.server == null;
     final rows = [
       (
-        Icons.arrow_outward_rounded,
+        ReIcons.arrowUpRight,
         appLocalizations.speedTestExitNode,
         _node(chains),
         true,
         false,
       ),
       (
-        Icons.alt_route_rounded,
+        ReIcons.routing,
         appLocalizations.speedTestRoute,
         _route(outbound, chains),
         false,
         false,
       ),
       (
-        Icons.dns_rounded,
+        ReIcons.server,
         appLocalizations.speedTestServer,
         _server(state?.server),
         false,
@@ -1685,7 +1685,7 @@ class _OutboundCard extends StatelessWidget {
             Padding(
               padding: const EdgeInsetsDirectional.only(start: 6),
               child: Icon(
-                Icons.unfold_more_rounded,
+                ReIcons.chevronExpandY,
                 size: 20,
                 color: enabled
                     ? colorScheme.onSurfaceVariant
@@ -2179,7 +2179,7 @@ class _SettingsDialogState extends State<_SettingsDialog> {
                   final server? => _speedTestNodeSubtitle(server),
                   null => appLocalizations.speedTestServerAutoDesc,
                 },
-                icon: Icons.dns_rounded,
+                icon: ReIcons.server,
                 isSelected: false,
                 onTap: _pickServer,
               ),
@@ -2250,7 +2250,7 @@ class _SettingsDialogState extends State<_SettingsDialog> {
                             child: Padding(
                               padding: const EdgeInsets.all(4),
                               child: Icon(
-                                Icons.info_outline_rounded,
+                                ReIcons.infoCircle,
                                 size: 15,
                                 color: context.colorScheme.outline,
                               ),
@@ -2342,7 +2342,7 @@ class _SpeedTestServerPickerState extends State<_SpeedTestServerPicker> {
       child: _QuickOutboundCard(
         title: _speedTestNodeTitle(node),
         subtitle: _speedTestNodeSubtitle(node, latency: latency),
-        icon: Icons.dns_rounded,
+        icon: ReIcons.server,
         isSelected: widget.selected?.host == node.host,
         onTap: () => Navigator.of(context).pop(node),
       ),
@@ -2381,7 +2381,7 @@ class _SpeedTestServerPickerState extends State<_SpeedTestServerPicker> {
                   child: _QuickOutboundCard(
                     title: appLocalizations.auto,
                     subtitle: appLocalizations.speedTestServerAutoDesc,
-                    icon: Icons.auto_awesome_rounded,
+                    icon: ReIcons.magicStar,
                     isSelected: selected == null,
                     onTap: () =>
                         Navigator.of(context).pop(const SpeedTestNode()),
@@ -2479,7 +2479,7 @@ class _OutboundPickerState extends State<_OutboundPicker> {
             _QuickOutboundCard(
               title: appLocalizations.mediaBatchAll,
               subtitle: appLocalizations.mediaBatchAllDesc,
-              icon: Icons.done_all_rounded,
+              icon: ReIcons.checkList,
               isSelected: false,
               onTap: () => Navigator.of(
                 context,
@@ -2492,7 +2492,7 @@ class _OutboundPickerState extends State<_OutboundPicker> {
                   child: _QuickOutboundCard(
                     title: appLocalizations.speedTestFollowRules,
                     subtitle: appLocalizations.speedTestRoute,
-                    icon: Icons.alt_route_rounded,
+                    icon: ReIcons.routing,
                     isSelected: widget.selected.isEmpty,
                     onTap: () => _select(''),
                   ),
@@ -2502,7 +2502,7 @@ class _OutboundPickerState extends State<_OutboundPicker> {
                   child: _QuickOutboundCard(
                     title: appLocalizations.direct,
                     subtitle: 'DIRECT',
-                    icon: Icons.arrow_outward_rounded,
+                    icon: ReIcons.arrowUpRight,
                     isSelected: widget.selected == 'DIRECT',
                     onTap: () => _select('DIRECT'),
                   ),
@@ -2667,7 +2667,7 @@ class _QuickOutboundCard extends StatelessWidget {
                     shape: BoxShape.circle,
                   ),
                   child: const Icon(
-                    Icons.check_rounded,
+                    ReIcons.check,
                     size: 11,
                     color: Colors.white,
                   ),
@@ -2743,7 +2743,7 @@ class _OutboundGroupCard extends ConsumerWidget {
                         child: icon.isNotEmpty
                             ? CommonTargetIcon(src: icon, size: 18)
                             : Icon(
-                                Icons.hub_outlined,
+                                ReIcons.nodes,
                                 size: 17,
                                 color: colorScheme.primary,
                               ),
@@ -2800,7 +2800,7 @@ class _OutboundGroupCard extends ConsumerWidget {
                         turns: isExpanded ? 0.5 : 0,
                         duration: const Duration(milliseconds: 200),
                         child: Icon(
-                          Icons.keyboard_arrow_down_rounded,
+                          ReIcons.chevronDown,
                           size: 20,
                           color: colorScheme.onSurfaceVariant,
                         ),
@@ -2822,7 +2822,7 @@ class _OutboundGroupCard extends ConsumerWidget {
                     shape: BoxShape.circle,
                   ),
                   child: const Icon(
-                    Icons.check_rounded,
+                    ReIcons.check,
                     size: 11,
                     color: Colors.white,
                   ),
@@ -3005,7 +3005,7 @@ class _OutboundProxyCard extends StatelessWidget {
                     shape: BoxShape.circle,
                   ),
                   child: const Icon(
-                    Icons.check_rounded,
+                    ReIcons.check,
                     size: 11,
                     color: Colors.white,
                   ),
@@ -3054,7 +3054,7 @@ class _HistorySheetState extends State<_HistorySheet> {
           IconButton(
             tooltip: appLocalizations.clear,
             onPressed: _clear,
-            icon: const Icon(Icons.delete_sweep_outlined),
+            icon: const Icon(ReIcons.trash9),
           ),
       ],
       body: records.isEmpty
@@ -3067,7 +3067,7 @@ class _HistorySheetState extends State<_HistorySheet> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Icon(
-                    Icons.history_toggle_off_rounded,
+                    ReIcons.timer,
                     size: 36,
                     color: context.colorScheme.outlineVariant,
                   ),

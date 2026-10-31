@@ -28,7 +28,7 @@ class _ConfigViewState extends State<ConfigView> {
       ListItem.next(
         title: Text(appLocalizations.general),
         subtitle: Text(appLocalizations.generalDesc),
-        leading: const Icon(Icons.build),
+        leading: const Icon(ReIcons.setting4),
         delegate: NextDelegate(
           title: appLocalizations.general,
           builder: (_) => const GeneralListView(),
@@ -38,7 +38,7 @@ class _ConfigViewState extends State<ConfigView> {
       ListItem.next(
         title: Text(appLocalizations.network),
         subtitle: Text(appLocalizations.networkDesc),
-        leading: const Icon(Icons.vpn_key),
+        leading: const Icon(ReIcons.router),
         delegate: NextDelegate(
           title: appLocalizations.network,
           blur: false,
@@ -70,7 +70,7 @@ class _ConfigViewState extends State<ConfigView> {
                         );
                   },
                   tooltip: appLocalizations.reset,
-                  icon: const Icon(Icons.replay),
+                  icon: const Icon(ReIcons.rotateLeft),
                 );
               },
             ),
@@ -81,7 +81,7 @@ class _ConfigViewState extends State<ConfigView> {
       ListItem.next(
         title: const Text('DNS'),
         subtitle: Text(appLocalizations.dnsDesc),
-        leading: const Icon(Icons.dns),
+        leading: const Icon(ReIcons.globalSearch),
         delegate: NextDelegate(
           title: 'DNS',
           actions: [
@@ -103,7 +103,7 @@ class _ConfigViewState extends State<ConfigView> {
                         );
                   },
                   tooltip: appLocalizations.reset,
-                  icon: const Icon(Icons.replay),
+                  icon: const Icon(ReIcons.rotateLeft),
                 );
               },
             ),
@@ -115,7 +115,7 @@ class _ConfigViewState extends State<ConfigView> {
       ListItem.next(
         title: const Text('NTP'),
         subtitle: Text(appLocalizations.ntpDesc),
-        leading: const Icon(Icons.access_time),
+        leading: const Icon(ReIcons.clock),
         delegate: NextDelegate(
           title: 'NTP',
           actions: [
@@ -137,7 +137,7 @@ class _ConfigViewState extends State<ConfigView> {
                         );
                   },
                   tooltip: appLocalizations.reset,
-                  icon: const Icon(Icons.replay),
+                  icon: const Icon(ReIcons.rotateLeft),
                 );
               },
             ),
@@ -149,7 +149,7 @@ class _ConfigViewState extends State<ConfigView> {
       ListItem.next(
         title: const Text('Hosts'),
         subtitle: Text(appLocalizations.hostsDesc),
-        leading: const Icon(Icons.view_list_outlined),
+        leading: const Icon(ReIcons.fileText),
         delegate: NextDelegate(
           blur: false,
           title: 'Hosts',
@@ -187,7 +187,7 @@ class _ConfigViewState extends State<ConfigView> {
       ListItem.next(
         title: Text(appLocalizations.sniffer),
         subtitle: Text(appLocalizations.snifferDesc),
-        leading: const Icon(Icons.radar),
+        leading: const Icon(ReIcons.eyeScan),
         delegate: NextDelegate(
           title: appLocalizations.sniffer,
           actions: [
@@ -209,7 +209,7 @@ class _ConfigViewState extends State<ConfigView> {
                         );
                   },
                   tooltip: appLocalizations.reset,
-                  icon: const Icon(Icons.replay),
+                  icon: const Icon(ReIcons.rotateLeft),
                 );
               },
             ),
@@ -221,7 +221,7 @@ class _ConfigViewState extends State<ConfigView> {
       ListItem.next(
         title: Text(appLocalizations.tunnel),
         subtitle: Text(appLocalizations.tunnelDesc),
-        leading: const Icon(Icons.swap_horiz),
+        leading: const Icon(ReIcons.arrowSwapHorizontal),
         delegate: NextDelegate(
           title: appLocalizations.tunnel,
           actions: [
@@ -243,7 +243,7 @@ class _ConfigViewState extends State<ConfigView> {
                         );
                   },
                   tooltip: appLocalizations.reset,
-                  icon: const Icon(Icons.replay),
+                  icon: const Icon(ReIcons.rotateLeft),
                 );
               },
             ),
@@ -255,7 +255,7 @@ class _ConfigViewState extends State<ConfigView> {
       ListItem.next(
         title: Text(appLocalizations.experimental),
         subtitle: Text(appLocalizations.experimentalDesc),
-        leading: const Icon(Icons.science),
+        leading: const Icon(ReIcons.flask),
         delegate: NextDelegate(
           title: appLocalizations.experimental,
           actions: [
@@ -278,7 +278,7 @@ class _ConfigViewState extends State<ConfigView> {
                         );
                   },
                   tooltip: appLocalizations.reset,
-                  icon: const Icon(Icons.replay),
+                  icon: const Icon(ReIcons.rotateLeft),
                 );
               },
             ),

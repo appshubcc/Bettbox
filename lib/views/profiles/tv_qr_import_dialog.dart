@@ -258,11 +258,7 @@ class _TvQrImportDialogState extends State<TvQrImportDialog> {
       mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Icon(
-          Icons.wifi_off_rounded,
-          size: 64,
-          color: context.colorScheme.error,
-        ),
+        Icon(ReIcons.wifiOff, size: 64, color: context.colorScheme.error),
         const SizedBox(height: 16),
         Text(
           appLocalizations.tvScanNoNetwork,
@@ -281,7 +277,7 @@ class _TvQrImportDialogState extends State<TvQrImportDialog> {
                 });
                 _startServer();
               },
-              icon: const Icon(Icons.refresh),
+              icon: const Icon(ReIcons.refresh),
               label: Text(appLocalizations.retry),
             ),
             const SizedBox(width: 16),
@@ -304,7 +300,7 @@ class _TvQrImportDialogState extends State<TvQrImportDialog> {
             mainAxisSize: MainAxisSize.min,
             children: [
               Icon(
-                Icons.check_circle_rounded,
+                ReIcons.tickCircleFilled,
                 size: 64,
                 color: context.colorScheme.primary,
               ),
@@ -396,17 +392,17 @@ class _TvQrImportDialogState extends State<TvQrImportDialog> {
               ),
               const SizedBox(height: 16),
               _buildStepRow(
-                icon: Icons.wifi,
+                icon: ReIcons.wifi,
                 text: appLocalizations.tvScanStep1,
               ),
               const SizedBox(height: 10),
               _buildStepRow(
-                icon: Icons.qr_code_scanner,
+                icon: ReIcons.scan,
                 text: appLocalizations.tvScanStep2,
               ),
               const SizedBox(height: 10),
               _buildStepRow(
-                icon: Icons.send_to_mobile,
+                icon: ReIcons.mobile,
                 text: appLocalizations.tvScanStep3,
               ),
               const SizedBox(height: 16),

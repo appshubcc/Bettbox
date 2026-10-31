@@ -102,26 +102,23 @@ class _ThemeModeItem extends ConsumerWidget {
     );
     final themeModeItems = <ThemeModeItem>[
       ThemeModeItem(
-        iconData: Icons.auto_mode,
+        iconData: ReIcons.refreshCircle,
         label: appLocalizations.auto,
         themeMode: ThemeMode.system,
       ),
       ThemeModeItem(
-        iconData: Icons.light_mode,
+        iconData: ReIcons.sun,
         label: appLocalizations.light,
         themeMode: ThemeMode.light,
       ),
       ThemeModeItem(
-        iconData: Icons.dark_mode,
+        iconData: ReIcons.moon,
         label: appLocalizations.dark,
         themeMode: ThemeMode.dark,
       ),
     ];
     return ItemCard(
-      info: Info(
-        label: appLocalizations.themeMode,
-        iconData: Icons.brightness_high,
-      ),
+      info: Info(label: appLocalizations.themeMode, iconData: ReIcons.sun),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16),
         height: 56,
@@ -273,7 +270,7 @@ class _PrimaryColorItemState extends ConsumerState<_PrimaryColorItem> {
     final primaryColors = <int?>[null, ...rawPrimaryColors];
 
     return ItemCard(
-      info: Info(label: appLocalizations.themeColor, iconData: Icons.palette),
+      info: Info(label: appLocalizations.themeColor, iconData: ReIcons.palette),
       actions: genActions([
         FilledButton(
           style: const ButtonStyle(visualDensity: VisualDensity.compact),
@@ -288,7 +285,7 @@ class _PrimaryColorItemState extends ConsumerState<_PrimaryColorItem> {
             padding: const EdgeInsets.all(4),
             visualDensity: VisualDensity.compact,
             onPressed: _handleReset,
-            icon: const Icon(Icons.replay),
+            icon: const Icon(ReIcons.rotateLeft),
           ),
       ], space: 8),
       child: Container(
@@ -332,7 +329,7 @@ class _PrimaryColorItemState extends ConsumerState<_PrimaryColorItem> {
                   child: IconButton.filledTonal(
                     onPressed: _handleAdd,
                     iconSize: 32,
-                    icon: Icon(color: context.colorScheme.primary, Icons.add),
+                    icon: Icon(color: context.colorScheme.primary, ReIcons.add),
                   ),
                 ),
               ],
@@ -353,7 +350,7 @@ class _PrueBlackItem extends ConsumerWidget {
       themeSettingProvider.select((state) => state.pureBlack),
     );
     return ListItem.switchItem(
-      leading: const Icon(Icons.contrast),
+      leading: const Icon(ReIcons.darkLight),
       horizontalTitleGap: 12,
       title: Text(
         appLocalizations.pureBlackMode,
@@ -384,7 +381,7 @@ class _HarmonyFontItem extends ConsumerWidget {
     final textTheme = Theme.of(context).textTheme;
     final onSurfaceVariant = context.colorScheme.onSurfaceVariant;
     return ListItem.switchItem(
-      leading: const Icon(Icons.font_download_outlined),
+      leading: const Icon(ReIcons.textSquare),
       horizontalTitleGap: 12,
       title: Text(
         appLocalizations.harmonyFont,
@@ -419,7 +416,7 @@ class _DarkIconItem extends ConsumerWidget {
     final textTheme = Theme.of(context).textTheme;
     final onSurfaceVariant = context.colorScheme.onSurfaceVariant;
     return ListItem.switchItem(
-      leading: const Icon(Icons.dark_mode_outlined),
+      leading: const Icon(ReIcons.moon),
       horizontalTitleGap: 12,
       title: Text(
         appLocalizations.darkIcon,
@@ -455,7 +452,7 @@ class _TrayIconInvertItem extends ConsumerWidget {
     final textTheme = Theme.of(context).textTheme;
     final onSurfaceVariant = context.colorScheme.onSurfaceVariant;
     return ListItem.switchItem(
-      leading: const Icon(Icons.invert_colors),
+      leading: const Icon(ReIcons.drop),
       horizontalTitleGap: 12,
       title: Text(
         appLocalizations.trayIconInvert,
@@ -497,7 +494,7 @@ class _TextScaleFactorItem extends ConsumerWidget {
         Padding(
           padding: const EdgeInsets.only(bottom: 8),
           child: ListItem.switchItem(
-            leading: const Icon(Icons.text_fields),
+            leading: const Icon(ReIcons.text),
             horizontalTitleGap: 12,
             title: Text(
               appLocalizations.textScale,

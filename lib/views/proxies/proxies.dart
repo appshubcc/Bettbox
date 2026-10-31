@@ -54,12 +54,12 @@ class _ProxiesViewState extends ConsumerState<ProxiesView> {
             _proxiesTabKey.currentState?.scrollToGroupSelected();
           },
           tooltip: appLocalizations.locate,
-          icon: const Icon(Icons.adjust, weight: 1),
+          icon: const Icon(ReIcons.recordCircle3, weight: 1),
         ),
       if (hasCustom)
         IconButton(
           onPressed: _handleCustomOptions,
-          icon: const Icon(Icons.tune),
+          icon: const Icon(ReIcons.setting4),
           tooltip: appLocalizations.custom,
         ),
       CommonPopupBox(
@@ -69,13 +69,13 @@ class _ProxiesViewState extends ConsumerState<ProxiesView> {
               open(offset: const Offset(0, 20));
             },
             tooltip: appLocalizations.more,
-            icon: const Icon(Icons.more_vert),
+            icon: const Icon(ReIcons.moreVCircle),
           );
         },
         popup: CommonPopupMenu(
           items: [
             PopupMenuItemData(
-              icon: Icons.tune,
+              icon: ReIcons.setting4,
               label: appLocalizations.settings,
               onPressed: () {
                 showSheet(
@@ -93,7 +93,7 @@ class _ProxiesViewState extends ConsumerState<ProxiesView> {
             ),
             if (_hasProviders)
               PopupMenuItemData(
-                icon: Icons.poll_outlined,
+                icon: ReIcons.layers,
                 label: appLocalizations.providers,
                 onPressed: () {
                   showExtend(
@@ -105,7 +105,7 @@ class _ProxiesViewState extends ConsumerState<ProxiesView> {
                 },
               ),
             PopupMenuItemData(
-              icon: Icons.settings_suggest,
+              icon: ReIcons.cpuSetting,
               label: appLocalizations.advancedSettings,
               onPressed: () {
                 showExtend(
@@ -123,8 +123,8 @@ class _ProxiesViewState extends ConsumerState<ProxiesView> {
             if (!_isTab)
               PopupMenuItemData(
                 icon: autoStickyHeader
-                    ? Icons.check_circle_rounded
-                    : Icons.circle_outlined,
+                    ? ReIcons.tickCircleFilled
+                    : ReIcons.record4,
                 label: appLocalizations.autoStickyHeader,
                 onPressed: () {
                   ref
@@ -137,8 +137,8 @@ class _ProxiesViewState extends ConsumerState<ProxiesView> {
               ),
             PopupMenuItemData(
               icon: showHiddenItems
-                  ? Icons.check_circle_rounded
-                  : Icons.circle_outlined,
+                  ? ReIcons.tickCircleFilled
+                  : ReIcons.record4,
               label: appLocalizations.showHiddenItems,
               onPressed: () {
                 ref

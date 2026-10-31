@@ -127,7 +127,7 @@ class _UserAuthDialogState extends ConsumerState<UserAuthDialog> {
                 child: Center(
                   child: OutlinedButton.icon(
                     onPressed: _addEntry,
-                    icon: const Icon(Icons.add, size: 18),
+                    icon: const Icon(ReIcons.add, size: 18),
                     label: Text(appLocalizations.addUser),
                   ),
                 ),
@@ -149,7 +149,7 @@ class _UserAuthDialogState extends ConsumerState<UserAuthDialog> {
                       const SizedBox.shrink(),
                     IconButton(
                       visualDensity: VisualDensity.compact,
-                      icon: const Icon(Icons.delete_outline, size: 20),
+                      icon: const Icon(ReIcons.trash4, size: 20),
                       onPressed: () => _removeEntry(i),
                       tooltip: appLocalizations.delete,
                     ),
@@ -159,7 +159,7 @@ class _UserAuthDialogState extends ConsumerState<UserAuthDialog> {
                   controller: _entries[i].usernameController,
                   decoration: InputDecoration(
                     labelText: appLocalizations.username,
-                    prefixIcon: const Icon(Icons.person_outline),
+                    prefixIcon: const Icon(ReIcons.user),
                     isDense: true,
                   ),
                   validator: (value) {
@@ -192,13 +192,13 @@ class _UserAuthDialogState extends ConsumerState<UserAuthDialog> {
                   obscureText: _entries[i].obscurePassword,
                   decoration: InputDecoration(
                     labelText: appLocalizations.password,
-                    prefixIcon: const Icon(Icons.lock_outline),
+                    prefixIcon: const Icon(ReIcons.lock),
                     isDense: true,
                     suffixIcon: IconButton(
                       icon: Icon(
                         _entries[i].obscurePassword
-                            ? Icons.visibility_off
-                            : Icons.visibility,
+                            ? ReIcons.eyeSlash
+                            : ReIcons.eye,
                       ),
                       onPressed: () {
                         setState(() {

@@ -12,16 +12,16 @@ class ProxiesSetting extends StatelessWidget {
 
   IconData _getIconWithProxiesType(ProxiesType type) {
     return switch (type) {
-      ProxiesType.tab => Icons.view_carousel,
-      ProxiesType.list => Icons.view_list,
+      ProxiesType.tab => ReIcons.carouselH,
+      ProxiesType.list => ReIcons.rowVertical,
     };
   }
 
   IconData _getIconWithProxiesSortType(ProxiesSortType type) {
     return switch (type) {
-      ProxiesSortType.none => Icons.sort,
-      ProxiesSortType.delay => Icons.network_ping,
-      ProxiesSortType.name => Icons.sort_by_alpha,
+      ProxiesSortType.none => ReIcons.sort,
+      ProxiesSortType.delay => ReIcons.pulse,
+      ProxiesSortType.name => ReIcons.sortAlpha,
     };
   }
 

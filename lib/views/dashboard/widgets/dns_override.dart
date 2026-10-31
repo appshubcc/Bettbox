@@ -44,7 +44,7 @@ class DnsOverride extends StatelessWidget {
     return SizedBox(
       height: getWidgetHeight(context, 1),
       child: CommonCard(
-        info: Info(label: 'DNS', iconData: Icons.dns),
+        info: Info(label: 'DNS', iconData: ReIcons.globalSearch),
         onPressed: () {
           // Open DNS settings
           showExtend(

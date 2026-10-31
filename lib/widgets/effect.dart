@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'dart:ui';
 
+import 'package:bett_box/common/reicons.dart';
 import 'package:material_ui/material_ui.dart';
 
 class EffectGestureDetector extends StatefulWidget {
@@ -121,7 +122,7 @@ class _CommonExpandIconState extends State<CommonExpandIcon>
     return RepaintBoundary(
       child: RotationTransition(
         turns: _iconTurns,
-        child: const Icon(Icons.expand_more),
+        child: const Icon(ReIcons.chevronDown),
       ),
     );
   }

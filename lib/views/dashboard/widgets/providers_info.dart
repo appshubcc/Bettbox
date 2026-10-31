@@ -11,7 +11,7 @@ class ProvidersInfo extends StatelessWidget {
     return SizedBox(
       height: getWidgetHeight(context, 1),
       child: CommonCard(
-        info: const Info(iconData: Icons.poll_outlined, label: 'INFO'),
+        info: const Info(iconData: ReIcons.layers, label: 'INFO'),
         onPressed: () {
           showExtend(
             context,

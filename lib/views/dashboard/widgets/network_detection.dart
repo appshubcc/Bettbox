@@ -38,7 +38,7 @@ class _NetworkDetectionState extends ConsumerState<NetworkDetection> {
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
-              leading: Icon(Icons.sync),
+              leading: Icon(ReIcons.refresh),
               title: Text(appLocalizations.manualRefreshIp),
               onTap: () {
                 Navigator.of(context, rootNavigator: true).pop();
@@ -47,7 +47,7 @@ class _NetworkDetectionState extends ConsumerState<NetworkDetection> {
             ),
             if (isZh)
               ListTile(
-                leading: Icon(Icons.public),
+                leading: Icon(ReIcons.globe),
                 title: Text(appLocalizations.switchToDomesticIp),
                 onTap: () {
                   Navigator.of(context, rootNavigator: true).pop();
@@ -55,7 +55,7 @@ class _NetworkDetectionState extends ConsumerState<NetworkDetection> {
                 },
               ),
             ListTile(
-              leading: Icon(Icons.security),
+              leading: Icon(ReIcons.securitySafe),
               title: Text(appLocalizations.ipPrivacyProtection),
               onTap: () {
                 Navigator.of(context, rootNavigator: true).pop();
@@ -182,12 +182,12 @@ class _NetworkDetectionState extends ConsumerState<NetworkDetection> {
 
     final items = <Widget>[
       _buildStatTile(
-        icon: Icons.location_on_rounded,
+        icon: ReIcons.location,
         iconColor: context.colorScheme.primary,
         label: appLocalizations.ipAddress,
         value: rawIpInfo.ip,
         action: _buildIconButton(
-          icon: Icons.open_in_new,
+          icon: ReIcons.export,
           tooltip: appLocalizations.viewDetailedIpData,
           onPressed: () {
             Navigator.of(context, rootNavigator: true).pop();
@@ -197,7 +197,7 @@ class _NetworkDetectionState extends ConsumerState<NetworkDetection> {
       ),
       if (countryContinent.isNotEmpty || flagEmoji.isNotEmpty)
         _buildStatTile(
-          icon: Icons.flag_rounded,
+          icon: ReIcons.flag,
           iconColor: context.colorScheme.secondary,
           label: appLocalizations.countryOrRegion,
           value: countryContinent,
@@ -229,28 +229,28 @@ class _NetworkDetectionState extends ConsumerState<NetworkDetection> {
         ),
       if (provinceCity.isNotEmpty)
         _buildStatTile(
-          icon: Icons.location_city_rounded,
+          icon: ReIcons.buildings,
           iconColor: context.colorScheme.tertiary,
           label: appLocalizations.provinceAndCity,
           value: provinceCity,
         ),
       if (operatorText.isNotEmpty)
         _buildStatTile(
-          icon: Icons.business_rounded,
+          icon: ReIcons.building,
           iconColor: context.colorScheme.secondary,
           label: appLocalizations.operatorOrAsn,
           value: operatorText,
         ),
       if (ispText.isNotEmpty)
         _buildStatTile(
-          icon: Icons.router_rounded,
+          icon: ReIcons.router,
           iconColor: context.colorScheme.primary,
           label: appLocalizations.isp,
           value: ispText,
         ),
       if (rawIpInfo.asDomain != null && rawIpInfo.asDomain!.isNotEmpty)
         _buildStatTile(
-          icon: Icons.link_rounded,
+          icon: ReIcons.link,
           iconColor: context.colorScheme.tertiary,
           label: appLocalizations.organizationDomain,
           value: rawIpInfo.asDomain!,
@@ -301,7 +301,7 @@ class _NetworkDetectionState extends ConsumerState<NetworkDetection> {
                       ),
                 )
               : Icon(
-                  Icons.network_check,
+                  ReIcons.pulse,
                   color: context.colorScheme.onSurfaceVariant,
                 ),
           const SizedBox(width: 8),
@@ -325,7 +325,7 @@ class _NetworkDetectionState extends ConsumerState<NetworkDetection> {
               onPressed: _showIpClickBehaviorSettings,
               icon: Icon(
                 size: 16.ap,
-                Icons.settings_outlined,
+                ReIcons.setting2,
                 color: context.colorScheme.onSurfaceVariant,
               ),
             ),
@@ -409,7 +409,7 @@ class _NetworkDetectionState extends ConsumerState<NetworkDetection> {
             child: DashboardDecor(
               mark: countryCode.length == 2
                   ? DashboardDecor.flag(countryCode, 80)
-                  : DashboardDecor.icon(context, Icons.public, 80),
+                  : DashboardDecor.icon(context, ReIcons.globe, 80),
               angle: isTall ? 0.18 : -0.18,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -520,7 +520,7 @@ class _NetworkDetectionState extends ConsumerState<NetworkDetection> {
                                   ),
                             )
                           : Icon(
-                              Icons.network_check,
+                              ReIcons.pulse,
                               color: Theme.of(
                                 context,
                               ).colorScheme.onSurfaceVariant,
@@ -548,7 +548,7 @@ class _NetworkDetectionState extends ConsumerState<NetworkDetection> {
                           onPressed: _showIpClickBehaviorSettings,
                           icon: Icon(
                             size: 16.ap,
-                            Icons.settings_outlined,
+                            ReIcons.setting2,
                             color: context.colorScheme.onSurfaceVariant,
                           ),
                         ),

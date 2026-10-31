@@ -454,7 +454,7 @@ class _IperfPageState extends ConsumerState<IperfPage>
           IconButton(
             tooltip: appLocalizations.natCopyResult,
             onPressed: () => _copy(iperfReport(report)),
-            icon: const Icon(Icons.copy_rounded),
+            icon: const Icon(ReIcons.copy),
           ),
       ],
       body: ToolPageBody(
@@ -612,21 +612,15 @@ class _IperfPageState extends ConsumerState<IperfPage>
         ),
       ],
       const SizedBox(height: 12),
-      ToolNote(
-        icon: Icons.info_outline_rounded,
-        text: appLocalizations.iperfServerTip,
-      ),
+      ToolNote(icon: ReIcons.infoCircle, text: appLocalizations.iperfServerTip),
       if (system.isDesktop) ...[
         const SizedBox(height: 8),
-        ToolNote(
-          icon: Icons.shield_outlined,
-          text: appLocalizations.iperfFirewallTip,
-        ),
+        ToolNote(icon: ReIcons.shield, text: appLocalizations.iperfFirewallTip),
       ],
       if (server != null && !server.udp) ...[
         const SizedBox(height: 8),
         ToolNote(
-          icon: Icons.warning_amber_rounded,
+          icon: ReIcons.warning,
           text: appLocalizations.iperfUdpUnavailable,
           color: colorScheme.tertiary,
         ),
@@ -662,11 +656,7 @@ class _AddressField extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(14, 4, 6, 4),
       child: Row(
         children: [
-          Icon(
-            Icons.dns_rounded,
-            size: 20,
-            color: colorScheme.onSurfaceVariant,
-          ),
+          Icon(ReIcons.server, size: 20, color: colorScheme.onSurfaceVariant),
           const SizedBox(width: 10),
           Expanded(
             child: ToolTvField(
@@ -697,14 +687,14 @@ class _AddressField extends StatelessWidget {
                 ? const SizedBox.shrink()
                 : IconButton(
                     onPressed: controller.clear,
-                    icon: const Icon(Icons.close_rounded, size: 18),
+                    icon: const Icon(ReIcons.x, size: 18),
                   ),
           ),
           if (onScan case final onScan?)
             IconButton.filledTonal(
               tooltip: appLocalizations.iperfScan,
               onPressed: onScan,
-              icon: const Icon(Icons.qr_code_scanner_rounded),
+              icon: const Icon(ReIcons.scan),
             ),
         ],
       ),
@@ -729,7 +719,7 @@ class _ScannedChip extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.qr_code_2_rounded, size: 15, color: primary),
+          Icon(ReIcons.qr, size: 15, color: primary),
           const SizedBox(width: 6),
           Flexible(
             child: Text(
@@ -931,9 +921,7 @@ class _ServerCard extends StatelessWidget {
                         ),
                       )
                     : Icon(
-                        running
-                            ? Icons.podcasts_rounded
-                            : Icons.power_settings_new_rounded,
+                        running ? ReIcons.radio : ReIcons.powerOff,
                         color: color,
                         size: 24,
                       ),
@@ -964,7 +952,7 @@ class _ServerCard extends StatelessWidget {
               if (onEditPort case final onEditPort?)
                 TextButton.icon(
                   onPressed: onEditPort,
-                  icon: const Icon(Icons.tune_rounded, size: 16),
+                  icon: const Icon(ReIcons.setting4, size: 16),
                   label: Text('${appLocalizations.iperfPort} $port'),
                 ),
             ],
@@ -972,7 +960,7 @@ class _ServerCard extends StatelessWidget {
           if (error.isNotEmpty) ...[
             const SizedBox(height: 14),
             ToolNote(
-              icon: Icons.error_outline_rounded,
+              icon: ReIcons.alertCircle,
               text: error,
               color: colorScheme.error,
             ),
@@ -1003,7 +991,7 @@ class _ConnectCard extends StatelessWidget {
     if (addresses.isEmpty) {
       return ToolSurface(
         child: ToolNote(
-          icon: Icons.wifi_off_rounded,
+          icon: ReIcons.wifiOff,
           text: appLocalizations.iperfNoAddress,
           color: colorScheme.tertiary,
         ),
@@ -1123,7 +1111,7 @@ class _CopyGroup extends StatelessWidget {
                     ),
                   ),
                   Icon(
-                    Icons.copy_rounded,
+                    ReIcons.copy,
                     size: 15,
                     color: colorScheme.onSurfaceVariant,
                   ),
@@ -1197,10 +1185,10 @@ class _LiveCard extends StatelessWidget {
                       )
                     : Icon(
                         hasError
-                            ? Icons.error_outline_rounded
+                            ? ReIcons.alertCircle
                             : state == null
-                            ? Icons.swap_vert_rounded
-                            : Icons.check_rounded,
+                            ? ReIcons.transferV
+                            : ReIcons.check,
                         color: color,
                         size: 24,
                       ),
@@ -1238,7 +1226,7 @@ class _LiveCard extends StatelessWidget {
           if (hasError) ...[
             const SizedBox(height: 14),
             ToolNote(
-              icon: Icons.error_outline_rounded,
+              icon: ReIcons.alertCircle,
               text: iperfErrorText(state.error),
               color: colorScheme.error,
             ),
@@ -1303,7 +1291,7 @@ class _SpeedRow extends StatelessWidget {
           Expanded(
             child: _SpeedValue(
               label: iperfFlowLabel(state.role, upload: true),
-              icon: Icons.arrow_circle_up_outlined,
+              icon: ReIcons.arrowUpCircle,
               color: colorScheme.tertiary,
               bps: done ? (state.uploadResult?.bitrate ?? 0) : state.upload,
             ),
@@ -1312,7 +1300,7 @@ class _SpeedRow extends StatelessWidget {
           Expanded(
             child: _SpeedValue(
               label: iperfFlowLabel(state.role, upload: false),
-              icon: Icons.arrow_circle_down_outlined,
+              icon: ReIcons.arrowCircleDown,
               color: colorScheme.primary,
               bps: done ? (state.downloadResult?.bitrate ?? 0) : state.download,
             ),
@@ -1491,12 +1479,12 @@ class _ResultGrid extends StatelessWidget {
     final udp = state.protocol == IperfProtocol.udp;
     final tiles = <Widget>[
       ToolInfoTile(
-        icon: Icons.devices_rounded,
+        icon: ReIcons.devices,
         label: appLocalizations.iperfPeer,
         value: state.peer,
       ),
       ToolInfoTile(
-        icon: Icons.timer_outlined,
+        icon: ReIcons.timer,
         label: appLocalizations.iperfDuration,
         value: appLocalizations.iperfSeconds(state.elapsed.toStringAsFixed(1)),
       ),
@@ -1506,16 +1494,14 @@ class _ResultGrid extends StatelessWidget {
       ])
         if (flow != null) ...[
           ToolInfoTile(
-            icon: upload
-                ? Icons.arrow_upward_rounded
-                : Icons.arrow_downward_rounded,
+            icon: upload ? ReIcons.arrowUp : ReIcons.arrowDown,
             label:
                 '${iperfFlowLabel(state.role, upload: upload)} · ${appLocalizations.iperfTransferred}',
             value: _bytesText(flow.bytes),
           ),
           if (!udp && flow.hasRtt)
             ToolInfoTile(
-              icon: Icons.timelapse_rounded,
+              icon: ReIcons.timer,
               label:
                   '${iperfFlowLabel(state.role, upload: upload)} · ${appLocalizations.iperfRtt}',
               value: _rttText(flow),
@@ -1538,7 +1524,7 @@ class _ResultGrid extends StatelessWidget {
             ),
           if (udp)
             ToolInfoTile(
-              icon: Icons.report_gmailerrorred_rounded,
+              icon: ReIcons.warning,
               label:
                   '${iperfFlowLabel(state.role, upload: upload)} · ${appLocalizations.speedTestPacketLoss}',
               value: appLocalizations.iperfLostPackets(flow.lost, flow.packets),

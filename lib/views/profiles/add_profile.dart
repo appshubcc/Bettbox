@@ -31,7 +31,7 @@ class AddProfileView extends StatelessWidget {
           type: type,
           actions: [
             IconButton(
-              icon: const Icon(Icons.security),
+              icon: const Icon(ReIcons.securitySafe),
               tooltip: appLocalizations.ageKeyGenerateTitle,
               onPressed: () {
                 editKey.currentState?.showAgeKeyGenerator();
@@ -117,7 +117,7 @@ class AddProfileView extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 ListItem(
-                  leading: const Icon(Icons.qr_code_sharp),
+                  leading: const Icon(ReIcons.qr),
                   title: Text(appLocalizations.qrcode),
                   subtitle: Text(appLocalizations.qrcodeDesc),
                   onTap: _toScan,
@@ -134,7 +134,7 @@ class AddProfileView extends StatelessWidget {
                   endIndent: 16,
                 ),
                 ListItem(
-                  leading: const Icon(Icons.content_paste),
+                  leading: const Icon(ReIcons.clipboardText),
                   title: Text(appLocalizations.clipboard),
                   subtitle: Text(appLocalizations.clipboardDesc),
                   onTap: _handleAddProfileFromClipboard,
@@ -151,7 +151,7 @@ class AddProfileView extends StatelessWidget {
                   endIndent: 16,
                 ),
                 ListItem(
-                  leading: const Icon(Icons.upload_file_sharp),
+                  leading: const Icon(ReIcons.documentUpload),
                   title: Text(appLocalizations.file),
                   subtitle: Text(appLocalizations.fileDesc),
                   onTap: _handleAddProfileFormFile,
@@ -168,7 +168,7 @@ class AddProfileView extends StatelessWidget {
                   endIndent: 16,
                 ),
                 ListItem(
-                  leading: const Icon(Icons.cloud_download_sharp),
+                  leading: const Icon(ReIcons.cloudDownload),
                   title: Text(appLocalizations.url),
                   subtitle: Text(appLocalizations.urlDesc),
                   onTap: _toAdd,

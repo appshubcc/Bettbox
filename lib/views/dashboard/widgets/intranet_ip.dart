@@ -62,9 +62,9 @@ class IntranetIP extends StatelessWidget {
           size: size,
           info: Info(
             label: appLocalizations.intranetIP,
-            iconData: Icons.devices,
+            iconData: ReIcons.sitemap,
           ),
-          mark: DashboardDecor.icon(context, Icons.devices, 80),
+          mark: DashboardDecor.icon(context, ReIcons.sitemap, 80),
           markBottom: isTall,
           markAngle: isTall ? 0.3 : -0.3,
           onPressed: () => _showMoreIpInfoDialog(context),
@@ -161,7 +161,10 @@ class IntranetIP extends StatelessWidget {
     return SizedBox(
       height: getWidgetHeight(context, 1),
       child: CommonCard(
-        info: Info(label: appLocalizations.intranetIP, iconData: Icons.devices),
+        info: Info(
+          label: appLocalizations.intranetIP,
+          iconData: ReIcons.sitemap,
+        ),
         onPressed: () => _showMoreIpInfoDialog(context),
         child: Container(
           padding: baseInfoEdgeInsets.copyWith(top: 0),
@@ -335,7 +338,7 @@ class _IntranetIpInfoDialogState extends ConsumerState<_IntranetIpInfoDialog> {
               shape: BoxShape.circle,
             ),
             child: Icon(
-              Icons.share_rounded,
+              ReIcons.share,
               size: 14,
               color: allowLan ? Colors.green : context.colorScheme.outline,
             ),
@@ -395,7 +398,7 @@ class _IntranetIpInfoDialogState extends ConsumerState<_IntranetIpInfoDialog> {
                     ),
                     const SizedBox(width: 2),
                     Icon(
-                      Icons.chevron_right_rounded,
+                      ReIcons.chevronRight,
                       size: 18,
                       color: context.colorScheme.onSurfaceVariant.withValues(
                         alpha: 0.7,
@@ -468,12 +471,12 @@ class _IntranetIpInfoDialogState extends ConsumerState<_IntranetIpInfoDialog> {
   IconData _resolveNetworkIcon(String type) {
     final lower = type.toLowerCase();
     if (lower.contains('ethernet')) {
-      return Icons.lan_rounded;
+      return ReIcons.sitemap;
     }
     if (lower.contains('cellular')) {
-      return Icons.signal_cellular_alt_rounded;
+      return ReIcons.chartBar;
     }
-    return Icons.wifi_rounded;
+    return ReIcons.wifi;
   }
 
   @override
@@ -530,20 +533,20 @@ class _IntranetIpInfoDialogState extends ConsumerState<_IntranetIpInfoDialog> {
             ),
             const SizedBox(height: 8),
             _buildStatTile(
-              icon: Icons.devices_rounded,
+              icon: ReIcons.sitemap,
               iconColor: context.colorScheme.secondary,
               label: appLocalizations.intranetIP,
               value: localIp.isNotEmpty ? localIp : placeholder,
             ),
             const SizedBox(height: 8),
             _buildStatTile(
-              icon: Icons.router_rounded,
+              icon: ReIcons.router,
               iconColor: context.colorScheme.tertiary,
               label: appLocalizations.defaultGateway,
               value: gateway.isNotEmpty ? gateway : placeholder,
               action: canOpenGateway
                   ? _buildIconButton(
-                      icon: Icons.open_in_new,
+                      icon: ReIcons.export,
                       tooltip: appLocalizations.openRouterAdmin,
                       onPressed: () {
                         globalState.openUrl('http://$gateway');
@@ -553,7 +556,7 @@ class _IntranetIpInfoDialogState extends ConsumerState<_IntranetIpInfoDialog> {
             ),
             const SizedBox(height: 8),
             _buildStatTile(
-              icon: Icons.dns_rounded,
+              icon: ReIcons.globalSearch,
               iconColor: context.colorScheme.primary,
               label: appLocalizations.systemDns,
               value: systemDnsText,
@@ -571,11 +574,11 @@ class _IntranetIpInfoDialogState extends ConsumerState<_IntranetIpInfoDialog> {
             if (allowLan && canOpenGateway && localIp.isNotEmpty) ...[
               const SizedBox(height: 8),
               _buildStatTile(
-                icon: Icons.cable_rounded,
+                icon: ReIcons.plug,
                 iconColor: context.colorScheme.primary,
                 value: sharedAddress,
                 action: _buildIconButton(
-                  icon: Icons.copy_rounded,
+                  icon: ReIcons.copy,
                   tooltip: appLocalizations.copy,
                   onPressed: () async {
                     await Clipboard.setData(ClipboardData(text: sharedAddress));

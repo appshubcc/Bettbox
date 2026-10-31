@@ -143,7 +143,7 @@ class _RouteTracePageState extends ConsumerState<RouteTracePage>
           if (!isStart) ...[
             const SizedBox(height: 12),
             ToolNote(
-              icon: Icons.info_outline_rounded,
+              icon: ReIcons.infoCircle,
               text: appLocalizations.routeTraceStopped,
               color: colorScheme.tertiary,
             ),
@@ -156,7 +156,7 @@ class _RouteTracePageState extends ConsumerState<RouteTracePage>
                     padding: const EdgeInsets.only(top: 12),
                     child: result.error.isNotEmpty
                         ? ToolNote(
-                            icon: Icons.error_outline_rounded,
+                            icon: ReIcons.alertCircle,
                             text: result.error == 'stopped'
                                 ? appLocalizations.routeTraceStopped
                                 : appLocalizations.ipLookupInvalid,
@@ -216,10 +216,10 @@ class _VerdictCard extends StatelessWidget {
                 ),
                 child: Icon(
                   isReject
-                      ? Icons.block_rounded
+                      ? ReIcons.ban
                       : isDirect
-                      ? Icons.arrow_outward_rounded
-                      : Icons.route_rounded,
+                      ? ReIcons.arrowUpRight
+                      : ReIcons.route,
                   color: color,
                 ),
               ),
@@ -272,7 +272,7 @@ class _VerdictCard extends StatelessWidget {
             runSpacing: 8,
             children: [
               _Chip(
-                icon: Icons.rule_rounded,
+                icon: ReIcons.listCheck,
                 text: switch (result.mode) {
                   'global' => appLocalizations.routeTraceModeGlobal,
                   'direct' => appLocalizations.routeTraceModeDirect,
@@ -283,17 +283,17 @@ class _VerdictCard extends StatelessWidget {
                 },
               ),
               _Chip(
-                icon: Icons.timer_outlined,
+                icon: ReIcons.timer,
                 text:
                     '${result.matchTime < 1 ? result.matchTime.clamp(0.01, 1).toStringAsFixed(2) : result.matchTime.toStringAsFixed(1)} ms',
               ),
               _Chip(
-                icon: Icons.lan_outlined,
+                icon: ReIcons.sitemap,
                 text: '${result.network.toUpperCase()} · ${result.port}',
               ),
               if (result.network == 'udp' && !result.supportUdp)
                 _Chip(
-                  icon: Icons.warning_amber_rounded,
+                  icon: ReIcons.warning,
                   text: appLocalizations.routeTraceUdpUnsupported,
                   color: colorScheme.error,
                 ),
@@ -397,7 +397,7 @@ class _TimelineCard extends StatelessWidget {
         : appLocalizations.routeTraceDnsSkipped;
     final entries = [
       _TimelineEntry(
-        icon: Icons.flag_outlined,
+        icon: ReIcons.flag,
         title: appLocalizations.routeTraceInput,
         detail: [
           target,
@@ -405,14 +405,14 @@ class _TimelineCard extends StatelessWidget {
         ].join('\n'),
       ),
       _TimelineEntry(
-        icon: Icons.dns_outlined,
+        icon: ReIcons.globalSearch,
         title: appLocalizations.routeTraceDns,
         detail: dnsDetail,
         color: result.resolveError.isNotEmpty ? colorScheme.error : null,
       ),
       if (isRuleMode)
         _TimelineEntry(
-          icon: Icons.rule_rounded,
+          icon: ReIcons.listCheck,
           title: appLocalizations.routeTraceRules,
           detail: [
             if (matched != null) ...[
@@ -437,21 +437,21 @@ class _TimelineCard extends StatelessWidget {
                       visualDensity: VisualDensity.compact,
                     ),
                     onPressed: () => _showRules(context),
-                    icon: const Icon(Icons.list_alt_rounded, size: 16),
+                    icon: const Icon(ReIcons.listSquare, size: 16),
                     label: Text(appLocalizations.routeTraceViewRules),
                   ),
                 ),
         )
       else
         _TimelineEntry(
-          icon: Icons.rule_rounded,
+          icon: ReIcons.listCheck,
           title: appLocalizations.routeTraceRules,
           detail: result.mode == 'global'
               ? appLocalizations.routeTraceModeGlobal
               : appLocalizations.routeTraceModeDirect,
         ),
       _TimelineEntry(
-        icon: Icons.account_tree_outlined,
+        icon: ReIcons.hierarchy,
         title: appLocalizations.routeTraceChain,
         detail: result.chains
             .map((chain) => '${chain.name}  (${chain.type})')
@@ -563,7 +563,7 @@ class _RulesList extends StatelessWidget {
       itemBuilder: (context, index) {
         if (index >= steps.length) {
           return ToolNote(
-            icon: Icons.more_horiz_rounded,
+            icon: ReIcons.moreHCircle,
             text: appLocalizations.routeTraceTruncated,
           );
         }

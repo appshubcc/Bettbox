@@ -223,7 +223,7 @@ class _MediaUnlockPageState extends ConsumerState<MediaUnlockPage> {
           title: appLocalizations.mediaUnlockDisplaySettings,
           actions: [
             IconButton(
-              icon: const Icon(Icons.settings_outlined),
+              icon: const Icon(ReIcons.setting2),
               tooltip: appLocalizations.mediaUnlockMiscSettings,
               onPressed: _showMiscSettingsDialog,
             ),
@@ -659,7 +659,7 @@ class _MediaUnlockPageState extends ConsumerState<MediaUnlockPage> {
                   tooltip: appLocalizations.mediaBatchTest,
                   onPressed: () => _openBatch(platform),
                   icon: Icon(
-                    Icons.fact_check_outlined,
+                    ReIcons.clipboardTick,
                     size: 17,
                     color: context.colorScheme.onSurfaceVariant,
                   ),
@@ -676,7 +676,7 @@ class _MediaUnlockPageState extends ConsumerState<MediaUnlockPage> {
                         mediaUnlockState.checkSingle(platform);
                       },
                 icon: Icon(
-                  Icons.refresh_rounded,
+                  ReIcons.refresh,
                   size: 18,
                   color: context.colorScheme.onSurfaceVariant,
                 ),
@@ -796,7 +796,7 @@ class _MediaUnlockPageState extends ConsumerState<MediaUnlockPage> {
           title: appLocalizations.mediaUnlock,
           actions: [
             IconButton(
-              icon: const Icon(Icons.tune_rounded),
+              icon: const Icon(ReIcons.setting4),
               tooltip: appLocalizations.mediaUnlockDisplaySettings,
               onPressed: _showPinnedSettingsDialog,
             ),
@@ -827,7 +827,7 @@ class _MediaUnlockPageState extends ConsumerState<MediaUnlockPage> {
                         ),
                       ),
                     )
-                  : const Icon(Icons.sync),
+                  : const Icon(ReIcons.refresh),
             ),
           ],
           body: ScrollEdgeRise(
@@ -849,7 +849,7 @@ class _MediaUnlockPageState extends ConsumerState<MediaUnlockPage> {
                   title: _selectedCategory == MediaCategory.streaming
                       ? appLocalizations.mediaUnlocked
                       : appLocalizations.unlocked,
-                  icon: Icons.check_circle_outline_rounded,
+                  icon: ReIcons.tickCircle,
                   color: mediaUnlockGreen,
                   platforms: unlockedList,
                   state: state,
@@ -857,7 +857,7 @@ class _MediaUnlockPageState extends ConsumerState<MediaUnlockPage> {
                 ),
                 ..._buildStatusSectionSlivers(
                   title: appLocalizations.notUnlocked,
-                  icon: Icons.cancel_outlined,
+                  icon: ReIcons.closeCircle,
                   color: context.colorScheme.error,
                   platforms: blockedList,
                   state: state,
@@ -865,7 +865,7 @@ class _MediaUnlockPageState extends ConsumerState<MediaUnlockPage> {
                 ),
                 ..._buildStatusSectionSlivers(
                   title: appLocalizations.other,
-                  icon: Icons.help_outline_rounded,
+                  icon: ReIcons.helpCircle,
                   color: mediaUnlockOrange,
                   platforms: otherList,
                   state: state,
@@ -1150,7 +1150,7 @@ class _MediaBatchSheetState extends ConsumerState<_MediaBatchSheet> {
         IconButton(
           tooltip: _running ? appLocalizations.stop : appLocalizations.retry,
           onPressed: _running ? _stop : _start,
-          icon: Icon(_running ? Icons.stop_rounded : Icons.refresh_rounded),
+          icon: Icon(_running ? ReIcons.stopFilled : ReIcons.refresh),
         ),
       ],
       body: Column(

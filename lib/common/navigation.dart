@@ -1,3 +1,4 @@
+import 'reicons.dart';
 import 'package:bett_box/enum/enum.dart';
 import 'package:bett_box/models/models.dart';
 import 'package:bett_box/providers/providers.dart';
@@ -15,13 +16,13 @@ class Navigation {
     return [
       NavigationItem(
         keep: false,
-        icon: const Icon(Icons.home),
+        icon: const Icon(ReIcons.house),
         label: PageLabel.dashboard,
         builder: (_) =>
             DashboardView(key: const GlobalObjectKey(PageLabel.dashboard)),
       ),
       NavigationItem(
-        icon: const Icon(Icons.explore),
+        icon: const Icon(ReIcons.discover),
         label: PageLabel.proxies,
         builder: (_) => ProviderScope(
           overrides: [queryProvider.overrideWith(() => Query())],
@@ -32,13 +33,13 @@ class Navigation {
             : [],
       ),
       NavigationItem(
-        icon: const Icon(Icons.folder_shared),
+        icon: const Icon(ReIcons.folderCloud),
         label: PageLabel.profiles,
         builder: (_) =>
             ProfilesView(key: const GlobalObjectKey(PageLabel.profiles)),
       ),
       NavigationItem(
-        icon: Icon(Icons.cable_rounded),
+        icon: Icon(ReIcons.plug),
         label: PageLabel.connections,
         builder: (_) =>
             ConnectionsView(key: const GlobalObjectKey(PageLabel.connections)),
@@ -46,7 +47,7 @@ class Navigation {
         modes: [NavigationItemMode.desktop, NavigationItemMode.more],
       ),
       NavigationItem(
-        icon: const Icon(Icons.storage),
+        icon: const Icon(ReIcons.driver),
         label: PageLabel.resources,
         description: 'resourcesDesc',
         builder: (_) =>
@@ -54,7 +55,7 @@ class Navigation {
         modes: [NavigationItemMode.more],
       ),
       NavigationItem(
-        icon: const Icon(Icons.terminal_outlined),
+        icon: const Icon(ReIcons.terminalSquare),
         label: PageLabel.script,
         description: 'scriptDesc',
         builder: (_) =>
@@ -62,7 +63,7 @@ class Navigation {
         modes: [NavigationItemMode.more],
       ),
       NavigationItem(
-        icon: const Icon(Icons.handyman_outlined),
+        icon: const Icon(ReIcons.designtools),
         label: PageLabel.toolbox,
         description: 'toolboxDesc',
         builder: (_) =>
@@ -70,14 +71,14 @@ class Navigation {
         modes: [NavigationItemMode.desktop, NavigationItemMode.more],
       ),
       NavigationItem(
-        icon: const Icon(Icons.adb_rounded),
+        icon: const Icon(ReIcons.bug),
         label: PageLabel.logs,
         builder: (_) => LogsView(key: const GlobalObjectKey(PageLabel.logs)),
         description: 'logsDesc',
         modes: [NavigationItemMode.desktop, NavigationItemMode.more],
       ),
       NavigationItem(
-        icon: Icon(Icons.construction),
+        icon: Icon(ReIcons.element4),
         label: PageLabel.tools,
         builder: (_) => ToolsView(key: const GlobalObjectKey(PageLabel.tools)),
         modes: [NavigationItemMode.desktop, NavigationItemMode.mobile],

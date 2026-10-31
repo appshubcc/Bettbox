@@ -232,14 +232,14 @@ class _IpDetailDialogState extends State<_IpDetailDialog> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildStatTile(
-            icon: Icons.location_on_rounded,
+            icon: ReIcons.location,
             iconColor: context.colorScheme.primary,
             label: appLocalizations.ipAddress,
             value: widget.ip,
           ),
           const SizedBox(height: 8),
           _buildStatTile(
-            icon: Icons.stacked_line_chart,
+            icon: ReIcons.shieldNetwork,
             iconColor: context.colorScheme.tertiary,
             label: appLocalizations.tunVirtualAddress,
             value: 'TUN Virtual Network Adapter',
@@ -252,14 +252,14 @@ class _IpDetailDialogState extends State<_IpDetailDialog> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildStatTile(
-            icon: Icons.location_on_rounded,
+            icon: ReIcons.location,
             iconColor: context.colorScheme.primary,
             label: appLocalizations.ipAddress,
             value: widget.ip,
           ),
           const SizedBox(height: 8),
           _buildStatTile(
-            icon: Icons.shuffle_rounded,
+            icon: ReIcons.sitemap,
             iconColor: context.colorScheme.secondary,
             label: appLocalizations.privateIp,
             value: 'LAN / Private Network',
@@ -272,12 +272,12 @@ class _IpDetailDialogState extends State<_IpDetailDialog> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildStatTile(
-            icon: Icons.location_on_rounded,
+            icon: ReIcons.location,
             iconColor: context.colorScheme.primary,
             label: appLocalizations.ipAddress,
             value: widget.ip,
             action: _buildIconButton(
-              icon: Icons.open_in_new,
+              icon: ReIcons.export,
               tooltip: appLocalizations.viewDetailedIpData,
               onPressed: () {
                 Navigator.of(context, rootNavigator: true).pop();
@@ -287,7 +287,7 @@ class _IpDetailDialogState extends State<_IpDetailDialog> {
           ),
           const SizedBox(height: 8),
           _buildStatTile(
-            icon: Icons.error_outline,
+            icon: ReIcons.alertCircle,
             iconColor: Colors.red,
             value: _errorMessage ?? '',
             customValue: Text(
@@ -300,12 +300,12 @@ class _IpDetailDialogState extends State<_IpDetailDialog> {
     } else {
       final items = <Widget>[
         _buildStatTile(
-          icon: Icons.location_on_rounded,
+          icon: ReIcons.location,
           iconColor: context.colorScheme.primary,
           label: appLocalizations.ipAddress,
           value: widget.ip,
           action: _buildIconButton(
-            icon: Icons.open_in_new,
+            icon: ReIcons.export,
             tooltip: appLocalizations.viewDetailedIpData,
             onPressed: () {
               Navigator.of(context, rootNavigator: true).pop();
@@ -315,7 +315,7 @@ class _IpDetailDialogState extends State<_IpDetailDialog> {
         ),
         if (countryText.isNotEmpty || flagEmoji.isNotEmpty)
           _buildStatTile(
-            icon: Icons.flag_rounded,
+            icon: ReIcons.flag,
             iconColor: context.colorScheme.secondary,
             label: appLocalizations.countryOrRegion,
             value: countryText,
@@ -347,28 +347,28 @@ class _IpDetailDialogState extends State<_IpDetailDialog> {
           ),
         if (provinceCity.isNotEmpty)
           _buildStatTile(
-            icon: Icons.location_city_rounded,
+            icon: ReIcons.buildings,
             iconColor: context.colorScheme.tertiary,
             label: appLocalizations.provinceAndCity,
             value: provinceCity,
           ),
         if (operatorText.isNotEmpty)
           _buildStatTile(
-            icon: Icons.business_rounded,
+            icon: ReIcons.building,
             iconColor: context.colorScheme.secondary,
             label: appLocalizations.operatorOrAsn,
             value: operatorText,
           ),
         if (ispText.isNotEmpty)
           _buildStatTile(
-            icon: Icons.router_rounded,
+            icon: ReIcons.router,
             iconColor: context.colorScheme.primary,
             label: appLocalizations.isp,
             value: ispText,
           ),
         if (domainText.isNotEmpty)
           _buildStatTile(
-            icon: Icons.link_rounded,
+            icon: ReIcons.link,
             iconColor: context.colorScheme.tertiary,
             label: appLocalizations.organizationDomain,
             value: domainText,

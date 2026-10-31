@@ -86,7 +86,7 @@ class _MrsLookupPageState extends ConsumerState<MrsLookupPage>
           tooltip: appLocalizations.settings,
           onPressed: () =>
               globalState.showCommonDialog(child: const _MrsSettingsDialog()),
-          icon: const Icon(Icons.settings_outlined),
+          icon: const Icon(ReIcons.setting2),
         ),
       ],
       body: ToolPageBody(
@@ -111,7 +111,7 @@ class _MrsLookupPageState extends ConsumerState<MrsLookupPage>
               children: [
                 Expanded(
                   child: ToolNote(
-                    icon: Icons.error_outline_rounded,
+                    icon: ReIcons.alertCircle,
                     text: prepare.error == 'missing'
                         ? appLocalizations.mrsMissing
                         : appLocalizations.mrsPrepareFailed,
@@ -133,7 +133,7 @@ class _MrsLookupPageState extends ConsumerState<MrsLookupPage>
                     padding: const EdgeInsets.only(top: 12),
                     child: result.error.isNotEmpty
                         ? ToolNote(
-                            icon: Icons.error_outline_rounded,
+                            icon: ReIcons.alertCircle,
                             text: result.error == 'invalid'
                                 ? appLocalizations.ipLookupInvalid
                                 : appLocalizations.mrsPrepareFailed,
@@ -210,7 +210,7 @@ class _MrsResult extends StatelessWidget {
         if (result.matches.isEmpty) ...[
           const SizedBox(height: 12),
           ToolNote(
-            icon: Icons.search_off_rounded,
+            icon: ReIcons.searchMinus,
             text: appLocalizations.mrsNoMatch,
           ),
         ],

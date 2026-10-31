@@ -102,19 +102,16 @@ class _StartButtonState extends ConsumerState<StartButton> {
     return [
       DashboardChip(
         icon: switch (mode) {
-          Mode.rule => Icons.alt_route_rounded,
-          Mode.global => Icons.language_rounded,
-          Mode.direct => Icons.east_rounded,
+          Mode.rule => ReIcons.routing,
+          Mode.global => ReIcons.global,
+          Mode.direct => ReIcons.arrowRight,
         },
         label: Intl.message(mode.name),
       ),
       if (system.isDesktop && tun)
-        DashboardChip(icon: Icons.vpn_lock_rounded, label: appLocalizations.tun)
+        DashboardChip(icon: ReIcons.shieldLock, label: appLocalizations.tun)
       else if (system.isDesktop && systemProxy)
-        DashboardChip(
-          icon: Icons.settings_ethernet_rounded,
-          label: appLocalizations.systemProxy,
-        ),
+        DashboardChip(icon: ReIcons.plug, label: appLocalizations.systemProxy),
     ];
   }
 
@@ -188,7 +185,7 @@ class _StartButtonState extends ConsumerState<StartButton> {
       isRestarting,
       isSmartStopped,
     );
-    final icon = displayStart ? Icons.pause_rounded : Icons.play_arrow_rounded;
+    final icon = displayStart ? ReIcons.pauseFilled : ReIcons.playFilled;
     final onPressed = canPress
         ? _handleStart
         : hasNoProfile
@@ -205,9 +202,9 @@ class _StartButtonState extends ConsumerState<StartButton> {
             : displayStart
             ? appLocalizations.runTime
             : appLocalizations.powerSwitch,
-        iconData: Icons.power_settings_new,
+        iconData: ReIcons.powerOff,
       ),
-      mark: DashboardDecor.icon(context, Icons.power_settings_new, 80),
+      mark: DashboardDecor.icon(context, ReIcons.powerOff, 80),
       markBottom: !isTall,
       markAngle: isTall ? -0.08 : 0.1,
       onPressed: isTall ? null : onPressed,
@@ -314,7 +311,7 @@ class _StartButtonState extends ConsumerState<StartButton> {
               : displayStart
               ? appLocalizations.runTime
               : appLocalizations.powerSwitch,
-          iconData: Icons.power_settings_new,
+          iconData: ReIcons.powerOff,
         ),
         onPressed: canPress
             ? _handleStart
@@ -363,7 +360,7 @@ class _StartButtonState extends ConsumerState<StartButton> {
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
           Icon(
-            Icons.pause_circle_outline,
+            ReIcons.pauseCircle,
             size: 20,
             color: context.colorScheme.outline,
           ),
@@ -411,7 +408,11 @@ class _StartButtonState extends ConsumerState<StartButton> {
       return Row(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          Icon(Icons.play_arrow, size: 16, color: context.colorScheme.primary),
+          Icon(
+            ReIcons.playFilled,
+            size: 16,
+            color: context.colorScheme.primary,
+          ),
           SizedBox(width: 4),
           Expanded(
             child: Text(
@@ -428,7 +429,7 @@ class _StartButtonState extends ConsumerState<StartButton> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
-        Icon(Icons.pause, size: 16, color: context.colorScheme.primary),
+        Icon(ReIcons.pauseFilled, size: 16, color: context.colorScheme.primary),
         const SizedBox(width: 4),
         Text('  ', style: context.textTheme.bodyMedium?.toLight.adjustSize(1)),
         Expanded(

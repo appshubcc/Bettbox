@@ -89,8 +89,8 @@ class ProxiesTabViewState extends ConsumerState<ProxiesTabView>
         return IconButton(
           onPressed: _showMoreMenu,
           icon: isMobileView
-              ? const Icon(Icons.expand_more)
-              : const Icon(Icons.chevron_right),
+              ? const Icon(ReIcons.chevronDown)
+              : const Icon(ReIcons.chevronRight),
         );
       },
     );
@@ -157,7 +157,7 @@ class ProxiesTabViewState extends ConsumerState<ProxiesTabView>
         final isTesting = delayTestCoordinator.isTesting;
         return IconButton(
           onPressed: isTesting ? null : delayTestCurrentGroup,
-          icon: Icon(Icons.network_ping),
+          icon: Icon(ReIcons.pulse),
           tooltip: appLocalizations.startTest,
         );
       },
@@ -557,7 +557,7 @@ class _DelayTestButtonState extends ConsumerState<DelayTestButton>
                   : _healthcheck,
               icon: Transform.scale(
                 scale: contentScale,
-                child: const Icon(Icons.network_ping),
+                child: const Icon(ReIcons.pulse),
               ),
               label: Transform.scale(
                 scale: contentScale,

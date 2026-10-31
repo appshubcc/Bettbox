@@ -77,7 +77,7 @@ List<_ToolItem> _buildTools() {
   return [
     _ToolItem(
       id: 'speedTest',
-      icon: Icons.speed_rounded,
+      icon: ReIcons.speedometer,
       color: const Color(0xFF2F80ED),
       title: appLocalizations.speedTest,
       description: appLocalizations.toolSpeedTestDesc,
@@ -86,7 +86,7 @@ List<_ToolItem> _buildTools() {
     ),
     _ToolItem(
       id: 'routeTrace',
-      icon: Icons.route_rounded,
+      icon: ReIcons.route,
       color: const Color(0xFF7B61FF),
       title: appLocalizations.routeTrace,
       description: appLocalizations.routeTraceDesc,
@@ -95,7 +95,7 @@ List<_ToolItem> _buildTools() {
     ),
     _ToolItem(
       id: 'ipLookup',
-      icon: Icons.travel_explore_rounded,
+      icon: ReIcons.globalSearch,
       color: const Color(0xFF00A3A3),
       title: appLocalizations.ipLookup,
       description: appLocalizations.ipLookupDesc,
@@ -103,7 +103,7 @@ List<_ToolItem> _buildTools() {
     ),
     _ToolItem(
       id: 'mrsLookup',
-      icon: Icons.manage_search_rounded,
+      icon: ReIcons.search4,
       color: const Color(0xFFE58A00),
       title: appLocalizations.mrsLookup,
       description: appLocalizations.mrsLookupDesc,
@@ -111,7 +111,7 @@ List<_ToolItem> _buildTools() {
     ),
     _ToolItem(
       id: 'dnsQuery',
-      icon: Icons.dns_rounded,
+      icon: ReIcons.globalSearch,
       color: const Color(0xFF3B9C4A),
       title: appLocalizations.dnsQuery,
       description: appLocalizations.dnsQueryDesc,
@@ -119,7 +119,7 @@ List<_ToolItem> _buildTools() {
     ),
     _ToolItem(
       id: 'natTest',
-      icon: Icons.hub_rounded,
+      icon: ReIcons.nodes,
       color: const Color(0xFFD9466F),
       title: appLocalizations.natTest,
       description: appLocalizations.natTestDesc,
@@ -127,7 +127,7 @@ List<_ToolItem> _buildTools() {
     ),
     _ToolItem(
       id: 'localPing',
-      icon: Icons.network_ping_rounded,
+      icon: ReIcons.pulse,
       color: const Color(0xFF2E7DD7),
       title: appLocalizations.localPing,
       description: appLocalizations.localPingDesc,
@@ -135,7 +135,7 @@ List<_ToolItem> _buildTools() {
     ),
     _ToolItem(
       id: 'iperf',
-      icon: Icons.lan_rounded,
+      icon: ReIcons.sitemap,
       color: const Color(0xFFC2571A),
       title: appLocalizations.iperfTest,
       description: appLocalizations.iperfTestDesc,
@@ -143,7 +143,7 @@ List<_ToolItem> _buildTools() {
     ),
     _ToolItem(
       id: 'ageTool',
-      icon: Icons.lock_rounded,
+      icon: ReIcons.lock,
       color: const Color(0xFF5C6BC0),
       title: appLocalizations.ageTool,
       description: appLocalizations.ageToolDesc,
@@ -151,7 +151,7 @@ List<_ToolItem> _buildTools() {
     ),
     _ToolItem(
       id: 'connectivity',
-      icon: Icons.wifi_tethering_rounded,
+      icon: ReIcons.signalStream,
       color: const Color(0xFF0097D6),
       title: appLocalizations.mediaUnlock,
       description: appLocalizations.toolConnectivityDesc,
@@ -237,7 +237,7 @@ class _ToolboxViewState extends ConsumerState<ToolboxView> {
                 ? Padding(
                     padding: const EdgeInsets.only(bottom: 12),
                     child: ToolNote(
-                      icon: Icons.touch_app_outlined,
+                      icon: ReIcons.pointer,
                       text: globalState.isAndroidTV
                           ? appLocalizations.toolboxEditTipTv
                           : system.isDesktop
@@ -273,19 +273,19 @@ class _ToolboxViewState extends ConsumerState<ToolboxView> {
               IconButton(
                 tooltip: appLocalizations.reset,
                 onPressed: _reset,
-                icon: const Icon(Icons.restart_alt_rounded),
+                icon: const Icon(ReIcons.restart),
               ),
               IconButton(
                 tooltip: appLocalizations.save,
                 onPressed: () => _setEditing(false),
-                icon: const Icon(Icons.check_rounded),
+                icon: const Icon(ReIcons.check),
               ),
             ]
           : [
               IconButton(
                 tooltip: appLocalizations.edit,
                 onPressed: () => _setEditing(true),
-                icon: const Icon(Icons.dashboard_customize_outlined),
+                icon: const Icon(ReIcons.elementPlus),
               ),
             ],
       body: _editing
@@ -483,11 +483,7 @@ class _ToolCardState extends State<_ToolCard> {
                           ? item.color.withValues(alpha: 0.14)
                           : colorScheme.surfaceContainerHigh,
                     ),
-                    child: Icon(
-                      Icons.arrow_forward_rounded,
-                      size: 15,
-                      color: iconColor,
-                    ),
+                    child: Icon(ReIcons.arrowRight, size: 15, color: iconColor),
                   ),
                 ),
               ],

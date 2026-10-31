@@ -74,7 +74,7 @@ class ProvidersView extends ConsumerWidget {
           IconButton(
             onPressed: () => updateExternalProviders(ref, context),
             tooltip: appLocalizations.update,
-            icon: const Icon(Icons.sync),
+            icon: const Icon(ReIcons.refresh),
           ),
         ],
         type: type,
@@ -169,7 +169,7 @@ class _ProvidersBodyState extends ConsumerState<ProvidersBody> {
                             IconButton(
                               onPressed: section.onSync,
                               tooltip: appLocalizations.update,
-                              icon: const Icon(Icons.sync),
+                              icon: const Icon(ReIcons.refresh),
                               iconSize: 20,
                               splashRadius: 20,
                               padding: EdgeInsets.zero,
@@ -375,12 +375,12 @@ class ProviderItem extends StatelessWidget {
             runAlignment: WrapAlignment.center,
             children: [
               CommonChip(
-                avatar: const Icon(Icons.upload),
+                avatar: const Icon(ReIcons.upload),
                 label: appLocalizations.upload,
                 onPressed: _handleSideLoadProvider,
               ),
               CommonChip(
-                avatar: const Icon(Icons.visibility),
+                avatar: const Icon(ReIcons.eye),
                 label: appLocalizations.view,
                 onPressed: () => _handleViewProviderContent(context),
               ),
@@ -398,7 +398,7 @@ class ProviderItem extends StatelessWidget {
                         ),
                       )
                     : CommonChip(
-                        avatar: const Icon(Icons.sync),
+                        avatar: const Icon(ReIcons.refresh),
                         label: appLocalizations.sync,
                         onPressed: _handleUpdateProvider,
                       ),

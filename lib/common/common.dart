@@ -12,6 +12,7 @@ export 'function.dart';
 export 'future.dart';
 export 'http.dart';
 export 'icons.dart';
+export 'reicons.dart';
 export 'iterable.dart';
 export 'js_runtime_manager.dart';
 export 'rust.dart';

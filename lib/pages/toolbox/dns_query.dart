@@ -202,7 +202,7 @@ class _DnsQueryPageState extends ConsumerState<DnsQueryPage>
                         hintText: appLocalizations.dnsQueryServerHint,
                         suffixIcon: IconButton(
                           onPressed: _pickServer,
-                          icon: const Icon(Icons.expand_more_rounded),
+                          icon: const Icon(ReIcons.chevronDown),
                         ),
                       ),
                     ),
@@ -234,7 +234,7 @@ class _DnsQueryPageState extends ConsumerState<DnsQueryPage>
                 ),
                 if (!isStart)
                   ToolNote(
-                    icon: Icons.info_outline_rounded,
+                    icon: ReIcons.infoCircle,
                     text: appLocalizations.dnsQueryStopped,
                     color: colorScheme.tertiary,
                   ),
@@ -252,7 +252,7 @@ class _DnsQueryPageState extends ConsumerState<DnsQueryPage>
           if (_error.isNotEmpty) ...[
             const SizedBox(height: 12),
             ToolNote(
-              icon: Icons.error_outline_rounded,
+              icon: ReIcons.alertCircle,
               text: _error,
               color: colorScheme.error,
             ),
@@ -337,13 +337,13 @@ class _DnsResultCard extends StatelessWidget {
           const SizedBox(height: 8),
           if (result.error.isNotEmpty)
             ToolNote(
-              icon: Icons.error_outline_rounded,
+              icon: ReIcons.alertCircle,
               text: _error(),
               color: colorScheme.error,
             )
           else if (result.answers.isEmpty)
             ToolNote(
-              icon: Icons.inbox_outlined,
+              icon: ReIcons.inbox,
               text: appLocalizations.dnsQueryNoRecords,
             )
           else
@@ -352,7 +352,7 @@ class _DnsResultCard extends StatelessWidget {
           if (_routeTip(result) case final tip?) ...[
             const SizedBox(height: 8),
             ToolNote(
-              icon: Icons.info_outline_rounded,
+              icon: ReIcons.infoCircle,
               text: tip,
               color: colorScheme.tertiary,
             ),

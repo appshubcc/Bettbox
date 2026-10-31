@@ -1,4 +1,5 @@
 import 'package:bett_box/providers/providers.dart';
+import 'package:bett_box/common/reicons.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -67,7 +68,7 @@ class ColorSchemeBox extends StatelessWidget {
                   const Positioned(
                     bottom: 4,
                     right: 4,
-                    child: Icon(Icons.colorize, size: 20),
+                    child: Icon(ReIcons.pipette, size: 20),
                   ),
               ],
             );

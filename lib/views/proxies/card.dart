@@ -107,7 +107,7 @@ class ProxyDelayText extends StatelessWidget {
                 behavior: HitTestBehavior.opaque,
                 onTap: _handleTestCurrentDelay,
                 child: Icon(
-                  Icons.bolt,
+                  ReIcons.bolt,
                   size: labelSmallHeight,
                   color: context.colorScheme.onSurfaceVariant,
                 ),
@@ -400,7 +400,7 @@ class _ProxyComputedMarkIcon extends StatelessWidget {
           color: colorScheme.secondaryContainer,
         ),
         child: Icon(
-          Icons.lock_outline,
+          ReIcons.lock,
           size: 18,
           color: colorScheme.onSecondaryContainer,
         ),

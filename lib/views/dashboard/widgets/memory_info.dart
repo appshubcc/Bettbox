@@ -186,8 +186,11 @@ class _MemoryInfoState extends State<MemoryInfo> {
     );
     return DashboardTileCard(
       size: size,
-      info: Info(label: appLocalizations.memoryInfo, iconData: Icons.memory),
-      mark: DashboardDecor.icon(context, Icons.memory, 80),
+      info: Info(
+        label: appLocalizations.memoryInfo,
+        iconData: ReIcons.microchip,
+      ),
+      mark: DashboardDecor.icon(context, ReIcons.microchip, 80),
       markAngle: 0.28,
       onPressed: () => showCoreStatusDialog(context),
       onLongPress: _handleForceGc,
@@ -199,7 +202,7 @@ class _MemoryInfoState extends State<MemoryInfo> {
             onPressed: () => _showMemoryInfoDialog(context),
             icon: Icon(
               size: 16.ap,
-              Icons.info_outline,
+              ReIcons.infoCircle,
               color: colorScheme.onSurfaceVariant,
             ),
           ),
@@ -293,7 +296,7 @@ class _MemoryInfoState extends State<MemoryInfo> {
                 mainAxisSize: MainAxisSize.max,
                 children: [
                   Icon(
-                    Icons.memory,
+                    ReIcons.microchip,
                     color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
                   const SizedBox(width: 8),
@@ -318,7 +321,7 @@ class _MemoryInfoState extends State<MemoryInfo> {
                       onPressed: () => _showMemoryInfoDialog(context),
                       icon: Icon(
                         size: 16.ap,
-                        Icons.info_outline,
+                        ReIcons.infoCircle,
                         color: context.colorScheme.onSurfaceVariant,
                       ),
                     ),

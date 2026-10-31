@@ -258,12 +258,12 @@ class _ScriptsViewState extends ConsumerState<ScriptsView> {
                                     children: [
                                       if (hasRemote)
                                         _buildScriptTag(
-                                          icon: Icons.sync,
+                                          icon: ReIcons.refresh,
                                           label: appLocalizations.remote,
                                         ),
                                       if (hasCustom)
                                         _buildScriptTag(
-                                          icon: Icons.tune,
+                                          icon: ReIcons.setting4,
                                           label: appLocalizations.custom,
                                         ),
                                     ],
@@ -285,13 +285,13 @@ class _ScriptsViewState extends ConsumerState<ScriptsView> {
                                 open();
                               },
                               tooltip: appLocalizations.more,
-                              icon: const Icon(Icons.more_vert, size: 20),
+                              icon: const Icon(ReIcons.moreVCircle, size: 20),
                             );
                           },
                           popup: CommonPopupMenu(
                             items: [
                               PopupMenuItemData(
-                                icon: Icons.edit,
+                                icon: ReIcons.edit,
                                 label: appLocalizations.edit,
                                 onPressed: () {
                                   _handleToEditor(script: script);
@@ -299,7 +299,7 @@ class _ScriptsViewState extends ConsumerState<ScriptsView> {
                               ),
                               if (script.compatible)
                                 PopupMenuItemData(
-                                  icon: Icons.tune,
+                                  icon: ReIcons.setting4,
                                   label: appLocalizations.custom,
                                   onPressed: () {
                                     _handleCustomOptions(script);
@@ -307,21 +307,21 @@ class _ScriptsViewState extends ConsumerState<ScriptsView> {
                                 ),
                               if (script.url?.isNotEmpty ?? false)
                                 PopupMenuItemData(
-                                  icon: Icons.sync,
+                                  icon: ReIcons.refresh,
                                   label: appLocalizations.sync,
                                   onPressed: () {
                                     _handleSyncScript(script.id);
                                   },
                                 ),
                               PopupMenuItemData(
-                                icon: Icons.file_copy_outlined,
+                                icon: ReIcons.documentCopy,
                                 label: appLocalizations.exportFile,
                                 onPressed: () {
                                   _handleExportFile(script);
                                 },
                               ),
                               PopupMenuItemData(
-                                icon: Icons.delete,
+                                icon: ReIcons.trash4,
                                 label: appLocalizations.delete,
                                 onPressed: () {
                                   _handleDelScript(script.label);
@@ -524,13 +524,13 @@ class _ScriptsViewState extends ConsumerState<ScriptsView> {
         onPressed: () {
           _handleImport();
         },
-        child: Icon(Icons.add),
+        child: Icon(ReIcons.add),
       ),
       actions: [
         IconButton(
           onPressed: _handleShowScriptSettings,
           tooltip: appLocalizations.settings,
-          icon: Icon(Icons.settings),
+          icon: Icon(ReIcons.setting2),
         ),
       ],
       body: _buildContent(),
@@ -616,21 +616,21 @@ class _ScriptImportOptionsDialog extends StatelessWidget {
             onTap: () {
               Navigator.of(context).pop(ImportOption.code);
             },
-            leading: const Icon(Icons.code),
+            leading: const Icon(ReIcons.code),
             title: Text(appLocalizations.importFromCode),
           ),
           ListItem(
             onTap: () {
               Navigator.of(context).pop(ImportOption.url);
             },
-            leading: const Icon(Icons.link),
+            leading: const Icon(ReIcons.link),
             title: Text(appLocalizations.importUrl),
           ),
           ListItem(
             onTap: () {
               Navigator.of(context).pop(ImportOption.file);
             },
-            leading: const Icon(Icons.file_open),
+            leading: const Icon(ReIcons.documentUpload),
             title: Text(appLocalizations.importFile),
           ),
         ],
@@ -800,7 +800,7 @@ class __ScriptCustomOptionsSheetState
           actions: [
             IconButton(
               onPressed: (_dirty && !_isSaving) ? _handleSave : null,
-              icon: const Icon(Icons.save),
+              icon: const Icon(ReIcons.floppy),
               tooltip: appLocalizations.save,
             ),
           ],
@@ -928,7 +928,7 @@ class _ScriptOtherOptionsSheetState extends State<_ScriptOtherOptionsSheet> {
           actions: [
             IconButton(
               onPressed: (_dirty && !_isSaving) ? _handleSave : null,
-              icon: const Icon(Icons.save),
+              icon: const Icon(ReIcons.floppy),
               tooltip: appLocalizations.save,
             ),
           ],
@@ -999,7 +999,7 @@ class _ScriptOptionTile extends StatelessWidget {
           contentPadding: const EdgeInsets.only(left: 16, right: 16),
           leading: _isValidIconUrl(iconUrl)
               ? CommonTargetIcon(src: iconUrl!, size: 24)
-              : const Icon(Icons.alt_route),
+              : const Icon(ReIcons.routing),
           title: Text(label),
           trailing: Switch(value: value, onChanged: onChanged),
         ),
@@ -1037,7 +1037,7 @@ class _ScriptNavTile extends StatelessWidget {
             ),
           ),
           title: Text(label),
-          trailing: const Icon(Icons.chevron_right),
+          trailing: const Icon(ReIcons.chevronRight),
           onTap: onTap,
         ),
       ),
@@ -1284,7 +1284,7 @@ class _GroupSwitchOptionsSheetState
           actions: [
             IconButton(
               onPressed: (_dirty && !_isSaving) ? _handleSave : null,
-              icon: const Icon(Icons.save),
+              icon: const Icon(ReIcons.floppy),
               tooltip: appLocalizations.save,
             ),
           ],
@@ -1330,7 +1330,7 @@ class _GroupSwitchOptionsSheetState
                                         left: 16,
                                         right: 16,
                                       ),
-                                      leading: const Icon(Icons.alt_route),
+                                      leading: const Icon(ReIcons.routing),
                                       title: Text(key),
                                       trailing: Switch(
                                         value: val,

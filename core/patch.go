@@ -43,6 +43,7 @@ type PatchParams struct {
 	PrependRules       []string        `json:"prepend-rules"`
 	DisabledGroups     []string        `json:"disabled-groups"`
 	SelectGlobal       bool            `json:"select-global"`
+	Tailscale          *PatchTailscale `json:"tailscale"`
 }
 
 const defaultHealthCheckTimeout = 5000
@@ -123,6 +124,7 @@ func applyPatch(raw *config.RawConfig, params *PatchParams) (string, error) {
 		}
 	}
 	patchProxyGroups(raw, params)
+	tailscaleRules := patchTailscale(raw, params)
 
 	rules := raw.Rule
 	hasOverride := params.OverrideRules != nil
@@ -146,6 +148,11 @@ func applyPatch(raw *config.RawConfig, params *PatchParams) (string, error) {
 			merged = append(merged, rules...)
 			rules = merged
 		}
+	}
+	if len(tailscaleRules) > 0 {
+		// After the prepended rules, before the override and profile rules.
+		at := len(params.PrependRules)
+		rules = append(append(append([]string{}, rules[:at]...), tailscaleRules...), rules[at:]...)
 	}
 
 	patchProxies(raw)

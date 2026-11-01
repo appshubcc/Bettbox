@@ -7,23 +7,26 @@ import 'package:bett_box/widgets/widgets.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+/// Android VPN routes only apply when the VPN starts; offers a restart.
+bool showVpnRestartTip(WidgetRef ref) {
+  if (!system.isAndroid) return false;
+  final isVpnEnabled = ref.read(vpnSettingProvider).enable;
+  final isCoreRunning = ref.read(runTimeProvider) != null;
+  if (!isVpnEnabled || !isCoreRunning) return false;
+  globalState.showNotifier(
+    appLocalizations.vpnTip,
+    actionLabel: appLocalizations.restart,
+    showCountdown: true,
+    onAction: () async {
+      await globalState.appController.restartCore();
+      globalState.showNotifier(appLocalizations.success);
+    },
+  );
+  return true;
+}
+
 Future<void> _handleNetworkConfigChange(WidgetRef ref) async {
-  if (system.isAndroid) {
-    final isVpnEnabled = ref.read(vpnSettingProvider).enable;
-    final isCoreRunning = ref.read(runTimeProvider) != null;
-    if (isVpnEnabled && isCoreRunning) {
-      globalState.showNotifier(
-        appLocalizations.vpnTip,
-        actionLabel: appLocalizations.restart,
-        showCountdown: true,
-        onAction: () async {
-          await globalState.appController.restartCore();
-          globalState.showNotifier(appLocalizations.success);
-        },
-      );
-      return;
-    }
-  }
+  if (showVpnRestartTip(ref)) return;
   globalState.appController.updateClashConfig();
 }
 

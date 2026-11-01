@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Tailscale node keys must not be copied to another device. -->
+<full-backup-content>
+    <exclude domain="file" path="bettbox-tailscale" />
+</full-backup-content>

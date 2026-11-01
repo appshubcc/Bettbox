@@ -35,6 +35,8 @@
         android:label="Bettbox"
         android:banner="@drawable/tv_banner"
         android:networkSecurityConfig="@xml/network_security_config"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
         android:enableOnBackInvokedCallback="false">
         <activity
             android:name="com.appshub.bettbox.MainActivity"

@@ -24,6 +24,8 @@ abstract class AppState with _$AppState {
     @Default(0) int checkIpNum,
     required Brightness brightness,
     int? runTime,
+    // null: unknown, '': logged in, otherwise the pending login URL.
+    String? tailscaleAuthUrl,
     @Default([]) List<ExternalProvider> providers,
     NetworkInfo? localNetwork,
     required FixedList<TrackerInfo> requests,

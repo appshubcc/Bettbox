@@ -16,7 +16,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$SetupParams {
 
-@JsonKey(name: 'selected-map') Map<String, String> get selectedMap;@JsonKey(name: 'test-url') String get testUrl;@JsonKey(name: 'override-test-url') bool get overrideTestUrl;@JsonKey(name: 'profile-path') String get profilePath;@JsonKey(name: 'age-secret-key') String get ageSecretKey;@JsonKey(name: 'scripted-config') String get scriptedConfig; Map<String, dynamic>? get patch;
+@JsonKey(name: 'selected-map') Map<String, String> get selectedMap;@JsonKey(name: 'test-url') String get testUrl;@JsonKey(name: 'override-test-url') bool get overrideTestUrl;@JsonKey(name: 'profile-path') String get profilePath;@JsonKey(name: 'age-secret-key') String get ageSecretKey;@JsonKey(name: 'scripted-config') String get scriptedConfig; Map<String, dynamic>? get patch;@JsonKey(name: 'reset-tailscale-dirs') List<String> get resetTailscaleDirs;
 /// Create a copy of SetupParams
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -30,20 +30,20 @@ $SetupParamsCopyWith<SetupParams> get copyWith => _$SetupParamsCopyWithImpl<Setu
 @override
 bool operator ==(Object other) {
   final _this = this as SetupParams;
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is SetupParams&&const DeepCollectionEquality().equals(other.selectedMap, _this.selectedMap)&&(identical(other.testUrl, _this.testUrl) || other.testUrl == _this.testUrl)&&(identical(other.overrideTestUrl, _this.overrideTestUrl) || other.overrideTestUrl == _this.overrideTestUrl)&&(identical(other.profilePath, _this.profilePath) || other.profilePath == _this.profilePath)&&(identical(other.ageSecretKey, _this.ageSecretKey) || other.ageSecretKey == _this.ageSecretKey)&&(identical(other.scriptedConfig, _this.scriptedConfig) || other.scriptedConfig == _this.scriptedConfig)&&const DeepCollectionEquality().equals(other.patch, _this.patch));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is SetupParams&&const DeepCollectionEquality().equals(other.selectedMap, _this.selectedMap)&&(identical(other.testUrl, _this.testUrl) || other.testUrl == _this.testUrl)&&(identical(other.overrideTestUrl, _this.overrideTestUrl) || other.overrideTestUrl == _this.overrideTestUrl)&&(identical(other.profilePath, _this.profilePath) || other.profilePath == _this.profilePath)&&(identical(other.ageSecretKey, _this.ageSecretKey) || other.ageSecretKey == _this.ageSecretKey)&&(identical(other.scriptedConfig, _this.scriptedConfig) || other.scriptedConfig == _this.scriptedConfig)&&const DeepCollectionEquality().equals(other.patch, _this.patch)&&const DeepCollectionEquality().equals(other.resetTailscaleDirs, _this.resetTailscaleDirs));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
 int get hashCode {
   final _this = this as SetupParams;
-  return Object.hash(runtimeType,const DeepCollectionEquality().hash(_this.selectedMap),_this.testUrl,_this.overrideTestUrl,_this.profilePath,_this.ageSecretKey,_this.scriptedConfig,const DeepCollectionEquality().hash(_this.patch));
+  return Object.hash(runtimeType,const DeepCollectionEquality().hash(_this.selectedMap),_this.testUrl,_this.overrideTestUrl,_this.profilePath,_this.ageSecretKey,_this.scriptedConfig,const DeepCollectionEquality().hash(_this.patch),const DeepCollectionEquality().hash(_this.resetTailscaleDirs));
 }
 
 @override
 String toString() {
   final _this = this as SetupParams;
-  return 'SetupParams(selectedMap: ${_this.selectedMap}, testUrl: ${_this.testUrl}, overrideTestUrl: ${_this.overrideTestUrl}, profilePath: ${_this.profilePath}, ageSecretKey: ${_this.ageSecretKey}, scriptedConfig: ${_this.scriptedConfig}, patch: ${_this.patch})';
+  return 'SetupParams(selectedMap: ${_this.selectedMap}, testUrl: ${_this.testUrl}, overrideTestUrl: ${_this.overrideTestUrl}, profilePath: ${_this.profilePath}, ageSecretKey: ${_this.ageSecretKey}, scriptedConfig: ${_this.scriptedConfig}, patch: ${_this.patch}, resetTailscaleDirs: ${_this.resetTailscaleDirs})';
 }
 
 
@@ -54,7 +54,7 @@ abstract mixin class $SetupParamsCopyWith<$Res>  {
   factory $SetupParamsCopyWith(SetupParams value, $Res Function(SetupParams) _then) = _$SetupParamsCopyWithImpl;
 @useResult
 $Res call({
-@JsonKey(name: 'selected-map') Map<String, String> selectedMap,@JsonKey(name: 'test-url') String testUrl,@JsonKey(name: 'override-test-url') bool overrideTestUrl,@JsonKey(name: 'profile-path') String profilePath,@JsonKey(name: 'age-secret-key') String ageSecretKey,@JsonKey(name: 'scripted-config') String scriptedConfig, Map<String, dynamic>? patch
+@JsonKey(name: 'selected-map') Map<String, String> selectedMap,@JsonKey(name: 'test-url') String testUrl,@JsonKey(name: 'override-test-url') bool overrideTestUrl,@JsonKey(name: 'profile-path') String profilePath,@JsonKey(name: 'age-secret-key') String ageSecretKey,@JsonKey(name: 'scripted-config') String scriptedConfig, Map<String, dynamic>? patch,@JsonKey(name: 'reset-tailscale-dirs') List<String> resetTailscaleDirs
 });
 
 
@@ -71,7 +71,7 @@ class _$SetupParamsCopyWithImpl<$Res>
 
 /// Create a copy of SetupParams
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? selectedMap = null,Object? testUrl = null,Object? overrideTestUrl = null,Object? profilePath = null,Object? ageSecretKey = null,Object? scriptedConfig = null,Object? patch = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? selectedMap = null,Object? testUrl = null,Object? overrideTestUrl = null,Object? profilePath = null,Object? ageSecretKey = null,Object? scriptedConfig = null,Object? patch = freezed,Object? resetTailscaleDirs = null,}) {
   return _then(SetupParams(
 selectedMap: null == selectedMap ? _self.selectedMap : selectedMap // ignore: cast_nullable_to_non_nullable
 as Map<String, String>,testUrl: null == testUrl ? _self.testUrl : testUrl // ignore: cast_nullable_to_non_nullable
@@ -80,7 +80,8 @@ as bool,profilePath: null == profilePath ? _self.profilePath : profilePath // ig
 as String,ageSecretKey: null == ageSecretKey ? _self.ageSecretKey : ageSecretKey // ignore: cast_nullable_to_non_nullable
 as String,scriptedConfig: null == scriptedConfig ? _self.scriptedConfig : scriptedConfig // ignore: cast_nullable_to_non_nullable
 as String,patch: freezed == patch ? _self.patch : patch // ignore: cast_nullable_to_non_nullable
-as Map<String, dynamic>?,
+as Map<String, dynamic>?,resetTailscaleDirs: null == resetTailscaleDirs ? _self.resetTailscaleDirs : resetTailscaleDirs // ignore: cast_nullable_to_non_nullable
+as List<String>,
   ));
 }
 
@@ -165,10 +166,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function(@JsonKey(name: 'selected-map')  Map<String, String> selectedMap, @JsonKey(name: 'test-url')  String testUrl, @JsonKey(name: 'override-test-url')  bool overrideTestUrl, @JsonKey(name: 'profile-path')  String profilePath, @JsonKey(name: 'age-secret-key')  String ageSecretKey, @JsonKey(name: 'scripted-config')  String scriptedConfig,  Map<String, dynamic>? patch)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function(@JsonKey(name: 'selected-map')  Map<String, String> selectedMap, @JsonKey(name: 'test-url')  String testUrl, @JsonKey(name: 'override-test-url')  bool overrideTestUrl, @JsonKey(name: 'profile-path')  String profilePath, @JsonKey(name: 'age-secret-key')  String ageSecretKey, @JsonKey(name: 'scripted-config')  String scriptedConfig,  Map<String, dynamic>? patch, @JsonKey(name: 'reset-tailscale-dirs')  List<String> resetTailscaleDirs)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _SetupParams() when $default != null:
-return $default(_that.selectedMap,_that.testUrl,_that.overrideTestUrl,_that.profilePath,_that.ageSecretKey,_that.scriptedConfig,_that.patch);case _:
+return $default(_that.selectedMap,_that.testUrl,_that.overrideTestUrl,_that.profilePath,_that.ageSecretKey,_that.scriptedConfig,_that.patch,_that.resetTailscaleDirs);case _:
   return orElse();
 
 }
@@ -186,10 +187,10 @@ return $default(_that.selectedMap,_that.testUrl,_that.overrideTestUrl,_that.prof
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function(@JsonKey(name: 'selected-map')  Map<String, String> selectedMap, @JsonKey(name: 'test-url')  String testUrl, @JsonKey(name: 'override-test-url')  bool overrideTestUrl, @JsonKey(name: 'profile-path')  String profilePath, @JsonKey(name: 'age-secret-key')  String ageSecretKey, @JsonKey(name: 'scripted-config')  String scriptedConfig,  Map<String, dynamic>? patch)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function(@JsonKey(name: 'selected-map')  Map<String, String> selectedMap, @JsonKey(name: 'test-url')  String testUrl, @JsonKey(name: 'override-test-url')  bool overrideTestUrl, @JsonKey(name: 'profile-path')  String profilePath, @JsonKey(name: 'age-secret-key')  String ageSecretKey, @JsonKey(name: 'scripted-config')  String scriptedConfig,  Map<String, dynamic>? patch, @JsonKey(name: 'reset-tailscale-dirs')  List<String> resetTailscaleDirs)  $default,) {final _that = this;
 switch (_that) {
 case _SetupParams():
-return $default(_that.selectedMap,_that.testUrl,_that.overrideTestUrl,_that.profilePath,_that.ageSecretKey,_that.scriptedConfig,_that.patch);case _:
+return $default(_that.selectedMap,_that.testUrl,_that.overrideTestUrl,_that.profilePath,_that.ageSecretKey,_that.scriptedConfig,_that.patch,_that.resetTailscaleDirs);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -206,10 +207,10 @@ return $default(_that.selectedMap,_that.testUrl,_that.overrideTestUrl,_that.prof
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function(@JsonKey(name: 'selected-map')  Map<String, String> selectedMap, @JsonKey(name: 'test-url')  String testUrl, @JsonKey(name: 'override-test-url')  bool overrideTestUrl, @JsonKey(name: 'profile-path')  String profilePath, @JsonKey(name: 'age-secret-key')  String ageSecretKey, @JsonKey(name: 'scripted-config')  String scriptedConfig,  Map<String, dynamic>? patch)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function(@JsonKey(name: 'selected-map')  Map<String, String> selectedMap, @JsonKey(name: 'test-url')  String testUrl, @JsonKey(name: 'override-test-url')  bool overrideTestUrl, @JsonKey(name: 'profile-path')  String profilePath, @JsonKey(name: 'age-secret-key')  String ageSecretKey, @JsonKey(name: 'scripted-config')  String scriptedConfig,  Map<String, dynamic>? patch, @JsonKey(name: 'reset-tailscale-dirs')  List<String> resetTailscaleDirs)?  $default,) {final _that = this;
 switch (_that) {
 case _SetupParams() when $default != null:
-return $default(_that.selectedMap,_that.testUrl,_that.overrideTestUrl,_that.profilePath,_that.ageSecretKey,_that.scriptedConfig,_that.patch);case _:
+return $default(_that.selectedMap,_that.testUrl,_that.overrideTestUrl,_that.profilePath,_that.ageSecretKey,_that.scriptedConfig,_that.patch,_that.resetTailscaleDirs);case _:
   return null;
 
 }
@@ -221,7 +222,7 @@ return $default(_that.selectedMap,_that.testUrl,_that.overrideTestUrl,_that.prof
 @JsonSerializable()
 
 class _SetupParams implements SetupParams {
-  const _SetupParams({@JsonKey(name: 'selected-map') required  Map<String, String> selectedMap, @JsonKey(name: 'test-url') required this.testUrl, @JsonKey(name: 'override-test-url') this.overrideTestUrl = true, @JsonKey(name: 'profile-path') this.profilePath = '', @JsonKey(name: 'age-secret-key') this.ageSecretKey = '', @JsonKey(name: 'scripted-config') this.scriptedConfig = '',  Map<String, dynamic>? patch}): _selectedMap = selectedMap,_patch = patch;
+  const _SetupParams({@JsonKey(name: 'selected-map') required  Map<String, String> selectedMap, @JsonKey(name: 'test-url') required this.testUrl, @JsonKey(name: 'override-test-url') this.overrideTestUrl = true, @JsonKey(name: 'profile-path') this.profilePath = '', @JsonKey(name: 'age-secret-key') this.ageSecretKey = '', @JsonKey(name: 'scripted-config') this.scriptedConfig = '',  Map<String, dynamic>? patch, @JsonKey(name: 'reset-tailscale-dirs')  List<String> resetTailscaleDirs = const []}): _selectedMap = selectedMap,_patch = patch,_resetTailscaleDirs = resetTailscaleDirs;
   factory _SetupParams.fromJson(Map<String, dynamic> json) => _$SetupParamsFromJson(json);
 
  final  Map<String, String> _selectedMap;
@@ -245,6 +246,13 @@ class _SetupParams implements SetupParams {
   return EqualUnmodifiableMapView(value);
 }
 
+ final  List<String> _resetTailscaleDirs;
+@override@JsonKey(name: 'reset-tailscale-dirs') List<String> get resetTailscaleDirs {
+  if (_resetTailscaleDirs is EqualUnmodifiableListView) return _resetTailscaleDirs;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_resetTailscaleDirs);
+}
+
 
 /// Create a copy of SetupParams
 /// with the given fields replaced by the non-null parameter values.
@@ -259,18 +267,18 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _SetupParams&&const DeepCollectionEquality().equals(other.selectedMap, _selectedMap)&&(identical(other.testUrl, testUrl) || other.testUrl == testUrl)&&(identical(other.overrideTestUrl, overrideTestUrl) || other.overrideTestUrl == overrideTestUrl)&&(identical(other.profilePath, profilePath) || other.profilePath == profilePath)&&(identical(other.ageSecretKey, ageSecretKey) || other.ageSecretKey == ageSecretKey)&&(identical(other.scriptedConfig, scriptedConfig) || other.scriptedConfig == scriptedConfig)&&const DeepCollectionEquality().equals(other.patch, _patch));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _SetupParams&&const DeepCollectionEquality().equals(other.selectedMap, _selectedMap)&&(identical(other.testUrl, testUrl) || other.testUrl == testUrl)&&(identical(other.overrideTestUrl, overrideTestUrl) || other.overrideTestUrl == overrideTestUrl)&&(identical(other.profilePath, profilePath) || other.profilePath == profilePath)&&(identical(other.ageSecretKey, ageSecretKey) || other.ageSecretKey == ageSecretKey)&&(identical(other.scriptedConfig, scriptedConfig) || other.scriptedConfig == scriptedConfig)&&const DeepCollectionEquality().equals(other.patch, _patch)&&const DeepCollectionEquality().equals(other.resetTailscaleDirs, _resetTailscaleDirs));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
 int get hashCode {
-    return Object.hash(runtimeType,const DeepCollectionEquality().hash(_selectedMap),testUrl,overrideTestUrl,profilePath,ageSecretKey,scriptedConfig,const DeepCollectionEquality().hash(_patch));
+    return Object.hash(runtimeType,const DeepCollectionEquality().hash(_selectedMap),testUrl,overrideTestUrl,profilePath,ageSecretKey,scriptedConfig,const DeepCollectionEquality().hash(_patch),const DeepCollectionEquality().hash(_resetTailscaleDirs));
 }
 
 @override
 String toString() {
-    return 'SetupParams(selectedMap: $selectedMap, testUrl: $testUrl, overrideTestUrl: $overrideTestUrl, profilePath: $profilePath, ageSecretKey: $ageSecretKey, scriptedConfig: $scriptedConfig, patch: $patch)';
+    return 'SetupParams(selectedMap: $selectedMap, testUrl: $testUrl, overrideTestUrl: $overrideTestUrl, profilePath: $profilePath, ageSecretKey: $ageSecretKey, scriptedConfig: $scriptedConfig, patch: $patch, resetTailscaleDirs: $resetTailscaleDirs)';
 }
 
 
@@ -281,7 +289,7 @@ abstract mixin class _$SetupParamsCopyWith<$Res> implements $SetupParamsCopyWith
   factory _$SetupParamsCopyWith(_SetupParams value, $Res Function(_SetupParams) _then) = __$SetupParamsCopyWithImpl;
 @override @useResult
 $Res call({
-@JsonKey(name: 'selected-map') Map<String, String> selectedMap,@JsonKey(name: 'test-url') String testUrl,@JsonKey(name: 'override-test-url') bool overrideTestUrl,@JsonKey(name: 'profile-path') String profilePath,@JsonKey(name: 'age-secret-key') String ageSecretKey,@JsonKey(name: 'scripted-config') String scriptedConfig, Map<String, dynamic>? patch
+@JsonKey(name: 'selected-map') Map<String, String> selectedMap,@JsonKey(name: 'test-url') String testUrl,@JsonKey(name: 'override-test-url') bool overrideTestUrl,@JsonKey(name: 'profile-path') String profilePath,@JsonKey(name: 'age-secret-key') String ageSecretKey,@JsonKey(name: 'scripted-config') String scriptedConfig, Map<String, dynamic>? patch,@JsonKey(name: 'reset-tailscale-dirs') List<String> resetTailscaleDirs
 });
 
 
@@ -298,7 +306,7 @@ class __$SetupParamsCopyWithImpl<$Res>
 
 /// Create a copy of SetupParams
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? selectedMap = null,Object? testUrl = null,Object? overrideTestUrl = null,Object? profilePath = null,Object? ageSecretKey = null,Object? scriptedConfig = null,Object? patch = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? selectedMap = null,Object? testUrl = null,Object? overrideTestUrl = null,Object? profilePath = null,Object? ageSecretKey = null,Object? scriptedConfig = null,Object? patch = freezed,Object? resetTailscaleDirs = null,}) {
   return _then(_SetupParams(
 selectedMap: null == selectedMap ? _self._selectedMap : selectedMap // ignore: cast_nullable_to_non_nullable
 as Map<String, String>,testUrl: null == testUrl ? _self.testUrl : testUrl // ignore: cast_nullable_to_non_nullable
@@ -307,7 +315,8 @@ as bool,profilePath: null == profilePath ? _self.profilePath : profilePath // ig
 as String,ageSecretKey: null == ageSecretKey ? _self.ageSecretKey : ageSecretKey // ignore: cast_nullable_to_non_nullable
 as String,scriptedConfig: null == scriptedConfig ? _self.scriptedConfig : scriptedConfig // ignore: cast_nullable_to_non_nullable
 as String,patch: freezed == patch ? _self._patch : patch // ignore: cast_nullable_to_non_nullable
-as Map<String, dynamic>?,
+as Map<String, dynamic>?,resetTailscaleDirs: null == resetTailscaleDirs ? _self._resetTailscaleDirs : resetTailscaleDirs // ignore: cast_nullable_to_non_nullable
+as List<String>,
   ));
 }
 
@@ -4619,6 +4628,642 @@ as ResultType,
 }
 
 
+}
+
+
+/// @nodoc
+mixin _$TailscalePeer {
+
+ String get name; String get dnsName; String get os; List<String> get ips; List<String> get routes; bool get online; bool get exitNode; bool get exitNodeOption; bool get direct; String get relay; int get rxBytes; int get txBytes;
+/// Create a copy of TailscalePeer
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$TailscalePeerCopyWith<TailscalePeer> get copyWith => _$TailscalePeerCopyWithImpl<TailscalePeer>(this as TailscalePeer, _$identity);
+
+  /// Serializes this TailscalePeer to a JSON map.
+  Map<String, dynamic> toJson();
+
+
+@override
+bool operator ==(Object other) {
+  final _this = this as TailscalePeer;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is TailscalePeer&&(identical(other.name, _this.name) || other.name == _this.name)&&(identical(other.dnsName, _this.dnsName) || other.dnsName == _this.dnsName)&&(identical(other.os, _this.os) || other.os == _this.os)&&const DeepCollectionEquality().equals(other.ips, _this.ips)&&const DeepCollectionEquality().equals(other.routes, _this.routes)&&(identical(other.online, _this.online) || other.online == _this.online)&&(identical(other.exitNode, _this.exitNode) || other.exitNode == _this.exitNode)&&(identical(other.exitNodeOption, _this.exitNodeOption) || other.exitNodeOption == _this.exitNodeOption)&&(identical(other.direct, _this.direct) || other.direct == _this.direct)&&(identical(other.relay, _this.relay) || other.relay == _this.relay)&&(identical(other.rxBytes, _this.rxBytes) || other.rxBytes == _this.rxBytes)&&(identical(other.txBytes, _this.txBytes) || other.txBytes == _this.txBytes));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode {
+  final _this = this as TailscalePeer;
+  return Object.hash(runtimeType,_this.name,_this.dnsName,_this.os,const DeepCollectionEquality().hash(_this.ips),const DeepCollectionEquality().hash(_this.routes),_this.online,_this.exitNode,_this.exitNodeOption,_this.direct,_this.relay,_this.rxBytes,_this.txBytes);
+}
+
+@override
+String toString() {
+  final _this = this as TailscalePeer;
+  return 'TailscalePeer(name: ${_this.name}, dnsName: ${_this.dnsName}, os: ${_this.os}, ips: ${_this.ips}, routes: ${_this.routes}, online: ${_this.online}, exitNode: ${_this.exitNode}, exitNodeOption: ${_this.exitNodeOption}, direct: ${_this.direct}, relay: ${_this.relay}, rxBytes: ${_this.rxBytes}, txBytes: ${_this.txBytes})';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $TailscalePeerCopyWith<$Res>  {
+  factory $TailscalePeerCopyWith(TailscalePeer value, $Res Function(TailscalePeer) _then) = _$TailscalePeerCopyWithImpl;
+@useResult
+$Res call({
+ String name, String dnsName, String os, List<String> ips, List<String> routes, bool online, bool exitNode, bool exitNodeOption, bool direct, String relay, int rxBytes, int txBytes
+});
+
+
+
+
+}
+/// @nodoc
+class _$TailscalePeerCopyWithImpl<$Res>
+    implements $TailscalePeerCopyWith<$Res> {
+  _$TailscalePeerCopyWithImpl(this._self, this._then);
+
+  final TailscalePeer _self;
+  final $Res Function(TailscalePeer) _then;
+
+/// Create a copy of TailscalePeer
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? name = null,Object? dnsName = null,Object? os = null,Object? ips = null,Object? routes = null,Object? online = null,Object? exitNode = null,Object? exitNodeOption = null,Object? direct = null,Object? relay = null,Object? rxBytes = null,Object? txBytes = null,}) {
+  return _then(TailscalePeer(
+name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
+as String,dnsName: null == dnsName ? _self.dnsName : dnsName // ignore: cast_nullable_to_non_nullable
+as String,os: null == os ? _self.os : os // ignore: cast_nullable_to_non_nullable
+as String,ips: null == ips ? _self.ips : ips // ignore: cast_nullable_to_non_nullable
+as List<String>,routes: null == routes ? _self.routes : routes // ignore: cast_nullable_to_non_nullable
+as List<String>,online: null == online ? _self.online : online // ignore: cast_nullable_to_non_nullable
+as bool,exitNode: null == exitNode ? _self.exitNode : exitNode // ignore: cast_nullable_to_non_nullable
+as bool,exitNodeOption: null == exitNodeOption ? _self.exitNodeOption : exitNodeOption // ignore: cast_nullable_to_non_nullable
+as bool,direct: null == direct ? _self.direct : direct // ignore: cast_nullable_to_non_nullable
+as bool,relay: null == relay ? _self.relay : relay // ignore: cast_nullable_to_non_nullable
+as String,rxBytes: null == rxBytes ? _self.rxBytes : rxBytes // ignore: cast_nullable_to_non_nullable
+as int,txBytes: null == txBytes ? _self.txBytes : txBytes // ignore: cast_nullable_to_non_nullable
+as int,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [TailscalePeer].
+extension TailscalePeerPatterns on TailscalePeer {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _TailscalePeer value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _TailscalePeer() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _TailscalePeer value)  $default,){
+final _that = this;
+switch (_that) {
+case _TailscalePeer():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _TailscalePeer value)?  $default,){
+final _that = this;
+switch (_that) {
+case _TailscalePeer() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String name,  String dnsName,  String os,  List<String> ips,  List<String> routes,  bool online,  bool exitNode,  bool exitNodeOption,  bool direct,  String relay,  int rxBytes,  int txBytes)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _TailscalePeer() when $default != null:
+return $default(_that.name,_that.dnsName,_that.os,_that.ips,_that.routes,_that.online,_that.exitNode,_that.exitNodeOption,_that.direct,_that.relay,_that.rxBytes,_that.txBytes);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String name,  String dnsName,  String os,  List<String> ips,  List<String> routes,  bool online,  bool exitNode,  bool exitNodeOption,  bool direct,  String relay,  int rxBytes,  int txBytes)  $default,) {final _that = this;
+switch (_that) {
+case _TailscalePeer():
+return $default(_that.name,_that.dnsName,_that.os,_that.ips,_that.routes,_that.online,_that.exitNode,_that.exitNodeOption,_that.direct,_that.relay,_that.rxBytes,_that.txBytes);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String name,  String dnsName,  String os,  List<String> ips,  List<String> routes,  bool online,  bool exitNode,  bool exitNodeOption,  bool direct,  String relay,  int rxBytes,  int txBytes)?  $default,) {final _that = this;
+switch (_that) {
+case _TailscalePeer() when $default != null:
+return $default(_that.name,_that.dnsName,_that.os,_that.ips,_that.routes,_that.online,_that.exitNode,_that.exitNodeOption,_that.direct,_that.relay,_that.rxBytes,_that.txBytes);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+@JsonSerializable()
+
+class _TailscalePeer implements TailscalePeer {
+  const _TailscalePeer({this.name = '', this.dnsName = '', this.os = '',  List<String> ips = const [],  List<String> routes = const [], this.online = false, this.exitNode = false, this.exitNodeOption = false, this.direct = false, this.relay = '', this.rxBytes = 0, this.txBytes = 0}): _ips = ips,_routes = routes;
+  factory _TailscalePeer.fromJson(Map<String, dynamic> json) => _$TailscalePeerFromJson(json);
+
+@override@JsonKey() final  String name;
+@override@JsonKey() final  String dnsName;
+@override@JsonKey() final  String os;
+ final  List<String> _ips;
+@override@JsonKey() List<String> get ips {
+  if (_ips is EqualUnmodifiableListView) return _ips;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_ips);
+}
+
+ final  List<String> _routes;
+@override@JsonKey() List<String> get routes {
+  if (_routes is EqualUnmodifiableListView) return _routes;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_routes);
+}
+
+@override@JsonKey() final  bool online;
+@override@JsonKey() final  bool exitNode;
+@override@JsonKey() final  bool exitNodeOption;
+@override@JsonKey() final  bool direct;
+@override@JsonKey() final  String relay;
+@override@JsonKey() final  int rxBytes;
+@override@JsonKey() final  int txBytes;
+
+/// Create a copy of TailscalePeer
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$TailscalePeerCopyWith<_TailscalePeer> get copyWith => __$TailscalePeerCopyWithImpl<_TailscalePeer>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$TailscalePeerToJson(this, );
+}
+
+@override
+bool operator ==(Object other) {
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _TailscalePeer&&(identical(other.name, name) || other.name == name)&&(identical(other.dnsName, dnsName) || other.dnsName == dnsName)&&(identical(other.os, os) || other.os == os)&&const DeepCollectionEquality().equals(other.ips, _ips)&&const DeepCollectionEquality().equals(other.routes, _routes)&&(identical(other.online, online) || other.online == online)&&(identical(other.exitNode, exitNode) || other.exitNode == exitNode)&&(identical(other.exitNodeOption, exitNodeOption) || other.exitNodeOption == exitNodeOption)&&(identical(other.direct, direct) || other.direct == direct)&&(identical(other.relay, relay) || other.relay == relay)&&(identical(other.rxBytes, rxBytes) || other.rxBytes == rxBytes)&&(identical(other.txBytes, txBytes) || other.txBytes == txBytes));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode {
+    return Object.hash(runtimeType,name,dnsName,os,const DeepCollectionEquality().hash(_ips),const DeepCollectionEquality().hash(_routes),online,exitNode,exitNodeOption,direct,relay,rxBytes,txBytes);
+}
+
+@override
+String toString() {
+    return 'TailscalePeer(name: $name, dnsName: $dnsName, os: $os, ips: $ips, routes: $routes, online: $online, exitNode: $exitNode, exitNodeOption: $exitNodeOption, direct: $direct, relay: $relay, rxBytes: $rxBytes, txBytes: $txBytes)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$TailscalePeerCopyWith<$Res> implements $TailscalePeerCopyWith<$Res> {
+  factory _$TailscalePeerCopyWith(_TailscalePeer value, $Res Function(_TailscalePeer) _then) = __$TailscalePeerCopyWithImpl;
+@override @useResult
+$Res call({
+ String name, String dnsName, String os, List<String> ips, List<String> routes, bool online, bool exitNode, bool exitNodeOption, bool direct, String relay, int rxBytes, int txBytes
+});
+
+
+
+
+}
+/// @nodoc
+class __$TailscalePeerCopyWithImpl<$Res>
+    implements _$TailscalePeerCopyWith<$Res> {
+  __$TailscalePeerCopyWithImpl(this._self, this._then);
+
+  final _TailscalePeer _self;
+  final $Res Function(_TailscalePeer) _then;
+
+/// Create a copy of TailscalePeer
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? name = null,Object? dnsName = null,Object? os = null,Object? ips = null,Object? routes = null,Object? online = null,Object? exitNode = null,Object? exitNodeOption = null,Object? direct = null,Object? relay = null,Object? rxBytes = null,Object? txBytes = null,}) {
+  return _then(_TailscalePeer(
+name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
+as String,dnsName: null == dnsName ? _self.dnsName : dnsName // ignore: cast_nullable_to_non_nullable
+as String,os: null == os ? _self.os : os // ignore: cast_nullable_to_non_nullable
+as String,ips: null == ips ? _self._ips : ips // ignore: cast_nullable_to_non_nullable
+as List<String>,routes: null == routes ? _self._routes : routes // ignore: cast_nullable_to_non_nullable
+as List<String>,online: null == online ? _self.online : online // ignore: cast_nullable_to_non_nullable
+as bool,exitNode: null == exitNode ? _self.exitNode : exitNode // ignore: cast_nullable_to_non_nullable
+as bool,exitNodeOption: null == exitNodeOption ? _self.exitNodeOption : exitNodeOption // ignore: cast_nullable_to_non_nullable
+as bool,direct: null == direct ? _self.direct : direct // ignore: cast_nullable_to_non_nullable
+as bool,relay: null == relay ? _self.relay : relay // ignore: cast_nullable_to_non_nullable
+as String,rxBytes: null == rxBytes ? _self.rxBytes : rxBytes // ignore: cast_nullable_to_non_nullable
+as int,txBytes: null == txBytes ? _self.txBytes : txBytes // ignore: cast_nullable_to_non_nullable
+as int,
+  ));
+}
+
+
+}
+
+
+/// @nodoc
+mixin _$TailscaleStatus {
+
+ String get state; String get dir; String get tailnet; TailscalePeer? get self; List<TailscalePeer> get peers; List<String> get health;
+/// Create a copy of TailscaleStatus
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$TailscaleStatusCopyWith<TailscaleStatus> get copyWith => _$TailscaleStatusCopyWithImpl<TailscaleStatus>(this as TailscaleStatus, _$identity);
+
+  /// Serializes this TailscaleStatus to a JSON map.
+  Map<String, dynamic> toJson();
+
+
+@override
+bool operator ==(Object other) {
+  final _this = this as TailscaleStatus;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is TailscaleStatus&&(identical(other.state, _this.state) || other.state == _this.state)&&(identical(other.dir, _this.dir) || other.dir == _this.dir)&&(identical(other.tailnet, _this.tailnet) || other.tailnet == _this.tailnet)&&(identical(other.self, _this.self) || other.self == _this.self)&&const DeepCollectionEquality().equals(other.peers, _this.peers)&&const DeepCollectionEquality().equals(other.health, _this.health));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode {
+  final _this = this as TailscaleStatus;
+  return Object.hash(runtimeType,_this.state,_this.dir,_this.tailnet,_this.self,const DeepCollectionEquality().hash(_this.peers),const DeepCollectionEquality().hash(_this.health));
+}
+
+@override
+String toString() {
+  final _this = this as TailscaleStatus;
+  return 'TailscaleStatus(state: ${_this.state}, dir: ${_this.dir}, tailnet: ${_this.tailnet}, self: ${_this.self}, peers: ${_this.peers}, health: ${_this.health})';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $TailscaleStatusCopyWith<$Res>  {
+  factory $TailscaleStatusCopyWith(TailscaleStatus value, $Res Function(TailscaleStatus) _then) = _$TailscaleStatusCopyWithImpl;
+@useResult
+$Res call({
+ String state, String dir, String tailnet, TailscalePeer? self, List<TailscalePeer> peers, List<String> health
+});
+
+
+$TailscalePeerCopyWith<$Res>? get self;
+
+}
+/// @nodoc
+class _$TailscaleStatusCopyWithImpl<$Res>
+    implements $TailscaleStatusCopyWith<$Res> {
+  _$TailscaleStatusCopyWithImpl(this._self, this._then);
+
+  final TailscaleStatus _self;
+  final $Res Function(TailscaleStatus) _then;
+
+/// Create a copy of TailscaleStatus
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? state = null,Object? dir = null,Object? tailnet = null,Object? self = freezed,Object? peers = null,Object? health = null,}) {
+  return _then(TailscaleStatus(
+state: null == state ? _self.state : state // ignore: cast_nullable_to_non_nullable
+as String,dir: null == dir ? _self.dir : dir // ignore: cast_nullable_to_non_nullable
+as String,tailnet: null == tailnet ? _self.tailnet : tailnet // ignore: cast_nullable_to_non_nullable
+as String,self: freezed == self ? _self.self : self // ignore: cast_nullable_to_non_nullable
+as TailscalePeer?,peers: null == peers ? _self.peers : peers // ignore: cast_nullable_to_non_nullable
+as List<TailscalePeer>,health: null == health ? _self.health : health // ignore: cast_nullable_to_non_nullable
+as List<String>,
+  ));
+}
+/// Create a copy of TailscaleStatus
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$TailscalePeerCopyWith<$Res>? get self {
+    if (_self.self == null) {
+    return null;
+  }
+
+  return $TailscalePeerCopyWith<$Res>(_self.self!, (value) {
+    return _then(_self.copyWith(self: value));
+  });
+}
+}
+
+
+/// Adds pattern-matching-related methods to [TailscaleStatus].
+extension TailscaleStatusPatterns on TailscaleStatus {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _TailscaleStatus value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _TailscaleStatus() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _TailscaleStatus value)  $default,){
+final _that = this;
+switch (_that) {
+case _TailscaleStatus():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _TailscaleStatus value)?  $default,){
+final _that = this;
+switch (_that) {
+case _TailscaleStatus() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String state,  String dir,  String tailnet,  TailscalePeer? self,  List<TailscalePeer> peers,  List<String> health)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _TailscaleStatus() when $default != null:
+return $default(_that.state,_that.dir,_that.tailnet,_that.self,_that.peers,_that.health);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String state,  String dir,  String tailnet,  TailscalePeer? self,  List<TailscalePeer> peers,  List<String> health)  $default,) {final _that = this;
+switch (_that) {
+case _TailscaleStatus():
+return $default(_that.state,_that.dir,_that.tailnet,_that.self,_that.peers,_that.health);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String state,  String dir,  String tailnet,  TailscalePeer? self,  List<TailscalePeer> peers,  List<String> health)?  $default,) {final _that = this;
+switch (_that) {
+case _TailscaleStatus() when $default != null:
+return $default(_that.state,_that.dir,_that.tailnet,_that.self,_that.peers,_that.health);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+@JsonSerializable()
+
+class _TailscaleStatus implements TailscaleStatus {
+  const _TailscaleStatus({this.state = '', this.dir = '', this.tailnet = '', this.self,  List<TailscalePeer> peers = const [],  List<String> health = const []}): _peers = peers,_health = health;
+  factory _TailscaleStatus.fromJson(Map<String, dynamic> json) => _$TailscaleStatusFromJson(json);
+
+@override@JsonKey() final  String state;
+@override@JsonKey() final  String dir;
+@override@JsonKey() final  String tailnet;
+@override final  TailscalePeer? self;
+ final  List<TailscalePeer> _peers;
+@override@JsonKey() List<TailscalePeer> get peers {
+  if (_peers is EqualUnmodifiableListView) return _peers;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_peers);
+}
+
+ final  List<String> _health;
+@override@JsonKey() List<String> get health {
+  if (_health is EqualUnmodifiableListView) return _health;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_health);
+}
+
+
+/// Create a copy of TailscaleStatus
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$TailscaleStatusCopyWith<_TailscaleStatus> get copyWith => __$TailscaleStatusCopyWithImpl<_TailscaleStatus>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$TailscaleStatusToJson(this, );
+}
+
+@override
+bool operator ==(Object other) {
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _TailscaleStatus&&(identical(other.state, state) || other.state == state)&&(identical(other.dir, dir) || other.dir == dir)&&(identical(other.tailnet, tailnet) || other.tailnet == tailnet)&&(identical(other.self, self) || other.self == self)&&const DeepCollectionEquality().equals(other.peers, _peers)&&const DeepCollectionEquality().equals(other.health, _health));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode {
+    return Object.hash(runtimeType,state,dir,tailnet,self,const DeepCollectionEquality().hash(_peers),const DeepCollectionEquality().hash(_health));
+}
+
+@override
+String toString() {
+    return 'TailscaleStatus(state: $state, dir: $dir, tailnet: $tailnet, self: $self, peers: $peers, health: $health)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$TailscaleStatusCopyWith<$Res> implements $TailscaleStatusCopyWith<$Res> {
+  factory _$TailscaleStatusCopyWith(_TailscaleStatus value, $Res Function(_TailscaleStatus) _then) = __$TailscaleStatusCopyWithImpl;
+@override @useResult
+$Res call({
+ String state, String dir, String tailnet, TailscalePeer? self, List<TailscalePeer> peers, List<String> health
+});
+
+
+@override $TailscalePeerCopyWith<$Res>? get self;
+
+}
+/// @nodoc
+class __$TailscaleStatusCopyWithImpl<$Res>
+    implements _$TailscaleStatusCopyWith<$Res> {
+  __$TailscaleStatusCopyWithImpl(this._self, this._then);
+
+  final _TailscaleStatus _self;
+  final $Res Function(_TailscaleStatus) _then;
+
+/// Create a copy of TailscaleStatus
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? state = null,Object? dir = null,Object? tailnet = null,Object? self = freezed,Object? peers = null,Object? health = null,}) {
+  return _then(_TailscaleStatus(
+state: null == state ? _self.state : state // ignore: cast_nullable_to_non_nullable
+as String,dir: null == dir ? _self.dir : dir // ignore: cast_nullable_to_non_nullable
+as String,tailnet: null == tailnet ? _self.tailnet : tailnet // ignore: cast_nullable_to_non_nullable
+as String,self: freezed == self ? _self.self : self // ignore: cast_nullable_to_non_nullable
+as TailscalePeer?,peers: null == peers ? _self._peers : peers // ignore: cast_nullable_to_non_nullable
+as List<TailscalePeer>,health: null == health ? _self._health : health // ignore: cast_nullable_to_non_nullable
+as List<String>,
+  ));
+}
+
+/// Create a copy of TailscaleStatus
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$TailscalePeerCopyWith<$Res>? get self {
+    if (_self.self == null) {
+    return null;
+  }
+
+  return $TailscalePeerCopyWith<$Res>(_self.self!, (value) {
+    return _then(_self.copyWith(self: value));
+  });
+}
 }
 
 

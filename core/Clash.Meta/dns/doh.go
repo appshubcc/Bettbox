@@ -36,9 +36,9 @@ const (
 	// connections in HTTP transport.
 	transportDefaultIdleConnTimeout = 5 * time.Minute
 
-	dialTimeout = 10 * time.Second
+	dialTimeout        = 10 * time.Second
 
-	maxElapsedTime = time.Second * 30
+	maxElapsedTime  = time.Second * 30
 )
 
 var DefaultHTTPVersions = []C.HTTPVersion{C.HTTPVersion11, C.HTTPVersion2}

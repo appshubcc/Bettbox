@@ -34,6 +34,7 @@ type Hysteria2 struct {
 
 	option *Hysteria2Option
 	client *hysteria2.Client
+	idle   *idleCloser
 }
 
 type Hysteria2Option struct {
@@ -90,25 +91,30 @@ type Hysteria2RealmOption struct {
 }
 
 func (h *Hysteria2) DialContext(ctx context.Context, metadata *C.Metadata) (_ C.Conn, err error) {
+	h.idle.acquire()
 	c, err := h.client.DialConn(ctx, M.ParseSocksaddrHostPort(metadata.String(), metadata.DstPort))
 	if err != nil {
+		h.idle.release()
 		return nil, err
 	}
-	return NewConn(c, h), nil
+	return NewConn(h.idle.trackConn(c), h), nil
 }
 
 func (h *Hysteria2) ListenPacketContext(ctx context.Context, metadata *C.Metadata) (_ C.PacketConn, err error) {
 	if err = h.ResolveUDP(ctx, metadata); err != nil {
 		return nil, err
 	}
+	h.idle.acquire()
 	pc, err := h.client.ListenPacket(ctx)
 	if err != nil {
+		h.idle.release()
 		return nil, err
 	}
 	if pc == nil {
+		h.idle.release()
 		return nil, errors.New("packetConn is nil")
 	}
-	return NewPacketConn(N.NewThreadSafePacketConn(pc), h), nil
+	return NewPacketConn(h.idle.trackPacketConn(N.NewThreadSafePacketConn(pc)), h), nil
 }
 
 // Close implements C.ProxyAdapter
@@ -316,6 +322,9 @@ func NewHysteria2(option Hysteria2Option) (*Hysteria2, error) {
 		return nil, err
 	}
 	outbound.client = client
+	outbound.idle = newIdleCloser(quicIdleTimeout, func() {
+		_ = client.CloseWithError(errQuicIdle)
+	})
 
 	return outbound, nil
 }

@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:bett_box/common/common.dart';
 import 'package:bett_box/enum/enum.dart';
 import 'package:bett_box/models/models.dart';
@@ -65,6 +67,38 @@ class ExtendProps {
 
 enum SheetType { page, bottomSheet, sideSheet }
 
+bool isInBottomSheet(BuildContext context) =>
+    _SheetScope.maybeOf(context) != null;
+
+ShapeDecoration panelTileDecoration(BuildContext context) {
+  final colorScheme = context.colorScheme;
+  final borderRadius = BorderRadius.circular(20);
+  if (!isInBottomSheet(context)) {
+    return ShapeDecoration(
+      color: colorScheme.surfaceContainerLow,
+      shape: RoundedSuperellipseBorder(borderRadius: borderRadius),
+    );
+  }
+  final isLight = colorScheme.brightness == Brightness.light;
+  return ShapeDecoration(
+    color: isLight
+        ? Color.lerp(
+            colorScheme.surface,
+            colorScheme.surfaceContainerLowest,
+            0.5,
+          )
+        : colorScheme.surfaceContainerHigh,
+    shape: RoundedSuperellipseBorder(
+      borderRadius: borderRadius,
+      side: BorderSide(
+        color: colorScheme.outlineVariant.withValues(
+          alpha: isLight ? 0.8 : 0.4,
+        ),
+      ),
+    ),
+  );
+}
+
 typedef SheetBuilder = Widget Function(BuildContext context, SheetType type);
 
 Future<T?> showSheet<T>({
@@ -76,7 +110,7 @@ Future<T?> showSheet<T>({
   return switch (isMobile) {
     true => showModalBottomSheet<T>(
       context: context,
-      isScrollControlled: props.expandable || props.isScrollControlled,
+      isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (sheetContext) {
         return _SheetScope(
@@ -128,6 +162,7 @@ class AdaptiveSheetScaffold extends StatelessWidget {
   final SheetType type;
   final Widget body;
   final String title;
+  final String? badge;
   final List<Widget> actions;
   final bool? expandable;
   final double? initialFraction;
@@ -138,6 +173,7 @@ class AdaptiveSheetScaffold extends StatelessWidget {
     required this.type,
     required this.body,
     required this.title,
+    this.badge,
     this.actions = const [],
     this.expandable,
     this.initialFraction,
@@ -149,6 +185,7 @@ class AdaptiveSheetScaffold extends StatelessWidget {
     if (type == SheetType.bottomSheet) {
       return _ExpandableBottomSheet(
         title: title,
+        badge: badge,
         body: body,
         actions: actions,
         expandable: expandable,
@@ -167,7 +204,7 @@ class AdaptiveSheetScaffold extends StatelessWidget {
       elevation: 0,
       scrolledUnderElevation: 0,
       surfaceTintColor: Colors.transparent,
-      title: EmojiText(title),
+      title: _SheetTitle(title: title, badge: badge),
       actions: genActions([
         if (actions.isEmpty && sideSheet) const CloseButton(),
         ...actions,
@@ -194,8 +231,45 @@ class AdaptiveSheetScaffold extends StatelessWidget {
   }
 }
 
+class _SheetTitle extends StatelessWidget {
+  final String title;
+  final String? badge;
+
+  const _SheetTitle({required this.title, this.badge});
+
+  @override
+  Widget build(BuildContext context) {
+    final badge = this.badge;
+    if (badge == null) return EmojiText(title);
+    final colorScheme = context.colorScheme;
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      spacing: 8,
+      children: [
+        Flexible(
+          child: EmojiText(title, maxLines: 1, overflow: TextOverflow.ellipsis),
+        ),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+          decoration: BoxDecoration(
+            color: colorScheme.secondaryContainer,
+            borderRadius: BorderRadius.circular(6),
+          ),
+          child: Text(
+            badge,
+            style: context.textTheme.labelSmall?.copyWith(
+              color: colorScheme.onSecondaryContainer,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
 class _ExpandableBottomSheet extends StatefulWidget {
   final String title;
+  final String? badge;
   final Widget body;
   final List<Widget> actions;
   final bool? expandable;
@@ -204,6 +278,7 @@ class _ExpandableBottomSheet extends StatefulWidget {
 
   const _ExpandableBottomSheet({
     required this.title,
+    this.badge,
     required this.body,
     required this.actions,
     this.expandable,
@@ -270,6 +345,7 @@ class _ExpandableBottomSheetState extends State<_ExpandableBottomSheet>
     final maxFraction = widget.maxFraction ?? scopeProps.maxFraction;
 
     final screenHeight = MediaQuery.sizeOf(context).height;
+    final insets = MediaQuery.viewInsetsOf(context).bottom;
     final initialHeight = screenHeight * initialFraction;
     final maxHeight = scopeProps.maxHeight ?? (screenHeight * maxFraction);
     final travel = maxHeight - initialHeight;
@@ -282,7 +358,7 @@ class _ExpandableBottomSheetState extends State<_ExpandableBottomSheet>
       elevation: 0,
       scrolledUnderElevation: 0,
       surfaceTintColor: Colors.transparent,
-      title: EmojiText(widget.title),
+      title: _SheetTitle(title: widget.title, badge: widget.badge),
       actions: genActions(widget.actions),
     );
 
@@ -371,6 +447,7 @@ class _ExpandableBottomSheetState extends State<_ExpandableBottomSheet>
         children: [
           header,
           Flexible(flex: 1, child: bodyContent),
+          SizedBox(height: insets),
         ],
       ),
     );
@@ -395,11 +472,12 @@ class _ExpandableBottomSheetState extends State<_ExpandableBottomSheet>
         builder: (context, child) {
           final currentMaxHeight = (expandable && travel > 0)
               ? initialHeight + travel * _curve.value
-              : (scopeProps.maxHeight ?? initialHeight);
+              : math.max(initialHeight, maxHeight);
 
           return ConstrainedBox(
             constraints: BoxConstraints(
-              maxHeight: currentMaxHeight,
+              minHeight: initialHeight + insets,
+              maxHeight: currentMaxHeight + insets,
               minWidth: double.infinity,
             ),
             child: child,

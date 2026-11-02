@@ -307,7 +307,7 @@ class _LogsViewState extends ConsumerState<LogsView>
       patchClashConfigProvider.select((state) => state.logLevel),
     );
 
-    final selectedLogLevel = await globalState.showCommonDialog<LogLevel>(
+    final selectedLogLevel = await globalState.showAdaptiveSheet<LogLevel>(
       child: OptionsDialog<LogLevel>(
         title: appLocalizations.logLevel,
         options: LogLevel.values,
@@ -709,6 +709,20 @@ class _LogsConsoleState extends ConsumerState<LogsConsole> {
           mainAxisSize: MainAxisSize.min,
           spacing: 8,
           children: [
+            Container(
+              width: 76,
+              height: 76,
+              margin: const EdgeInsets.only(bottom: 10),
+              decoration: BoxDecoration(
+                color: context.colorScheme.primary.withValues(alpha: 0.08),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                hasLogs ? Icons.search_off_rounded : Icons.notes_rounded,
+                size: 34,
+                color: context.colorScheme.primary.withValues(alpha: 0.85),
+              ),
+            ),
             Text(
               hasLogs
                   ? appLocalizations.noMatchedLogs

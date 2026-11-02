@@ -31,6 +31,7 @@ class ProxiesTabViewState extends ConsumerState<ProxiesTabView>
     with TickerProviderStateMixin {
   TabController? _tabController;
   final _hasMoreButtonNotifier = ValueNotifier<bool>(false);
+  final _moreMenuOpenNotifier = ValueNotifier<bool>(false);
   ProxyGroupViewKeyMap _keyMap = {};
 
   @override
@@ -65,6 +66,7 @@ class ProxiesTabViewState extends ConsumerState<ProxiesTabView>
   void dispose() {
     _destroyTabController();
     _hasMoreButtonNotifier.dispose();
+    _moreMenuOpenNotifier.dispose();
     super.dispose();
   }
 
@@ -97,10 +99,17 @@ class ProxiesTabViewState extends ConsumerState<ProxiesTabView>
     );
   }
 
-  void _showMoreMenu() {
-    showSheet(
+  Future<void> _openMoreMenu() async {
+    _moreMenuOpenNotifier.value = true;
+    await _showMoreMenu();
+    if (!mounted) return;
+    _moreMenuOpenNotifier.value = false;
+  }
+
+  Future<void> _showMoreMenu() {
+    return showSheet(
       context: context,
-      props: SheetProps(isScrollControlled: false),
+      props: const SheetProps(expandable: false),
       builder: (sheetContext, type) {
         return AdaptiveSheetScaffold(
           type: type,
@@ -131,7 +140,11 @@ class ProxiesTabViewState extends ConsumerState<ProxiesTabView>
                               (item) => item == groupName,
                             );
                             if (index == -1) return;
-                            _tabController?.animateTo(index);
+                            _tabController?.animateTo(
+                              index,
+                              duration: const Duration(milliseconds: 220),
+                              curve: Curves.easeOutCubic,
+                            );
                             globalState.appController.updateCurrentGroupName(
                               groupName,
                             );
@@ -171,14 +184,9 @@ class ProxiesTabViewState extends ConsumerState<ProxiesTabView>
       return;
     }
     final appController = globalState.appController;
+    groupIndex ??= _tabController?.index;
     if (groupIndex == null) {
-      final controller = _tabController;
-      if (controller == null) return;
-      final anim = controller.animation;
-      if (anim != null && anim.value != controller.index.toDouble()) {
-        return;
-      }
-      groupIndex = controller.index;
+      return;
     }
     final currentGroups = appController.getCurrentGroups();
     if (groupIndex < 0 || groupIndex >= currentGroups.length) {
@@ -189,6 +197,7 @@ class ProxiesTabViewState extends ConsumerState<ProxiesTabView>
       return;
     }
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
       globalState.appController.updateCurrentGroupName(currentGroup.name);
     });
   }
@@ -214,6 +223,87 @@ class ProxiesTabViewState extends ConsumerState<ProxiesTabView>
     _tabController?.addListener(_tabControllerListener);
   }
 
+  Widget _buildTvTabBar(List<Group> groups) {
+    return NotificationListener<ScrollMetricsNotification>(
+      onNotification: (scrollNotification) {
+        _hasMoreButtonNotifier.value =
+            scrollNotification.metrics.maxScrollExtent > 0;
+        return false;
+      },
+      child: ValueListenableBuilder(
+        valueListenable: _hasMoreButtonNotifier,
+        builder: (_, value, child) {
+          return Stack(
+            alignment: AlignmentDirectional.centerStart,
+            children: [
+              TabBar(
+                controller: _tabController,
+                padding: EdgeInsets.only(left: 16, right: 48),
+                dividerColor: Colors.transparent,
+                isScrollable: true,
+                tabAlignment: TabAlignment.start,
+                indicator: BoxDecoration(
+                  color: context.colorScheme.primaryContainer,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                indicatorColor: Colors.transparent,
+                labelColor: context.colorScheme.onPrimaryContainer,
+                unselectedLabelColor: context.colorScheme.onSurfaceVariant,
+                tabs: [
+                  for (final group in groups)
+                    Tab(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 6,
+                        ),
+                        child: EmojiText(group.name),
+                      ),
+                    ),
+                ],
+              ),
+              Positioned(
+                right: 0,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [_buildDelayTestButton(), if (value) child!],
+                ),
+              ),
+            ],
+          );
+        },
+        child: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.centerLeft,
+              end: Alignment.centerRight,
+              colors: [
+                context.colorScheme.pageColor.opacity10,
+                context.colorScheme.pageColor,
+              ],
+              stops: const [0.0, 0.1],
+            ),
+          ),
+          child: _buildMoreButton(),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildGroupTabBar(List<Group> groups) {
+    final controller = _tabController;
+    if (controller == null) return const SizedBox();
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 4, 16, 2),
+      child: GroupTabBar(
+        controller: controller,
+        labels: [for (final group in groups) group.name],
+        onMore: _openMoreMenu,
+        moreOpen: _moreMenuOpenNotifier,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     ref.watch(themeSettingProvider.select((state) => state.textScale));
@@ -230,6 +320,7 @@ class ProxiesTabViewState extends ConsumerState<ProxiesTabView>
     if (groups.isEmpty) {
       return NullStatus(
         label: appLocalizations.nullTip(appLocalizations.proxies),
+        icon: Icons.cloud_off_outlined,
       );
     }
     // Safety check: ensure controller matches groups count
@@ -264,87 +355,9 @@ class ProxiesTabViewState extends ConsumerState<ProxiesTabView>
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        NotificationListener<ScrollMetricsNotification>(
-          onNotification: (scrollNotification) {
-            _hasMoreButtonNotifier.value =
-                scrollNotification.metrics.maxScrollExtent > 0;
-            return false;
-          },
-          child: ValueListenableBuilder(
-            valueListenable: _hasMoreButtonNotifier,
-            builder: (_, value, child) {
-              return Stack(
-                alignment: AlignmentDirectional.centerStart,
-                children: [
-                  TabBar(
-                    controller: _tabController,
-                    padding: EdgeInsets.only(
-                      left: 16,
-                      right: globalState.isAndroidTV ? 48 : (value ? 48 : 0),
-                    ),
-                    dividerColor: Colors.transparent,
-                    isScrollable: true,
-                    tabAlignment: TabAlignment.start,
-                    overlayColor: globalState.isAndroidTV
-                        ? null
-                        : const WidgetStatePropertyAll(Colors.transparent),
-                    indicator: globalState.isAndroidTV
-                        ? BoxDecoration(
-                            color: context.colorScheme.primaryContainer,
-                            borderRadius: BorderRadius.circular(8),
-                          )
-                        : null,
-                    indicatorColor: globalState.isAndroidTV
-                        ? Colors.transparent
-                        : context.colorScheme.primary,
-                    labelColor: globalState.isAndroidTV
-                        ? context.colorScheme.onPrimaryContainer
-                        : context.colorScheme.primary,
-                    unselectedLabelColor: context.colorScheme.onSurfaceVariant,
-                    tabs: [
-                      for (final group in groups)
-                        Tab(
-                          child: Padding(
-                            padding: globalState.isAndroidTV
-                                ? const EdgeInsets.symmetric(
-                                    horizontal: 12,
-                                    vertical: 6,
-                                  )
-                                : EdgeInsets.zero,
-                            child: EmojiText(group.name),
-                          ),
-                        ),
-                    ],
-                  ),
-                  if (globalState.isAndroidTV)
-                    Positioned(
-                      right: 0,
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [_buildDelayTestButton(), if (value) child!],
-                      ),
-                    )
-                  else if (value)
-                    Positioned(right: 0, child: child!),
-                ],
-              );
-            },
-            child: Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.centerLeft,
-                  end: Alignment.centerRight,
-                  colors: [
-                    context.colorScheme.surfaceContainer.opacity10,
-                    context.colorScheme.surfaceContainer,
-                  ],
-                  stops: const [0.0, 0.1],
-                ),
-              ),
-              child: _buildMoreButton(),
-            ),
-          ),
-        ),
+        globalState.isAndroidTV
+            ? _buildTvTabBar(groups)
+            : _buildGroupTabBar(groups),
         Expanded(
           child: TabBarView(controller: _tabController, children: children),
         ),
@@ -403,7 +416,7 @@ class _ProxyGroupViewState extends ConsumerState<ProxyGroupView> {
     }
     _controller.animateTo(
       min(
-        16 +
+        8 +
             getScrollToSelectedOffset(
               groupName: widget.group.name,
               proxies: proxies,
@@ -444,7 +457,7 @@ class _ProxyGroupViewState extends ConsumerState<ProxyGroupView> {
           controller: _controller,
           scrollCacheExtent: const ScrollCacheExtent.viewport(1.0),
           padding: EdgeInsets.only(
-            top: 16,
+            top: 8,
             left: 16,
             right: 16,
             bottom: baseBottom + extra,

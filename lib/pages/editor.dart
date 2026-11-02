@@ -35,6 +35,7 @@ final List<String> _emojiFontFallback = [FontFamily.twEmoji.value];
 class EditorPage extends ConsumerStatefulWidget {
   final String title;
   final String content;
+  final String? defaultContent;
   final List<Language> languages;
   final bool supportRemoteDownload;
   final bool titleEditable;
@@ -42,6 +43,7 @@ class EditorPage extends ConsumerStatefulWidget {
   final bool delayedFocus;
   final bool simple;
   final Function(BuildContext context, String title, String content)? onSave;
+  final Future<bool> Function(BuildContext context)? onReset;
   final Future<bool> Function(
     BuildContext context,
     String title,
@@ -54,11 +56,13 @@ class EditorPage extends ConsumerStatefulWidget {
     super.key,
     required this.title,
     required this.content,
+    this.defaultContent,
     this.titleEditable = false,
     this.readOnly = false,
     this.delayedFocus = false,
     this.simple = false,
     this.onSave,
+    this.onReset,
     this.onPop,
     this.onUrlImport,
     this.supportRemoteDownload = false,
@@ -95,9 +99,12 @@ class _EditorPageState extends ConsumerState<EditorPage> {
 
   bool get _editorHasFocus => _controller.focusNode?.hasFocus ?? false;
 
-  late final String _original = CodeForgeController.normalizeLineBreaks(
+  late String _original = CodeForgeController.normalizeLineBreaks(
     widget.content,
   );
+  late final String? _defaultContent = widget.defaultContent == null
+      ? null
+      : CodeForgeController.normalizeLineBreaks(widget.defaultContent!);
   int _loadedLength = 0;
   int _checkedVersion = -1;
   bool _modified = false;
@@ -242,6 +249,24 @@ class _EditorPageState extends ConsumerState<EditorPage> {
     widget.onSave!(context, _titleController.text, _controller.text);
   }
 
+  Future<void> _handleReset(BuildContext context) async {
+    final defaultContent = _defaultContent;
+    if (defaultContent == null || _isLoading) return;
+    if (widget.onReset != null) {
+      final ok = await widget.onReset!(context);
+      if (!ok || !mounted) return;
+    }
+    _undoController.clear();
+    _controller
+      ..text = defaultContent
+      ..selection = const TextSelection.collapsed(offset: 0);
+    _original = defaultContent;
+    _loadedLength = _controller.length;
+    _checkedVersion = _controller.contentVersion;
+    _modified = false;
+    setState(() {});
+  }
+
   Future<void> _routeSettled() async {
     final route = ModalRoute.of(context);
     while (route != null && route.offstage && route.isActive) {
@@ -265,7 +290,7 @@ class _EditorPageState extends ConsumerState<EditorPage> {
   }
 
   void _updateStyles(BuildContext context) {
-    _baseFontSize = context.textTheme.bodyLarge?.fontSize?.ap ?? 14;
+    _baseFontSize = context.textTheme.bodyMedium?.fontSize?.ap ?? 14;
     final colorScheme = context.colorScheme;
     if (colorScheme.brightness != _brightness) {
       _brightness = colorScheme.brightness;
@@ -409,13 +434,13 @@ class _EditorPageState extends ConsumerState<EditorPage> {
     var anchorAbove = position.translate(0, -_kToolbarGapAbove);
     var anchorBelow = position.translate(0, _kToolbarGapBelow);
     if (selectionRect != null) {
-      final media = MediaQuery.of(overlay.context);
+      final paddingTop = MediaQuery.paddingOf(overlay.context).top;
+      final insetBottom = MediaQuery.viewInsetsOf(overlay.context).bottom;
       final above = overlayBox.globalToLocal(selectionRect.topCenter);
       final below = overlayBox.globalToLocal(selectionRect.bottomCenter);
-      final fitsAbove = above.dy - media.padding.top >= _kToolbarClearance;
+      final fitsAbove = above.dy - paddingTop >= _kToolbarClearance;
       final fitsBelow =
-          below.dy + _kToolbarClearance <=
-          overlayBox.size.height - media.viewInsets.bottom;
+          below.dy + _kToolbarClearance <= overlayBox.size.height - insetBottom;
       if (fitsAbove || fitsBelow) {
         anchorAbove = above;
         anchorBelow = below;
@@ -472,7 +497,7 @@ class _EditorPageState extends ConsumerState<EditorPage> {
   }
 
   Future<void> _handleImport() async {
-    final option = await globalState.showCommonDialog<ImportOption>(
+    final option = await globalState.showAdaptiveSheet<ImportOption>(
       child: _ImportOptionsDialog(),
     );
     if (option == null) {
@@ -687,6 +712,18 @@ class _EditorPageState extends ConsumerState<EditorPage> {
                     tooltip: appLocalizations.download,
                     icon: const Icon(Icons.arrow_downward),
                   ),
+                if (_defaultContent != null && !readOnly)
+                  _wrapTitleController(() {
+                    final canReset =
+                        !_isLoading &&
+                        (_controller.text != _defaultContent ||
+                            _original != _defaultContent);
+                    return IconButton(
+                      onPressed: canReset ? () => _handleReset(context) : null,
+                      tooltip: appLocalizations.restoreBundled,
+                      icon: const Icon(Icons.restore),
+                    );
+                  }),
                 ListenableBuilder(
                   listenable: _undoController,
                   builder: (_, _) => CommonPopupBox(
@@ -913,63 +950,67 @@ class FindPanel extends StatelessWidget implements PreferredSizeWidget {
             ),
           ),
           Expanded(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              spacing: 6,
-              children: [
-                _buildIconButton(
-                  onPressed: controller.matchCount == 0
-                      ? null
-                      : controller.previous,
-                  icon: Icons.keyboard_arrow_up,
-                ),
-                _buildIconButton(
-                  onPressed: controller.matchCount == 0
-                      ? null
-                      : controller.next,
-                  icon: Icons.keyboard_arrow_down,
-                ),
-                if (isMobileView && showReplace) ...[
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: Alignment.centerRight,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                spacing: 6,
+                children: [
                   _buildIconButton(
                     onPressed: controller.matchCount == 0
                         ? null
-                        : controller.replace,
-                    icon: Icons.find_replace,
-                    tooltip: appLocalizations.replace,
+                        : controller.previous,
+                    icon: Icons.keyboard_arrow_up,
                   ),
                   _buildIconButton(
                     onPressed: controller.matchCount == 0
                         ? null
-                        : controller.replaceAll,
-                    icon: Icons.published_with_changes,
-                    tooltip: appLocalizations.replaceAll,
+                        : controller.next,
+                    icon: Icons.keyboard_arrow_down,
                   ),
+                  if (isMobileView && showReplace) ...[
+                    _buildIconButton(
+                      onPressed: controller.matchCount == 0
+                          ? null
+                          : controller.replace,
+                      icon: Icons.find_replace,
+                      tooltip: appLocalizations.replace,
+                    ),
+                    _buildIconButton(
+                      onPressed: controller.matchCount == 0
+                          ? null
+                          : controller.replaceAll,
+                      icon: Icons.published_with_changes,
+                      tooltip: appLocalizations.replaceAll,
+                    ),
+                  ],
+                  if (!readOnly)
+                    _buildIconButton(
+                      onPressed: () => controller.toggleReplaceMode(),
+                      icon: controller.isReplaceMode
+                          ? Icons.unfold_less
+                          : Icons.unfold_more,
+                      tooltip: appLocalizations.replace,
+                    ),
                 ],
-                if (!readOnly)
-                  _buildIconButton(
-                    onPressed: () => controller.toggleReplaceMode(),
-                    icon: controller.isReplaceMode
-                        ? Icons.unfold_less
-                        : Icons.unfold_more,
-                    tooltip: appLocalizations.replace,
-                  ),
-                const SizedBox(width: 2),
-                IconButton.filledTonal(
-                  visualDensity: VisualDensity.compact,
-                  onPressed: () => controller.isActive = false,
-                  style: ButtonStyle(
-                    backgroundColor: WidgetStatePropertyAll(
-                      colorScheme.errorContainer.withAlpha(160),
-                    ),
-                    foregroundColor: WidgetStatePropertyAll(
-                      colorScheme.onErrorContainer,
-                    ),
-                    padding: const WidgetStatePropertyAll(EdgeInsets.all(0)),
-                  ),
-                  icon: const Icon(Icons.close, size: 16),
-                ),
-              ],
+              ),
             ),
+          ),
+          const SizedBox(width: 8),
+          IconButton.filledTonal(
+            visualDensity: VisualDensity.compact,
+            onPressed: () => controller.isActive = false,
+            style: ButtonStyle(
+              backgroundColor: WidgetStatePropertyAll(
+                colorScheme.errorContainer.withAlpha(160),
+              ),
+              foregroundColor: WidgetStatePropertyAll(
+                colorScheme.onErrorContainer,
+              ),
+              padding: const WidgetStatePropertyAll(EdgeInsets.all(0)),
+            ),
+            icon: const Icon(Icons.close, size: 16),
           ),
         ],
       ),
@@ -1241,7 +1282,7 @@ class _ImportOptionsDialogState extends State<_ImportOptionsDialog> {
   Widget build(BuildContext context) {
     return CommonDialog(
       title: appLocalizations.import,
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
+      padding: const EdgeInsets.symmetric(vertical: 16),
       child: Wrap(
         children: [
           ListItem(

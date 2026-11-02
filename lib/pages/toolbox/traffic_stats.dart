@@ -89,7 +89,10 @@ class _TrafficStatsPageState extends ConsumerState<TrafficStatsPage> {
   void initState() {
     super.initState();
     globalState.backgroundMode.addListener(_handleBackgroundMode);
-    _load();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      context.afterRouteTransition(_load);
+    });
     _syncTimer();
   }
 
@@ -141,7 +144,7 @@ class _TrafficStatsPageState extends ConsumerState<TrafficStatsPage> {
   }
 
   void _openSettings() {
-    globalState.showCommonDialog(
+    globalState.showAdaptiveSheet(
       child: _TrafficStatsSettingsDialog(onCleared: _load),
     );
   }
@@ -899,10 +902,14 @@ class _HostDetailState extends State<_HostDetail> {
   @override
   void initState() {
     super.initState();
-    _load();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      context.afterRouteTransition(_load);
+    });
   }
 
   Future<void> _load() async {
+    if (!mounted) return;
     TrafficStatsResult result;
     try {
       result = await clashCore.getTrafficStats(

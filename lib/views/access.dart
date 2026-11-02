@@ -18,6 +18,15 @@ final _packageSplitRegex = RegExp(r'[\n,\s]+');
 
 final _packageIconCache = <String, Uint8List?>{};
 final _packageIconPending = <String, Future<Uint8List?>>{};
+const _maxPackageIconCacheSize = 256;
+
+void _cachePackageIcon(String packageName, Uint8List? bytes) {
+  _packageIconCache.remove(packageName);
+  while (_packageIconCache.length >= _maxPackageIconCacheSize) {
+    _packageIconCache.remove(_packageIconCache.keys.first);
+  }
+  _packageIconCache[packageName] = bytes;
+}
 
 Future<Uint8List?> _getPackageIcon(
   String packageName, {
@@ -28,7 +37,9 @@ Future<Uint8List?> _getPackageIcon(
     _packageIconPending.remove(packageName);
   }
   if (_packageIconCache.containsKey(packageName)) {
-    return Future.value(_packageIconCache[packageName]);
+    final bytes = _packageIconCache[packageName];
+    _cachePackageIcon(packageName, bytes);
+    return Future.value(bytes);
   }
   return _packageIconPending.putIfAbsent(packageName, () async {
     try {
@@ -36,7 +47,7 @@ Future<Uint8List?> _getPackageIcon(
         packageName,
         forceRefresh: forceRefresh,
       );
-      _packageIconCache[packageName] = bytes;
+      _cachePackageIcon(packageName, bytes);
       return bytes;
     } finally {
       _packageIconPending.remove(packageName);
@@ -388,33 +399,35 @@ class _AccessViewState extends ConsumerState<AccessView>
   }
 
   Future<void> _intelligentSelected() async {
-    final packageNames = ref.read(
-      packageListSelectorStateProvider.select(
-        (state) => state.list.map((item) => item.packageName),
-      ),
-    );
     final commonScaffoldState = context.commonScaffoldState;
     if (commonScaffoldState?.mounted != true) return;
-    final selectedPackageNames =
-        (await globalState.appController.safeRun<List<String>>(
-          needLoading: true,
-          () async {
-            return await app.getChinaPackageNames();
-          },
-        ))?.toSet() ??
-        {};
-    final acceptList = packageNames
-        .where((item) => !selectedPackageNames.contains(item))
-        .toList();
-    final rejectList = packageNames
-        .where((item) => selectedPackageNames.contains(item))
-        .toList();
+    final chinaPackageNames = await globalState.appController
+        .safeRun<List<String>>(needLoading: true, () async {
+          return await app.getChinaPackageNames();
+        });
+    if (chinaPackageNames == null || !mounted) return;
+    final china = chinaPackageNames.toSet();
+    final visible = ref
+        .read(packageListSelectorStateProvider)
+        .list
+        .map((item) => item.packageName)
+        .toSet();
+    List<String> withVisible(List<String> list, bool Function(String) test) => [
+      ...list.where((item) => !visible.contains(item)),
+      ...visible.where(test),
+    ];
     ref
         .read(vpnSettingProvider.notifier)
         .updateState(
           (state) => state.copyWith.accessControl(
-            acceptList: acceptList,
-            rejectList: rejectList,
+            acceptList: withVisible(
+              state.accessControl.acceptList,
+              (item) => !china.contains(item),
+            ),
+            rejectList: withVisible(
+              state.accessControl.rejectList,
+              china.contains,
+            ),
           ),
         );
   }
@@ -694,7 +707,7 @@ class _AccessViewState extends ConsumerState<AccessView>
   }
 }
 
-class PackageListItem extends ConsumerWidget {
+class PackageListItem extends StatelessWidget {
   final Package package;
   final bool value;
   final bool isActive;
@@ -709,61 +722,56 @@ class PackageListItem extends ConsumerWidget {
   });
 
   @override
+  Widget build(BuildContext context) {
+    return ActivateBox(
+      active: isActive,
+      child: ListItem.checkbox(
+        leading: PackageIcon(packageName: package.packageName),
+        title: EmojiText(
+          package.label,
+          style: const TextStyle(overflow: TextOverflow.ellipsis),
+          maxLines: 1,
+        ),
+        subtitle: Text(
+          package.packageName,
+          style: const TextStyle(overflow: TextOverflow.ellipsis),
+          maxLines: 1,
+        ),
+        delegate: CheckboxDelegate(value: value, onChanged: onChanged),
+      ),
+    );
+  }
+}
+
+class PackageIcon extends ConsumerWidget {
+  final String packageName;
+
+  const PackageIcon({super.key, required this.packageName});
+
+  @override
   Widget build(BuildContext context, WidgetRef ref) {
     final forceRefresh = ref.watch(forceRefreshIconProvider);
-
-    return GestureDetector(
-      onLongPress: () {
-        Clipboard.setData(ClipboardData(text: package.packageName));
-        globalState.showNotifier(
-          '${appLocalizations.copiedPackageName}: ${package.packageName}',
-        );
-      },
-      child: ActivateBox(
-        active: isActive,
-        child: ListItem.checkbox(
-          leading: SizedBox(
+    return SizedBox(
+      width: 48,
+      height: 48,
+      child: FutureBuilder<Uint8List?>(
+        initialData: _packageIconCache[packageName],
+        future: _getPackageIcon(packageName, forceRefresh: forceRefresh),
+        builder: (context, snapshot) {
+          final data = snapshot.data;
+          if (data == null) return _buildDefaultIcon(context);
+          final cacheSize = (48 * MediaQuery.devicePixelRatioOf(context))
+              .ceil();
+          return Image.memory(
+            data,
+            gaplessPlayback: true,
             width: 48,
             height: 48,
-            child: FutureBuilder<Uint8List?>(
-              initialData: _packageIconCache[package.packageName],
-              future: _getPackageIcon(
-                package.packageName,
-                forceRefresh: forceRefresh,
-              ),
-              builder: (context, snapshot) {
-                if (snapshot.hasData && snapshot.data != null) {
-                  final devicePixelRatio = MediaQuery.devicePixelRatioOf(
-                    context,
-                  );
-                  final cacheSize = (48 * devicePixelRatio).ceil();
-
-                  return Image.memory(
-                    snapshot.data!,
-                    gaplessPlayback: true,
-                    width: 48,
-                    height: 48,
-                    cacheWidth: cacheSize,
-                    cacheHeight: cacheSize,
-                    errorBuilder: (_, _, _) => _buildDefaultIcon(context),
-                  );
-                }
-                return _buildDefaultIcon(context);
-              },
-            ),
-          ),
-          title: EmojiText(
-            package.label,
-            style: const TextStyle(overflow: TextOverflow.ellipsis),
-            maxLines: 1,
-          ),
-          subtitle: Text(
-            package.packageName,
-            style: const TextStyle(overflow: TextOverflow.ellipsis),
-            maxLines: 1,
-          ),
-          delegate: CheckboxDelegate(value: value, onChanged: onChanged),
-        ),
+            cacheWidth: cacheSize,
+            cacheHeight: cacheSize,
+            errorBuilder: (_, _, _) => _buildDefaultIcon(context),
+          );
+        },
       ),
     );
   }
@@ -771,13 +779,231 @@ class PackageListItem extends ConsumerWidget {
   Widget _buildDefaultIcon(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceContainerHighest,
+        color: context.colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(8),
       ),
       child: Icon(
         Icons.apps,
         size: 24,
-        color: Theme.of(context).colorScheme.onSurfaceVariant,
+        color: context.colorScheme.onSurfaceVariant,
+      ),
+    );
+  }
+}
+
+Future<String?> showPackagePicker(BuildContext context) async {
+  await context.dismissKeyboard();
+  if (!context.mounted) return null;
+  return showSheet<String>(
+    context: context,
+    props: const SheetProps(isScrollControlled: true),
+    builder: (_, type) => AdaptiveSheetScaffold(
+      type: type,
+      title: appLocalizations.appAccessControl,
+      body: const PackagePickerPanel(),
+    ),
+  );
+}
+
+class PackagePickerPanel extends ConsumerStatefulWidget {
+  const PackagePickerPanel({super.key});
+
+  @override
+  ConsumerState<PackagePickerPanel> createState() => _PackagePickerPanelState();
+}
+
+class _PackagePickerPanelState extends ConsumerState<PackagePickerPanel> {
+  bool _ready = false;
+  bool _denied = false;
+  String _query = '';
+  final _queryController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      context.afterRouteTransition(_load);
+    });
+  }
+
+  @override
+  void dispose() {
+    _queryController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _load() async {
+    var denied = false;
+    try {
+      if (await app.hasPackageListPermission()) {
+        await globalState.appController.getPackages();
+      } else {
+        denied = true;
+      }
+    } catch (_) {
+      denied = true;
+    }
+    if (!mounted) return;
+    setState(() {
+      _denied = denied || ref.read(packagesProvider).isEmpty;
+      _ready = true;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (!_ready) {
+      return const SizedBox(
+        height: 240,
+        child: Center(
+          child: SyncedLoading(size: 40, child: CircularProgressIndicator()),
+        ),
+      );
+    }
+    if (_denied) {
+      return SizedBox(
+        height: 240,
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              spacing: 12,
+              children: [
+                Text(
+                  appLocalizations.packageListPermissionRequired,
+                  textAlign: TextAlign.center,
+                ),
+                FilledButton.tonalIcon(
+                  onPressed: app.requestPackageListPermission,
+                  icon: const Icon(Icons.settings),
+                  label: Text(appLocalizations.openSettings),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+    final state = ref.watch(packageListSelectorStateProvider);
+    final accessControl = state.accessControl;
+    final isAccept = accessControl.mode == AccessControlMode.acceptSelected;
+    final active = accessControl.enable;
+    final currentList = accessControl.currentList;
+    final currentSet = currentList.toSet();
+    final all = state.getSortList(active ? currentList : const []);
+    final query = _query.trim().toLowerCase();
+    final packages = query.isEmpty
+        ? all
+        : all
+              .where(
+                (item) =>
+                    item.label.toLowerCase().contains(query) ||
+                    item.packageName.toLowerCase().contains(query),
+              )
+              .toList();
+    final colorScheme = context.colorScheme;
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, _) async {
+        if (didPop) return;
+        await context.dismissKeyboard();
+        if (!context.mounted) return;
+        Navigator.of(context).pop();
+      },
+      child: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
+            child: TextField(
+              controller: _queryController,
+              onChanged: (value) => setState(() => _query = value),
+              decoration: InputDecoration(
+                hintText: appLocalizations.search,
+                prefixIcon: const Icon(Icons.search),
+                suffixIcon: _query.isEmpty
+                    ? null
+                    : IconButton(
+                        icon: const Icon(Icons.clear),
+                        onPressed: () {
+                          _queryController.clear();
+                          setState(() => _query = '');
+                        },
+                      ),
+              ),
+            ),
+          ),
+          if (active)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+              child: Row(
+                children: [
+                  Icon(
+                    isAccept ? Icons.adjust_outlined : Icons.block_outlined,
+                    size: 18,
+                    color: colorScheme.primary,
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      '${isAccept ? appLocalizations.whitelistMode : appLocalizations.blacklistMode} · ${appLocalizations.selected} ${currentSet.length}',
+                      style: context.textTheme.labelLarge?.copyWith(
+                        color: colorScheme.primary,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          Expanded(
+            child: packages.isEmpty
+                ? NullStatus(label: appLocalizations.noData)
+                : ListView.builder(
+                    itemCount: packages.length,
+                    itemExtent: 72,
+                    padding: const EdgeInsets.only(bottom: 24),
+                    itemBuilder: (context, index) {
+                      final package = packages[index];
+                      final inList =
+                          active && currentSet.contains(package.packageName);
+                      return RepaintBoundary(
+                        key: Key(package.packageName),
+                        child: ListItem(
+                          leading: PackageIcon(packageName: package.packageName),
+                          title: EmojiText(
+                            package.label,
+                            style: const TextStyle(
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            maxLines: 1,
+                          ),
+                          subtitle: Text(
+                            package.packageName,
+                            style: const TextStyle(
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            maxLines: 1,
+                          ),
+                          trailing: inList
+                              ? Icon(
+                                  isAccept
+                                      ? Icons.adjust_outlined
+                                      : Icons.block_outlined,
+                                  color: colorScheme.primary,
+                                )
+                              : null,
+                          onTap: () async {
+                            await context.dismissKeyboard();
+                            if (!context.mounted) return;
+                            Navigator.of(context).pop(package.packageName);
+                          },
+                        ),
+                      );
+                    },
+                  ),
+          ),
+        ],
       ),
     );
   }

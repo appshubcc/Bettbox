@@ -497,6 +497,11 @@ class System {
       await globalState.appController.handleExit();
       return;
     }
+    if (isAndroid) {
+      await globalState.appController.savePreferences();
+      await Restart.restartApp(forceKill: true);
+      return;
+    }
     await Restart.restartApp();
   }
 

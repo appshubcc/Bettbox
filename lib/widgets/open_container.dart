@@ -1,3 +1,4 @@
+import 'package:bett_box/common/color.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/scheduler.dart';
 
@@ -416,8 +417,8 @@ class _OpenContainerRoute<T> extends ModalRoute<T> {
   ) {
     _colorTween = _getColorTween(
       transitionType: transitionType,
-      closedColor: Theme.of(context).colorScheme.surfaceContainer,
-      openColor: Theme.of(context).colorScheme.surfaceContainer,
+      closedColor: Theme.of(context).colorScheme.pageColor,
+      openColor: Theme.of(context).colorScheme.pageColor,
       middleColor: middleColor,
     );
     return Align(

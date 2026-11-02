@@ -80,7 +80,7 @@ class _MediaUnlockSmallState extends ConsumerState<MediaUnlockSmall> {
     final Widget icon;
     if (platform.isMonochrome) {
       icon = SvgPicture.asset(
-        'assets/images/platforms/${platform.name}.svg',
+        'assets/svg/${platform.icon}',
         width: iconSize.width.ap,
         height: iconSize.height.ap,
         fit: BoxFit.contain,
@@ -91,7 +91,7 @@ class _MediaUnlockSmallState extends ConsumerState<MediaUnlockSmall> {
       );
     } else if (colorfulIcons) {
       icon = SvgPicture.asset(
-        'assets/images/platforms/${platform.name}.svg',
+        'assets/svg/${platform.icon}',
         width: iconSize.width.ap,
         height: iconSize.height.ap,
         fit: BoxFit.contain,
@@ -100,7 +100,7 @@ class _MediaUnlockSmallState extends ConsumerState<MediaUnlockSmall> {
       icon = ColorFiltered(
         colorFilter: monochromeColorFilter,
         child: SvgPicture.asset(
-          'assets/images/platforms/${platform.name}.svg',
+          'assets/svg/${platform.icon}',
           width: iconSize.width.ap,
           height: iconSize.height.ap,
           fit: BoxFit.contain,
@@ -134,30 +134,52 @@ class _MediaUnlockSmallState extends ConsumerState<MediaUnlockSmall> {
           ),
           SizedBox(width: 8.ap),
           SizedBox(
-            width: 12.ap,
-            height: 12.ap,
+            width: 16.ap,
+            height: 16.ap,
             child: Center(
               child: status == MediaUnlockStatus.testing
                   ? RepaintBoundary(
                       child: SizedBox(
-                        width: 10.ap,
-                        height: 10.ap,
+                        width: 12.ap,
+                        height: 12.ap,
                         child: SyncedLoading(
-                          size: 10.ap,
+                          size: 12.ap,
                           child: SpinKitRing(
                             color: context.colorScheme.primary,
                             lineWidth: 1.5,
-                            size: 10.ap,
+                            size: 12.ap,
                           ),
                         ),
                       ),
                     )
                   : Container(
-                      width: 7.ap,
-                      height: 7.ap,
+                      width: 16.ap,
+                      height: 16.ap,
                       decoration: BoxDecoration(
-                        color: color,
+                        color: color.withValues(
+                          alpha:
+                              context.colorScheme.brightness == Brightness.dark
+                              ? 0.22
+                              : 0.16,
+                        ),
                         shape: BoxShape.circle,
+                      ),
+                      alignment: Alignment.center,
+                      child: Container(
+                        width: 8.ap,
+                        height: 8.ap,
+                        decoration: BoxDecoration(
+                          color: color,
+                          shape: BoxShape.circle,
+                          boxShadow: status == MediaUnlockStatus.unknown
+                              ? null
+                              : [
+                                  BoxShadow(
+                                    color: color.withValues(alpha: 0.45),
+                                    blurRadius: 4,
+                                  ),
+                                ],
+                        ),
                       ),
                     ),
             ),

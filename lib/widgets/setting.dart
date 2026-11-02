@@ -19,6 +19,7 @@ class SettingInfoCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CommonCard(
+      elevated: false,
       isSelected: isSelected,
       onPressed: onPressed,
       child: Padding(
@@ -54,6 +55,7 @@ class SettingTextCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CommonCard(
+      elevated: false,
       onPressed: onPressed,
       isSelected: isSelected,
       child: Padding(

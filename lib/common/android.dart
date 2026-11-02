@@ -12,8 +12,8 @@ class Android {
     };
   }
 
-  void purgeMemory([int? sdkVersion]) {
-    final sdk = sdkVersion ?? globalState.appState.version;
+  void purgeMemory() {
+    final sdk = globalState.appState.version;
     if (sdk > 0 && sdk < 28) {
       return;
     }

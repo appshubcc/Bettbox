@@ -100,16 +100,11 @@ class _AndroidContainerState extends ConsumerState<AndroidManager>
       });
       return;
     }
+    if (action != 'refresh') return;
     final context = globalState.navigatorKey.currentState?.context;
-    if (context == null || !context.mounted) return;
-    switch (action) {
-      case 'switch_profile':
-        showProfileSwitchSheet(context);
-      case 'refresh':
-        final profile = ref.read(currentProfileProvider);
-        if (profile == null) return;
-        refreshProfileSubscription(context, ref, profile);
-    }
+    final profile = ref.read(currentProfileProvider);
+    if (context == null || !context.mounted || profile == null) return;
+    refreshProfileSubscription(context, ref, profile);
   }
 
   @override

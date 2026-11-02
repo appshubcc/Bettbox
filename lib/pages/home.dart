@@ -5,6 +5,7 @@ import 'package:bett_box/providers/providers.dart';
 import 'package:bett_box/state.dart';
 import 'package:bett_box/widgets/widgets.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -105,7 +106,32 @@ class _HomePageState extends State<HomePage> {
             return const SizedBox();
           }
           Widget bodyWidget = child;
-          if (isMobile) {
+          if (isMobile && globalState.isAndroidTV) {
+            bodyWidget = Column(
+              children: [
+                Expanded(
+                  child: RepaintBoundary(
+                    child: MediaQuery.removePadding(
+                      removeBottom: true,
+                      removeLeft: true,
+                      removeRight: true,
+                      context: context,
+                      child: child,
+                    ),
+                  ),
+                ),
+                RepaintBoundary(
+                  child: MediaQuery.removePadding(
+                    removeTop: true,
+                    removeLeft: true,
+                    removeRight: true,
+                    context: context,
+                    child: bottomNavigationBar,
+                  ),
+                ),
+              ],
+            );
+          } else if (isMobile) {
             final pageContent = MediaQuery.removePadding(
               removeTop: false,
               removeBottom: false,
@@ -136,7 +162,7 @@ class _HomePageState extends State<HomePage> {
           }
           return Material(
             color: isMobile
-                ? context.colorScheme.surfaceContainer
+                ? context.colorScheme.pageColor
                 : Colors.transparent,
             child: bodyWidget,
           );
@@ -309,23 +335,17 @@ class _HomePageState extends State<HomePage> {
   }
 }
 
-class _ActivePageLabelsScope extends InheritedWidget {
-  final Set<PageLabel> activeLabels;
-
+class _ActivePageLabelsScope
+    extends InheritedNotifier<ValueNotifier<Set<PageLabel>>> {
   const _ActivePageLabelsScope({
-    required this.activeLabels,
+    required ValueNotifier<Set<PageLabel>> activeLabels,
     required super.child,
-  });
+  }) : super(notifier: activeLabels);
 
   static bool isActive(BuildContext context, PageLabel label) {
     final scope = context
         .dependOnInheritedWidgetOfExactType<_ActivePageLabelsScope>();
-    return scope?.activeLabels.contains(label) ?? true;
-  }
-
-  @override
-  bool updateShouldNotify(_ActivePageLabelsScope oldWidget) {
-    return activeLabels != oldWidget.activeLabels;
+    return scope?.notifier?.value.contains(label) ?? true;
   }
 }
 
@@ -386,7 +406,7 @@ class _HomePageViewState extends ConsumerState<_HomePageView> {
   int _currentPageIndex = 0;
   List<int>? _order;
   int _slide = 0;
-  Set<PageLabel> _activeLabels = const {};
+  final ValueNotifier<Set<PageLabel>> _activeLabels = ValueNotifier(const {});
 
   @override
   initState() {
@@ -397,7 +417,7 @@ class _HomePageViewState extends ConsumerState<_HomePageView> {
             _currentPageIndex < widget.navigationItems.length
         ? widget.navigationItems[_currentPageIndex].label
         : ref.read(currentPageLabelProvider);
-    _activeLabels = {currentLabel};
+    _activeLabels.value = {currentLabel};
     _pageController = PageController(
       initialPage: _currentPageIndex,
       keepPage: false,
@@ -425,10 +445,13 @@ class _HomePageViewState extends ConsumerState<_HomePageView> {
   @override
   void didUpdateWidget(covariant _HomePageView oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.navigationItems.length != widget.navigationItems.length) {
+    if (!listEquals(
+      [for (final item in oldWidget.navigationItems) item.label],
+      [for (final item in widget.navigationItems) item.label],
+    )) {
       _order = null;
       final currentLabel = ref.read(currentPageLabelProvider);
-      _activeLabels = {currentLabel};
+      _activeLabels.value = {currentLabel};
       _updatePageController();
     }
   }
@@ -458,21 +481,15 @@ class _HomePageViewState extends ConsumerState<_HomePageView> {
     }
 
     final isMobile = ref.read(isMobileViewProvider);
-    if (isMobile && !ref.read(appSettingProvider).enableNavBarHapticFeedback) {
-      if (_currentPageIndex != index) {
-        setState(() {
-          _currentPageIndex = index;
-          _activeLabels = {pageLabel};
-        });
-      }
-      return;
-    }
+    final animate =
+        isMobile &&
+        !ignoreAnimateTo &&
+        ref.read(appSettingProvider).enableNavBarHapticFeedback;
 
     if (!_pageController.hasClients) {
-      setState(() {
-        _order = null;
-        _activeLabels = {pageLabel};
-      });
+      _order = null;
+      _activeLabels.value = {pageLabel};
+      if (mounted) setState(() {});
       return;
     }
 
@@ -487,17 +504,13 @@ class _HomePageViewState extends ConsumerState<_HomePageView> {
       setState(() => _order = null);
       _pageController.jumpToPage(current);
     }
-    if (!isMobile || ignoreAnimateTo) {
+    if (!animate) {
       _pageController.jumpToPage(index);
-      setState(() {
-        _activeLabels = {pageLabel};
-      });
+      _activeLabels.value = {pageLabel};
       return;
     }
 
-    setState(() {
-      _activeLabels = {currentLabel, pageLabel};
-    });
+    _activeLabels.value = {currentLabel, pageLabel};
 
     if ((index - current).abs() > 1) {
       final adjacent = index > current ? index - 1 : index + 1;
@@ -514,10 +527,8 @@ class _HomePageViewState extends ConsumerState<_HomePageView> {
       curve: Curves.easeOut,
     );
     if (mounted && slide == _slide) {
-      setState(() {
-        if (_order != null) _order = null;
-        _activeLabels = {pageLabel};
-      });
+      _activeLabels.value = {pageLabel};
+      if (_order != null) setState(() => _order = null);
     }
   }
 
@@ -530,33 +541,13 @@ class _HomePageViewState extends ConsumerState<_HomePageView> {
   void dispose() {
     _pageLabelSubscription.close();
     _pageController.dispose();
+    _activeLabels.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final isMobile = ref.watch(isMobileViewProvider);
-    final enableMotion = ref.watch(
-      appSettingProvider.select((state) => state.enableNavBarHapticFeedback),
-    );
     final index = _pageIndex < 0 ? 0 : _pageIndex;
-    if (isMobile && !enableMotion) {
-      return _ActivePageLabelsScope(
-        activeLabels: _activeLabels,
-        child: AnimatedSwitcher(
-          duration: const Duration(milliseconds: 300),
-          switchInCurve: Curves.easeOutCubic,
-          switchOutCurve: Curves.easeInCubic,
-          transitionBuilder: (child, animation) {
-            return FadeTransition(opacity: animation, child: child);
-          },
-          child: KeyedSubtree(
-            key: ValueKey(widget.navigationItems[index].label),
-            child: widget.pageBuilder(context, index),
-          ),
-        ),
-      );
-    }
     if (!_pageController.hasClients && _pageController.initialPage != index) {
       _order = null;
       _pageController.dispose();

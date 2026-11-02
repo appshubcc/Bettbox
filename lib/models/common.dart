@@ -309,6 +309,17 @@ abstract class NetworkInfo with _$NetworkInfo {
 }
 
 @freezed
+abstract class CoreInterface with _$CoreInterface {
+  const factory CoreInterface({
+    required String name,
+    @Default([]) List<String> addresses,
+  }) = _CoreInterface;
+
+  factory CoreInterface.fromJson(Map<String, Object?> json) =>
+      _$CoreInterfaceFromJson(json);
+}
+
+@freezed
 abstract class VersionInfo with _$VersionInfo {
   const factory VersionInfo({
     @Default('') String clashName,
@@ -585,6 +596,18 @@ abstract class IpRisk with _$IpRisk {
   }) = _IpRisk;
 
   factory IpRisk.fromJson(Map<String, Object?> json) => _$IpRiskFromJson(json);
+}
+
+extension IpRiskExt on IpRisk {
+  bool get isHomeBroadband =>
+      checks.isNotEmpty &&
+      checks.any((check) => check.group == IpRiskGroup.datacenter) &&
+      checks.every((check) => check.hit != true);
+
+  int get displayScore => !isHomeBroadband && score == 0 ? 1 : score;
+
+  IpRisk get normalized =>
+      !isHomeBroadband && score == 0 ? copyWith(score: 1) : this;
 }
 
 class IpInfo {
@@ -1149,15 +1172,17 @@ enum PopupMenuItemType { primary, danger }
 class PopupMenuItemData {
   const PopupMenuItemData({
     this.icon,
-    this.emoji,
     required this.label,
-    required this.onPressed,
+    this.onPressed,
+    this.trailing,
+    this.children,
   });
 
   final String label;
   final VoidCallback? onPressed;
   final IconData? icon;
-  final String? emoji;
+  final Widget? trailing;
+  final List<PopupMenuItemData>? children;
 }
 
 @freezed
@@ -1264,10 +1289,23 @@ abstract class RouteService with _$RouteService {
 }
 
 @freezed
+abstract class RouteRegion with _$RouteRegion {
+  const factory RouteRegion({
+    required String name,
+    String? icon,
+    @JsonKey(name: 'default') @Default(false) bool preset,
+  }) = _RouteRegion;
+
+  factory RouteRegion.fromJson(Map<String, Object?> json) =>
+      _$RouteRegionFromJson(json);
+}
+
+@freezed
 abstract class RouteCatalog with _$RouteCatalog {
   const factory RouteCatalog({
     @Default([]) List<String> targets,
     @Default([]) List<String> reserved,
+    @Default([]) List<RouteRegion> regions,
     @Default({}) Map<String, RouteCategory> groupCategories,
     @Default([]) List<String> icons,
     @Default([]) List<RouteService> services,

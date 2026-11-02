@@ -10,10 +10,29 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../providers/state.dart';
 
-class ThemeManager extends ConsumerWidget {
+class ThemeManager extends ConsumerStatefulWidget {
   final Widget child;
 
   const ThemeManager({super.key, required this.child});
+
+  @override
+  ConsumerState<ThemeManager> createState() => _ThemeManagerState();
+}
+
+class _ThemeManagerState extends ConsumerState<ThemeManager> {
+  ThemeData? _theme;
+  double? _textScaleFactor;
+
+  void _syncThemeMetrics(double textScaleFactor) {
+    final theme = Theme.of(context);
+    if (identical(theme, _theme) && textScaleFactor == _textScaleFactor) {
+      return;
+    }
+    _theme = theme;
+    _textScaleFactor = textScaleFactor;
+    globalState.measure = Measure.of(context, textScaleFactor);
+    globalState.theme = CommonTheme.of(context, textScaleFactor);
+  }
 
   Widget _buildSystemUi(Widget child) {
     if (!system.isAndroid) {
@@ -25,19 +44,22 @@ class ThemeManager extends ConsumerWidget {
         final iconBrightness = brightness == Brightness.light
             ? Brightness.dark
             : Brightness.light;
-        globalState.appState = globalState.appState.copyWith(
-          systemUiOverlayStyle: SystemUiOverlayStyle(
-            statusBarColor: Colors.transparent,
-            statusBarIconBrightness: iconBrightness,
-            systemStatusBarContrastEnforced: false,
-            systemNavigationBarIconBrightness: iconBrightness,
-            systemNavigationBarColor: Colors.transparent,
-            systemNavigationBarDividerColor: Colors.transparent,
-            systemNavigationBarContrastEnforced: false,
-          ),
+        final style = SystemUiOverlayStyle(
+          statusBarColor: Colors.transparent,
+          statusBarIconBrightness: iconBrightness,
+          systemStatusBarContrastEnforced: false,
+          systemNavigationBarIconBrightness: iconBrightness,
+          systemNavigationBarColor: Colors.transparent,
+          systemNavigationBarDividerColor: Colors.transparent,
+          systemNavigationBarContrastEnforced: false,
         );
+        if (globalState.appState.systemUiOverlayStyle != style) {
+          globalState.appState = globalState.appState.copyWith(
+            systemUiOverlayStyle: style,
+          );
+        }
         return AnnotatedRegion<SystemUiOverlayStyle>(
-          value: globalState.appState.systemUiOverlayStyle,
+          value: style,
           sized: false,
           child: child,
         );
@@ -62,7 +84,7 @@ class ThemeManager extends ConsumerWidget {
   // }
 
   @override
-  Widget build(BuildContext context, ref) {
+  Widget build(BuildContext context) {
     final textScale = ref.read(
       themeSettingProvider.select((state) => state.textScale),
     );
@@ -74,12 +96,12 @@ class ThemeManager extends ConsumerWidget {
       minTextScale,
     );
 
-    globalState.measure = Measure.of(context, textScaleFactor);
-    globalState.theme = CommonTheme.of(context, textScaleFactor);
-    final padding = MediaQuery.of(context).padding;
-    final height = MediaQuery.of(context).size.height;
+    _syncThemeMetrics(textScaleFactor);
+    final mediaQuery = MediaQuery.of(context);
+    final padding = mediaQuery.padding;
+    final height = mediaQuery.size.height;
     return MediaQuery(
-      data: MediaQuery.of(context).copyWith(
+      data: mediaQuery.copyWith(
         textScaler: TextScaler.linear(textScaleFactor),
         padding: padding.copyWith(
           top: padding.top > height * 0.3 ? 20.0 : padding.top,
@@ -90,7 +112,7 @@ class ThemeManager extends ConsumerWidget {
           globalState.appController.updateViewSize(
             Size(container.maxWidth, container.maxHeight),
           );
-          return _buildSystemUi(child);
+          return _buildSystemUi(widget.child);
         },
       ),
     );

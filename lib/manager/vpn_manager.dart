@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:bett_box/common/common.dart';
 import 'package:bett_box/enum/enum.dart';
 import 'package:bett_box/providers/app.dart';
@@ -58,6 +60,13 @@ class _VpnContainerState extends ConsumerState<VpnManager> {
       }
 
       showTip();
+    });
+    ref.listenManual(currentProfileProvider.select((state) => state?.label), (
+      prev,
+      next,
+    ) {
+      if (prev == next || !globalState.isStart) return;
+      unawaited(globalState.appController.updateTraffic());
     });
   }
 

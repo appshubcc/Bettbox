@@ -109,10 +109,11 @@ class _TrafficUsageState extends ConsumerState<TrafficUsage> {
           ),
         ),
         const SizedBox(width: 8),
-        Flexible(
+        Expanded(
           child: Text(
             v,
             maxLines: 1,
+            textAlign: TextAlign.end,
             overflow: TextOverflow.ellipsis,
             style: context.textTheme.bodyMedium?.copyWith(
               fontWeight: FontWeight.w600,

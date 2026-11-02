@@ -44,6 +44,10 @@ class App {
     return await methodChannel.invokeMethod<bool>('moveTaskToBack');
   }
 
+  Future<void> notifyLowMemory() async {
+    await methodChannel.invokeMethod<bool>('notifyLowMemory');
+  }
+
   Future<List<Package>> getPackages({bool forceRefresh = false}) async {
     final packagesRaw =
         await methodChannel.invokeListMethod<Map<dynamic, dynamic>>(

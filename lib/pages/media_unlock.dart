@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:bett_box/clash/clash.dart';
 import 'package:bett_box/common/common.dart';
@@ -44,14 +43,14 @@ class _MediaUnlockPageState extends ConsumerState<MediaUnlockPage> {
       props: const SheetProps(maxWidth: 480),
       builder: (_, type) => _MediaBatchSheet(
         type: type,
-        platform: platform,
-        nodes: nodes,
-        scope: switch (target.scope) {
-          OutboundBatchScope.all => appLocalizations.mediaBatchAll,
-          _ => target.name,
-        },
+        title: appLocalizations.mediaBatchTest,
+        subject:
+            '${platform.defaultName} · ${switch (target.scope) {
+              OutboundBatchScope.all => appLocalizations.mediaBatchAll,
+              _ => target.name,
+            }}',
+        targets: [for (final node in nodes) (node, platform)],
         icon: _buildPlatformIcon(platform, size: 22),
-        statusText: _getStatusText,
       ),
     );
   }
@@ -119,96 +118,14 @@ class _MediaUnlockPageState extends ConsumerState<MediaUnlockPage> {
     );
   }
 
-  String _getStatusText(MediaUnlockStatus status, [MediaPlatform? platform]) {
-    switch (status) {
-      case MediaUnlockStatus.unlocked:
-        if (platform?.category == MediaCategory.streaming) {
-          return appLocalizations.mediaUnlocked;
-        }
-        return appLocalizations.unlocked;
-      case MediaUnlockStatus.limited:
-        if (platform?.category == MediaCategory.streaming) {
-          return appLocalizations.limitedUnlock;
-        }
-        return appLocalizations.flagged;
-      case MediaUnlockStatus.flagged:
-        return appLocalizations.flagged;
-      case MediaUnlockStatus.blocked:
-        return appLocalizations.notUnlocked;
-      case MediaUnlockStatus.failed:
-        return appLocalizations.checkFailed;
-      case MediaUnlockStatus.testing:
-        return appLocalizations.testing;
-      case MediaUnlockStatus.unknown:
-        return '-';
-    }
-  }
-
-  String _getPlatformSvgPath(MediaPlatform platform) {
-    return 'assets/images/platforms/${platform.name}.svg';
-  }
+  String _getStatusText(MediaUnlockStatus status, [MediaPlatform? platform]) =>
+      mediaStatusText(status, platform);
 
   Widget _buildPlatformIcon(
     MediaPlatform platform, {
     MediaUnlockStatus? status,
     double size = 20,
-  }) {
-    final assetPath = _getPlatformSvgPath(platform);
-    final scale = size / 20.0;
-    final iconSize = platform.iconSize;
-    final iconWidth = iconSize.width * scale;
-    final iconHeight = iconSize.height * scale;
-
-    final isUnlocked =
-        status == null ||
-        status == MediaUnlockStatus.unlocked ||
-        status == MediaUnlockStatus.limited ||
-        status == MediaUnlockStatus.flagged;
-    final isTestingOrUnknown =
-        status == MediaUnlockStatus.unknown ||
-        status == MediaUnlockStatus.testing;
-
-    final Widget icon;
-    if (platform.isMonochrome) {
-      icon = SvgPicture.asset(
-        assetPath,
-        width: iconWidth,
-        height: iconHeight,
-        fit: BoxFit.contain,
-        colorFilter: ColorFilter.mode(
-          isUnlocked
-              ? context.colorScheme.onSurface
-              : (isTestingOrUnknown
-                    ? context.colorScheme.onSurfaceVariant
-                    : status.statusColor(context.colorScheme)),
-          BlendMode.srcIn,
-        ),
-      );
-    } else if (isUnlocked) {
-      icon = SvgPicture.asset(
-        assetPath,
-        width: iconWidth,
-        height: iconHeight,
-        fit: BoxFit.contain,
-      );
-    } else {
-      icon = ColorFiltered(
-        colorFilter: monochromeColorFilter,
-        child: SvgPicture.asset(
-          assetPath,
-          width: iconWidth,
-          height: iconHeight,
-          fit: BoxFit.contain,
-        ),
-      );
-    }
-
-    return SizedBox(
-      width: size,
-      height: size,
-      child: Center(child: icon),
-    );
-  }
+  }) => mediaPlatformIcon(context, platform, status: status, size: size);
 
   void _showPinnedSettingsDialog() {
     final isChinese = Localizations.localeOf(context).languageCode == 'zh';
@@ -239,17 +156,10 @@ class _MediaUnlockPageState extends ConsumerState<MediaUnlockPage> {
   }
 
   void _showMiscSettingsDialog() {
-    globalState.showCommonDialog<void>(
+    globalState.showAdaptiveSheet<void>(
       child: CommonDialog(
         title: appLocalizations.mediaUnlockMiscSettings,
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(context, rootNavigator: true).pop();
-            },
-            child: Text(appLocalizations.confirm),
-          ),
-        ],
+        padding: const EdgeInsets.symmetric(vertical: 8),
         child: SizedBox(
           width: 320.ap,
           child: Consumer(
@@ -995,32 +905,35 @@ const _batchConcurrency = 4;
 
 class _MediaBatchItem {
   final String name;
+  final MediaPlatform platform;
   final MediaUnlockResult? result;
   final bool testing;
 
   const _MediaBatchItem({
     required this.name,
+    required this.platform,
     this.result,
     this.testing = false,
   });
+
+  _MediaBatchItem reset() => _MediaBatchItem(name: name, platform: platform);
 }
 
 class _MediaBatchSheet extends ConsumerStatefulWidget {
   final SheetType type;
-  final MediaPlatform platform;
-  final List<String> nodes;
-  final String scope;
+  final String title;
+  final String subject;
+  final List<(String, MediaPlatform)> targets;
   final Widget icon;
-  final String Function(MediaUnlockStatus status, [MediaPlatform? platform])
-  statusText;
+  final bool byPlatform;
 
   const _MediaBatchSheet({
     required this.type,
-    required this.platform,
-    required this.nodes,
-    required this.scope,
+    required this.title,
+    required this.subject,
+    required this.targets,
     required this.icon,
-    required this.statusText,
+    this.byPlatform = false,
   });
 
   @override
@@ -1031,19 +944,23 @@ class _MediaBatchSheetState extends ConsumerState<_MediaBatchSheet> {
   List<_MediaBatchItem> _items = [];
   final Set<MediaUnlockChecker> _checkers = {};
   bool _running = false;
+  bool _proxyHeld = false;
   int _serial = 0;
 
   @override
   void initState() {
     super.initState();
-    _items = widget.nodes.map((name) => _MediaBatchItem(name: name)).toList();
+    _items = [
+      for (final (name, platform) in widget.targets)
+        _MediaBatchItem(name: name, platform: platform),
+    ];
     WidgetsBinding.instance.addPostFrameCallback((_) => _start());
   }
 
   @override
   void dispose() {
     _stop();
-    clashCore.stopToolProxy();
+    if (_proxyHeld) clashCore.stopToolProxy();
     super.dispose();
   }
 
@@ -1057,8 +974,7 @@ class _MediaBatchSheetState extends ConsumerState<_MediaBatchSheet> {
       setState(() {
         _running = false;
         _items = [
-          for (final item in _items)
-            item.testing ? _MediaBatchItem(name: item.name) : item,
+          for (final item in _items) item.testing ? item.reset() : item,
         ];
       });
     }
@@ -1069,14 +985,12 @@ class _MediaBatchSheetState extends ConsumerState<_MediaBatchSheet> {
     final serial = ++_serial;
     setState(() {
       _running = true;
-      _items = [for (final item in _items) _MediaBatchItem(name: item.name)];
+      _items = [for (final item in _items) item.reset()];
     });
-    final port = await clashCore.startToolProxy();
-    if (!mounted) {
-      clashCore.stopToolProxy();
-      return;
-    }
-    if (serial != _serial) return;
+    final acquire = !_proxyHeld;
+    _proxyHeld = true;
+    final port = await clashCore.startToolProxy(acquire: acquire);
+    if (!mounted || serial != _serial) return;
     if (port <= 0) {
       setState(() => _running = false);
       return;
@@ -1085,27 +999,32 @@ class _MediaBatchSheetState extends ConsumerState<_MediaBatchSheet> {
     Future<void> worker() async {
       while (queue.isNotEmpty && serial == _serial && mounted) {
         final index = queue.removeAt(0);
-        final name = _items[index].name;
-        _update(serial, index, _MediaBatchItem(name: name, testing: true));
-        final user = utf8
-            .encode(name)
-            .map((byte) => byte.toRadixString(16).padLeft(2, '0'))
-            .join();
+        final item = _items[index];
+        final name = item.name;
+        _update(
+          serial,
+          index,
+          _MediaBatchItem(name: name, platform: item.platform, testing: true),
+        );
         final checker = MediaUnlockChecker(
-          proxy: 'PROXY $user:x@127.0.0.1:$port',
+          proxy: clashCore.toolProxyRoute(name, port),
         );
         _checkers.add(checker);
         MediaUnlockResult result;
         try {
-          result = await checker.checkPlatform(widget.platform);
+          result = await checker.checkPlatform(item.platform);
         } catch (_) {
           result = MediaUnlockResult(
-            platform: widget.platform,
+            platform: item.platform,
             status: MediaUnlockStatus.failed,
           );
         }
         _checkers.remove(checker);
-        _update(serial, index, _MediaBatchItem(name: name, result: result));
+        _update(
+          serial,
+          index,
+          _MediaBatchItem(name: name, platform: item.platform, result: result),
+        );
       }
     }
 
@@ -1145,7 +1064,7 @@ class _MediaBatchSheetState extends ConsumerState<_MediaBatchSheet> {
       });
     return AdaptiveSheetScaffold(
       type: widget.type,
-      title: appLocalizations.mediaBatchTest,
+      title: widget.title,
       actions: [
         IconButton(
           tooltip: _running ? appLocalizations.stop : appLocalizations.retry,
@@ -1170,7 +1089,7 @@ class _MediaBatchSheetState extends ConsumerState<_MediaBatchSheet> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       EmojiText(
-                        '${widget.platform.defaultName} · ${widget.scope}',
+                        widget.subject,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: context.textTheme.titleMedium?.copyWith(
@@ -1243,9 +1162,20 @@ class _MediaBatchSheetState extends ConsumerState<_MediaBatchSheet> {
                         ),
                         child: Row(
                           children: [
+                            if (widget.byPlatform) ...[
+                              mediaPlatformIcon(
+                                context,
+                                item.platform,
+                                status: status,
+                                size: 18,
+                              ),
+                              const SizedBox(width: 10),
+                            ],
                             Expanded(
                               child: EmojiText(
-                                item.name,
+                                widget.byPlatform
+                                    ? item.platform.defaultName
+                                    : item.name,
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                                 style: context.textTheme.bodyMedium,
@@ -1271,7 +1201,7 @@ class _MediaBatchSheetState extends ConsumerState<_MediaBatchSheet> {
                             ],
                             const SizedBox(width: 10),
                             Text(
-                              widget.statusText(status, widget.platform),
+                              mediaStatusText(status, item.platform),
                               style: context.textTheme.labelSmall?.copyWith(
                                 color: color,
                                 fontWeight: FontWeight.bold,
@@ -1287,4 +1217,118 @@ class _MediaBatchSheetState extends ConsumerState<_MediaBatchSheet> {
       ),
     );
   }
+}
+
+String mediaStatusText(MediaUnlockStatus status, [MediaPlatform? platform]) {
+  switch (status) {
+    case MediaUnlockStatus.unlocked:
+      if (platform?.category == MediaCategory.streaming) {
+        return appLocalizations.mediaUnlocked;
+      }
+      return appLocalizations.unlocked;
+    case MediaUnlockStatus.limited:
+      if (platform?.category == MediaCategory.streaming) {
+        return appLocalizations.limitedUnlock;
+      }
+      return appLocalizations.flagged;
+    case MediaUnlockStatus.flagged:
+      return appLocalizations.flagged;
+    case MediaUnlockStatus.blocked:
+      return appLocalizations.notUnlocked;
+    case MediaUnlockStatus.failed:
+      return appLocalizations.checkFailed;
+    case MediaUnlockStatus.testing:
+      return appLocalizations.testing;
+    case MediaUnlockStatus.unknown:
+      return '-';
+  }
+}
+
+Widget mediaPlatformIcon(
+  BuildContext context,
+  MediaPlatform platform, {
+  MediaUnlockStatus? status,
+  double size = 20,
+}) {
+  final assetPath = 'assets/svg/${platform.icon}';
+  final scale = size / 20.0;
+  final iconSize = platform.iconSize;
+  final iconWidth = iconSize.width * scale;
+  final iconHeight = iconSize.height * scale;
+
+  final isUnlocked =
+      status == null ||
+      status == MediaUnlockStatus.unlocked ||
+      status == MediaUnlockStatus.limited ||
+      status == MediaUnlockStatus.flagged;
+  final isTestingOrUnknown =
+      status == MediaUnlockStatus.unknown ||
+      status == MediaUnlockStatus.testing;
+
+  final Widget icon;
+  if (platform.isMonochrome) {
+    icon = SvgPicture.asset(
+      assetPath,
+      width: iconWidth,
+      height: iconHeight,
+      fit: BoxFit.contain,
+      colorFilter: ColorFilter.mode(
+        isUnlocked
+            ? context.colorScheme.onSurface
+            : (isTestingOrUnknown
+                  ? context.colorScheme.onSurfaceVariant
+                  : status.statusColor(context.colorScheme)),
+        BlendMode.srcIn,
+      ),
+    );
+  } else if (isUnlocked) {
+    icon = SvgPicture.asset(
+      assetPath,
+      width: iconWidth,
+      height: iconHeight,
+      fit: BoxFit.contain,
+    );
+  } else {
+    icon = ColorFiltered(
+      colorFilter: monochromeColorFilter,
+      child: SvgPicture.asset(
+        assetPath,
+        width: iconWidth,
+        height: iconHeight,
+        fit: BoxFit.contain,
+      ),
+    );
+  }
+
+  return SizedBox(
+    width: size,
+    height: size,
+    child: Center(child: icon),
+  );
+}
+
+void showNodeMediaUnlock(BuildContext context, String node) {
+  final isChinese = Localizations.localeOf(context).languageCode == 'zh';
+  final showMoreStreaming =
+      globalState.config.appSetting.mediaUnlockMoreStreamingPlatforms;
+  final platforms = MediaPlatform.values.where(
+    (p) =>
+        (isChinese || p.category != MediaCategory.china) &&
+        (showMoreStreaming || !moreStreamingPlatforms.contains(p)),
+  );
+  showSheet<void>(
+    context: context,
+    props: const SheetProps(maxWidth: 480),
+    builder: (_, type) => _MediaBatchSheet(
+      type: type,
+      title: appLocalizations.mediaUnlock,
+      subject: node,
+      targets: [for (final platform in platforms) (node, platform)],
+      icon: Icon(
+        Icons.travel_explore_rounded,
+        color: context.colorScheme.primary,
+      ),
+      byPlatform: true,
+    ),
+  );
 }

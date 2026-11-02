@@ -7,6 +7,15 @@ extension BuildContextExtension on BuildContext {
     return findAncestorStateOfType<CommonScaffoldState>();
   }
 
+  Future<void> dismissKeyboard() async {
+    final view = View.of(this);
+    FocusManager.instance.primaryFocus?.unfocus();
+    if (view.viewInsets.bottom <= 0) return;
+    for (var i = 0; i < 30 && view.viewInsets.bottom > 0; i++) {
+      await WidgetsBinding.instance.endOfFrame;
+    }
+  }
+
   void afterRouteTransition(VoidCallback callback) {
     final animation = ModalRoute.of(this)?.animation;
     if (animation == null || animation.isCompleted) {
@@ -56,7 +65,7 @@ extension BuildContextExtension on BuildContext {
   }
 
   Size get appSize {
-    return MediaQuery.of(this).size;
+    return MediaQuery.sizeOf(this);
   }
 
   double get viewWidth {

@@ -222,11 +222,6 @@ class AppPath {
     return join(directory.path, 'config.json');
   }
 
-  Future<String> get ipCacheFilePath async {
-    final tempDirectory = await tempPath;
-    return join(tempDirectory, 'ip_cache.json');
-  }
-
   Future<String> get speedTestPath async {
     final directory = await dataDir.future;
     return join(directory.path, 'speed_test.json');
@@ -235,6 +230,11 @@ class AppPath {
   Future<String> get toolHistoryPath async {
     final directory = await dataDir.future;
     return join(directory.path, 'toolbox_history.json');
+  }
+
+  Future<String> get iconSetsPath async {
+    final directory = await dataDir.future;
+    return join(directory.path, 'icon_sets.json');
   }
 
   Future<String> get helperAuthKeyPath async {

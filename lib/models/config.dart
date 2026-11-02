@@ -45,7 +45,7 @@ const defaultNetworkProps = NetworkProps();
 const defaultProxiesStyle = ProxiesStyle();
 const defaultWindowProps = WindowProps();
 const defaultAccessControl = AccessControl();
-final defaultThemeProps = ThemeProps(primaryColor: defaultPrimaryColor);
+const defaultThemeProps = ThemeProps();
 
 const List<DashboardWidget> defaultDashboardWidgets = [
   DashboardWidget.networkSpeed,
@@ -70,47 +70,41 @@ const List<DashboardWidget> defaultAndroidDashboardWidgets = [
   DashboardWidget.startButton,
 ];
 
+final _dashboardWidgetNames = {
+  for (final entry in _$DashboardWidgetEnumMap.entries) entry.value: entry.key,
+};
+
+List<DashboardWidget> _decodeDashboardWidgets(List<dynamic> values) => [
+  for (final value in values) ?_dashboardWidgetNames[value],
+];
+
 List<DashboardWidget> dashboardWidgetsSafeFromJson(
   List<dynamic>? dashboardWidgets,
 ) {
-  try {
-    return dashboardWidgets
-            ?.map((e) => $enumDecode(_$DashboardWidgetEnumMap, e))
-            .toList() ??
-        (system.isAndroid
-            ? defaultAndroidDashboardWidgets
-            : defaultDashboardWidgets);
-  } catch (_) {
+  if (dashboardWidgets == null) {
     return system.isAndroid
         ? defaultAndroidDashboardWidgets
         : defaultDashboardWidgets;
   }
+  return _decodeDashboardWidgets(dashboardWidgets);
 }
 
 List<DashboardWidget> mobileDashboardWidgetsSafeFromJson(
   List<dynamic>? dashboardWidgets,
 ) {
-  try {
-    return dashboardWidgets
-            ?.map((e) => $enumDecode(_$DashboardWidgetEnumMap, e))
-            .toList() ??
-        defaultAndroidDashboardWidgets;
-  } catch (_) {
+  if (dashboardWidgets == null) {
     return defaultAndroidDashboardWidgets;
   }
+  return _decodeDashboardWidgets(dashboardWidgets);
 }
 
 List<DashboardWidget> desktopDashboardWidgetsSafeFromJson(
   List<dynamic>? dashboardWidgets,
 ) {
-  try {
-    return dashboardWidgets
-            ?.map((e) => $enumDecode(_$DashboardWidgetEnumMap, e))
-            .toList() ??
-        defaultDashboardWidgets;
-  } catch (_) {
+  if (dashboardWidgets == null) {
     return defaultDashboardWidgets;
   }
+  return _decodeDashboardWidgets(dashboardWidgets);
 }
 
 const List<SidebarFlyoutEntry> defaultSidebarFlyoutEntries = [
@@ -205,7 +199,6 @@ abstract class AppSettingProps with _$AppSettingProps {
     @Default(true) bool openLogs,
     @Default(true) bool closeConnections,
     @Default(true) bool logAiSearch,
-    @Default(false) bool flushDnsOnNetworkChange,
     @Default(defaultTestUrl) String testUrl,
     @Default(true) bool showStartSwitch,
     @Default(StartSwitchStyle.outlined) StartSwitchStyle startSwitchStyle,
@@ -230,12 +223,14 @@ abstract class AppSettingProps with _$AppSettingProps {
     @JsonKey(fromJson: sidebarFlyoutEntriesSafeFromJson)
     List<SidebarFlyoutEntry> sidebarFlyoutEntries,
     String? dashboardTitle,
+    @Default(false) bool dashboardWatermark,
     @Default(<String>[]) List<String> toolboxTiles,
     @JsonKey(unknownEnumValue: MrsTapAction.viewRules)
     @Default(MrsTapAction.viewRules)
     MrsTapAction mrsTapAction,
     @Default(true) bool mrsResolveDns,
     @Default(false) bool ipRiskDetail,
+    @Default(true) bool ipRiskAlert,
     @Default(IperfOptions()) IperfOptions iperfOptions,
     @Default(LocalPingOptions()) LocalPingOptions localPingOptions,
     @Default(<String, String>{}) Map<String, String> mobileDashboardSizes,
@@ -504,12 +499,26 @@ abstract class CustomRoute with _$CustomRoute {
 }
 
 @freezed
+abstract class CustomRegion with _$CustomRegion {
+  const factory CustomRegion({
+    required String name,
+    required String regex,
+  }) = _CustomRegion;
+
+  factory CustomRegion.fromJson(Map<String, Object?> json) =>
+      _$CustomRegionFromJson(json);
+}
+
+@freezed
 abstract class ManagedProps with _$ManagedProps {
   const factory ManagedProps({
     @Default({}) Map<String, bool> options,
     String? syncedVersion,
     @Default([]) List<CustomRoute> routes,
     @Default([]) List<String> order,
+    @Default([]) List<String> removed,
+    List<String>? regions,
+    @Default([]) List<CustomRegion> customRegions,
   }) = _ManagedProps;
 
   factory ManagedProps.fromJson(Map<String, Object?> json) =>
@@ -525,12 +534,10 @@ abstract class Config with _$Config {
     @Default([]) List<Profile> profiles,
     @Default([]) List<HotKeyAction> hotKeyActions,
     String? currentProfileId,
-    @Default(false) bool overrideDns,
     @Default(false) bool overrideNtp,
     @Default(false) bool overrideSniffer,
     @Default(false) bool overrideTunnel,
     @Default(false) bool overrideExperimental,
-    @Default(true) bool overrideTestUrl,
     DAV? dav,
     @Default(defaultNetworkProps) NetworkProps networkProps,
     @JsonKey(fromJson: VpnProps.safeFromJson)

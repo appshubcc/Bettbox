@@ -39,12 +39,10 @@ Config configState(Ref ref) {
   final appSetting = ref.watch(appSettingProvider);
   final profiles = ref.watch(profilesProvider);
   final currentProfileId = ref.watch(currentProfileIdProvider);
-  final overrideDns = ref.watch(overrideDnsProvider);
   final overrideNtp = ref.watch(overrideNtpProvider);
   final overrideSniffer = ref.watch(overrideSnifferProvider);
   final overrideTunnel = ref.watch(overrideTunnelProvider);
   final overrideExperimental = ref.watch(overrideExperimentalProvider);
-  final overrideTestUrl = ref.watch(overrideTestUrlProvider);
   final networkProps = ref.watch(networkSettingProvider);
   final vpnProps = ref.watch(vpnSettingProvider);
   final proxiesStyle = ref.watch(proxiesStyleSettingProvider);
@@ -64,12 +62,10 @@ Config configState(Ref ref) {
     trafficStatsProps: trafficStatsProps,
     vpnProps: vpnProps,
     networkProps: networkProps,
-    overrideDns: overrideDns,
     overrideNtp: overrideNtp,
     overrideSniffer: overrideSniffer,
     overrideTunnel: overrideTunnel,
     overrideExperimental: overrideExperimental,
-    overrideTestUrl: overrideTestUrl,
     currentProfileId: currentProfileId,
     profiles: profiles,
     appSetting: appSetting,
@@ -422,7 +418,6 @@ List<Group> hideTimeoutProxies({
   required List<Group> allGroups,
   required SelectedMap selectedMap,
   required DelayMap delayMap,
-  required bool overrideTestUrl,
   required String defaultTestUrl,
 }) {
   final proxyTypes = {
@@ -434,7 +429,10 @@ List<Group> hideTimeoutProxies({
     final selectedName = (allGroups.getGroup(group.name) ?? group)
         .getCurrentSelectedName(selectedMap[group.name] ?? '');
     final visible = group.all.where((proxy) {
-      if (proxy.name == selectedName) return true;
+      if (proxy.name == selectedName ||
+          allGroups.getGroup(proxy.name) != null) {
+        return true;
+      }
       final state = states.putIfAbsent(
         proxy.name,
         () => resolveProxyCardState(
@@ -447,12 +445,32 @@ List<Group> hideTimeoutProxies({
         return true;
       }
       final testUrl = state.testUrl.getSafeValue(group.testUrl ?? '');
-      final url = overrideTestUrl || testUrl.isEmpty ? defaultTestUrl : testUrl;
+      final url = testUrl.isEmpty ? defaultTestUrl : testUrl;
       final delay = delayMap[url]?[state.proxyName];
       return delay == null || delay >= 0;
     }).toList();
     return group.copyWith(all: visible.isEmpty ? group.all : visible);
   }).toList();
+}
+
+GroupsState _hideTimeoutGroups(Ref ref, List<Group> groups) {
+  final hideTimeout = ref.watch(
+    proxiesStyleSettingProvider.select((state) => state.hideTimeoutProxies),
+  );
+  if (!hideTimeout) {
+    return GroupsState(value: groups);
+  }
+  return GroupsState(
+    value: hideTimeoutProxies(
+      groups: groups,
+      allGroups: ref.watch(groupsProvider),
+      selectedMap: ref.watch(selectedMapProvider),
+      delayMap: ref.watch(delaySortSnapshotProvider),
+      defaultTestUrl: ref.watch(
+        appSettingProvider.select((state) => state.testUrl),
+      ),
+    ),
+  );
 }
 
 @riverpod
@@ -462,36 +480,19 @@ GroupsState visibleGroupsState(Ref ref) {
       .value
       .map(_withoutSelection)
       .toList();
-  final hideTimeout = ref.watch(
-    proxiesStyleSettingProvider.select((state) => state.hideTimeoutProxies),
-  );
-  if (!hideTimeout) {
-    return GroupsState(value: groups);
-  }
-  final allGroups = ref.watch(groupsProvider);
-  final selectedMap = ref.watch(selectedMapProvider);
-  return GroupsState(
-    value: hideTimeoutProxies(
-      groups: groups,
-      allGroups: allGroups,
-      selectedMap: selectedMap,
-      delayMap: ref.watch(delaySortSnapshotProvider),
-      overrideTestUrl: ref.watch(overrideTestUrlProvider),
-      defaultTestUrl: ref.watch(
-        appSettingProvider.select((state) => state.testUrl),
-      ),
-    ),
-  );
+  return _hideTimeoutGroups(ref, groups);
 }
 
 @riverpod
 GroupsState filterGroupsState(Ref ref, String query) {
-  final currentGroups = ref.watch(visibleGroupsStateProvider);
   if (query.isEmpty) {
-    return currentGroups;
+    return ref.watch(visibleGroupsStateProvider);
   }
   final lowQuery = query.toLowerCase();
-  final groups = currentGroups.value
+  final groups = ref
+      .watch(currentGroupsStateProvider)
+      .value
+      .map(_withoutSelection)
       .map((group) {
         final groupNameMatch = group.name.toLowerCase().contains(lowQuery);
         if (groupNameMatch) {
@@ -505,7 +506,7 @@ GroupsState filterGroupsState(Ref ref, String query) {
       })
       .where((group) => group.all.isNotEmpty)
       .toList();
-  return GroupsState(value: groups);
+  return _hideTimeoutGroups(ref, groups);
 }
 
 @riverpod
@@ -561,7 +562,6 @@ class SortedGroupProxies extends _$SortedGroupProxies {
         groups: ref.read(groupsProvider),
         selectedMap: ref.read(selectedMapProvider),
         delayMap: ref.watch(delaySortSnapshotProvider),
-        overrideTestUrl: ref.watch(overrideTestUrlProvider),
         defaultTestUrl: ref.watch(
           appSettingProvider.select((state) => state.testUrl),
         ),
@@ -762,15 +762,12 @@ bool isCurrentPage(
 
 @riverpod
 String getRealTestUrl(Ref ref, [String? testUrl]) {
-  final overrideTestUrl = ref.watch(overrideTestUrlProvider);
   final currentTestUrl = ref.watch(appSettingProvider).testUrl;
 
-  // If override is enabled or testUrl is null or empty, use client setting
-  if (overrideTestUrl || testUrl == null || testUrl.isEmpty) {
+  if (testUrl == null || testUrl.isEmpty) {
     return currentTestUrl;
   }
 
-  // Otherwise use the provided testUrl from config file
   return testUrl;
 }
 
@@ -871,7 +868,6 @@ int? Function(String proxyName, String? testUrl) createDelayLookup({
   required List<Group> groups,
   required SelectedMap selectedMap,
   required DelayMap delayMap,
-  required bool overrideTestUrl,
   required String defaultTestUrl,
 }) {
   final cache = <(String, String?), int?>{};
@@ -882,9 +878,7 @@ int? Function(String proxyName, String? testUrl) createDelayLookup({
       ProxyCardState(proxyName: proxyName),
     );
     final realTestUrl = state.testUrl.getSafeValue(testUrl ?? '');
-    final url = overrideTestUrl || realTestUrl.isEmpty
-        ? defaultTestUrl
-        : realTestUrl;
+    final url = realTestUrl.isEmpty ? defaultTestUrl : realTestUrl;
     return delayMap[url]?[state.proxyName];
   });
 }
@@ -1016,19 +1010,19 @@ ColorScheme genColorScheme(
         tertiaryPalette: palette.tertiary,
         neutralPalette: palette.neutral,
         neutralVariantPalette: palette.neutralVariant,
-      ).toColorScheme();
+      ).toColorScheme().toNeutralSurfaces();
     }
     return ColorScheme.fromSeed(
       seedColor: globalState.accentColor,
       brightness: brightness,
       dynamicSchemeVariant: vm2.b,
-    );
+    ).toNeutralSurfaces();
   }
   return ColorScheme.fromSeed(
     seedColor: color ?? Color(vm2.a!),
     brightness: brightness,
     dynamicSchemeVariant: vm2.b,
-  );
+  ).toNeutralSurfaces();
 }
 
 @riverpod
@@ -1044,12 +1038,22 @@ Script? currentProfileScript(Ref ref) {
 }
 
 @riverpod
-VM4<String?, String?, Dns?, String?> needSetup(Ref ref) {
+bool currentProfileScriptActive(Ref ref) {
+  final managed = ref.watch(
+    currentProfileProvider.select((profile) => profile?.isManaged ?? false),
+  );
+  return managed ||
+      ref.watch(
+        currentProfileScriptProvider.select((script) => script != null),
+      );
+}
+
+@riverpod
+VM5<String?, String?, String?, bool, String> needSetup(Ref ref) {
   final profileId = ref.watch(currentProfileIdProvider);
-  final (managed, runsManagedScript) = ref.watch(
+  final runsManagedScript = ref.watch(
     currentProfileProvider.select(
-      (profile) =>
-          (profile?.isManaged ?? false, profile?.runsManagedScript ?? false),
+      (profile) => profile?.runsManagedScript ?? false,
     ),
   );
   final script = ref.watch(currentProfileScriptProvider);
@@ -1063,15 +1067,23 @@ VM4<String?, String?, Dns?, String?> needSetup(Ref ref) {
       : script == null
       ? null
       : '${script.id}:${script.digest}';
-  final overrideDns = ref.watch(overrideDnsProvider);
-  final dns = overrideDns && !managed
-      ? ref.watch(patchClashConfigProvider.select((state) => state.dns))
-      : null;
   final loopbackPorts =
       ref.watch(vpnSettingProvider.select((state) => state.loopbackProtection))
       ? ref.watch(patchClashConfigProvider.select((state) => state.listenPorts))
       : null;
-  return VM4(a: profileId, b: scriptDigest, c: dns, d: loopbackPorts);
+  final ipv6 = ref.watch(
+    patchClashConfigProvider.select((state) => state.ipv6),
+  );
+  final interfaceName = ref.watch(
+    patchClashConfigProvider.select((state) => state.interfaceName),
+  );
+  return VM5(
+    a: profileId,
+    b: scriptDigest,
+    c: loopbackPorts,
+    d: ipv6,
+    e: interfaceName,
+  );
 }
 
 @riverpod

@@ -42,7 +42,6 @@ _AppSettingProps _$AppSettingPropsFromJson(
   openLogs: json['openLogs'] as bool? ?? true,
   closeConnections: json['closeConnections'] as bool? ?? true,
   logAiSearch: json['logAiSearch'] as bool? ?? true,
-  flushDnsOnNetworkChange: json['flushDnsOnNetworkChange'] as bool? ?? false,
   testUrl: json['testUrl'] as String? ?? defaultTestUrl,
   showStartSwitch: json['showStartSwitch'] as bool? ?? true,
   startSwitchStyle:
@@ -84,6 +83,7 @@ _AppSettingProps _$AppSettingPropsFromJson(
       ? defaultSidebarFlyoutEntries
       : sidebarFlyoutEntriesSafeFromJson(json['sidebarFlyoutEntries'] as List?),
   dashboardTitle: json['dashboardTitle'] as String?,
+  dashboardWatermark: json['dashboardWatermark'] as bool? ?? false,
   toolboxTiles:
       (json['toolboxTiles'] as List<dynamic>?)
           ?.map((e) => e as String)
@@ -98,6 +98,7 @@ _AppSettingProps _$AppSettingPropsFromJson(
       MrsTapAction.viewRules,
   mrsResolveDns: json['mrsResolveDns'] as bool? ?? true,
   ipRiskDetail: json['ipRiskDetail'] as bool? ?? false,
+  ipRiskAlert: json['ipRiskAlert'] as bool? ?? true,
   iperfOptions: json['iperfOptions'] == null
       ? const IperfOptions()
       : IperfOptions.fromJson(json['iperfOptions'] as Map<String, dynamic>),
@@ -147,7 +148,6 @@ Map<String, dynamic> _$AppSettingPropsToJson(_AppSettingProps instance) =>
       'openLogs': instance.openLogs,
       'closeConnections': instance.closeConnections,
       'logAiSearch': instance.logAiSearch,
-      'flushDnsOnNetworkChange': instance.flushDnsOnNetworkChange,
       'testUrl': instance.testUrl,
       'showStartSwitch': instance.showStartSwitch,
       'startSwitchStyle': _$StartSwitchStyleEnumMap[instance.startSwitchStyle]!,
@@ -173,10 +173,12 @@ Map<String, dynamic> _$AppSettingPropsToJson(_AppSettingProps instance) =>
           .map((e) => _$SidebarFlyoutEntryEnumMap[e]!)
           .toList(),
       'dashboardTitle': instance.dashboardTitle,
+      'dashboardWatermark': instance.dashboardWatermark,
       'toolboxTiles': instance.toolboxTiles,
       'mrsTapAction': _$MrsTapActionEnumMap[instance.mrsTapAction]!,
       'mrsResolveDns': instance.mrsResolveDns,
       'ipRiskDetail': instance.ipRiskDetail,
+      'ipRiskAlert': instance.ipRiskAlert,
       'iperfOptions': instance.iperfOptions,
       'localPingOptions': instance.localPingOptions,
       'mobileDashboardSizes': instance.mobileDashboardSizes,
@@ -220,7 +222,6 @@ const _$DashboardWidgetEnumMap = {
   DashboardWidget.connectionsCount: 'connectionsCount',
   DashboardWidget.ipv6Switch: 'ipv6Switch',
   DashboardWidget.wakelockSwitch: 'wakelockSwitch',
-  DashboardWidget.dnsOverride: 'dnsOverride',
   DashboardWidget.snifferOverride: 'snifferOverride',
   DashboardWidget.ntpOverride: 'ntpOverride',
   DashboardWidget.providersInfo: 'providersInfo',
@@ -691,6 +692,12 @@ Map<String, dynamic> _$CustomRouteToJson(_CustomRoute instance) =>
       'enabled': instance.enabled,
     };
 
+_CustomRegion _$CustomRegionFromJson(Map<String, dynamic> json) =>
+    _CustomRegion(name: json['name'] as String, regex: json['regex'] as String);
+
+Map<String, dynamic> _$CustomRegionToJson(_CustomRegion instance) =>
+    <String, dynamic>{'name': instance.name, 'regex': instance.regex};
+
 _ManagedProps _$ManagedPropsFromJson(Map<String, dynamic> json) =>
     _ManagedProps(
       options:
@@ -707,6 +714,19 @@ _ManagedProps _$ManagedPropsFromJson(Map<String, dynamic> json) =>
       order:
           (json['order'] as List<dynamic>?)?.map((e) => e as String).toList() ??
           const [],
+      removed:
+          (json['removed'] as List<dynamic>?)
+              ?.map((e) => e as String)
+              .toList() ??
+          const [],
+      regions: (json['regions'] as List<dynamic>?)
+          ?.map((e) => e as String)
+          .toList(),
+      customRegions:
+          (json['customRegions'] as List<dynamic>?)
+              ?.map((e) => CustomRegion.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          const [],
     );
 
 Map<String, dynamic> _$ManagedPropsToJson(_ManagedProps instance) =>
@@ -715,6 +735,9 @@ Map<String, dynamic> _$ManagedPropsToJson(_ManagedProps instance) =>
       'syncedVersion': instance.syncedVersion,
       'routes': instance.routes,
       'order': instance.order,
+      'removed': instance.removed,
+      'regions': instance.regions,
+      'customRegions': instance.customRegions,
     };
 
 _Config _$ConfigFromJson(Map<String, dynamic> json) => _Config(
@@ -734,12 +757,10 @@ _Config _$ConfigFromJson(Map<String, dynamic> json) => _Config(
           .toList() ??
       const [],
   currentProfileId: json['currentProfileId'] as String?,
-  overrideDns: json['overrideDns'] as bool? ?? false,
   overrideNtp: json['overrideNtp'] as bool? ?? false,
   overrideSniffer: json['overrideSniffer'] as bool? ?? false,
   overrideTunnel: json['overrideTunnel'] as bool? ?? false,
   overrideExperimental: json['overrideExperimental'] as bool? ?? false,
-  overrideTestUrl: json['overrideTestUrl'] as bool? ?? true,
   dav: json['dav'] == null
       ? null
       : DAV.fromJson(json['dav'] as Map<String, dynamic>),
@@ -783,12 +804,10 @@ Map<String, dynamic> _$ConfigToJson(_Config instance) => <String, dynamic>{
   'profiles': instance.profiles,
   'hotKeyActions': instance.hotKeyActions,
   'currentProfileId': instance.currentProfileId,
-  'overrideDns': instance.overrideDns,
   'overrideNtp': instance.overrideNtp,
   'overrideSniffer': instance.overrideSniffer,
   'overrideTunnel': instance.overrideTunnel,
   'overrideExperimental': instance.overrideExperimental,
-  'overrideTestUrl': instance.overrideTestUrl,
   'dav': instance.dav,
   'networkProps': instance.networkProps,
   'vpnProps': instance.vpnProps,

@@ -260,7 +260,7 @@ class _ConnectionsViewState extends ConsumerState<ConnectionsView>
   Future<void> _handleSort() async {
     final currentSortType = ref.read(connectionsSortProvider);
     final selectedSortType = await globalState
-        .showCommonDialog<ConnectionsSortType>(
+        .showAdaptiveSheet<ConnectionsSortType>(
           child: OptionsDialog<ConnectionsSortType>(
             title: appLocalizations.connectionsSort,
             options: ConnectionsSortType.values
@@ -282,7 +282,8 @@ class _ConnectionsViewState extends ConsumerState<ConnectionsView>
             },
           ),
         );
-    if (selectedSortType != null && selectedSortType != currentSortType) {
+    if (selectedSortType == null || !mounted) return;
+    if (selectedSortType != currentSortType) {
       ref.read(connectionsSortProvider.notifier).state = selectedSortType;
     }
   }
@@ -466,8 +467,12 @@ class _ConnectionsViewState extends ConsumerState<ConnectionsView>
     List<Object>? dataSource,
   }) {
     if (count == 0) {
+      final udpOnly = ref.watch(connectionsUdpOnlyProvider);
       return NullStatus(
-        label: appLocalizations.nullTip(appLocalizations.connections),
+        label: udpOnly
+            ? appLocalizations.nullUdpConnections
+            : appLocalizations.nullTip(appLocalizations.connections),
+        icon: Icons.swap_vert_rounded,
       );
     }
     Map<String, int>? indexById;

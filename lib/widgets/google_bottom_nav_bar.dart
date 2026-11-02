@@ -9,6 +9,42 @@ import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+Color navBarBodyColor(ColorScheme colorScheme, bool pureBlack) {
+  if (colorScheme.brightness == Brightness.light) {
+    return Color.lerp(
+      colorScheme.surface,
+      colorScheme.surfaceContainerLowest,
+      0.5,
+    )!;
+  }
+  return pureBlack ? Colors.black : colorScheme.surfaceContainerHigh;
+}
+
+double navBarSlotResistance(double slot, int count) {
+  const maxOvershoot = 0.22;
+  final maxIndex = math.max(0, count - 1).toDouble();
+  if (slot < 0.0) {
+    return -maxOvershoot * (1.0 - math.exp(slot / maxOvershoot));
+  }
+  if (slot > maxIndex) {
+    return maxIndex +
+        maxOvershoot * (1.0 - math.exp((maxIndex - slot) / maxOvershoot));
+  }
+  return slot;
+}
+
+class SelectionHaptic {
+  int _lastTime = 0;
+
+  void call(bool enable) {
+    if (!system.isAndroid || !enable) return;
+    final now = DateTime.now().millisecondsSinceEpoch;
+    if (now - _lastTime <= 35) return;
+    _lastTime = now;
+    HapticFeedback.selectionClick();
+  }
+}
+
 class GoogleBottomNavBar extends ConsumerStatefulWidget {
   final List<NavigationItem> navigationItems;
   final int selectedIndex;
@@ -45,7 +81,7 @@ class _GoogleBottomNavBarState extends ConsumerState<GoogleBottomNavBar>
   double _anchorSlot = 0.0;
   double _barWidth = 0;
   int _lastSnappedIndex = 0;
-  int _lastHapticTime = 0;
+  final _haptic = SelectionHaptic();
   late final ValueNotifier<int> _highlightedIndex = ValueNotifier(
     widget.selectedIndex,
   );
@@ -55,7 +91,6 @@ class _GoogleBottomNavBarState extends ConsumerState<GoogleBottomNavBar>
   static const double _horizontalInset = 17.0;
 
   double? _posTarget;
-  bool _motion = true;
   int? _jumpFromIndex;
   int? _jumpToIndex;
 
@@ -114,7 +149,7 @@ class _GoogleBottomNavBarState extends ConsumerState<GoogleBottomNavBar>
       _highlightedIndex.value = widget.selectedIndex;
       _lastSnappedIndex = widget.selectedIndex;
       if (!_posController.isAnimating) {
-        _glideTo(widget.selectedIndex, _motion ? 160 : 0);
+        _posController.value = widget.selectedIndex.toDouble();
       }
     }
   }
@@ -129,29 +164,6 @@ class _GoogleBottomNavBarState extends ConsumerState<GoogleBottomNavBar>
     super.dispose();
   }
 
-  void _triggerHapticFeedback(bool enableFeedback) {
-    if (system.isAndroid && enableFeedback) {
-      final now = DateTime.now().millisecondsSinceEpoch;
-      if (now - _lastHapticTime > 35) {
-        _lastHapticTime = now;
-        HapticFeedback.selectionClick();
-      }
-    }
-  }
-
-  double _clampWithResistance(double slot, int count) {
-    const maxOvershoot = 0.22;
-    final maxIndex = math.max(0, count - 1).toDouble();
-    if (slot < 0.0) {
-      return -maxOvershoot * (1.0 - math.exp(slot / maxOvershoot));
-    }
-    if (slot > maxIndex) {
-      return maxIndex +
-          maxOvershoot * (1.0 - math.exp((maxIndex - slot) / maxOvershoot));
-    }
-    return slot;
-  }
-
   double get _slotWidth {
     final count = widget.navigationItems.length;
     if (count == 0) return 0.0;
@@ -160,7 +172,7 @@ class _GoogleBottomNavBarState extends ConsumerState<GoogleBottomNavBar>
 
   void _commitDragOffset() {
     if (_dragOffset.value == 0.0) return;
-    _posController.value = _clampWithResistance(
+    _posController.value = navBarSlotResistance(
       _posController.value + _dragOffset.value,
       widget.navigationItems.length,
     );
@@ -182,7 +194,6 @@ class _GoogleBottomNavBarState extends ConsumerState<GoogleBottomNavBar>
     final enableFeedback = ref.watch(
       appSettingProvider.select((state) => state.enableNavBarHapticFeedback),
     );
-    _motion = enableFeedback;
     final pureBlack = ref.watch(
       themeSettingProvider.select((s) => s.pureBlack),
     );
@@ -191,16 +202,10 @@ class _GoogleBottomNavBarState extends ConsumerState<GoogleBottomNavBar>
     final primaryColor = colorScheme.primary;
     final onSurfaceVariantColor = colorScheme.onSurfaceVariant;
 
-    // Body color matching CommonCard (widget) formula for visual harmony
-    final widgetBodyColor = isLight
-        ? Color.lerp(
-            colorScheme.surface,
-            colorScheme.surfaceContainerLowest,
-            0.5,
-          )!
-        : (pureBlack ? Colors.black : colorScheme.surfaceContainerHigh);
-
-    final navColor = widgetBodyColor.withValues(alpha: 0.98);
+    final navColor = navBarBodyColor(
+      colorScheme,
+      pureBlack,
+    ).withValues(alpha: 0.98);
     final shadowStrength = isLight ? 1.0 : 3.0;
 
     const itemTextStyle = TextStyle(
@@ -240,13 +245,13 @@ class _GoogleBottomNavBarState extends ConsumerState<GoogleBottomNavBar>
             _highlightedIndex.value = touchedIndex;
             _pressedIndex.value = touchedIndex;
             if (touchedIndex != widget.selectedIndex) {
-              _triggerHapticFeedback(enableFeedback);
+              _haptic(enableFeedback);
             }
 
-            final distance = (_posController.value - touchedIndex.toDouble())
-                .abs();
-            final glideMs = (160 + (distance * 30)).clamp(180, 240).toInt();
-            _glideTo(touchedIndex, _motion ? glideMs : 0);
+            _posController.stop();
+            _posController.value = touchedIndex.toDouble();
+            _jumpFromIndex = null;
+            _jumpToIndex = null;
 
             _liftTo(1.0, 140);
           },
@@ -285,7 +290,7 @@ class _GoogleBottomNavBarState extends ConsumerState<GoogleBottomNavBar>
             _pressedIndex.value = index;
             if (index != _lastSnappedIndex) {
               _lastSnappedIndex = index;
-              _triggerHapticFeedback(enableFeedback);
+              _haptic(enableFeedback);
             }
           },
           onPointerUp: (event) {
@@ -330,15 +335,8 @@ class _GoogleBottomNavBarState extends ConsumerState<GoogleBottomNavBar>
                 event.localPosition.dx - _horizontalInset,
               );
               _highlightedIndex.value = targetIndex;
-              final distance = (_posController.value - targetIndex.toDouble())
-                  .abs();
-              final glideMs = (160 + (distance * 30)).clamp(180, 240).toInt();
-              final needsGlide = _posController.isAnimating
-                  ? _posTarget != targetIndex.toDouble()
-                  : distance > 0.01;
-              if (needsGlide) {
-                _glideTo(targetIndex, _motion ? glideMs : 0);
-              }
+              _posController.stop();
+              _posController.value = targetIndex.toDouble();
             }
 
             _velocityTracker = null;
@@ -356,7 +354,8 @@ class _GoogleBottomNavBarState extends ConsumerState<GoogleBottomNavBar>
             _pressedIndex.value = null;
             _highlightedIndex.value = widget.selectedIndex;
             _commitDragOffset();
-            _glideTo(widget.selectedIndex, 180);
+            _posController.stop();
+            _posController.value = widget.selectedIndex.toDouble();
             _liftTo(0.0, 180);
           },
           child: Padding(
@@ -406,7 +405,7 @@ class _GoogleBottomNavBarState extends ConsumerState<GoogleBottomNavBar>
                                   lift: _liftController,
                                   dragOffset: _dragOffset,
                                   count: count,
-                                  slot: _clampWithResistance,
+                                  slot: navBarSlotResistance,
                                   color: primaryColor,
                                   baseAlpha: isLight ? 0.12 : 0.20,
                                   activeAlpha: isLight ? 0.18 : 0.26,
@@ -423,7 +422,7 @@ class _GoogleBottomNavBarState extends ConsumerState<GoogleBottomNavBar>
                               _liftController,
                             ]),
                             builder: (context, _) {
-                              final currentPos = _clampWithResistance(
+                              final currentPos = navBarSlotResistance(
                                 _posController.value + _dragOffset.value,
                                 count,
                               );
@@ -566,6 +565,7 @@ class NavBarPillPainter extends CustomPainter {
   final Color color;
   final double baseAlpha;
   final double activeAlpha;
+  final Rect Function(Size size, double position)? track;
 
   NavBarPillPainter({
     required this.position,
@@ -576,17 +576,25 @@ class NavBarPillPainter extends CustomPainter {
     required this.color,
     required this.baseAlpha,
     required this.activeAlpha,
+    this.track,
   }) : super(repaint: Listenable.merge([position, lift, dragOffset]));
 
   static const double _restingGap = 4.0;
 
   Rect pillRect(Size size) {
-    final slotWidth = size.width / count;
     final gap = _restingGap * (1 - lift.value);
-    final width = math.max(0.0, slotWidth - 2 * gap);
-    final center =
-        (slot(position.value + dragOffset.value, count) + 0.5) * slotWidth;
-    return Rect.fromLTWH(center - width / 2, gap, width, size.height - 2 * gap);
+    final pos = slot(position.value + dragOffset.value, count);
+    final slotWidth = size.width / count;
+    final base =
+        track?.call(size, pos) ??
+        Rect.fromLTWH(pos * slotWidth, 0, slotWidth, size.height);
+    final width = math.max(0.0, base.width - 2 * gap);
+    return Rect.fromLTWH(
+      base.center.dx - width / 2,
+      gap,
+      width,
+      size.height - 2 * gap,
+    );
   }
 
   @override
@@ -613,6 +621,7 @@ class NavBarPillPainter extends CustomPainter {
         oldDelegate.lift != lift ||
         oldDelegate.dragOffset != dragOffset ||
         oldDelegate.count != count ||
+        oldDelegate.track != track ||
         oldDelegate.color != color ||
         oldDelegate.baseAlpha != baseAlpha ||
         oldDelegate.activeAlpha != activeAlpha;

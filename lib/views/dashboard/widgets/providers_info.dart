@@ -1,5 +1,5 @@
 import 'package:bett_box/common/common.dart';
-import 'package:bett_box/views/proxies/providers.dart';
+import 'package:bett_box/views/resources.dart';
 import 'package:bett_box/widgets/widgets.dart';
 import 'package:material_ui/material_ui.dart';
 
@@ -15,9 +15,8 @@ class ProvidersInfo extends StatelessWidget {
         onPressed: () {
           showExtend(
             context,
-            builder: (_, type) {
-              return ProvidersView(type: type);
-            },
+            props: const ExtendProps(forceFull: true),
+            builder: (_, _) => const ResourcesView(),
           );
         },
         child: Container(
@@ -25,7 +24,7 @@ class ProvidersInfo extends StatelessWidget {
           child: Align(
             alignment: Alignment.bottomLeft,
             child: Text(
-              'Rule & Providers',
+              'Geo & Providers',
               style: context.textTheme.bodyMedium?.toLight.adjustSize(0),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,

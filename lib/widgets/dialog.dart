@@ -7,6 +7,7 @@ import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:bett_box/state.dart';
+import 'sheet.dart';
 import 'text.dart';
 
 class CommonDialog extends ConsumerWidget {
@@ -59,9 +60,66 @@ class CommonDialog extends ConsumerWidget {
     ];
   }
 
+  Widget _buildSheet(BuildContext context) {
+    final actions = _buildActions(context);
+    final inset = padding?.horizontal == 0 ? 0.0 : 16.0;
+    final bottom = 16 + MediaQuery.paddingOf(context).bottom;
+    final hasActions = actions != null && actions.isNotEmpty;
+    final scrollBottom = hasActions || overrideScroll ? 8.0 : 8 + bottom;
+    final content = DefaultTextStyle.merge(
+      style: context.textTheme.bodyMedium?.copyWith(
+        color: context.colorScheme.onSurfaceVariant,
+      ),
+      child: child ?? const SizedBox.shrink(),
+    );
+    return AdaptiveSheetScaffold(
+      type: SheetType.bottomSheet,
+      title: title,
+      actions: [?titleTrailing],
+      body: Padding(
+        padding: EdgeInsets.only(
+          bottom: hasActions || overrideScroll ? bottom : 0,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Flexible(
+              child: overrideScroll
+                  ? Padding(
+                      padding: EdgeInsets.symmetric(horizontal: inset),
+                      child: content,
+                    )
+                  : SingleChildScrollView(
+                      padding: EdgeInsets.fromLTRB(
+                        inset,
+                        0,
+                        inset,
+                        scrollBottom,
+                      ),
+                      child: content,
+                    ),
+            ),
+            if (hasActions)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+                child: OverflowBar(
+                  alignment: MainAxisAlignment.end,
+                  spacing: 8,
+                  children: actions,
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context, ref) {
+    if (isInBottomSheet(context)) return _buildSheet(context);
     final size = ref.watch(viewSizeProvider);
+    final isMobileView = ref.watch(isMobileViewProvider);
     final isTv = globalState.isAndroidTV;
     final theme = Theme.of(context);
     return PopScope(
@@ -75,15 +133,17 @@ class CommonDialog extends ConsumerWidget {
               Navigator.of(context).pop();
             },
       child: AlertDialog(
+        alignment: isMobileView ? const Alignment(0, -0.12) : null,
+        insetPadding: isMobileView
+            ? const EdgeInsets.symmetric(horizontal: 24, vertical: 24)
+            : const EdgeInsets.symmetric(horizontal: 40, vertical: 24),
         title: titleTrailing == null
             ? EmojiText(title)
             : Row(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  EmojiText(title),
+                  Expanded(child: EmojiText(title)),
                   const SizedBox(width: 8),
-                  titleTrailing!,
+                  ?titleTrailing,
                 ],
               ),
         actions: _buildActions(context),
@@ -94,8 +154,8 @@ class CommonDialog extends ConsumerWidget {
         contentTextStyle: context.textTheme.bodyMedium?.copyWith(
           color: context.colorScheme.onSurfaceVariant,
         ),
-        titlePadding: const EdgeInsets.fromLTRB(22, 22, 22, 0),
-        contentPadding: padding ?? const EdgeInsets.fromLTRB(22, 14, 22, 18),
+        titlePadding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
+        contentPadding: padding ?? const EdgeInsets.fromLTRB(24, 12, 24, 20),
         actionsPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
         backgroundColor: backgroundColor,
         content: Theme(

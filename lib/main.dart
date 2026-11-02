@@ -54,7 +54,12 @@ Future<void> main(List<String> args) async {
   PaintingBinding.instance.imageCache.maximumSizeBytes = 50 * 1024 * 1024;
 
   final version = await system.version;
-  await Future.wait([globalState.initApp(version), clashCore.preload()]);
+  await Future.wait([
+    globalState.initApp(version),
+    clashCore.preload(),
+    loadBundledRouteIcons(),
+    ManagedScript.loadBundledVersion(),
+  ]);
 
   try {
     await uiManager.initializeUI();
@@ -108,6 +113,7 @@ Future<void> _service(List<String> flags) async {
     final bootStart = flags.contains('boot');
     final clashLibHandler = ClashLibHandler();
     final smartAutoStopLock = Lock();
+    String? overrideNetwork;
 
     Future<void> refreshVpnProps() async {
       try {
@@ -124,37 +130,54 @@ Future<void> _service(List<String> flags) async {
       }
     }
 
-    Future<void> checkSmartAutoStop() async {
+    Future<void> checkSmartAutoStop([bool defaultChanged = false]) async {
       try {
         await refreshVpnProps();
         final vpnProps = globalState.config.vpnProps;
-        if (!vpnProps.smartAutoStop) return;
-        final networks = vpnProps.smartAutoStopNetworks;
-        if (networks.isEmpty) return;
+        final networks = vpnProps.smartAutoStop
+            ? vpnProps.smartAutoStopNetworks
+            : '';
 
         await smartAutoStopLock.synchronized(() async {
           final isSmartStopped = await vpn?.isSmartStopped() ?? false;
-          final candidateIps =
-              await vpn?.getLocalIpAddresses() ?? const <String>[];
-          final candidateGateways =
-              await vpn?.getLocalGateways() ?? const <String>[];
-          if (candidateIps.isEmpty && candidateGateways.isEmpty) return;
-
-          final shouldStop =
-              candidateIps.any((ip) => NetworkMatcher.matchAny(ip, networks)) ||
-              candidateGateways.any(
-                (gw) => NetworkMatcher.matchAnyGateway(gw, networks),
-              );
+          final ips = await vpn?.getLocalIpAddresses() ?? const <String>[];
+          final gateways = await vpn?.getLocalGateways() ?? const <String>[];
+          if (await vpn?.isSmartStopOverride() ?? false) {
+            final network = NetworkMatcher.networkKey(ips);
+            overrideNetwork ??= network;
+            if (networks.isEmpty || overrideNetwork != network) {
+              overrideNetwork = null;
+              await vpn?.clearSmartStopOverride();
+            }
+          } else {
+            overrideNetwork = null;
+          }
+          var shouldStop = false;
+          if (networks.isNotEmpty) {
+            if (ips.isNotEmpty || gateways.isNotEmpty) {
+              shouldStop =
+                  overrideNetwork == null &&
+                  NetworkMatcher.shouldStop(
+                    ips: ips,
+                    gateways: gateways,
+                    rules: networks,
+                  );
+            } else if (!(await vpn?.hasPhysicalNetwork() ?? false)) {
+              shouldStop = isSmartStopped;
+            }
+          }
 
           if (shouldStop && !isSmartStopped) {
-            final isRunning = await vpn?.getStatus() ?? false;
-            if (isRunning) {
-              await vpn?.setSmartStopped(true);
+            if (await vpn?.getStatus() ?? false) {
               await vpn?.smartStop();
+              return;
             }
           } else if (!shouldStop && isSmartStopped) {
-            await vpn?.setSmartStopped(false);
             await vpn?.smartResume(clashLibHandler.getAndroidVpnOptions());
+            return;
+          }
+          if (defaultChanged) {
+            await vpn?.quickResponse();
           }
         });
       } catch (e) {
@@ -326,11 +349,11 @@ class _TileListenerWithService with TileListener {
 @immutable
 class _VpnListenerWithService with VpnListener {
   final Function(String dns) _onDnsChanged;
-  final Function() _onNetworkChanged;
+  final Function(bool defaultChanged) _onNetworkChanged;
 
   const _VpnListenerWithService({
     required Function(String dns) onDnsChanged,
-    required Function() onNetworkChanged,
+    required Function(bool defaultChanged) onNetworkChanged,
   }) : _onDnsChanged = onDnsChanged,
        _onNetworkChanged = onNetworkChanged;
 
@@ -341,8 +364,8 @@ class _VpnListenerWithService with VpnListener {
   }
 
   @override
-  void onNetworkChanged() {
-    super.onNetworkChanged();
-    _onNetworkChanged();
+  void onNetworkChanged(bool defaultChanged) {
+    super.onNetworkChanged(defaultChanged);
+    _onNetworkChanged(defaultChanged);
   }
 }

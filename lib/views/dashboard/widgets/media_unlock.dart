@@ -176,7 +176,7 @@ class _MediaUnlockState extends ConsumerState<MediaUnlock> {
     final Widget icon;
     if (platform.isMonochrome) {
       icon = SvgPicture.asset(
-        'assets/images/platforms/${platform.name}.svg',
+        'assets/svg/${platform.icon}',
         width: iconSize.width.ap,
         height: iconSize.height.ap,
         fit: BoxFit.contain,
@@ -187,7 +187,7 @@ class _MediaUnlockState extends ConsumerState<MediaUnlock> {
       );
     } else if (colorfulIcons) {
       icon = SvgPicture.asset(
-        'assets/images/platforms/${platform.name}.svg',
+        'assets/svg/${platform.icon}',
         width: iconSize.width.ap,
         height: iconSize.height.ap,
         fit: BoxFit.contain,
@@ -196,7 +196,7 @@ class _MediaUnlockState extends ConsumerState<MediaUnlock> {
       icon = ColorFiltered(
         colorFilter: monochromeColorFilter,
         child: SvgPicture.asset(
-          'assets/images/platforms/${platform.name}.svg',
+          'assets/svg/${platform.icon}',
           width: iconSize.width.ap,
           height: iconSize.height.ap,
           fit: BoxFit.contain,
@@ -229,19 +229,39 @@ class _MediaUnlockState extends ConsumerState<MediaUnlock> {
               overflow: TextOverflow.ellipsis,
             ),
           ),
-          SizedBox(width: 6.ap),
-          SizedBox(
-            width: 8.ap,
-            height: 20.ap,
-            child: Center(
-              child: Container(
-                width: 6.ap,
-                height: 6.ap,
-                decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+          SizedBox(width: 4.ap),
+          Container(
+            width: 14.ap,
+            height: 14.ap,
+            decoration: BoxDecoration(
+              color: color.withValues(
+                alpha: context.colorScheme.brightness == Brightness.dark
+                    ? 0.22
+                    : 0.16,
+              ),
+              shape: BoxShape.circle,
+            ),
+            alignment: Alignment.center,
+            child: Container(
+              width: 7.ap,
+              height: 7.ap,
+              decoration: BoxDecoration(
+                color: color,
+                shape: BoxShape.circle,
+                boxShadow:
+                    status == MediaUnlockStatus.unknown ||
+                        status == MediaUnlockStatus.testing
+                    ? null
+                    : [
+                        BoxShadow(
+                          color: color.withValues(alpha: 0.45),
+                          blurRadius: 3.5,
+                        ),
+                      ],
               ),
             ),
           ),
-          SizedBox(width: 10.ap),
+          SizedBox(width: 8.ap),
           Expanded(child: _buildLatencyBar(status, latency, context)),
           SizedBox(width: 10.ap),
           SizedBox(

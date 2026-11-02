@@ -387,8 +387,24 @@ class AppController {
       pathConfig: realPatchConfig,
     );
     _cancelDelayTests();
-    final result = await clashCore.setupConfig(params);
-    final message = result.message;
+    var result = await clashCore.setupConfig(params);
+    var message = result.message;
+    if (message.isNotEmpty && params.scriptedConfig.isNotEmpty) {
+      commonPrint.error('[Core] Scripted setup config failed: $message');
+      globalState.showNotifier(
+        '${appLocalizations.profileParseErrorDesc}: $message',
+      );
+      final fallbackScripted =
+          currentProfile.runsManagedScript &&
+              ManagedScript.syncedVersion(globalState.config.managedProps) !=
+                  null
+          ? await globalState.writeBundledManagedConfig(currentProfile)
+          : '';
+      result = await clashCore.setupConfig(
+        params.copyWith(scriptedConfig: fallbackScripted),
+      );
+      message = result.message;
+    }
     if (message.isNotEmpty) {
       commonPrint.error('[Core] Setup config failed: $message');
       throw message;
@@ -1344,6 +1360,7 @@ class AppController {
   }
 
   Future<void> savePreferences() async {
+    debouncer.cancel(FunctionTag.savePreferences);
     await preferences.saveConfig(globalState.config);
   }
 
@@ -1354,8 +1371,11 @@ class AppController {
     await clashCore.changeProxy(
       ChangeProxyParams(groupName: groupName, proxyName: proxyName),
     );
-    if (_ref.read(appSettingProvider).closeConnections) {
-      await clashCore.closeConnections();
+    final closeConnections = system.isAndroid
+        ? _ref.read(vpnSettingProvider).quickResponse
+        : _ref.read(appSettingProvider).closeConnections;
+    if (closeConnections) {
+      await clashCore.closeGroupConnections(groupName);
     }
     addCheckIp();
   }
@@ -1807,10 +1827,10 @@ class AppController {
   void toPage(PageLabel pageLabel) {
     final context = globalState.navigatorKey.currentState?.context;
     if (context != null && context.mounted) {
-      Navigator.of(
-        context,
-        rootNavigator: true,
-      ).popUntil((route) => route.isFirst);
+      final navigator = Navigator.of(context, rootNavigator: true);
+      if (navigator.canPop()) {
+        navigator.popUntil((route) => route.isFirst);
+      }
     }
     _ref.read(currentPageLabelProvider.notifier).value = pageLabel;
   }
@@ -2015,7 +2035,6 @@ class AppController {
       groups: _ref.read(groupsProvider),
       selectedMap: _ref.read(selectedMapProvider),
       delayMap: _ref.read(delayDataSourceProvider),
-      overrideTestUrl: _ref.read(overrideTestUrlProvider),
       defaultTestUrl: _ref.read(appSettingProvider).testUrl,
     );
     return sortProxies(
@@ -2627,7 +2646,7 @@ class AppController {
       await _cleanProfilesDirForOverride();
     }
 
-    await restoreBackupFiles(profiles, homeDirPath);
+    await _restoreArchiveProfiles(tempConfig.profiles, profiles, homeDirPath);
 
     if (recoveryOption != RecoveryOption.onlyProfiles) {
       tempConfig = tempConfig.copyWith(
@@ -2639,6 +2658,31 @@ class AppController {
     await savePreferences();
     if (globalState.isStart) {
       await applyProfile(silence: true);
+    }
+  }
+
+  Future<void> _restoreArchiveProfiles(
+    List<Profile> profiles,
+    Iterable<ArchiveFile> files,
+    String homeDirPath,
+  ) async {
+    final fileMap = <String, ArchiveFile>{};
+    final otherFiles = <ArchiveFile>[];
+    for (final file in files) {
+      final name = file.name.replaceAll('\\', '/');
+      if (!name.contains('/providers/') &&
+          (name.endsWith('.yaml') || name.endsWith('.yml'))) {
+        fileMap[basenameWithoutExtension(name)] = file;
+      } else {
+        otherFiles.add(file);
+      }
+    }
+    await restoreBackupFiles(otherFiles, homeDirPath);
+    for (final profile in profiles) {
+      final file = fileMap[profile.id];
+      if (file != null) {
+        await profile.saveFile(file.content);
+      }
     }
   }
 
@@ -2700,8 +2744,6 @@ class AppController {
       await _cleanProfilesDirForOverride();
     }
 
-    await restoreBackupFiles(profileFiles, homeDirPath);
-
     List<Profile> profiles = [];
 
     if (backupConfig.profiles.isNotEmpty) {
@@ -2724,6 +2766,8 @@ class AppController {
         }
       }
     }
+
+    await _restoreArchiveProfiles(profiles, profileFiles, homeDirPath);
 
     Config limitedConfig = globalState.config.copyWith(profiles: profiles);
 
@@ -2949,15 +2993,12 @@ class AppController {
       _ref.read(proxiesStyleSettingProvider.notifier).value =
           config.proxiesStyle;
 
-      // 9. Restore DNS override settings
-      _ref.read(overrideDnsProvider.notifier).value = config.overrideDns;
-
-      // 10. Restore hotkey settings (desktop only)
+      // 9. Restore hotkey settings (desktop only)
       if (system.isDesktop) {
         _ref.read(hotKeyActionsProvider.notifier).value = config.hotKeyActions;
       }
 
-      // 11. Restore script settings
+      // 10. Restore script settings
       final scriptIds = config.scriptProps.scripts.map((e) => e.id).toSet();
       final currentScriptProps = _ref.read(scriptStateProvider);
       final localScripts = currentScriptProps.scripts.where(

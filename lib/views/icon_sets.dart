@@ -17,6 +17,7 @@ Future<void> showIconSets(BuildContext context) => showSheet(
 Future<void> showIconPicker(
   BuildContext context, {
   String? selected,
+  String suggest = '',
   List<IconPickerOption> options = const [],
   required ValueChanged<String?> onSelect,
 }) => showSheet(
@@ -24,6 +25,7 @@ Future<void> showIconPicker(
   builder: (_, type) => IconPickerSheet(
     type: type,
     selected: selected,
+    suggest: suggest,
     options: options,
     onSelect: onSelect,
   ),
@@ -195,7 +197,7 @@ class _IconSetsSheetState extends ConsumerState<_IconSetsSheet> {
                   '@aaANDkk',
               actions: const [Icon(Icons.open_in_new, size: 18)],
               onTap: () => globalState.openUrl(
-                'https://github.com/aaANDkk/Qure_Style_SVG',
+                'https://github.com/appshubcc/Qure_Style_SVG',
               ),
             ),
           for (final iconSet in imported) _buildImported(iconSet),
@@ -222,6 +224,7 @@ class IconPickerOption {
 class IconPickerSheet extends StatelessWidget {
   final SheetType type;
   final String? selected;
+  final String suggest;
   final List<IconPickerOption> options;
   final ValueChanged<String?> onSelect;
 
@@ -229,6 +232,7 @@ class IconPickerSheet extends StatelessWidget {
     super.key,
     required this.type,
     this.selected,
+    this.suggest = '',
     this.options = const [],
     required this.onSelect,
   });
@@ -241,6 +245,7 @@ class IconPickerSheet extends StatelessWidget {
       actions: const [IconSetsButton()],
       body: IconPickerBody(
         selected: selected,
+        suggest: suggest,
         options: options,
         onSelect: (value) {
           onSelect(value);
@@ -354,67 +359,6 @@ class _IconPickerBodyState extends ConsumerState<IconPickerBody> {
     _select(url.trim());
   }
 
-  Widget _buildOption(
-    BuildContext context, {
-    required Widget icon,
-    required String label,
-    required bool selected,
-    required VoidCallback onTap,
-  }) {
-    final colorScheme = context.colorScheme;
-    return SizedBox(
-      width: 76,
-      child: GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 6),
-          child: Column(
-            children: [
-              Material(
-                shape: CircleBorder(
-                  side: selected
-                      ? BorderSide(color: colorScheme.primary, width: 1.5)
-                      : BorderSide.none,
-                ),
-                color: selected
-                    ? colorScheme.secondaryContainer
-                    : colorScheme.surfaceContainerHigh,
-                child: InkWell(
-                  customBorder: const CircleBorder(),
-                  onTap: onTap,
-                  child: SizedBox.square(
-                    dimension: 56,
-                    child: Center(
-                      child: IconTheme.merge(
-                        data: IconThemeData(
-                          color: selected
-                              ? colorScheme.onSecondaryContainer
-                              : colorScheme.onSurfaceVariant,
-                        ),
-                        child: icon,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 6),
-              Text(
-                label,
-                maxLines: 2,
-                textAlign: TextAlign.center,
-                overflow: TextOverflow.ellipsis,
-                style: context.textTheme.labelSmall?.copyWith(
-                  color: selected ? colorScheme.primary : colorScheme.onSurface,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
   Widget _buildCell(BuildContext context, IconSetIcon icon) {
     final selected = widget.selected == icon.url;
     final colorScheme = context.colorScheme;
@@ -476,6 +420,27 @@ class _IconPickerBodyState extends ConsumerState<IconPickerBody> {
         current != null &&
         current.isHttpUrl &&
         !sets.any((item) => item.icons.any((icon) => icon.url == current));
+    final groupOptions = [
+      for (final (index, option) in widget.options.indexed)
+        SegmentOption<int>(
+          value: index,
+          icon: option.icon,
+          label: option.label,
+        ),
+      SegmentOption<int>(
+        value: -1,
+        icon: custom
+            ? CommonTargetIcon(src: current, size: 16)
+            : const Icon(Icons.link, size: 18),
+        label: appLocalizations.customUrl,
+      ),
+    ];
+    final selectedOptionIndex = widget.options.indexWhere(
+      (opt) => opt.selected,
+    );
+    final selectedIndex = custom
+        ? -1
+        : (selectedOptionIndex >= 0 ? selectedOptionIndex : -999);
     const grid = SliverGridDelegateWithMaxCrossAxisExtent(
       maxCrossAxisExtent: 140,
       mainAxisSpacing: 4,
@@ -517,32 +482,25 @@ class _IconPickerBodyState extends ConsumerState<IconPickerBody> {
         Expanded(
           child: CustomScrollView(
             slivers: [
-              SliverPadding(
-                padding: const EdgeInsets.fromLTRB(12, 8, 12, 0),
-                sliver: SliverToBoxAdapter(
-                  child: Wrap(
-                    children: [
-                      for (final option in widget.options)
-                        _buildOption(
-                          context,
-                          icon: option.icon,
-                          label: option.label,
-                          selected: option.selected,
-                          onTap: () => _select(option.value),
-                        ),
-                      _buildOption(
-                        context,
-                        icon: custom
-                            ? CommonTargetIcon(src: current, size: 28)
-                            : const Icon(Icons.link, size: 28),
-                        label: appLocalizations.customUrl,
-                        selected: custom,
-                        onTap: _handleCustomUrl,
-                      ),
-                    ],
+              if (groupOptions.isNotEmpty)
+                SliverPadding(
+                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+                  sliver: SliverToBoxAdapter(
+                    child: SegmentButtonGroup<int>(
+                      maxWidth: 480,
+                      alignment: Alignment.center,
+                      options: groupOptions,
+                      selected: selectedIndex,
+                      onSelected: (index) {
+                        if (index == -1) {
+                          _handleCustomUrl();
+                        } else {
+                          _select(widget.options[index].value);
+                        }
+                      },
+                    ),
                   ),
                 ),
-              ),
               if (source == null)
                 const SliverToBoxAdapter(
                   child: Padding(

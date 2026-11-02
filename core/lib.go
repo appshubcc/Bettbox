@@ -98,15 +98,24 @@ func getConfig(s *C.char) *C.char {
 
 //export startListener
 func startListener() {
+	defer func() {
+		_ = recover()
+	}()
 	handleStartListener()
 }
 
 //export stopListener
 func stopListener() {
+	defer func() {
+		_ = recover()
+	}()
 	handleStopListener()
 }
 
 //export suspend
 func suspend(suspended C.int) {
+	defer func() {
+		_ = recover()
+	}()
 	handleSuspend(int(suspended))
 }

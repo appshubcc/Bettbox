@@ -32,7 +32,6 @@ class ServicePlugin : FlutterPlugin, MethodChannel.MethodCallHandler {
         }
 
         fun notifyNetworkChanged() = notify("networkChanged")
-        fun notifyQuickResponse() = notify("quickResponse")
         fun notifyVpnStartFailed() = notify("vpnStartFailed")
         fun notifyScreenStateChanged(isOn: Boolean) = notify("screenStateChanged", isOn)
         fun notifyRunStateChanged(state: RunState) {
@@ -64,35 +63,21 @@ class ServicePlugin : FlutterPlugin, MethodChannel.MethodCallHandler {
                 VpnPlugin.handleStop(force = true)
                 result.success(true)
             }
-            "smartStop" -> {
-                VpnPlugin.handleSmartStop()
-                result.success(true)
-            }
-            "smartResume" -> {
-                val data = call.argument<String>("data")
-                val options = gson.fromJson(data, VpnOptions::class.java)
-                VpnPlugin.handleSmartResume(options)
-                result.success(true)
-            }
             "resumeCore" -> {
                 Thread {
                     VpnPlugin.resumeCore()
                     mainHandler.post { result.success(true) }
                 }.start()
             }
-            "setSmartStopped" -> {
-                GlobalState.isSmartStopped = call.argument<Boolean>("value") ?: false
+            "isSmartStopped" -> result.success(GlobalState.isSmartStopped)
+            "requestSmartAutoStopCheck" -> {
+                VpnPlugin.requestSmartAutoStopCheck()
                 result.success(true)
             }
-            "isSmartStopped" -> result.success(GlobalState.isSmartStopped)
             "getLocalIpAddresses" -> result.success(VpnPlugin.getLocalIpAddresses())
             "getLocalGateways" -> result.success(VpnPlugin.getLocalGateways())
             "getNetworkInfo" -> result.success(VpnPlugin.getNetworkInfo())
             "getCurrentDns" -> result.success(VpnPlugin.getCurrentDns())
-            "setQuickResponse" -> {
-                VpnPlugin.setQuickResponse(call.argument<Boolean>("enabled") ?: false)
-                result.success(true)
-            }
             "init" -> {
                 GlobalState.getCurrentAppPlugin()?.requestNotificationsPermission()
                 GlobalState.initServiceEngine()

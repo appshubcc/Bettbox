@@ -67,6 +67,9 @@ object GlobalState {
     var isSmartStopped = false
 
     @Volatile
+    var smartStopOverride = false
+
+    @Volatile
     var isStopping = false
 
     @Volatile
@@ -278,6 +281,12 @@ object GlobalState {
     }
 
     fun isServiceEngineRunning(): Boolean = serviceEngine != null
+
+    fun notifyLowMemory() {
+        runCatching {
+            (flutterEngine ?: serviceEngine)?.dartExecutor?.notifyLowMemoryWarning()
+        }
+    }
 
     fun reconnectIpc() {
         (serviceEngine?.plugins?.get(TilePlugin::class.java) as? TilePlugin)?.handleReconnectIpc()

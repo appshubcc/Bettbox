@@ -40,6 +40,7 @@ type AndroidVpnRawOptions struct {
 	SystemProxy   bool           `json:"systemProxy"`
 	RouteMode     string         `json:"routeMode"`
 	DozeSuspend   bool           `json:"dozeSuspend"`
+	QuickResponse bool           `json:"quickResponse"`
 }
 
 type TrafficStatsOptions struct {

@@ -55,7 +55,6 @@ object HomeWidgets {
     private const val PREFS = "home_widget"
     private const val KEY_SNAPSHOT = "snapshot"
     const val EXTRA_ACTION = "bettbox.home_widget.action"
-    const val ACTION_SWITCH_PROFILE = "switch_profile"
     const val ACTION_REFRESH = "refresh"
 
     @Volatile

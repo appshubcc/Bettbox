@@ -15,6 +15,7 @@ import android.os.PowerManager
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.appshub.bettbox.GlobalState
+import com.appshub.bettbox.core.Core
 import com.appshub.bettbox.extensions.getIpv4RouteAddress
 import com.appshub.bettbox.extensions.getIpv6RouteAddress
 import com.appshub.bettbox.extensions.toCIDR
@@ -85,7 +86,10 @@ class BettboxVpnService : VpnService(), BaseServiceInterface {
 
         fairMemoryHelper.register(
             context = this,
-            onTrim = { GlobalState.getCurrentVPNPlugin()?.requestGc() },
+            onTrim = {
+                GlobalState.getCurrentVPNPlugin()?.requestGc()
+                Core.purge(all = true)
+            },
             onKill = { /* system will kill process; service has no extra state to save */ }
         )
     }
@@ -306,6 +310,8 @@ class BettboxVpnService : VpnService(), BaseServiceInterface {
         super.onTrimMemory(level)
         if (level == 10 || level == 15 || level >= 40) {
             GlobalState.getCurrentVPNPlugin()?.requestGc()
+            GlobalState.notifyLowMemory()
+            Core.purge(all = false)
         }
     }
 

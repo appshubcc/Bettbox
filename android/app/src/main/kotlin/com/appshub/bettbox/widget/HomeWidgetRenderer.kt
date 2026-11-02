@@ -123,9 +123,6 @@ class HomeWidgetRenderer(
     private fun bindHeader(views: RemoteViews, style: HomeWidgetStyle) {
         views.setTextViewText(R.id.hw_name, string("name"))
         text(views, R.id.hw_name, "onSurface")
-        activity(11, HomeWidgets.launchIntent(context, HomeWidgets.ACTION_SWITCH_PROFILE))?.let {
-            views.setOnClickPendingIntent(R.id.hw_name_area, it)
-        }
         if (style == HomeWidgetStyle.LARGE) {
             views.setTextViewText(R.id.hw_updated, string("updated"))
             text(views, R.id.hw_updated, "onSurfaceVariant")

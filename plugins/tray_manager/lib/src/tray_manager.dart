@@ -65,9 +65,47 @@ class TrayManager {
 
   bool get isMenuOpen => _menuOpenState.isOpen;
 
+  bool _isMenuOutdated = false;
+
+  bool get isMenuOutdated => _isMenuOutdated;
+
   bool _isOptionPressed = false;
 
   bool get isOptionPressed => _isOptionPressed;
+
+  bool _hasSameShape(Menu a, Menu b) {
+    final aItems = a.items ?? const <MenuItem>[];
+    final bItems = b.items ?? const <MenuItem>[];
+    if (aItems.length != bItems.length) return false;
+    for (var i = 0; i < aItems.length; i++) {
+      final aItem = aItems[i];
+      final bItem = bItems[i];
+      if (aItem.type != bItem.type) return false;
+      final aSubmenu = aItem.submenu;
+      final bSubmenu = bItem.submenu;
+      if (aSubmenu == null && bSubmenu == null) continue;
+      if (aSubmenu == null ||
+          bSubmenu == null ||
+          aItem.label != bItem.label ||
+          !_hasSameShape(aSubmenu, bSubmenu)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  void _adoptMenuItemIds(Menu from, Menu to) {
+    final fromItems = from.items ?? const <MenuItem>[];
+    final toItems = to.items ?? const <MenuItem>[];
+    for (var i = 0; i < toItems.length; i++) {
+      toItems[i].id = fromItems[i].id;
+      final fromSubmenu = fromItems[i].submenu;
+      final toSubmenu = toItems[i].submenu;
+      if (fromSubmenu != null && toSubmenu != null) {
+        _adoptMenuItemIds(fromSubmenu, toSubmenu);
+      }
+    }
+  }
 
   Map<String, dynamic> _menuToJson(Menu menu) {
     return {
@@ -281,9 +319,16 @@ class TrayManager {
     Brightness? brightness,
   }) async {
     final bool willKeepOpen = keepMenuOpen && isMenuOpen;
-    if (!willKeepOpen) {
-      _menu = menu;
+    if (willKeepOpen) {
+      final current = _menu;
+      if (current == null || !_hasSameShape(current, menu)) {
+        _isMenuOutdated = true;
+        return;
+      }
+      _adoptMenuItemIds(current, menu);
     }
+    _isMenuOutdated = false;
+    _menu = menu;
     final Map<String, dynamic> arguments = {
       'menu': _menuToJson(menu),
       'keepMenuOpen': willKeepOpen,

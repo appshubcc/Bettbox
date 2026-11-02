@@ -48,11 +48,64 @@ pub mod named_pipe {
     async fn handle_connection(
         pipe: &mut tokio::net::windows::named_pipe::NamedPipeServer,
     ) -> anyhow::Result<()> {
+        if !verify_client_process(pipe) {
+            crate::ops::logs::log_message("Rejected unauthorized pipe client process".to_string());
+            return Ok(());
+        }
         if let Some(request) = read_frame(pipe).await? {
             let response = rpc::handle_payload(&request).await;
             write_frame(pipe, &response).await?;
         }
         Ok(())
+    }
+
+    fn verify_client_process(pipe: &tokio::net::windows::named_pipe::NamedPipeServer) -> bool {
+        use std::os::windows::io::AsRawHandle;
+        use windows::core::PWSTR;
+        use windows::Win32::Foundation::{CloseHandle, HANDLE};
+        use windows::Win32::System::Pipes::GetNamedPipeClientProcessId;
+        use windows::Win32::System::Threading::{
+            OpenProcess, QueryFullProcessImageNameW, PROCESS_NAME_WIN32,
+            PROCESS_QUERY_LIMITED_INFORMATION,
+        };
+
+        if crate::ops::core::is_dev_mode() {
+            return true;
+        }
+        let mut pid = 0u32;
+        let mut buffer = [0u16; 1024];
+        let mut size = buffer.len() as u32;
+        unsafe {
+            let pipe_handle = HANDLE(pipe.as_raw_handle() as isize);
+            if GetNamedPipeClientProcessId(pipe_handle, &mut pid).is_err() {
+                return false;
+            }
+            let Ok(process) = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, false, pid) else {
+                return false;
+            };
+            let queried = QueryFullProcessImageNameW(
+                process,
+                PROCESS_NAME_WIN32,
+                PWSTR(buffer.as_mut_ptr()),
+                &mut size,
+            );
+            let _ = CloseHandle(process);
+            if queried.is_err() {
+                return false;
+            }
+        }
+        let client = std::path::PathBuf::from(String::from_utf16_lossy(&buffer[..size as usize]));
+        let Ok(helper) = std::env::current_exe() else {
+            return false;
+        };
+        let same_dir = match (client.parent(), helper.parent()) {
+            (Some(c), Some(h)) => c.as_os_str().eq_ignore_ascii_case(h.as_os_str()),
+            _ => false,
+        };
+        same_dir
+            && client
+                .file_name()
+                .is_some_and(|name| name.eq_ignore_ascii_case("Bettbox.exe"))
     }
 
     struct PipeSecurityAttributes {

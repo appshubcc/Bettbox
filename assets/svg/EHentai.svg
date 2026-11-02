@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <g transform="translate(51.2000 117.0287) scale(1.6461000)">
+    <defs>
+      <linearGradient id="ehentai" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2="480">
+        <stop offset="0" stop-color="#FF4040" />
+        <stop offset="100%" stop-color="#C00405" />
+      </linearGradient>
+    </defs>
+    <path fill="url(#ehentai)"
+      d="M200 200h80v80h-80zM80 400h120v80h-120zM0 0h80v480h-80zM80 0h120v80h-120zM320 0h80v480h-80zM480 0h80v480h-80zM400 200h80v80h-80zM80 200h80v80h-80z" />
+  </g>
+</svg>

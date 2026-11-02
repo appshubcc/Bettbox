@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 144 144" width="144" height="144">
+<title>中国台湾</title>
+
+<defs><mask id="tw-board" maskUnits="userSpaceOnUse" maskContentUnits="userSpaceOnUse" x="0" y="0" width="144" height="144" mask-type="alpha"><path d="M 116.6452 21.4745 c 8.96084 0 13.44126 0 16.86385 1.7439 a 16 16 0 0 1 6.99226 6.99226 c 1.7439 3.42259 1.7439 7.90301 1.7439 16.86385 L 142.2452 96.4526 c 0 8.96084 0 13.44126 -1.7439 16.86385 a 16 16 0 0 1 -6.99226 6.99226 c -3.42259 1.7439 -7.90301 1.7439 -16.86385 1.7439 L 26.929 122.0526 c -8.96084 0 -13.44126 0 -16.86385 -1.7439 a 16 16 0 0 1 -6.99226 -6.99226 c -1.7439 -3.42259 -1.7439 -7.90301 -1.7439 -16.86385 L 1.329 47.0745 c 0 -8.96084 0 -13.44126 1.7439 -16.86385 a 16 16 0 0 1 6.99226 -6.99226 c 3.42259 -1.7439 7.90301 -1.7439 16.86385 -1.7439 Z" fill="#FFFFFF" /></mask>
+<linearGradient id="tw-red" x1="72" y1="21.47450" x2="72" y2="122.05260" gradientUnits="userSpaceOnUse"><stop stop-color="#FD3939" /><stop offset="1" stop-color="#B90000" /></linearGradient>
+<linearGradient id="tw-blue" x1="72" y1="21.47450" x2="72" y2="71.76355" gradientUnits="userSpaceOnUse"><stop stop-color="#357AE2" /><stop offset="1" stop-color="#1A2F99" /></linearGradient>
+<linearGradient id="tw-white" x1="72" y1="31.82618" x2="72" y2="61.02821" gradientUnits="userSpaceOnUse"><stop stop-color="#F4F4F4" /><stop offset="1" stop-color="#E6E6E6" /></linearGradient></defs>
+<g mask="url(#tw-board)">
+<path d="M1.329 21.4745h140.9162v100.5781h-140.9162Z" fill="url(#tw-red)" stroke="url(#tw-red)" stroke-width=".5" stroke-linejoin="round" />
+<path d="M1.329 21.4745h70.4581v50.28905h-70.4581Z" fill="url(#tw-blue)" stroke="url(#tw-blue)" stroke-width=".5" stroke-linejoin="round" />
+<path d="M 35.40784,31.87057 C 43.43778,31.24808 50.45523,37.24554 51.09023,45.27298 C 51.72772,53.30293 45.74026,60.33038 37.71282,60.98038 C 29.66537,61.62787 22.62042,55.62541 21.98293,47.57797 C 21.34543,39.53302 27.35789,32.49557 35.40784,31.87057 Z" fill="url(#tw-white)" />
+</g>
+</svg>

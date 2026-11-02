@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:isolate';
 
 import 'package:bett_box/common/common.dart';
 import 'package:bett_box/enum/enum.dart';
@@ -9,6 +10,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+
+import 'config.dart';
 
 part 'generated/app.g.dart';
 
@@ -626,3 +629,82 @@ final filteredAllConnectionsProvider =
         for (final info in closed) (info: info, closed: true),
       ]..sort((a, b) => _compareTrackerInfo(sortType, a.info, b.info));
     });
+
+@riverpod
+Future<IconSet> builtInIconSet(Ref ref) async {
+  ref.watch(managedSettingProvider.select((state) => state.syncedVersion));
+  final index = await ManagedScript.catalog(ref.read(managedSettingProvider));
+  return routeIconSet(index.catalog);
+}
+
+@Riverpod(keepAlive: true)
+class IconSets extends _$IconSets {
+  @override
+  Future<List<IconSet>> build() => IconSetStore.instance.read();
+
+  Future<({String name, List<IconSetIcon> icons})> _parse(
+    String content,
+  ) async {
+    try {
+      return await Isolate.run(() => parseIconSet(content));
+    } on FormatException {
+      throw appLocalizations.invalidIconSet;
+    }
+  }
+
+  String _nameOf(String parsed, String fallback) {
+    final name = parsed.isNotEmpty ? parsed : iconFileStem(fallback);
+    return name.isNotEmpty ? name : appLocalizations.iconSets;
+  }
+
+  Future<void> _put(IconSet iconSet) async {
+    final current = await future;
+    final index = current.indexWhere((item) => item.id == iconSet.id);
+    final next = [...current];
+    if (index < 0) {
+      next.add(iconSet);
+    } else {
+      next[index] = iconSet;
+    }
+    state = AsyncData(next);
+    await IconSetStore.instance.write(next);
+  }
+
+  Future<IconSet> importUrl(String url) async {
+    final response = await request.getTextResponseForUrl(url);
+    final parsed = await _parse('${response.data ?? ''}');
+    final current = await future;
+    final existing = current.firstWhereOrNull((item) => item.url == url);
+    final iconSet =
+        (existing ??
+                IconSet(
+                  id: utils.id,
+                  name: _nameOf(parsed.name, Uri.parse(url).path),
+                  url: url,
+                ))
+            .copyWith(icons: parsed.icons, lastUpdateTime: DateTime.now());
+    await _put(iconSet);
+    return iconSet;
+  }
+
+  Future<IconSet> importContent(String fileName, String content) async {
+    final parsed = await _parse(content);
+    final iconSet = IconSet(
+      id: utils.id,
+      name: _nameOf(parsed.name, fileName),
+      icons: parsed.icons,
+      lastUpdateTime: DateTime.now(),
+    );
+    await _put(iconSet);
+    return iconSet;
+  }
+
+  Future<void> delete(String id) async {
+    final next = [
+      for (final item in await future)
+        if (item.id != id) item,
+    ];
+    state = AsyncData(next);
+    await IconSetStore.instance.write(next);
+  }
+}

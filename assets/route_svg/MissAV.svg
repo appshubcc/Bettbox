@@ -1,0 +1,4 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 144 144" width="144" height="144"><title>MissAV</title><desc>Bettbox built-in vector, spacing and gradient adapted.</desc><defs><linearGradient id="missav-color" x1="0" y1="0" x2=".25" y2="1"><stop offset="0" stop-color="#FF9DBB" /><stop offset="0.5" stop-color="#ED648F" /><stop offset="1" stop-color="#C93772" /></linearGradient><linearGradient id="missav-white" x1="0" y1="0" x2=".25" y2="1"><stop offset="0" stop-color="#FFFFFF" /><stop offset="1" stop-color="#EDF1F8" /></linearGradient></defs><g transform="translate(7 7) scale(0.12695)" fill="none"><g transform="translate(0 0) scale(42.666667)">
+  <rect width="24" height="24" rx="12" fill="url(#missav-color)" />
+  <path d="M9.5 7.4C9.5 7.1 9.85 6.92 10.1 7.08L16.7 11.4C17.1 11.66 17.1 12.34 16.7 12.6L10.1 16.92C9.85 17.08 9.5 16.9 9.5 16.6V7.4Z" fill="url(#missav-white)" />
+</g></g></svg>

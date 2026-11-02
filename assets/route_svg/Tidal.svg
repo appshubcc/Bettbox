@@ -1,0 +1,4 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 144 144" width="144" height="144"><title>Tidal</title><desc>Qure-style icon with normalized 144x144 canvas, optical margins, and refined lighting.</desc><defs><linearGradient id="p5-tidal-tone-0" gradientUnits="userSpaceOnUse" x1="460.8" y1="0.0" x2="563.2" y2="1024.0"><stop offset="0.0" stop-color="#66F3FF" /><stop offset="0.5" stop-color="#00E5FF" /><stop offset="1.0" stop-color="#00A3B8" /></linearGradient></defs><g transform="translate(5.0000000 5.0000000) scale(0.13085938)" fill="url(#p5-tidal-tone-0)"><g transform="translate(64.0000 64.0000) scale(37.3333333)">
+        <path fill="url(#p5-tidal-tone-0)" d="M12.012 3.992L8.008 7.996L4.004 3.992L0 7.996L4.004 12l4.004-4.004L12.012 12l-4.004 4.004l4.004 4.004l4.004-4.004L12.012 12l4.004-4.004zm4.03 4.004l3.979-3.979L24 7.996l-3.979 3.979z" />
+    </g>
+</g></svg>

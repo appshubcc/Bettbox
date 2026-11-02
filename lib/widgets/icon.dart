@@ -107,7 +107,7 @@ class CommonTargetIcon extends StatefulWidget {
       }
     }
     _CommonTargetIconState._moduleFileCache.clear();
-    _CommonTargetIconState._moduleSvgValidCache.clear();
+    _CommonTargetIconState._moduleSvgCache.clear();
     _CommonTargetIconState._moduleFailureCache.clear();
     final imageCache = PaintingBinding.instance.imageCache;
     imageCache.clear();
@@ -127,7 +127,7 @@ class _CommonTargetIconState extends State<CommonTargetIcon> {
   bool _didSyncCheck = false; // Guard for didChangeDependencies
 
   static final Map<String, File?> _moduleFileCache = {};
-  static final Map<String, bool> _moduleSvgValidCache = {};
+  static final Map<String, bool> _moduleSvgCache = {};
   static final Map<String, DateTime> _moduleFailureCache = {};
   static const _maxCacheEntries = 1024;
   static const _failureCooldownSeconds = 10;
@@ -136,8 +136,8 @@ class _CommonTargetIconState extends State<CommonTargetIcon> {
     while (_moduleFileCache.length > _maxCacheEntries) {
       _moduleFileCache.remove(_moduleFileCache.keys.first);
     }
-    while (_moduleSvgValidCache.length > _maxCacheEntries) {
-      _moduleSvgValidCache.remove(_moduleSvgValidCache.keys.first);
+    while (_moduleSvgCache.length > _maxCacheEntries) {
+      _moduleSvgCache.remove(_moduleSvgCache.keys.first);
     }
   }
 
@@ -176,8 +176,9 @@ class _CommonTargetIconState extends State<CommonTargetIcon> {
 
   void _syncCheckAndInit() {
     if (widget.src.isEmpty || widget.src.getBase64 != null) return;
+    if (routeIconAsset(widget.src) != null) return;
 
-    final devicePixelRatio = MediaQuery.of(context).devicePixelRatio;
+    final devicePixelRatio = MediaQuery.devicePixelRatioOf(context);
     final cacheSize = (widget.size * devicePixelRatio).ceil();
 
     final exactFile = _moduleFileCache[widget.src];
@@ -303,8 +304,27 @@ class _CommonTargetIconState extends State<CommonTargetIcon> {
     }
   }
 
+  Future<bool> _sniffSvg(File file) async {
+    try {
+      final raf = await file.open();
+      try {
+        final text = utf8
+            .decode(await raf.read(1024), allowMalformed: true)
+            .trimLeft()
+            .toLowerCase();
+        return text.startsWith('<svg') ||
+            (text.startsWith('<?xml') || text.startsWith('<!doctype svg')) &&
+                text.contains('<svg');
+      } finally {
+        await raf.close();
+      }
+    } catch (_) {
+      return false;
+    }
+  }
+
   Future<void> _processFile(File file, int cacheSize, String key) async {
-    if (widget.src.isSvg) {
+    if (widget.src.isSvg || await _sniffSvg(file)) {
       final isValid = await _validateSvg(file);
       if (!isValid) {
         await _IconFileManager.removeFile(widget.src);
@@ -320,7 +340,7 @@ class _CommonTargetIconState extends State<CommonTargetIcon> {
         return;
       }
       _moduleFileCache[key] = file;
-      _moduleSvgValidCache[widget.src] = true;
+      _moduleSvgCache[key] = true;
       _moduleFailureCache.remove(key);
       _ensureCacheLimit();
       if (mounted) {
@@ -334,6 +354,7 @@ class _CommonTargetIconState extends State<CommonTargetIcon> {
     }
 
     _moduleFileCache[key] = file;
+    _moduleSvgCache[key] = false;
     _moduleFailureCache.remove(key);
     _ensureCacheLimit();
     if (mounted) {
@@ -349,17 +370,34 @@ class _CommonTargetIconState extends State<CommonTargetIcon> {
     return Icon(IconsExt.target, size: widget.size);
   }
 
+  SvgTheme _svgTheme() => SvgTheme(
+    currentColor: IconTheme.of(context).color ?? context.colorScheme.onSurface,
+  );
+
   Widget _buildIcon() {
     if (widget.src.isEmpty) {
       return _defaultIcon();
     }
+    if (routeIconAsset(widget.src) case final asset?) {
+      return SvgPicture.asset(
+        asset,
+        width: widget.size,
+        height: widget.size,
+        theme: _svgTheme(),
+      );
+    }
     final base64 = widget.src.getBase64;
-    final devicePixelRatio = MediaQuery.of(context).devicePixelRatio;
+    final devicePixelRatio = MediaQuery.devicePixelRatioOf(context);
     final cacheSize = (widget.size * devicePixelRatio).ceil();
 
     if (base64 != null) {
-      return Image.memory(
-        base64,
+      return Image(
+        image: ResizeImage(
+          MemoryImage(base64),
+          width: cacheSize,
+          height: cacheSize,
+          policy: ResizeImagePolicy.fit,
+        ),
         gaplessPlayback: true,
         fit: BoxFit.contain,
         errorBuilder: (_, _, _) {
@@ -369,18 +407,19 @@ class _CommonTargetIconState extends State<CommonTargetIcon> {
     }
     if (_file != null) {
       final key = widget.src;
-      if (widget.src.isSvg) {
+      if (_moduleSvgCache[key] ?? widget.src.isSvg) {
         return SvgPicture.file(
           _file!,
           width: widget.size,
           height: widget.size,
           fit: BoxFit.contain,
+          theme: _svgTheme(),
           placeholderBuilder: (_) => _defaultIcon(),
           errorBuilder: (_, error, _) {
             commonPrint.warn('Failed to load SVG: $error');
             _IconFileManager.removeFile(widget.src);
             _moduleFileCache.remove(key);
-            _moduleSvgValidCache.remove(widget.src);
+            _moduleSvgCache.remove(widget.src);
             _moduleFailureCache[key] = DateTime.now();
             return _defaultIcon();
           },
@@ -410,10 +449,87 @@ class _CommonTargetIconState extends State<CommonTargetIcon> {
       child: AnimatedSwitcher(
         duration: const Duration(milliseconds: 200),
         child: KeyedSubtree(
-          key: ValueKey<String>('${widget.src}_${_file?.path}'),
+          key: ValueKey<(String, String?, int)>((
+            widget.src,
+            _file?.path,
+            CommonTargetIcon._cacheVersion.value,
+          )),
           child: _buildIcon(),
         ),
       ),
     );
+  }
+}
+
+class MenuDotsIcon extends StatelessWidget {
+  final bool isOpen;
+  final Color? accent;
+
+  const MenuDotsIcon({super.key, this.isOpen = false, this.accent});
+
+  @override
+  Widget build(BuildContext context) {
+    final color =
+        IconTheme.of(context).color ?? context.colorScheme.onSurfaceVariant;
+    return RepaintBoundary(
+      child: AnimatedRotation(
+        turns: isOpen ? 0.125 : 0,
+        duration: midDuration,
+        curve: Curves.easeOutBack,
+        child: TweenAnimationBuilder<Color?>(
+          tween: ColorTween(end: accent ?? color),
+          duration: midDuration,
+          builder: (_, accent, _) => SizedBox.square(
+            dimension: 24,
+            child: CustomPaint(
+              painter: _MenuDotsPainter(color: color, accent: accent ?? color),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _MenuDotsPainter extends CustomPainter {
+  static final Paint _paint = Paint();
+
+  final Color color;
+  final Color accent;
+
+  const _MenuDotsPainter({required this.color, required this.accent});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    const radius = 2.6;
+    const distance = 5.2;
+    final center = size.center(Offset.zero);
+    _paint.color = color;
+    canvas.drawCircle(
+      center + const Offset(-distance, -distance),
+      radius,
+      _paint,
+    );
+    canvas.drawCircle(
+      center + const Offset(-distance, distance),
+      radius,
+      _paint,
+    );
+    canvas.drawCircle(
+      center + const Offset(distance, distance),
+      radius,
+      _paint,
+    );
+    _paint.color = accent;
+    canvas.drawCircle(
+      center + const Offset(distance, -distance),
+      radius,
+      _paint,
+    );
+  }
+
+  @override
+  bool shouldRepaint(_MenuDotsPainter oldDelegate) {
+    return oldDelegate.color != color || oldDelegate.accent != accent;
   }
 }

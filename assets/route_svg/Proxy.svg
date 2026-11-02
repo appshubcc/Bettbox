@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 144 144" width="144" height="144">
+  <defs>
+    <linearGradient id="proxy-grad" x1="0" y1="7" x2="0" y2="136" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#00B5FA"/>
+      <stop offset="50%" stop-color="#008AEA"/>
+      <stop offset="100%" stop-color="#0164DA"/>
+    </linearGradient>
+  </defs>
+  <circle cx="71.5" cy="71.5" r="57" fill="none" stroke="url(#proxy-grad)" stroke-width="16"/>
+  <path d="M 50.0 54.5 L 66.5 71.5 L 50.0 88.5" fill="none" stroke="url(#proxy-grad)" stroke-width="14.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M 82.0 54.5 L 98.5 71.5 L 82.0 88.5" fill="none" stroke="url(#proxy-grad)" stroke-width="14.5" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

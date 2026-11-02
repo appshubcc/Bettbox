@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 144 144" width="144" height="144">
+  <title>StackOverflow</title>
+  <desc>Qure-style StackOverflow icon. Stack Overflow 全球规模最大的程序员技术问答与知识沉淀社区</desc>
+  <defs>
+    <linearGradient id="p11-stackoverflow-grad" gradientUnits="userSpaceOnUse" x1="72" y1="12" x2="72" y2="132">
+      <stop offset="0.0" stop-color="#F4A363" />
+      <stop offset="0.5" stop-color="#F58025" />
+      <stop offset="1.0" stop-color="#D86105" />
+    </linearGradient>
+  </defs>
+  <path d="M 90.6225,12 l -8.6,6.385 l 31.95,42.94 l 8.58,-6.385 L 90.6225,12 z m -19.7,17.09 l -6.845,8.22 l 41.125,34.25 l 6.845,-8.22 l -41.125,-34.25 z m -15.75,22.325 l -4.525,9.7 l 48.51,22.585 l 4.52,-9.7 l -48.505,-22.585 z m -9.25,24.3 l -2.2,10.465 l 52.365,11.005 l 2.2,-10.46 l -52.365,-11.015 z M 21.4475,89.35 L 21.4475,132 l 95.95,0 l 0,-42.65 l -10.665,0 l 0,31.985 L 32.1025,121.335 l 0,-31.98 L 21.4475,89.355 z m 21.325,10.665 l 0,10.65 l 53.3,0 l 0,-10.65 L 42.7675,100.015 Z" fill="url(#p11-stackoverflow-grad)" />
+</svg>

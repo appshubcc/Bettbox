@@ -525,3 +525,31 @@ Map<String, dynamic> _$RouteCatalogToJson(_RouteCatalog instance) =>
       'services': instance.services,
       'sets': instance.sets,
     };
+
+_IconSetIcon _$IconSetIconFromJson(Map<String, dynamic> json) =>
+    _IconSetIcon(name: json['name'] as String, url: json['url'] as String);
+
+Map<String, dynamic> _$IconSetIconToJson(_IconSetIcon instance) =>
+    <String, dynamic>{'name': instance.name, 'url': instance.url};
+
+_IconSet _$IconSetFromJson(Map<String, dynamic> json) => _IconSet(
+  id: json['id'] as String,
+  name: json['name'] as String,
+  url: json['url'] as String? ?? '',
+  icons:
+      (json['icons'] as List<dynamic>?)
+          ?.map((e) => IconSetIcon.fromJson(e as Map<String, dynamic>))
+          .toList() ??
+      const [],
+  lastUpdateTime: json['lastUpdateTime'] == null
+      ? null
+      : DateTime.parse(json['lastUpdateTime'] as String),
+);
+
+Map<String, dynamic> _$IconSetToJson(_IconSet instance) => <String, dynamic>{
+  'id': instance.id,
+  'name': instance.name,
+  'url': instance.url,
+  'icons': instance.icons,
+  'lastUpdateTime': instance.lastUpdateTime?.toIso8601String(),
+};

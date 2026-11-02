@@ -45,29 +45,34 @@ type Hysteria struct {
 
 	option *HysteriaOption
 	client *core.Client
+	idle   *idleCloser
 
 	tlsConfig *tls.Config
 	echConfig *ech.Config
 }
 
 func (h *Hysteria) DialContext(ctx context.Context, metadata *C.Metadata) (C.Conn, error) {
+	h.idle.acquire()
 	tcpConn, err := h.client.DialTCP(metadata.String(), metadata.DstPort, h.genHdc(ctx))
 	if err != nil {
+		h.idle.release()
 		return nil, err
 	}
 
-	return NewConn(tcpConn, h), nil
+	return NewConn(h.idle.trackConn(tcpConn), h), nil
 }
 
 func (h *Hysteria) ListenPacketContext(ctx context.Context, metadata *C.Metadata) (C.PacketConn, error) {
 	if err := h.ResolveUDP(ctx, metadata); err != nil {
 		return nil, err
 	}
+	h.idle.acquire()
 	udpConn, err := h.client.DialUDP(h.genHdc(ctx))
 	if err != nil {
+		h.idle.release()
 		return nil, err
 	}
-	return NewPacketConn(&hyPacketConn{udpConn}, h), nil
+	return NewPacketConn(h.idle.trackPacketConn(&hyPacketConn{udpConn}), h), nil
 }
 
 func (h *Hysteria) genHdc(ctx context.Context) hyUtils.PacketDialer {
@@ -259,6 +264,7 @@ func NewHysteria(option HysteriaOption) (*Hysteria, error) {
 		echConfig: echConfig,
 	}
 	outbound.dialer = option.NewDialer(outbound.DialOptions())
+	outbound.idle = newIdleCloser(quicIdleTimeout, client.CloseSession)
 
 	return outbound, nil
 }

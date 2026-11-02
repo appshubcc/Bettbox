@@ -448,6 +448,12 @@ func handleUDPConn(packet C.PacketAdapter) {
 		return
 	}
 
+	if shouldRejectIPv6UDP(metadata) {
+		log.Debugln("[UDP] reject IPv6 packet to %s while IPv6 is disabled", metadata.DstIP)
+		rejectIPv6UDP(packet)
+		return
+	}
+
 	key := packet.Key()
 	sender, loaded := natTable.GetOrCreate(key, func() C.PacketSender {
 		sender := newPacketSender()

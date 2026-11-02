@@ -226,11 +226,11 @@ func (h *ListenerHandler) NewPacketWithRejecter(ctx context.Context, key netip.A
 		buff:     buffer,
 		rejecter: rejecter,
 	}
-	if h.Type != C.TUN {
+	if h.Type != C.TUN { // make the handler-related SNAT key for not TUN listener
 		connID := fmt.Sprintf("%s:%s", h.handlerId, key)
-		cPacket.rAddr = N.NewCustomAddr(h.Type.String(), connID, cPacket.rAddr)
+		cPacket.rAddr = N.NewCustomAddr(h.Type.String(), connID, cPacket.rAddr) // for tunnel's handleUDPConn
 	}
-	if conn, ok := common.Cast[localAddr](writer); ok {
+	if conn, ok := common.Cast[localAddr](writer); ok { // tun does not have real inAddr
 		cPacket.lAddr = conn.LocalAddr()
 	}
 	h.handlePacket(ctx, cPacket, metadata.Source, metadata.Destination)

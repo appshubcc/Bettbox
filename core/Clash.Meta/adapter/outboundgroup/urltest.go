@@ -101,6 +101,7 @@ func (u *URLTest) healthCheck() {
 }
 
 func (u *URLTest) fast(touch bool) C.Proxy {
+	u.forgetUnmeasuredPick()
 	elm, _, shared := u.fastSingle.Do(func() (C.Proxy, error) {
 		proxies := u.GetProxies(touch)
 		if u.selected != "" {

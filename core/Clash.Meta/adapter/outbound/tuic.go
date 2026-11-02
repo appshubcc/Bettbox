@@ -25,6 +25,7 @@ type Tuic struct {
 	*Base
 	option *TuicOption
 	client *tuic.PoolClient
+	idle   *idleCloser
 
 	quicConfig *quic.Config
 	tlsConfig  *tls.Config
@@ -71,11 +72,13 @@ type TuicOption struct {
 
 // DialContext implements C.ProxyAdapter
 func (t *Tuic) DialContext(ctx context.Context, metadata *C.Metadata) (C.Conn, error) {
+	t.idle.acquire()
 	conn, err := t.client.DialContext(ctx, metadata)
 	if err != nil {
+		t.idle.release()
 		return nil, err
 	}
-	return NewConn(conn, t), err
+	return NewConn(t.idle.trackConn(conn), t), err
 }
 
 // ListenPacketContext implements C.ProxyAdapter
@@ -103,11 +106,13 @@ func (t *Tuic) ListenPacketContext(ctx context.Context, metadata *C.Metadata) (_
 			return NewPacketConn(uot.NewLazyConn(c, uot.Request{Destination: destination}), t), nil
 		}
 	}
+	t.idle.acquire()
 	pc, err := t.client.ListenPacket(ctx, metadata)
 	if err != nil {
+		t.idle.release()
 		return nil, err
 	}
-	return NewPacketConn(pc, t), nil
+	return NewPacketConn(t.idle.trackPacketConn(pc), t), nil
 }
 
 func (t *Tuic) dial(ctx context.Context) (quicConn *quic.Conn, err error) {
@@ -295,6 +300,10 @@ func NewTuic(option TuicOption) (*Tuic, error) {
 
 		t.client = tuic.NewPoolClientV5(clientOption, t.dial)
 	}
+	client := t.client
+	t.idle = newIdleCloser(quicIdleTimeout, func() {
+		_ = client.Close()
+	})
 
 	return t, nil
 }

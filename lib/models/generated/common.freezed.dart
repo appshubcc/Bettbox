@@ -6644,4 +6644,910 @@ as bool?,
 
 }
 
+
+/// @nodoc
+mixin _$RouteRuleSet {
+
+ String get tag; String get type; String? get name; String? get icon; int? get count;
+/// Create a copy of RouteRuleSet
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$RouteRuleSetCopyWith<RouteRuleSet> get copyWith => _$RouteRuleSetCopyWithImpl<RouteRuleSet>(this as RouteRuleSet, _$identity);
+
+  /// Serializes this RouteRuleSet to a JSON map.
+  Map<String, dynamic> toJson();
+
+
+@override
+bool operator ==(Object other) {
+  final _this = this as RouteRuleSet;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is RouteRuleSet&&(identical(other.tag, _this.tag) || other.tag == _this.tag)&&(identical(other.type, _this.type) || other.type == _this.type)&&(identical(other.name, _this.name) || other.name == _this.name)&&(identical(other.icon, _this.icon) || other.icon == _this.icon)&&(identical(other.count, _this.count) || other.count == _this.count));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode {
+  final _this = this as RouteRuleSet;
+  return Object.hash(runtimeType,_this.tag,_this.type,_this.name,_this.icon,_this.count);
+}
+
+@override
+String toString() {
+  final _this = this as RouteRuleSet;
+  return 'RouteRuleSet(tag: ${_this.tag}, type: ${_this.type}, name: ${_this.name}, icon: ${_this.icon}, count: ${_this.count})';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $RouteRuleSetCopyWith<$Res>  {
+  factory $RouteRuleSetCopyWith(RouteRuleSet value, $Res Function(RouteRuleSet) _then) = _$RouteRuleSetCopyWithImpl;
+@useResult
+$Res call({
+ String tag, String type, String? name, String? icon, int? count
+});
+
+
+
+
+}
+/// @nodoc
+class _$RouteRuleSetCopyWithImpl<$Res>
+    implements $RouteRuleSetCopyWith<$Res> {
+  _$RouteRuleSetCopyWithImpl(this._self, this._then);
+
+  final RouteRuleSet _self;
+  final $Res Function(RouteRuleSet) _then;
+
+/// Create a copy of RouteRuleSet
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? tag = null,Object? type = null,Object? name = freezed,Object? icon = freezed,Object? count = freezed,}) {
+  return _then(RouteRuleSet(
+tag: null == tag ? _self.tag : tag // ignore: cast_nullable_to_non_nullable
+as String,type: null == type ? _self.type : type // ignore: cast_nullable_to_non_nullable
+as String,name: freezed == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
+as String?,icon: freezed == icon ? _self.icon : icon // ignore: cast_nullable_to_non_nullable
+as String?,count: freezed == count ? _self.count : count // ignore: cast_nullable_to_non_nullable
+as int?,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [RouteRuleSet].
+extension RouteRuleSetPatterns on RouteRuleSet {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _RouteRuleSet value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _RouteRuleSet() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _RouteRuleSet value)  $default,){
+final _that = this;
+switch (_that) {
+case _RouteRuleSet():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _RouteRuleSet value)?  $default,){
+final _that = this;
+switch (_that) {
+case _RouteRuleSet() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String tag,  String type,  String? name,  String? icon,  int? count)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _RouteRuleSet() when $default != null:
+return $default(_that.tag,_that.type,_that.name,_that.icon,_that.count);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String tag,  String type,  String? name,  String? icon,  int? count)  $default,) {final _that = this;
+switch (_that) {
+case _RouteRuleSet():
+return $default(_that.tag,_that.type,_that.name,_that.icon,_that.count);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String tag,  String type,  String? name,  String? icon,  int? count)?  $default,) {final _that = this;
+switch (_that) {
+case _RouteRuleSet() when $default != null:
+return $default(_that.tag,_that.type,_that.name,_that.icon,_that.count);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+@JsonSerializable()
+
+class _RouteRuleSet implements RouteRuleSet {
+  const _RouteRuleSet({required this.tag, this.type = 'geosite', this.name, this.icon, this.count});
+  factory _RouteRuleSet.fromJson(Map<String, dynamic> json) => _$RouteRuleSetFromJson(json);
+
+@override final  String tag;
+@override@JsonKey() final  String type;
+@override final  String? name;
+@override final  String? icon;
+@override final  int? count;
+
+/// Create a copy of RouteRuleSet
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$RouteRuleSetCopyWith<_RouteRuleSet> get copyWith => __$RouteRuleSetCopyWithImpl<_RouteRuleSet>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$RouteRuleSetToJson(this, );
+}
+
+@override
+bool operator ==(Object other) {
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _RouteRuleSet&&(identical(other.tag, tag) || other.tag == tag)&&(identical(other.type, type) || other.type == type)&&(identical(other.name, name) || other.name == name)&&(identical(other.icon, icon) || other.icon == icon)&&(identical(other.count, count) || other.count == count));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode {
+    return Object.hash(runtimeType,tag,type,name,icon,count);
+}
+
+@override
+String toString() {
+    return 'RouteRuleSet(tag: $tag, type: $type, name: $name, icon: $icon, count: $count)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$RouteRuleSetCopyWith<$Res> implements $RouteRuleSetCopyWith<$Res> {
+  factory _$RouteRuleSetCopyWith(_RouteRuleSet value, $Res Function(_RouteRuleSet) _then) = __$RouteRuleSetCopyWithImpl;
+@override @useResult
+$Res call({
+ String tag, String type, String? name, String? icon, int? count
+});
+
+
+
+
+}
+/// @nodoc
+class __$RouteRuleSetCopyWithImpl<$Res>
+    implements _$RouteRuleSetCopyWith<$Res> {
+  __$RouteRuleSetCopyWithImpl(this._self, this._then);
+
+  final _RouteRuleSet _self;
+  final $Res Function(_RouteRuleSet) _then;
+
+/// Create a copy of RouteRuleSet
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? tag = null,Object? type = null,Object? name = freezed,Object? icon = freezed,Object? count = freezed,}) {
+  return _then(_RouteRuleSet(
+tag: null == tag ? _self.tag : tag // ignore: cast_nullable_to_non_nullable
+as String,type: null == type ? _self.type : type // ignore: cast_nullable_to_non_nullable
+as String,name: freezed == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
+as String?,icon: freezed == icon ? _self.icon : icon // ignore: cast_nullable_to_non_nullable
+as String?,count: freezed == count ? _self.count : count // ignore: cast_nullable_to_non_nullable
+as int?,
+  ));
+}
+
+
+}
+
+
+/// @nodoc
+mixin _$RouteService {
+
+ String get name; String? get icon; List<String> get sets; List<String> get keywords; List<String> get groups;@JsonKey(unknownEnumValue: RouteCategory.other) RouteCategory get category;
+/// Create a copy of RouteService
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$RouteServiceCopyWith<RouteService> get copyWith => _$RouteServiceCopyWithImpl<RouteService>(this as RouteService, _$identity);
+
+  /// Serializes this RouteService to a JSON map.
+  Map<String, dynamic> toJson();
+
+
+@override
+bool operator ==(Object other) {
+  final _this = this as RouteService;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is RouteService&&(identical(other.name, _this.name) || other.name == _this.name)&&(identical(other.icon, _this.icon) || other.icon == _this.icon)&&const DeepCollectionEquality().equals(other.sets, _this.sets)&&const DeepCollectionEquality().equals(other.keywords, _this.keywords)&&const DeepCollectionEquality().equals(other.groups, _this.groups)&&(identical(other.category, _this.category) || other.category == _this.category));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode {
+  final _this = this as RouteService;
+  return Object.hash(runtimeType,_this.name,_this.icon,const DeepCollectionEquality().hash(_this.sets),const DeepCollectionEquality().hash(_this.keywords),const DeepCollectionEquality().hash(_this.groups),_this.category);
+}
+
+@override
+String toString() {
+  final _this = this as RouteService;
+  return 'RouteService(name: ${_this.name}, icon: ${_this.icon}, sets: ${_this.sets}, keywords: ${_this.keywords}, groups: ${_this.groups}, category: ${_this.category})';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $RouteServiceCopyWith<$Res>  {
+  factory $RouteServiceCopyWith(RouteService value, $Res Function(RouteService) _then) = _$RouteServiceCopyWithImpl;
+@useResult
+$Res call({
+ String name, String? icon, List<String> sets, List<String> keywords, List<String> groups,@JsonKey(unknownEnumValue: RouteCategory.other) RouteCategory category
+});
+
+
+
+
+}
+/// @nodoc
+class _$RouteServiceCopyWithImpl<$Res>
+    implements $RouteServiceCopyWith<$Res> {
+  _$RouteServiceCopyWithImpl(this._self, this._then);
+
+  final RouteService _self;
+  final $Res Function(RouteService) _then;
+
+/// Create a copy of RouteService
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? name = null,Object? icon = freezed,Object? sets = null,Object? keywords = null,Object? groups = null,Object? category = null,}) {
+  return _then(RouteService(
+name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
+as String,icon: freezed == icon ? _self.icon : icon // ignore: cast_nullable_to_non_nullable
+as String?,sets: null == sets ? _self.sets : sets // ignore: cast_nullable_to_non_nullable
+as List<String>,keywords: null == keywords ? _self.keywords : keywords // ignore: cast_nullable_to_non_nullable
+as List<String>,groups: null == groups ? _self.groups : groups // ignore: cast_nullable_to_non_nullable
+as List<String>,category: null == category ? _self.category : category // ignore: cast_nullable_to_non_nullable
+as RouteCategory,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [RouteService].
+extension RouteServicePatterns on RouteService {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _RouteService value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _RouteService() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _RouteService value)  $default,){
+final _that = this;
+switch (_that) {
+case _RouteService():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _RouteService value)?  $default,){
+final _that = this;
+switch (_that) {
+case _RouteService() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String name,  String? icon,  List<String> sets,  List<String> keywords,  List<String> groups, @JsonKey(unknownEnumValue: RouteCategory.other)  RouteCategory category)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _RouteService() when $default != null:
+return $default(_that.name,_that.icon,_that.sets,_that.keywords,_that.groups,_that.category);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String name,  String? icon,  List<String> sets,  List<String> keywords,  List<String> groups, @JsonKey(unknownEnumValue: RouteCategory.other)  RouteCategory category)  $default,) {final _that = this;
+switch (_that) {
+case _RouteService():
+return $default(_that.name,_that.icon,_that.sets,_that.keywords,_that.groups,_that.category);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String name,  String? icon,  List<String> sets,  List<String> keywords,  List<String> groups, @JsonKey(unknownEnumValue: RouteCategory.other)  RouteCategory category)?  $default,) {final _that = this;
+switch (_that) {
+case _RouteService() when $default != null:
+return $default(_that.name,_that.icon,_that.sets,_that.keywords,_that.groups,_that.category);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+@JsonSerializable()
+
+class _RouteService implements RouteService {
+  const _RouteService({required this.name, this.icon,  List<String> sets = const [],  List<String> keywords = const [],  List<String> groups = const [], @JsonKey(unknownEnumValue: RouteCategory.other) this.category = RouteCategory.other}): _sets = sets,_keywords = keywords,_groups = groups;
+  factory _RouteService.fromJson(Map<String, dynamic> json) => _$RouteServiceFromJson(json);
+
+@override final  String name;
+@override final  String? icon;
+ final  List<String> _sets;
+@override@JsonKey() List<String> get sets {
+  if (_sets is EqualUnmodifiableListView) return _sets;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_sets);
+}
+
+ final  List<String> _keywords;
+@override@JsonKey() List<String> get keywords {
+  if (_keywords is EqualUnmodifiableListView) return _keywords;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_keywords);
+}
+
+ final  List<String> _groups;
+@override@JsonKey() List<String> get groups {
+  if (_groups is EqualUnmodifiableListView) return _groups;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_groups);
+}
+
+@override@JsonKey(unknownEnumValue: RouteCategory.other) final  RouteCategory category;
+
+/// Create a copy of RouteService
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$RouteServiceCopyWith<_RouteService> get copyWith => __$RouteServiceCopyWithImpl<_RouteService>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$RouteServiceToJson(this, );
+}
+
+@override
+bool operator ==(Object other) {
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _RouteService&&(identical(other.name, name) || other.name == name)&&(identical(other.icon, icon) || other.icon == icon)&&const DeepCollectionEquality().equals(other.sets, _sets)&&const DeepCollectionEquality().equals(other.keywords, _keywords)&&const DeepCollectionEquality().equals(other.groups, _groups)&&(identical(other.category, category) || other.category == category));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode {
+    return Object.hash(runtimeType,name,icon,const DeepCollectionEquality().hash(_sets),const DeepCollectionEquality().hash(_keywords),const DeepCollectionEquality().hash(_groups),category);
+}
+
+@override
+String toString() {
+    return 'RouteService(name: $name, icon: $icon, sets: $sets, keywords: $keywords, groups: $groups, category: $category)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$RouteServiceCopyWith<$Res> implements $RouteServiceCopyWith<$Res> {
+  factory _$RouteServiceCopyWith(_RouteService value, $Res Function(_RouteService) _then) = __$RouteServiceCopyWithImpl;
+@override @useResult
+$Res call({
+ String name, String? icon, List<String> sets, List<String> keywords, List<String> groups,@JsonKey(unknownEnumValue: RouteCategory.other) RouteCategory category
+});
+
+
+
+
+}
+/// @nodoc
+class __$RouteServiceCopyWithImpl<$Res>
+    implements _$RouteServiceCopyWith<$Res> {
+  __$RouteServiceCopyWithImpl(this._self, this._then);
+
+  final _RouteService _self;
+  final $Res Function(_RouteService) _then;
+
+/// Create a copy of RouteService
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? name = null,Object? icon = freezed,Object? sets = null,Object? keywords = null,Object? groups = null,Object? category = null,}) {
+  return _then(_RouteService(
+name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
+as String,icon: freezed == icon ? _self.icon : icon // ignore: cast_nullable_to_non_nullable
+as String?,sets: null == sets ? _self._sets : sets // ignore: cast_nullable_to_non_nullable
+as List<String>,keywords: null == keywords ? _self._keywords : keywords // ignore: cast_nullable_to_non_nullable
+as List<String>,groups: null == groups ? _self._groups : groups // ignore: cast_nullable_to_non_nullable
+as List<String>,category: null == category ? _self.category : category // ignore: cast_nullable_to_non_nullable
+as RouteCategory,
+  ));
+}
+
+
+}
+
+
+/// @nodoc
+mixin _$RouteCatalog {
+
+ List<String> get targets; List<String> get reserved; Map<String, RouteCategory> get groupCategories; List<String> get icons; List<RouteService> get services; List<RouteRuleSet> get sets;
+/// Create a copy of RouteCatalog
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$RouteCatalogCopyWith<RouteCatalog> get copyWith => _$RouteCatalogCopyWithImpl<RouteCatalog>(this as RouteCatalog, _$identity);
+
+  /// Serializes this RouteCatalog to a JSON map.
+  Map<String, dynamic> toJson();
+
+
+@override
+bool operator ==(Object other) {
+  final _this = this as RouteCatalog;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is RouteCatalog&&const DeepCollectionEquality().equals(other.targets, _this.targets)&&const DeepCollectionEquality().equals(other.reserved, _this.reserved)&&const DeepCollectionEquality().equals(other.groupCategories, _this.groupCategories)&&const DeepCollectionEquality().equals(other.icons, _this.icons)&&const DeepCollectionEquality().equals(other.services, _this.services)&&const DeepCollectionEquality().equals(other.sets, _this.sets));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode {
+  final _this = this as RouteCatalog;
+  return Object.hash(runtimeType,const DeepCollectionEquality().hash(_this.targets),const DeepCollectionEquality().hash(_this.reserved),const DeepCollectionEquality().hash(_this.groupCategories),const DeepCollectionEquality().hash(_this.icons),const DeepCollectionEquality().hash(_this.services),const DeepCollectionEquality().hash(_this.sets));
+}
+
+@override
+String toString() {
+  final _this = this as RouteCatalog;
+  return 'RouteCatalog(targets: ${_this.targets}, reserved: ${_this.reserved}, groupCategories: ${_this.groupCategories}, icons: ${_this.icons}, services: ${_this.services}, sets: ${_this.sets})';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $RouteCatalogCopyWith<$Res>  {
+  factory $RouteCatalogCopyWith(RouteCatalog value, $Res Function(RouteCatalog) _then) = _$RouteCatalogCopyWithImpl;
+@useResult
+$Res call({
+ List<String> targets, List<String> reserved, Map<String, RouteCategory> groupCategories, List<String> icons, List<RouteService> services, List<RouteRuleSet> sets
+});
+
+
+
+
+}
+/// @nodoc
+class _$RouteCatalogCopyWithImpl<$Res>
+    implements $RouteCatalogCopyWith<$Res> {
+  _$RouteCatalogCopyWithImpl(this._self, this._then);
+
+  final RouteCatalog _self;
+  final $Res Function(RouteCatalog) _then;
+
+/// Create a copy of RouteCatalog
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? targets = null,Object? reserved = null,Object? groupCategories = null,Object? icons = null,Object? services = null,Object? sets = null,}) {
+  return _then(RouteCatalog(
+targets: null == targets ? _self.targets : targets // ignore: cast_nullable_to_non_nullable
+as List<String>,reserved: null == reserved ? _self.reserved : reserved // ignore: cast_nullable_to_non_nullable
+as List<String>,groupCategories: null == groupCategories ? _self.groupCategories : groupCategories // ignore: cast_nullable_to_non_nullable
+as Map<String, RouteCategory>,icons: null == icons ? _self.icons : icons // ignore: cast_nullable_to_non_nullable
+as List<String>,services: null == services ? _self.services : services // ignore: cast_nullable_to_non_nullable
+as List<RouteService>,sets: null == sets ? _self.sets : sets // ignore: cast_nullable_to_non_nullable
+as List<RouteRuleSet>,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [RouteCatalog].
+extension RouteCatalogPatterns on RouteCatalog {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _RouteCatalog value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _RouteCatalog() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _RouteCatalog value)  $default,){
+final _that = this;
+switch (_that) {
+case _RouteCatalog():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _RouteCatalog value)?  $default,){
+final _that = this;
+switch (_that) {
+case _RouteCatalog() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( List<String> targets,  List<String> reserved,  Map<String, RouteCategory> groupCategories,  List<String> icons,  List<RouteService> services,  List<RouteRuleSet> sets)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _RouteCatalog() when $default != null:
+return $default(_that.targets,_that.reserved,_that.groupCategories,_that.icons,_that.services,_that.sets);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( List<String> targets,  List<String> reserved,  Map<String, RouteCategory> groupCategories,  List<String> icons,  List<RouteService> services,  List<RouteRuleSet> sets)  $default,) {final _that = this;
+switch (_that) {
+case _RouteCatalog():
+return $default(_that.targets,_that.reserved,_that.groupCategories,_that.icons,_that.services,_that.sets);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( List<String> targets,  List<String> reserved,  Map<String, RouteCategory> groupCategories,  List<String> icons,  List<RouteService> services,  List<RouteRuleSet> sets)?  $default,) {final _that = this;
+switch (_that) {
+case _RouteCatalog() when $default != null:
+return $default(_that.targets,_that.reserved,_that.groupCategories,_that.icons,_that.services,_that.sets);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+@JsonSerializable()
+
+class _RouteCatalog implements RouteCatalog {
+  const _RouteCatalog({ List<String> targets = const [],  List<String> reserved = const [],  Map<String, RouteCategory> groupCategories = const {},  List<String> icons = const [],  List<RouteService> services = const [],  List<RouteRuleSet> sets = const []}): _targets = targets,_reserved = reserved,_groupCategories = groupCategories,_icons = icons,_services = services,_sets = sets;
+  factory _RouteCatalog.fromJson(Map<String, dynamic> json) => _$RouteCatalogFromJson(json);
+
+ final  List<String> _targets;
+@override@JsonKey() List<String> get targets {
+  if (_targets is EqualUnmodifiableListView) return _targets;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_targets);
+}
+
+ final  List<String> _reserved;
+@override@JsonKey() List<String> get reserved {
+  if (_reserved is EqualUnmodifiableListView) return _reserved;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_reserved);
+}
+
+ final  Map<String, RouteCategory> _groupCategories;
+@override@JsonKey() Map<String, RouteCategory> get groupCategories {
+  if (_groupCategories is EqualUnmodifiableMapView) return _groupCategories;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableMapView(_groupCategories);
+}
+
+ final  List<String> _icons;
+@override@JsonKey() List<String> get icons {
+  if (_icons is EqualUnmodifiableListView) return _icons;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_icons);
+}
+
+ final  List<RouteService> _services;
+@override@JsonKey() List<RouteService> get services {
+  if (_services is EqualUnmodifiableListView) return _services;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_services);
+}
+
+ final  List<RouteRuleSet> _sets;
+@override@JsonKey() List<RouteRuleSet> get sets {
+  if (_sets is EqualUnmodifiableListView) return _sets;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_sets);
+}
+
+
+/// Create a copy of RouteCatalog
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$RouteCatalogCopyWith<_RouteCatalog> get copyWith => __$RouteCatalogCopyWithImpl<_RouteCatalog>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$RouteCatalogToJson(this, );
+}
+
+@override
+bool operator ==(Object other) {
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _RouteCatalog&&const DeepCollectionEquality().equals(other.targets, _targets)&&const DeepCollectionEquality().equals(other.reserved, _reserved)&&const DeepCollectionEquality().equals(other.groupCategories, _groupCategories)&&const DeepCollectionEquality().equals(other.icons, _icons)&&const DeepCollectionEquality().equals(other.services, _services)&&const DeepCollectionEquality().equals(other.sets, _sets));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode {
+    return Object.hash(runtimeType,const DeepCollectionEquality().hash(_targets),const DeepCollectionEquality().hash(_reserved),const DeepCollectionEquality().hash(_groupCategories),const DeepCollectionEquality().hash(_icons),const DeepCollectionEquality().hash(_services),const DeepCollectionEquality().hash(_sets));
+}
+
+@override
+String toString() {
+    return 'RouteCatalog(targets: $targets, reserved: $reserved, groupCategories: $groupCategories, icons: $icons, services: $services, sets: $sets)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$RouteCatalogCopyWith<$Res> implements $RouteCatalogCopyWith<$Res> {
+  factory _$RouteCatalogCopyWith(_RouteCatalog value, $Res Function(_RouteCatalog) _then) = __$RouteCatalogCopyWithImpl;
+@override @useResult
+$Res call({
+ List<String> targets, List<String> reserved, Map<String, RouteCategory> groupCategories, List<String> icons, List<RouteService> services, List<RouteRuleSet> sets
+});
+
+
+
+
+}
+/// @nodoc
+class __$RouteCatalogCopyWithImpl<$Res>
+    implements _$RouteCatalogCopyWith<$Res> {
+  __$RouteCatalogCopyWithImpl(this._self, this._then);
+
+  final _RouteCatalog _self;
+  final $Res Function(_RouteCatalog) _then;
+
+/// Create a copy of RouteCatalog
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? targets = null,Object? reserved = null,Object? groupCategories = null,Object? icons = null,Object? services = null,Object? sets = null,}) {
+  return _then(_RouteCatalog(
+targets: null == targets ? _self._targets : targets // ignore: cast_nullable_to_non_nullable
+as List<String>,reserved: null == reserved ? _self._reserved : reserved // ignore: cast_nullable_to_non_nullable
+as List<String>,groupCategories: null == groupCategories ? _self._groupCategories : groupCategories // ignore: cast_nullable_to_non_nullable
+as Map<String, RouteCategory>,icons: null == icons ? _self._icons : icons // ignore: cast_nullable_to_non_nullable
+as List<String>,services: null == services ? _self._services : services // ignore: cast_nullable_to_non_nullable
+as List<RouteService>,sets: null == sets ? _self._sets : sets // ignore: cast_nullable_to_non_nullable
+as List<RouteRuleSet>,
+  ));
+}
+
+
+}
+
 // dart format on

@@ -48,7 +48,7 @@ final class ConfigStateProvider
   }
 }
 
-String _$configStateHash() => r'15add783e9669dc39b53b1b93b4beaf815c877ee';
+String _$configStateHash() => r'b0aa77171dbc3e64cbab73861a2dd98569c673fb';
 
 @ProviderFor(currentGroupsState)
 final currentGroupsStateProvider = CurrentGroupsStateProvider._();
@@ -2455,6 +2455,48 @@ final class GenColorSchemeFamily extends $Family
   String toString() => r'genColorSchemeProvider';
 }
 
+@ProviderFor(currentProfileScript)
+final currentProfileScriptProvider = CurrentProfileScriptProvider._();
+
+final class CurrentProfileScriptProvider
+    extends $FunctionalProvider<Script?, Script?, Script?>
+    with $Provider<Script?> {
+  CurrentProfileScriptProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'currentProfileScriptProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$currentProfileScriptHash();
+
+  @$internal
+  @override
+  $ProviderElement<Script?> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  Script? create(Ref ref) {
+    return currentProfileScript(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(Script? value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<Script?>(value),
+    );
+  }
+}
+
+String _$currentProfileScriptHash() =>
+    r'2dee96513396788b81b67296af450440e1433859';
+
 @ProviderFor(needSetup)
 final needSetupProvider = NeedSetupProvider._();
 
@@ -2501,7 +2543,7 @@ final class NeedSetupProvider
   }
 }
 
-String _$needSetupHash() => r'9983a9f3d6bb5340e08bc56c5ef7e9285fde50c9';
+String _$needSetupHash() => r'bdb9d13a527429ca00c05b899560d6347fa7db66';
 
 @ProviderFor(currentBrightness)
 final currentBrightnessProvider = CurrentBrightnessProvider._();
@@ -2724,4 +2766,4 @@ final class HomeWidgetSnapshotProvider
 }
 
 String _$homeWidgetSnapshotHash() =>
-    r'd5648e3b949e95b304e0020fcb5212e87e0858ee';
+    r'd88d6f0a3f36366a4c63fd52acdb09331ccf1aa8';

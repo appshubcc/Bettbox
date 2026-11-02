@@ -16,8 +16,6 @@ abstract mixin class AppMessageListener {
 
   void onRequest(TrackerInfo connection) {}
 
-  void onLoaded(String providerName) {}
-
   void onSpeedTest(SpeedTestState state) {}
 
   void onStunTest(StunTestState state) {}

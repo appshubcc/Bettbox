@@ -1,0 +1,26 @@
+name: hotkey_manager_linux
+description: Linux implementation of the hotkey_manager plugin.
+version: 0.2.0
+repository: https://github.com/leanflutter/hotkey_manager/tree/main/packages/hotkey_manager_linux
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+  flutter: '>=3.3.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  hotkey_manager_platform_interface: ^0.2.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  mostly_reasonable_lints: ^0.1.1
+
+flutter:
+  plugin:
+    implements: hotkey_manager
+    platforms:
+      linux:
+        pluginClass: HotkeyManagerLinuxPlugin
+

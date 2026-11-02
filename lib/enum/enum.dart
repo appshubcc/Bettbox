@@ -111,11 +111,13 @@ enum TunStack { gvisor, system, mixed, mips }
 
 enum TunDnsMode { disabled, native, hijack }
 
+enum ProfileSwitchMode { hotReload, fullRestart }
+
 enum AccessControlMode { acceptSelected, rejectSelected }
 
 enum AccessSortType { none, installTime, updateTime }
 
-enum ProfileType { file, url }
+enum ProfileType { file, url, bundle }
 
 enum ConnectionsSortType {
   defaultSort,
@@ -136,7 +138,6 @@ enum AppMessageType {
   delays,
   groupsChanged,
   request,
-  loaded,
   speedTest,
   stunTest,
   iperf,
@@ -241,6 +242,7 @@ enum ActionMethod {
   getConfig,
   getRuntimeConfig,
   exportConfig,
+  mergeProfiles,
   getProxies,
   changeProxy,
   getTraffic,
@@ -291,6 +293,7 @@ enum ActionMethod {
   dnsQuery,
   mrsPrepare,
   mrsLookup,
+  mrsDump,
   cancelMrsLookup,
   getTrafficStats,
   clearTrafficStats,
@@ -385,6 +388,8 @@ enum FunctionTag {
   requests,
   autoScrollToEnd,
   autoBackup,
+  generateBundles,
+  delaySort,
 }
 
 enum DashboardWidget {
@@ -425,6 +430,10 @@ enum DashboardWidget {
   onlinePanel(GridItem(crossAxisCellCount: 4, child: OnlinePanel())),
   mediaUnlock(GridItem(crossAxisCellCount: 8, child: MediaUnlock())),
   mediaUnlockSmall(GridItem(crossAxisCellCount: 4, child: MediaUnlockSmall())),
+  toolboxShortcut(
+    GridItem(crossAxisCellCount: 4, child: ToolboxShortcut()),
+    platforms: [SupportPlatform.Android],
+  ),
   startButton(
     GridItem(crossAxisCellCount: 4, isDeletable: false, child: StartButton()),
   );
@@ -472,6 +481,7 @@ enum DashboardWidget {
     intranetIp ||
     memoryInfo ||
     connectionsCount ||
+    toolboxShortcut ||
     startButton => const [
       DashboardTileSize.small,
       DashboardTileSize.wide,
@@ -601,6 +611,14 @@ enum StartSwitchStyle { tonal, outlined }
 
 enum ProfileUsageStyle { bar, ring, concentric }
 
+extension ProfileUsageStyleExt on ProfileUsageStyle {
+  String get localizedName => switch (this) {
+    ProfileUsageStyle.bar => appLocalizations.usageStyleBar,
+    ProfileUsageStyle.ring => appLocalizations.usageStyleRing,
+    ProfileUsageStyle.concentric => appLocalizations.usageStyleConcentric,
+  };
+}
+
 enum SidebarFlyoutEntry {
   resources,
   script,
@@ -684,21 +702,7 @@ enum DelayAnimationType {
   waveSpinner,
 }
 
-enum MrsRawSource {
-  bettRules(
-    'bett-rules',
-    'https://raw.githubusercontent.com/appshubcc/bett-rules/meta/',
-  ),
-  metaRulesDat(
-    'meta-rules-dat',
-    'https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/',
-  );
-
-  final String label;
-  final String baseUrl;
-
-  const MrsRawSource(this.label, this.baseUrl);
-}
+enum MrsTapAction { viewRules, copyUrl }
 
 enum IpRiskLevel { low, medium, high, veryHigh }
 
@@ -709,3 +713,14 @@ enum IpRiskAmount { low, medium, high }
 enum IpRiskShare { little, some, almostAll }
 
 enum IpRiskConnection { server, vpn, publicProxy, tor, webProxy }
+
+enum RouteCategory {
+  ai,
+  streaming,
+  social,
+  gaming,
+  developer,
+  finance,
+  tech,
+  other,
+}

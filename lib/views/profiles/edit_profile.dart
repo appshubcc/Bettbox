@@ -9,6 +9,7 @@ import 'package:bett_box/models/models.dart';
 import 'package:bett_box/pages/editor.dart';
 import 'package:bett_box/providers/providers.dart';
 import 'package:bett_box/state.dart';
+import 'package:bett_box/views/profiles/managed_options.dart';
 import 'package:bett_box/widgets/widgets.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
@@ -34,6 +35,7 @@ class EditProfileViewState extends State<EditProfileView> {
   late TextEditingController urlController;
   late TextEditingController autoUpdateDurationController;
   late bool autoUpdate;
+  late bool managed = widget.profile.managed;
   late TextEditingController ageSecretKeyController;
   FocusNode? urlFocusNode;
   bool _obscureAgeSecretKey = true;
@@ -90,6 +92,7 @@ class EditProfileViewState extends State<EditProfileView> {
           ? null
           : ageSecretKeyController.text.trim(),
       autoUpdate: autoUpdate,
+      managed: managed,
       autoUpdateDuration: Duration(
         minutes: int.parse(autoUpdateDurationController.text),
       ),
@@ -422,6 +425,41 @@ class EditProfileViewState extends State<EditProfileView> {
             ),
           ),
       ],
+      Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: CommonCard(
+          type: CommonCardType.filled,
+          radius: 16,
+          child: ListItem.switchItem(
+            title: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Flexible(child: Text(appLocalizations.managedMode)),
+                const SizedBox(width: 2),
+                IconButton(
+                  onPressed: () => showManagedOptions(context),
+                  tooltip: appLocalizations.managedOptions,
+                  iconSize: 18,
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints.tightFor(
+                    width: 30,
+                    height: 30,
+                  ),
+                  style: IconButton.styleFrom(
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  ),
+                  icon: const Icon(Icons.settings_outlined),
+                ),
+              ],
+            ),
+            subtitle: Text(appLocalizations.managedModeDesc),
+            delegate: SwitchDelegate<bool>(
+              value: managed,
+              onChanged: (value) => setState(() => managed = value),
+            ),
+          ),
+        ),
+      ),
       if (!widget.isNew)
         ValueListenableBuilder<FileInfo?>(
           valueListenable: fileInfoNotifier,

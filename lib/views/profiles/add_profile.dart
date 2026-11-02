@@ -2,11 +2,14 @@ import 'package:bett_box/common/common.dart';
 import 'package:bett_box/enum/enum.dart';
 import 'package:bett_box/models/models.dart';
 import 'package:bett_box/pages/scan.dart';
+import 'package:bett_box/providers/providers.dart';
 import 'package:bett_box/state.dart';
 import 'package:bett_box/widgets/widgets.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'edit_profile.dart';
+import 'merge_profile.dart';
 import 'tv_qr_import_dialog.dart';
 
 class AddProfileView extends StatelessWidget {
@@ -105,6 +108,48 @@ class AddProfileView extends StatelessWidget {
     _handleAddProfileFormURL('');
   }
 
+  void _toMerge() {
+    showExtend(
+      context,
+      builder: (_, type) {
+        return AdaptiveSheetScaffold(
+          type: type,
+          body: MergeProfileView(context: context),
+          title: appLocalizations.mergeProfile,
+        );
+      },
+    );
+  }
+
+  Widget _buildMerge() {
+    return Consumer(
+      builder: (context, ref, _) {
+        final available = ref.watch(
+          profilesProvider.select(
+            (profiles) =>
+                profiles.where((profile) => profile.bundle == null).length >= 2,
+          ),
+        );
+        final muted = context.colorScheme.onSurface.withValues(alpha: 0.38);
+        final style = available ? null : TextStyle(color: muted);
+        return CommonCard(
+          type: CommonCardType.filled,
+          child: ListItem(
+            leading: Icon(Icons.merge_type, color: available ? null : muted),
+            title: Text(appLocalizations.mergeProfile, style: style),
+            subtitle: Text(
+              available
+                  ? appLocalizations.mergeProfileDesc
+                  : appLocalizations.mergeProfileUnavailable,
+              style: style,
+            ),
+            onTap: available ? _toMerge : null,
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(context) {
     return ScrollEdgeRise(
@@ -176,6 +221,8 @@ class AddProfileView extends StatelessWidget {
               ],
             ),
           ),
+          const SizedBox(height: 12),
+          _buildMerge(),
         ],
       ),
     );

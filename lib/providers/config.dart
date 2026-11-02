@@ -307,7 +307,9 @@ class TrafficStatsSetting extends _$TrafficStatsSetting
     globalState.config = globalState.config.copyWith(trafficStatsProps: value);
   }
 
-  void updateState(TrafficStatsProps Function(TrafficStatsProps state) builder) {
+  void updateState(
+    TrafficStatsProps Function(TrafficStatsProps state) builder,
+  ) {
     state = builder(state);
   }
 }
@@ -335,18 +337,13 @@ class ScriptState extends _$ScriptState with AutoDisposeNotifierMixin {
     state = state.copyWith(scripts: list);
   }
 
-  void setId(String id) {
-    state = state.copyWith(currentId: state.currentId != id ? id : null);
-  }
-
   void del(String id) {
     final list = List<Script>.from(state.scripts);
     final index = list.indexWhere((item) => item.label == id);
     if (index != -1) {
       unawaited(list.removeAt(index).deleteContent());
     }
-    final nextId = id == state.currentId ? null : state.currentId;
-    state = state.copyWith(scripts: list, currentId: nextId);
+    state = state.copyWith(scripts: list);
   }
 
   bool isExits(String label) {
@@ -370,6 +367,23 @@ class ScriptState extends _$ScriptState with AutoDisposeNotifierMixin {
     if (url == null || url.isEmpty) return;
     final res = await request.getTextResponseForUrl(url);
     setScript(await script.writeContent(res.data));
+  }
+}
+
+@riverpod
+class ManagedSetting extends _$ManagedSetting with AutoDisposeNotifierMixin {
+  @override
+  ManagedProps build() {
+    return globalState.config.managedProps;
+  }
+
+  @override
+  onUpdate(value) {
+    globalState.config = globalState.config.copyWith(managedProps: value);
+  }
+
+  void updateState(ManagedProps Function(ManagedProps state) builder) {
+    state = builder(state);
   }
 }
 

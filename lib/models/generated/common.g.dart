@@ -422,3 +422,106 @@ Map<String, dynamic> _$ScriptToJson(_Script instance) => <String, dynamic>{
   'compatible': instance.compatible,
   'volatile': instance.volatile,
 };
+
+_RouteRuleSet _$RouteRuleSetFromJson(Map<String, dynamic> json) =>
+    _RouteRuleSet(
+      tag: json['tag'] as String,
+      type: json['type'] as String? ?? 'geosite',
+      name: json['name'] as String?,
+      icon: json['icon'] as String?,
+      count: (json['count'] as num?)?.toInt(),
+    );
+
+Map<String, dynamic> _$RouteRuleSetToJson(_RouteRuleSet instance) =>
+    <String, dynamic>{
+      'tag': instance.tag,
+      'type': instance.type,
+      'name': instance.name,
+      'icon': instance.icon,
+      'count': instance.count,
+    };
+
+_RouteService _$RouteServiceFromJson(
+  Map<String, dynamic> json,
+) => _RouteService(
+  name: json['name'] as String,
+  icon: json['icon'] as String?,
+  sets:
+      (json['sets'] as List<dynamic>?)?.map((e) => e as String).toList() ??
+      const [],
+  keywords:
+      (json['keywords'] as List<dynamic>?)?.map((e) => e as String).toList() ??
+      const [],
+  groups:
+      (json['groups'] as List<dynamic>?)?.map((e) => e as String).toList() ??
+      const [],
+  category:
+      $enumDecodeNullable(
+        _$RouteCategoryEnumMap,
+        json['category'],
+        unknownValue: RouteCategory.other,
+      ) ??
+      RouteCategory.other,
+);
+
+Map<String, dynamic> _$RouteServiceToJson(_RouteService instance) =>
+    <String, dynamic>{
+      'name': instance.name,
+      'icon': instance.icon,
+      'sets': instance.sets,
+      'keywords': instance.keywords,
+      'groups': instance.groups,
+      'category': _$RouteCategoryEnumMap[instance.category]!,
+    };
+
+const _$RouteCategoryEnumMap = {
+  RouteCategory.ai: 'ai',
+  RouteCategory.streaming: 'streaming',
+  RouteCategory.social: 'social',
+  RouteCategory.gaming: 'gaming',
+  RouteCategory.developer: 'developer',
+  RouteCategory.finance: 'finance',
+  RouteCategory.tech: 'tech',
+  RouteCategory.other: 'other',
+};
+
+_RouteCatalog _$RouteCatalogFromJson(
+  Map<String, dynamic> json,
+) => _RouteCatalog(
+  targets:
+      (json['targets'] as List<dynamic>?)?.map((e) => e as String).toList() ??
+      const [],
+  reserved:
+      (json['reserved'] as List<dynamic>?)?.map((e) => e as String).toList() ??
+      const [],
+  groupCategories:
+      (json['groupCategories'] as Map<String, dynamic>?)?.map(
+        (k, e) => MapEntry(k, $enumDecode(_$RouteCategoryEnumMap, e)),
+      ) ??
+      const {},
+  icons:
+      (json['icons'] as List<dynamic>?)?.map((e) => e as String).toList() ??
+      const [],
+  services:
+      (json['services'] as List<dynamic>?)
+          ?.map((e) => RouteService.fromJson(e as Map<String, dynamic>))
+          .toList() ??
+      const [],
+  sets:
+      (json['sets'] as List<dynamic>?)
+          ?.map((e) => RouteRuleSet.fromJson(e as Map<String, dynamic>))
+          .toList() ??
+      const [],
+);
+
+Map<String, dynamic> _$RouteCatalogToJson(_RouteCatalog instance) =>
+    <String, dynamic>{
+      'targets': instance.targets,
+      'reserved': instance.reserved,
+      'groupCategories': instance.groupCategories.map(
+        (k, e) => MapEntry(k, _$RouteCategoryEnumMap[e]!),
+      ),
+      'icons': instance.icons,
+      'services': instance.services,
+      'sets': instance.sets,
+    };

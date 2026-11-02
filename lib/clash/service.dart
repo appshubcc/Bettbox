@@ -59,8 +59,8 @@ class ClashService extends ClashHandlerInterface {
   }
 
   String _newSocketPath() {
-    final random = Random().nextInt(10000);
-    return p.join(Directory.systemTemp.path, 'Bettbox_$random.sock');
+    final token = Random.secure().nextInt(1 << 32).toRadixString(16);
+    return p.join(Directory.systemTemp.path, 'Bettbox_$token.sock');
   }
 
   Future<void> _rebindTransport() async {
@@ -95,6 +95,10 @@ class ClashService extends ClashHandlerInterface {
 
         serverCompleter.complete(server);
         await for (final socket in server) {
+          if (_socket != null && !isStarting) {
+            socket.destroy();
+            continue;
+          }
           await _destroySocket();
           _socket = socket;
           _coreLost = false;

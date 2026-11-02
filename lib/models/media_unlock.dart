@@ -34,7 +34,7 @@ enum MediaPlatform {
   gemini,
   grok,
   openrouter,
-  poe,
+  opencode,
   suno,
   cloudflare,
   perplexity,
@@ -53,7 +53,6 @@ enum MediaPlatform {
   netease,
   douyin,
   bilibili,
-  cloudflarecn,
   reddit,
   x,
   discord,
@@ -101,7 +100,7 @@ extension MediaPlatformExt on MediaPlatform {
     MediaPlatform.gemini ||
     MediaPlatform.grok ||
     MediaPlatform.openrouter ||
-    MediaPlatform.poe ||
+    MediaPlatform.opencode ||
     MediaPlatform.suno ||
     MediaPlatform.cloudflare ||
     MediaPlatform.perplexity => MediaCategory.ai,
@@ -123,8 +122,7 @@ extension MediaPlatformExt on MediaPlatform {
     MediaPlatform.alibaba ||
     MediaPlatform.netease ||
     MediaPlatform.douyin ||
-    MediaPlatform.bilibili ||
-    MediaPlatform.cloudflarecn => MediaCategory.china,
+    MediaPlatform.bilibili => MediaCategory.china,
     MediaPlatform.reddit ||
     MediaPlatform.x ||
     MediaPlatform.discord ||
@@ -160,7 +158,7 @@ extension MediaPlatformExt on MediaPlatform {
     MediaPlatform.gemini => 'Gemini',
     MediaPlatform.grok => 'Grok',
     MediaPlatform.openrouter => 'OpenRouter',
-    MediaPlatform.poe => 'Poe',
+    MediaPlatform.opencode => 'OpenCode',
     MediaPlatform.suno => 'Suno',
     MediaPlatform.cloudflare => 'Cloudflare',
     MediaPlatform.perplexity => 'Perplexity',
@@ -179,7 +177,6 @@ extension MediaPlatformExt on MediaPlatform {
     MediaPlatform.alibaba => 'Alibaba(CN)',
     MediaPlatform.netease => 'Netease(CN)',
     MediaPlatform.douyin => 'Douyin(CN)',
-    MediaPlatform.cloudflarecn => 'Cloudflare(CN)',
     MediaPlatform.reddit => 'Reddit',
     MediaPlatform.x => 'Twitter',
     MediaPlatform.discord => 'Discord',
@@ -213,7 +210,66 @@ extension MediaPlatformExt on MediaPlatform {
     MediaPlatform.rthk => 'RTHK',
   };
 
+  String get icon => switch (this) {
+    MediaPlatform.openai => 'OpenAI.svg',
+    MediaPlatform.claude => 'Claude.svg',
+    MediaPlatform.gemini => 'Gemini.svg',
+    MediaPlatform.grok => 'Grok.svg',
+    MediaPlatform.openrouter => 'OpenRouter.svg',
+    MediaPlatform.opencode => 'Opencode.svg',
+    MediaPlatform.suno => 'Suno.svg',
+    MediaPlatform.cloudflare => 'Cloudflare.svg',
+    MediaPlatform.perplexity => 'Perplexity.svg',
+    MediaPlatform.netflix => 'Netflix.svg',
+    MediaPlatform.disney => 'Disney.svg',
+    MediaPlatform.youtube => 'YouTube.svg',
+    MediaPlatform.youtubemusic => 'YouTubeMusic.svg',
+    MediaPlatform.spotify => 'Spotify.svg',
+    MediaPlatform.tiktok => 'TikTok.svg',
+    MediaPlatform.iqiyi => 'iQIYI.svg',
+    MediaPlatform.crunchyroll => 'Crunchyroll.svg',
+    MediaPlatform.missav => 'MissAV.svg',
+    MediaPlatform.ehentai => 'EHentai.svg',
+    MediaPlatform.tencent => 'QQ.svg',
+    MediaPlatform.alibaba => 'Alibaba.svg',
+    MediaPlatform.netease => 'NetEase.svg',
+    MediaPlatform.douyin => 'Douyin.svg',
+    MediaPlatform.bilibili => 'Bilibili.svg',
+    MediaPlatform.reddit => 'Reddit.svg',
+    MediaPlatform.x => 'Twitter.svg',
+    MediaPlatform.discord => 'Discord.svg',
+    MediaPlatform.v2ex => 'V2EX.svg',
+    MediaPlatform.medium => 'Medium.svg',
+    MediaPlatform.stackoverflow => 'StackOverflow.svg',
+    MediaPlatform.quora => 'Quora.svg',
+    MediaPlatform.telegram => 'Telegram.svg',
+    MediaPlatform.github => 'GitHub.svg',
+    MediaPlatform.wikipedia => 'Wikipedia.svg',
+    MediaPlatform.apple => 'Apple.svg',
+    MediaPlatform.onetrust => 'OneTrust.svg',
+    MediaPlatform.gitlab => 'GitLab.svg',
+    MediaPlatform.npm => 'Npm.svg',
+    MediaPlatform.cdnjs => 'Cdnjs.svg',
+    MediaPlatform.unpkg => 'Unpkg.svg',
+    MediaPlatform.nodejs => 'NodeJs.svg',
+    MediaPlatform.steam => 'Steam.svg',
+    MediaPlatform.epic => 'EpicGames.svg',
+    MediaPlatform.ubisoft => 'Ubisoft.svg',
+    MediaPlatform.humblebundle => 'HumbleBundle.svg',
+    MediaPlatform.coinbase => 'Coinbase.svg',
+    MediaPlatform.okx => 'OKX.svg',
+    MediaPlatform.kraken => 'Kraken.svg',
+    MediaPlatform.cryptocom => 'CryptoCom.svg',
+    MediaPlatform.phantom => 'Phantom.svg',
+    MediaPlatform.paypal => 'PayPal.svg',
+    MediaPlatform.mytvsuper => 'MyTVSuper.svg',
+    MediaPlatform.viutv => 'ViuTV.svg',
+    MediaPlatform.hoytv => 'HOYTV.svg',
+    MediaPlatform.rthk => 'RTHK.svg',
+  };
+
   bool get isMonochrome => switch (this) {
+    MediaPlatform.opencode ||
     MediaPlatform.github ||
     MediaPlatform.wikipedia ||
     MediaPlatform.apple ||
@@ -225,6 +281,7 @@ extension MediaPlatformExt on MediaPlatform {
     MediaPlatform.suno ||
     MediaPlatform.v2ex ||
     MediaPlatform.unpkg ||
+    MediaPlatform.ubisoft ||
     MediaPlatform.okx => true,
     _ => false,
   };

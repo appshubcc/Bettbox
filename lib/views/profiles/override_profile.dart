@@ -905,7 +905,7 @@ class _AddRuleDialogState extends State<AddRuleDialog> {
     required List<String> options,
     required TextEditingController controller,
   }) async {
-    final selected = await globalState.showCommonDialog<String>(
+    final selected = await globalState.showAdaptiveSheet<String>(
       child: OptionsDialog<String>(
         title: title,
         options: options,
@@ -920,7 +920,7 @@ class _AddRuleDialogState extends State<AddRuleDialog> {
   }
 
   Future<void> _pickRuleAction() async {
-    final selected = await globalState.showCommonDialog<RuleAction>(
+    final selected = await globalState.showAdaptiveSheet<RuleAction>(
       child: OptionsDialog<RuleAction>(
         title: appLocalizations.ruleName,
         options: RuleAction.values,

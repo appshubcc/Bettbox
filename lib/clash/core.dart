@@ -194,15 +194,42 @@ class ClashCore {
     String id,
     String output, {
     String? ageSecretKey,
+    bool expandProviders = false,
+    bool refresh = false,
   }) async {
     final res = await clashInterface.exportConfig(
       await appPath.getProfilePath(id),
       output,
       ageSecretKey: ageSecretKey,
+      providersPath: expandProviders
+          ? await appPath.getProvidersDirPath(id)
+          : null,
+      refresh: refresh,
     );
     if (res.isError) {
       throw res.message;
     }
+  }
+
+  Future<BundleReport> mergeProfiles({
+    required String output,
+    required List<({String prefix, String path})> members,
+    SetupParams? setup,
+  }) async {
+    final res = await clashInterface.mergeProfiles(
+      json.encode({
+        'output': output,
+        'members': [
+          for (final member in members)
+            {'prefix': member.prefix, 'path': member.path},
+        ],
+        'setup': ?setup,
+      }),
+    );
+    if (res.isError) {
+      throw res.message;
+    }
+    return BundleReport.fromJson(json.decode(res.data as String));
   }
 
   FutureOr<String> decryptAgeConfig(String data, String ageSecretKey) {
@@ -665,6 +692,9 @@ class ClashCore {
     ),
   );
 
+  Future<String> mrsDump(String file) =>
+      clashInterface.toolboxInvoke(ActionMethod.mrsDump, data: file);
+
   Future<void> cancelMrsLookup() async {
     await clashInterface.toolboxInvoke(ActionMethod.cancelMrsLookup);
   }
@@ -677,12 +707,7 @@ class ClashCore {
   }) async => TrafficStatsResult.fromJson(
     await _toolboxJson(
       ActionMethod.getTrafficStats,
-      data: json.encode({
-        'start': start,
-        'end': end,
-        'top': top,
-        'host': host,
-      }),
+      data: json.encode({'start': start, 'end': end, 'top': top, 'host': host}),
     ),
   );
 
@@ -776,8 +801,14 @@ class ClashCore {
     _forget(clashInterface.clearRequests(), 'clearRequests');
   }
 
-  Future<void> requestGc({bool forceFreeOSMemory = false}) async {
-    await clashInterface.forceGc(forceFreeOSMemory: forceFreeOSMemory);
+  Future<void> requestGc({
+    bool forceFreeOSMemory = false,
+    bool purge = true,
+  }) async {
+    await clashInterface.forceGc(
+      forceFreeOSMemory: forceFreeOSMemory,
+      purge: purge,
+    );
   }
 
   Future<void> flushFakeIP() async {

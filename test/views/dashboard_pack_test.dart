@@ -25,15 +25,18 @@ void main() {
     expect(packed, [item1, item2, item3]);
   });
 
-  test('packGridItems handles single half width with only full width remaining', () {
-    const item1 = GridItem(crossAxisCellCount: 4, child: SizedBox());
-    const item2 = GridItem(crossAxisCellCount: 8, child: SizedBox());
-    const item3 = GridItem(crossAxisCellCount: 8, child: SizedBox());
+  test(
+    'packGridItems handles single half width with only full width remaining',
+    () {
+      const item1 = GridItem(crossAxisCellCount: 4, child: SizedBox());
+      const item2 = GridItem(crossAxisCellCount: 8, child: SizedBox());
+      const item3 = GridItem(crossAxisCellCount: 8, child: SizedBox());
 
-    final packed = packGridItems([item1, item2, item3], 8);
+      final packed = packGridItems([item1, item2, item3], 8);
 
-    expect(packed, [item1, item2, item3]);
-  });
+      expect(packed, [item1, item2, item3]);
+    },
+  );
 
   test('packGridItems handles empty list', () {
     expect(packGridItems([], 8), isEmpty);

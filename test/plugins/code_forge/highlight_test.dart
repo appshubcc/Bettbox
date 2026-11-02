@@ -1,10 +1,10 @@
 import 'dart:io';
 import 'dart:math';
 
+import 'package:code_forge/code_forge.dart' show editorYamlMode;
 import 'package:code_forge/src/rust/api/editor.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:re_highlight/languages/javascript.dart';
-import 'package:re_highlight/languages/yaml.dart';
 import 'package:re_highlight/re_highlight.dart';
 
 import 'support.dart';
@@ -40,7 +40,7 @@ class _Scopes implements HighlightRenderer {
 }
 
 final _reference = Highlight()
-  ..registerLanguage('yaml', langYaml)
+  ..registerLanguage('yaml', editorYamlMode)
   ..registerLanguage('javascript', langJavascript);
 
 List<String?> _expected(String line, String language) {
@@ -142,6 +142,8 @@ const _alphabet = [
   '@',
   '_',
   '|',
+  '?',
+  '`',
   '节',
   '😀',
   ' ',
@@ -186,6 +188,12 @@ const _words = [
   '"k":',
   "'k': ",
   'https://a.b/c',
+  'rule-set:a,b: ',
+  "'+.a.com': ",
+  '"k\\"x": ',
+  "'it''s': ",
+  '<<: ',
+  '- - ',
   '\r',
   ' ',
 ];

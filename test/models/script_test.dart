@@ -37,7 +37,6 @@ void main() {
 
     final props = await legacy.externalize();
 
-    expect(props.currentId, 'a');
     expect(props.scripts.every((script) => script.content.isEmpty), isTrue);
     expect(json.encode(props).length, lessThan(600));
     expect(props.scripts[0].compatible, isTrue);
@@ -70,6 +69,67 @@ void main() {
       isFalse,
     );
     expect(await second.readContent(), isEmpty);
+  });
+
+  test('each profile resolves its own script', () {
+    const props = ScriptProps(
+      scripts: [
+        Script(id: 'a', label: 'A'),
+        Script(id: 'b', label: 'B'),
+      ],
+    );
+    final profile = Profile.normal();
+
+    expect(props.scriptOf(profile), isNull);
+    expect(props.scriptOf(profile.copyWith(scriptId: 'b'))?.id, 'b');
+    expect(props.scriptOf(profile.copyWith(scriptId: 'gone')), isNull);
+    expect(
+      props.scriptOf(profile.copyWith(managed: true, scriptId: 'b')),
+      isNull,
+    );
+  });
+
+  test('legacy global script moves onto each profile', () {
+    Map<String, Object?> profile(String id, [Map<String, Object?>? extra]) => {
+      'id': id,
+      'autoUpdateDuration': 86400000000,
+      ...?extra,
+    };
+    final config = Config.compatibleFromJson({
+      'scriptProps': {
+        'currentId': 'a',
+        'scripts': [
+          {'id': 'a', 'label': 'A'},
+          {'id': 'b', 'label': 'B'},
+        ],
+      },
+      'profiles': [
+        profile('on'),
+        profile('explicit', {'useScriptOverride': true}),
+        profile('off', {'useScriptOverride': false}),
+        profile('managed', {'managed': true}),
+        profile('kept', {'scriptId': 'b'}),
+        profile('bundle', {
+          'useScriptOverride': false,
+          'bundle': {'members': <Object?>[]},
+        }),
+      ],
+    });
+
+    expect(
+      {for (final p in config.profiles) p.id: p.scriptId},
+      {
+        'on': 'a',
+        'explicit': 'a',
+        'off': null,
+        'managed': 'a',
+        'kept': 'b',
+        'bundle': null,
+      },
+    );
+    expect(config.profiles[3].isManaged, isTrue);
+    expect(config.scriptProps.scriptOf(config.profiles[3]), isNull);
+    expect(json.encode(config.scriptProps), isNot(contains('currentId')));
   });
 
   test('script ids cannot escape the scripts directory', () async {

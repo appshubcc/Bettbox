@@ -121,6 +121,15 @@ void main() {
       expect(await future, '42');
     });
 
+    test('completes string requests that receive non-string data', () async {
+      final handler = _FakeHandler();
+      final future = handler.invoke<String>(method: ActionMethod.getMemory);
+      await pumpEventQueue();
+      handler.reply(handler.sent.single, true);
+      expect(await future.timeout(const Duration(seconds: 1)), 'true');
+      expect(handler.callbackCompleterMap, isEmpty);
+    });
+
     test('releases the completer as soon as the reply arrives', () async {
       final handler = _FakeHandler();
       final future = handler.invoke<String>(method: ActionMethod.getMemory);

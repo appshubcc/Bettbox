@@ -16,10 +16,7 @@ void main() {
     test('新增颜色不重复且保留原有顺序', () {
       expect(defaultPrimaryColors.toSet().length, defaultPrimaryColors.length);
       expect(defaultPrimaryColors.length, 11);
-      expect(
-        defaultPrimaryColors.take(6),
-        legacyPrimaryColors.take(6),
-      );
+      expect(defaultPrimaryColors.take(6), legacyPrimaryColors.take(6));
     });
 
     test('未改动过的旧预设升级为新预设', () {

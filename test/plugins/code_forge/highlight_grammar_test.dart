@@ -99,7 +99,8 @@ Map<String, Object?> _export(Mode language) {
 
 void main() {
   test('the exported JavaScript grammar is the one re_highlight compiles', () {
-    final highlight = Highlight()..registerLanguage('javascript', langJavascript);
+    final highlight = Highlight()
+      ..registerLanguage('javascript', langJavascript);
     highlight.highlight(code: 'x', language: 'javascript');
     final grammar = '${json.encode(_export(langJavascript))}\n';
     final file = File(_grammarPath);

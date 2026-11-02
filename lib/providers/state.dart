@@ -50,6 +50,7 @@ Config configState(Ref ref) {
   final proxiesStyle = ref.watch(proxiesStyleSettingProvider);
   final trafficStatsProps = ref.watch(trafficStatsSettingProvider);
   final scriptProps = ref.watch(scriptStateProvider);
+  final managedProps = ref.watch(managedSettingProvider);
   final hotKeyActions = ref.watch(hotKeyActionsProvider);
   final dav = ref.watch(appDAVSettingProvider);
   final windowProps = ref.watch(windowSettingProvider);
@@ -58,6 +59,7 @@ Config configState(Ref ref) {
     windowProps: windowProps,
     hotKeyActions: hotKeyActions,
     scriptProps: scriptProps,
+    managedProps: managedProps,
     proxiesStyle: proxiesStyle,
     trafficStatsProps: trafficStatsProps,
     vpnProps: vpnProps,
@@ -1030,13 +1032,39 @@ ColorScheme genColorScheme(
 }
 
 @riverpod
+Script? currentProfileScript(Ref ref) {
+  final id = ref.watch(
+    currentProfileProvider.select(
+      (profile) =>
+          profile == null || profile.isManaged ? null : profile.scriptId,
+    ),
+  );
+  if (id == null) return null;
+  return ref.watch(scriptStateProvider.select((state) => state.findScript(id)));
+}
+
+@riverpod
 VM4<String?, String?, Dns?, String?> needSetup(Ref ref) {
   final profileId = ref.watch(currentProfileIdProvider);
-  final scriptDigest = ref.watch(
-    scriptStateProvider.select((state) => state.currentScript?.digest),
+  final (managed, runsManagedScript) = ref.watch(
+    currentProfileProvider.select(
+      (profile) =>
+          (profile?.isManaged ?? false, profile?.runsManagedScript ?? false),
+    ),
   );
+  final script = ref.watch(currentProfileScriptProvider);
+  final scriptDigest = runsManagedScript
+      ? ref.watch(
+          managedSettingProvider.select(
+            (state) =>
+                '${ManagedScript.version(state)}:${state.options}:${state.routes}:${state.order}',
+          ),
+        )
+      : script == null
+      ? null
+      : '${script.id}:${script.digest}';
   final overrideDns = ref.watch(overrideDnsProvider);
-  final dns = overrideDns == true
+  final dns = overrideDns && !managed
       ? ref.watch(patchClashConfigProvider.select((state) => state.dns))
       : null;
   final loopbackPorts =
@@ -1203,7 +1231,7 @@ HomeWidgetSnapshot homeWidgetSnapshot(Ref ref) {
     delay: delay == null ? '' : (delay > 0 ? '$delay ms' : 'Timeout'),
     delayColor: utils.getDelayColor(delay)?.toARGB32() ?? 0,
     canRefresh:
-        profile.type == ProfileType.url ||
+        profile.type != ProfileType.file ||
         profile.providerSubscriptions.isNotEmpty,
     refreshing: profile.isUpdating || providerUpdating,
     onLabel: onLabel,

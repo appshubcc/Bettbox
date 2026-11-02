@@ -16,7 +16,7 @@ mixin ClashInterface {
 
   Future<bool> get isInit;
 
-  Future<bool> forceGc({bool forceFreeOSMemory = false});
+  Future<bool> forceGc({bool forceFreeOSMemory = false, bool purge = true});
 
   FutureOr<String> validateConfig(
     String data, {
@@ -32,7 +32,11 @@ mixin ClashInterface {
     String path,
     String output, {
     String? ageSecretKey,
+    String? providersPath,
+    bool refresh,
   });
+
+  Future<Result> mergeProfiles(String params);
 
   FutureOr<String> decryptAgeConfig(String data, String ageSecretKey);
 
@@ -211,6 +215,7 @@ abstract class ClashHandlerInterface with ClashInterface {
         case ActionMethod.getConfig:
         case ActionMethod.getRuntimeConfig:
         case ActionMethod.exportConfig:
+        case ActionMethod.mergeProfiles:
         case ActionMethod.convertAgeSecretKeyToPublicKey:
           completer?.complete(result.toResult);
           return;
@@ -357,10 +362,10 @@ abstract class ClashHandlerInterface with ClashInterface {
   }
 
   @override
-  Future<bool> forceGc({bool forceFreeOSMemory = false}) {
+  Future<bool> forceGc({bool forceFreeOSMemory = false, bool purge = true}) {
     return invoke<bool>(
       method: ActionMethod.forceGc,
-      data: forceFreeOSMemory ? 'true' : 'false',
+      data: forceFreeOSMemory ? (purge ? 'true' : 'free') : 'false',
     );
   }
 
@@ -406,6 +411,8 @@ abstract class ClashHandlerInterface with ClashInterface {
     String path,
     String output, {
     String? ageSecretKey,
+    String? providersPath,
+    bool refresh = false,
   }) {
     return invoke<Result>(
       method: ActionMethod.exportConfig,
@@ -413,9 +420,22 @@ abstract class ClashHandlerInterface with ClashInterface {
         'path': path,
         'age-secret-key': ageSecretKey ?? '',
         'output': output,
+        'expand-providers': providersPath != null,
+        'providers-path': providersPath ?? '',
+        'refresh': refresh,
       }),
       timeout: const Duration(seconds: 60),
       defaultValue: Result.error('exportConfig timeout'),
+    );
+  }
+
+  @override
+  Future<Result> mergeProfiles(String params) {
+    return invoke<Result>(
+      method: ActionMethod.mergeProfiles,
+      data: params,
+      timeout: const Duration(seconds: 120),
+      defaultValue: Result.error('mergeProfiles timeout'),
     );
   }
 

@@ -1628,7 +1628,10 @@ class MediaUnlockChecker {
         MediaPlatform.openrouter,
         'openrouter.ai',
       ),
-      MediaPlatform.poe => _checkCloudflareTrace(MediaPlatform.poe, 'poe.com'),
+      MediaPlatform.opencode => _checkCloudflareTrace(
+        MediaPlatform.opencode,
+        'opencode.ai',
+      ),
       MediaPlatform.suno => _checkCloudflareTrace(
         MediaPlatform.suno,
         'suno.com',
@@ -1666,10 +1669,6 @@ class MediaUnlockChecker {
       MediaPlatform.alibaba => checkAlibaba(),
       MediaPlatform.netease => checkNetease(),
       MediaPlatform.douyin => checkDouyin(),
-      MediaPlatform.cloudflarecn => _checkCloudflareTrace(
-        MediaPlatform.cloudflarecn,
-        'www.cloudflare-cn.com',
-      ),
       MediaPlatform.reddit => checkReddit(),
       MediaPlatform.x => _checkCloudflareTrace(
         MediaPlatform.x,

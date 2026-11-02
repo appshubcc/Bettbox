@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:bett_box/common/common.dart';
 import 'package:bett_box/enum/enum.dart';
@@ -6,6 +7,7 @@ import 'package:bett_box/models/models.dart';
 import 'package:bett_box/pages/editor.dart';
 import 'package:bett_box/providers/providers.dart';
 import 'package:bett_box/state.dart';
+import 'package:bett_box/views/profiles/managed_options.dart';
 import 'package:bett_box/widgets/card.dart';
 import 'package:bett_box/widgets/dialog.dart';
 import 'package:bett_box/widgets/fade_box.dart';
@@ -21,10 +23,24 @@ import 'package:bett_box/widgets/sheet.dart';
 import 'package:bett_box/widgets/text.dart';
 import 'package:bett_box/widgets/delay_animation_dialog.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 
 const Duration _kMinLoadingDuration = Duration(seconds: 1);
+
+const _optionIcons = {
+  '极简国内外分流模式': Icons.looks_one_outlined,
+  '生成地区自动选择组': Icons.auto_mode,
+  '隐藏地区手动选择组': Icons.visibility_off,
+  '分流组添加所有节点': Icons.playlist_add,
+  '生成高低倍率组': Icons.leaderboard_outlined,
+  '过滤低倍率节点': Icons.trending_down,
+  '过滤高倍率节点': Icons.trending_up,
+  '过滤非地区节点': Icons.public_off,
+  '屏蔽代理QUIC流量': Icons.block,
+  '优先连接IPv6节点': Icons.looks_6_outlined,
+};
 
 bool _isValidIconUrl(String? url) {
   if (url == null || url.isEmpty) return false;
@@ -39,7 +55,7 @@ bool _isValidIconUrl(String? url) {
   Map<String, String> icons,
   Set<String> policyGroupOptions,
 })
-_processScriptData(Map<String, dynamic> data, Script script) {
+processScriptOptions(Map<String, dynamic> data, Script script) {
   final rawOptions = data['options'];
   final rawIcons = data['icons'];
 
@@ -85,13 +101,140 @@ _processScriptData(Map<String, dynamic> data, Script script) {
 Future<void> showScriptCustomOptions(
   BuildContext context, {
   required Script script,
+  Future<void> Function(Map<String, bool> options)? onSave,
 }) async {
   await showExtend(
     context,
     builder: (_, type) {
-      return _ScriptCustomOptionsSheet(type: type, script: script);
+      return _ScriptCustomOptionsSheet(
+        type: type,
+        script: script,
+        onSave: onSave,
+      );
     },
   );
+}
+
+Future<void> showScriptOtherOptions(
+  BuildContext context, {
+  required Map<String, bool> values,
+  required Map<String, String> icons,
+  required Future<void> Function(Map<String, bool> values) onSave,
+}) async {
+  await showSheet(
+    context: context,
+    builder: (_, type) {
+      return _ScriptOtherOptionsSheet(
+        type: type,
+        values: values,
+        icons: icons,
+        onSave: onSave,
+      );
+    },
+  );
+}
+
+void _showHeartBurst(BuildContext context) {
+  HapticFeedback.lightImpact();
+  late final OverlayEntry entry;
+  entry = OverlayEntry(builder: (_) => _HeartBurst(onDone: entry.remove));
+  Overlay.of(context, rootOverlay: true).insert(entry);
+}
+
+class _HeartBurst extends StatefulWidget {
+  final VoidCallback onDone;
+
+  const _HeartBurst({required this.onDone});
+
+  @override
+  State<_HeartBurst> createState() => _HeartBurstState();
+}
+
+class _HeartBurstState extends State<_HeartBurst>
+    with SingleTickerProviderStateMixin {
+  late final _controller = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 1400),
+  );
+
+  @override
+  void initState() {
+    super.initState();
+    _controller.forward().whenComplete(widget.onDone);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  double _phase(double start, double end, Curve curve) => curve.transform(
+    ((_controller.value - start) / (end - start)).clamp(0.0, 1.0),
+  );
+
+  @override
+  Widget build(BuildContext context) {
+    final color = context.colorScheme.error;
+    return IgnorePointer(
+      child: Material(
+        type: MaterialType.transparency,
+        child: Center(
+          child: AnimatedBuilder(
+            animation: _controller,
+            builder: (context, _) {
+              final pop = _phase(0, 0.45, Curves.elasticOut);
+              final burst = _phase(0, 0.8, Curves.easeOutCubic);
+              final fade = 1 - _phase(0.7, 1, Curves.easeIn);
+              return Opacity(
+                opacity: fade,
+                child: SizedBox.square(
+                  dimension: 260,
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      for (var i = 0; i < 7; i++)
+                        Transform.translate(
+                          offset: Offset.fromDirection(
+                            pi + i * pi / 6,
+                            48 + 76 * burst,
+                          ),
+                          child: Opacity(
+                            opacity: 1 - burst,
+                            child: Icon(
+                              Icons.favorite,
+                              size: 16 + (i % 3) * 4,
+                              color: color,
+                            ),
+                          ),
+                        ),
+                      Transform.scale(
+                        scale: pop,
+                        child: Icon(Icons.favorite, size: 72, color: color),
+                      ),
+                      Transform.translate(
+                        offset: const Offset(0, 62),
+                        child: Opacity(
+                          opacity: _phase(0.1, 0.4, Curves.easeOut),
+                          child: Text(
+                            '@AIsouler',
+                            style: context.textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.w600,
+                              color: context.colorScheme.onSurface,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+      ),
+    );
+  }
 }
 
 class ScriptsView extends ConsumerStatefulWidget {
@@ -102,6 +245,14 @@ class ScriptsView extends ConsumerStatefulWidget {
 }
 
 class _ScriptsViewState extends ConsumerState<ScriptsView> {
+  final _managedMenuOpen = ValueNotifier(false);
+
+  @override
+  void dispose() {
+    _managedMenuOpen.dispose();
+    super.dispose();
+  }
+
   Future<void> _handleDelScript(String label) async {
     final res = await globalState.showMessage(
       message: TextSpan(
@@ -111,7 +262,19 @@ class _ScriptsViewState extends ConsumerState<ScriptsView> {
     if (res != true) {
       return;
     }
+    final id = ref
+        .read(scriptStateProvider)
+        .scripts
+        .where((script) => script.label == label)
+        .firstOrNull
+        ?.id;
     ref.read(scriptStateProvider.notifier).del(label);
+    if (id == null) return;
+    final profiles = ref.read(profilesProvider.notifier);
+    for (final profile in ref.read(profilesProvider)) {
+      if (profile.scriptId != id) continue;
+      profiles.updateProfile(profile.id, (p) => p.copyWith(scriptId: null));
+    }
   }
 
   Future<void> _handleSyncScript(String id) async {
@@ -179,21 +342,158 @@ class _ScriptsViewState extends ConsumerState<ScriptsView> {
     );
   }
 
+  Future<Script?> _loadManaged() {
+    final props = ref.read(managedSettingProvider);
+    return globalState.appController.safeRun(
+      () => ManagedScript.script(props),
+      needLoading: true,
+      title: appLocalizations.tip,
+    );
+  }
+
+  Future<void> _handleExportManaged() async {
+    final script = await _loadManaged();
+    if (script == null || !mounted) return;
+    await _handleExportFile(
+      script.copyWith(label: appLocalizations.managedMode),
+    );
+  }
+
+  Future<void> _handleViewManaged() async {
+    final script = await _loadManaged();
+    if (script == null || !mounted) return;
+    BaseNavigator.push(
+      context,
+      EditorPage(
+        title: appLocalizations.managedMode,
+        content: script.content,
+        languages: const [Language.javaScript],
+        readOnly: true,
+      ),
+      maintainState: false,
+    );
+  }
+
+  Widget _buildManagedCard({required bool inUse}) {
+    return CommonCard(
+      key: const ValueKey(managedScriptId),
+      elevated: false,
+      radius: 16,
+      type: CommonCardType.filled,
+      onPressed: _handleViewManaged,
+      child: Container(
+        constraints: const BoxConstraints(minHeight: 68),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+        child: Row(
+          children: [
+            SizedBox(
+              width: 36,
+              height: 40,
+              child: Icon(
+                Icons.auto_awesome_outlined,
+                size: 28,
+                color: context.colorScheme.primary,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    appLocalizations.managedMode,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: context.textTheme.titleMedium,
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 4),
+                    child: Wrap(
+                      spacing: 6,
+                      runSpacing: 4,
+                      children: [
+                        if (inUse)
+                          _buildScriptTag(
+                            icon: Icons.check_circle_outline,
+                            label: appLocalizations.inUse,
+                          ),
+                        _buildScriptTag(
+                          icon: Icons.inventory_2_outlined,
+                          label: appLocalizations.builtIn,
+                        ),
+                        _buildScriptTag(
+                          icon: Icons.tune,
+                          label: appLocalizations.custom,
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            CommonPopupBox(
+              targetBuilder: (open) => IconButton(
+                visualDensity: VisualDensity.compact,
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+                onPressed: () async {
+                  _managedMenuOpen.value = true;
+                  await open();
+                  if (!mounted) return;
+                  _managedMenuOpen.value = false;
+                },
+                tooltip: appLocalizations.more,
+                icon: ValueListenableBuilder<bool>(
+                  valueListenable: _managedMenuOpen,
+                  builder: (_, isOpen, _) => MenuDotsIcon(isOpen: isOpen),
+                ),
+              ),
+              popup: CommonPopupMenu(
+                items: [
+                  PopupMenuItemData(
+                    icon: Icons.visibility_outlined,
+                    label: appLocalizations.view,
+                    onPressed: _handleViewManaged,
+                  ),
+                  PopupMenuItemData(
+                    icon: Icons.tune,
+                    label: appLocalizations.custom,
+                    onPressed: () => showManagedOptions(context),
+                  ),
+                  PopupMenuItemData(
+                    icon: Icons.file_copy_outlined,
+                    label: appLocalizations.exportFile,
+                    onPressed: _handleExportManaged,
+                  ),
+                  PopupMenuItemData(
+                    emoji: '❤️',
+                    label: '@AIsouler',
+                    onPressed: () => _showHeartBurst(context),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildContent() {
     return Consumer(
       builder: (_, ref, _) {
-        final vm2 = ref.watch(
-          scriptStateProvider.select(
-            (state) => VM2(a: state.currentId, b: state.scripts),
+        final scripts = ref.watch(
+          scriptStateProvider.select((state) => state.scripts),
+        );
+        final managedInUse = ref.watch(
+          currentProfileProvider.select(
+            (profile) => profile?.isManaged ?? false,
           ),
         );
-        final currentId = vm2.a;
-        final scripts = vm2.b;
-        if (scripts.isEmpty) {
-          return NullStatus(
-            label: appLocalizations.nullTip(appLocalizations.script),
-          );
-        }
+        final inUseId = ref.watch(
+          currentProfileScriptProvider.select((script) => script?.id),
+        );
         return ScrollEdgeRise(
           builder: (_, rise) => CommonScrollBar(
             controller: null,
@@ -201,18 +501,20 @@ class _ScriptsViewState extends ConsumerState<ScriptsView> {
               padding: const EdgeInsets.all(
                 16,
               ).copyWith(top: 16 + rise, bottom: 16 + 64),
-              itemCount: scripts.length,
+              itemCount: scripts.length + 1,
               separatorBuilder: (_, _) => const SizedBox(height: 10),
               itemBuilder: (context, index) {
-                final script = scripts[index];
-                final isSelected = script.id == currentId;
+                if (index == 0) {
+                  return _buildManagedCard(inUse: managedInUse);
+                }
+                final script = scripts[index - 1];
+                final inUse = script.id == inUseId;
                 final hasRemote = script.url?.isNotEmpty ?? false;
                 final hasCustom = script.compatible;
-                final hasTags = hasRemote || hasCustom;
+                final hasTags = inUse || hasRemote || hasCustom;
                 return CommonCard(
                   key: ValueKey(script.id),
                   elevated: false,
-                  isSelected: isSelected,
                   radius: 16,
                   type: CommonCardType.filled,
                   child: Container(
@@ -223,15 +525,14 @@ class _ScriptsViewState extends ConsumerState<ScriptsView> {
                     ),
                     child: Row(
                       children: [
-                        Switch(
-                          value: isSelected,
-                          materialTapTargetSize:
-                              MaterialTapTargetSize.shrinkWrap,
-                          onChanged: (_) {
-                            ref
-                                .read(scriptStateProvider.notifier)
-                                .setId(script.id);
-                          },
+                        SizedBox(
+                          width: 36,
+                          height: 40,
+                          child: Icon(
+                            Icons.terminal_outlined,
+                            size: 28,
+                            color: context.colorScheme.primary,
+                          ),
                         ),
                         const SizedBox(width: 12),
                         Expanded(
@@ -243,11 +544,7 @@ class _ScriptsViewState extends ConsumerState<ScriptsView> {
                                 script.label,
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
-                                style: context.textTheme.titleMedium?.copyWith(
-                                  fontWeight: isSelected
-                                      ? FontWeight.w600
-                                      : FontWeight.normal,
-                                ),
+                                style: context.textTheme.titleMedium,
                               ),
                               if (hasTags)
                                 Padding(
@@ -256,6 +553,11 @@ class _ScriptsViewState extends ConsumerState<ScriptsView> {
                                     spacing: 6,
                                     runSpacing: 4,
                                     children: [
+                                      if (inUse)
+                                        _buildScriptTag(
+                                          icon: Icons.check_circle_outline,
+                                          label: appLocalizations.inUse,
+                                        ),
                                       if (hasRemote)
                                         _buildScriptTag(
                                           icon: Icons.sync,
@@ -450,7 +752,7 @@ class _ScriptsViewState extends ConsumerState<ScriptsView> {
   }
 
   Future<void> _handleImport() async {
-    final option = await globalState.showCommonDialog<ImportOption>(
+    final option = await globalState.showAdaptiveSheet<ImportOption>(
       child: const _ScriptImportOptionsDialog(),
     );
     if (option == null) {
@@ -539,15 +841,48 @@ class _ScriptsViewState extends ConsumerState<ScriptsView> {
   }
 }
 
+const _noScript = '.none';
+
 class _ScriptSettingsSheet extends ConsumerWidget {
   final SheetType type;
 
   const _ScriptSettingsSheet({required this.type});
 
+  String _valueOf(Profile profile, ScriptProps props) {
+    if (profile.isManaged) return managedScriptId;
+    return props.findScript(profile.scriptId)?.id ?? _noScript;
+  }
+
+  String _labelOf(String value, ScriptProps props) => switch (value) {
+    _noScript => appLocalizations.none,
+    managedScriptId => appLocalizations.managedMode,
+    _ => props.findScript(value)?.label ?? value,
+  };
+
+  void _handleChanged(WidgetRef ref, Profile profile, String? value) {
+    if (value == null) return;
+    ref
+        .read(profilesProvider.notifier)
+        .updateProfile(
+          profile.id,
+          (p) => p.copyWith(
+            managed: value == managedScriptId,
+            scriptId: value == managedScriptId || value == _noScript
+                ? null
+                : value,
+          ),
+        );
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final profiles = ref.watch(profilesProvider);
-    final currentProfileId = ref.watch(currentProfileIdProvider);
+    final props = ref.watch(scriptStateProvider);
+    final options = [
+      managedScriptId,
+      for (final script in props.scripts) script.id,
+      _noScript,
+    ];
     return AdaptiveSheetScaffold(
       type: type,
       body: profiles.isEmpty
@@ -563,35 +898,36 @@ class _ScriptSettingsSheet extends ConsumerWidget {
                 itemCount: profiles.length,
                 itemBuilder: (_, index) {
                   final profile = profiles[index];
-                  final isCurrentProfile = profile.id == currentProfileId;
+                  final label = profile.label ?? profile.id;
+                  final value = _valueOf(profile, props);
+                  final subtitle = Text(
+                    _labelOf(value, props),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  );
                   return Container(
                     padding: const EdgeInsets.symmetric(vertical: 4),
                     child: CommonCard(
                       elevated: false,
                       type: CommonCardType.filled,
-                      child: ListTile(
-                        contentPadding: const EdgeInsets.only(
-                          left: 16,
-                          right: 16,
-                        ),
-                        title: EmojiText(profile.label ?? profile.id),
-                        trailing: Switch(
-                          value: profile.useScriptOverride,
-                          onChanged: (value) async {
-                            ref
-                                .read(profilesProvider.notifier)
-                                .updateProfile(
-                                  profile.id,
-                                  (p) => p.copyWith(useScriptOverride: value),
-                                );
-                            if (isCurrentProfile) {
-                              await globalState.appController.applyProfile(
-                                silence: true,
-                              );
-                            }
-                          },
-                        ),
-                      ),
+                      child: profile.bundle != null
+                          ? ListItem(
+                              title: EmojiText(label),
+                              subtitle: subtitle,
+                            )
+                          : ListItem<String>.options(
+                              title: EmojiText(label),
+                              subtitle: subtitle,
+                              trailing: const Icon(Icons.expand_more),
+                              delegate: OptionsDelegate(
+                                title: label,
+                                options: options,
+                                value: value,
+                                textBuilder: (value) => _labelOf(value, props),
+                                onChanged: (value) =>
+                                    _handleChanged(ref, profile, value),
+                              ),
+                            ),
                     ),
                   );
                 },
@@ -609,7 +945,7 @@ class _ScriptImportOptionsDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     return CommonDialog(
       title: appLocalizations.import,
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
+      padding: const EdgeInsets.symmetric(vertical: 16),
       child: Wrap(
         children: [
           ListItem(
@@ -642,8 +978,13 @@ class _ScriptImportOptionsDialog extends StatelessWidget {
 class _ScriptCustomOptionsSheet extends ConsumerStatefulWidget {
   final SheetType type;
   final Script script;
+  final Future<void> Function(Map<String, bool> options)? onSave;
 
-  const _ScriptCustomOptionsSheet({required this.type, required this.script});
+  const _ScriptCustomOptionsSheet({
+    required this.type,
+    required this.script,
+    this.onSave,
+  });
 
   @override
   ConsumerState<_ScriptCustomOptionsSheet> createState() =>
@@ -674,7 +1015,7 @@ class __ScriptCustomOptionsSheetState
   }
 
   void _applyData(Map<String, dynamic> data) {
-    final (:options, :icons, :policyGroupOptions) = _processScriptData(
+    final (:options, :icons, :policyGroupOptions) = processScriptOptions(
       data,
       widget.script,
     );
@@ -702,23 +1043,26 @@ class __ScriptCustomOptionsSheetState
 
   Future<void> _handleSave({bool popSheet = true}) async {
     if (_isSaving) return;
-    final scripts = ref.read(scriptStateProvider).scripts;
-    final index = scripts.indexWhere((item) => item.id == widget.script.id);
-    if (index == -1) {
-      _dirty = false;
-      if (mounted) setState(() {});
-      return;
+    final onSave = widget.onSave;
+    if (onSave == null) {
+      final scripts = ref.read(scriptStateProvider).scripts;
+      final index = scripts.indexWhere((item) => item.id == widget.script.id);
+      if (index == -1) {
+        _dirty = false;
+        if (mounted) setState(() {});
+        return;
+      }
+      final updatedScript = scripts[index].copyWith(
+        customOptions: Map<String, bool>.from(_options),
+      );
+      ref.read(scriptStateProvider.notifier).setScript(updatedScript);
     }
-    final currentScript = scripts[index];
-    final updatedScript = currentScript.copyWith(
-      customOptions: Map<String, bool>.from(_options),
-    );
-    ref.read(scriptStateProvider.notifier).setScript(updatedScript);
     _dirty = false;
     if (mounted) setState(() => _isSaving = true);
     try {
-      final applyFuture =
-          ref.read(scriptStateProvider).currentId == widget.script.id
+      final applyFuture = onSave != null
+          ? onSave(Map<String, bool>.from(_options))
+          : ref.read(currentProfileScriptProvider)?.id == widget.script.id
           ? globalState.appController.applyProfile(silence: true)
           : Future.value();
       await Future.wait([applyFuture, Future.delayed(_kMinLoadingDuration)]);
@@ -742,16 +1086,11 @@ class __ScriptCustomOptionsSheetState
   }
 
   Future<void> _handleOpenOtherOptions(List<String> keys) async {
-    await showExtend(
+    await showScriptOtherOptions(
       context,
-      builder: (_, type) {
-        return _ScriptOtherOptionsSheet(
-          type: type,
-          values: {for (final key in keys) key: _options[key] ?? true},
-          icons: _icons,
-          onSave: _handleSaveOtherOptions,
-        );
-      },
+      values: {for (final key in keys) key: _options[key] ?? true},
+      icons: _icons,
+      onSave: _handleSaveOtherOptions,
     );
   }
 
@@ -765,7 +1104,7 @@ class __ScriptCustomOptionsSheetState
   Future<bool> _confirmDiscard() async {
     if (_isSaving) return false;
     if (!_hasUnsavedChanges) return true;
-    return _showSaveChangesDialog(onSave: _handleSave);
+    return showSaveChangesDialog(onSave: _handleSave);
   }
 
   ({List<String> groups, List<String> others, bool split}) _splitOptions() {
@@ -912,7 +1251,7 @@ class _ScriptOtherOptionsSheetState extends State<_ScriptOtherOptionsSheet> {
   Future<bool> _confirmDiscard() async {
     if (_isSaving) return false;
     if (!_dirty) return true;
-    return _showSaveChangesDialog(onSave: _handleSave);
+    return showSaveChangesDialog(onSave: _handleSave);
   }
 
   @override
@@ -999,8 +1338,8 @@ class _ScriptOptionTile extends StatelessWidget {
           contentPadding: const EdgeInsets.only(left: 16, right: 16),
           leading: _isValidIconUrl(iconUrl)
               ? CommonTargetIcon(src: iconUrl!, size: 24)
-              : const Icon(Icons.alt_route),
-          title: Text(label),
+              : Icon(_optionIcons[label] ?? Icons.alt_route),
+          title: EmojiText(label),
           trailing: Switch(value: value, onChanged: onChanged),
         ),
       ),
@@ -1045,7 +1384,7 @@ class _ScriptNavTile extends StatelessWidget {
   }
 }
 
-Future<bool> _showSaveChangesDialog({
+Future<bool> showSaveChangesDialog({
   required Future<void> Function() onSave,
 }) async {
   final res = await globalState.showCommonDialog<bool>(
@@ -1331,7 +1670,7 @@ class _GroupSwitchOptionsSheetState
                                         right: 16,
                                       ),
                                       leading: const Icon(Icons.alt_route),
-                                      title: Text(key),
+                                      title: EmojiText(key),
                                       trailing: Switch(
                                         value: val,
                                         onChanged: locked

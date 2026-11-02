@@ -9,7 +9,7 @@ void main() {
 
   group('MediaPlatform & Region Tests', () {
     test('MediaPlatform enum count and extensions', () {
-      expect(MediaPlatform.values.length, 56);
+      expect(MediaPlatform.values.length, 55);
       expect(MediaCategory.values.length, 7);
 
       for (final p in MediaPlatform.values) {
@@ -45,8 +45,6 @@ void main() {
       expect(MediaPlatform.douyin.category, MediaCategory.china);
       expect(MediaPlatform.bilibili.defaultName, 'Bilibili(CN)');
       expect(MediaPlatform.bilibili.category, MediaCategory.china);
-      expect(MediaPlatform.cloudflarecn.defaultName, 'Cloudflare(CN)');
-      expect(MediaPlatform.cloudflarecn.category, MediaCategory.china);
 
       expect(MediaPlatform.netflix.category, MediaCategory.streaming);
       expect(MediaPlatform.disney.category, MediaCategory.streaming);

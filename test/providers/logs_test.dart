@@ -10,9 +10,8 @@ import 'package:flutter_test/flutter_test.dart';
 Log _core(String payload, int time) =>
     Log.core({'LogLevel': 'info', 'Payload': payload, 'time': time});
 
-Log _app(String payload, int time) => Log.app(
-  payload,
-).copyWith(time: DateTime.fromMillisecondsSinceEpoch(time));
+Log _app(String payload, int time) =>
+    Log.app(payload).copyWith(time: DateTime.fromMillisecondsSinceEpoch(time));
 
 void main() {
   late ProviderContainer container;

@@ -27,6 +27,10 @@ void main() {
   void setConfig({Mode mode = Mode.rule}) {
     globalState.config = Config(
       themeProps: defaultThemeProps,
+      appSetting: const AppSettingProps(
+        mobileDashboardWidgets: [],
+        desktopDashboardWidgets: [],
+      ),
       patchClashConfig: ClashConfig(mixedPort: server.port, mode: mode),
     );
   }

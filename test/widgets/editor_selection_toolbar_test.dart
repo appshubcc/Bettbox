@@ -33,24 +33,25 @@ void main() {
     return entry;
   }
 
-  testWidgets('a drag outside the toolbar reaches the editor and dismisses it', (
-    tester,
-  ) async {
-    var dismissed = 0;
-    var dragged = false;
-    final entry = await showToolbar(
-      tester,
-      items: [PopupMenuItemData(label: 'Copy', onPressed: () {})],
-      onDismiss: () => dismissed++,
-      onDrag: (_) => dragged = true,
-    );
-    addTearDown(entry.remove);
+  testWidgets(
+    'a drag outside the toolbar reaches the editor and dismisses it',
+    (tester) async {
+      var dismissed = 0;
+      var dragged = false;
+      final entry = await showToolbar(
+        tester,
+        items: [PopupMenuItemData(label: 'Copy', onPressed: () {})],
+        onDismiss: () => dismissed++,
+        onDrag: (_) => dragged = true,
+      );
+      addTearDown(entry.remove);
 
-    await tester.dragFrom(const Offset(100, 500), const Offset(60, 40));
+      await tester.dragFrom(const Offset(100, 500), const Offset(60, 40));
 
-    expect(dragged, isTrue);
-    expect(dismissed, 1);
-  });
+      expect(dragged, isTrue);
+      expect(dismissed, 1);
+    },
+  );
 
   testWidgets('an item dismisses the toolbar before running its action', (
     tester,

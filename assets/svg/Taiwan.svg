@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+    <g transform="translate(-9.7441 -9.8479) scale(1.8166633)">
+<defs>
+        <linearGradient id="gradient_0" gradientUnits="userSpaceOnUse" x1="286.4161" y1="489.8934" x2="288.654" y2="84.3922">
+            <stop offset="0" stop-color="#C00405" />
+            <stop offset="1" stop-color="#FF403F" />
+        </linearGradient>
+    </defs>
+    <path fill="url(#gradient_0)" d="M5.36 422.53L5.36 287.03L7.36 287.03L7.36 151.98L71.24 151.98L71.24 88.1L287.22 88.1L287.22 86.1L503.15 86.1C539.54 86.1 569.03 115.59 569.03 151.98L569.03 422.53C569.03 458.92 539.54 488.41 503.15 488.41L71.24 488.41C34.85 488.41 5.36 458.92 5.36 422.53Z" />
+    <defs>
+        <linearGradient id="gradient_1" gradientUnits="userSpaceOnUse" x1="145.6467" y1="287.1262" x2="147.3169" y2="84.6902">
+            <stop offset="0" stop-color="#1A359E" />
+            <stop offset="1" stop-color="#3B7FE4" />
+        </linearGradient>
+    </defs>
+    <path fill="url(#gradient_1)" d="M5.36 287.03L5.36 151.98C5.36 115.59 34.85 86.1 71.24 86.1L287.22 86.1L287.22 287.03Z" />
+    <path fill="#F3F3F2" d="M141.68 127.68C173.8 125.19 201.87 149.18 204.41 181.29C206.96 213.41 183.01 241.52 150.9 244.12C118.71 246.71 90.53 222.7 87.98 190.51C85.43 158.33 109.48 130.18 141.68 127.68Z" />
+</g>
+</svg>

@@ -176,8 +176,9 @@ class _CommonTargetIconState extends State<CommonTargetIcon> {
 
   void _syncCheckAndInit() {
     if (widget.src.isEmpty || widget.src.getBase64 != null) return;
+    if (routeIconAsset(widget.src) != null) return;
 
-    final devicePixelRatio = MediaQuery.of(context).devicePixelRatio;
+    final devicePixelRatio = MediaQuery.devicePixelRatioOf(context);
     final cacheSize = (widget.size * devicePixelRatio).ceil();
 
     final exactFile = _moduleFileCache[widget.src];
@@ -349,17 +350,34 @@ class _CommonTargetIconState extends State<CommonTargetIcon> {
     return Icon(IconsExt.target, size: widget.size);
   }
 
+  SvgTheme _svgTheme() => SvgTheme(
+    currentColor: IconTheme.of(context).color ?? context.colorScheme.onSurface,
+  );
+
   Widget _buildIcon() {
     if (widget.src.isEmpty) {
       return _defaultIcon();
     }
+    if (routeIconAsset(widget.src) case final asset?) {
+      return SvgPicture.asset(
+        asset,
+        width: widget.size,
+        height: widget.size,
+        theme: _svgTheme(),
+      );
+    }
     final base64 = widget.src.getBase64;
-    final devicePixelRatio = MediaQuery.of(context).devicePixelRatio;
+    final devicePixelRatio = MediaQuery.devicePixelRatioOf(context);
     final cacheSize = (widget.size * devicePixelRatio).ceil();
 
     if (base64 != null) {
-      return Image.memory(
-        base64,
+      return Image(
+        image: ResizeImage(
+          MemoryImage(base64),
+          width: cacheSize,
+          height: cacheSize,
+          policy: ResizeImagePolicy.fit,
+        ),
         gaplessPlayback: true,
         fit: BoxFit.contain,
         errorBuilder: (_, _, _) {
@@ -375,6 +393,7 @@ class _CommonTargetIconState extends State<CommonTargetIcon> {
           width: widget.size,
           height: widget.size,
           fit: BoxFit.contain,
+          theme: _svgTheme(),
           placeholderBuilder: (_) => _defaultIcon(),
           errorBuilder: (_, error, _) {
             commonPrint.warn('Failed to load SVG: $error');
@@ -410,10 +429,83 @@ class _CommonTargetIconState extends State<CommonTargetIcon> {
       child: AnimatedSwitcher(
         duration: const Duration(milliseconds: 200),
         child: KeyedSubtree(
-          key: ValueKey<String>('${widget.src}_${_file?.path}'),
+          key: ValueKey<(String, String?)>((widget.src, _file?.path)),
           child: _buildIcon(),
         ),
       ),
     );
+  }
+}
+
+class MenuDotsIcon extends StatelessWidget {
+  final bool isOpen;
+  final Color? accent;
+
+  const MenuDotsIcon({super.key, this.isOpen = false, this.accent});
+
+  @override
+  Widget build(BuildContext context) {
+    final color =
+        IconTheme.of(context).color ?? context.colorScheme.onSurfaceVariant;
+    return RepaintBoundary(
+      child: AnimatedRotation(
+        turns: isOpen ? 0.125 : 0,
+        duration: midDuration,
+        curve: Curves.easeOutBack,
+        child: TweenAnimationBuilder<Color?>(
+          tween: ColorTween(end: accent ?? color),
+          duration: midDuration,
+          builder: (_, accent, _) => SizedBox.square(
+            dimension: 24,
+            child: CustomPaint(
+              painter: _MenuDotsPainter(color: color, accent: accent ?? color),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _MenuDotsPainter extends CustomPainter {
+  static final Paint _paint = Paint();
+
+  final Color color;
+  final Color accent;
+
+  const _MenuDotsPainter({required this.color, required this.accent});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    const radius = 2.6;
+    const distance = 5.2;
+    final center = size.center(Offset.zero);
+    _paint.color = color;
+    canvas.drawCircle(
+      center + const Offset(-distance, -distance),
+      radius,
+      _paint,
+    );
+    canvas.drawCircle(
+      center + const Offset(-distance, distance),
+      radius,
+      _paint,
+    );
+    canvas.drawCircle(
+      center + const Offset(distance, distance),
+      radius,
+      _paint,
+    );
+    _paint.color = accent;
+    canvas.drawCircle(
+      center + const Offset(distance, -distance),
+      radius,
+      _paint,
+    );
+  }
+
+  @override
+  bool shouldRepaint(_MenuDotsPainter oldDelegate) {
+    return oldDelegate.color != color || oldDelegate.accent != accent;
   }
 }

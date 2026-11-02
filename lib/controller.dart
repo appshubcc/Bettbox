@@ -1344,6 +1344,7 @@ class AppController {
   }
 
   Future<void> savePreferences() async {
+    debouncer.cancel(FunctionTag.savePreferences);
     await preferences.saveConfig(globalState.config);
   }
 
@@ -1354,7 +1355,10 @@ class AppController {
     await clashCore.changeProxy(
       ChangeProxyParams(groupName: groupName, proxyName: proxyName),
     );
-    if (_ref.read(appSettingProvider).closeConnections) {
+    final closeConnections = system.isAndroid
+        ? _ref.read(vpnSettingProvider).quickResponse
+        : _ref.read(appSettingProvider).closeConnections;
+    if (closeConnections) {
       await clashCore.closeConnections();
     }
     addCheckIp();

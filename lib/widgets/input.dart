@@ -19,12 +19,14 @@ class OptionsDialog<T> extends StatelessWidget {
   final List<T> options;
   final T value;
   final String Function(T value) textBuilder;
+  final String Function(T value)? subtitleBuilder;
 
   const OptionsDialog({
     super.key,
     required this.title,
     required this.options,
     required this.textBuilder,
+    this.subtitleBuilder,
     required this.value,
   });
 
@@ -39,6 +41,7 @@ class OptionsDialog<T> extends StatelessWidget {
           for (final option in options)
             OptionItem(
               text: textBuilder(option),
+              subtitle: subtitleBuilder?.call(option),
               selected: value == option,
               onTap: () {
                 Navigator.of(context).pop(option);
@@ -72,7 +75,7 @@ class OptionItem extends StatelessWidget {
       child: Material(
         color: selected ? colorScheme.secondaryContainer : Colors.transparent,
         shape: const RoundedSuperellipseBorder(
-          borderRadius: BorderRadius.all(Radius.circular(14)),
+          borderRadius: BorderRadius.all(Radius.circular(20)),
         ),
         clipBehavior: Clip.antiAlias,
         child: InkWell(
@@ -115,7 +118,7 @@ class OptionItem extends StatelessWidget {
                       if (subtitle case final subtitle?)
                         Text(
                           subtitle,
-                          maxLines: 1,
+                          maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                           style: context.textTheme.bodySmall?.copyWith(
                             color: colorScheme.onSurfaceVariant,
@@ -193,13 +196,11 @@ class InputDialog extends StatefulWidget {
   State<InputDialog> createState() => _InputDialogState();
 }
 
-class _InputDialogState extends State<InputDialog> {
+class _InputDialogState extends State<InputDialog> with IdleAutofocusMixin {
   final _formKey = GlobalKey<FormState>();
 
   late TextEditingController textController;
   late bool _obscure = widget.obscureText ?? false;
-  FocusNode? _focusNode;
-
   String get value => widget.value;
 
   String get title => widget.title;
@@ -210,15 +211,13 @@ class _InputDialogState extends State<InputDialog> {
   void initState() {
     super.initState();
     textController = TextEditingController(text: value);
-    if (widget.autofocus || widget.delayedFocus) {
-      final focusNode = _focusNode = FocusNode();
-      unawaited(focusNode.requestFocusWhenIdle());
-    }
   }
 
   @override
+  bool get autofocusWhenIdle => widget.autofocus || widget.delayedFocus;
+
+  @override
   void dispose() {
-    _focusNode?.dispose();
     textController.dispose();
     super.dispose();
   }
@@ -264,7 +263,7 @@ class _InputDialogState extends State<InputDialog> {
           runSpacing: 16,
           children: [
             TextFormField(
-              focusNode: _focusNode,
+              focusNode: autofocusNode,
               obscureText: _obscure,
               keyboardType:
                   widget.keyboardType ??

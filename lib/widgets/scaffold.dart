@@ -34,6 +34,7 @@ class CommonScaffold extends StatefulWidget {
   final AppBarSearchState? searchState;
   final OnKeywordsUpdateCallback? onKeywordsUpdate;
   final bool scrollEdgeFade;
+  final VoidCallback? onAppBarDoubleTap;
 
   const CommonScaffold({
     super.key,
@@ -50,6 +51,7 @@ class CommonScaffold extends StatefulWidget {
     this.floatingActionButton,
     this.onKeywordsUpdate,
     this.scrollEdgeFade = true,
+    this.onAppBarDoubleTap,
   });
 
   @override
@@ -296,6 +298,12 @@ class CommonScaffoldState extends State<CommonScaffold> {
                     AppBar(
                       centerTitle: widget.centerTitle ?? false,
                       leading: _buildLeading(),
+                      flexibleSpace: widget.onAppBarDoubleTap != null
+                          ? GestureDetector(
+                              behavior: HitTestBehavior.opaque,
+                              onDoubleTap: widget.onAppBarDoubleTap,
+                            )
+                          : null,
                       title: _buildTitle(state.searchState),
                       actions: _buildActions(
                         state.searchState != null,

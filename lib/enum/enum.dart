@@ -297,6 +297,10 @@ enum ActionMethod {
   cancelMrsLookup,
   getTrafficStats,
   clearTrafficStats,
+  storeGet,
+  storeSet,
+  storeList,
+  storeClear,
   startToolProxy,
   stopToolProxy,
   ageCrypt,
@@ -378,6 +382,7 @@ enum FunctionTag {
   savePreferences,
   changeProxy,
   checkIp,
+  checkIpRisk,
   vpnTip,
   autoLaunch,
   renderPause,
@@ -703,6 +708,8 @@ enum DelayAnimationType {
 }
 
 enum MrsTapAction { viewRules, copyUrl }
+
+enum StoreSpace { ip, speedTest, toolbox }
 
 enum IpRiskLevel { low, medium, high, veryHigh }
 

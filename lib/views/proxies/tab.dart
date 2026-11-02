@@ -100,7 +100,7 @@ class ProxiesTabViewState extends ConsumerState<ProxiesTabView>
   void _showMoreMenu() {
     showSheet(
       context: context,
-      props: SheetProps(isScrollControlled: false),
+      props: const SheetProps(expandable: false),
       builder: (sheetContext, type) {
         return AdaptiveSheetScaffold(
           type: type,

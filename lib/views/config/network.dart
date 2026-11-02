@@ -441,6 +441,45 @@ class MtuItem extends ConsumerWidget {
   }
 }
 
+class ProfileSwitchModeItem extends ConsumerWidget {
+  const ProfileSwitchModeItem({super.key});
+
+  String _text(ProfileSwitchMode mode) => switch (mode) {
+    ProfileSwitchMode.hotReload => appLocalizations.hotReload,
+    ProfileSwitchMode.fullRestart => appLocalizations.fullRestart,
+  };
+
+  String _desc(ProfileSwitchMode mode) => switch (mode) {
+    ProfileSwitchMode.hotReload => appLocalizations.hotReloadDesc,
+    ProfileSwitchMode.fullRestart => appLocalizations.fullRestartDesc,
+  };
+
+  @override
+  Widget build(BuildContext context, ref) {
+    final mode = ref.watch(
+      networkSettingProvider.select((state) => state.profileSwitchMode),
+    );
+
+    return ListItem.options(
+      title: Text(appLocalizations.profileSwitchMode),
+      subtitle: Text(_text(mode)),
+      delegate: OptionsDelegate<ProfileSwitchMode>(
+        value: mode,
+        options: ProfileSwitchMode.values,
+        textBuilder: _text,
+        subtitleBuilder: _desc,
+        onChanged: (value) {
+          if (value == null) return;
+          ref
+              .read(networkSettingProvider.notifier)
+              .updateState((state) => state.copyWith(profileSwitchMode: value));
+        },
+        title: appLocalizations.profileSwitchMode,
+      ),
+    );
+  }
+}
+
 class BypassDomainItem extends StatelessWidget {
   const BypassDomainItem({super.key});
 
@@ -646,8 +685,9 @@ class NetworkListView extends ConsumerWidget {
           const IcmpForwardingItem(),
           if (system.isDesktop) const DnsHijackItem(),
           const EndpointIndependentNatItem(),
-          const TunStackItem(),
+          if (!AppIdentity.isLite) const TunStackItem(),
           const MtuItem(),
+          if (system.isDesktop) const ProfileSwitchModeItem(),
           const BypassPrivateRouteItem(),
         ],
       ),

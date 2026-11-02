@@ -715,6 +715,39 @@ class ClashCore {
     await clashInterface.toolboxInvoke(ActionMethod.clearTrafficStats);
   }
 
+  Future<String> storeGet(StoreSpace space, String key) =>
+      clashInterface.toolboxInvoke(
+        ActionMethod.storeGet,
+        data: json.encode({'ns': space.name, 'key': key}),
+      );
+
+  Future<bool> storeSet(
+    StoreSpace space,
+    String key,
+    Object data, {
+    int? time,
+  }) async =>
+      await clashInterface.toolboxInvoke(
+        ActionMethod.storeSet,
+        data: json.encode({
+          'ns': space.name,
+          'key': key,
+          'data': data,
+          'time': ?time,
+        }),
+      ) ==
+      'true';
+
+  Future<String> storeList(StoreSpace space) =>
+      clashInterface.toolboxInvoke(ActionMethod.storeList, data: space.name);
+
+  Future<void> storeClear(StoreSpace space) async {
+    await clashInterface.toolboxInvoke(
+      ActionMethod.storeClear,
+      data: space.name,
+    );
+  }
+
   Future<int> startToolProxy() async {
     final value = await clashInterface.toolboxInvoke(
       ActionMethod.startToolProxy,

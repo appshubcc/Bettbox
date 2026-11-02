@@ -29,49 +29,75 @@ class _NetworkDetectionState extends ConsumerState<NetworkDetection> {
     return String.fromCharCode(firstLetter) + String.fromCharCode(secondLetter);
   }
 
-  void _showIpClickBehaviorSettings() {
+  Widget _buildSettingsButton(BuildContext context) {
     final isZh = Localizations.localeOf(context).languageCode == 'zh';
-    globalState.showCommonDialog<IpClickBehavior>(
-      child: CommonDialog(
-        title: appLocalizations.ipClickBehavior,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(
-              leading: Icon(Icons.sync),
-              title: Text(appLocalizations.manualRefreshIp),
-              onTap: () {
-                Navigator.of(context, rootNavigator: true).pop();
-                detectionState.manualRefresh();
-              },
-            ),
-            if (isZh)
-              ListTile(
-                leading: Icon(Icons.public),
-                title: Text(appLocalizations.switchToDomesticIp),
-                onTap: () {
-                  Navigator.of(context, rootNavigator: true).pop();
-                  detectionState.switchToDomesticIp();
-                },
-              ),
-            ListTile(
-              leading: Icon(Icons.security),
-              title: Text(appLocalizations.ipPrivacyProtection),
-              onTap: () {
-                Navigator.of(context, rootNavigator: true).pop();
-                detectionState.toggleIpPrivacy();
-              },
-            ),
-          ],
+    return CommonPopupBox(
+      targetBuilder: (open) => IconButton(
+        padding: EdgeInsets.zero,
+        onPressed: () => open(offset: const Offset(0, 20)),
+        icon: Icon(
+          size: 16.ap,
+          Icons.settings_outlined,
+          color: context.colorScheme.onSurfaceVariant,
         ),
       ),
+      popup: CommonPopupMenu(
+        items: [
+          PopupMenuItemData(
+            icon: Icons.sync,
+            label: appLocalizations.manualRefreshIp,
+            onPressed: detectionState.manualRefresh,
+          ),
+          if (isZh)
+            PopupMenuItemData(
+              icon: Icons.public,
+              label: appLocalizations.switchToDomesticIp,
+              onPressed: detectionState.switchToDomesticIp,
+            ),
+          PopupMenuItemData(
+            icon: detectionState.isIpMasked
+                ? Icons.check_circle_rounded
+                : Icons.security,
+            label: appLocalizations.ipPrivacyProtection,
+            onPressed: detectionState.toggleIpPrivacy,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildRiskMark(BuildContext context, Widget child) {
+    return ValueListenableBuilder<String?>(
+      valueListenable: detectionState.riskyIp,
+      builder: (_, ip, child) {
+        final ipText = child ?? const SizedBox();
+        if (ip == null || ip != detectionState.rawIpInfo?.ip) return ipText;
+        return Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.error_rounded,
+              size: 14,
+              color: context.colorScheme.error,
+            ),
+            const SizedBox(width: 4),
+            Flexible(child: ipText),
+          ],
+        );
+      },
+      child: child,
     );
   }
 
   void _showMoreIpInfoDialog() {
     final rawIpInfo = detectionState.rawIpInfo;
     if (rawIpInfo == null) return;
-    showIpDetailDialog(context, rawIpInfo.ip, preloaded: rawIpInfo);
+    showIpDetailDialog(
+      context,
+      rawIpInfo.ip,
+      preloaded: rawIpInfo,
+      showRisk: detectionState.riskyIp.value == rawIpInfo.ip,
+    );
   }
 
   Widget _buildHeader(BuildContext context, IpInfo? ipInfo) {
@@ -107,18 +133,7 @@ class _NetworkDetectionState extends ConsumerState<NetworkDetection> {
             ),
           ),
           const SizedBox(width: 2),
-          AspectRatio(
-            aspectRatio: 1,
-            child: IconButton(
-              padding: EdgeInsets.zero,
-              onPressed: _showIpClickBehaviorSettings,
-              icon: Icon(
-                size: 16.ap,
-                Icons.settings_outlined,
-                color: context.colorScheme.onSurfaceVariant,
-              ),
-            ),
-          ),
+          AspectRatio(aspectRatio: 1, child: _buildSettingsButton(context)),
         ],
       ),
     );
@@ -170,11 +185,14 @@ class _NetworkDetectionState extends ConsumerState<NetworkDetection> {
                 ].where((item) => item?.isNotEmpty ?? false).join(' ');
           final countryCode = ipInfo?.countryCode ?? '';
           final ipText = ipInfo != null
-              ? Text(
-                  ipInfo.ip,
-                  style: context.textTheme.bodyMedium?.toLight.adjustSize(1),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
+              ? _buildRiskMark(
+                  context,
+                  Text(
+                    ipInfo.ip,
+                    style: context.textTheme.bodyMedium?.toLight.adjustSize(1),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 )
               : state.isLoading == false
               ? Text(
@@ -194,7 +212,7 @@ class _NetworkDetectionState extends ConsumerState<NetworkDetection> {
                   ),
                 );
           return CommonCard(
-            onPressed: ipInfo != null ? _showMoreIpInfoDialog : () {},
+            onPressed: ipInfo != null ? _showMoreIpInfoDialog : null,
             child: DashboardDecor(
               mark: countryCode.length == 2
                   ? DashboardDecor.flag(countryCode, 80)
@@ -284,7 +302,7 @@ class _NetworkDetectionState extends ConsumerState<NetworkDetection> {
           final ipInfo = state.ipInfo;
           final isLoading = state.isLoading;
           return CommonCard(
-            onPressed: ipInfo != null ? _showMoreIpInfoDialog : () {},
+            onPressed: ipInfo != null ? _showMoreIpInfoDialog : null,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -332,15 +350,7 @@ class _NetworkDetectionState extends ConsumerState<NetworkDetection> {
                       SizedBox(width: 2),
                       AspectRatio(
                         aspectRatio: 1,
-                        child: IconButton(
-                          padding: EdgeInsets.zero,
-                          onPressed: _showIpClickBehaviorSettings,
-                          icon: Icon(
-                            size: 16.ap,
-                            Icons.settings_outlined,
-                            color: context.colorScheme.onSurfaceVariant,
-                          ),
-                        ),
+                        child: _buildSettingsButton(context),
                       ),
                     ],
                   ),
@@ -351,13 +361,16 @@ class _NetworkDetectionState extends ConsumerState<NetworkDetection> {
                     height: globalState.measure.bodyMediumHeight + 2,
                     child: FadeThroughBox(
                       child: ipInfo != null
-                          ? TooltipText(
-                              text: Text(
-                                ipInfo.ip,
-                                style: context.textTheme.bodyMedium?.toLight
-                                    .adjustSize(1),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
+                          ? _buildRiskMark(
+                              context,
+                              TooltipText(
+                                text: Text(
+                                  ipInfo.ip,
+                                  style: context.textTheme.bodyMedium?.toLight
+                                      .adjustSize(1),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
                               ),
                             )
                           : FadeThroughBox(

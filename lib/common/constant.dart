@@ -26,7 +26,7 @@ final baseInfoEdgeInsets = EdgeInsets.symmetric(
 final defaultTextScaleFactor =
     WidgetsBinding.instance.platformDispatcher.textScaleFactor;
 const httpTimeoutDuration = Duration(milliseconds: 5000);
-const maxDelayTestConcurrency = 50;
+const maxDelayTestConcurrency = 100;
 const moreDuration = Duration(milliseconds: 100);
 const animateDuration = Duration(milliseconds: 100);
 const midDuration = Duration(milliseconds: 200);
@@ -36,6 +36,8 @@ const mmdbFileName = 'geoip.metadb';
 const asnFileName = 'ASN.mmdb';
 const geoSiteFileName = 'GeoSite.dat';
 const bundleMRSFileName = 'BundleMRS.7z';
+const bundleMRSRawUrl =
+    'https://raw.githubusercontent.com/appshubcc/bett-rules/meta/';
 final double kHeaderHeight = system.isDesktop ? 40 : 0;
 const profilesDirectoryName = 'profiles';
 const localhost = '127.0.0.1';
@@ -50,17 +52,16 @@ const defaultExternalController = '127.0.0.1:9090';
 const maxMobileWidth = 600;
 const maxLaptopWidth = 840;
 double getFloatingBottomBarReserveHeight(BuildContext context) {
+  if (globalState.isAndroidTV) return 0;
   final viewBottom = max(
     MediaQuery.viewPaddingOf(context).bottom,
     MediaQuery.paddingOf(context).bottom,
   );
-  if (globalState.isAndroidTV) {
-    return 132.0 + (viewBottom > 12 ? viewBottom - 12 : 0);
-  }
   return 84.0 + (viewBottom > 12 ? viewBottom - 12 : 0);
 }
 
 double getFloatingBottomBarFABReserveHeight(BuildContext context) {
+  if (globalState.isAndroidTV) return 0;
   final viewBottom = max(
     MediaQuery.viewPaddingOf(context).bottom,
     MediaQuery.paddingOf(context).bottom,

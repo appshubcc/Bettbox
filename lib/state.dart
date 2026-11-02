@@ -467,7 +467,6 @@ class GlobalState {
     await prefs?.setBool('is_vpn_running', true);
 
     if (system.isAndroid) {
-      await service?.setQuickResponse(config.vpnProps.quickResponse);
       await service?.setHighPriorityNotification(
         config.vpnProps.highPriorityNotification,
       );
@@ -590,7 +589,10 @@ class GlobalState {
     );
   }
 
-  Future<T?> showAdaptiveSheet<T>({required Widget child}) async {
+  Future<T?> showAdaptiveSheet<T>({
+    required Widget child,
+    bool nested = false,
+  }) async {
     final context = navigatorKey.currentContext;
     if (context == null) return null;
     if (appState.viewMode != ViewMode.mobile) {
@@ -598,7 +600,9 @@ class GlobalState {
     }
     return await showSheet<T>(
       context: context,
-      props: const SheetProps(expandable: false),
+      props: nested
+          ? const SheetProps(expandable: false, initialFraction: 0)
+          : const SheetProps(expandable: false),
       builder: (_, _) => child,
     );
   }
@@ -1037,7 +1041,7 @@ class GlobalState {
           'value': ['131.107.255.255', 'fd3e:4f5a:5b81::1'],
         },
       ],
-      'override-dns': config.overrideDns && !profile.isManaged,
+      'override-dns': config.overrideDns && !scriptActive,
       'dns': {
         ...dns.toJson(),
         'nameserver-policy': {
@@ -1071,9 +1075,9 @@ class GlobalState {
           if (system.isAndroid)
             'AND,((DST-PORT,853),(IP-CIDR,198.51.100.0/30,no-resolve)),REJECT',
         ],
-        if (config.vpnProps.disableQuic)
+        if (config.vpnProps.disableQuic && !scriptActive)
           config.vpnProps.excludeChina && !isRussian
-              ? 'AND,((NETWORK,UDP),(DST-PORT,443),(NOT,((OR,((GEOSITE,geolocation-cn),(GEOIP,CN,no-resolve)))))),REJECT'
+              ? 'AND,((NETWORK,UDP),(DST-PORT,443),(NOT,((OR,((RULE-SET,cn_bettbox),(RULE-SET,cn_ip_bettbox,no-resolve)))))),REJECT'
               : 'AND,((NETWORK,UDP),(DST-PORT,443)),REJECT',
       ],
       'disabled-groups': scriptActive
@@ -1238,6 +1242,10 @@ class DetectionState {
   String? _pendingCheckKey;
   bool _recheckOnFailure = false;
   bool _pendingInit = false;
+  String? _riskIp;
+  CancelToken? _riskToken;
+
+  final riskyIp = ValueNotifier<String?>(null);
 
   final state = ValueNotifier<NetworkDetectionState>(
     const NetworkDetectionState(
@@ -1272,6 +1280,7 @@ class DetectionState {
   void manualRefresh() {
     _rawIpInfo = null;
     _isIpMasked = false;
+    _riskIp = null;
     state.value = state.value.copyWith(
       isLoading: true,
       ipInfo: null,
@@ -1289,6 +1298,53 @@ class DetectionState {
       ipInfo: _maskIpInfo(_rawIpInfo),
       errorMessage: null,
     );
+    _scheduleRiskCheck();
+  }
+
+  Future<void> _scheduleRiskCheck() async {
+    final ip = _rawIpInfo?.ip;
+    if (ip == null || ip == _riskIp) return;
+    _riskIp = ip;
+    _riskToken?.cancel();
+    debouncer.cancel(FunctionTag.checkIpRisk);
+    riskyIp.value = null;
+    if (!globalState.hasNetworkDetectionWidget ||
+        utils.classifyIp(ip) != IpCategory.public) {
+      return;
+    }
+    final cached = await request.readIpRiskCache(ip);
+    if (ip != _riskIp) return;
+    if (cached != null) {
+      _applyRisk(ip, cached);
+      return;
+    }
+    debouncer.call(
+      FunctionTag.checkIpRisk,
+      _checkRisk,
+      args: [ip],
+      duration: const Duration(seconds: 2),
+    );
+  }
+
+  void _applyRisk(String ip, IpRisk? risk) {
+    final level = risk?.level;
+    riskyIp.value = level != null && level != IpRiskLevel.low ? ip : null;
+  }
+
+  Future<void> _checkRisk(String ip) async {
+    if (!globalState.hasNetworkDetectionWidget) return;
+    final token = _riskToken = CancelToken();
+    final res = await request
+        .queryIpRisk(ip, cancelToken: token)
+        .timeout(
+          const Duration(seconds: 5),
+          onTimeout: () {
+            token.cancel();
+            return Result.error('timeout');
+          },
+        );
+    if (ip != _riskIp) return;
+    _applyRisk(ip, res.data);
   }
 
   Future<void> switchToDomesticIp() async {
@@ -1411,6 +1467,7 @@ class DetectionState {
                 ? appLocalizations.tryManualRefresh
                 : null),
     );
+    _scheduleRiskCheck();
   }
 
   Future<void> _checkIp({bool showLoading = false, bool force = false}) async {

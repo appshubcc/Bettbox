@@ -1044,12 +1044,22 @@ Script? currentProfileScript(Ref ref) {
 }
 
 @riverpod
+bool currentProfileScriptActive(Ref ref) {
+  final managed = ref.watch(
+    currentProfileProvider.select((profile) => profile?.isManaged ?? false),
+  );
+  return managed ||
+      ref.watch(
+        currentProfileScriptProvider.select((script) => script != null),
+      );
+}
+
+@riverpod
 VM4<String?, String?, Dns?, String?> needSetup(Ref ref) {
   final profileId = ref.watch(currentProfileIdProvider);
-  final (managed, runsManagedScript) = ref.watch(
+  final runsManagedScript = ref.watch(
     currentProfileProvider.select(
-      (profile) =>
-          (profile?.isManaged ?? false, profile?.runsManagedScript ?? false),
+      (profile) => profile?.runsManagedScript ?? false,
     ),
   );
   final script = ref.watch(currentProfileScriptProvider);
@@ -1064,7 +1074,7 @@ VM4<String?, String?, Dns?, String?> needSetup(Ref ref) {
       ? null
       : '${script.id}:${script.digest}';
   final overrideDns = ref.watch(overrideDnsProvider);
-  final dns = overrideDns && !managed
+  final dns = overrideDns && !ref.watch(currentProfileScriptActiveProvider)
       ? ref.watch(patchClashConfigProvider.select((state) => state.dns))
       : null;
   final loopbackPorts =

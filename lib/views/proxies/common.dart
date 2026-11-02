@@ -10,8 +10,11 @@ import 'package:flutter/foundation.dart';
 
 class DelayTestCoordinator extends ChangeNotifier {
   String? _testingGroupName;
+  int _epoch = 0;
 
   String? get testingGroupName => _testingGroupName;
+
+  int get epoch => _epoch;
 
   bool get isTesting => _testingGroupName != null;
 
@@ -22,15 +25,25 @@ class DelayTestCoordinator extends ChangeNotifier {
       return false;
     }
 
+    final epoch = _epoch;
     _testingGroupName = groupName;
     notifyListeners();
     try {
       await action();
       return true;
     } finally {
-      _testingGroupName = null;
-      notifyListeners();
+      if (epoch == _epoch) {
+        _testingGroupName = null;
+        notifyListeners();
+      }
     }
+  }
+
+  void cancel() {
+    _epoch++;
+    if (_testingGroupName == null) return;
+    _testingGroupName = null;
+    notifyListeners();
   }
 }
 
@@ -74,9 +87,16 @@ class DelayTestRequestPool {
       }
     });
   }
+
+  void clear() => _pendingRequests.clear();
 }
 
 final _delayTestRequestPool = DelayTestRequestPool();
+
+void cancelDelayTests() {
+  delayTestCoordinator.cancel();
+  _delayTestRequestPool.clear();
+}
 
 double get listHeaderHeight {
   final measure = globalState.measure;
@@ -110,11 +130,14 @@ Future<void> proxyDelayTest(Proxy proxy, [String? testUrl]) async {
 }
 
 Future<Delay> _testProxyDelay(DelayTestTarget target) {
+  final epoch = delayTestCoordinator.epoch;
   return _delayTestRequestPool.run(target, () async {
     final appController = globalState.appController;
     appController.setDelay(Delay(url: target.url, name: target.name, value: 0));
     final delay = await clashCore.getDelay(target.url, target.name);
-    appController.setDelay(delay);
+    if (epoch == delayTestCoordinator.epoch) {
+      appController.setDelay(delay);
+    }
     return delay;
   });
 }
@@ -135,6 +158,7 @@ Future<void> _testProxyDelays(
   Future<void> Function()? onDelayUpdated,
 }) async {
   final appController = globalState.appController;
+  final epoch = delayTestCoordinator.epoch;
   final pending = <Future<Delay>>[];
   final batch = <DelayTestTarget>[];
   for (final target in targets) {
@@ -176,7 +200,9 @@ Future<void> _testProxyDelays(
             final delay =
                 (await results)[target] ??
                 Delay(name: target.name, url: target.url, value: -1);
-            appController.setDelay(delay);
+            if (epoch == delayTestCoordinator.epoch) {
+              appController.setDelay(delay);
+            }
             return delay;
           }),
         );

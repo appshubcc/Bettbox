@@ -5,7 +5,6 @@ import 'package:bett_box/providers/providers.dart';
 import 'package:bett_box/state.dart';
 import 'package:bett_box/views/proxies/common.dart';
 import 'package:bett_box/widgets/widgets.dart';
-import 'package:emoji_regex/emoji_regex.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
 
@@ -133,16 +132,6 @@ class ProxyDelayText extends StatelessWidget {
 }
 
 class ProxyCard extends StatelessWidget {
-  static final _emojiRegex = emojiRegex();
-  static final Map<String, bool> _emojiMatchCache = {};
-
-  static bool _hasEmoji(String name) {
-    if (_emojiMatchCache.length >= 2048) {
-      _emojiMatchCache.clear();
-    }
-    return _emojiMatchCache.putIfAbsent(name, () => _emojiRegex.hasMatch(name));
-  }
-
   final String groupName;
   final Proxy proxy;
   final GroupType groupType;
@@ -172,7 +161,7 @@ class ProxyCard extends StatelessWidget {
       return child;
     }
 
-    if (_hasEmoji(proxy.name)) {
+    if (EmojiText.hasEmoji(proxy.name)) {
       return wrapPadding(nameWidget);
     }
 

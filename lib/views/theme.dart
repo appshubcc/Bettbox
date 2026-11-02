@@ -183,7 +183,7 @@ class _PrimaryColorItemState extends ConsumerState<_PrimaryColorItem> {
     ref.read(themeSettingProvider.notifier).updateState((state) {
       return state.copyWith(
         primaryColors: defaultPrimaryColors,
-        primaryColor: defaultPrimaryColor,
+        primaryColor: null,
         schemeVariant: DynamicSchemeVariant.content,
       );
     });
@@ -241,7 +241,7 @@ class _PrimaryColorItemState extends ConsumerState<_PrimaryColorItem> {
     final schemeVariant = ref.read(
       themeSettingProvider.select((state) => state.schemeVariant),
     );
-    final value = await globalState.showCommonDialog<DynamicSchemeVariant>(
+    final value = await globalState.showAdaptiveSheet<DynamicSchemeVariant>(
       child: OptionsDialog<DynamicSchemeVariant>(
         title: appLocalizations.colorSchemes,
         options: DynamicSchemeVariant.values,
@@ -265,22 +265,25 @@ class _PrimaryColorItemState extends ConsumerState<_PrimaryColorItem> {
           state.primaryColor,
           state.primaryColors,
           state.schemeVariant,
-          state.primaryColor == defaultPrimaryColor &&
+          state.primaryColor == null &&
               intListEquality.equals(state.primaryColors, defaultPrimaryColors),
         ),
       ),
     );
     final primaryColors = <int?>[null, ...rawPrimaryColors];
+    final isDynamic = primaryColor == null && globalState.corePalette != null;
 
     return ItemCard(
       info: Info(label: appLocalizations.themeColor, iconData: Icons.palette),
       actions: genActions([
         FilledButton(
           style: const ButtonStyle(visualDensity: VisualDensity.compact),
-          onPressed: primaryColor == null && globalState.corePalette != null
-              ? null
-              : _handleChangeSchemeVariant,
-          child: Text(Intl.message('${schemeVariant.name}Scheme')),
+          onPressed: isDynamic ? null : _handleChangeSchemeVariant,
+          child: Text(
+            isDynamic
+                ? appLocalizations.dynamicColor
+                : Intl.message('${schemeVariant.name}Scheme'),
+          ),
         ),
         if (!isEquals)
           IconButton.filledTonal(

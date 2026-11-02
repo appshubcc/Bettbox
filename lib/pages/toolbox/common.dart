@@ -985,6 +985,7 @@ class ToolRing extends StatelessWidget {
   final String unit;
   final double ratio;
   final Color? color;
+  final double size;
 
   const ToolRing({
     super.key,
@@ -993,6 +994,7 @@ class ToolRing extends StatelessWidget {
     required this.unit,
     required this.ratio,
     this.color,
+    this.size = 76,
   });
 
   @override
@@ -1004,7 +1006,7 @@ class ToolRing extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         RingChart(
-          size: 76,
+          size: size,
           strokeWidth: 6,
           total: 1,
           trackColor: accent.withValues(alpha: 0.12),

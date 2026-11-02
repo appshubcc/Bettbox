@@ -8,17 +8,19 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 void showTunSheet(BuildContext context) {
   showSheet(
     context: context,
+    props: const SheetProps(expandable: false),
     builder: (_, type) {
       return AdaptiveSheetScaffold(
         type: type,
         body: generateListView(
+          shrinkWrap: true,
           generateSection(
             items: [
               if (system.isDesktop) const TUNItem(),
               if (system.isDesktop) const DnsHijackItem(),
               if (!system.isAndroid) const StrictRouteItem(),
               const IcmpForwardingItem(),
-              const TunStackItem(),
+              if (!AppIdentity.isLite) const TunStackItem(),
             ],
           ),
         ),
@@ -31,16 +33,18 @@ void showTunSheet(BuildContext context) {
 void showVpnSheet(BuildContext context) {
   showSheet(
     context: context,
+    props: const SheetProps(expandable: false),
     builder: (_, type) {
       return AdaptiveSheetScaffold(
         type: type,
         body: generateListView(
+          shrinkWrap: true,
           generateSection(
             items: [
               const VPNItem(),
               if (!system.isAndroid) const StrictRouteItem(),
               const IcmpForwardingItem(),
-              const TunStackItem(),
+              if (!AppIdentity.isLite) const TunStackItem(),
             ],
           ),
         ),
@@ -53,10 +57,12 @@ void showVpnSheet(BuildContext context) {
 void showSystemProxySheet(BuildContext context) {
   showSheet(
     context: context,
+    props: const SheetProps(expandable: false),
     builder: (_, type) {
       return AdaptiveSheetScaffold(
         type: type,
         body: generateListView(
+          shrinkWrap: true,
           generateSection(
             items: [
               system.isAndroid

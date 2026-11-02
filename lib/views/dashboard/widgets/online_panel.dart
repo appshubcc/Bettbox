@@ -24,12 +24,16 @@ class OnlinePanel extends ConsumerWidget {
           final secret = clashConfig.secret;
 
           if (externalController != ExternalControllerStatus.open) {
-            showExtend(
-              context,
+            showSheet(
+              context: context,
+              props: const SheetProps(expandable: false),
               builder: (_, type) => AdaptiveSheetScaffold(
-                title: appLocalizations.general,
+                title: appLocalizations.externalController,
                 type: type,
-                body: generateListView(generalItems),
+                body: generateListView(
+                  shrinkWrap: true,
+                  generateSection(items: const [ExternalControllerItem()]),
+                ),
               ),
             );
             return;

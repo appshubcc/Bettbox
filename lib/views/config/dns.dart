@@ -2,6 +2,8 @@ import 'package:bett_box/common/common.dart';
 import 'package:bett_box/enum/enum.dart';
 import 'package:bett_box/models/models.dart';
 import 'package:bett_box/providers/config.dart';
+import 'package:bett_box/providers/state.dart';
+import 'package:bett_box/state.dart';
 import 'package:bett_box/widgets/widgets.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -12,14 +14,21 @@ class OverrideItem extends ConsumerWidget {
   @override
   Widget build(BuildContext context, ref) {
     final override = ref.watch(overrideDnsProvider);
+    final scriptActive = ref.watch(currentProfileScriptActiveProvider);
     return ListItem.switchItem(
       title: Text(appLocalizations.overrideDns),
-      subtitle: Text(appLocalizations.overrideDnsDesc),
+      subtitle: Text(
+        scriptActive
+            ? appLocalizations.overrideDnsManagedDesc
+            : appLocalizations.overrideDnsDesc,
+      ),
       delegate: SwitchDelegate(
-        value: override,
-        onChanged: (bool value) async {
-          ref.read(overrideDnsProvider.notifier).value = value;
-        },
+        value: override && !scriptActive,
+        onChanged: scriptActive
+            ? null
+            : (bool value) async {
+                ref.read(overrideDnsProvider.notifier).value = value;
+              },
       ),
     );
   }
@@ -913,6 +922,53 @@ final dnsItems = <Widget>[
     ],
   ),
 ];
+
+List<Widget> get dnsActions => const [_DnsFlushButton(), _DnsResetButton()];
+
+class _DnsFlushButton extends StatelessWidget {
+  const _DnsFlushButton();
+
+  Future<void> _handleFlush() async {
+    final res = await globalState.showMessage(
+      title: appLocalizations.clearCacheTitle,
+      message: TextSpan(text: appLocalizations.clearCacheDesc),
+    );
+    if (res != true) return;
+    await globalState.appController.flushDns();
+    globalState.showNotifier(appLocalizations.success);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return IconButton(
+      onPressed: _handleFlush,
+      tooltip: appLocalizations.clearCacheTitle,
+      icon: const Icon(Icons.cleaning_services_outlined),
+    );
+  }
+}
+
+class _DnsResetButton extends ConsumerWidget {
+  const _DnsResetButton();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return IconButton(
+      onPressed: () async {
+        final res = await globalState.showMessage(
+          title: appLocalizations.reset,
+          message: TextSpan(text: appLocalizations.resetTip),
+        );
+        if (res != true) return;
+        ref
+            .read(patchClashConfigProvider.notifier)
+            .updateState((state) => state.copyWith(dns: defaultDns));
+      },
+      tooltip: appLocalizations.reset,
+      icon: const Icon(Icons.replay),
+    );
+  }
+}
 
 class DnsListView extends ConsumerWidget {
   const DnsListView({super.key});

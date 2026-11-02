@@ -626,20 +626,10 @@ class _ToolViewState extends ConsumerState<ToolsView> {
             const ApplicationSettingView(),
           ),
         ),
-      _SearchItem(
-        title: appLocalizations.autoCloseConnections,
-        subtitle: appLocalizations.autoCloseConnectionsDesc,
-        category: otherSettingsCategory,
-        onTap: (context, _) => _pushPage(
-          context,
-          appLocalizations.otherSettings,
-          const OtherSettingView(),
-        ),
-      ),
-      if (system.isAndroid)
+      if (system.isDesktop)
         _SearchItem(
-          title: appLocalizations.flushDnsOnNetworkChange,
-          subtitle: appLocalizations.flushDnsOnNetworkChangeDesc,
+          title: appLocalizations.autoCloseConnections,
+          subtitle: appLocalizations.autoCloseConnectionsDesc,
           category: otherSettingsCategory,
           onTap: (context, _) => _pushPage(
             context,
@@ -1049,15 +1039,16 @@ class _ToolViewState extends ConsumerState<ToolsView> {
           const NetworkListView(),
         ),
       ),
-      _SearchItem(
-        title: appLocalizations.stackMode,
-        category: networkCategory,
-        onTap: (context, _) => _pushPage(
-          context,
-          appLocalizations.network,
-          const NetworkListView(),
+      if (!AppIdentity.isLite)
+        _SearchItem(
+          title: appLocalizations.stackMode,
+          category: networkCategory,
+          onTap: (context, _) => _pushPage(
+            context,
+            appLocalizations.network,
+            const NetworkListView(),
+          ),
         ),
-      ),
       _SearchItem(
         title: 'MTU',
         category: networkCategory,
@@ -1572,7 +1563,7 @@ class _ToolViewState extends ConsumerState<ToolsView> {
           },
           padding: EdgeInsets.only(
             bottom:
-                (globalState.isAndroidTV ? 80.0 : 20.0) +
+                20.0 +
                 (isMobileView ? getFloatingBottomBarReserveHeight(context) : 0),
             top: 8 + rise,
           ),

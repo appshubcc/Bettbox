@@ -84,30 +84,7 @@ class _ConfigViewState extends State<ConfigView> {
         leading: const Icon(Icons.dns),
         delegate: NextDelegate(
           title: 'DNS',
-          actions: [
-            Consumer(
-              builder: (_, ref, _) {
-                return IconButton(
-                  onPressed: () async {
-                    final res = await globalState.showMessage(
-                      title: appLocalizations.reset,
-                      message: TextSpan(text: appLocalizations.resetTip),
-                    );
-                    if (res != true) {
-                      return;
-                    }
-                    ref
-                        .read(patchClashConfigProvider.notifier)
-                        .updateState(
-                          (state) => state.copyWith(dns: defaultDns),
-                        );
-                  },
-                  tooltip: appLocalizations.reset,
-                  icon: const Icon(Icons.replay),
-                );
-              },
-            ),
-          ],
+          actions: dnsActions,
           builder: (_) => const DnsListView(),
           blur: false,
         ),

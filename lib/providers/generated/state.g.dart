@@ -2497,6 +2497,49 @@ final class CurrentProfileScriptProvider
 String _$currentProfileScriptHash() =>
     r'2dee96513396788b81b67296af450440e1433859';
 
+@ProviderFor(currentProfileScriptActive)
+final currentProfileScriptActiveProvider =
+    CurrentProfileScriptActiveProvider._();
+
+final class CurrentProfileScriptActiveProvider
+    extends $FunctionalProvider<bool, bool, bool>
+    with $Provider<bool> {
+  CurrentProfileScriptActiveProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'currentProfileScriptActiveProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$currentProfileScriptActiveHash();
+
+  @$internal
+  @override
+  $ProviderElement<bool> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  bool create(Ref ref) {
+    return currentProfileScriptActive(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(bool value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<bool>(value),
+    );
+  }
+}
+
+String _$currentProfileScriptActiveHash() =>
+    r'bece7356f9e4608d113ff8a296baf67101685676';
+
 @ProviderFor(needSetup)
 final needSetupProvider = NeedSetupProvider._();
 
@@ -2543,7 +2586,7 @@ final class NeedSetupProvider
   }
 }
 
-String _$needSetupHash() => r'bdb9d13a527429ca00c05b899560d6347fa7db66';
+String _$needSetupHash() => r'fb3d46a65be31e68ae57af8b949690daece870a3';
 
 @ProviderFor(currentBrightness)
 final currentBrightnessProvider = CurrentBrightnessProvider._();

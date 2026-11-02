@@ -140,10 +140,10 @@ class _NodeExclusionDialogState extends ConsumerState<_NodeExclusionDialog> {
 class _ConcurrencyLimitItem extends ConsumerWidget {
   const _ConcurrencyLimitItem();
 
-  static const _options = [8, 16, 32, 64, 250];
+  static const _options = [2, 8, 16, 32, maxDelayTestConcurrency];
 
   String _getDisplayText(int value, BuildContext context) {
-    if (value == 250) {
+    if (value == maxDelayTestConcurrency) {
       return 'MAX';
     }
     return '$value';

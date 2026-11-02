@@ -223,7 +223,12 @@ abstract class ClashHandlerInterface with ClashInterface {
           completer?.complete(result.data);
           return;
         default:
-          completer?.complete(result.data);
+          final data = result.data;
+          completer?.complete(
+            completer is Completer<String> && data is! String
+                ? json.encode(data)
+                : data,
+          );
           return;
       }
     } catch (e) {

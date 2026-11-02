@@ -2,6 +2,7 @@ import 'package:bett_box/enum/enum.dart';
 import 'package:bett_box/models/app.dart';
 import 'package:bett_box/state.dart';
 import 'dart:async';
+import 'dart:ui' show FlutterView;
 
 import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:material_ui/material_ui.dart' show MaterialPageRoute;
@@ -9,25 +10,58 @@ import 'package:flutter/foundation.dart'
     show TargetPlatform, defaultTargetPlatform;
 
 class BaseNavigator {
+  static const _keyboardTimeout = Duration(milliseconds: 350);
+
+  static Future<void> _dismissKeyboard(BuildContext context) async {
+    final view = View.maybeOf(context);
+    if (view == null || view.viewInsets.bottom <= 0) return;
+    final observer = _KeyboardObserver(view);
+    WidgetsBinding.instance.addObserver(observer);
+    FocusManager.instance.primaryFocus?.unfocus();
+    try {
+      await observer.closed.timeout(_keyboardTimeout, onTimeout: () {});
+    } finally {
+      WidgetsBinding.instance.removeObserver(observer);
+    }
+  }
+
   static Future<T?> push<T>(
     BuildContext context,
     Widget child, {
     bool maintainState = true,
   }) async {
+    final navigator = Navigator.of(context);
     if (globalState.appState.viewMode != ViewMode.mobile) {
-      return await Navigator.of(context).push<T>(
+      return await navigator.push<T>(
         CommonDesktopRoute(
           builder: (context) => child,
           maintainState: maintainState,
         ),
       );
     }
-    return await Navigator.of(context).push<T>(
+    await _dismissKeyboard(context);
+    if (!navigator.mounted) return null;
+    return await navigator.push<T>(
       _CleanCupertinoPageRoute(
         builder: (context) => child,
         maintainState: maintainState,
       ),
     );
+  }
+}
+
+class _KeyboardObserver with WidgetsBindingObserver {
+  final FlutterView view;
+  final _closed = Completer<void>();
+
+  _KeyboardObserver(this.view);
+
+  Future<void> get closed => _closed.future;
+
+  @override
+  void didChangeMetrics() {
+    if (_closed.isCompleted || view.viewInsets.bottom > 0) return;
+    _closed.complete();
   }
 }
 
@@ -236,6 +270,28 @@ class RouteIdleObserver extends NavigatorObserver {
 }
 
 final routeIdleObserver = RouteIdleObserver();
+
+mixin IdleAutofocusMixin<T extends StatefulWidget> on State<T> {
+  FocusNode? _autofocusNode;
+
+  bool get autofocusWhenIdle => true;
+
+  FocusNode? get autofocusNode => _autofocusNode;
+
+  @override
+  void initState() {
+    super.initState();
+    if (!autofocusWhenIdle) return;
+    final node = _autofocusNode = FocusNode();
+    unawaited(node.requestFocusWhenIdle());
+  }
+
+  @override
+  void dispose() {
+    _autofocusNode?.dispose();
+    super.dispose();
+  }
+}
 
 extension FocusNodeIdleExt on FocusNode {
   Future<void> requestFocusWhenIdle() async {

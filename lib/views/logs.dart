@@ -307,7 +307,7 @@ class _LogsViewState extends ConsumerState<LogsView>
       patchClashConfigProvider.select((state) => state.logLevel),
     );
 
-    final selectedLogLevel = await globalState.showCommonDialog<LogLevel>(
+    final selectedLogLevel = await globalState.showAdaptiveSheet<LogLevel>(
       child: OptionsDialog<LogLevel>(
         title: appLocalizations.logLevel,
         options: LogLevel.values,

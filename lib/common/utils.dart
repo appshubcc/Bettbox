@@ -19,7 +19,7 @@ enum IpCategory { tun, lan, public }
 typedef _DefaultRoute = ({String gateway, String interfaceName});
 
 final _virtualInterfaceRegExp = RegExp(
-  'tun|tap|vpn|ppp|meta|clash',
+  'tun|tap|vpn|ppp|meta|clash|${RegExp.escape(tunDeviceName)}',
   caseSensitive: false,
 );
 
@@ -38,7 +38,7 @@ class Utils {
 
   String countryCodeToEmoji(String countryCode) {
     final String code = countryCode.toUpperCase();
-    if (code.length != 2) {
+    if (!RegExp(r'^[A-Z]{2}$').hasMatch(code)) {
       return countryCode;
     }
     final int firstLetter = code.codeUnitAt(0) - 0x41 + 0x1F1E6;
@@ -996,18 +996,22 @@ class Utils {
         }
         return addresses;
       }
-      final interfaces = await NetworkInterface.list(includeLoopback: false);
-      for (final interface in interfaces) {
-        if (_virtualInterfaceRegExp.hasMatch(interface.name) ||
-            _bridgeInterfaceRegExp.hasMatch(interface.name)) {
-          continue;
-        }
-        for (final address in interface.addresses) {
-          if (address.isIPv4 && !address.isLinkLocal) add(address.address);
-        }
+      for (final address in await getInterfaceIPv4Addresses()) {
+        add(address);
       }
     } catch (_) {}
     return addresses;
+  }
+
+  Future<List<String>> getInterfaceIPv4Addresses() async {
+    final interfaces = await NetworkInterface.list(includeLoopback: false);
+    return [
+      for (final interface in interfaces)
+        if (!_virtualInterfaceRegExp.hasMatch(interface.name) &&
+            !_bridgeInterfaceRegExp.hasMatch(interface.name))
+          for (final address in interface.addresses)
+            if (address.isIPv4 && !address.isLinkLocal) address.address,
+    ];
   }
 
   Future<NetworkInfo> getNetworkInfo() async {

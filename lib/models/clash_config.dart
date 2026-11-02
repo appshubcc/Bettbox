@@ -402,18 +402,19 @@ abstract class Dns with _$Dns {
     FilterMode fakeIpFilterMode,
     @Default([
       '*',
-      'geosite:private',
-      'geosite:category-ntp',
-      'geosite:geolocation-cn',
-      'geosite:connectivity-check',
+      'rule-set:private_bettbox',
+      'rule-set:fakeip-filter_bettbox',
+      'rule-set:category-ntp_bettbox',
+      'rule-set:cn_bettbox',
+      'rule-set:connectivity-check_bettbox',
     ])
     @JsonKey(name: 'fake-ip-filter')
     List<String> fakeIpFilter,
     @Default(1) @JsonKey(name: 'fake-ip-ttl') int fakeIpTtl,
     @Default({
       '+.internal.corp.com': '10.0.0.1',
-      'geosite:cn': '119.29.29.29',
-      'geosite:private': 'system',
+      'rule-set:cn_bettbox': '119.29.29.29',
+      'rule-set:private_bettbox': 'system',
       '*': 'system',
     })
     @JsonKey(name: 'nameserver-policy')
@@ -441,11 +442,48 @@ abstract class Dns with _$Dns {
 
   factory Dns.safeDnsFromJson(Map<String, Object?> json) {
     try {
-      return Dns.fromJson(json);
+      return Dns.fromJson(_migrateLegacyGeoSite(json));
     } catch (_) {
       return const Dns();
     }
   }
+}
+
+const _legacyFakeIpFilter = {
+  'geosite:private': [
+    'rule-set:private_bettbox',
+    'rule-set:fakeip-filter_bettbox',
+  ],
+  'geosite:category-ntp': ['rule-set:category-ntp_bettbox'],
+  'geosite:geolocation-cn': ['rule-set:cn_bettbox'],
+  'geosite:connectivity-check': ['rule-set:connectivity-check_bettbox'],
+};
+
+const _legacyNameserverPolicy = {
+  'geosite:cn': 'rule-set:cn_bettbox',
+  'geosite:private': 'rule-set:private_bettbox',
+};
+
+Map<String, Object?> _migrateLegacyGeoSite(Map<String, Object?> json) {
+  final filter = json['fake-ip-filter'];
+  final policy = json['nameserver-policy'];
+  final migrateFilter =
+      filter is List && filter.any(_legacyFakeIpFilter.containsKey);
+  final migratePolicy =
+      policy is Map && policy.keys.any(_legacyNameserverPolicy.containsKey);
+  if (!migrateFilter && !migratePolicy) return json;
+  return {
+    ...json,
+    if (migrateFilter)
+      'fake-ip-filter': {
+        for (final item in filter) ...(_legacyFakeIpFilter[item] ?? [item]),
+      }.toList(),
+    if (migratePolicy)
+      'nameserver-policy': <String, Object?>{
+        for (final MapEntry(:key, :value) in policy.entries)
+          _legacyNameserverPolicy[key] ?? '$key': value,
+      },
+  };
 }
 
 extension DnsExt on Dns {

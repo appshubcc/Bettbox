@@ -18,6 +18,15 @@ final _packageSplitRegex = RegExp(r'[\n,\s]+');
 
 final _packageIconCache = <String, Uint8List?>{};
 final _packageIconPending = <String, Future<Uint8List?>>{};
+const _maxPackageIconCacheSize = 256;
+
+void _cachePackageIcon(String packageName, Uint8List? bytes) {
+  _packageIconCache.remove(packageName);
+  while (_packageIconCache.length >= _maxPackageIconCacheSize) {
+    _packageIconCache.remove(_packageIconCache.keys.first);
+  }
+  _packageIconCache[packageName] = bytes;
+}
 
 Future<Uint8List?> _getPackageIcon(
   String packageName, {
@@ -28,7 +37,9 @@ Future<Uint8List?> _getPackageIcon(
     _packageIconPending.remove(packageName);
   }
   if (_packageIconCache.containsKey(packageName)) {
-    return Future.value(_packageIconCache[packageName]);
+    final bytes = _packageIconCache[packageName];
+    _cachePackageIcon(packageName, bytes);
+    return Future.value(bytes);
   }
   return _packageIconPending.putIfAbsent(packageName, () async {
     try {
@@ -36,7 +47,7 @@ Future<Uint8List?> _getPackageIcon(
         packageName,
         forceRefresh: forceRefresh,
       );
-      _packageIconCache[packageName] = bytes;
+      _cachePackageIcon(packageName, bytes);
       return bytes;
     } finally {
       _packageIconPending.remove(packageName);

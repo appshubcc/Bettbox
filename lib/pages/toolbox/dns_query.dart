@@ -139,7 +139,7 @@ class _DnsQueryPageState extends ConsumerState<DnsQueryPage>
   }
 
   Future<void> _pickServer() async {
-    final result = await globalState.showCommonDialog<String>(
+    final result = await globalState.showAdaptiveSheet<String>(
       child: OptionsDialog<String>(
         title: appLocalizations.dnsQueryServer,
         options: dnsPresetServers,

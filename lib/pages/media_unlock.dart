@@ -145,7 +145,7 @@ class _MediaUnlockPageState extends ConsumerState<MediaUnlockPage> {
   }
 
   String _getPlatformSvgPath(MediaPlatform platform) {
-    return 'assets/images/platforms/${platform.name}.svg';
+    return 'assets/svg/${platform.icon}';
   }
 
   Widget _buildPlatformIcon(
@@ -239,17 +239,10 @@ class _MediaUnlockPageState extends ConsumerState<MediaUnlockPage> {
   }
 
   void _showMiscSettingsDialog() {
-    globalState.showCommonDialog<void>(
+    globalState.showAdaptiveSheet<void>(
       child: CommonDialog(
         title: appLocalizations.mediaUnlockMiscSettings,
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(context, rootNavigator: true).pop();
-            },
-            child: Text(appLocalizations.confirm),
-          ),
-        ],
+        padding: const EdgeInsets.symmetric(vertical: 8),
         child: SizedBox(
           width: 320.ap,
           child: Consumer(

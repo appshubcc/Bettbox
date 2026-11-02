@@ -200,7 +200,7 @@ class _CommonPopupBoxState extends State<CommonPopupBox> {
     if (renderBox == null) {
       return;
     }
-    final viewPadding = MediaQuery.of(context).viewPadding;
+    final viewPadding = MediaQuery.viewPaddingOf(context);
     _targetOffsetValueNotifier.value = renderBox
         .localToGlobal(
           Offset.zero.translate(viewPadding.right, viewPadding.top),

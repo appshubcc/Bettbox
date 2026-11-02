@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:bett_box/clash/clash.dart';
-import 'package:bett_box/common/common.dart';
 import 'package:bett_box/models/models.dart';
 import 'package:bett_box/state.dart';
 import 'package:flutter/foundation.dart';
@@ -12,7 +11,7 @@ abstract mixin class VpnListener {
 
   void onScreenStateChanged(bool isOn) {}
 
-  void onNetworkChanged() {}
+  void onNetworkChanged(bool defaultChanged) {}
 }
 
 class Vpn {
@@ -24,7 +23,6 @@ class Vpn {
       switch (call.method) {
         case 'gc':
           await clashLibHandler?.freeOSMemory();
-          android?.purgeMemory(call.arguments as int?);
           break;
         case 'closeConnections':
           clashCore.closeConnections();
@@ -44,8 +42,9 @@ class Vpn {
           }
           break;
         case 'networkChanged':
+          final defaultChanged = call.arguments == true;
           for (final listener in _listeners) {
-            listener.onNetworkChanged();
+            listener.onNetworkChanged(defaultChanged);
           }
           break;
         default:
@@ -80,13 +79,25 @@ class Vpn {
   Future<String?> getCurrentDns() =>
       methodChannel.invokeMethod<String>('getCurrentDns');
 
-  Future<void> setSmartStopped(bool value) async {
-    await methodChannel.invokeMethod<bool>('setSmartStopped', {'value': value});
+  Future<bool> hasPhysicalNetwork() async {
+    return await methodChannel.invokeMethod<bool>('hasPhysicalNetwork') ??
+        false;
   }
+
+  Future<bool?> quickResponse() =>
+      methodChannel.invokeMethod<bool>('quickResponse');
 
   Future<bool> isSmartStopped() async {
     return await methodChannel.invokeMethod<bool>('isSmartStopped') ?? false;
   }
+
+  Future<bool> isSmartStopOverride() async {
+    return await methodChannel.invokeMethod<bool>('isSmartStopOverride') ??
+        false;
+  }
+
+  Future<bool?> clearSmartStopOverride() =>
+      methodChannel.invokeMethod<bool>('clearSmartStopOverride');
 
   Future<bool?> smartStop() => methodChannel.invokeMethod<bool>('smartStop');
 

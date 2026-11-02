@@ -273,10 +273,11 @@ _Dns _$DnsFromJson(Map<String, dynamic> json) => _Dns(
           .toList() ??
       const [
         '*',
-        'geosite:private',
-        'geosite:category-ntp',
-        'geosite:geolocation-cn',
-        'geosite:connectivity-check',
+        'rule-set:private_bettbox',
+        'rule-set:fakeip-filter_bettbox',
+        'rule-set:category-ntp_bettbox',
+        'rule-set:cn_bettbox',
+        'rule-set:connectivity-check_bettbox',
       ],
   fakeIpTtl: (json['fake-ip-ttl'] as num?)?.toInt() ?? 1,
   nameserverPolicy:
@@ -285,8 +286,8 @@ _Dns _$DnsFromJson(Map<String, dynamic> json) => _Dns(
       ) ??
       const {
         '+.internal.corp.com': '10.0.0.1',
-        'geosite:cn': '119.29.29.29',
-        'geosite:private': 'system',
+        'rule-set:cn_bettbox': '119.29.29.29',
+        'rule-set:private_bettbox': 'system',
         '*': 'system',
       },
   nameserver:

@@ -39,11 +39,116 @@ class ApplicationState extends ConsumerState<Application>
     },
   );
 
-  ColorScheme _getAppColorScheme({
-    required Brightness brightness,
-    int? primaryColor,
-  }) {
-    return ref.read(genColorSchemeProvider(brightness));
+  static const _lightAppBarTheme = AppBarTheme(
+    backgroundColor: Colors.transparent,
+    elevation: 0,
+    scrolledUnderElevation: 0,
+    surfaceTintColor: Colors.transparent,
+    systemOverlayStyle: SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      statusBarIconBrightness: Brightness.dark,
+      statusBarBrightness: Brightness.light,
+      systemStatusBarContrastEnforced: false,
+    ),
+  );
+
+  static const _darkAppBarTheme = AppBarTheme(
+    backgroundColor: Colors.transparent,
+    elevation: 0,
+    scrolledUnderElevation: 0,
+    surfaceTintColor: Colors.transparent,
+    systemOverlayStyle: SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      statusBarIconBrightness: Brightness.light,
+      statusBarBrightness: Brightness.dark,
+      systemStatusBarContrastEnforced: false,
+    ),
+  );
+
+  final Map<Brightness, ((ColorScheme, String?), ThemeData)> _themeCache = {};
+
+  ThemeData _themeOf(ColorScheme colorScheme, String? fontFamily) {
+    final key = (colorScheme, fontFamily);
+    final cached = _themeCache[colorScheme.brightness];
+    if (cached != null && cached.$1 == key) {
+      return cached.$2;
+    }
+    final theme = _buildTheme(colorScheme, fontFamily);
+    _themeCache[colorScheme.brightness] = (key, theme);
+    return theme;
+  }
+
+  ThemeData _buildTheme(ColorScheme colorScheme, String? fontFamily) {
+    final isLight = colorScheme.brightness == Brightness.light;
+    return ThemeData(
+      useMaterial3: true,
+      pageTransitionsTheme: _pageTransitionsTheme,
+      scaffoldBackgroundColor: colorScheme.surfaceContainer,
+      appBarTheme: isLight ? _lightAppBarTheme : _darkAppBarTheme,
+      colorScheme: colorScheme,
+      fontFamily: fontFamily,
+      floatingActionButtonTheme: const FloatingActionButtonThemeData(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(20)),
+        ),
+        elevation: 3,
+        hoverElevation: 5,
+      ),
+      dialogTheme: DialogThemeData(
+        backgroundColor: isLight
+            ? colorScheme.surfaceContainerLowest
+            : colorScheme.surfaceContainerHigh,
+        surfaceTintColor: Colors.transparent,
+        elevation: 10,
+        shadowColor: Colors.black.withValues(alpha: isLight ? 0.3 : 0.6),
+        shape: RoundedSuperellipseBorder(
+          borderRadius: BorderRadius.circular(20),
+          side: BorderSide(
+            color: colorScheme.outlineVariant.withValues(
+              alpha: isLight ? 0.6 : 0.5,
+            ),
+          ),
+        ),
+      ),
+      bottomSheetTheme: const BottomSheetThemeData(
+        shape: RoundedSuperellipseBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+        ),
+        clipBehavior: Clip.antiAlias,
+      ),
+      popupMenuTheme: const PopupMenuThemeData(
+        shape: RoundedSuperellipseBorder(
+          borderRadius: BorderRadius.all(Radius.circular(16)),
+        ),
+      ),
+      dividerTheme: DividerThemeData(
+        color: colorScheme.outlineVariant.withValues(
+          alpha: isLight ? 0.45 : 0.25,
+        ),
+        thickness: 1,
+        space: 1,
+      ),
+      inputDecorationTheme: _inputDecorationTheme(colorScheme),
+      switchTheme: _switchTheme(colorScheme),
+      chipTheme: ChipThemeData(
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(16)),
+        ),
+        side: BorderSide(
+          color: colorScheme.outlineVariant.withValues(
+            alpha: isLight ? 0.6 : 0.5,
+          ),
+        ),
+      ),
+      tooltipTheme: TooltipThemeData(
+        decoration: BoxDecoration(
+          color: colorScheme.inverseSurface,
+          borderRadius: const BorderRadius.all(Radius.circular(10)),
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+        textStyle: TextStyle(color: colorScheme.onInverseSurface, fontSize: 13),
+      ),
+    );
   }
 
   SwitchThemeData _switchTheme(ColorScheme colorScheme) {
@@ -271,6 +376,12 @@ class ApplicationState extends ConsumerState<Application>
             final fontFamily = themeProps.useHarmonyFont
                 ? 'HarmonyOS_Sans'
                 : null;
+            final lightColorScheme = ref.read(
+              genColorSchemeProvider(Brightness.light),
+            );
+            final darkColorScheme = ref
+                .read(genColorSchemeProvider(Brightness.dark))
+                .toPureBlack(themeProps.pureBlack);
 
             return MaterialApp(
               debugShowCheckedModeBanner: false,
@@ -302,246 +413,8 @@ class ApplicationState extends ConsumerState<Application>
                   utils.getLocaleForString(locale) ?? utils.getSystemLocale(),
               supportedLocales: AppLocalizations.delegate.supportedLocales,
               themeMode: themeProps.themeMode,
-              theme: ThemeData(
-                useMaterial3: true,
-                pageTransitionsTheme: _pageTransitionsTheme,
-                scaffoldBackgroundColor: _getAppColorScheme(
-                  brightness: Brightness.light,
-                  primaryColor: themeProps.primaryColor,
-                ).surfaceContainer,
-                appBarTheme: const AppBarTheme(
-                  backgroundColor: Colors.transparent,
-                  elevation: 0,
-                  scrolledUnderElevation: 0,
-                  surfaceTintColor: Colors.transparent,
-                  systemOverlayStyle: SystemUiOverlayStyle(
-                    statusBarColor: Colors.transparent,
-                    statusBarIconBrightness: Brightness.dark,
-                    statusBarBrightness: Brightness.light,
-                    systemStatusBarContrastEnforced: false,
-                  ),
-                ),
-                colorScheme: _getAppColorScheme(
-                  brightness: Brightness.light,
-                  primaryColor: themeProps.primaryColor,
-                ),
-                fontFamily: fontFamily,
-                floatingActionButtonTheme: const FloatingActionButtonThemeData(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(20)),
-                  ),
-                  elevation: 3,
-                  hoverElevation: 5,
-                ),
-                dialogTheme: DialogThemeData(
-                  backgroundColor: _getAppColorScheme(
-                    brightness: Brightness.light,
-                    primaryColor: themeProps.primaryColor,
-                  ).surfaceContainerLowest,
-                  surfaceTintColor: Colors.transparent,
-                  elevation: 10,
-                  shadowColor: Colors.black.withValues(alpha: 0.3),
-                  shape: RoundedSuperellipseBorder(
-                    borderRadius: BorderRadius.circular(20),
-                    side: BorderSide(
-                      color: _getAppColorScheme(
-                        brightness: Brightness.light,
-                        primaryColor: themeProps.primaryColor,
-                      ).outlineVariant.withValues(alpha: 0.6),
-                    ),
-                  ),
-                ),
-                bottomSheetTheme: const BottomSheetThemeData(
-                  shape: RoundedSuperellipseBorder(
-                    borderRadius: BorderRadius.vertical(
-                      top: Radius.circular(28),
-                    ),
-                  ),
-                  clipBehavior: Clip.antiAlias,
-                ),
-                popupMenuTheme: const PopupMenuThemeData(
-                  shape: RoundedSuperellipseBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(16)),
-                  ),
-                ),
-                dividerTheme: DividerThemeData(
-                  color: _getAppColorScheme(
-                    brightness: Brightness.light,
-                    primaryColor: themeProps.primaryColor,
-                  ).outlineVariant.withValues(alpha: 0.45),
-                  thickness: 1,
-                  space: 1,
-                ),
-                inputDecorationTheme: _inputDecorationTheme(
-                  _getAppColorScheme(
-                    brightness: Brightness.light,
-                    primaryColor: themeProps.primaryColor,
-                  ),
-                ),
-                switchTheme: _switchTheme(
-                  _getAppColorScheme(
-                    brightness: Brightness.light,
-                    primaryColor: themeProps.primaryColor,
-                  ),
-                ),
-                chipTheme: ChipThemeData(
-                  shape: const RoundedRectangleBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(16)),
-                  ),
-                  side: BorderSide(
-                    color: _getAppColorScheme(
-                      brightness: Brightness.light,
-                      primaryColor: themeProps.primaryColor,
-                    ).outlineVariant.withValues(alpha: 0.6),
-                  ),
-                ),
-                tooltipTheme: TooltipThemeData(
-                  decoration: BoxDecoration(
-                    color: _getAppColorScheme(
-                      brightness: Brightness.light,
-                      primaryColor: themeProps.primaryColor,
-                    ).inverseSurface,
-                    borderRadius: const BorderRadius.all(Radius.circular(10)),
-                  ),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 7,
-                  ),
-                  textStyle: TextStyle(
-                    color: _getAppColorScheme(
-                      brightness: Brightness.light,
-                      primaryColor: themeProps.primaryColor,
-                    ).onInverseSurface,
-                    fontSize: 13,
-                  ),
-                ),
-              ),
-              darkTheme: ThemeData(
-                useMaterial3: true,
-                pageTransitionsTheme: _pageTransitionsTheme,
-                scaffoldBackgroundColor: _getAppColorScheme(
-                  brightness: Brightness.dark,
-                  primaryColor: themeProps.primaryColor,
-                ).toPureBlack(themeProps.pureBlack).surfaceContainer,
-                appBarTheme: const AppBarTheme(
-                  backgroundColor: Colors.transparent,
-                  elevation: 0,
-                  scrolledUnderElevation: 0,
-                  surfaceTintColor: Colors.transparent,
-                  systemOverlayStyle: SystemUiOverlayStyle(
-                    statusBarColor: Colors.transparent,
-                    statusBarIconBrightness: Brightness.light,
-                    statusBarBrightness: Brightness.dark,
-                    systemStatusBarContrastEnforced: false,
-                  ),
-                ),
-                colorScheme: _getAppColorScheme(
-                  brightness: Brightness.dark,
-                  primaryColor: themeProps.primaryColor,
-                ).toPureBlack(themeProps.pureBlack),
-                fontFamily: fontFamily,
-                floatingActionButtonTheme: const FloatingActionButtonThemeData(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(20)),
-                  ),
-                  elevation: 3,
-                  hoverElevation: 5,
-                ),
-                dialogTheme: DialogThemeData(
-                  backgroundColor: _getAppColorScheme(
-                    brightness: Brightness.dark,
-                    primaryColor: themeProps.primaryColor,
-                  ).toPureBlack(themeProps.pureBlack).surfaceContainerHigh,
-                  surfaceTintColor: Colors.transparent,
-                  elevation: 10,
-                  shadowColor: Colors.black.withValues(alpha: 0.6),
-                  shape: RoundedSuperellipseBorder(
-                    borderRadius: BorderRadius.circular(20),
-                    side: BorderSide(
-                      color:
-                          _getAppColorScheme(
-                                brightness: Brightness.dark,
-                                primaryColor: themeProps.primaryColor,
-                              )
-                              .toPureBlack(themeProps.pureBlack)
-                              .outlineVariant
-                              .withValues(alpha: 0.5),
-                    ),
-                  ),
-                ),
-                bottomSheetTheme: const BottomSheetThemeData(
-                  shape: RoundedSuperellipseBorder(
-                    borderRadius: BorderRadius.vertical(
-                      top: Radius.circular(28),
-                    ),
-                  ),
-                  clipBehavior: Clip.antiAlias,
-                ),
-                popupMenuTheme: const PopupMenuThemeData(
-                  shape: RoundedSuperellipseBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(16)),
-                  ),
-                ),
-                dividerTheme: DividerThemeData(
-                  color:
-                      _getAppColorScheme(
-                            brightness: Brightness.dark,
-                            primaryColor: themeProps.primaryColor,
-                          )
-                          .toPureBlack(themeProps.pureBlack)
-                          .outlineVariant
-                          .withValues(alpha: 0.25),
-                  thickness: 1,
-                  space: 1,
-                ),
-                inputDecorationTheme: _inputDecorationTheme(
-                  _getAppColorScheme(
-                    brightness: Brightness.dark,
-                    primaryColor: themeProps.primaryColor,
-                  ).toPureBlack(themeProps.pureBlack),
-                ),
-                switchTheme: _switchTheme(
-                  _getAppColorScheme(
-                    brightness: Brightness.dark,
-                    primaryColor: themeProps.primaryColor,
-                  ).toPureBlack(themeProps.pureBlack),
-                ),
-                chipTheme: ChipThemeData(
-                  shape: const RoundedRectangleBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(16)),
-                  ),
-                  side: BorderSide(
-                    color:
-                        _getAppColorScheme(
-                              brightness: Brightness.dark,
-                              primaryColor: themeProps.primaryColor,
-                            )
-                            .toPureBlack(themeProps.pureBlack)
-                            .outlineVariant
-                            .withValues(alpha: 0.5),
-                  ),
-                ),
-                tooltipTheme: TooltipThemeData(
-                  decoration: BoxDecoration(
-                    color: _getAppColorScheme(
-                      brightness: Brightness.dark,
-                      primaryColor: themeProps.primaryColor,
-                    ).toPureBlack(themeProps.pureBlack).inverseSurface,
-                    borderRadius: const BorderRadius.all(Radius.circular(10)),
-                  ),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 7,
-                  ),
-                  textStyle: TextStyle(
-                    color: _getAppColorScheme(
-                      brightness: Brightness.dark,
-                      primaryColor: themeProps.primaryColor,
-                    ).toPureBlack(themeProps.pureBlack).onInverseSurface,
-                    fontSize: 13,
-                  ),
-                ),
-              ),
+              theme: _themeOf(lightColorScheme, fontFamily),
+              darkTheme: _themeOf(darkColorScheme, fontFamily),
               home: child!,
             );
           },
@@ -549,6 +422,12 @@ class ApplicationState extends ConsumerState<Application>
         ),
       ),
     );
+  }
+
+  @override
+  void reassemble() {
+    super.reassemble();
+    _themeCache.clear();
   }
 
   @override

@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:bett_box/enum/enum.dart';
 import 'package:bett_box/models/models.dart';
 
@@ -23,7 +26,9 @@ final _operatorReg = RegExp(
 final _ownerReg = RegExp(
   r'owned by <b>([^<]+)</b> whose web traffic we (?:also )?consider to present a potentially <b>([^<]+)</b>',
 );
-final _deviceReg = RegExp(r'is operating an? ([A-Za-z ]+?), which could be proxying');
+final _deviceReg = RegExp(
+  r'is operating an? ([A-Za-z ]+?), which could be proxying',
+);
 final _warningReg = RegExp(r'there is potentially an? ([a-z ]+?) risk that');
 final _spaceReg = RegExp(r'\s+');
 
@@ -114,6 +119,13 @@ IpRiskLevel _level(String text, int score) {
     >= 30 => IpRiskLevel.medium,
     _ => IpRiskLevel.low,
   };
+}
+
+IpRisk? parseScamalyticsBytes(String ip, List<int> data) {
+  final bytes = data.length > 2 && data[0] == 0x1f && data[1] == 0x8b
+      ? gzip.decode(data)
+      : data;
+  return parseScamalytics(ip, utf8.decode(bytes, allowMalformed: true));
 }
 
 IpRisk? parseScamalytics(String ip, String html) {

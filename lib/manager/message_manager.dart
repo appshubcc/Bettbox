@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:bett_box/common/common.dart';
+import 'package:bett_box/enum/enum.dart';
 import 'package:bett_box/models/models.dart';
 import 'package:bett_box/widgets/fade_box.dart';
 import 'package:bett_box/widgets/text.dart';
@@ -77,6 +78,12 @@ class MessageManagerState extends State<MessageManager> {
 
   @override
   Widget build(BuildContext context) {
+    final isMobile =
+        utils.getViewMode(MediaQuery.sizeOf(context).width) == ViewMode.mobile;
+    final top = isMobile
+        ? MediaQuery.paddingOf(context).top + 8
+        : kToolbarHeight + 8;
+    final colorScheme = context.colorScheme;
     return Stack(
       children: [
         widget.child,
@@ -84,11 +91,7 @@ class MessageManagerState extends State<MessageManager> {
           valueListenable: _messagesNotifier,
           builder: (_, messages, _) {
             return FadeThroughBox(
-              margin: EdgeInsets.only(
-                top: kToolbarHeight + 8,
-                left: 12,
-                right: 12,
-              ),
+              margin: EdgeInsets.only(top: top, left: 12, right: 12),
               alignment: Alignment.topCenter,
               child: messages.isEmpty
                   ? SizedBox()
@@ -97,18 +100,18 @@ class MessageManagerState extends State<MessageManager> {
                       builder: (_, constraints) {
                         final message = messages.last;
                         return Card(
-                          shape: const RoundedRectangleBorder(
-                            borderRadius: BorderRadius.all(
-                              Radius.circular(12.0),
-                            ),
+                          shape: const RoundedSuperellipseBorder(
+                            borderRadius: BorderRadius.all(Radius.circular(20)),
                           ),
-                          elevation: 10,
-                          color: context.colorScheme.surfaceContainerHigh,
+                          elevation: 6,
+                          shadowColor: Colors.black.withValues(alpha: 0.35),
+                          color: colorScheme.inverseSurface,
                           child: Container(
                             width: min(constraints.maxWidth, 500),
-                            padding: EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 12,
+                            constraints: const BoxConstraints(minHeight: 48),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 8,
                             ),
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
@@ -120,6 +123,11 @@ class MessageManagerState extends State<MessageManager> {
                                   child: EmojiText(
                                     message.text,
                                     textAlign: TextAlign.center,
+                                    style: context.textTheme.bodyMedium
+                                        ?.copyWith(
+                                          color: colorScheme.onInverseSurface,
+                                          fontWeight: FontWeight.w500,
+                                        ),
                                   ),
                                 ),
                                 if (message.actionLabel != null &&
@@ -131,16 +139,23 @@ class MessageManagerState extends State<MessageManager> {
                                       message.onAction?.call();
                                     },
                                     style: TextButton.styleFrom(
-                                      minimumSize: Size.zero,
+                                      minimumSize: const Size(0, 32),
                                       tapTargetSize:
                                           MaterialTapTargetSize.shrinkWrap,
-                                      visualDensity: VisualDensity.compact,
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 8,
-                                        vertical: 4,
+                                      visualDensity: VisualDensity.standard,
+                                      padding: const EdgeInsets.only(
+                                        left: 22,
+                                        right: 20,
                                       ),
                                       foregroundColor:
-                                          context.colorScheme.primary,
+                                          colorScheme.inversePrimary,
+                                      textStyle: context.textTheme.labelLarge
+                                          ?.copyWith(letterSpacing: 2),
+                                      shape: const StadiumBorder(),
+                                      side: BorderSide(
+                                        color: colorScheme.inversePrimary
+                                            .withValues(alpha: 0.4),
+                                      ),
                                     ),
                                     child: Text(message.actionLabel!),
                                   ),
@@ -189,7 +204,7 @@ class _CountdownWidgetState extends State<_CountdownWidget>
 
   @override
   Widget build(BuildContext context) {
-    final primaryColor = context.colorScheme.primary;
+    final primaryColor = context.colorScheme.inversePrimary;
 
     return Padding(
       padding: const EdgeInsets.only(right: 8),
@@ -208,7 +223,7 @@ class _CountdownWidgetState extends State<_CountdownWidget>
                 CircularProgressIndicator(
                   value: 1 - _controller.value,
                   strokeWidth: 2,
-                  backgroundColor: primaryColor.withAlpha(26),
+                  backgroundColor: primaryColor.withAlpha(56),
                   valueColor: AlwaysStoppedAnimation<Color>(primaryColor),
                 ),
                 Text(

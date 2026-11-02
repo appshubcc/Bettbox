@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 144 144" width="144" height="144">
+  <title>Quora</title>
+  <desc>Qure-style Quora icon. Quora 全球知识问答社区</desc>
+  <defs>
+    <linearGradient id="p7-quora-grad" gradientUnits="userSpaceOnUse" x1="72" y1="12" x2="72" y2="132">
+      <stop offset="0.0" stop-color="#D44D49" />
+      <stop offset="0.5" stop-color="#B92B27" />
+      <stop offset="1.0" stop-color="#891D1A" />
+    </linearGradient>
+  </defs>
+  <path d="M 48.8297630388,16.5733255396 A 59.996,59.996 0 0,1 118.381224576,109.813137916 l 12.0846548352,12.14935107 c 3.6721382264,3.6921990744 1.05319452,9.982779486 -4.1485833664,9.982779486 l -53.715428126,0.05015212 a 62.7905,62.7905 0 0,1 -1.524624448,0 l -0.10030424,0 A 59.996,59.996 0 0,1 48.8392919416,16.5833559636 Z m 36.7198777004,22.207358736 a 35.9676,35.9676 0 1,0 -27.5199728076,66.4575772544 a 35.9676,35.9676 0 0,0 27.5249880196,-66.4570757332 Z" fill="url(#p7-quora-grad)" />
+</svg>

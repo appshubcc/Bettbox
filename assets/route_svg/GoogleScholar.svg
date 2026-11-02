@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 144 144" width="144" height="144">
+  <title>GoogleScholar</title>
+  <defs>
+    <linearGradient id="p14-googlescholar-grad" gradientUnits="userSpaceOnUse" x1="72" y1="12" x2="72" y2="132">
+      <stop offset="0.0" stop-color="#5A95F5" />
+      <stop offset="0.5" stop-color="#4285F4" />
+      <stop offset="1.0" stop-color="#1E5FD0" />
+    </linearGradient>
+  </defs>
+  <path d="M 38.7731666667,80.6975833333 L 13,59.7083333333 L 72,13 l 59,46.7083333333 l -25.7731666667,20.98925 C 99.2776666667,68.3075833333 86.6418333333,59.7083333333 72,59.7083333333 c -14.6369166667,0 -27.2776666667,8.59433333333 -33.2268333333,20.98925 z M 72,62.1666666667 a 34.4167,34.4167 0 0,0 0,68.8333333333 a 34.4167,34.4167 0 0,0 0,-68.8333333333 z" fill="url(#p14-googlescholar-grad)" />
+</svg>

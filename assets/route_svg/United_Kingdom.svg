@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 144 144" width="144" height="144">
+<title>英国</title>
+
+<defs><mask id="gb-board" maskUnits="userSpaceOnUse" maskContentUnits="userSpaceOnUse" x="0" y="0" width="144" height="144" mask-type="alpha"><path d="M 116.6452 21.4745 c 8.96084 0 13.44126 0 16.86385 1.7439 a 16 16 0 0 1 6.99226 6.99226 c 1.7439 3.42259 1.7439 7.90301 1.7439 16.86385 L 142.2452 96.4526 c 0 8.96084 0 13.44126 -1.7439 16.86385 a 16 16 0 0 1 -6.99226 6.99226 c -3.42259 1.7439 -7.90301 1.7439 -16.86385 1.7439 L 26.929 122.0526 c -8.96084 0 -13.44126 0 -16.86385 -1.7439 a 16 16 0 0 1 -6.99226 -6.99226 c -1.7439 -3.42259 -1.7439 -7.90301 -1.7439 -16.86385 L 1.329 47.0745 c 0 -8.96084 0 -13.44126 1.7439 -16.86385 a 16 16 0 0 1 6.99226 -6.99226 c 3.42259 -1.7439 7.90301 -1.7439 16.86385 -1.7439 Z" fill="#FFFFFF" /></mask>
+<linearGradient id="gb-white" x1="72" y1="21.47450" x2="72" y2="122.05260" gradientUnits="userSpaceOnUse"><stop stop-color="#F4F4F4" /><stop offset="1" stop-color="#E5E5E5" /></linearGradient>
+<linearGradient id="gb-blue" x1="72" y1="21.47450" x2="72" y2="122.05260" gradientUnits="userSpaceOnUse"><stop stop-color="#3C66D0" /><stop offset="1" stop-color="#0937A9" /></linearGradient>
+<linearGradient id="gb-red" x1="72" y1="21.47450" x2="72" y2="122.05260" gradientUnits="userSpaceOnUse"><stop stop-color="#E33B50" /><stop offset="1" stop-color="#CF152C" /></linearGradient></defs>
+<g mask="url(#gb-board)">
+<path d="M1.329 21.4745h140.9162v100.5781h-140.9162Z" fill="url(#gb-white)" stroke="url(#gb-white)" stroke-width=".5" stroke-linejoin="round" />
+<path d="M 1.329,21.4745 l 140.9162,0 l 0,100.5781 L 1.329,122.0526 z" fill="url(#gb-blue)" stroke="url(#gb-blue)" stroke-width=".5" stroke-linejoin="round" />
+<path d="m 17.84262,21.4745 l 53.7243,37.92633 L 125.07104,21.4745 l 17.17416,0 l 0,12.99134 L 89.40162,71.97309 l 52.84358,37.29771 l 0,12.7818 l -17.61453,0 L 71.7871,84.54535 L 19.16371,122.0526 L 1.329,122.0526 l 0,-12.57226 l 52.62339,-37.29771 L 1.329,34.88491 L 1.329,21.4745 z" fill="url(#gb-white)" stroke="url(#gb-white)" stroke-width=".5" stroke-linejoin="round" />
+<path d="m 94.68598,80.3546 l 47.55922,33.3165 l 0,8.38151 L 82.576,80.3546 z m -40.51341,4.19075 l 1.32109,7.33382 L 13.2188,122.0526 L 1.329,122.0526 z M 142.2452,21.4745 l 0,0.62861 L 87.41999,61.4962 l 0.44036,-9.21966 L 131.23612,21.4745 z M 1.329,21.4745 l 52.62339,36.87864 l -13.21089,0 L 1.329,30.27508 z" fill="url(#gb-red)" stroke="url(#gb-red)" stroke-width=".5" stroke-linejoin="round" />
+<path d="M 54.39276,21.4745 l 0,100.5781 l 35.22905,0 L 89.62181,21.4745 z M 1.329,55.00053 l 0,33.52603 l 140.9162,0 L 142.2452,55.00053 z" fill="url(#gb-white)" stroke="url(#gb-white)" stroke-width=".5" stroke-linejoin="round" />
+<path d="M 1.329,61.91528 l 0,20.11562 l 140.9162,0 l 0,-20.11562 z M 61.43857,21.4745 l 0,100.5781 l 21.13743,0 L 82.576,21.4745 z" fill="url(#gb-red)" stroke="url(#gb-red)" stroke-width=".5" stroke-linejoin="round" />
+</g>
+</svg>

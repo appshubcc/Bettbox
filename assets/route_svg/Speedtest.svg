@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 144 144" width="144" height="144">
+  <defs>
+    <linearGradient id="speed-grad" x1="0%" y1="50%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#8B5CF6"/>
+      <stop offset="60%" stop-color="#3B82F6"/>
+      <stop offset="100%" stop-color="#60A5FA"/>
+    </linearGradient>
+  </defs>
+  <path d="M 25.34 117.29 A 60.5 60.5 0 0 1 116.66 37.91" fill="none" stroke="url(#speed-grad)" stroke-width="16.5" stroke-linecap="butt"/>
+  <path d="M 116.66 37.91 A 60.5 60.5 0 0 1 115.25 118.86" fill="none" stroke="#C4C6CC" stroke-width="16.5" stroke-linecap="butt"/>
+  <polygon points="58,76 93.5,49.5 101,57 66,88" fill="#AEA1AD"/>
+</svg>

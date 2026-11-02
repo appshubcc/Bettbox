@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+    <g transform="translate(-73.53 -68.27) scale(22.7555556)">
+    <defs>
+        <linearGradient id="paypal1" gradientUnits="userSpaceOnUse" x1="0" y1="3" x2="0" y2="48">
+            <stop offset="0" stop-color="#002991" />
+            <stop offset="100%" stop-color="#002480" />
+        </linearGradient>
+        <linearGradient id="paypal2" gradientUnits="userSpaceOnUse" x1="0" y1="3" x2="0" y2="48">
+            <stop offset="0" stop-color="#60CDFF" />
+            <stop offset="100%" stop-color="#54B4E0" />
+        </linearGradient>
+        <linearGradient id="paypal3" gradientUnits="userSpaceOnUse" x1="0" y1="3" x2="0" y2="48">
+            <stop offset="0" stop-color="#008CFF" />
+            <stop offset="100%" stop-color="#007BE0" />
+        </linearGradient>
+    </defs>
+    <path fill="url(#paypal1)" d="M38.91 13.35c0 5.57-5.14 12.15-12.93 12.15H18.49l-.37 2.32L16.37 39H7.06l5.61-36h15.1c5.08 0 9.08 2.83 10.55 6.77a9.69 9.69 0 0 1 .6 3.58z" />
+    <path fill="url(#paypal2)" d="M44.28 23.7A12.89 12.89 0 0 1 31.53 34.5h-5.21L24.16 48H14.89l1.48-9 1.75-11.18.37-2.32h7.5c7.77 0 12.93-6.58 12.93-12.15 3.83 1.97 6.05 5.96 5.37 10.35z" />
+    <path fill="url(#paypal3)" d="M38.91 13.35C37.31 12.51 35.37 12 33.25 12h-12.64L18.49 25.5h7.5c7.77 0 12.93-6.58 12.93-12.15z" />
+    </g>
+</svg>

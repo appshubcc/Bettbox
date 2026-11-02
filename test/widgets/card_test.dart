@@ -10,7 +10,11 @@ void main() {
           child: SizedBox(
             width: 200,
             height: 80,
-            child: CommonCard(onPressed: () {}, child: const SizedBox.expand()),
+            child: CommonCard(
+              elevated: false,
+              onPressed: () {},
+              child: const SizedBox.expand(),
+            ),
           ),
         ),
       ),
@@ -27,7 +31,7 @@ void main() {
       paints..rsuperellipse(
         rsuperellipse: RSuperellipse.fromRectAndRadius(
           const Rect.fromLTWH(0.5, 0.5, 199, 79),
-          const Radius.circular(19.5),
+          const Radius.circular(23.5),
         ),
         strokeWidth: 1,
       ),

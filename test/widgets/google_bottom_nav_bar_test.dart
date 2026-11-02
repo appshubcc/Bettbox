@@ -235,7 +235,9 @@ void main() {
 
     for (var i = 0; i < 15; i++) {
       await tester.pump(const Duration(milliseconds: 16));
-      final transforms = tester.widgetList<Transform>(find.byType(Transform)).toList();
+      final transforms = tester
+          .widgetList<Transform>(find.byType(Transform))
+          .toList();
       if (transforms.length >= 4) {
         final scale1 = transforms[1].transform.storage[0];
         final scale2 = transforms[2].transform.storage[0];
@@ -254,7 +256,9 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 50));
 
-    final transforms = tester.widgetList<Transform>(find.byType(Transform)).toList();
+    final transforms = tester
+        .widgetList<Transform>(find.byType(Transform))
+        .toList();
     if (transforms.length >= 2) {
       final scale1 = transforms[1].transform.storage[0];
       expect(scale1, greaterThan(1.0));

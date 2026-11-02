@@ -278,7 +278,6 @@ void main() {
         delayMap: {
           'u': {for (var i = 0; i < 9000; i++) 'node-$i': 9000 - i},
         },
-        overrideTestUrl: true,
         defaultTestUrl: 'u',
       );
       final sorted = sortProxies(
@@ -494,7 +493,6 @@ void main() {
           allGroups: groups,
           selectedMap: const {},
           delayMap: delayMap,
-          overrideTestUrl: false,
           defaultTestUrl: url,
         ).getGroup(group)!.all.map((proxy) => proxy.name).toList();
 
@@ -571,6 +569,36 @@ void main() {
       ];
       container.read(filterGroupsStateProvider(''));
       expect(notifyCount, 1);
+    });
+  });
+
+  group('DelayDataSource', () {
+    test('clear 丢弃已有和待合并的延迟', () {
+      final container = ProviderContainer();
+      addTearDown(container.dispose);
+      final notifier = container.read(delayDataSourceProvider.notifier);
+      notifier.value = {
+        'u': {'A': 10},
+      };
+      notifier.setDelay(const Delay(name: 'B', url: 'u', value: 20));
+      notifier.clear();
+      notifier.flush();
+      expect(container.read(delayDataSourceProvider), isEmpty);
+    });
+
+    test('dropTesting 只移除测速中的节点', () {
+      final container = ProviderContainer();
+      addTearDown(container.dispose);
+      final notifier = container.read(delayDataSourceProvider.notifier);
+      notifier.value = {
+        'u': {'A': 10, 'B': 0},
+        'v': {'C': 0},
+      };
+      notifier.setDelay(const Delay(name: 'D', url: 'u', value: 0));
+      notifier.dropTesting();
+      expect(container.read(delayDataSourceProvider), {
+        'u': {'A': 10},
+      });
     });
   });
 }

@@ -27,17 +27,11 @@ double computePeakNew(
   return peak;
 }
 
-bool seriesChangedOld(
-  List<(double, double)> a,
-  List<(double, double)> b,
-) {
+bool seriesChangedOld(List<(double, double)> a, List<(double, double)> b) {
   return a != b;
 }
 
-bool seriesChangedNew(
-  List<(double, double)> a,
-  List<(double, double)> b,
-) {
+bool seriesChangedNew(List<(double, double)> a, List<(double, double)> b) {
   if (identical(a, b)) return false;
   final len = a.length;
   if (len != b.length) return true;

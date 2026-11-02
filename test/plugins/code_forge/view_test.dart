@@ -6,7 +6,6 @@ import 'package:material_ui/material_ui.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:re_highlight/languages/yaml.dart';
 import 'package:re_highlight/styles/atom-one-light.dart';
 
 import 'support.dart';
@@ -346,7 +345,7 @@ void _caretScroll() {
         home: Scaffold(
           body: CodeForge(
             controller: controller,
-            language: langYaml,
+            language: editorYamlMode,
             editorTheme: atomOneLightTheme,
             textStyle: const TextStyle(
               fontSize: 16,
@@ -2147,7 +2146,7 @@ void _painting() {
 
   SyntaxHighlighter yamlHighlighter() {
     final highlighter = SyntaxHighlighter(
-      language: langYaml,
+      language: editorYamlMode,
       editorTheme: atomOneLightTheme,
     );
     addTearDown(highlighter.dispose);

@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 144 144" width="144" height="144">
+  <title>NPM</title>
+  <desc>Qure-style NPM icon. npm 全球最大的软件注册表与 JavaScript 包管理基础设施</desc>
+  <defs>
+    <linearGradient id="p11-npm-grad" gradientUnits="userSpaceOnUse" x1="72" y1="12" x2="72" y2="132">
+      <stop offset="0.0" stop-color="#D56B6A" />
+      <stop offset="0.5" stop-color="#CB3837" />
+      <stop offset="1.0" stop-color="#9F2726" />
+    </linearGradient>
+  </defs>
+  <path d="M 20.815,12 C 15.93,12 12,15.93 12,20.815 l 0,102.37 C 12,128.07 15.93,132 20.815,132 l 102.37,0 c 4.885,0 8.815,-3.93 8.815,-8.815 L 132,20.815 C 132,15.93 128.07,12 123.185,12 z M 37.65,38.615 l 69.185,0.095 l -0.045,69.18 l -17.32,0 l 0.05,-51.91 l -17.28,0 L 72.2,107.85 L 37.565,107.85 z" fill="url(#p11-npm-grad)" />
+</svg>

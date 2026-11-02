@@ -612,10 +612,10 @@ class IpInfo {
     this.asDomain,
     this.continent,
     this.continentCode,
-  }) : countryCode = _normalizeCountryCode(countryCode, country, province),
-       country = _normalizeCountry(
+  }) : countryCode = normalizeCountryCode(countryCode, country, province),
+       country = normalizeCountry(
          country,
-         _normalizeCountryCode(countryCode, country, province),
+         normalizeCountryCode(countryCode, country, province),
          province,
        );
 
@@ -661,11 +661,11 @@ class IpInfo {
     return false;
   }
 
-  static String _normalizeCountryCode(
-    String countryCode,
+  static String normalizeCountryCode(
+    String countryCode, [
     String? country,
     String? province,
-  ) {
+  ]) {
     final clean = countryCode.trim().toUpperCase();
     if (clean.length == 2 && RegExp(r'^[A-Z]{2}$').hasMatch(clean)) {
       if (clean == 'CN') {
@@ -703,7 +703,7 @@ class IpInfo {
     return clean;
   }
 
-  static String? _normalizeCountry(
+  static String? normalizeCountry(
     String? country, [
     String? countryCode,
     String? province,
@@ -1149,6 +1149,7 @@ enum PopupMenuItemType { primary, danger }
 class PopupMenuItemData {
   const PopupMenuItemData({
     this.icon,
+    this.emoji,
     required this.label,
     required this.onPressed,
   });
@@ -1156,6 +1157,7 @@ class PopupMenuItemData {
   final String label;
   final VoidCallback? onPressed;
   final IconData? icon;
+  final String? emoji;
 }
 
 @freezed
@@ -1305,4 +1307,27 @@ extension ScriptExt on Script {
       await file.delete();
     }
   }
+}
+
+@freezed
+abstract class IconSetIcon with _$IconSetIcon {
+  const factory IconSetIcon({required String name, required String url}) =
+      _IconSetIcon;
+
+  factory IconSetIcon.fromJson(Map<String, Object?> json) =>
+      _$IconSetIconFromJson(json);
+}
+
+@freezed
+abstract class IconSet with _$IconSet {
+  const factory IconSet({
+    required String id,
+    required String name,
+    @Default('') String url,
+    @Default([]) List<IconSetIcon> icons,
+    DateTime? lastUpdateTime,
+  }) = _IconSet;
+
+  factory IconSet.fromJson(Map<String, Object?> json) =>
+      _$IconSetFromJson(json);
 }

@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 144 144" width="144" height="144">
+  <defs>
+    <linearGradient id="auto-grad" x1="0" y1="19" x2="0" y2="124" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#FFC43D"/>
+      <stop offset="50%" stop-color="#FFB11E"/>
+      <stop offset="100%" stop-color="#FF9E01"/>
+    </linearGradient>
+  </defs>
+  <polygon points="43,19 0,79 29,79 30.5,124 73,65 43,65" fill="url(#auto-grad)"/>
+  <rect x="63" y="33" width="60.5" height="16.5" rx="8.25" fill="url(#auto-grad)"/>
+  <rect x="88" y="63" width="55.5" height="16.5" rx="8.25" fill="url(#auto-grad)"/>
+  <rect x="63" y="94" width="60.5" height="16.5" rx="8.25" fill="url(#auto-grad)"/>
+</svg>

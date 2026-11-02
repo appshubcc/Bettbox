@@ -1465,3 +1465,80 @@ abstract class _$ConnectionsUdpOnly extends $Notifier<bool> {
     return element.handleCreate(ref, build);
   }
 }
+
+@ProviderFor(builtInIconSet)
+final builtInIconSetProvider = BuiltInIconSetProvider._();
+
+final class BuiltInIconSetProvider
+    extends $FunctionalProvider<AsyncValue<IconSet>, IconSet, FutureOr<IconSet>>
+    with $FutureModifier<IconSet>, $FutureProvider<IconSet> {
+  BuiltInIconSetProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'builtInIconSetProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$builtInIconSetHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<IconSet> $createElement($ProviderPointer pointer) =>
+      $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<IconSet> create(Ref ref) {
+    return builtInIconSet(ref);
+  }
+}
+
+String _$builtInIconSetHash() => r'dc9258dbfc06e3b9dc2721432285a3491c95ef5e';
+
+@ProviderFor(IconSets)
+final iconSetsProvider = IconSetsProvider._();
+
+final class IconSetsProvider
+    extends $AsyncNotifierProvider<IconSets, List<IconSet>> {
+  IconSetsProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'iconSetsProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$iconSetsHash();
+
+  @$internal
+  @override
+  IconSets create() => IconSets();
+}
+
+String _$iconSetsHash() => r'f49de46ad51df9b4979f842719a9e2c18d21081a';
+
+abstract class _$IconSets extends $AsyncNotifier<List<IconSet>> {
+  FutureOr<List<IconSet>> build();
+  @$mustCallSuper
+  @override
+  WhenComplete runBuild() {
+    final ref = this.ref as $Ref<AsyncValue<List<IconSet>>, List<IconSet>>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<AsyncValue<List<IconSet>>, List<IconSet>>,
+              AsyncValue<List<IconSet>>,
+              Object?,
+              Object?
+            >;
+    return element.handleCreate(ref, build);
+  }
+}

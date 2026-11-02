@@ -42,7 +42,6 @@ _AppSettingProps _$AppSettingPropsFromJson(
   openLogs: json['openLogs'] as bool? ?? true,
   closeConnections: json['closeConnections'] as bool? ?? true,
   logAiSearch: json['logAiSearch'] as bool? ?? true,
-  flushDnsOnNetworkChange: json['flushDnsOnNetworkChange'] as bool? ?? false,
   testUrl: json['testUrl'] as String? ?? defaultTestUrl,
   showStartSwitch: json['showStartSwitch'] as bool? ?? true,
   startSwitchStyle:
@@ -98,6 +97,7 @@ _AppSettingProps _$AppSettingPropsFromJson(
       MrsTapAction.viewRules,
   mrsResolveDns: json['mrsResolveDns'] as bool? ?? true,
   ipRiskDetail: json['ipRiskDetail'] as bool? ?? false,
+  ipRiskAlert: json['ipRiskAlert'] as bool? ?? true,
   iperfOptions: json['iperfOptions'] == null
       ? const IperfOptions()
       : IperfOptions.fromJson(json['iperfOptions'] as Map<String, dynamic>),
@@ -147,7 +147,6 @@ Map<String, dynamic> _$AppSettingPropsToJson(_AppSettingProps instance) =>
       'openLogs': instance.openLogs,
       'closeConnections': instance.closeConnections,
       'logAiSearch': instance.logAiSearch,
-      'flushDnsOnNetworkChange': instance.flushDnsOnNetworkChange,
       'testUrl': instance.testUrl,
       'showStartSwitch': instance.showStartSwitch,
       'startSwitchStyle': _$StartSwitchStyleEnumMap[instance.startSwitchStyle]!,
@@ -177,6 +176,7 @@ Map<String, dynamic> _$AppSettingPropsToJson(_AppSettingProps instance) =>
       'mrsTapAction': _$MrsTapActionEnumMap[instance.mrsTapAction]!,
       'mrsResolveDns': instance.mrsResolveDns,
       'ipRiskDetail': instance.ipRiskDetail,
+      'ipRiskAlert': instance.ipRiskAlert,
       'iperfOptions': instance.iperfOptions,
       'localPingOptions': instance.localPingOptions,
       'mobileDashboardSizes': instance.mobileDashboardSizes,
@@ -220,7 +220,6 @@ const _$DashboardWidgetEnumMap = {
   DashboardWidget.connectionsCount: 'connectionsCount',
   DashboardWidget.ipv6Switch: 'ipv6Switch',
   DashboardWidget.wakelockSwitch: 'wakelockSwitch',
-  DashboardWidget.dnsOverride: 'dnsOverride',
   DashboardWidget.snifferOverride: 'snifferOverride',
   DashboardWidget.ntpOverride: 'ntpOverride',
   DashboardWidget.providersInfo: 'providersInfo',
@@ -707,6 +706,11 @@ _ManagedProps _$ManagedPropsFromJson(Map<String, dynamic> json) =>
       order:
           (json['order'] as List<dynamic>?)?.map((e) => e as String).toList() ??
           const [],
+      removed:
+          (json['removed'] as List<dynamic>?)
+              ?.map((e) => e as String)
+              .toList() ??
+          const [],
     );
 
 Map<String, dynamic> _$ManagedPropsToJson(_ManagedProps instance) =>
@@ -715,6 +719,7 @@ Map<String, dynamic> _$ManagedPropsToJson(_ManagedProps instance) =>
       'syncedVersion': instance.syncedVersion,
       'routes': instance.routes,
       'order': instance.order,
+      'removed': instance.removed,
     };
 
 _Config _$ConfigFromJson(Map<String, dynamic> json) => _Config(
@@ -734,7 +739,6 @@ _Config _$ConfigFromJson(Map<String, dynamic> json) => _Config(
           .toList() ??
       const [],
   currentProfileId: json['currentProfileId'] as String?,
-  overrideDns: json['overrideDns'] as bool? ?? false,
   overrideNtp: json['overrideNtp'] as bool? ?? false,
   overrideSniffer: json['overrideSniffer'] as bool? ?? false,
   overrideTunnel: json['overrideTunnel'] as bool? ?? false,
@@ -783,7 +787,6 @@ Map<String, dynamic> _$ConfigToJson(_Config instance) => <String, dynamic>{
   'profiles': instance.profiles,
   'hotKeyActions': instance.hotKeyActions,
   'currentProfileId': instance.currentProfileId,
-  'overrideDns': instance.overrideDns,
   'overrideNtp': instance.overrideNtp,
   'overrideSniffer': instance.overrideSniffer,
   'overrideTunnel': instance.overrideTunnel,

@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:bett_box/enum/enum.dart';
 import 'package:bett_box/models/models.dart';
 
@@ -23,7 +26,9 @@ final _operatorReg = RegExp(
 final _ownerReg = RegExp(
   r'owned by <b>([^<]+)</b> whose web traffic we (?:also )?consider to present a potentially <b>([^<]+)</b>',
 );
-final _deviceReg = RegExp(r'is operating an? ([A-Za-z ]+?), which could be proxying');
+final _deviceReg = RegExp(
+  r'is operating an? ([A-Za-z ]+?), which could be proxying',
+);
 final _warningReg = RegExp(r'there is potentially an? ([a-z ]+?) risk that');
 final _spaceReg = RegExp(r'\s+');
 
@@ -116,6 +121,13 @@ IpRiskLevel _level(String text, int score) {
   };
 }
 
+IpRisk? parseScamalyticsBytes(String ip, List<int> data) {
+  final bytes = data.length > 2 && data[0] == 0x1f && data[1] == 0x8b
+      ? gzip.decode(data)
+      : data;
+  return parseScamalytics(ip, utf8.decode(bytes, allowMalformed: true));
+}
+
 IpRisk? parseScamalytics(String ip, String html) {
   final body = html.replaceAll(_commentReg, '');
   final score = int.tryParse(
@@ -171,6 +183,14 @@ IpRisk? parseScamalytics(String ip, String html) {
         check.hit == true,
   );
   final asn = info['ASN'] ?? '';
+  final region = info['State / Province'] ?? '';
+  final countryCode = IpInfo.normalizeCountryCode(
+    info['Country Code'] ?? '',
+    info['Country Name'],
+    region,
+  );
+  final country =
+      IpInfo.normalizeCountry(info['Country Name'], countryCode, region) ?? '';
   return IpRisk(
     ip: ip,
     score: score.clamp(0, 100),
@@ -179,9 +199,9 @@ IpRisk? parseScamalytics(String ip, String html) {
     asn: asn.isEmpty || asn.startsWith('AS') ? asn : 'AS$asn',
     isp: info['ISP Name'] ?? '',
     organization: info['Organization Name'] ?? '',
-    country: info['Country Name'] ?? '',
-    countryCode: info['Country Code'] ?? '',
-    region: info['State / Province'] ?? '',
+    country: country,
+    countryCode: countryCode,
+    region: region,
     city: info['City'] ?? '',
     checks: [
       for (final check in checks)

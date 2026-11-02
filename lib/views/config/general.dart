@@ -69,7 +69,7 @@ class _UaItemState extends ConsumerState<UaItem> {
       ),
       onTap: () async {
         final notifier = ref.read(patchClashConfigProvider.notifier);
-        final result = await globalState.showCommonDialog<_UaOption>(
+        final result = await globalState.showAdaptiveSheet<_UaOption>(
           child: _UaDialog(isCustom: isCustom),
         );
 
@@ -210,7 +210,7 @@ class TestUrlItem extends ConsumerWidget {
         child: Text(testUrl),
       ),
       onTap: () async {
-        await globalState.showCommonDialog(
+        await globalState.showAdaptiveSheet(
           child: _TestUrlDialog(currentUrl: testUrl),
         );
       },

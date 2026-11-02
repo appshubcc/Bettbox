@@ -467,7 +467,7 @@ class _ScriptsViewState extends ConsumerState<ScriptsView> {
                     onPressed: _handleExportManaged,
                   ),
                   PopupMenuItemData(
-                    emoji: '❤️',
+                    icon: Icons.favorite_border,
                     label: '@AIsouler',
                     onPressed: () => _showHeartBurst(context),
                   ),

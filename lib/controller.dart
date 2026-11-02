@@ -1344,6 +1344,7 @@ class AppController {
   }
 
   Future<void> savePreferences() async {
+    debouncer.cancel(FunctionTag.savePreferences);
     await preferences.saveConfig(globalState.config);
   }
 
@@ -1354,8 +1355,11 @@ class AppController {
     await clashCore.changeProxy(
       ChangeProxyParams(groupName: groupName, proxyName: proxyName),
     );
-    if (_ref.read(appSettingProvider).closeConnections) {
-      await clashCore.closeConnections();
+    final closeConnections = system.isAndroid
+        ? _ref.read(vpnSettingProvider).quickResponse
+        : _ref.read(appSettingProvider).closeConnections;
+    if (closeConnections) {
+      await clashCore.closeGroupConnections(groupName);
     }
     addCheckIp();
   }
@@ -2949,15 +2953,12 @@ class AppController {
       _ref.read(proxiesStyleSettingProvider.notifier).value =
           config.proxiesStyle;
 
-      // 9. Restore DNS override settings
-      _ref.read(overrideDnsProvider.notifier).value = config.overrideDns;
-
-      // 10. Restore hotkey settings (desktop only)
+      // 9. Restore hotkey settings (desktop only)
       if (system.isDesktop) {
         _ref.read(hotKeyActionsProvider.notifier).value = config.hotKeyActions;
       }
 
-      // 11. Restore script settings
+      // 10. Restore script settings
       final scriptIds = config.scriptProps.scripts.map((e) => e.id).toSet();
       final currentScriptProps = _ref.read(scriptStateProvider);
       final localScripts = currentScriptProps.scripts.where(

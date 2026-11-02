@@ -222,25 +222,22 @@ const _$TunDnsModeEnumMap = {
   TunDnsMode.hijack: 'hijack',
 };
 
-_FallbackFilter _$FallbackFilterFromJson(
-  Map<String, dynamic> json,
-) => _FallbackFilter(
-  geoip: json['geoip'] as bool? ?? false,
-  geoipCode: json['geoip-code'] as String? ?? 'CN',
-  ipcidr:
-      (json['ipcidr'] as List<dynamic>?)?.map((e) => e as String).toList() ??
-      const [],
-  domain:
-      (json['domain'] as List<dynamic>?)?.map((e) => e as String).toList() ??
-      const [],
-);
+_FallbackFilter _$FallbackFilterFromJson(Map<String, dynamic> json) =>
+    _FallbackFilter(
+      geoip: json['geoip'] as bool? ?? false,
+      geoipCode: json['geoip-code'] as String? ?? 'CN',
+      ipcidr:
+          (json['ipcidr'] as List<dynamic>?)
+              ?.map((e) => e as String)
+              .toList() ??
+          const [],
+    );
 
 Map<String, dynamic> _$FallbackFilterToJson(_FallbackFilter instance) =>
     <String, dynamic>{
       'geoip': instance.geoip,
       'geoip-code': instance.geoipCode,
       'ipcidr': instance.ipcidr,
-      'domain': instance.domain,
     };
 
 _Dns _$DnsFromJson(Map<String, dynamic> json) => _Dns(
@@ -253,7 +250,7 @@ _Dns _$DnsFromJson(Map<String, dynamic> json) => _Dns(
   useHosts: json['use-hosts'] as bool? ?? true,
   useSystemHosts: json['use-system-hosts'] as bool? ?? true,
   respectRules: json['respect-rules'] as bool? ?? false,
-  ipv6: json['ipv6'] as bool? ?? false,
+  ipv6: json['ipv6'] as bool? ?? true,
   defaultNameserver:
       (json['default-nameserver'] as List<dynamic>?)
           ?.map((e) => e as String)
@@ -273,10 +270,11 @@ _Dns _$DnsFromJson(Map<String, dynamic> json) => _Dns(
           .toList() ??
       const [
         '*',
-        'geosite:private',
-        'geosite:category-ntp',
-        'geosite:geolocation-cn',
-        'geosite:connectivity-check',
+        'rule-set:private_bettbox',
+        'rule-set:fakeip-filter_bettbox',
+        'rule-set:category-ntp_bettbox',
+        'rule-set:cn_bettbox',
+        'rule-set:connectivity-check_bettbox',
       ],
   fakeIpTtl: (json['fake-ip-ttl'] as num?)?.toInt() ?? 1,
   nameserverPolicy:
@@ -284,9 +282,8 @@ _Dns _$DnsFromJson(Map<String, dynamic> json) => _Dns(
         (k, e) => MapEntry(k, e as String),
       ) ??
       const {
-        '+.internal.corp.com': '10.0.0.1',
-        'geosite:cn': '119.29.29.29',
-        'geosite:private': 'system',
+        'rule-set:cn_bettbox': '119.29.29.29',
+        'rule-set:private_bettbox': 'system',
         '*': 'system',
       },
   nameserver:
@@ -364,7 +361,7 @@ const _$FilterModeEnumMap = {
 _Ntp _$NtpFromJson(Map<String, dynamic> json) => _Ntp(
   enable: json['enable'] as bool? ?? true,
   writeToSystem: json['write-to-system'] as bool? ?? false,
-  server: json['server'] as String? ?? 'time.apple.com',
+  server: json['server'] as String? ?? defaultNtpServer,
   port: (json['port'] as num?)?.toInt() ?? 123,
   interval: (json['interval'] as num?)?.toInt() ?? 60,
 );
@@ -469,7 +466,7 @@ _ClashConfig _$ClashConfigFromJson(Map<String, dynamic> json) => _ClashConfig(
   logLevel:
       $enumDecodeNullable(_$LogLevelEnumMap, json['log-level']) ??
       LogLevel.error,
-  ipv6: json['ipv6'] as bool? ?? false,
+  ipv6: json['ipv6'] as bool? ?? true,
   findProcessMode:
       $enumDecodeNullable(
         _$FindProcessModeEnumMap,

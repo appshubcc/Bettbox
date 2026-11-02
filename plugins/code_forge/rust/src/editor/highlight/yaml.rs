@@ -1,5 +1,6 @@
-//! The YAML grammar of highlight.js as re_highlight 0.0.3 ships it, one line
-//! at a time: every rule below is one of its modes, tried in its order.
+//! The YAML grammar of the editor (`editorYamlMode`, built on the one
+//! re_highlight 0.0.3 ships), one line at a time: every rule below is one of
+//! its modes, tried in its order.
 
 use super::*;
 
@@ -176,6 +177,106 @@ fn key(line: &Line, at: usize, keyless: &mut usize) -> Option<usize> {
     .then_some(end + 2)
 }
 
+/// Whether `(?<=^[ \t]*(?:-[ \t]+)*)` matches here.
+fn after_indent(line: &Line, at: usize) -> bool {
+    let chars = &line.chars;
+    let mut start = at;
+    while start > 0 && matches!(chars[start - 1], ' ' | '\t' | '-') {
+        start -= 1;
+    }
+    if !line.starts_at(start) {
+        return false;
+    }
+    let blank = |index: usize| matches!(chars[index], ' ' | '\t');
+    let mut index = start;
+    while index < at && blank(index) {
+        index += 1;
+    }
+    while index < at {
+        if chars[index] != '-' || index + 1 == at || !blank(index + 1) {
+            return false;
+        }
+        index += 1;
+        while index < at && blank(index) {
+            index += 1;
+        }
+    }
+    true
+}
+
+fn block_key(line: &Line, at: usize) -> Option<usize> {
+    if !after_indent(line, at) {
+        return None;
+    }
+    let chars = &line.chars;
+    let len = chars.len();
+    let quoted_key = |close: usize| {
+        (close < len && line.at(close + 1) == Some(':') && ends_key(line, close + 1))
+            .then_some(close + 2)
+    };
+    let mut index = at + 1;
+    match chars[at] {
+        '"' => {
+            while index < len && chars[index] != '"' {
+                if chars[index] == '\\' {
+                    if index + 1 == len || is_line_terminator(chars[index + 1]) {
+                        return None;
+                    }
+                    index += 1;
+                }
+                index += 1;
+            }
+            quoted_key(index)
+        }
+        '\'' => {
+            while index < len {
+                if chars[index] == '\'' {
+                    if line.at(index + 1) != Some('\'') {
+                        break;
+                    }
+                    index += 1;
+                }
+                index += 1;
+            }
+            quoted_key(index)
+        }
+        first
+            if is_space(first)
+                || matches!(
+                    first,
+                    '-' | '?'
+                        | ':'
+                        | ','
+                        | '['
+                        | ']'
+                        | '{'
+                        | '}'
+                        | '#'
+                        | '&'
+                        | '*'
+                        | '!'
+                        | '|'
+                        | '>'
+                        | '%'
+                        | '@'
+                        | '`'
+                ) =>
+        {
+            None
+        }
+        _ => {
+            while index < len {
+                match chars[index] {
+                    '#' | '{' | '}' | '[' | ']' => return None,
+                    ':' if ends_key(line, index) => return Some(index + 1),
+                    _ => index += 1,
+                }
+            }
+            None
+        }
+    }
+}
+
 fn document_marker(line: &Line, at: usize) -> Option<usize> {
     let chars = &line.chars;
     if !line.starts_at(at)
@@ -290,19 +391,29 @@ fn starts_with(line: &Line, at: usize, word: &str) -> bool {
     true
 }
 
-/// `([eE][-+]?\d+)?\b` from `at`, the exponent first and then without it.
+/// `\b(?=[\s,\]}]|$)`
+#[inline(always)]
+fn number_ends(line: &Line, at: usize) -> bool {
+    boundary(line, at)
+        && line
+            .at(at)
+            .map_or(true, |ch| is_space(ch) || matches!(ch, ',' | ']' | '}'))
+}
+
+/// `([eE][-+]?\d+)?\b(?=[\s,\]}]|$)` from `at`, the exponent first and then
+/// without it.
 fn number_end(line: &Line, at: usize) -> Option<usize> {
     if matches!(line.at(at), Some('e' | 'E')) {
         let sign = at + 1 + usize::from(matches!(line.at(at + 1), Some('-' | '+')));
         let end = digits(line, sign);
-        if end > sign && boundary(line, end) {
+        if end > sign && number_ends(line, end) {
             return Some(end);
         }
     }
-    boundary(line, at).then_some(at)
+    number_ends(line, at).then_some(at)
 }
 
-/// `(-?)(\b0[xX][a-fA-F0-9]+|(\b\d+(\.\d*)?|\.\d+)([eE][-+]?\d+)?)\b`
+/// `(-?)(\b0[xX][a-fA-F0-9]+|(\b\d+(\.\d*)?|\.\d+)([eE][-+]?\d+)?)\b(?=[\s,\]}]|$)`
 fn number(line: &Line, at: usize) -> Option<usize> {
     let chars = &line.chars;
     let start = at + usize::from(chars[at] == '-');
@@ -312,7 +423,7 @@ fn number(line: &Line, at: usize) -> Option<usize> {
         }
         if chars[start] == '0' && matches!(line.at(start + 1), Some('x' | 'X')) {
             let end = run(line, start + 2, |ch| ch.is_ascii_hexdigit());
-            if end > start + 2 && boundary(line, end) {
+            if end > start + 2 && number_ends(line, end) {
                 return Some(end);
             }
         }
@@ -734,7 +845,12 @@ pub fn highlight(text: &str) -> Vec<u32> {
                 continue;
             }
         }
-        if let Some(end) = key(&line, at, &mut keyless) {
+        let attr = if containers.is_empty() {
+            block_key(&line, at)
+        } else {
+            key(&line, at, &mut keyless)
+        };
+        if let Some(end) = attr {
             line.emit(ATTR, at, end);
             at = end;
             continue;
@@ -759,8 +875,18 @@ pub fn highlight(text: &str) -> Vec<u32> {
             continue;
         }
         if ch == '#' {
-            at = comment(&mut line, at);
-            continue;
+            if !containers.is_empty() {
+                at = comment(&mut line, at);
+                continue;
+            }
+            if at == 0 || is_space(line.chars[at - 1]) {
+                let end = (at + 1..=len)
+                    .find(|&index| line.ends_at(index))
+                    .unwrap_or(len);
+                line.emit(COMMENT, at, end);
+                at = end;
+                continue;
+            }
         }
         if let Some(end) = literal(&line, at) {
             if at == 0 || line.chars[at - 1] != '.' {

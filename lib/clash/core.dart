@@ -278,12 +278,29 @@ class ClashCore {
     }
   }
 
-  Future<ConnectionsSummary> getConnectionsSummary() async {
+  ConnectionsSummary _connectionsSummary = const ConnectionsSummary();
+  DateTime? _connectionsSummaryAt;
+
+  Future<ConnectionsSummary> getConnectionsSummary({Duration? maxAge}) async {
+    final at = _connectionsSummaryAt;
+    if (maxAge != null &&
+        at != null &&
+        DateTime.now().difference(at) < maxAge) {
+      return _connectionsSummary;
+    }
     final res = await clashInterface.getConnectionsSummary();
-    if (res.isEmpty) return const ConnectionsSummary();
-    final decoded = json.decode(res);
-    if (decoded is! Map) return const ConnectionsSummary();
-    return ConnectionsSummary.fromJson(Map<String, Object?>.from(decoded));
+    var summary = const ConnectionsSummary();
+    if (res.isNotEmpty) {
+      final decoded = json.decode(res);
+      if (decoded is Map) {
+        summary = ConnectionsSummary.fromJson(
+          Map<String, Object?>.from(decoded),
+        );
+      }
+    }
+    _connectionsSummary = summary;
+    _connectionsSummaryAt = DateTime.now();
+    return summary;
   }
 
   void _forget(FutureOr<Object?> request, String name) {
@@ -303,6 +320,10 @@ class ClashCore {
 
   Future<void> closeConnections() async {
     await clashInterface.closeConnections();
+  }
+
+  Future<void> closeGroupConnections(String groupName) async {
+    await clashInterface.closeGroupConnections(groupName);
   }
 
   void resetConnections() {
@@ -713,6 +734,39 @@ class ClashCore {
 
   Future<void> clearTrafficStats() async {
     await clashInterface.toolboxInvoke(ActionMethod.clearTrafficStats);
+  }
+
+  Future<String> storeGet(StoreSpace space, String key) =>
+      clashInterface.toolboxInvoke(
+        ActionMethod.storeGet,
+        data: json.encode({'ns': space.name, 'key': key}),
+      );
+
+  Future<bool> storeSet(
+    StoreSpace space,
+    String key,
+    Object data, {
+    int? time,
+  }) async =>
+      await clashInterface.toolboxInvoke(
+        ActionMethod.storeSet,
+        data: json.encode({
+          'ns': space.name,
+          'key': key,
+          'data': data,
+          'time': ?time,
+        }),
+      ) ==
+      'true';
+
+  Future<String> storeList(StoreSpace space) =>
+      clashInterface.toolboxInvoke(ActionMethod.storeList, data: space.name);
+
+  Future<void> storeClear(StoreSpace space) async {
+    await clashInterface.toolboxInvoke(
+      ActionMethod.storeClear,
+      data: space.name,
+    );
   }
 
   Future<int> startToolProxy() async {

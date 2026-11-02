@@ -77,6 +77,27 @@ class InfoHeader extends StatelessWidget {
   }
 }
 
+const _lightShadows = [
+  BoxShadow(color: Color(0x0D000000), offset: Offset(0, 0.5)),
+  BoxShadow(color: Color(0x0A000000), offset: Offset(0, 2), blurRadius: 4),
+  BoxShadow(
+    color: Color(0x14000000),
+    offset: Offset(0, 10),
+    blurRadius: 26,
+    spreadRadius: -6,
+  ),
+];
+
+const _darkShadows = [
+  BoxShadow(color: Color(0x80000000), offset: Offset(0, 1)),
+  BoxShadow(
+    color: Color(0x80000000),
+    offset: Offset(0, 8),
+    blurRadius: 22,
+    spreadRadius: -6,
+  ),
+];
+
 class CommonCard extends StatelessWidget {
   const CommonCard({
     super.key,
@@ -111,6 +132,7 @@ class CommonCard extends StatelessWidget {
   // final WidgetStateProperty<BorderSide?>? borderSide;
 
   BorderSide getBorderSide(BuildContext context, Set<WidgetState> states) {
+    if (elevated && !isSelected) return BorderSide.none;
     final colorScheme = context.colorScheme;
     final hoverColor = isSelected
         ? colorScheme.primary.opacity80
@@ -153,7 +175,7 @@ class CommonCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final actualRadius = radius ?? 20.0;
+    final actualRadius = radius ?? 24.0;
     var childWidget = child;
 
     if (info != null) {
@@ -206,13 +228,7 @@ class CommonCard extends StatelessWidget {
       card = DecoratedBox(
         decoration: ShapeDecoration(
           shape: shape,
-          shadows: [
-            BoxShadow(
-              blurRadius: 10,
-              offset: const Offset(0, 2),
-              color: Colors.black.withValues(alpha: isLight ? 0.045 : 0.25),
-            ),
-          ],
+          shadows: isLight ? _lightShadows : _darkShadows,
         ),
         child: card,
       );

@@ -8,9 +8,6 @@ import 'dialog.dart';
 
 const _riskGradient = [Colors.green, Color(0xFFC57F0A), Colors.red];
 
-String ipRiskUrl(String ip) =>
-    'https://scamalytics.com/ip/${Uri.encodeComponent(ip)}';
-
 extension IpRiskLevelExt on IpRiskLevel {
   String get label => switch (this) {
     IpRiskLevel.low => appLocalizations.ipRiskLow,
@@ -57,27 +54,18 @@ Color _tone(BuildContext context, Color color) {
 }
 
 class IpRiskSource extends StatelessWidget {
-  final VoidCallback onTap;
-
-  const IpRiskSource({super.key, required this.onTap});
+  const IpRiskSource({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Align(
       alignment: Alignment.centerRight,
-      child: MouseRegion(
-        cursor: SystemMouseCursors.click,
-        child: GestureDetector(
-          behavior: HitTestBehavior.opaque,
-          onTap: onTap,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 4),
-            child: Text(
-              '${appLocalizations.ipRiskSource} Scamalytics',
-              style: context.textTheme.labelSmall?.copyWith(
-                color: context.colorScheme.outline,
-              ),
-            ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 4),
+        child: Text(
+          '${appLocalizations.ipRiskSource} Scamalytics',
+          style: context.textTheme.labelSmall?.copyWith(
+            color: context.colorScheme.outline,
           ),
         ),
       ),
@@ -517,7 +505,7 @@ class IpRiskNoteView extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
             decoration: BoxDecoration(
               color: colorScheme.onSurface.withValues(alpha: 0.05),
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(20),
             ),
             child: Column(children: rows),
           ),
@@ -527,8 +515,8 @@ class IpRiskNoteView extends StatelessWidget {
           Container(
             padding: const EdgeInsets.fromLTRB(10, 8, 12, 8),
             decoration: BoxDecoration(
-              color: colorScheme.error.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(12),
+              color: colorScheme.error.withValues(alpha: 0.16),
+              borderRadius: BorderRadius.circular(16),
             ),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,

@@ -122,39 +122,27 @@ class _ThemeModeItem extends ConsumerWidget {
         label: appLocalizations.themeMode,
         iconData: Icons.brightness_high,
       ),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        height: 56,
-        child: ListView.separated(
-          scrollDirection: Axis.horizontal,
-          itemCount: themeModeItems.length,
-          itemBuilder: (_, index) {
-            final themeModeItem = themeModeItems[index];
-            return CommonCard(
-              isSelected: themeModeItem.themeMode == themeMode,
-              onPressed: () {
-                ref
-                    .read(themeSettingProvider.notifier)
-                    .updateState(
-                      (state) =>
-                          state.copyWith(themeMode: themeModeItem.themeMode),
-                    );
-              },
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    Flexible(child: Icon(themeModeItem.iconData)),
-                    const SizedBox(width: 8),
-                    Flexible(child: Text(themeModeItem.label)),
-                  ],
-                ),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
+        child: SegmentedButton<ThemeMode>(
+          showSelectedIcon: false,
+          expandedInsets: EdgeInsets.zero,
+          segments: [
+            for (final item in themeModeItems)
+              ButtonSegment(
+                value: item.themeMode,
+                icon: Icon(item.iconData),
+                label: Text(item.label),
               ),
-            );
+          ],
+          selected: {themeMode},
+          onSelectionChanged: (selection) {
+            ref
+                .read(themeSettingProvider.notifier)
+                .updateState(
+                  (state) => state.copyWith(themeMode: selection.first),
+                );
           },
-          separatorBuilder: (_, _) => const SizedBox(width: 16),
         ),
       ),
     );
@@ -183,7 +171,7 @@ class _PrimaryColorItemState extends ConsumerState<_PrimaryColorItem> {
     ref.read(themeSettingProvider.notifier).updateState((state) {
       return state.copyWith(
         primaryColors: defaultPrimaryColors,
-        primaryColor: defaultPrimaryColor,
+        primaryColor: null,
         schemeVariant: DynamicSchemeVariant.content,
       );
     });
@@ -241,7 +229,7 @@ class _PrimaryColorItemState extends ConsumerState<_PrimaryColorItem> {
     final schemeVariant = ref.read(
       themeSettingProvider.select((state) => state.schemeVariant),
     );
-    final value = await globalState.showCommonDialog<DynamicSchemeVariant>(
+    final value = await globalState.showAdaptiveSheet<DynamicSchemeVariant>(
       child: OptionsDialog<DynamicSchemeVariant>(
         title: appLocalizations.colorSchemes,
         options: DynamicSchemeVariant.values,
@@ -265,22 +253,25 @@ class _PrimaryColorItemState extends ConsumerState<_PrimaryColorItem> {
           state.primaryColor,
           state.primaryColors,
           state.schemeVariant,
-          state.primaryColor == defaultPrimaryColor &&
+          state.primaryColor == null &&
               intListEquality.equals(state.primaryColors, defaultPrimaryColors),
         ),
       ),
     );
     final primaryColors = <int?>[null, ...rawPrimaryColors];
+    final isDynamic = primaryColor == null && globalState.corePalette != null;
 
     return ItemCard(
       info: Info(label: appLocalizations.themeColor, iconData: Icons.palette),
       actions: genActions([
         FilledButton(
           style: const ButtonStyle(visualDensity: VisualDensity.compact),
-          onPressed: primaryColor == null && globalState.corePalette != null
-              ? null
-              : _handleChangeSchemeVariant,
-          child: Text(Intl.message('${schemeVariant.name}Scheme')),
+          onPressed: isDynamic ? null : _handleChangeSchemeVariant,
+          child: Text(
+            isDynamic
+                ? appLocalizations.dynamicColor
+                : Intl.message('${schemeVariant.name}Scheme'),
+          ),
         ),
         if (!isEquals)
           IconButton.filledTonal(

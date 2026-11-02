@@ -589,7 +589,7 @@ class TrackerInfoDetailView extends ConsumerWidget {
                   child: InkWell(
                     borderRadius: BorderRadius.circular(6),
                     onTap: () {
-                      showIpDetailDialog(context, ip);
+                      showIpDetailDialog(context, ip, followRiskSetting: false);
                     },
                     child: Padding(
                       padding: const EdgeInsets.symmetric(

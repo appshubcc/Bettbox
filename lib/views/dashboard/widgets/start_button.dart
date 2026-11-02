@@ -28,8 +28,8 @@ class _StartButtonState extends ConsumerState<StartButton> {
 
   void _handleStart() async {
     if (_isDisabled) return;
-    final isStart = ref.read(runTimeProvider) != null;
-    final newState = !isStart;
+    final newState =
+        ref.read(isSmartStoppedProvider) || ref.read(runTimeProvider) == null;
     setState(() {
       _isDisabled = true;
       _optimisticStart = newState;
@@ -53,25 +53,9 @@ class _StartButtonState extends ConsumerState<StartButton> {
     final isStart = ref.read(runTimeProvider) != null;
     if (!isStart) return;
 
-    final result = await globalState.showCommonDialog<bool>(
-      child: CommonDialog(
-        title: appLocalizations.restartCoreTitle,
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(context, rootNavigator: true).pop(false);
-            },
-            child: Text(appLocalizations.cancel),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.of(context, rootNavigator: true).pop(true);
-            },
-            child: Text(appLocalizations.confirm),
-          ),
-        ],
-        child: Text(appLocalizations.restartCoreDesc),
-      ),
+    final result = await globalState.showMessage(
+      title: appLocalizations.restartCoreTitle,
+      message: TextSpan(text: appLocalizations.restartCoreDesc),
     );
 
     if (result == true) {
@@ -174,8 +158,7 @@ class _StartButtonState extends ConsumerState<StartButton> {
     final isRestarting = ref.watch(isRestartingCoreProvider);
     final isStart = ref.watch(runTimeProvider.select((time) => time != null));
     final displayStart = isSmartStopped ? false : (_optimisticStart ?? isStart);
-    final canPress =
-        state.isInit && state.hasProfile && !_isDisabled && !isSmartStopped;
+    final canPress = state.isInit && state.hasProfile && !_isDisabled;
     final hasNoProfile =
         state.isInit && !state.hasProfile && !_isDisabled && !isSmartStopped;
     final colorScheme = context.colorScheme;
@@ -194,7 +177,7 @@ class _StartButtonState extends ConsumerState<StartButton> {
         : hasNoProfile
         ? _handleShowAddProfile
         : null;
-    final onLongPress = canPress ? _handleLongPress : null;
+    final onLongPress = canPress && !isSmartStopped ? _handleLongPress : null;
     return DashboardTileCard(
       size: size,
       info: Info(
@@ -295,8 +278,7 @@ class _StartButtonState extends ConsumerState<StartButton> {
     if (widget.size case final size?) return _buildTile(context, size);
     final state = ref.watch(startButtonSelectorStateProvider);
     final isSmartStopped = ref.watch(isSmartStoppedProvider);
-    final canPress =
-        state.isInit && state.hasProfile && !_isDisabled && !isSmartStopped;
+    final canPress = state.isInit && state.hasProfile && !_isDisabled;
     final hasNoProfile =
         state.isInit && !state.hasProfile && !_isDisabled && !isSmartStopped;
     final isRestarting = ref.watch(isRestartingCoreProvider);
@@ -321,7 +303,7 @@ class _StartButtonState extends ConsumerState<StartButton> {
             : hasNoProfile
             ? _handleShowAddProfile
             : null,
-        onLongPress: canPress ? _handleLongPress : null,
+        onLongPress: canPress && !isSmartStopped ? _handleLongPress : null,
         child: Container(
           padding: baseInfoEdgeInsets.copyWith(top: 0),
           child: Column(

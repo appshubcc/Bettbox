@@ -48,7 +48,7 @@ final class ConfigStateProvider
   }
 }
 
-String _$configStateHash() => r'b0aa77171dbc3e64cbab73861a2dd98569c673fb';
+String _$configStateHash() => r'686e7078aee130b5cef1d5728d9fa5319534fd12';
 
 @ProviderFor(currentGroupsState)
 final currentGroupsStateProvider = CurrentGroupsStateProvider._();
@@ -661,7 +661,7 @@ final class VisibleGroupsStateProvider
 }
 
 String _$visibleGroupsStateHash() =>
-    r'c178223b671e554108b3127fb290bcd312eae609';
+    r'1425229f50a0628cdf37ed89813b8cf96e2f5f5d';
 
 @ProviderFor(filterGroupsState)
 final filterGroupsStateProvider = FilterGroupsStateFamily._();
@@ -720,7 +720,7 @@ final class FilterGroupsStateProvider
   }
 }
 
-String _$filterGroupsStateHash() => r'79b9f61c5be845ea5f14d4cc99b82b4883c4feb6';
+String _$filterGroupsStateHash() => r'8afbff336cb27dcf968f4d20e7feff569e3a3f24';
 
 final class FilterGroupsStateFamily extends $Family
     with $FunctionalFamilyOverride<GroupsState, String> {
@@ -2425,7 +2425,7 @@ final class GenColorSchemeProvider
   }
 }
 
-String _$genColorSchemeHash() => r'b403acf45af1aa48c94d103dde83191a7fbc1d27';
+String _$genColorSchemeHash() => r'7d729f2237908bf8a5c1d3b7a182ef22d60591e7';
 
 final class GenColorSchemeFamily extends $Family
     with
@@ -2497,17 +2497,60 @@ final class CurrentProfileScriptProvider
 String _$currentProfileScriptHash() =>
     r'2dee96513396788b81b67296af450440e1433859';
 
+@ProviderFor(currentProfileScriptActive)
+final currentProfileScriptActiveProvider =
+    CurrentProfileScriptActiveProvider._();
+
+final class CurrentProfileScriptActiveProvider
+    extends $FunctionalProvider<bool, bool, bool>
+    with $Provider<bool> {
+  CurrentProfileScriptActiveProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'currentProfileScriptActiveProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$currentProfileScriptActiveHash();
+
+  @$internal
+  @override
+  $ProviderElement<bool> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  bool create(Ref ref) {
+    return currentProfileScriptActive(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(bool value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<bool>(value),
+    );
+  }
+}
+
+String _$currentProfileScriptActiveHash() =>
+    r'bece7356f9e4608d113ff8a296baf67101685676';
+
 @ProviderFor(needSetup)
 final needSetupProvider = NeedSetupProvider._();
 
 final class NeedSetupProvider
     extends
         $FunctionalProvider<
-          VM4<String?, String?, Dns?, String?>,
-          VM4<String?, String?, Dns?, String?>,
-          VM4<String?, String?, Dns?, String?>
+          VM4<String?, String?, String?, bool>,
+          VM4<String?, String?, String?, bool>,
+          VM4<String?, String?, String?, bool>
         >
-    with $Provider<VM4<String?, String?, Dns?, String?>> {
+    with $Provider<VM4<String?, String?, String?, bool>> {
   NeedSetupProvider._()
     : super(
         from: null,
@@ -2524,26 +2567,26 @@ final class NeedSetupProvider
 
   @$internal
   @override
-  $ProviderElement<VM4<String?, String?, Dns?, String?>> $createElement(
+  $ProviderElement<VM4<String?, String?, String?, bool>> $createElement(
     $ProviderPointer pointer,
   ) => $ProviderElement(pointer);
 
   @override
-  VM4<String?, String?, Dns?, String?> create(Ref ref) {
+  VM4<String?, String?, String?, bool> create(Ref ref) {
     return needSetup(ref);
   }
 
   /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(VM4<String?, String?, Dns?, String?> value) {
+  Override overrideWithValue(VM4<String?, String?, String?, bool> value) {
     return $ProviderOverride(
       origin: this,
       providerOverride:
-          $SyncValueProvider<VM4<String?, String?, Dns?, String?>>(value),
+          $SyncValueProvider<VM4<String?, String?, String?, bool>>(value),
     );
   }
 }
 
-String _$needSetupHash() => r'bdb9d13a527429ca00c05b899560d6347fa7db66';
+String _$needSetupHash() => r'd19ca776ae1dcdeb61cd006750a1fd6135e3e9cd';
 
 @ProviderFor(currentBrightness)
 final currentBrightnessProvider = CurrentBrightnessProvider._();

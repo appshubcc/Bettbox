@@ -3,6 +3,7 @@ import 'package:bett_box/enum/enum.dart';
 import 'package:bett_box/providers/app.dart';
 import 'package:bett_box/providers/config.dart';
 import 'package:bett_box/widgets/widgets.dart';
+import 'package:bett_box/state.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -76,12 +77,8 @@ class ProxiesSetting extends StatelessWidget {
                       onPressed: () {
                         ref
                             .read(proxiesStyleSettingProvider.notifier)
-                            .updateState((state) {
-                              return state.copyWith(
-                                type: item,
-                                hasCustomizedStyle: true,
-                              );
-                            });
+                            .updateState((state) => state.copyWith(type: item));
+                        globalState.appController.applyListIconStyle();
                       },
                     ),
                 ],

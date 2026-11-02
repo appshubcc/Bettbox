@@ -2,6 +2,7 @@ import 'package:bett_box/clash/clash.dart';
 import 'package:bett_box/common/common.dart';
 import 'package:bett_box/enum/enum.dart';
 import 'package:bett_box/models/models.dart';
+import 'package:bett_box/pages/editor.dart';
 import 'package:bett_box/providers/providers.dart';
 import 'package:bett_box/state.dart';
 import 'package:bett_box/widgets/widgets.dart';
@@ -85,7 +86,7 @@ class _MrsLookupPageState extends ConsumerState<MrsLookupPage>
         IconButton(
           tooltip: appLocalizations.settings,
           onPressed: () =>
-              globalState.showCommonDialog(child: const _MrsSettingsDialog()),
+              globalState.showAdaptiveSheet(child: const _MrsSettingsDialog()),
           icon: const Icon(Icons.settings_outlined),
         ),
       ],
@@ -232,10 +233,9 @@ class _MrsSettingsDialog extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final (copyRaw, source, resolve) = ref.watch(
+    final (tapAction, resolve) = ref.watch(
       appSettingProvider.select(
-        (state) =>
-            (state.mrsCopyRawLink, state.mrsRawSource, state.mrsResolveDns),
+        (state) => (state.mrsTapAction, state.mrsResolveDns),
       ),
     );
     void update(AppSettingProps Function(AppSettingProps state) builder) =>
@@ -246,31 +246,21 @@ class _MrsSettingsDialog extends ConsumerWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          ListItem.switchItem(
-            title: Text(appLocalizations.mrsCopyRawLink),
-            delegate: SwitchDelegate(
-              value: copyRaw,
-              onChanged: (value) =>
-                  update((state) => state.copyWith(mrsCopyRawLink: value)),
+          ListItem(
+            title: Text(appLocalizations.mrsTapAction),
+            subtitle: Padding(
+              padding: const EdgeInsets.only(top: 10, bottom: 4),
+              child: ToolSegmented<MrsTapAction>(
+                values: MrsTapAction.values,
+                value: tapAction,
+                labelOf: (item) => switch (item) {
+                  MrsTapAction.viewRules => appLocalizations.mrsViewRules,
+                  MrsTapAction.copyUrl => appLocalizations.mrsCopyUrl,
+                },
+                onChanged: (value) =>
+                    update((state) => state.copyWith(mrsTapAction: value)),
+              ),
             ),
-          ),
-          AnimatedSize(
-            duration: const Duration(milliseconds: 220),
-            curve: Curves.easeOutCubic,
-            alignment: Alignment.topCenter,
-            child: copyRaw
-                ? Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 2, 16, 10),
-                    child: ToolSegmented<MrsRawSource>(
-                      values: MrsRawSource.values,
-                      value: source,
-                      labelOf: (item) => item.label,
-                      onChanged: (value) => update(
-                        (state) => state.copyWith(mrsRawSource: value),
-                      ),
-                    ),
-                  )
-                : const SizedBox(width: double.infinity),
           ),
           ListItem.switchItem(
             title: Text(appLocalizations.mrsResolveDns),
@@ -292,12 +282,33 @@ class _MatchList extends ConsumerWidget {
 
   const _MatchList({required this.matches});
 
+  Future<void> _viewRules(BuildContext context, MrsMatch match) async {
+    await globalState.appController.safeRun(() async {
+      final content = await clashCore.mrsDump(match.file);
+      if (content.isEmpty) throw appLocalizations.mrsPrepareFailed;
+      if (!context.mounted) return;
+      BaseNavigator.push(
+        context,
+        EditorPage(
+          title: '${match.kind.toUpperCase()},${match.name}',
+          content: content,
+          readOnly: true,
+          simple: true,
+        ),
+        maintainState: false,
+      );
+    }, needLoading: true);
+  }
+
+  void _copyUrl(BuildContext context, MrsMatch match) {
+    Clipboard.setData(ClipboardData(text: '$bundleMRSRawUrl${match.file}'));
+    context.showNotifier(appLocalizations.copySuccess);
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final (copyRaw, source) = ref.watch(
-      appSettingProvider.select(
-        (state) => (state.mrsCopyRawLink, state.mrsRawSource),
-      ),
+    final tapAction = ref.watch(
+      appSettingProvider.select((state) => state.mrsTapAction),
     );
     final colorScheme = context.colorScheme;
     final textTheme = context.textTheme;
@@ -315,15 +326,9 @@ class _MatchList extends ConsumerWidget {
               ),
             InkWell(
               focusColor: toolFocusColor(context),
-              onTap: () {
-                Clipboard.setData(
-                  ClipboardData(
-                    text: copyRaw
-                        ? '${source.baseUrl}${match.file}'
-                        : '${match.kind.toUpperCase()},${match.name}',
-                  ),
-                );
-                context.showNotifier(appLocalizations.copySuccess);
+              onTap: () => switch (tapAction) {
+                MrsTapAction.viewRules => _viewRules(context, match),
+                MrsTapAction.copyUrl => _copyUrl(context, match),
               },
               child: Padding(
                 padding: const EdgeInsets.symmetric(
@@ -385,6 +390,17 @@ class _MatchList extends ConsumerWidget {
                           ),
                         ),
                       ),
+                    Padding(
+                      padding: const EdgeInsetsDirectional.only(start: 8),
+                      child: Icon(
+                        switch (tapAction) {
+                          MrsTapAction.viewRules => Icons.chevron_right_rounded,
+                          MrsTapAction.copyUrl => Icons.link_rounded,
+                        },
+                        size: 18,
+                        color: colorScheme.onSurfaceVariant,
+                      ),
+                    ),
                   ],
                 ),
               ),

@@ -49,15 +49,30 @@ extension StringExtension on String {
     return bom + byteData.buffer.asUint8List();
   }
 
+  static final _base64Pattern = RegExp(r'base64,(.*)');
+  static const _maxCachedBase64 = 64;
+  static final _base64Cache = <String, Uint8List>{};
+
   Uint8List? get getBase64 {
-    final regExp = RegExp(r'base64,(.*)');
-    final match = regExp.firstMatch(this);
+    if (!contains('base64,')) {
+      return null;
+    }
+    final cached = _base64Cache.remove(this);
+    if (cached != null) {
+      _base64Cache[this] = cached;
+      return cached;
+    }
+    final match = _base64Pattern.firstMatch(this);
     final realValue = match?.group(1) ?? '';
     if (realValue.isEmpty) {
       return null;
     }
     try {
-      return base64.decode(realValue);
+      final bytes = base64.decode(realValue);
+      if (_base64Cache.length >= _maxCachedBase64) {
+        _base64Cache.remove(_base64Cache.keys.first);
+      }
+      return _base64Cache[this] = bytes;
     } catch (e) {
       return null;
     }

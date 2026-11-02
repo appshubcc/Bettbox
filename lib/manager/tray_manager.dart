@@ -86,7 +86,7 @@ class _TrayContainerState extends ConsumerState<TrayManager> with TrayListener {
 
   @override
   void onTrayMenuItemClick(MenuItem menuItem) {
-    if (menuItem.submenu != null) return;
+    if (menuItem.submenu != null || trayManager.isMenuOpen) return;
     if (globalState.backgroundMode.value) {
       globalState.appController.updateTray(false, false, true);
     }
@@ -94,9 +94,15 @@ class _TrayContainerState extends ConsumerState<TrayManager> with TrayListener {
 
   @override
   void onTrayMenuClose() {
-    if (!tray.showHiddenGroups || trayManager.isMenuOpen) return;
-    tray.showHiddenGroups = false;
-    globalState.appController.updateTray(false, false, true);
+    if (trayManager.isMenuOpen) return;
+    if (tray.showHiddenGroups) {
+      tray.showHiddenGroups = false;
+      globalState.appController.updateTray(false, false, true);
+      return;
+    }
+    if (trayManager.isMenuOutdated) {
+      globalState.appController.updateTray();
+    }
   }
 
   @override

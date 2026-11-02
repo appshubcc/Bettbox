@@ -260,7 +260,7 @@ class _ConnectionsViewState extends ConsumerState<ConnectionsView>
   Future<void> _handleSort() async {
     final currentSortType = ref.read(connectionsSortProvider);
     final selectedSortType = await globalState
-        .showCommonDialog<ConnectionsSortType>(
+        .showAdaptiveSheet<ConnectionsSortType>(
           child: OptionsDialog<ConnectionsSortType>(
             title: appLocalizations.connectionsSort,
             options: ConnectionsSortType.values

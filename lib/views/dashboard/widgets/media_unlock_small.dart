@@ -80,7 +80,7 @@ class _MediaUnlockSmallState extends ConsumerState<MediaUnlockSmall> {
     final Widget icon;
     if (platform.isMonochrome) {
       icon = SvgPicture.asset(
-        'assets/images/platforms/${platform.name}.svg',
+        'assets/svg/${platform.icon}',
         width: iconSize.width.ap,
         height: iconSize.height.ap,
         fit: BoxFit.contain,
@@ -91,7 +91,7 @@ class _MediaUnlockSmallState extends ConsumerState<MediaUnlockSmall> {
       );
     } else if (colorfulIcons) {
       icon = SvgPicture.asset(
-        'assets/images/platforms/${platform.name}.svg',
+        'assets/svg/${platform.icon}',
         width: iconSize.width.ap,
         height: iconSize.height.ap,
         fit: BoxFit.contain,
@@ -100,7 +100,7 @@ class _MediaUnlockSmallState extends ConsumerState<MediaUnlockSmall> {
       icon = ColorFiltered(
         colorFilter: monochromeColorFilter,
         child: SvgPicture.asset(
-          'assets/images/platforms/${platform.name}.svg',
+          'assets/svg/${platform.icon}',
           width: iconSize.width.ap,
           height: iconSize.height.ap,
           fit: BoxFit.contain,

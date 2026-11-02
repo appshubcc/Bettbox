@@ -18,6 +18,15 @@ final _packageSplitRegex = RegExp(r'[\n,\s]+');
 
 final _packageIconCache = <String, Uint8List?>{};
 final _packageIconPending = <String, Future<Uint8List?>>{};
+const _maxPackageIconCacheSize = 256;
+
+void _cachePackageIcon(String packageName, Uint8List? bytes) {
+  _packageIconCache.remove(packageName);
+  while (_packageIconCache.length >= _maxPackageIconCacheSize) {
+    _packageIconCache.remove(_packageIconCache.keys.first);
+  }
+  _packageIconCache[packageName] = bytes;
+}
 
 Future<Uint8List?> _getPackageIcon(
   String packageName, {
@@ -28,7 +37,9 @@ Future<Uint8List?> _getPackageIcon(
     _packageIconPending.remove(packageName);
   }
   if (_packageIconCache.containsKey(packageName)) {
-    return Future.value(_packageIconCache[packageName]);
+    final bytes = _packageIconCache[packageName];
+    _cachePackageIcon(packageName, bytes);
+    return Future.value(bytes);
   }
   return _packageIconPending.putIfAbsent(packageName, () async {
     try {
@@ -36,7 +47,7 @@ Future<Uint8List?> _getPackageIcon(
         packageName,
         forceRefresh: forceRefresh,
       );
-      _packageIconCache[packageName] = bytes;
+      _cachePackageIcon(packageName, bytes);
       return bytes;
     } finally {
       _packageIconPending.remove(packageName);
@@ -388,33 +399,35 @@ class _AccessViewState extends ConsumerState<AccessView>
   }
 
   Future<void> _intelligentSelected() async {
-    final packageNames = ref.read(
-      packageListSelectorStateProvider.select(
-        (state) => state.list.map((item) => item.packageName),
-      ),
-    );
     final commonScaffoldState = context.commonScaffoldState;
     if (commonScaffoldState?.mounted != true) return;
-    final selectedPackageNames =
-        (await globalState.appController.safeRun<List<String>>(
-          needLoading: true,
-          () async {
-            return await app.getChinaPackageNames();
-          },
-        ))?.toSet() ??
-        {};
-    final acceptList = packageNames
-        .where((item) => !selectedPackageNames.contains(item))
-        .toList();
-    final rejectList = packageNames
-        .where((item) => selectedPackageNames.contains(item))
-        .toList();
+    final chinaPackageNames = await globalState.appController
+        .safeRun<List<String>>(needLoading: true, () async {
+          return await app.getChinaPackageNames();
+        });
+    if (chinaPackageNames == null || !mounted) return;
+    final china = chinaPackageNames.toSet();
+    final visible = ref
+        .read(packageListSelectorStateProvider)
+        .list
+        .map((item) => item.packageName)
+        .toSet();
+    List<String> withVisible(List<String> list, bool Function(String) test) => [
+      ...list.where((item) => !visible.contains(item)),
+      ...visible.where(test),
+    ];
     ref
         .read(vpnSettingProvider.notifier)
         .updateState(
           (state) => state.copyWith.accessControl(
-            acceptList: acceptList,
-            rejectList: rejectList,
+            acceptList: withVisible(
+              state.accessControl.acceptList,
+              (item) => !china.contains(item),
+            ),
+            rejectList: withVisible(
+              state.accessControl.rejectList,
+              china.contains,
+            ),
           ),
         );
   }

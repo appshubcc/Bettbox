@@ -4,13 +4,14 @@ import 'dart:math';
 import 'package:bett_box/clash/clash.dart';
 import 'package:bett_box/common/common.dart';
 import 'package:bett_box/models/models.dart';
+import 'package:bett_box/pages/pages.dart';
 import 'package:bett_box/state.dart';
 import 'package:bett_box/widgets/widgets.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:intl/intl.dart';
 
 Future<void> showCoreStatusDialog(BuildContext context) async {
-  await globalState.showCommonDialog<void>(child: const CoreStatusDialog());
+  await globalState.showAdaptiveSheet<void>(child: const CoreStatusDialog());
 }
 
 class CoreStatusDialog extends StatefulWidget {
@@ -49,6 +50,18 @@ class _CoreStatusDialogState extends State<CoreStatusDialog> {
         });
       }
     } catch (_) {}
+  }
+
+  Future<String> _handleForceGc() async {
+    final before = _status?.physical ?? 0;
+    await clashCore.requestGc(forceFreeOSMemory: true);
+    await Future<void>.delayed(const Duration(milliseconds: 800));
+    final after = await clashCore.getCoreStatus();
+    if (after == null) return appLocalizations.success;
+    if (mounted) setState(() => _status = after);
+    final freed = before - after.physical;
+    if (freed <= 0) return appLocalizations.memoryAlreadyOptimal;
+    return appLocalizations.memoryFreed(_formatBytes(freed));
   }
 
   String _formatBytes(int bytes) {
@@ -190,10 +203,7 @@ class _CoreStatusDialogState extends State<CoreStatusDialog> {
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-      decoration: BoxDecoration(
-        color: context.colorScheme.surfaceContainerLow,
-        borderRadius: BorderRadius.circular(16),
-      ),
+      decoration: panelTileDecoration(context),
       child: Row(
         children: [
           RingChart(
@@ -286,10 +296,7 @@ class _CoreStatusDialogState extends State<CoreStatusDialog> {
   }) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-      decoration: BoxDecoration(
-        color: context.colorScheme.surfaceContainerLow,
-        borderRadius: BorderRadius.circular(12),
-      ),
+      decoration: panelTileDecoration(context),
       child: Row(
         children: [
           Container(
@@ -331,26 +338,53 @@ class _CoreStatusDialogState extends State<CoreStatusDialog> {
     );
   }
 
+  Widget _buildRingCard(List<(String, int?)> items) {
+    final total = items.fold<int>(0, (sum, item) => sum + (item.$2 ?? 0));
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 10),
+      decoration: panelTileDecoration(context),
+      child: Row(
+        children: [
+          for (final (label, count) in items)
+            Expanded(
+              child: ToolRing(
+                size: 62,
+                label: label,
+                value: count != null ? _formatCount(count) : '-',
+                unit: '',
+                ratio: total > 0 ? (count ?? 0) / total : 0,
+                color: count != null ? context.colorScheme.primary : null,
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildGridItem(_MetricItem item, {bool isFullWidth = false}) {
+    final color = item.color ?? context.colorScheme.primary;
+    final valueWidget =
+        item.valueChild ??
+        Text(
+          item.value,
+          style: context.textTheme.titleSmall?.copyWith(
+            fontWeight: FontWeight.bold,
+          ),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        );
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-      decoration: BoxDecoration(
-        color: context.colorScheme.surfaceContainerLow,
-        borderRadius: BorderRadius.circular(12),
-      ),
+      decoration: panelTileDecoration(context),
       child: Row(
         children: [
           Container(
             padding: const EdgeInsets.all(6),
             decoration: BoxDecoration(
-              color: context.colorScheme.primary.withValues(alpha: 0.1),
+              color: color.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
-            child: Icon(
-              item.icon,
-              size: 14,
-              color: context.colorScheme.primary,
-            ),
+            child: Icon(item.icon, size: 14, color: color),
           ),
           const SizedBox(width: 8),
           Expanded(
@@ -366,29 +400,11 @@ class _CoreStatusDialogState extends State<CoreStatusDialog> {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
-                if (!isFullWidth) ...[
-                  const SizedBox(height: 1),
-                  Text(
-                    item.value,
-                    style: context.textTheme.titleSmall?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
+                if (!isFullWidth) ...[const SizedBox(height: 1), valueWidget],
               ],
             ),
           ),
-          if (isFullWidth) ...[
-            const SizedBox(width: 8),
-            Text(
-              item.value,
-              style: context.textTheme.titleSmall?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ],
+          if (isFullWidth) ...[const SizedBox(width: 8), valueWidget],
         ],
       ),
     );
@@ -405,12 +421,15 @@ class _CoreStatusDialogState extends State<CoreStatusDialog> {
         final item1 = items[i];
         final item2 = items[i + 1];
         rows.add(
-          Row(
-            children: [
-              Expanded(child: _buildGridItem(item1)),
-              const SizedBox(width: 8),
-              Expanded(child: _buildGridItem(item2)),
-            ],
+          IntrinsicHeight(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Expanded(child: _buildGridItem(item1)),
+                const SizedBox(width: 8),
+                Expanded(child: _buildGridItem(item2)),
+              ],
+            ),
           ),
         );
         i += 2;
@@ -424,14 +443,14 @@ class _CoreStatusDialogState extends State<CoreStatusDialog> {
     return Column(mainAxisSize: MainAxisSize.min, children: rows);
   }
 
-  Widget _buildGeodataSection(String geodataUse) {
+  Widget _buildGeodataChips(String geodataUse) {
     final chips = <Widget>[];
     final isNone = geodataUse.isEmpty || geodataUse == 'None';
 
     if (isNone) {
       chips.add(
         Container(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
           decoration: BoxDecoration(
             color: context.colorScheme.surfaceContainerHighest.withValues(
               alpha: 0.5,
@@ -445,7 +464,7 @@ class _CoreStatusDialogState extends State<CoreStatusDialog> {
             appLocalizations.none,
             style: context.textTheme.labelSmall?.copyWith(
               color: context.colorScheme.onSurfaceVariant,
-              fontSize: 11,
+              fontSize: 10,
             ),
           ),
         ),
@@ -458,7 +477,7 @@ class _CoreStatusDialogState extends State<CoreStatusDialog> {
       for (final part in parts) {
         chips.add(
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
             decoration: BoxDecoration(
               color: context.colorScheme.primaryContainer,
               borderRadius: BorderRadius.circular(12),
@@ -468,7 +487,7 @@ class _CoreStatusDialogState extends State<CoreStatusDialog> {
               style: context.textTheme.labelSmall?.copyWith(
                 color: context.colorScheme.onPrimaryContainer,
                 fontWeight: FontWeight.w600,
-                fontSize: 11,
+                fontSize: 10,
               ),
             ),
           ),
@@ -476,42 +495,7 @@ class _CoreStatusDialogState extends State<CoreStatusDialog> {
       }
     }
 
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-      decoration: BoxDecoration(
-        color: context.colorScheme.surfaceContainerLow,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(6),
-            decoration: BoxDecoration(
-              color: context.colorScheme.secondary.withValues(alpha: 0.1),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(
-              Icons.travel_explore_rounded,
-              size: 14,
-              color: context.colorScheme.secondary,
-            ),
-          ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Text(
-              appLocalizations.geodataUse,
-              style: context.textTheme.labelSmall?.copyWith(
-                color: context.colorScheme.onSurfaceVariant,
-              ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-          const SizedBox(width: 6),
-          Wrap(spacing: 4, runSpacing: 4, children: chips),
-        ],
-      ),
-    );
+    return Wrap(spacing: 3, runSpacing: 3, children: chips);
   }
 
   @override
@@ -527,11 +511,6 @@ class _CoreStatusDialogState extends State<CoreStatusDialog> {
     final heapObjectsText = status != null
         ? _formatCount(status.heapObjects)
         : '-';
-    final rulesText = status != null ? _formatCount(status.rules) : '-';
-    final proxiesText = status != null ? _formatCount(status.proxies) : '-';
-    final proxyGroupsText = status != null
-        ? _formatCount(status.proxyGroups)
-        : '-';
     final ruleProvidersText = status != null
         ? _formatCount(status.ruleProviders)
         : '-';
@@ -540,22 +519,13 @@ class _CoreStatusDialogState extends State<CoreStatusDialog> {
         : '-';
     final geodataUseText = status?.geodataUse ?? 'None';
 
+    final ringItems = [
+      (appLocalizations.rulesCount, status?.rules),
+      (appLocalizations.proxiesCount, status?.proxies),
+      (appLocalizations.proxyGroupsCount, status?.proxyGroups),
+    ];
+
     final metricItems = <_MetricItem>[
-      _MetricItem(
-        icon: Icons.rule_rounded,
-        label: appLocalizations.rulesCount,
-        value: rulesText,
-      ),
-      _MetricItem(
-        icon: Icons.dns_rounded,
-        label: appLocalizations.proxiesCount,
-        value: proxiesText,
-      ),
-      _MetricItem(
-        icon: Icons.cable_rounded,
-        label: appLocalizations.proxyGroupsCount,
-        value: proxyGroupsText,
-      ),
       if ((status?.ruleProviders ?? 0) > 0)
         _MetricItem(
           icon: Icons.library_books_rounded,
@@ -568,19 +538,32 @@ class _CoreStatusDialogState extends State<CoreStatusDialog> {
           label: appLocalizations.proxyProvidersCount,
           value: proxyProvidersText,
         ),
+      _MetricItem(
+        icon: Icons.travel_explore_rounded,
+        color: context.colorScheme.secondary,
+        label: appLocalizations.geodataUse,
+        value: geodataUseText,
+        valueChild: _buildGeodataChips(geodataUseText),
+      ),
     ];
 
     return CommonDialog(
       title: appLocalizations.coreStatus,
+      titleTrailing: CleanButton(
+        tooltip: appLocalizations.forceGCTitle,
+        onClean: _handleForceGc,
+      ),
       padding: const EdgeInsets.fromLTRB(16, 14, 16, 8),
-      actions: [
-        TextButton(
-          onPressed: () {
-            Navigator.of(context, rootNavigator: true).pop();
-          },
-          child: Text(appLocalizations.confirm),
-        ),
-      ],
+      actions: isInBottomSheet(context)
+          ? null
+          : [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context, rootNavigator: true).pop();
+                },
+                child: Text(appLocalizations.confirm),
+              ),
+            ],
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -614,9 +597,9 @@ class _CoreStatusDialogState extends State<CoreStatusDialog> {
             ],
           ),
           _buildSectionHeader(appLocalizations.profileAndRules),
-          _buildMetricGrid(metricItems),
+          _buildRingCard(ringItems),
           const SizedBox(height: 8),
-          _buildGeodataSection(geodataUseText),
+          _buildMetricGrid(metricItems),
         ],
       ),
     );
@@ -625,12 +608,16 @@ class _CoreStatusDialogState extends State<CoreStatusDialog> {
 
 class _MetricItem {
   final IconData icon;
+  final Color? color;
   final String label;
   final String value;
+  final Widget? valueChild;
 
   const _MetricItem({
     required this.icon,
+    this.color,
     required this.label,
     required this.value,
+    this.valueChild,
   });
 }

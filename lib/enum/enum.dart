@@ -256,6 +256,7 @@ enum ActionMethod {
   closeConnections,
   resetConnections,
   closeConnection,
+  closeGroupConnections,
   getExternalProviders,
   getExternalProvider,
   updateGeoData,
@@ -297,6 +298,10 @@ enum ActionMethod {
   cancelMrsLookup,
   getTrafficStats,
   clearTrafficStats,
+  storeGet,
+  storeSet,
+  storeList,
+  storeClear,
   startToolProxy,
   stopToolProxy,
   ageCrypt,
@@ -378,6 +383,7 @@ enum FunctionTag {
   savePreferences,
   changeProxy,
   checkIp,
+  checkIpRisk,
   vpnTip,
   autoLaunch,
   renderPause,
@@ -422,7 +428,6 @@ enum DashboardWidget {
     GridItem(crossAxisCellCount: 4, child: WakelockSwitch()),
     platforms: desktopPlatforms,
   ),
-  dnsOverride(GridItem(crossAxisCellCount: 4, child: DnsOverride())),
   snifferOverride(GridItem(crossAxisCellCount: 4, child: SnifferOverride())),
   ntpOverride(GridItem(crossAxisCellCount: 4, child: NtpOverride())),
   providersInfo(GridItem(crossAxisCellCount: 4, child: ProvidersInfo())),
@@ -703,6 +708,8 @@ enum DelayAnimationType {
 }
 
 enum MrsTapAction { viewRules, copyUrl }
+
+enum StoreSpace { ip, speedTest, toolbox }
 
 enum IpRiskLevel { low, medium, high, veryHigh }
 

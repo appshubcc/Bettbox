@@ -315,26 +315,54 @@ class _DashboardViewState extends ConsumerState<DashboardView> {
     ];
 
     final title = customTitle ?? appLocalizations.dashboard;
+    return LayoutBuilder(
+      builder: (context, page) => _buildScaffold(
+        title: title,
+        inset: math.max(0, (page.maxWidth - dashboardMaxGridWidth) / 2),
+        isMobileView: isMobileView,
+        showStartSwitch: showStartSwitch,
+        isDark: isDark,
+        spacing: spacing,
+        children: children,
+      ),
+    );
+  }
+
+  Widget _buildScaffold({
+    required String title,
+    required double inset,
+    required bool isMobileView,
+    required bool showStartSwitch,
+    required bool isDark,
+    required double spacing,
+    required List<DashboardTile> children,
+  }) {
     return CommonScaffold(
       title: title,
-      titleWidget: globalState.isPre
-          ? Row(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Flexible(
-                  child: EmojiText(
-                    title,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+      titleWidget: Padding(
+        padding: EdgeInsets.only(left: inset),
+        child: globalState.isPre
+            ? Row(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Flexible(
+                    child: EmojiText(
+                      title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
-                ),
-                const SizedBox(width: 8),
-                const _PreviewMark(),
-              ],
-            )
-          : null,
-      actions: _buildActions(showStartSwitch, isDark),
+                  const SizedBox(width: 8),
+                  const _PreviewMark(),
+                ],
+              )
+            : EmojiText(title),
+      ),
+      actions: [
+        ..._buildActions(showStartSwitch, isDark),
+        if (inset > 4) SizedBox(width: inset - 4),
+      ],
       body: ScrollEdgeRise(
         builder: (_, rise) => Align(
           alignment: Alignment.topCenter,
@@ -646,8 +674,8 @@ class _DashboardStartSwitchState extends ConsumerState<_DashboardStartSwitch> {
 
   Future<void> _handleStart() async {
     if (_isDisabled) return;
-    final isStart = ref.read(runTimeProvider) != null;
-    final newState = !isStart;
+    final newState =
+        ref.read(isSmartStoppedProvider) || ref.read(runTimeProvider) == null;
     setState(() {
       _isDisabled = true;
       _optimisticStart = newState;
@@ -679,17 +707,12 @@ class _DashboardStartSwitchState extends ConsumerState<_DashboardStartSwitch> {
     final isStart = ref.watch(runTimeProvider.select((state) => state != null));
     final displayStart = isSmartStopped ? false : (_optimisticStart ?? isStart);
 
-    final canPress =
-        isInit &&
-        hasProfile &&
-        !_isDisabled &&
-        !isRestarting &&
-        !isSmartStopped;
+    final canPress = isInit && hasProfile && !_isDisabled && !isRestarting;
 
     final colorScheme = context.colorScheme;
     final isLight = colorScheme.brightness == Brightness.light;
     final isBusy = _isDisabled || isRestarting;
-    final isAvailable = isInit && hasProfile && !isSmartStopped;
+    final isAvailable = isInit && hasProfile;
     final (style, onLabel, offLabel) = ref.watch(
       appSettingProvider.select(
         (state) => (
@@ -856,67 +879,9 @@ class _MenuDots extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final isStart = ref.watch(runTimeProvider.select((value) => value != null));
-    final colorScheme = context.colorScheme;
-    final color = IconTheme.of(context).color ?? colorScheme.onSurfaceVariant;
-    return RepaintBoundary(
-      child: AnimatedRotation(
-        turns: isOpen ? 0.125 : 0,
-        duration: midDuration,
-        curve: Curves.easeOutBack,
-        child: TweenAnimationBuilder<Color?>(
-          tween: ColorTween(end: isStart ? colorScheme.primary : color),
-          duration: midDuration,
-          builder: (_, accent, _) => SizedBox.square(
-            dimension: 24,
-            child: CustomPaint(
-              painter: _MenuDotsPainter(color: color, accent: accent ?? color),
-            ),
-          ),
-        ),
-      ),
+    return MenuDotsIcon(
+      isOpen: isOpen,
+      accent: isStart ? context.colorScheme.primary : null,
     );
-  }
-}
-
-class _MenuDotsPainter extends CustomPainter {
-  static final Paint _paint = Paint();
-
-  final Color color;
-  final Color accent;
-
-  const _MenuDotsPainter({required this.color, required this.accent});
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    const radius = 2.6;
-    const distance = 5.2;
-    final center = size.center(Offset.zero);
-    _paint.color = color;
-    canvas.drawCircle(
-      center + const Offset(-distance, -distance),
-      radius,
-      _paint,
-    );
-    canvas.drawCircle(
-      center + const Offset(-distance, distance),
-      radius,
-      _paint,
-    );
-    canvas.drawCircle(
-      center + const Offset(distance, distance),
-      radius,
-      _paint,
-    );
-    _paint.color = accent;
-    canvas.drawCircle(
-      center + const Offset(distance, -distance),
-      radius,
-      _paint,
-    );
-  }
-
-  @override
-  bool shouldRepaint(_MenuDotsPainter oldDelegate) {
-    return oldDelegate.color != color || oldDelegate.accent != accent;
   }
 }

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:bett_box/common/common.dart';
@@ -10,11 +11,13 @@ import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 
-void showIpDetailDialog(
+Future<void> showIpDetailDialog(
   BuildContext context,
   String rawIp, {
   IpInfo? preloaded,
-}) {
+  bool showRisk = false,
+  bool followRiskSetting = true,
+}) async {
   var cleanIp = rawIp.trim();
   if (cleanIp.startsWith('[') && cleanIp.contains(']')) {
     cleanIp = cleanIp.substring(1, cleanIp.indexOf(']'));
@@ -27,16 +30,53 @@ void showIpDetailDialog(
 
   if (cleanIp.isEmpty) return;
 
-  globalState.showCommonDialog(
-    child: _IpDetailDialog(ip: cleanIp, preloaded: preloaded),
+  final isPublic = utils.classifyIp(cleanIp) == IpCategory.public;
+  final riskView =
+      (showRisk ||
+          (followRiskSetting && globalState.config.appSetting.ipRiskDetail)) &&
+      isPublic;
+  final preloadedRisk = riskView
+      ? await request
+            .readIpRiskCache(cleanIp)
+            .timeout(const Duration(milliseconds: 300), onTimeout: () => null)
+      : null;
+
+  final info =
+      preloaded ??
+      (isPublic && !riskView
+          ? await request
+                .readIpDetailCache(cleanIp)
+                .timeout(
+                  const Duration(milliseconds: 300),
+                  onTimeout: () => null,
+                )
+          : null);
+
+  globalState.showAdaptiveSheet(
+    child: _IpDetailDialog(
+      ip: cleanIp,
+      preloaded: info,
+      riskView: riskView,
+      preloadedRisk: preloadedRisk,
+      persistRisk: followRiskSetting,
+    ),
   );
 }
 
 class _IpDetailDialog extends ConsumerStatefulWidget {
   final String ip;
   final IpInfo? preloaded;
+  final bool riskView;
+  final IpRisk? preloadedRisk;
+  final bool persistRisk;
 
-  const _IpDetailDialog({required this.ip, this.preloaded});
+  const _IpDetailDialog({
+    required this.ip,
+    this.preloaded,
+    this.riskView = false,
+    this.preloadedRisk,
+    this.persistRisk = true,
+  });
 
   @override
   ConsumerState<_IpDetailDialog> createState() => _IpDetailDialogState();
@@ -63,10 +103,13 @@ class _IpDetailDialogState extends ConsumerState<_IpDetailDialog> {
   @override
   void initState() {
     super.initState();
-    if (ref.read(appSettingProvider).ipRiskDetail &&
-        utils.classifyIp(widget.ip) == IpCategory.public) {
+    if (widget.riskView) {
       _riskIp = widget.ip;
-      _fetchRisk(widget.ip);
+      if (widget.preloadedRisk case final risk?) {
+        _risk = risk;
+      } else {
+        _fetchRisk(widget.ip);
+      }
     }
     final preloaded = widget.preloaded;
     if (preloaded != null) {
@@ -75,6 +118,23 @@ class _IpDetailDialogState extends ConsumerState<_IpDetailDialog> {
       return;
     }
     _fetchIpDetail();
+  }
+
+  Future<void> _afterEntrance() async {
+    final animation = ModalRoute.of(context)?.animation;
+    if (animation == null || animation.status != AnimationStatus.forward) {
+      return;
+    }
+    final completer = Completer<void>();
+    void listener(AnimationStatus status) {
+      if (status != AnimationStatus.forward && !completer.isCompleted) {
+        completer.complete();
+      }
+    }
+
+    animation.addStatusListener(listener);
+    await completer.future;
+    animation.removeStatusListener(listener);
   }
 
   Future<void> _fetchIpDetail() async {
@@ -90,6 +150,8 @@ class _IpDetailDialogState extends ConsumerState<_IpDetailDialog> {
     }
 
     final res = await request.queryIpDetail(widget.ip);
+    if (!mounted) return;
+    await _afterEntrance();
     if (!mounted) return;
 
     if (res.isError) {
@@ -123,10 +185,7 @@ class _IpDetailDialogState extends ConsumerState<_IpDetailDialog> {
   }) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-      decoration: BoxDecoration(
-        color: context.colorScheme.surfaceContainerLow,
-        borderRadius: BorderRadius.circular(12),
-      ),
+      decoration: panelTileDecoration(context),
       child: Row(
         children: [
           Container(
@@ -206,6 +265,8 @@ class _IpDetailDialogState extends ConsumerState<_IpDetailDialog> {
   Future<void> _fetchRisk(String ip, {bool force = false}) async {
     final serial = ++_riskSerial;
     final res = await request.queryIpRisk(ip, force: force);
+    if (!mounted) return;
+    await _afterEntrance();
     if (!mounted || serial != _riskSerial) return;
     setState(() {
       _risk = res.data;
@@ -229,9 +290,11 @@ class _IpDetailDialogState extends ConsumerState<_IpDetailDialog> {
 
   void _toggleRisk() {
     final detail = _riskIp == null;
-    ref
-        .read(appSettingProvider.notifier)
-        .updateState((state) => state.copyWith(ipRiskDetail: detail));
+    if (widget.persistRisk) {
+      ref
+          .read(appSettingProvider.notifier)
+          .updateState((state) => state.copyWith(ipRiskDetail: detail));
+    }
     if (detail) {
       _loadRisk(widget.ip);
       return;
@@ -257,10 +320,7 @@ class _IpDetailDialogState extends ConsumerState<_IpDetailDialog> {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
-      decoration: BoxDecoration(
-        color: context.colorScheme.surfaceContainerLow,
-        borderRadius: BorderRadius.circular(12),
-      ),
+      decoration: panelTileDecoration(context),
       child: child,
     );
   }
@@ -281,8 +341,18 @@ class _IpDetailDialogState extends ConsumerState<_IpDetailDialog> {
               style: valueStyle,
               keyboardType: TextInputType.url,
               textInputAction: TextInputAction.search,
-              decoration: InputDecoration.collapsed(
+              decoration: InputDecoration(
                 hintText: appLocalizations.ipRiskHint,
+                hintStyle: valueStyle?.copyWith(
+                  fontWeight: FontWeight.normal,
+                  color: context.colorScheme.onSurfaceVariant,
+                ),
+                border: InputBorder.none,
+                enabledBorder: InputBorder.none,
+                focusedBorder: InputBorder.none,
+                filled: false,
+                isCollapsed: true,
+                contentPadding: EdgeInsets.zero,
               ),
               onSubmitted: _submitIp,
             )
@@ -345,14 +415,21 @@ class _IpDetailDialogState extends ConsumerState<_IpDetailDialog> {
       );
     }
 
+    final countryCode = IpInfo.normalizeCountryCode(
+      risk.countryCode,
+      risk.country,
+      risk.region,
+    );
+    final countryName =
+        IpInfo.normalizeCountry(risk.country, countryCode, risk.region) ?? '';
     final country = cell(
       appLocalizations.countryOrRegion,
-      risk.country.isNotEmpty ? risk.country : risk.countryCode,
-      leading: risk.countryCode.length == 2
+      countryName.isNotEmpty ? countryName : countryCode,
+      leading: countryCode.length == 2
           ? Padding(
               padding: const EdgeInsets.only(right: 4),
               child: Text(
-                utils.countryCodeToEmoji(risk.countryCode),
+                utils.countryCodeToEmoji(countryCode),
                 style: TextStyle(
                   fontFamily: FontFamily.twEmoji.value,
                   fontFamilyFallback: [FontFamily.twEmoji.value],
@@ -404,52 +481,32 @@ class _IpDetailDialogState extends ConsumerState<_IpDetailDialog> {
     );
   }
 
-  Widget _buildRiskContent(String ip) {
-    final risk = _risk;
-    final items = <Widget>[
-      _buildRiskIpTile(ip),
-      if (risk != null) ...[
-        _buildRiskCard(IpRiskScore(risk: risk)),
-        if (risk.checks.isNotEmpty) _buildRiskCard(IpRiskChecks(risk: risk)),
-        _buildRiskInfo(risk),
-        IpRiskSource(
-          onTap: () {
-            Navigator.of(context, rootNavigator: true).pop();
-            globalState.openUrl(ipRiskUrl(ip));
-          },
+  Widget _fadeSwitcher(Widget child) {
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 300),
+      transitionBuilder: (child, animation) => FadeTransition(
+        opacity: CurvedAnimation(
+          parent: animation,
+          curve: const Interval(0.4, 1, curve: Curves.easeOut),
         ),
-      ] else
-        _buildRiskCard(
-          SizedBox(
-            height: 84,
-            child: _riskFailed
-                ? Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        appLocalizations.networkErrorRetryLater,
-                        style: context.textTheme.bodyMedium?.copyWith(
-                          color: context.colorScheme.error,
-                        ),
-                      ),
-                      TextButton.icon(
-                        onPressed: () => _loadRisk(ip, force: true),
-                        icon: const Icon(Icons.refresh_rounded, size: 16),
-                        label: Text(appLocalizations.retry),
-                      ),
-                    ],
-                  )
-                : Center(
-                    child: SpinKitThreeBounce(
-                      color: context.colorScheme.primary,
-                      size: 16,
-                    ),
-                  ),
-          ),
-        ),
-    ];
+        child: child,
+      ),
+      layoutBuilder: (current, previous) => Stack(
+        clipBehavior: Clip.none,
+        alignment: Alignment.topLeft,
+        children: [
+          for (final child in previous)
+            Positioned(left: 0, top: 0, right: 0, child: child),
+          ?current,
+        ],
+      ),
+      child: child,
+    );
+  }
+
+  Widget _spaced(List<Widget> items, {Key? key}) {
     return Column(
-      key: const ValueKey('risk'),
+      key: key,
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -459,6 +516,53 @@ class _IpDetailDialogState extends ConsumerState<_IpDetailDialog> {
         ],
       ],
     );
+  }
+
+  Widget _buildRiskContent(String ip) {
+    final risk = _risk;
+    final body = risk != null
+        ? _spaced(key: ValueKey(risk), [
+            _buildRiskCard(IpRiskScore(risk: risk)),
+            if (risk.checks.isNotEmpty)
+              _buildRiskCard(IpRiskChecks(risk: risk)),
+            _buildRiskInfo(risk),
+            const IpRiskSource(),
+          ])
+        : KeyedSubtree(
+            key: ValueKey(_riskFailed),
+            child: _buildRiskCard(
+              SizedBox(
+                height: 84,
+                child: _riskFailed
+                    ? Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            appLocalizations.networkErrorRetryLater,
+                            style: context.textTheme.bodyMedium?.copyWith(
+                              color: context.colorScheme.error,
+                            ),
+                          ),
+                          TextButton.icon(
+                            onPressed: () => _loadRisk(ip, force: true),
+                            icon: const Icon(Icons.refresh_rounded, size: 16),
+                            label: Text(appLocalizations.retry),
+                          ),
+                        ],
+                      )
+                    : Center(
+                        child: SpinKitThreeBounce(
+                          color: context.colorScheme.primary,
+                          size: 16,
+                        ),
+                      ),
+              ),
+            ),
+          );
+    return _spaced(key: const ValueKey('risk'), [
+      _buildRiskIpTile(ip),
+      _fadeSwitcher(body),
+    ]);
   }
 
   @override
@@ -669,16 +773,23 @@ class _IpDetailDialogState extends ConsumerState<_IpDetailDialog> {
     return CommonDialog(
       title: appLocalizations.moreIpInfo,
       padding: const EdgeInsets.fromLTRB(16, 14, 16, 8),
-      actions: [
-        TextButton(
-          onPressed: () {
-            Navigator.of(context, rootNavigator: true).pop();
-          },
-          child: Text(appLocalizations.confirm),
-        ),
-      ],
+      actions: isInBottomSheet(context)
+          ? null
+          : [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context, rootNavigator: true).pop();
+                },
+                child: Text(appLocalizations.confirm),
+              ),
+            ],
       child: SingleChildScrollView(
-        child: FadeThroughBox(alignment: Alignment.topLeft, child: content),
+        child: AnimatedSize(
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeInOutCubic,
+          alignment: Alignment.topCenter,
+          child: _fadeSwitcher(content),
+        ),
       ),
     );
   }

@@ -13,6 +13,7 @@ import 'network_detection.dart';
 import 'network_speed.dart';
 import 'profile_info.dart';
 import 'start_button.dart';
+import 'toolbox_shortcut.dart';
 import 'traffic_usage.dart';
 
 typedef DashboardTile = ({DashboardWidget widget, DashboardTileSize size});
@@ -45,6 +46,7 @@ Widget buildDashboardTile(DashboardTile tile) {
     DashboardWidget.memoryInfo => MemoryInfo(size: size),
     DashboardWidget.connectionsCount => ConnectionsCount(size: size),
     DashboardWidget.startButton => StartButton(size: size),
+    DashboardWidget.toolboxShortcut => ToolboxShortcut(size: size),
     _ => widget.widget.child,
   };
 }
@@ -130,7 +132,7 @@ class DashboardDecor extends StatelessWidget {
 class DashboardTileCard extends StatelessWidget {
   final DashboardTileSize size;
   final Info info;
-  final Widget mark;
+  final Widget? mark;
   final bool markBottom;
   final double markAngle;
   final VoidCallback? onPressed;
@@ -142,8 +144,8 @@ class DashboardTileCard extends StatelessWidget {
     super.key,
     required this.size,
     required this.info,
-    required this.mark,
     required this.child,
+    this.mark,
     this.markBottom = false,
     this.markAngle = 0,
     this.onPressed,
@@ -153,27 +155,31 @@ class DashboardTileCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final mark = this.mark;
+    final content = Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        InfoHeader(
+          info: info,
+          actions: actions,
+          padding: baseInfoEdgeInsets.copyWith(bottom: 0),
+        ),
+        Expanded(child: child),
+      ],
+    );
     return SizedBox(
       height: getWidgetHeight(context, size.rows),
       child: CommonCard(
         onPressed: onPressed,
         onLongPress: onLongPress,
-        child: DashboardDecor(
-          mark: mark,
-          bottom: markBottom,
-          angle: markAngle,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              InfoHeader(
-                info: info,
-                actions: actions,
-                padding: baseInfoEdgeInsets.copyWith(bottom: 0),
+        child: mark == null
+            ? content
+            : DashboardDecor(
+                mark: mark,
+                bottom: markBottom,
+                angle: markAngle,
+                child: content,
               ),
-              Expanded(child: child),
-            ],
-          ),
-        ),
       ),
     );
   }

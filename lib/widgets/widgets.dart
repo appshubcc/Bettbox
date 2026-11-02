@@ -31,6 +31,7 @@ export 'wave.dart';
 export 'scroll.dart';
 export 'sliver_sticky_header.dart';
 export 'dialog.dart';
+export 'clean_button.dart';
 export 'effect.dart';
 export 'palette.dart';
 export 'tab.dart';

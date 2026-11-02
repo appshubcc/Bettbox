@@ -75,7 +75,9 @@ class _AppStateManagerState extends ConsumerState<AppStateManager>
       }
     });
     ref.listenManual(profilesProvider, (prev, next) {
-      if (prev == null || !next.hasAddedOrChanged(prev)) return;
+      if (prev == null) return;
+      globalState.appController.syncBundles(prev, next);
+      if (!next.hasAddedOrChanged(prev)) return;
       globalState.appController.autoBackupDebounce();
     });
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -530,7 +532,7 @@ class AppSidebarContainer extends ConsumerWidget {
         ? 132.0
         : requiredWidth <= 136.0
         ? 148.0
-        : 156.0;
+        : math.max(156.0, (requiredWidth + 8.0).ceilToDouble());
     if (system.isMacOS) return itemsWidth;
     final brandPainter = TextPainter(
       text: TextSpan(

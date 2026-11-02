@@ -3,7 +3,6 @@ import 'package:bett_box/common/network_matcher.dart';
 import 'package:bett_box/enum/enum.dart';
 import 'package:bett_box/plugins/app.dart';
 import 'package:bett_box/plugins/service.dart';
-import 'package:bett_box/providers/config.dart';
 import 'package:bett_box/providers/providers.dart';
 import 'package:bett_box/state.dart';
 import 'package:bett_box/widgets/widgets.dart';
@@ -167,119 +166,8 @@ class CloseConnectionsItem extends ConsumerWidget {
   }
 }
 
-class _RelatedSettingDialog extends StatefulWidget {
-  final bool closeConnections;
-  final bool flushDns;
-
-  const _RelatedSettingDialog({
-    required this.closeConnections,
-    required this.flushDns,
-  });
-
-  @override
-  State<_RelatedSettingDialog> createState() => _RelatedSettingDialogState();
-}
-
-class _RelatedSettingDialogState extends State<_RelatedSettingDialog> {
-  late bool _closeConnections = widget.closeConnections;
-  late bool _flushDns = widget.flushDns;
-
-  Widget _buildItem({
-    required String title,
-    required String subtitle,
-    required bool value,
-    required ValueChanged<bool> onChanged,
-  }) {
-    return Row(
-      children: [
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                style: context.textTheme.bodyLarge?.copyWith(
-                  color: context.colorScheme.onSurface,
-                ),
-              ),
-              const SizedBox(height: 2),
-              Text(
-                subtitle,
-                style: context.textTheme.bodySmall?.copyWith(
-                  color: context.colorScheme.onSurfaceVariant,
-                ),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(width: 16),
-        Switch(value: value, onChanged: onChanged),
-      ],
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return CommonDialog(
-      title: appLocalizations.relatedSettings,
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: Text(appLocalizations.cancel),
-        ),
-        FilledButton(
-          onPressed: () {
-            Navigator.of(
-              context,
-            ).pop((closeConnections: _closeConnections, flushDns: _flushDns));
-          },
-          child: Text(appLocalizations.confirm),
-        ),
-      ],
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          _buildItem(
-            title: appLocalizations.autoCloseConnections,
-            subtitle: appLocalizations.autoCloseConnectionsDesc,
-            value: _closeConnections,
-            onChanged: (value) => setState(() => _closeConnections = value),
-          ),
-          const SizedBox(height: 16),
-          _buildItem(
-            title: appLocalizations.flushDnsOnNetworkChange,
-            subtitle: appLocalizations.flushDnsOnNetworkChangeDesc,
-            value: _flushDns,
-            onChanged: (value) => setState(() => _flushDns = value),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 class QuickResponseItem extends ConsumerWidget {
   const QuickResponseItem({super.key});
-
-  Future<void> _showRelatedSettingDialog(WidgetRef ref) async {
-    final appSetting = ref.read(appSettingProvider);
-    final result = await globalState
-        .showCommonDialog<({bool closeConnections, bool flushDns})>(
-          child: _RelatedSettingDialog(
-            closeConnections: appSetting.closeConnections,
-            flushDns: appSetting.flushDnsOnNetworkChange,
-          ),
-        );
-    if (result == null) return;
-    ref
-        .read(appSettingProvider.notifier)
-        .updateState(
-          (state) => state.copyWith(
-            closeConnections: result.closeConnections,
-            flushDnsOnNetworkChange: result.flushDns,
-          ),
-        );
-  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -288,27 +176,14 @@ class QuickResponseItem extends ConsumerWidget {
     );
 
     return ListItem.switchItem(
-      title: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(appLocalizations.quickResponse),
-          TitleSettingButton(
-            tooltip: appLocalizations.relatedSettings,
-            onTap: () => _showRelatedSettingDialog(ref),
-          ),
-        ],
-      ),
+      title: Text(appLocalizations.quickResponse),
       subtitle: Text(appLocalizations.quickResponseDesc),
       delegate: SwitchDelegate(
         value: quickResponse,
-        onChanged: (bool value) async {
+        onChanged: (bool value) {
           ref
               .read(vpnSettingProvider.notifier)
               .updateState((state) => state.copyWith(quickResponse: value));
-
-          if (system.isAndroid) {
-            await service?.setQuickResponse(value);
-          }
         },
       ),
     );
@@ -499,24 +374,34 @@ class DisableQuicSection extends ConsumerWidget {
       appSettingProvider.select((state) => state.locale),
     );
     final isRussian = locale?.toLowerCase().startsWith('ru') ?? false;
+    final scriptActive = ref.watch(currentProfileScriptActiveProvider);
+    final enabled = disableQuic && !scriptActive;
 
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
         ListItem.switchItem(
           title: Text(appLocalizations.disableQuic),
-          subtitle: Text(appLocalizations.disableQuicDesc),
+          subtitle: Text(
+            scriptActive
+                ? appLocalizations.disableQuicManagedDesc
+                : appLocalizations.disableQuicDesc,
+          ),
           delegate: SwitchDelegate(
-            value: disableQuic,
-            onChanged: (bool value) async {
-              ref
-                  .read(vpnSettingProvider.notifier)
-                  .updateState((state) => state.copyWith(disableQuic: value));
-              globalState.appController.setupClashConfigDebounce();
-            },
+            value: enabled,
+            onChanged: scriptActive
+                ? null
+                : (bool value) async {
+                    ref
+                        .read(vpnSettingProvider.notifier)
+                        .updateState(
+                          (state) => state.copyWith(disableQuic: value),
+                        );
+                    globalState.appController.setupClashConfigDebounce();
+                  },
           ),
         ),
-        if (disableQuic && !isRussian) ...[
+        if (enabled && !isRussian) ...[
           Divider(
             height: 1,
             thickness: 1,

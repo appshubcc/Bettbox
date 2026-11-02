@@ -51,6 +51,23 @@ List<_Tile> _resolveTiles(List<_ToolItem> tools, List<String> saved) {
   return tiles;
 }
 
+typedef ToolboxEntry = ({
+  IconData icon,
+  Color color,
+  String title,
+  void Function(BuildContext context) open,
+});
+
+List<ToolboxEntry> orderedToolboxEntries(List<String> saved) => [
+  for (final tile in _resolveTiles(_buildTools(), saved))
+    (
+      icon: tile.item.icon,
+      color: tile.item.color,
+      title: tile.item.title,
+      open: tile.item.open,
+    ),
+];
+
 class _ToolItem {
   final String id;
   final IconData icon;

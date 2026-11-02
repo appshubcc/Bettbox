@@ -139,7 +139,7 @@ class _DnsQueryPageState extends ConsumerState<DnsQueryPage>
   }
 
   Future<void> _pickServer() async {
-    final result = await globalState.showCommonDialog<String>(
+    final result = await globalState.showAdaptiveSheet<String>(
       child: OptionsDialog<String>(
         title: appLocalizations.dnsQueryServer,
         options: dnsPresetServers,
@@ -155,6 +155,11 @@ class _DnsQueryPageState extends ConsumerState<DnsQueryPage>
     });
   }
 
+  Future<String> _flushCache() async {
+    await globalState.appController.flushDns();
+    return appLocalizations.dnsCacheCleared;
+  }
+
   @override
   Widget build(BuildContext context) {
     final isStart = ref.watch(runTimeProvider.select((state) => state != null));
@@ -162,6 +167,12 @@ class _DnsQueryPageState extends ConsumerState<DnsQueryPage>
     final showServer = _compare || _mode == _DnsMode.custom;
     return CommonScaffold(
       title: appLocalizations.dnsQuery,
+      actions: [
+        CleanButton(
+          tooltip: appLocalizations.clearCacheTitle,
+          onClean: isStart ? _flushCache : null,
+        ),
+      ],
       body: ToolPageBody(
         children: [
           ToolSearchField(

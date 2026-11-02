@@ -1852,7 +1852,7 @@ as bool,
 /// @nodoc
 mixin _$FallbackFilter {
 
- bool get geoip;@JsonKey(name: 'geoip-code') String get geoipCode; List<String> get ipcidr; List<String> get domain;
+ bool get geoip;@JsonKey(name: 'geoip-code') String get geoipCode; List<String> get ipcidr;
 /// Create a copy of FallbackFilter
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -1866,20 +1866,20 @@ $FallbackFilterCopyWith<FallbackFilter> get copyWith => _$FallbackFilterCopyWith
 @override
 bool operator ==(Object other) {
   final _this = this as FallbackFilter;
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is FallbackFilter&&(identical(other.geoip, _this.geoip) || other.geoip == _this.geoip)&&(identical(other.geoipCode, _this.geoipCode) || other.geoipCode == _this.geoipCode)&&const DeepCollectionEquality().equals(other.ipcidr, _this.ipcidr)&&const DeepCollectionEquality().equals(other.domain, _this.domain));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is FallbackFilter&&(identical(other.geoip, _this.geoip) || other.geoip == _this.geoip)&&(identical(other.geoipCode, _this.geoipCode) || other.geoipCode == _this.geoipCode)&&const DeepCollectionEquality().equals(other.ipcidr, _this.ipcidr));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
 int get hashCode {
   final _this = this as FallbackFilter;
-  return Object.hash(runtimeType,_this.geoip,_this.geoipCode,const DeepCollectionEquality().hash(_this.ipcidr),const DeepCollectionEquality().hash(_this.domain));
+  return Object.hash(runtimeType,_this.geoip,_this.geoipCode,const DeepCollectionEquality().hash(_this.ipcidr));
 }
 
 @override
 String toString() {
   final _this = this as FallbackFilter;
-  return 'FallbackFilter(geoip: ${_this.geoip}, geoipCode: ${_this.geoipCode}, ipcidr: ${_this.ipcidr}, domain: ${_this.domain})';
+  return 'FallbackFilter(geoip: ${_this.geoip}, geoipCode: ${_this.geoipCode}, ipcidr: ${_this.ipcidr})';
 }
 
 
@@ -1890,7 +1890,7 @@ abstract mixin class $FallbackFilterCopyWith<$Res>  {
   factory $FallbackFilterCopyWith(FallbackFilter value, $Res Function(FallbackFilter) _then) = _$FallbackFilterCopyWithImpl;
 @useResult
 $Res call({
- bool geoip,@JsonKey(name: 'geoip-code') String geoipCode, List<String> ipcidr, List<String> domain
+ bool geoip,@JsonKey(name: 'geoip-code') String geoipCode, List<String> ipcidr
 });
 
 
@@ -1907,12 +1907,11 @@ class _$FallbackFilterCopyWithImpl<$Res>
 
 /// Create a copy of FallbackFilter
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? geoip = null,Object? geoipCode = null,Object? ipcidr = null,Object? domain = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? geoip = null,Object? geoipCode = null,Object? ipcidr = null,}) {
   return _then(FallbackFilter(
 geoip: null == geoip ? _self.geoip : geoip // ignore: cast_nullable_to_non_nullable
 as bool,geoipCode: null == geoipCode ? _self.geoipCode : geoipCode // ignore: cast_nullable_to_non_nullable
 as String,ipcidr: null == ipcidr ? _self.ipcidr : ipcidr // ignore: cast_nullable_to_non_nullable
-as List<String>,domain: null == domain ? _self.domain : domain // ignore: cast_nullable_to_non_nullable
 as List<String>,
   ));
 }
@@ -1998,10 +1997,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( bool geoip, @JsonKey(name: 'geoip-code')  String geoipCode,  List<String> ipcidr,  List<String> domain)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( bool geoip, @JsonKey(name: 'geoip-code')  String geoipCode,  List<String> ipcidr)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _FallbackFilter() when $default != null:
-return $default(_that.geoip,_that.geoipCode,_that.ipcidr,_that.domain);case _:
+return $default(_that.geoip,_that.geoipCode,_that.ipcidr);case _:
   return orElse();
 
 }
@@ -2019,10 +2018,10 @@ return $default(_that.geoip,_that.geoipCode,_that.ipcidr,_that.domain);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( bool geoip, @JsonKey(name: 'geoip-code')  String geoipCode,  List<String> ipcidr,  List<String> domain)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( bool geoip, @JsonKey(name: 'geoip-code')  String geoipCode,  List<String> ipcidr)  $default,) {final _that = this;
 switch (_that) {
 case _FallbackFilter():
-return $default(_that.geoip,_that.geoipCode,_that.ipcidr,_that.domain);case _:
+return $default(_that.geoip,_that.geoipCode,_that.ipcidr);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -2039,10 +2038,10 @@ return $default(_that.geoip,_that.geoipCode,_that.ipcidr,_that.domain);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( bool geoip, @JsonKey(name: 'geoip-code')  String geoipCode,  List<String> ipcidr,  List<String> domain)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( bool geoip, @JsonKey(name: 'geoip-code')  String geoipCode,  List<String> ipcidr)?  $default,) {final _that = this;
 switch (_that) {
 case _FallbackFilter() when $default != null:
-return $default(_that.geoip,_that.geoipCode,_that.ipcidr,_that.domain);case _:
+return $default(_that.geoip,_that.geoipCode,_that.ipcidr);case _:
   return null;
 
 }
@@ -2054,7 +2053,7 @@ return $default(_that.geoip,_that.geoipCode,_that.ipcidr,_that.domain);case _:
 @JsonSerializable()
 
 class _FallbackFilter implements FallbackFilter {
-  const _FallbackFilter({this.geoip = false, @JsonKey(name: 'geoip-code') this.geoipCode = 'CN',  List<String> ipcidr = const [],  List<String> domain = const []}): _ipcidr = ipcidr,_domain = domain;
+  const _FallbackFilter({this.geoip = false, @JsonKey(name: 'geoip-code') this.geoipCode = 'CN',  List<String> ipcidr = const []}): _ipcidr = ipcidr;
   factory _FallbackFilter.fromJson(Map<String, dynamic> json) => _$FallbackFilterFromJson(json);
 
 @override@JsonKey() final  bool geoip;
@@ -2064,13 +2063,6 @@ class _FallbackFilter implements FallbackFilter {
   if (_ipcidr is EqualUnmodifiableListView) return _ipcidr;
   // ignore: implicit_dynamic_type
   return EqualUnmodifiableListView(_ipcidr);
-}
-
- final  List<String> _domain;
-@override@JsonKey() List<String> get domain {
-  if (_domain is EqualUnmodifiableListView) return _domain;
-  // ignore: implicit_dynamic_type
-  return EqualUnmodifiableListView(_domain);
 }
 
 
@@ -2087,18 +2079,18 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _FallbackFilter&&(identical(other.geoip, geoip) || other.geoip == geoip)&&(identical(other.geoipCode, geoipCode) || other.geoipCode == geoipCode)&&const DeepCollectionEquality().equals(other.ipcidr, _ipcidr)&&const DeepCollectionEquality().equals(other.domain, _domain));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _FallbackFilter&&(identical(other.geoip, geoip) || other.geoip == geoip)&&(identical(other.geoipCode, geoipCode) || other.geoipCode == geoipCode)&&const DeepCollectionEquality().equals(other.ipcidr, _ipcidr));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
 int get hashCode {
-    return Object.hash(runtimeType,geoip,geoipCode,const DeepCollectionEquality().hash(_ipcidr),const DeepCollectionEquality().hash(_domain));
+    return Object.hash(runtimeType,geoip,geoipCode,const DeepCollectionEquality().hash(_ipcidr));
 }
 
 @override
 String toString() {
-    return 'FallbackFilter(geoip: $geoip, geoipCode: $geoipCode, ipcidr: $ipcidr, domain: $domain)';
+    return 'FallbackFilter(geoip: $geoip, geoipCode: $geoipCode, ipcidr: $ipcidr)';
 }
 
 
@@ -2109,7 +2101,7 @@ abstract mixin class _$FallbackFilterCopyWith<$Res> implements $FallbackFilterCo
   factory _$FallbackFilterCopyWith(_FallbackFilter value, $Res Function(_FallbackFilter) _then) = __$FallbackFilterCopyWithImpl;
 @override @useResult
 $Res call({
- bool geoip,@JsonKey(name: 'geoip-code') String geoipCode, List<String> ipcidr, List<String> domain
+ bool geoip,@JsonKey(name: 'geoip-code') String geoipCode, List<String> ipcidr
 });
 
 
@@ -2126,12 +2118,11 @@ class __$FallbackFilterCopyWithImpl<$Res>
 
 /// Create a copy of FallbackFilter
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? geoip = null,Object? geoipCode = null,Object? ipcidr = null,Object? domain = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? geoip = null,Object? geoipCode = null,Object? ipcidr = null,}) {
   return _then(_FallbackFilter(
 geoip: null == geoip ? _self.geoip : geoip // ignore: cast_nullable_to_non_nullable
 as bool,geoipCode: null == geoipCode ? _self.geoipCode : geoipCode // ignore: cast_nullable_to_non_nullable
 as String,ipcidr: null == ipcidr ? _self._ipcidr : ipcidr // ignore: cast_nullable_to_non_nullable
-as List<String>,domain: null == domain ? _self._domain : domain // ignore: cast_nullable_to_non_nullable
 as List<String>,
   ));
 }
@@ -2373,7 +2364,7 @@ return $default(_that.enable,_that.listen,_that.preferH3,_that.cacheAlgorithm,_t
 @JsonSerializable()
 
 class _Dns implements Dns {
-  const _Dns({this.enable = true, this.listen = '0.0.0.0:10053', @JsonKey(name: 'prefer-h3') this.preferH3 = false, @JsonKey(name: 'cache-algorithm') this.cacheAlgorithm = CacheAlgorithm.arc, @JsonKey(name: 'use-hosts') this.useHosts = true, @JsonKey(name: 'use-system-hosts') this.useSystemHosts = true, @JsonKey(name: 'respect-rules') this.respectRules = false, this.ipv6 = false, @JsonKey(name: 'default-nameserver')  List<String> defaultNameserver = const ['114.114.114.114'], @JsonKey(name: 'enhanced-mode') this.enhancedMode = DnsMode.fakeIp, @JsonKey(name: 'fake-ip-range') this.fakeIpRange = '198.18.0.1/15', @JsonKey(name: 'fake-ip-range6') this.fakeIpRangeV6 = '', @JsonKey(name: 'fake-ip-filter-mode') this.fakeIpFilterMode = FilterMode.blacklist, @JsonKey(name: 'fake-ip-filter')  List<String> fakeIpFilter = const ['*', 'geosite:private', 'geosite:category-ntp', 'geosite:geolocation-cn', 'geosite:connectivity-check'], @JsonKey(name: 'fake-ip-ttl') this.fakeIpTtl = 1, @JsonKey(name: 'nameserver-policy')  Map<String, String> nameserverPolicy = const {'+.internal.corp.com' : '10.0.0.1', 'geosite:cn' : '119.29.29.29', 'geosite:private' : 'system', '*' : 'system'},  List<String> nameserver = const ['1.1.1.1'],  List<String> fallback = const [], @JsonKey(name: 'proxy-server-nameserver')  List<String> proxyServerNameserver = const ['tls://223.6.6.6#DIRECT', 'https://doh.pub/dns-query#DIRECT'], @JsonKey(name: 'direct-nameserver')  List<String> directNameserver = const [], @JsonKey(name: 'direct-nameserver-follow-policy') this.directNameserverFollowPolicy = false, @JsonKey(name: 'fallback-filter') this.fallbackFilter = const FallbackFilter(), @JsonKey(name: 'fallback-lazy-query') this.fallbackLazyQuery = false}): _defaultNameserver = defaultNameserver,_fakeIpFilter = fakeIpFilter,_nameserverPolicy = nameserverPolicy,_nameserver = nameserver,_fallback = fallback,_proxyServerNameserver = proxyServerNameserver,_directNameserver = directNameserver;
+  const _Dns({this.enable = true, this.listen = '0.0.0.0:10053', @JsonKey(name: 'prefer-h3') this.preferH3 = false, @JsonKey(name: 'cache-algorithm') this.cacheAlgorithm = CacheAlgorithm.arc, @JsonKey(name: 'use-hosts') this.useHosts = true, @JsonKey(name: 'use-system-hosts') this.useSystemHosts = true, @JsonKey(name: 'respect-rules') this.respectRules = false, this.ipv6 = true, @JsonKey(name: 'default-nameserver')  List<String> defaultNameserver = const ['114.114.114.114'], @JsonKey(name: 'enhanced-mode') this.enhancedMode = DnsMode.fakeIp, @JsonKey(name: 'fake-ip-range') this.fakeIpRange = '198.18.0.1/15', @JsonKey(name: 'fake-ip-range6') this.fakeIpRangeV6 = '', @JsonKey(name: 'fake-ip-filter-mode') this.fakeIpFilterMode = FilterMode.blacklist, @JsonKey(name: 'fake-ip-filter')  List<String> fakeIpFilter = const ['*', 'rule-set:private_bettbox', 'rule-set:fakeip-filter_bettbox', 'rule-set:category-ntp_bettbox', 'rule-set:cn_bettbox', 'rule-set:connectivity-check_bettbox'], @JsonKey(name: 'fake-ip-ttl') this.fakeIpTtl = 1, @JsonKey(name: 'nameserver-policy')  Map<String, String> nameserverPolicy = const {'rule-set:cn_bettbox' : '119.29.29.29', 'rule-set:private_bettbox' : 'system', '*' : 'system'},  List<String> nameserver = const ['1.1.1.1'],  List<String> fallback = const [], @JsonKey(name: 'proxy-server-nameserver')  List<String> proxyServerNameserver = const ['tls://223.6.6.6#DIRECT', 'https://doh.pub/dns-query#DIRECT'], @JsonKey(name: 'direct-nameserver')  List<String> directNameserver = const [], @JsonKey(name: 'direct-nameserver-follow-policy') this.directNameserverFollowPolicy = false, @JsonKey(name: 'fallback-filter') this.fallbackFilter = const FallbackFilter(), @JsonKey(name: 'fallback-lazy-query') this.fallbackLazyQuery = false}): _defaultNameserver = defaultNameserver,_fakeIpFilter = fakeIpFilter,_nameserverPolicy = nameserverPolicy,_nameserver = nameserver,_fallback = fallback,_proxyServerNameserver = proxyServerNameserver,_directNameserver = directNameserver;
   factory _Dns.fromJson(Map<String, dynamic> json) => _$DnsFromJson(json);
 
 @override@JsonKey() final  bool enable;
@@ -2742,7 +2733,7 @@ return $default(_that.enable,_that.writeToSystem,_that.server,_that.port,_that.i
 @JsonSerializable()
 
 class _Ntp implements Ntp {
-  const _Ntp({this.enable = true, @JsonKey(name: 'write-to-system') this.writeToSystem = false, this.server = 'time.apple.com', this.port = 123, this.interval = 60});
+  const _Ntp({this.enable = true, @JsonKey(name: 'write-to-system') this.writeToSystem = false, this.server = defaultNtpServer, this.port = 123, this.interval = 60});
   factory _Ntp.fromJson(Map<String, dynamic> json) => _$NtpFromJson(json);
 
 @override@JsonKey() final  bool enable;
@@ -4784,7 +4775,7 @@ return $default(_that.mixedPort,_that.socksPort,_that.port,_that.redirPort,_that
 @JsonSerializable()
 
 class _ClashConfig implements ClashConfig {
-  const _ClashConfig({@JsonKey(name: 'mixed-port') this.mixedPort = defaultMixedPort, @JsonKey(name: 'socks-port') this.socksPort = 0, @JsonKey(name: 'port') this.port = 0, @JsonKey(name: 'redir-port') this.redirPort = 0, @JsonKey(name: 'tproxy-port') this.tproxyPort = 0, this.mode = Mode.rule, @JsonKey(name: 'allow-lan') this.allowLan = false,  List<String> authentication = const [], @JsonKey(name: 'skip-auth-prefixes')  List<String> skipAuthPrefixes = defaultSkipAuthPrefixes, @JsonKey(name: 'log-level') this.logLevel = LogLevel.error, this.ipv6 = false, @JsonKey(name: 'find-process-mode', unknownEnumValue: FindProcessMode.always) this.findProcessMode = FindProcessMode.off, @JsonKey(name: 'keep-alive-interval') this.keepAliveInterval = defaultKeepAliveInterval, @JsonKey(name: 'unified-delay') this.unifiedDelay = true, @JsonKey(name: 'tcp-concurrent') this.tcpConcurrent = true, @JsonKey(fromJson: Tun.safeFormJson) this.tun = defaultTun, @JsonKey(fromJson: Dns.safeDnsFromJson) this.dns = defaultDns, @JsonKey(fromJson: Ntp.safeNtpFromJson) this.ntp = defaultNtp, @JsonKey(fromJson: Sniffer.safeSnifferFromJson) this.sniffer = defaultSniffer,  List<TunnelEntry> tunnels = defaultTunnel, @JsonKey(fromJson: Experimental.safeExperimentalFromJson) this.experimental = defaultExperimental, @JsonKey(name: 'geox-url', fromJson: GeoXUrl.safeFormJson) this.geoXUrl = defaultGeoXUrl, @JsonKey(name: 'geodata-loader') this.geodataLoader = GeodataLoader.memconservative, @JsonKey(name: 'proxy-groups')  List<ProxyGroup> proxyGroups = const [],  List<String> rule = const [], @JsonKey(name: 'global-ua') this.globalUa, @JsonKey(name: 'external-controller') this.externalController = ExternalControllerStatus.close, this.secret, @JsonKey(name: 'external-ui-name') this.externalUiName, @JsonKey(name: 'external-ui-url') this.externalUiUrl,  HostsMap hosts = const {}}): _authentication = authentication,_skipAuthPrefixes = skipAuthPrefixes,_tunnels = tunnels,_proxyGroups = proxyGroups,_rule = rule,_hosts = hosts;
+  const _ClashConfig({@JsonKey(name: 'mixed-port') this.mixedPort = defaultMixedPort, @JsonKey(name: 'socks-port') this.socksPort = 0, @JsonKey(name: 'port') this.port = 0, @JsonKey(name: 'redir-port') this.redirPort = 0, @JsonKey(name: 'tproxy-port') this.tproxyPort = 0, this.mode = Mode.rule, @JsonKey(name: 'allow-lan') this.allowLan = false,  List<String> authentication = const [], @JsonKey(name: 'skip-auth-prefixes')  List<String> skipAuthPrefixes = defaultSkipAuthPrefixes, @JsonKey(name: 'log-level') this.logLevel = LogLevel.error, this.ipv6 = true, @JsonKey(name: 'find-process-mode', unknownEnumValue: FindProcessMode.always) this.findProcessMode = FindProcessMode.off, @JsonKey(name: 'keep-alive-interval') this.keepAliveInterval = defaultKeepAliveInterval, @JsonKey(name: 'unified-delay') this.unifiedDelay = true, @JsonKey(name: 'tcp-concurrent') this.tcpConcurrent = true, @JsonKey(fromJson: Tun.safeFormJson) this.tun = defaultTun, @JsonKey(fromJson: Dns.safeDnsFromJson) this.dns = defaultDns, @JsonKey(fromJson: Ntp.safeNtpFromJson) this.ntp = defaultNtp, @JsonKey(fromJson: Sniffer.safeSnifferFromJson) this.sniffer = defaultSniffer,  List<TunnelEntry> tunnels = defaultTunnel, @JsonKey(fromJson: Experimental.safeExperimentalFromJson) this.experimental = defaultExperimental, @JsonKey(name: 'geox-url', fromJson: GeoXUrl.safeFormJson) this.geoXUrl = defaultGeoXUrl, @JsonKey(name: 'geodata-loader') this.geodataLoader = GeodataLoader.memconservative, @JsonKey(name: 'proxy-groups')  List<ProxyGroup> proxyGroups = const [],  List<String> rule = const [], @JsonKey(name: 'global-ua') this.globalUa, @JsonKey(name: 'external-controller') this.externalController = ExternalControllerStatus.close, this.secret, @JsonKey(name: 'external-ui-name') this.externalUiName, @JsonKey(name: 'external-ui-url') this.externalUiUrl,  HostsMap hosts = const {}}): _authentication = authentication,_skipAuthPrefixes = skipAuthPrefixes,_tunnels = tunnels,_proxyGroups = proxyGroups,_rule = rule,_hosts = hosts;
   factory _ClashConfig.fromJson(Map<String, dynamic> json) => _$ClashConfigFromJson(json);
 
 @override@JsonKey(name: 'mixed-port') final  int mixedPort;

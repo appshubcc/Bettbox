@@ -66,11 +66,12 @@ String _loadedLatencyText(SpeedTestState state) {
 String _serverText(SpeedTestServer? server, [SpeedTestProvider? provider]) {
   if (server == null) return '';
   final providerName = provider != null ? _providerName(provider) : '';
+  final country = server.country;
   return [
-    if (server.country.length == 2)
-      '${utils.countryCodeToEmoji(server.country)} ${server.country}'
-    else if (server.country.isNotEmpty)
-      server.country,
+    if (RegExp(r'^[A-Z]{2}$').hasMatch(country) && country != 'XX')
+      '${utils.countryCodeToEmoji(country)} $country'
+    else if (country.length > 2)
+      country,
     if (server.city.isNotEmpty) server.city,
     if (server.colo.isNotEmpty) server.colo,
     if (server.sponsor.isNotEmpty) server.sponsor,
@@ -410,7 +411,7 @@ class _SpeedTestPageState extends ConsumerState<SpeedTestPage>
   Future<void> _selectOutbound() async {
     if (_testing) return;
     final groups = _groups();
-    final result = await globalState.showCommonDialog<String>(
+    final result = await globalState.showAdaptiveSheet<String>(
       child: _OutboundPicker(selected: _effectiveProxy(groups), groups: groups),
     );
     if (result == null || !mounted || result == _proxy) return;
@@ -2106,7 +2107,7 @@ class _SettingsDialogState extends State<_SettingsDialog> {
   late SpeedTestSettings _settings = widget.settings;
 
   Future<void> _pickServer() async {
-    final result = await globalState.showCommonDialog<SpeedTestNode>(
+    final result = await globalState.showAdaptiveSheet<SpeedTestNode>(
       child: _SpeedTestServerPicker(
         selected: _settings.server,
         proxy: widget.proxy,
@@ -2576,7 +2577,7 @@ class _QuickOutboundCard extends StatelessWidget {
                     ? colorScheme.secondaryContainer
                     : colorScheme.surface,
                 shape: RoundedSuperellipseBorder(
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(20),
                   side: BorderSide(
                     color: isSelected || focused
                         ? colorScheme.primary
@@ -2586,7 +2587,7 @@ class _QuickOutboundCard extends StatelessWidget {
                 ),
               ),
               child: InkWell(
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: BorderRadius.circular(20),
                 onTap: onTap,
                 child: Padding(
                   padding: const EdgeInsets.symmetric(
@@ -2716,7 +2717,7 @@ class _OutboundGroupCard extends ConsumerWidget {
                     ? colorScheme.secondaryContainer.withValues(alpha: 0.7)
                     : colorScheme.surface,
                 shape: RoundedSuperellipseBorder(
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(20),
                   side: BorderSide(
                     color: isSelected || focused
                         ? colorScheme.primary
@@ -2726,7 +2727,7 @@ class _OutboundGroupCard extends ConsumerWidget {
                 ),
               ),
               child: InkWell(
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: BorderRadius.circular(20),
                 onTap: onToggle,
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 14),
@@ -2928,7 +2929,7 @@ class _OutboundProxyCard extends StatelessWidget {
                     ? colorScheme.secondaryContainer
                     : colorScheme.surface,
                 shape: RoundedSuperellipseBorder(
-                  borderRadius: BorderRadius.circular(14),
+                  borderRadius: BorderRadius.circular(20),
                   side: BorderSide(
                     color: isSelected || focused
                         ? colorScheme.primary
@@ -2938,7 +2939,7 @@ class _OutboundProxyCard extends StatelessWidget {
                 ),
               ),
               child: InkWell(
-                borderRadius: BorderRadius.circular(14),
+                borderRadius: BorderRadius.circular(20),
                 onTap: onTap,
                 child: Padding(
                   padding: const EdgeInsets.symmetric(
@@ -3297,7 +3298,7 @@ class _HistoryDetails extends StatelessWidget {
 Future<String?> showOutboundPicker({
   required String selected,
   required List<Group> groups,
-}) => globalState.showCommonDialog<String>(
+}) => globalState.showAdaptiveSheet<String>(
   child: _OutboundPicker(selected: selected, groups: groups),
 );
 
@@ -3317,7 +3318,7 @@ const outboundBatchExcludedTypes = {
 Future<OutboundBatchTarget?> showBatchOutboundPicker({
   required List<Group> groups,
 }) async {
-  final value = await globalState.showCommonDialog<Object>(
+  final value = await globalState.showAdaptiveSheet<Object>(
     child: _OutboundPicker(selected: '', groups: groups, batch: true),
   );
   return value is OutboundBatchTarget ? value : null;

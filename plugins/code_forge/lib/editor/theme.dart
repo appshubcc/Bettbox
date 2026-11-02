@@ -3,10 +3,11 @@ import 'dart:ui' as ui;
 import 'package:flutter/foundation.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:re_highlight/languages/javascript.dart';
-import 'package:re_highlight/languages/yaml.dart';
 import 'package:re_highlight/re_highlight.dart';
 
 import 'package:code_forge/src/rust/api/editor.dart';
+
+import 'yaml.dart';
 
 /// This class provides styling options for code selection in the code editor.
 class CodeSelectionStyle {
@@ -301,7 +302,7 @@ class _Grammar {
 
   /// YAML and JavaScript are scanned natively, which gives a line the scopes
   /// re_highlight gives it.
-  late final bool _isYaml = identical(language, langYaml);
+  late final bool _isYaml = identical(language, editorYamlMode);
   late final bool _isJavascript = identical(language, langJavascript);
   bool get isNative => _isYaml || _isJavascript;
 

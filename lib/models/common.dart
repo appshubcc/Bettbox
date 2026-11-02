@@ -1149,7 +1149,6 @@ enum PopupMenuItemType { primary, danger }
 class PopupMenuItemData {
   const PopupMenuItemData({
     this.icon,
-    this.emoji,
     required this.label,
     required this.onPressed,
   });
@@ -1157,7 +1156,6 @@ class PopupMenuItemData {
   final String label;
   final VoidCallback? onPressed;
   final IconData? icon;
-  final String? emoji;
 }
 
 @freezed

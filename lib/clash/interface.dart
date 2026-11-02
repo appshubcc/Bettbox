@@ -140,6 +140,8 @@ mixin ClashInterface {
 
   FutureOr<bool> closeConnections();
 
+  FutureOr<bool> closeGroupConnections(String groupName);
+
   FutureOr<bool> resetConnections();
 
   FutureOr<void> startTrackRequests();
@@ -223,7 +225,12 @@ abstract class ClashHandlerInterface with ClashInterface {
           completer?.complete(result.data);
           return;
         default:
-          completer?.complete(result.data);
+          final data = result.data;
+          completer?.complete(
+            completer is Completer<String> && data is! String
+                ? json.encode(data)
+                : data,
+          );
           return;
       }
     } catch (e) {
@@ -575,6 +582,14 @@ abstract class ClashHandlerInterface with ClashInterface {
   @override
   Future<bool> closeConnections() {
     return invoke<bool>(method: ActionMethod.closeConnections);
+  }
+
+  @override
+  Future<bool> closeGroupConnections(String groupName) {
+    return invoke<bool>(
+      method: ActionMethod.closeGroupConnections,
+      data: groupName,
+    );
   }
 
   @override

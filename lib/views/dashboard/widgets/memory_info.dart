@@ -124,33 +124,6 @@ class _MemoryInfoState extends State<MemoryInfo> {
     );
   }
 
-  Future<void> _handleForceGc() async {
-    final result = await globalState.showCommonDialog<bool>(
-      child: CommonDialog(
-        title: appLocalizations.forceGCTitle,
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(context, rootNavigator: true).pop(false);
-            },
-            child: Text(appLocalizations.cancel),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.of(context, rootNavigator: true).pop(true);
-            },
-            child: Text(appLocalizations.confirm),
-          ),
-        ],
-        child: Text(appLocalizations.forceGCDesc),
-      ),
-    );
-    if (result == true) {
-      await clashCore.requestGc(forceFreeOSMemory: true);
-      globalState.showNotifier(appLocalizations.success);
-    }
-  }
-
   Widget _buildTile(BuildContext context, DashboardTileSize size) {
     final isTall = size == DashboardTileSize.tall;
     final colorScheme = context.colorScheme;
@@ -190,7 +163,6 @@ class _MemoryInfoState extends State<MemoryInfo> {
       mark: DashboardDecor.icon(context, Icons.memory, 80),
       markAngle: 0.28,
       onPressed: () => showCoreStatusDialog(context),
-      onLongPress: _handleForceGc,
       actions: [
         SizedBox.square(
           dimension: 24,
@@ -254,35 +226,6 @@ class _MemoryInfoState extends State<MemoryInfo> {
       height: getWidgetHeight(context, 1),
       child: CommonCard(
         onPressed: () => showCoreStatusDialog(context),
-        onLongPress: () async {
-          // Show confirmation dialog
-          final result = await globalState.showCommonDialog<bool>(
-            child: CommonDialog(
-              title: appLocalizations.forceGCTitle,
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context, rootNavigator: true).pop(false);
-                  },
-                  child: Text(appLocalizations.cancel),
-                ),
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context, rootNavigator: true).pop(true);
-                  },
-                  child: Text(appLocalizations.confirm),
-                ),
-              ],
-              child: Text(appLocalizations.forceGCDesc),
-            ),
-          );
-
-          // Execute force GC after user confirms
-          if (result == true) {
-            await clashCore.requestGc(forceFreeOSMemory: true);
-            globalState.showNotifier(appLocalizations.success);
-          }
-        },
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [

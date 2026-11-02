@@ -92,12 +92,14 @@ class OptionsDelegate<T> extends Delegate {
   final String title;
   final T value;
   final String Function(T value) textBuilder;
+  final String Function(T value)? subtitleBuilder;
   final Function(T? value) onChanged;
 
   const OptionsDelegate({
     required this.title,
     required this.options,
     required this.textBuilder,
+    this.subtitleBuilder,
     required this.value,
     required this.onChanged,
   });
@@ -393,11 +395,13 @@ class ListItem<T> extends StatelessWidget {
       return _buildListTile(
         context,
         onTap: () async {
-          final value = await globalState.showCommonDialog<T>(
+          final value = await globalState.showAdaptiveSheet<T>(
+            nested: isInBottomSheet(context),
             child: OptionsDialog<T>(
               title: optionsDelegate.title,
               options: optionsDelegate.options,
               textBuilder: optionsDelegate.textBuilder,
+              subtitleBuilder: optionsDelegate.subtitleBuilder,
               value: optionsDelegate.value,
             ),
           );
@@ -846,13 +850,13 @@ class _RenderContinuousItemFrame extends RenderShiftedBox {
     }
     final rrect = _borderRadius.toRRect(frame);
     context.canvas.drawRRect(rrect.shift(offset), paint);
-    layer = context.pushClipPath(
+    layer = context.pushClipRRect(
       needsCompositing,
       offset,
       frame,
-      Path()..addRRect(rrect),
+      rrect,
       _paintContent,
-      oldLayer: layer as ClipPathLayer?,
+      oldLayer: layer as ClipRRectLayer?,
     );
   }
 }
@@ -911,7 +915,7 @@ List<Widget> generateInfoSection({
   ];
 }
 
-Widget generateListView(List<Widget> items) {
+Widget generateListView(List<Widget> items, {bool shrinkWrap = false}) {
   return ScrollEdgeRise(
     builder: (context, rise) {
       final bottomPadding = MediaQuery.paddingOf(context).bottom;
@@ -920,6 +924,7 @@ Widget generateListView(List<Widget> items) {
       if (cleanItems.isEmpty) return const SizedBox.shrink();
 
       return ListView.builder(
+        shrinkWrap: shrinkWrap,
         padding: EdgeInsets.only(bottom: 24 + bottomPadding, top: 8 + rise),
         itemCount: cleanItems.length,
         itemBuilder: (context, index) {

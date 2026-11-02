@@ -50,12 +50,12 @@ class AboutView extends StatelessWidget {
       _LinkTile(
         title: 'Telegram Group',
         icon: Icons.forum_outlined,
-        onTap: () => globalState.openUrl('https://telegram.me/appshub_chat'),
+        onTap: () => globalState.openUrl('https://t.me/bettbox_chat'),
       ),
       _LinkTile(
         title: 'Channel',
         icon: Icons.campaign_outlined,
-        onTap: () => globalState.openUrl('https://telegram.me/appshub_channel'),
+        onTap: () => globalState.openUrl('https://t.me/appshub_channel'),
       ),
       _LinkTile(
         prefix: 'Forked from',
@@ -143,6 +143,42 @@ class AboutView extends StatelessWidget {
       const Contributor(
         avatar: 'assets/images/avatars/wfion.png',
         name: 'wfion',
+      ),
+      const Contributor(
+        avatar: 'assets/images/avatars/uclort.jpg',
+        name: 'uclort',
+      ),
+      const Contributor(
+        avatar: 'assets/images/avatars/Catapult291.jpg',
+        name: 'Catapult291',
+      ),
+      const Contributor(
+        avatar: 'assets/images/avatars/fig0ut.jpg',
+        name: 'fig0ut',
+      ),
+      const Contributor(
+        avatar: 'assets/images/avatars/HarwoodKinnav.jpg',
+        name: 'HarwoodKinnav',
+      ),
+      const Contributor(
+        avatar: 'assets/images/avatars/aaANDkk.jpg',
+        name: 'aaANDkk',
+      ),
+      const Contributor(
+        avatar: 'assets/images/avatars/YumeYuka.jpg',
+        name: 'YumeYuka',
+      ),
+      const Contributor(
+        avatar: 'assets/images/avatars/jasonsamtago.jpg',
+        name: 'jasonsamtago',
+      ),
+      const Contributor(
+        avatar: 'assets/images/avatars/argsno.jpg',
+        name: 'argsno',
+      ),
+      const Contributor(
+        avatar: 'assets/images/avatars/suplzzz.jpg',
+        name: 'suplzzz',
       ),
     ]..shuffle();
     return generateSection(

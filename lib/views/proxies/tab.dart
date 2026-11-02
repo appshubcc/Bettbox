@@ -100,7 +100,7 @@ class ProxiesTabViewState extends ConsumerState<ProxiesTabView>
   void _showMoreMenu() {
     showSheet(
       context: context,
-      props: SheetProps(isScrollControlled: false),
+      props: const SheetProps(expandable: false),
       builder: (sheetContext, type) {
         return AdaptiveSheetScaffold(
           type: type,
@@ -335,8 +335,8 @@ class ProxiesTabViewState extends ConsumerState<ProxiesTabView>
                   begin: Alignment.centerLeft,
                   end: Alignment.centerRight,
                   colors: [
-                    context.colorScheme.surfaceContainer.opacity10,
-                    context.colorScheme.surfaceContainer,
+                    context.colorScheme.pageColor.opacity10,
+                    context.colorScheme.pageColor,
                   ],
                   stops: const [0.0, 0.1],
                 ),

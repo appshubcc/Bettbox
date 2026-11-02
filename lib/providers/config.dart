@@ -183,19 +183,6 @@ class AppDAVSetting extends _$AppDAVSetting with AutoDisposeNotifierMixin {
 }
 
 @riverpod
-class OverrideDns extends _$OverrideDns with AutoDisposeNotifierMixin {
-  @override
-  bool build() {
-    return globalState.config.overrideDns;
-  }
-
-  @override
-  onUpdate(value) {
-    globalState.config = globalState.config.copyWith(overrideDns: value);
-  }
-}
-
-@riverpod
 class OverrideTestUrl extends _$OverrideTestUrl with AutoDisposeNotifierMixin {
   @override
   bool build() {

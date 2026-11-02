@@ -105,7 +105,32 @@ class _HomePageState extends State<HomePage> {
             return const SizedBox();
           }
           Widget bodyWidget = child;
-          if (isMobile) {
+          if (isMobile && globalState.isAndroidTV) {
+            bodyWidget = Column(
+              children: [
+                Expanded(
+                  child: RepaintBoundary(
+                    child: MediaQuery.removePadding(
+                      removeBottom: true,
+                      removeLeft: true,
+                      removeRight: true,
+                      context: context,
+                      child: child,
+                    ),
+                  ),
+                ),
+                RepaintBoundary(
+                  child: MediaQuery.removePadding(
+                    removeTop: true,
+                    removeLeft: true,
+                    removeRight: true,
+                    context: context,
+                    child: bottomNavigationBar,
+                  ),
+                ),
+              ],
+            );
+          } else if (isMobile) {
             final pageContent = MediaQuery.removePadding(
               removeTop: false,
               removeBottom: false,
@@ -136,7 +161,7 @@ class _HomePageState extends State<HomePage> {
           }
           return Material(
             color: isMobile
-                ? context.colorScheme.surfaceContainer
+                ? context.colorScheme.pageColor
                 : Colors.transparent,
             child: bodyWidget,
           );

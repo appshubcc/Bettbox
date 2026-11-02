@@ -508,7 +508,7 @@ class _IpCardState extends State<_IpCard> {
             value: risk.hostname,
           ),
         ],
-        IpRiskSource(onTap: () => globalState.openUrl(ipRiskUrl(risk.ip))),
+        const IpRiskSource(),
       ],
     ];
   }

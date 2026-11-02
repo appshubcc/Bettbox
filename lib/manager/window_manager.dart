@@ -237,7 +237,7 @@ class WindowHeaderContainer extends StatelessWidget {
         final isMobileView = ref.watch(isMobileViewProvider);
         return Material(
           color: isMobileView
-              ? context.colorScheme.surfaceContainer
+              ? context.colorScheme.pageColor
               : Colors.transparent,
           child: Stack(
             children: [

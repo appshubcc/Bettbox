@@ -424,57 +424,6 @@ abstract class _$AppDAVSetting extends $Notifier<DAV?> {
   }
 }
 
-@ProviderFor(OverrideDns)
-final overrideDnsProvider = OverrideDnsProvider._();
-
-final class OverrideDnsProvider extends $NotifierProvider<OverrideDns, bool> {
-  OverrideDnsProvider._()
-    : super(
-        from: null,
-        argument: null,
-        retry: null,
-        name: r'overrideDnsProvider',
-        isAutoDispose: true,
-        dependencies: null,
-        $allTransitiveDependencies: null,
-      );
-
-  @override
-  String debugGetCreateSourceHash() => _$overrideDnsHash();
-
-  @$internal
-  @override
-  OverrideDns create() => OverrideDns();
-
-  /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(bool value) {
-    return $ProviderOverride(
-      origin: this,
-      providerOverride: $SyncValueProvider<bool>(value),
-    );
-  }
-}
-
-String _$overrideDnsHash() => r'1fc914de471319bf1e003edf9627b8c646b641bf';
-
-abstract class _$OverrideDns extends $Notifier<bool> {
-  bool build();
-  @$mustCallSuper
-  @override
-  WhenComplete runBuild() {
-    final ref = this.ref as $Ref<bool, bool>;
-    final element =
-        ref.element
-            as $ClassProviderElement<
-              AnyNotifier<bool, bool>,
-              bool,
-              Object?,
-              Object?
-            >;
-    return element.handleCreate(ref, build);
-  }
-}
-
 @ProviderFor(OverrideTestUrl)
 final overrideTestUrlProvider = OverrideTestUrlProvider._();
 

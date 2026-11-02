@@ -20,7 +20,7 @@ const List<double> _emptySegments = [0];
 
 extension on Profile {
   bool get canRefresh =>
-      type == ProfileType.url || providerSubscriptions.isNotEmpty;
+      type != ProfileType.file || providerSubscriptions.isNotEmpty;
 }
 
 Future<void> _updateProfile(Profile profile) async {
@@ -45,6 +45,14 @@ Future<void> refreshProfileSubscription(
   WidgetRef ref,
   Profile profile,
 ) async {
+  if (profile.type == ProfileType.bundle) {
+    final appController = globalState.appController;
+    await appController.safeRun(
+      () => appController.generateBundle(profile.id, refresh: true),
+      silence: false,
+    );
+    return;
+  }
   if (profile.providerSubscriptions.isNotEmpty) {
     await updateExternalProviders(ref, context, type: 'Proxy');
   }
@@ -904,7 +912,7 @@ class _ProfileSwitchItem extends StatelessWidget {
         color: selected
             ? colorScheme.primary.withValues(alpha: 0.08)
             : Colors.transparent,
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(20),
         clipBehavior: Clip.antiAlias,
         child: InkWell(
           onTap: onTap,

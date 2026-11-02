@@ -11,7 +11,7 @@ import (
 	"os"
 	"path"
 	"path/filepath"
-	"sort"
+	"slices"
 	"strings"
 	"sync"
 	"time"
@@ -36,6 +36,7 @@ const (
 
 type mrsMatcher interface {
 	Match(metadata *constant.Metadata, helper constant.RuleMatchHelper) bool
+	DumpMrs(f func(key string) bool)
 }
 
 type mrsFile struct {
@@ -81,6 +82,13 @@ var (
 
 func mrsDir() string {
 	return filepath.Join(constant.Path.HomeDir(), "toolbox", "mrs")
+}
+
+func mrsKindOf(rel string) string {
+	if strings.Contains("/"+rel, "/geoip/") {
+		return mrsKindGeoip
+	}
+	return mrsKindGeosite
 }
 
 func mrsBundleVersion(bundle string) (string, error) {
@@ -198,12 +206,8 @@ func listMrsFiles(dir string) ([]mrsFile, error) {
 			return nil
 		}
 		rel = filepath.ToSlash(rel)
-		kind := mrsKindGeosite
-		if strings.Contains("/"+rel, "/geoip/") {
-			kind = mrsKindGeoip
-		}
 		files = append(files, mrsFile{
-			kind: kind,
+			kind: mrsKindOf(rel),
 			name: strings.TrimSuffix(path.Base(rel), ".mrs"),
 			file: rel,
 			path: file,
@@ -213,8 +217,8 @@ func listMrsFiles(dir string) ([]mrsFile, error) {
 	if err != nil {
 		return nil, err
 	}
-	sort.Slice(files, func(a, b int) bool {
-		return files[a].file < files[b].file
+	slices.SortFunc(files, func(a, b mrsFile) int {
+		return strings.Compare(a.file, b.file)
 	})
 	return files, nil
 }
@@ -255,7 +259,7 @@ func scanMrsFiles(ctx context.Context, files []mrsFile, target mrsScanTarget, re
 	found := make([]*MrsMatch, len(candidates))
 	jobs := make(chan int)
 	var wg sync.WaitGroup
-	for worker := 0; worker < mrsScanWorkers; worker++ {
+	for range mrsScanWorkers {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
@@ -452,6 +456,45 @@ func HandleMrsLookup(paramsString string) string {
 	}
 	data, _ := json.Marshal(result)
 	return string(data)
+}
+
+func dumpMrs(dir, file string) (string, error) {
+	rel := path.Clean(strings.TrimPrefix(filepath.ToSlash(file), "./"))
+	if !strings.HasSuffix(rel, ".mrs") || rel == ".." || strings.HasPrefix(rel, "../") || path.IsAbs(rel) {
+		return "", errors.New("invalid mrs path")
+	}
+	handle, err := os.Open(filepath.Join(dir, filepath.FromSlash(rel)))
+	if err != nil {
+		return "", err
+	}
+	defer handle.Close()
+	decoder, err := zstd.NewReader(bufio.NewReader(handle), zstd.WithDecoderConcurrency(1), zstd.WithDecoderLowmem(true))
+	if err != nil {
+		return "", err
+	}
+	defer decoder.Close()
+	matcher, _, err := readMrsMatcher(decoder, mrsKindOf(rel))
+	if err != nil {
+		return "", err
+	}
+	var builder strings.Builder
+	matcher.DumpMrs(func(key string) bool {
+		builder.WriteString(key)
+		builder.WriteByte('\n')
+		return true
+	})
+	return builder.String(), nil
+}
+
+func HandleMrsDump(file string) string {
+	mrsLock.Lock()
+	defer mrsLock.Unlock()
+	content, err := dumpMrs(mrsDir(), file)
+	releaseToolMemory()
+	if err != nil {
+		return ""
+	}
+	return content
 }
 
 func HandleCancelMrsLookup() bool {

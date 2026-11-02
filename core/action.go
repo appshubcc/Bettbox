@@ -243,6 +243,18 @@ func handleAction(action *Action, result ActionResult) {
 	case clearTrafficStatsMethod:
 		result.success(toolbox.HandleClearTrafficStats())
 		return
+	case storeGetMethod:
+		result.success(toolbox.HandleStoreGet(action.Data.(string)))
+		return
+	case storeSetMethod:
+		result.success(toolbox.HandleStoreSet(action.Data.(string)))
+		return
+	case storeListMethod:
+		result.success(toolbox.HandleStoreList(action.Data.(string)))
+		return
+	case storeClearMethod:
+		result.success(toolbox.HandleStoreClear(action.Data.(string)))
+		return
 	case startToolProxyMethod:
 		result.success(toolbox.HandleStartToolProxy())
 		return

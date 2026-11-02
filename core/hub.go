@@ -85,6 +85,7 @@ func handleInitClash(paramsString string) bool {
 		}
 		constant.SetHomeDir(params.HomeDir)
 		toolbox.InitTrafficStats(params.HomeDir)
+		toolbox.InitKvStore(params.HomeDir)
 		isInit = true
 		ensureLogSubscriber()
 		initPermissionGuard(params.HomeDir)
@@ -132,6 +133,7 @@ func handleForceGc(forceFreeOSMemory, purge bool) {
 
 func handleShutdown() bool {
 	toolbox.FlushTrafficStats()
+	toolbox.FlushKvStore()
 	stopListeners()
 	executor.Shutdown()
 	tryUnloadGeoData()

@@ -1,6 +1,7 @@
 package toolbox
 
 import (
+	"cmp"
 	"context"
 	"crypto/rand"
 	"encoding/binary"
@@ -8,7 +9,7 @@ import (
 	"errors"
 	"net"
 	"net/netip"
-	"sort"
+	"slices"
 	"sync"
 	"syscall"
 	"time"
@@ -424,7 +425,7 @@ collect:
 		}
 	}
 
-	sort.Slice(state.Replies, func(i, j int) bool { return state.Replies[i].Seq < state.Replies[j].Seq })
+	slices.SortFunc(state.Replies, func(a, b LocalPingReply) int { return cmp.Compare(a.Seq, b.Seq) })
 	state.Sent = len(state.Replies)
 	state.Phase = localPingPhaseDone
 	state.Elapsed = time.Since(start).Seconds()

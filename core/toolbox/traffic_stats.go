@@ -1,10 +1,12 @@
 package toolbox
 
 import (
+	"cmp"
 	"encoding/json"
 	"net/netip"
 	"os"
 	"path/filepath"
+	"slices"
 	"sort"
 	"strconv"
 	"strings"
@@ -20,7 +22,7 @@ import (
 
 const (
 	trafficStatsDir        = "traffic_stats"
-	trafficStatsExt        = ".json"
+	trafficStatsExt        = ".dat"
 	trafficFlushInterval   = 5 * time.Minute
 	trafficScreenOffFlush  = 15 * time.Minute
 	trafficDayLayout       = "2006-01-02"
@@ -94,6 +96,7 @@ type trafficCollector struct {
 	options    state.TrafficStatsOptions
 	profile    string
 	generation uint64
+	sampling   int
 	cleaned    string
 	timer      *time.Timer
 	timerDue   time.Time
@@ -333,20 +336,27 @@ func (c *trafficCollector) sample() {
 		info *statistic.TrackerInfo
 	}
 	var items []tracked
+	c.mu.Lock()
+	c.sampling++
+	c.mu.Unlock()
 	statistic.DefaultManager.Range(func(t statistic.Tracker) bool {
 		items = append(items, tracked{id: t.ID(), info: t.Info()})
 		return true
 	})
 	c.mu.Lock()
 	defer c.mu.Unlock()
+	c.sampling--
 	c.generation++
 	for _, item := range items {
 		c.observeLocked(item.id, item.info, false)
 	}
 	for id, conn := range c.conns {
-		if c.generation-conn.seen > 1 {
+		if (conn.closed && c.sampling == 0) || c.generation-conn.seen > 1 {
 			delete(c.conns, id)
 		}
+	}
+	if len(c.conns) == 0 {
+		c.conns = map[string]*trafficConn{}
 	}
 }
 
@@ -378,6 +388,9 @@ func (c *trafficCollector) observeLocked(id string, info *statistic.TrackerInfo,
 		deltaDown = 0
 	}
 	conn.up, conn.down, conn.seen, conn.closed = up, down, c.generation, closed
+	if closed && c.sampling == 0 {
+		delete(c.conns, id)
+	}
 	if deltaUp == 0 && deltaDown == 0 {
 		return
 	}
@@ -559,12 +572,11 @@ func sortedTrafficKeys[T any](values map[string]T, sum func(T) int64) []string {
 			keys = append(keys, key)
 		}
 	}
-	sort.Slice(keys, func(i, j int) bool {
-		a, b := sum(values[keys[i]]), sum(values[keys[j]])
-		if a != b {
-			return a > b
+	slices.SortFunc(keys, func(a, b string) int {
+		if c := cmp.Compare(sum(values[b]), sum(values[a])); c != 0 {
+			return c
 		}
-		return keys[i] < keys[j]
+		return strings.Compare(a, b)
 	})
 	return keys
 }
@@ -648,7 +660,7 @@ func (c *trafficCollector) flush() {
 		if key != today {
 			pruneTrafficDay(day)
 		}
-		if data, err := json.Marshal(day); err == nil {
+		if data, err := encodeStore(day); err == nil {
 			writes = append(writes, pending{key: key, data: data})
 		}
 	}
@@ -661,7 +673,7 @@ func (c *trafficCollector) flush() {
 
 	var failed []string
 	if len(writes) > 0 {
-		if err := os.MkdirAll(dir, 0o755); err != nil {
+		if err := os.MkdirAll(dir, 0o700); err != nil {
 			for _, write := range writes {
 				failed = append(failed, write.key)
 			}
@@ -669,7 +681,7 @@ func (c *trafficCollector) flush() {
 		}
 	}
 	for _, write := range writes {
-		if err := writeTrafficFile(filepath.Join(dir, write.key+trafficStatsExt), write.data); err != nil {
+		if err := writeStoreBytes(filepath.Join(dir, write.key+trafficStatsExt), write.data); err != nil {
 			failed = append(failed, write.key)
 		}
 	}
@@ -711,23 +723,11 @@ func (c *trafficCollector) clear() {
 }
 
 func readTrafficDay(path string) *trafficDay {
-	content, err := os.ReadFile(path)
-	if err != nil {
-		return nil
-	}
 	day := &trafficDay{}
-	if err := json.Unmarshal(content, day); err != nil {
+	if !readStoreFile(path, day) {
 		return nil
 	}
 	return day
-}
-
-func writeTrafficFile(path string, content []byte) error {
-	temp := path + ".tmp"
-	if err := os.WriteFile(temp, content, 0o644); err != nil {
-		return err
-	}
-	return os.Rename(temp, path)
 }
 
 func listTrafficDays(dir string) []string {
@@ -935,7 +935,7 @@ func (c *trafficCollector) query(query TrafficStatsQuery) TrafficStatsResult {
 	}
 	if len(days) == 1 {
 		day := dayOf(days[0])
-		for hour := 0; hour < 24; hour++ {
+		for hour := range 24 {
 			point := TrafficStatsPoint{Label: strconv.Itoa(hour)}
 			if day != nil {
 				point.Up, point.Down = day.Hours[hour][0], day.Hours[hour][1]

@@ -243,9 +243,28 @@ func TestMrsLookupMatchesSets(t *testing.T) {
 	}
 }
 
+func TestMrsDumpRules(t *testing.T) {
+	dir := t.TempDir()
+	writeTestMrs(t, dir, "geo/geosite/google.mrs", P.Domain, "+.google.com\nmail.example.com\n")
+	writeTestMrs(t, dir, "geo/geoip/private.mrs", P.IPCIDR, "10.0.0.0/8\n")
+	content, err := dumpMrs(dir, "geo/geosite/google.mrs")
+	if err != nil || !strings.Contains(content, "+.google.com\n") || !strings.Contains(content, "mail.example.com\n") {
+		t.Fatalf("unexpected geosite dump: %q %v", content, err)
+	}
+	content, err = dumpMrs(dir, "geo/geoip/private.mrs")
+	if err != nil || content != "10.0.0.0/8\n" {
+		t.Fatalf("unexpected geoip dump: %q %v", content, err)
+	}
+	for _, file := range []string{"../google.mrs", "/etc/passwd.mrs", "geo/geosite/google.txt", "geo/geosite/missing.mrs"} {
+		if _, err := dumpMrs(dir, file); err == nil {
+			t.Fatalf("expected error for %s", file)
+		}
+	}
+}
+
 func TestMrsLookupStopsWhenCancelled(t *testing.T) {
 	dir := t.TempDir()
-	for i := 0; i < 40; i++ {
+	for i := range 40 {
 		writeTestMrs(t, dir, fmt.Sprintf("geo/geosite/set%02d.mrs", i), P.Domain, "+.google.com\n")
 	}
 	files, err := listMrsFiles(dir)

@@ -175,7 +175,7 @@ func TestClassifyNat(t *testing.T) {
 func TestNatReleasesResources(t *testing.T) {
 	server := newFakeStunServer(t)
 	baseline := collectSpeedTestResources()
-	for i := 0; i < 3; i++ {
+	for range 3 {
 		runNat(t, server)
 	}
 	after := waitSpeedTestReleased(baseline)

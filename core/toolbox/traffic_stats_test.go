@@ -1,6 +1,7 @@
 package toolbox
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"net/netip"
@@ -103,7 +104,7 @@ func TestTrafficStatsTimerFollowsLiveConnections(t *testing.T) {
 	if collector.timer != nil {
 		t.Fatal("timer should stop once no live connection remains")
 	}
-	if day := readTrafficDay(filepath.Join(collector.dir, "2026-10-24.json")); day == nil || day.Total != (trafficPair{1, 1}) {
+	if day := readTrafficDay(filepath.Join(collector.dir, "2026-10-24.dat")); day == nil || day.Total != (trafficPair{1, 1}) {
 		t.Fatalf("tick should flush dirty data: %+v", day)
 	}
 }
@@ -117,6 +118,9 @@ func TestTrafficStatsCountsDeltasOnce(t *testing.T) {
 	info.UploadTotal.Store(150)
 	info.DownloadTotal.Store(1600)
 	collector.observe("a", info, false)
+	collector.mu.Lock()
+	collector.sampling++
+	collector.mu.Unlock()
 	info.DownloadTotal.Store(2000)
 	collector.observe("a", info, true)
 	collector.observe("a", info, true)
@@ -149,11 +153,28 @@ func TestTrafficStatsCountsDeltasOnce(t *testing.T) {
 		t.Fatalf("stale sample after close counted again: %v", day.Total)
 	}
 	collector.mu.Lock()
-	collector.generation += 2
+	collector.sampling--
 	collector.mu.Unlock()
 	collector.sample()
 	if len(collector.conns) != 0 {
 		t.Fatalf("closed connection should be forgotten, got %d", len(collector.conns))
+	}
+}
+
+func TestTrafficStatsForgetsClosedConnectionImmediately(t *testing.T) {
+	useTrafficNow(t, time.Date(2026, 10, 24, 3, 0, 0, 0, time.UTC))
+	collector := newTestTrafficCollector(t, 0)
+	info := newTrafficInfo("example.com", "curl", nil, true, 10, 20)
+
+	collector.observe("a", info, false)
+	info.DownloadTotal.Store(50)
+	collector.observe("a", info, true)
+
+	if len(collector.conns) != 0 {
+		t.Fatalf("closed connection should be removed without pending sample, got %d", len(collector.conns))
+	}
+	if day := collector.days["2026-10-24"]; day == nil || day.Total != (trafficPair{10, 50}) {
+		t.Fatalf("unexpected totals: %+v", day)
 	}
 }
 
@@ -233,7 +254,7 @@ func TestTrafficStatsFlushWritesDailyShards(t *testing.T) {
 	options.RetentionDays = 3
 	collector.configure(options, "")
 	yesterday := &trafficDay{Total: trafficPair{1, 1}, Hosts: map[string]*trafficEntry{}}
-	for i := 0; i < trafficHostLimit+5; i++ {
+	for i := range trafficHostLimit + 5 {
 		yesterday.Hosts[fmt.Sprintf("host-%03d.com", i)] = &trafficEntry{Traffic: trafficPair{int64(i), 0}}
 	}
 	collector.days["2026-10-23"] = yesterday
@@ -241,7 +262,7 @@ func TestTrafficStatsFlushWritesDailyShards(t *testing.T) {
 	if err := os.MkdirAll(collector.dir, 0o755); err != nil {
 		t.Fatal(err)
 	}
-	expired := filepath.Join(collector.dir, "2026-10-21.json")
+	expired := filepath.Join(collector.dir, "2026-10-21.dat")
 	if err := os.WriteFile(expired, []byte(`{}`), 0o644); err != nil {
 		t.Fatal(err)
 	}
@@ -257,14 +278,14 @@ func TestTrafficStatsFlushWritesDailyShards(t *testing.T) {
 	if collector.days["2026-10-24"] == nil {
 		t.Fatal("today should stay in memory")
 	}
-	stored := readTrafficDay(filepath.Join(collector.dir, "2026-10-23.json"))
+	stored := readTrafficDay(filepath.Join(collector.dir, "2026-10-23.dat"))
 	if stored == nil || len(stored.Hosts) != trafficHostLimit+1 {
 		t.Fatalf("expected pruned shard, got %d hosts", len(stored.Hosts))
 	}
 	if others := stored.Hosts[""]; others == nil || others.Traffic[0] != 0+1+2+3+4 {
 		t.Fatalf("unexpected others entry: %+v", others)
 	}
-	today := readTrafficDay(filepath.Join(collector.dir, "2026-10-24.json"))
+	today := readTrafficDay(filepath.Join(collector.dir, "2026-10-24.dat"))
 	if today == nil || today.Total != (trafficPair{3, 4}) {
 		t.Fatalf("today shard not written: %+v", today)
 	}
@@ -274,7 +295,7 @@ func TestTrafficStatsFlushWritesDailyShards(t *testing.T) {
 
 	collector.observe("b", newTrafficInfo("example.com", "", nil, false, 1, 1), true)
 	collector.flush()
-	if day := readTrafficDay(filepath.Join(collector.dir, "2026-10-23.json")); day == nil || day.Total != (trafficPair{1, 1}) {
+	if day := readTrafficDay(filepath.Join(collector.dir, "2026-10-23.dat")); day == nil || day.Total != (trafficPair{1, 1}) {
 		t.Fatal("finished shard should not be rewritten")
 	}
 }
@@ -322,13 +343,16 @@ func TestTrafficStatsReloadAndClear(t *testing.T) {
 	collector.observe("a", newTrafficInfo("example.com", "", nil, false, 3, 4), true)
 	collector.flush()
 
-	content, err := os.ReadFile(filepath.Join(collector.dir, "2026-10-24.json"))
+	path := filepath.Join(collector.dir, "2026-10-24.dat")
+	content, err := os.ReadFile(path)
 	if err != nil {
 		t.Fatal(err)
 	}
-	var stored trafficDay
-	if err := json.Unmarshal(content, &stored); err != nil || stored.Total != (trafficPair{3, 4}) {
-		t.Fatalf("unexpected shard: %s", content)
+	if json.Valid(content) || bytes.Contains(content, []byte("example.com")) {
+		t.Fatalf("shard should not be plain text: %q", content)
+	}
+	if stored := readTrafficDay(path); stored == nil || stored.Total != (trafficPair{3, 4}) {
+		t.Fatalf("unexpected shard: %+v", stored)
 	}
 
 	reloaded := newTrafficCollector()
@@ -379,7 +403,7 @@ func TestTrafficStatsSuspendFlushesThenPauses(t *testing.T) {
 	if collector.timer != nil {
 		t.Fatal("suspend should stop the timer")
 	}
-	if day := readTrafficDay(filepath.Join(collector.dir, "2026-10-24.json")); day == nil || day.Total != (trafficPair{1, 1}) {
+	if day := readTrafficDay(filepath.Join(collector.dir, "2026-10-24.dat")); day == nil || day.Total != (trafficPair{1, 1}) {
 		t.Fatalf("suspend should flush pending data first: %+v", day)
 	}
 
@@ -387,7 +411,7 @@ func TestTrafficStatsSuspendFlushesThenPauses(t *testing.T) {
 	if collector.timer != nil || !collector.dirty["2026-10-24"] {
 		t.Fatal("traffic during suspend should stay in memory without scheduling writes")
 	}
-	if day := readTrafficDay(filepath.Join(collector.dir, "2026-10-24.json")); day.Total != (trafficPair{1, 1}) {
+	if day := readTrafficDay(filepath.Join(collector.dir, "2026-10-24.dat")); day.Total != (trafficPair{1, 1}) {
 		t.Fatal("nothing should be written while suspended")
 	}
 
@@ -405,7 +429,6 @@ func TestTrafficStatsRecordsRuleHits(t *testing.T) {
 	cn.Rule, cn.RulePayload = "RuleSet", "cn"
 	collector.observe("a", cn, false)
 	cn.DownloadTotal.Store(40)
-	collector.observe("a", cn, true)
 	collector.observe("a", cn, true)
 	useTrafficNow(t, time.Date(2026, 10, 21, 3, 0, 0, 0, time.UTC))
 	for _, id := range []string{"b", "c"} {
@@ -442,7 +465,7 @@ func TestTrafficStatsRecordsRuleHits(t *testing.T) {
 
 func TestTrafficStatsPrunesRulesByHits(t *testing.T) {
 	day := &trafficDay{Rules: map[string]*trafficEntry{}}
-	for index := 0; index < trafficRuleLimit+trafficRuleLimit/4; index++ {
+	for index := range trafficRuleLimit + trafficRuleLimit/4 {
 		day.Rules[fmt.Sprintf("Domain,%d", index)] = &trafficEntry{Hits: int64(index + 10), Traffic: trafficPair{0, 1}}
 	}
 	addTrafficRule(day, trafficConnKey{rule: "Domain,big"}, 0, 0, 1<<30)
@@ -476,7 +499,7 @@ func TestTrafficStatsDisableReleasesMemory(t *testing.T) {
 	collector := newTestTrafficCollector(t, 0)
 	collector.observe("live", newTrafficInfo("example.com", "", nil, false, 1, 2), false)
 	collector.observe("done", newTrafficInfo("example.com", "", nil, false, 3, 4), true)
-	if len(collector.days) != 1 || len(collector.conns) != 2 {
+	if len(collector.days) != 1 || len(collector.conns) != 1 {
 		t.Fatalf("unexpected state: %d days %d conns", len(collector.days), len(collector.conns))
 	}
 

@@ -91,15 +91,17 @@ func handleAction(action *Action, result ActionResult) {
 		result.success(handleGetIsInit())
 		return
 	case forceGcMethod:
-		var forceFreeOSMemory bool
+		var forceFreeOSMemory, purge bool
 		if action.Data != nil {
 			if strVal, ok := action.Data.(string); ok {
-				forceFreeOSMemory = (strVal == "true")
+				forceFreeOSMemory = strVal == "true" || strVal == "free"
+				purge = strVal == "true"
 			} else if boolVal, ok := action.Data.(bool); ok {
 				forceFreeOSMemory = boolVal
+				purge = boolVal
 			}
 		}
-		handleForceGc(forceFreeOSMemory)
+		handleForceGc(forceFreeOSMemory, purge)
 		result.success(true)
 		return
 	case shutdownMethod:
@@ -229,6 +231,9 @@ func handleAction(action *Action, result ActionResult) {
 	case mrsLookupMethod:
 		result.success(toolbox.HandleMrsLookup(action.Data.(string)))
 		return
+	case mrsDumpMethod:
+		result.success(toolbox.HandleMrsDump(action.Data.(string)))
+		return
 	case cancelMrsLookupMethod:
 		result.success(toolbox.HandleCancelMrsLookup())
 		return
@@ -289,6 +294,19 @@ func handleAction(action *Action, result ActionResult) {
 			return
 		}
 		result.success("")
+		return
+	case mergeProfilesMethod:
+		var params MergeProfilesParams
+		if err := json.Unmarshal([]byte(action.Data.(string)), &params); err != nil {
+			result.error(err)
+			return
+		}
+		report, err := handleMergeProfiles(&params)
+		if err != nil {
+			result.error(err)
+			return
+		}
+		result.success(report)
 		return
 	case getRuntimeConfigMethod:
 		params := defaultSetupParams()

@@ -69,4 +69,18 @@ func TestPreloadBundledRuleSets(t *testing.T) {
 	if left := bundledRuleSetTargets(rawCfg); len(left) != 1 {
 		t.Errorf("only the entry missing from the bundle should remain, got %v", left)
 	}
+
+	patched := parsePatchProfile(t, "rules:\n  - MATCH,DIRECT\n")
+	params := patchParams(t, `{"prepend-rules": ["AND,((NETWORK,UDP),(NOT,((OR,((RULE-SET,private_bettbox),(RULE-SET,cn_ip_bettbox,no-resolve)))))),REJECT"]}`)
+	params.ProvidersPath = filepath.Join(home, "providers")
+	if _, err := applyPatch(patched, params); err != nil {
+		t.Fatal(err)
+	}
+	preloadBundledRuleSets(patched)
+	for name, want := range map[string]string{"private_bettbox": "private-rules", "cn_ip_bettbox": "cn-ip-rules"} {
+		path, _ := patched.RuleProvider[name]["path"].(string)
+		if got, err := os.ReadFile(path); err != nil || string(got) != want {
+			t.Errorf("%s = %q (%v), want %q", name, got, err, want)
+		}
+	}
 }

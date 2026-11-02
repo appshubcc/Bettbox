@@ -13,10 +13,14 @@ import (
 	"regexp"
 	"runtime"
 	"runtime/debug"
+	"slices"
 	"sort"
 	"strconv"
 	"strings"
 	"time"
+
+	"sync"
+	"sync/atomic"
 
 	"github.com/metacubex/mihomo/adapter"
 	"github.com/metacubex/mihomo/adapter/outboundgroup"
@@ -37,8 +41,6 @@ import (
 	rulesProvider "github.com/metacubex/mihomo/rules/provider"
 	"github.com/metacubex/mihomo/tunnel"
 	"github.com/metacubex/mihomo/tunnel/statistic"
-	"sync"
-	"sync/atomic"
 
 	yamlv3 "go.yaml.in/yaml/v3"
 )
@@ -78,6 +80,9 @@ func handleInitClash(paramsString string) bool {
 	}
 	version = params.Version
 	if !isInit {
+		if !isAllowedHomeDir(params.HomeDir) {
+			return false
+		}
 		constant.SetHomeDir(params.HomeDir)
 		toolbox.InitTrafficStats(params.HomeDir)
 		isInit = true
@@ -110,12 +115,15 @@ func handleGetIsInit() bool {
 	return isInit
 }
 
-func handleForceGc(forceFreeOSMemory bool) {
+func handleForceGc(forceFreeOSMemory, purge bool) {
 	go func() {
 		log.Infoln("[APP] Request force GC, forceFreeOSMemory=%t", forceFreeOSMemory)
 		tryUnloadGeoData()
 		if forceFreeOSMemory {
 			debug.FreeOSMemory()
+			if purge {
+				purgeNativeMemory()
+			}
 		} else {
 			runtime.GC()
 		}
@@ -431,10 +439,8 @@ func handleResetTraffic() {
 	statistic.DefaultManager.ResetStatistic()
 }
 
-func testProxyDelay(name, testUrl string, timeout int64) Delay {
-	if testUrl == "" {
-		testUrl = constant.DefaultTestURL
-	}
+func testProxyDelay(ctx context.Context, name, testUrl string, timeout int64) Delay {
+	testUrl = delayTestURL(testUrl)
 	delay := Delay{Name: name, Url: testUrl, Value: -1}
 	proxy, _ := toolbox.FindProxy(name)
 	if proxy == nil {
@@ -444,7 +450,7 @@ func testProxyDelay(name, testUrl string, timeout int64) Delay {
 	if err != nil {
 		return delay
 	}
-	ctx, cancel := context.WithTimeout(context.Background(), time.Millisecond*time.Duration(timeout))
+	ctx, cancel := context.WithTimeout(ctx, time.Millisecond*time.Duration(timeout))
 	defer cancel()
 	value, err := proxy.URLTest(ctx, testUrl, expectedStatus)
 	if err == nil && value != 0 {
@@ -460,7 +466,11 @@ func handleAsyncTestDelay(paramsString string, fn func(string)) {
 			fn("")
 			return false, nil
 		}
-		data, _ := json.Marshal(testProxyDelay(params.ProxyName, params.TestUrl, params.Timeout))
+		testUrl := delayTestURL(params.TestUrl)
+		ctx, batch := startDelayBatch([]delayTarget{{Name: params.ProxyName, Url: testUrl}})
+		delay := testProxyDelay(ctx, params.ProxyName, testUrl, params.Timeout)
+		finishDelayBatch(batch)
+		data, _ := json.Marshal(delay)
 		fn(string(data))
 		return false, nil
 	})
@@ -513,7 +523,9 @@ func handleGetExternalProviders() string {
 		}
 		eps = append(eps, *externalProvider)
 	}
-	sort.Sort(ExternalProviders(eps))
+	slices.SortFunc(eps, func(a, b ExternalProvider) int {
+		return strings.Compare(a.Name, b.Name)
+	})
 	data, err := json.Marshal(eps)
 	if err != nil {
 		return ""
@@ -899,15 +911,20 @@ func handleExportConfig(params *ExportConfigParams) error {
 	if err != nil {
 		return err
 	}
+	if params.ExpandProviders {
+		if err := expandProxyProviders(rawCfg, expandOptions{
+			ProvidersPath: params.ProvidersPath,
+			AgeSecretKey:  params.AgeSecretKey,
+			Refresh:       params.Refresh,
+		}); err != nil {
+			return err
+		}
+	}
 	bytes, err := json.Marshal(rawCfg)
 	if err != nil {
 		return err
 	}
-	if err := os.WriteFile(params.Output, bytes, 0o600); err != nil {
-		return err
-	}
-	_ = os.Chown(params.Output, os.Getuid(), os.Getgid())
-	return nil
+	return writeProfileFile(params.Output, bytes, false)
 }
 
 func readProfile(path string, ageSecretKey string) (*config.RawConfig, error) {
@@ -1190,8 +1207,10 @@ func handleSuspend(mode int) bool {
 			_ = c.Close()
 			return true
 		})
+		closeIdleOutbounds(tunnel.Proxies(), tunnel.Providers())
 
-		runtime.GC()
+		debug.FreeOSMemory()
+		purgeNativeMemory()
 		currentSuspendMode = 1
 
 	case 2:
@@ -1200,8 +1219,10 @@ func handleSuspend(mode int) bool {
 		}
 		log.Infoln("[APP] Doze suspend mode enabled")
 		pauseHealthChecks()
+		closeIdleOutbounds(tunnel.Proxies(), tunnel.Providers())
 		toolbox.SuspendTrafficStats(true)
-		runtime.GC()
+		debug.FreeOSMemory()
+		purgeNativeMemory()
 		currentSuspendMode = 2
 
 	case 0:
@@ -1260,12 +1281,6 @@ func init() {
 		sendMessage(Message{
 			Type: RequestMessage,
 			Data: info,
-		})
-	}
-	executor.DefaultProviderLoadedHook = func(providerName string) {
-		sendMessage(Message{
-			Type: LoadedMessage,
-			Data: providerName,
 		})
 	}
 }

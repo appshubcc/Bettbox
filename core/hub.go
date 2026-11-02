@@ -28,6 +28,7 @@ import (
 	"github.com/metacubex/mihomo/common/utils"
 	"github.com/metacubex/mihomo/common/yaml"
 	"github.com/metacubex/mihomo/component/age"
+	"github.com/metacubex/mihomo/component/iface"
 	"github.com/metacubex/mihomo/component/mmdb"
 	"github.com/metacubex/mihomo/component/resolver"
 	"github.com/metacubex/mihomo/component/updater"
@@ -85,6 +86,7 @@ func handleInitClash(paramsString string) bool {
 		}
 		constant.SetHomeDir(params.HomeDir)
 		toolbox.InitTrafficStats(params.HomeDir)
+		toolbox.InitKvStore(params.HomeDir)
 		isInit = true
 		ensureLogSubscriber()
 		initPermissionGuard(params.HomeDir)
@@ -132,6 +134,7 @@ func handleForceGc(forceFreeOSMemory, purge bool) {
 
 func handleShutdown() bool {
 	toolbox.FlushTrafficStats()
+	toolbox.FlushKvStore()
 	stopListeners()
 	executor.Shutdown()
 	tryUnloadGeoData()
@@ -490,6 +493,18 @@ func closeConnections() {
 	})
 }
 
+func handleCloseGroupConnections(groupName string) bool {
+	runLock.Lock()
+	defer runLock.Unlock()
+	statistic.DefaultManager.Range(func(c statistic.Tracker) bool {
+		if slices.Contains(c.Info().Chain, groupName) {
+			_ = c.Close()
+		}
+		return true
+	})
+	return true
+}
+
 func handleResetConnections() bool {
 	runLock.Lock()
 	defer runLock.Unlock()
@@ -770,6 +785,47 @@ func handleGetMemory(fn func(value string)) {
 		mem := m.HeapInuse + retainedIdle + m.StackInuse
 		fn(strconv.FormatUint(mem, 10))
 	}()
+}
+
+type interfaceInfo struct {
+	Name      string   `json:"name"`
+	Addresses []string `json:"addresses"`
+}
+
+func handleGetInterfaces() string {
+	iface.FlushCache()
+	ifaces, err := iface.Interfaces()
+	if err != nil {
+		return "[]"
+	}
+	tunDevice := ""
+	if currentConfig != nil {
+		tunDevice = currentConfig.General.Tun.Device
+	}
+	result := make([]interfaceInfo, 0, len(ifaces))
+	for name, item := range ifaces {
+		if name == tunDevice ||
+			item.Flags&net.FlagUp == 0 ||
+			item.Flags&(net.FlagLoopback|net.FlagPointToPoint) != 0 {
+			continue
+		}
+		addresses := make([]string, 0, len(item.Addresses))
+		for _, prefix := range item.Addresses {
+			if addr := prefix.Addr(); addr.IsGlobalUnicast() || addr.IsPrivate() {
+				addresses = append(addresses, addr.String())
+			}
+		}
+		if len(addresses) == 0 {
+			continue
+		}
+		result = append(result, interfaceInfo{Name: name, Addresses: addresses})
+	}
+	sort.Slice(result, func(i, j int) bool { return result[i].Name < result[j].Name })
+	data, err := json.Marshal(result)
+	if err != nil {
+		return "[]"
+	}
+	return string(data)
 }
 
 func handleGetCoreStatus(fn func(value string)) {

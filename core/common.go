@@ -7,6 +7,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"maps"
 	"os"
@@ -394,7 +395,7 @@ var (
 	preparedSetupLock  sync.Mutex
 	lastPreparedSetup  *preparedSetup
 	preparedSetupTimer *time.Timer
-	preparedSetupLimit = time.Minute
+	preparedSetupLimit = 10 * time.Second
 )
 
 func storePreparedSetup(prepared *preparedSetup) {
@@ -410,9 +411,14 @@ func storePreparedSetup(prepared *preparedSetup) {
 	}
 	preparedSetupTimer = time.AfterFunc(preparedSetupLimit, func() {
 		preparedSetupLock.Lock()
-		defer preparedSetupLock.Unlock()
-		if lastPreparedSetup == prepared {
+		matched := lastPreparedSetup == prepared
+		if matched {
 			lastPreparedSetup = nil
+		}
+		preparedSetupLock.Unlock()
+		if matched {
+			tryUnloadGeoData()
+			debug.FreeOSMemory()
 		}
 	})
 }
@@ -491,9 +497,15 @@ func prepareSetup(params *SetupParams) (*preparedSetup, error) {
 	return &preparedSetup{key: key, rawCfg: rawCfg, cfg: cfg, global: global}, nil
 }
 
-func setupConfig(params *SetupParams) (string, error) {
+func setupConfig(params *SetupParams) (global string, err error) {
 	runLock.Lock()
 	defer runLock.Unlock()
+	defer func() {
+		if r := recover(); r != nil {
+			log.Errorln("[APP] setupConfig panic: %v", r)
+			err = fmt.Errorf("panic: %v", r)
+		}
+	}()
 	cancelDelayBatches()
 
 	constant.DefaultTestURL = params.TestURL

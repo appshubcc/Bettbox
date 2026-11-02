@@ -684,7 +684,7 @@ func (t *speedTester) resolveOutbound() *SpeedTestOutbound {
 	if metadata == nil {
 		return nil
 	}
-	for i := 0; i < 5; i++ {
+	for range 5 {
 		var info *statistic.TrackerInfo
 		statistic.DefaultManager.Range(func(c statistic.Tracker) bool {
 			if current := c.Info(); current.Metadata == metadata {
@@ -734,14 +734,15 @@ func prepareCloudflareSpeedTest(ctx context.Context, t *speedTester) (*speedTest
 	if resp.StatusCode != http.StatusOK || resp.Header.Get("cf-ray") == "" || trace["ip"] == "" {
 		return nil, errSpeedTestBlocked
 	}
+	colo := strings.ToUpper(trace["colo"])
 	return &speedTestTarget{
 		latencyURL:  cloudflareSpeedTestHost + "/__down?bytes=0",
 		downloadURL: cloudflareSpeedTestHost + "/__down?bytes=" + strconv.Itoa(speedTestDownloadBytes),
 		uploadURL:   cloudflareSpeedTestHost + "/__up",
 		server: &SpeedTestServer{
 			Ip:      trace["ip"],
-			Country: strings.ToUpper(trace["loc"]),
-			Colo:    strings.ToUpper(trace["colo"]),
+			Country: cloudflareColoCountry[colo],
+			Colo:    colo,
 			Host:    "speed.cloudflare.com",
 		},
 	}, nil
@@ -1054,7 +1055,7 @@ func parseServerTiming(header string) float64 {
 
 func (t *speedTester) measureLatency(ctx context.Context, target *speedTestTarget, count int, progress func(int)) []float64 {
 	samples := make([]float64, 0, count)
-	for i := 0; i < count; i++ {
+	for i := range count {
 		if ctx.Err() != nil {
 			break
 		}

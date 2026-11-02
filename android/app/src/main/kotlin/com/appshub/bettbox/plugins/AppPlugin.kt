@@ -230,6 +230,10 @@ class AppPlugin : FlutterPlugin, MethodChannel.MethodCallHandler, ActivityAware 
                 activityRef?.get()?.moveTaskToBack(true)
                 result.success(true)
             }
+            "notifyLowMemory" -> {
+                GlobalState.notifyLowMemory()
+                result.success(true)
+            }
             "updateExcludeFromRecents" -> {
                 updateExcludeFromRecents(call.argument<Boolean>("value"))
                 result.success(true)

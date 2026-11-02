@@ -16,6 +16,7 @@ import android.text.style.RelativeSizeSpan
 import androidx.core.app.NotificationCompat
 import com.appshub.bettbox.GlobalState
 import com.appshub.bettbox.R
+import com.appshub.bettbox.core.Core
 import com.appshub.bettbox.models.VpnOptions
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -70,7 +71,10 @@ class BettboxService : Service(), BaseServiceInterface {
 
         fairMemoryHelper.register(
             context = this,
-            onTrim = { GlobalState.getCurrentVPNPlugin()?.requestGc() },
+            onTrim = {
+                GlobalState.getCurrentVPNPlugin()?.requestGc()
+                Core.purge(all = true)
+            },
             onKill = { /* system will kill process; service has no extra state to save */ }
         )
     }
@@ -197,6 +201,8 @@ class BettboxService : Service(), BaseServiceInterface {
         super.onTrimMemory(level)
         if (level == 10 || level == 15 || level >= 40) {
             GlobalState.getCurrentVPNPlugin()?.requestGc()
+            GlobalState.notifyLowMemory()
+            Core.purge(all = false)
         }
     }
 

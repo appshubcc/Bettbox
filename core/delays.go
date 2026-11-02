@@ -1,17 +1,19 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"sync"
 	"time"
 
+	"github.com/metacubex/mihomo/constant"
 	"github.com/metacubex/mihomo/tunnel"
 )
 
 const (
 	delayFlushInterval  = 300 * time.Millisecond
 	groupRecheckDelay   = 11 * time.Second
-	maxDelayConcurrency = 50
+	maxDelayConcurrency = 100
 )
 
 type delayKey struct {
@@ -41,7 +43,72 @@ var (
 	lastGroupNows     map[string]string
 	groupsChangedSent bool
 	groupRecheckTimer *time.Timer
+
+	delayBatchLock sync.Mutex
+	delayBatches   = map[*delayBatch]struct{}{}
+	staleDelays    = map[delayKey]int{}
 )
+
+type delayBatch struct {
+	keys   []delayKey
+	cancel context.CancelFunc
+	stale  bool
+}
+
+func startDelayBatch(targets []delayTarget) (context.Context, *delayBatch) {
+	ctx, cancel := context.WithCancel(context.Background())
+	batch := &delayBatch{keys: make([]delayKey, len(targets)), cancel: cancel}
+	for i, target := range targets {
+		batch.keys[i] = delayKey{url: target.Url, name: target.Name}
+	}
+	delayBatchLock.Lock()
+	delayBatches[batch] = struct{}{}
+	delayBatchLock.Unlock()
+	return ctx, batch
+}
+
+func finishDelayBatch(batch *delayBatch) {
+	batch.cancel()
+	delayBatchLock.Lock()
+	delete(delayBatches, batch)
+	if batch.stale {
+		for _, key := range batch.keys {
+			staleDelays[key]--
+			if staleDelays[key] <= 0 {
+				delete(staleDelays, key)
+			}
+		}
+	}
+	delayBatchLock.Unlock()
+}
+
+func cancelDelayBatches() {
+	delayBatchLock.Lock()
+	for batch := range delayBatches {
+		if batch.stale {
+			continue
+		}
+		batch.stale = true
+		batch.cancel()
+		for _, key := range batch.keys {
+			staleDelays[key]++
+		}
+	}
+	delayBatchLock.Unlock()
+}
+
+func isStaleDelay(key delayKey) bool {
+	delayBatchLock.Lock()
+	defer delayBatchLock.Unlock()
+	return staleDelays[key] > 0
+}
+
+func delayTestURL(url string) string {
+	if url == "" {
+		return constant.DefaultTestURL
+	}
+	return url
+}
 
 func delayPushEnabledLocked() bool {
 	return pushForeground || forcedDelayPush > 0
@@ -55,8 +122,12 @@ func scheduleDelayFlushLocked() {
 }
 
 func pushDelay(delay Delay) {
+	key := delayKey{url: delay.Url, name: delay.Name}
+	if isStaleDelay(key) {
+		return
+	}
 	delayPushLock.Lock()
-	pendingDelays[delayKey{url: delay.Url, name: delay.Name}] = delay
+	pendingDelays[key] = delay
 	scheduleDelayFlushLocked()
 	delayPushLock.Unlock()
 }
@@ -151,7 +222,7 @@ func checkGroupsChanged() bool {
 	return changed
 }
 
-func testDelays(params testDelaysParams) []Delay {
+func testDelays(ctx context.Context, params testDelaysParams) []Delay {
 	concurrency := params.Concurrency
 	if concurrency < 1 {
 		concurrency = 1
@@ -159,15 +230,24 @@ func testDelays(params testDelaysParams) []Delay {
 		concurrency = maxDelayConcurrency
 	}
 	results := make([]Delay, len(params.Targets))
+	for i, target := range params.Targets {
+		results[i] = Delay{Name: target.Name, Url: target.Url, Value: -1}
+	}
 	semaphore := make(chan struct{}, concurrency)
 	var wg sync.WaitGroup
 	for i, target := range params.Targets {
-		semaphore <- struct{}{}
+		select {
+		case semaphore <- struct{}{}:
+		case <-ctx.Done():
+		}
+		if ctx.Err() != nil {
+			break
+		}
 		wg.Add(1)
 		go func(i int, target delayTarget) {
 			defer wg.Done()
 			defer func() { <-semaphore }()
-			results[i] = testProxyDelay(target.Name, target.Url, params.Timeout)
+			results[i] = testProxyDelay(ctx, target.Name, target.Url, params.Timeout)
 		}(i, target)
 	}
 	wg.Wait()
@@ -180,11 +260,16 @@ func handleAsyncTestDelays(paramsString string, fn func(string)) {
 		fn("[]")
 		return
 	}
+	for i := range params.Targets {
+		params.Targets[i].Url = delayTestURL(params.Targets[i].Url)
+	}
+	ctx, batch := startDelayBatch(params.Targets)
 	go func() {
 		delayPushLock.Lock()
 		forcedDelayPush++
 		delayPushLock.Unlock()
-		results := testDelays(params)
+		results := testDelays(ctx, params)
+		finishDelayBatch(batch)
 		delayPushLock.Lock()
 		forcedDelayPush--
 		delayPushLock.Unlock()

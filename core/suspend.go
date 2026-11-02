@@ -5,7 +5,9 @@ import (
 	"sync"
 	"unsafe"
 
+	"github.com/metacubex/mihomo/adapter/outbound"
 	cProxy "github.com/metacubex/mihomo/constant"
+	cp "github.com/metacubex/mihomo/constant/provider"
 	"github.com/metacubex/mihomo/tunnel"
 )
 
@@ -115,6 +117,23 @@ func clearSuspendedHealthChecks() {
 		*entry.target = entry.orig
 	}
 	suspendedEntries = nil
+}
+
+func closeIdleOutbounds(proxies map[string]cProxy.Proxy, providers map[string]cp.ProxyProvider) {
+	for _, p := range proxies {
+		closeIdleOutbound(p)
+	}
+	for _, pr := range providers {
+		for _, p := range pr.Proxies() {
+			closeIdleOutbound(p)
+		}
+	}
+}
+
+func closeIdleOutbound(p cProxy.Proxy) {
+	if closer, ok := p.Adapter().(outbound.IdleCloser); ok {
+		closer.CloseIdle()
+	}
 }
 
 func pauseSingleWireGuard(p cProxy.Proxy) {

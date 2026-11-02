@@ -88,12 +88,36 @@ func TestSummarizeConnections(t *testing.T) {
 	joinFakeTracker(t, &constant.Metadata{NetWork: constant.TCP, Host: "alt1-mtalk.google.com", DstPort: 5230}, start)
 	joinFakeTracker(t, &constant.Metadata{NetWork: constant.TCP, Host: "www.google.com", DstPort: 443}, start.Add(-time.Hour))
 	joinFakeTracker(t, &constant.Metadata{NetWork: constant.UDP, Host: "example.com", DstPort: 5228}, start.Add(-time.Hour))
+	joinFakeTracker(t, &constant.Metadata{NetWork: constant.TCP, Host: "mtalk.google.com", DstPort: 443}, start.Add(-30*time.Minute))
 	summary := summarizeConnections()
-	if summary.Total != 4 || summary.TCP != 3 || summary.UDP != 1 {
+	if summary.Total != 5 || summary.TCP != 4 || summary.UDP != 1 {
 		t.Fatalf("summary = %+v", summary)
 	}
-	if summary.FcmStart != start.UnixMilli() {
-		t.Fatalf("fcm start = %d, want %d", summary.FcmStart, start.UnixMilli())
+	want := start.Add(-30 * time.Minute).UnixMilli()
+	if summary.FcmStart != want {
+		t.Fatalf("fcm start = %d, want %d", summary.FcmStart, want)
+	}
+}
+
+func TestIsFcmConnection(t *testing.T) {
+	for _, c := range []struct {
+		host string
+		port uint16
+		want bool
+	}{
+		{"mtalk.google.com", 5228, true},
+		{"alt3-mtalk.google.com", 5229, true},
+		{"mtalk.google.com", 443, true},
+		{"alt1-mtalk.google.com", 443, true},
+		{"www.google.com", 443, false},
+		{"example-mtalk.google.com.evil.com", 443, false},
+		{"example.com", 5228, false},
+		{"mtalk.google.com", 80, false},
+	} {
+		got := isFcmConnection(&constant.Metadata{Host: c.host, DstPort: c.port})
+		if got != c.want {
+			t.Errorf("%s:%d = %v, want %v", c.host, c.port, got, c.want)
+		}
 	}
 }
 

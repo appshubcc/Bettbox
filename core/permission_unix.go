@@ -3,6 +3,7 @@
 package main
 
 import (
+	"fmt"
 	"io/fs"
 	"os"
 	"path/filepath"
@@ -10,6 +11,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/metacubex/mihomo/constant"
 	"github.com/metacubex/mihomo/log"
 )
 
@@ -18,16 +20,73 @@ var (
 	permSyncChan  chan struct{}
 	activeHomeDir string
 	permLock      sync.Mutex
+	homeRoot      *os.Root
 )
 
 func isPrivileged() bool {
 	return os.Geteuid() == 0 && os.Getuid() != 0
 }
 
-func syncFileOwner(path string) {
-	if isPrivileged() {
-		_ = os.Lchown(path, os.Getuid(), os.Getgid())
+func isAllowedHomeDir(homeDir string) bool {
+	if homeDir == "" {
+		return false
 	}
+	if !isPrivileged() {
+		return true
+	}
+	if constant.Path.IsSafePath("/") {
+		return false
+	}
+	for _, safePath := range constant.Path.SafePaths()[1:] {
+		if filepath.Clean(safePath) != filepath.Clean(homeDir) {
+			return false
+		}
+	}
+	root, err := os.OpenRoot(homeDir)
+	if err != nil {
+		return false
+	}
+	if info, err := root.Stat("."); err == nil {
+		if stat, ok := info.Sys().(*syscall.Stat_t); ok && int(stat.Uid) == os.Getuid() {
+			homeRoot = root
+			return true
+		}
+	}
+	_ = root.Close()
+	return false
+}
+
+func openInputFile(path string) (*os.File, error) {
+	file, err := os.Open(path)
+	if err != nil || !isPrivileged() {
+		return file, err
+	}
+	if info, err := file.Stat(); err == nil {
+		if stat, ok := info.Sys().(*syscall.Stat_t); ok && int(stat.Uid) == os.Getuid() {
+			return file, nil
+		}
+	}
+	_ = file.Close()
+	return nil, fmt.Errorf("unsafe input path: %s", path)
+}
+
+func openOutputFile(path string) (*os.File, error) {
+	if !isPrivileged() {
+		return os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0o600)
+	}
+	rel, err := filepath.Rel(constant.Path.HomeDir(), path)
+	if homeRoot == nil || err != nil || !filepath.IsLocal(rel) {
+		return nil, fmt.Errorf("unsafe output path: %s", path)
+	}
+	file, err := homeRoot.OpenFile(rel, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0o600)
+	if err != nil {
+		return nil, err
+	}
+	if err := file.Chown(os.Getuid(), os.Getgid()); err != nil {
+		_ = file.Close()
+		return nil, err
+	}
+	return file, nil
 }
 
 func syncDirectoryPermissions(baseDir string, targetUid, targetGid int) {

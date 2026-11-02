@@ -83,3 +83,42 @@ func TestGroupsChangedIsSentOncePerFetch(t *testing.T) {
 		t.Fatal("empty baseline reported a change")
 	}
 }
+
+func TestResetDropsStaleBatchDelays(t *testing.T) {
+	defer handleSetForeground(true)
+	defer resetDelayState()
+	handleSetForeground(false)
+	resetDelayState()
+	_, stale := startDelayBatch([]delayTarget{{Name: "A", Url: "u"}})
+	cancelDelayBatches()
+	_, fresh := startDelayBatch([]delayTarget{{Name: "B", Url: "u"}})
+	pushDelay(Delay{Url: "u", Name: "A", Value: 10})
+	pushDelay(Delay{Url: "u", Name: "B", Value: 20})
+	delayPushLock.Lock()
+	_, hasStale := pendingDelays[delayKey{url: "u", name: "A"}]
+	_, hasFresh := pendingDelays[delayKey{url: "u", name: "B"}]
+	delayPushLock.Unlock()
+	if hasStale || !hasFresh {
+		t.Fatalf("stale pushed = %v, fresh pushed = %v", hasStale, hasFresh)
+	}
+	finishDelayBatch(stale)
+	finishDelayBatch(fresh)
+	if isStaleDelay(delayKey{url: "u", name: "A"}) {
+		t.Fatal("stale mark kept after the batch finished")
+	}
+}
+
+func TestCanceledBatchStopsLaunchingTests(t *testing.T) {
+	defer resetDelayState()
+	ctx, batch := startDelayBatch(nil)
+	cancelDelayBatches()
+	results := testDelays(ctx, testDelaysParams{
+		Targets:     []delayTarget{{Name: "missing-a", Url: "u"}, {Name: "missing-b", Url: "u"}},
+		Timeout:     100,
+		Concurrency: 1,
+	})
+	finishDelayBatch(batch)
+	if len(results) != 2 || results[0].Value != -1 || results[1].Name != "missing-b" {
+		t.Fatalf("results = %+v", results)
+	}
+}

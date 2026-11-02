@@ -85,6 +85,7 @@ func handleInitClash(paramsString string) bool {
 		}
 		constant.SetHomeDir(params.HomeDir)
 		toolbox.InitTrafficStats(params.HomeDir)
+		toolbox.InitKvStore(params.HomeDir)
 		isInit = true
 		ensureLogSubscriber()
 		initPermissionGuard(params.HomeDir)
@@ -132,6 +133,7 @@ func handleForceGc(forceFreeOSMemory, purge bool) {
 
 func handleShutdown() bool {
 	toolbox.FlushTrafficStats()
+	toolbox.FlushKvStore()
 	stopListeners()
 	executor.Shutdown()
 	tryUnloadGeoData()
@@ -488,6 +490,18 @@ func closeConnections() {
 		_ = c.Close()
 		return true
 	})
+}
+
+func handleCloseGroupConnections(groupName string) bool {
+	runLock.Lock()
+	defer runLock.Unlock()
+	statistic.DefaultManager.Range(func(c statistic.Tracker) bool {
+		if slices.Contains(c.Info().Chain, groupName) {
+			_ = c.Close()
+		}
+		return true
+	})
+	return true
 }
 
 func handleResetConnections() bool {

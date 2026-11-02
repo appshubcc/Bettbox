@@ -155,7 +155,7 @@ var errStunNoReply = errors.New("stun: no reply")
 
 func (s *stunSocket) exchange(ctx context.Context, dst net.Addr, flags byte, wait time.Duration, attempts int) (*stunReply, time.Duration, error) {
 	pending := map[[12]byte]time.Time{}
-	for attempt := 0; attempt < attempts; attempt++ {
+	for range attempts {
 		packet, id := newStunRequestFlags(flags)
 		sentAt := time.Now()
 		pending[id] = sentAt

@@ -80,10 +80,7 @@ func HandleStartIperfClient(paramsString string) string {
 		cancel()
 		releaseToolMemory()
 	}()
-	duration := params.Duration
-	if duration > 3600 {
-		duration = 3600
-	}
+	duration := min(params.Duration, 3600)
 	state := iperf3.RunClient(ctx, iperf3.ClientConfig{
 		Hosts:     params.Hosts,
 		Port:      params.Port,

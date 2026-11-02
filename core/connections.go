@@ -99,10 +99,14 @@ func handleGetConnections() string {
 }
 
 func isFcmConnection(metadata *constant.Metadata) bool {
-	if metadata.DstPort < 5228 || metadata.DstPort > 5230 {
-		return false
+	host := strings.ToLower(metadata.Host)
+	switch {
+	case metadata.DstPort >= 5228 && metadata.DstPort <= 5230:
+		return strings.Contains(host, "google.com")
+	case metadata.DstPort == 443:
+		return host == "mtalk.google.com" || strings.HasSuffix(host, "-mtalk.google.com")
 	}
-	return strings.Contains(strings.ToLower(metadata.Host), "google.com")
+	return false
 }
 
 func summarizeConnections() connectionsSummary {

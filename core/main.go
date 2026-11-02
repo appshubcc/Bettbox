@@ -15,3 +15,5 @@ func main() {
 	}
 	startServer(args[1])
 }
+
+func purgeNativeMemory() {}

@@ -76,6 +76,39 @@ func TestSpeedTestParsers(t *testing.T) {
 	}
 }
 
+type speedTestRoundTripFunc func(*mhttp.Request) (*mhttp.Response, error)
+
+func (f speedTestRoundTripFunc) RoundTrip(req *mhttp.Request) (*mhttp.Response, error) {
+	return f(req)
+}
+
+func TestCloudflareCountryFromColo(t *testing.T) {
+	for _, tc := range []struct{ colo, country string }{
+		{"tpe", "TW"},
+		{"HKG", "HK"},
+		{"ZZZ", ""},
+	} {
+		tester := newSpeedTester(SpeedTestParams{Provider: "cloudflare", Duration: 1}, true)
+		tester.client = &mhttp.Client{Transport: speedTestRoundTripFunc(func(req *mhttp.Request) (*mhttp.Response, error) {
+			header := mhttp.Header{}
+			header.Set("cf-ray", "1-TPE")
+			return &mhttp.Response{
+				StatusCode: mhttp.StatusOK,
+				Header:     header,
+				Body:       io.NopCloser(strings.NewReader("ip=1.2.3.4\nloc=T1\ncolo=" + tc.colo + "\n")),
+				Request:    req,
+			}, nil
+		})}
+		target, err := prepareCloudflareSpeedTest(context.Background(), tester)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if target.server.Country != tc.country || target.server.Colo != strings.ToUpper(tc.colo) {
+			t.Fatalf("colo %s: server = %+v", tc.colo, target.server)
+		}
+	}
+}
+
 func newSpeedTestServer(t *testing.T) *httptest.Server {
 	chunk := make([]byte, 32*1024)
 	mux := http.NewServeMux()
@@ -84,7 +117,7 @@ func newSpeedTestServer(t *testing.T) *httptest.Server {
 		w.Header().Set("cf-meta-city", "Hong Kong")
 	})
 	mux.HandleFunc("/download", func(w http.ResponseWriter, r *http.Request) {
-		for i := 0; i < 64; i++ {
+		for range 64 {
 			if _, err := w.Write(chunk); err != nil {
 				return
 			}
@@ -193,7 +226,7 @@ func newQuicTestServer(t *testing.T) string {
 		}),
 		Handler: mhttp.HandlerFunc(func(w mhttp.ResponseWriter, r *mhttp.Request) {
 			if r.URL.Path == "/download" {
-				for i := 0; i < 32; i++ {
+				for range 32 {
 					if _, err := w.Write(chunk); err != nil {
 						return
 					}

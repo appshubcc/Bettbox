@@ -3,6 +3,7 @@ import 'package:bett_box/enum/enum.dart';
 import 'package:bett_box/models/models.dart';
 import 'package:bett_box/providers/providers.dart';
 import 'package:bett_box/state.dart';
+import 'package:bett_box/views/config/network.dart';
 import 'package:bett_box/views/config/user_auth.dart';
 import 'package:bett_box/widgets/widgets.dart';
 import 'package:material_ui/material_ui.dart';
@@ -69,7 +70,7 @@ class _UaItemState extends ConsumerState<UaItem> {
       ),
       onTap: () async {
         final notifier = ref.read(patchClashConfigProvider.notifier);
-        final result = await globalState.showCommonDialog<_UaOption>(
+        final result = await globalState.showAdaptiveSheet<_UaOption>(
           child: _UaDialog(isCustom: isCustom),
         );
 
@@ -210,7 +211,7 @@ class TestUrlItem extends ConsumerWidget {
         child: Text(testUrl),
       ),
       onTap: () async {
-        await globalState.showCommonDialog(
+        await globalState.showAdaptiveSheet(
           child: _TestUrlDialog(currentUrl: testUrl),
         );
       },
@@ -225,7 +226,6 @@ class _TestUrlDialog extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, ref) {
-    final overrideTestUrl = ref.watch(overrideTestUrlProvider);
     final isPresetUrl = presetTestUrls.contains(currentUrl);
 
     return CommonDialog(
@@ -234,30 +234,6 @@ class _TestUrlDialog extends ConsumerWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // Override switch
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  appLocalizations.overrideTestUrl,
-                  style: context.textTheme.bodyMedium,
-                ),
-                Switch(
-                  value: overrideTestUrl,
-                  onChanged: (bool value) async {
-                    ref.read(overrideTestUrlProvider.notifier).value = value;
-                    globalState.appController.applyProfileDebounce(
-                      silence: true,
-                    );
-                  },
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 8),
-          // URL list
           for (final url in presetTestUrls)
             OptionItem(
               text: url,
@@ -266,9 +242,6 @@ class _TestUrlDialog extends ConsumerWidget {
                 ref
                     .read(appSettingProvider.notifier)
                     .updateState((state) => state.copyWith(testUrl: url));
-                if (ref.read(overrideTestUrlProvider)) {
-                  globalState.appController.applyProfileDebounce(silence: true);
-                }
                 if (context.mounted) {
                   Navigator.of(context, rootNavigator: true).pop();
                 }
@@ -279,7 +252,6 @@ class _TestUrlDialog extends ConsumerWidget {
             selected: !isPresetUrl,
             onTap: () async {
               final notifier = ref.read(appSettingProvider.notifier);
-              final overrideTestUrl = ref.read(overrideTestUrlProvider);
               Navigator.of(context, rootNavigator: true).pop();
               final customUrl = await globalState.showCommonDialog<String>(
                 child: InputDialog(
@@ -304,9 +276,6 @@ class _TestUrlDialog extends ConsumerWidget {
                 notifier.updateState(
                   (state) => state.copyWith(testUrl: customUrl),
                 );
-                if (overrideTestUrl) {
-                  globalState.appController.applyProfileDebounce(silence: true);
-                }
               }
             },
           ),
@@ -358,6 +327,7 @@ class Ipv6Item extends ConsumerWidget {
           ref
               .read(patchClashConfigProvider.notifier)
               .updateState((state) => state.copyWith(ipv6: value));
+          showVpnRestartTip(ref);
         },
       ),
     );

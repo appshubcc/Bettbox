@@ -8,9 +8,6 @@ import 'dialog.dart';
 
 const _riskGradient = [Colors.green, Color(0xFFC57F0A), Colors.red];
 
-String ipRiskUrl(String ip) =>
-    'https://scamalytics.com/ip/${Uri.encodeComponent(ip)}';
-
 extension IpRiskLevelExt on IpRiskLevel {
   String get label => switch (this) {
     IpRiskLevel.low => appLocalizations.ipRiskLow,
@@ -57,27 +54,18 @@ Color _tone(BuildContext context, Color color) {
 }
 
 class IpRiskSource extends StatelessWidget {
-  final VoidCallback onTap;
-
-  const IpRiskSource({super.key, required this.onTap});
+  const IpRiskSource({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Align(
       alignment: Alignment.centerRight,
-      child: MouseRegion(
-        cursor: SystemMouseCursors.click,
-        child: GestureDetector(
-          behavior: HitTestBehavior.opaque,
-          onTap: onTap,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 4),
-            child: Text(
-              '${appLocalizations.ipRiskSource} Scamalytics',
-              style: context.textTheme.labelSmall?.copyWith(
-                color: context.colorScheme.outline,
-              ),
-            ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 4),
+        child: Text(
+          '${appLocalizations.ipRiskSource} Scamalytics',
+          style: context.textTheme.labelSmall?.copyWith(
+            color: context.colorScheme.outline,
           ),
         ),
       ),
@@ -152,7 +140,8 @@ class IpRiskScore extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = _scoreColor(risk.score);
+    final score = risk.displayScore;
+    final color = _scoreColor(score);
     final muted = context.textTheme.labelSmall?.copyWith(
       color: context.colorScheme.onSurfaceVariant,
     );
@@ -188,7 +177,7 @@ class IpRiskScore extends StatelessWidget {
                   textBaseline: TextBaseline.alphabetic,
                   children: [
                     Text(
-                      '${risk.score}',
+                      '$score',
                       style: context.textTheme.headlineSmall?.copyWith(
                         fontWeight: FontWeight.bold,
                         color: _tone(context, color),
@@ -218,7 +207,7 @@ class IpRiskScore extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 6),
-        IpRiskScoreBar(score: risk.score),
+        IpRiskScoreBar(score: score),
         const SizedBox(height: 4),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -312,7 +301,7 @@ class IpRiskChecks extends StatelessWidget {
       for (final group in IpRiskGroup.values)
         (group, risk.checks.where((check) => check.group == group).toList()),
     ].where((entry) => entry.$2.isNotEmpty).toList();
-    final isHome = risk.checks.every((check) => check.hit != true);
+    final isHome = risk.isHomeBroadband;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -376,7 +365,7 @@ Future<void> showIpRiskNote(IpRisk risk) async {
             child: Text(appLocalizations.confirm),
           ),
         ],
-        child: IpRiskNoteView(risk: risk),
+        child: IpRiskNoteView(risk: risk.normalized),
       ),
     ),
   );
@@ -389,7 +378,7 @@ class IpRiskNoteView extends StatelessWidget {
 
   String get _basis {
     final note = risk.note;
-    final score = risk.score;
+    final score = risk.displayScore;
     final isp = note?.isp ?? '';
     return switch (note?.direct) {
       true => appLocalizations.ipRiskNoteDirect(score),
@@ -517,7 +506,7 @@ class IpRiskNoteView extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
             decoration: BoxDecoration(
               color: colorScheme.onSurface.withValues(alpha: 0.05),
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(20),
             ),
             child: Column(children: rows),
           ),
@@ -527,8 +516,8 @@ class IpRiskNoteView extends StatelessWidget {
           Container(
             padding: const EdgeInsets.fromLTRB(10, 8, 12, 8),
             decoration: BoxDecoration(
-              color: colorScheme.error.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(12),
+              color: colorScheme.error.withValues(alpha: 0.16),
+              borderRadius: BorderRadius.circular(16),
             ),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,

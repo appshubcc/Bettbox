@@ -1,12 +1,18 @@
 class NetworkMatcher {
+  static const _gatewayPrefix = 'gateway:';
+  static final _octetRegExp = RegExp(r'^\d{1,3}$');
+  static final _prefixRegExp = RegExp(r'^\d{1,2}$');
+
   static int? parseIPv4(String ip) {
     final parts = ip.trim().split('.');
     if (parts.length != 4) return null;
 
     int result = 0;
     for (final part in parts) {
-      final value = int.tryParse(part);
-      if (value == null || value < 0 || value > 255) return null;
+      final trimmed = part.trim();
+      if (!_octetRegExp.hasMatch(trimmed)) return null;
+      final value = int.parse(trimmed);
+      if (value > 255) return null;
       result = (result << 8) | value;
     }
     return result;
@@ -29,8 +35,10 @@ class NetworkMatcher {
     final ip = parseIPv4(parts[0]);
     if (ip == null) return null;
 
-    final prefix = int.tryParse(parts[1]);
-    if (prefix == null || prefix < 0 || prefix > 32) return null;
+    final prefixText = parts[1].trim();
+    if (!_prefixRegExp.hasMatch(prefixText)) return null;
+    final prefix = int.parse(prefixText);
+    if (prefix > 32) return null;
 
     final mask = prefix == 0 ? 0 : (0xFFFFFFFF << (32 - prefix)) & 0xFFFFFFFF;
     return (ip & mask, prefix);
@@ -63,40 +71,71 @@ class NetworkMatcher {
     return ipInt != null && ruleInt != null && ipInt == ruleInt;
   }
 
+  static String? _gatewayTarget(String rule) {
+    final trimmed = rule.trim();
+    if (!trimmed.toLowerCase().startsWith(_gatewayPrefix)) return null;
+    return trimmed.substring(_gatewayPrefix.length).trim();
+  }
+
   static bool matchAny(String? ip, String rules) {
     if (ip == null || ip.isEmpty || rules.isEmpty) return false;
 
-    return rules.split(',').any((rule) => matchRule(ip, rule));
+    return rules
+        .split(',')
+        .any((rule) => _gatewayTarget(rule) == null && matchRule(ip, rule));
   }
 
   static bool matchAnyGateway(String? gateway, String rules) {
     if (gateway == null || gateway.isEmpty || rules.isEmpty) return false;
 
     return rules.split(',').any((rule) {
-      final trimmed = rule.trim();
-      if (!trimmed.toLowerCase().startsWith('gateway:')) return false;
-      return matchRule(gateway, trimmed.substring(8).trim());
+      final target = _gatewayTarget(rule);
+      return target != null && matchRule(gateway, target);
     });
+  }
+
+  static bool shouldStop({
+    required Iterable<String> ips,
+    required Iterable<String> gateways,
+    required String rules,
+  }) {
+    return ips.any((ip) => matchAny(ip, rules)) ||
+        gateways.any((gateway) => matchAnyGateway(gateway, rules));
+  }
+
+  static String networkKey(Iterable<String> ips) {
+    return (ips.toSet().toList()..sort()).join(',');
+  }
+
+  static bool _isValidAddressRule(String rule) {
+    final trimmed = rule.trim();
+    if (trimmed.isEmpty) return false;
+    return trimmed.contains('/')
+        ? parseCIDR(trimmed) != null
+        : parseIPv4(trimmed) != null;
   }
 
   static bool isValidRule(String rule) {
     final trimmed = rule.trim();
     if (trimmed.isEmpty) return false;
+    return _isValidAddressRule(_gatewayTarget(trimmed) ?? trimmed);
+  }
 
-    if (trimmed.toLowerCase().startsWith('gateway:')) {
-      return isValidRule(trimmed.substring(8).trim());
-    }
-
-    return trimmed.contains('/') ? parseCIDR(trimmed) != null : parseIPv4(trimmed) != null;
+  static List<String> _nonEmptyRules(String rules) {
+    return rules
+        .split(',')
+        .map((rule) => rule.trim())
+        .where((rule) => rule.isNotEmpty)
+        .toList();
   }
 
   static bool isValidRules(String rules) {
     if (rules.isEmpty) return true;
 
-    final ruleList = rules.split(',');
+    final ruleList = _nonEmptyRules(rules);
     if (ruleList.length > 5) return false;
 
-    return ruleList.every((rule) => rule.trim().isEmpty || isValidRule(rule));
+    return ruleList.every(isValidRule);
   }
 
   static String? getValidationError(
@@ -106,11 +145,11 @@ class NetworkMatcher {
   }) {
     if (rules.isEmpty) return null;
 
-    final ruleList = rules.split(',');
+    final ruleList = _nonEmptyRules(rules);
     if (ruleList.length > 5) return tooManyRulesMsg;
 
     for (final rule in ruleList) {
-      if (rule.trim().isNotEmpty && !isValidRule(rule)) {
+      if (!isValidRule(rule)) {
         return invalidFormatMsg;
       }
     }

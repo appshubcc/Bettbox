@@ -1,5 +1,5 @@
+import 'dart:async';
 import 'dart:convert';
-import 'dart:math';
 
 import 'package:bett_box/common/common.dart';
 import 'package:bett_box/enum/enum.dart';
@@ -22,8 +22,8 @@ import 'package:bett_box/widgets/scroll.dart';
 import 'package:bett_box/widgets/sheet.dart';
 import 'package:bett_box/widgets/text.dart';
 import 'package:bett_box/widgets/delay_animation_dialog.dart';
+import 'package:code_forge/code_forge.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 
@@ -38,7 +38,8 @@ const _optionIcons = {
   '过滤低倍率节点': Icons.trending_down,
   '过滤高倍率节点': Icons.trending_up,
   '过滤非地区节点': Icons.public_off,
-  '屏蔽代理QUIC流量': Icons.block,
+  '禁用内核QUIC流量': Icons.block,
+  '优先国内DNS加速': Icons.dns_outlined,
   '优先连接IPv6节点': Icons.looks_6_outlined,
 };
 
@@ -67,7 +68,9 @@ processScriptOptions(Map<String, dynamic> data, Script script) {
   }
   if (script.customOptions != null) {
     script.customOptions!.forEach((k, v) {
-      if (options.containsKey(k)) {
+      if (k == '屏蔽内核QUIC流量' && options.containsKey('禁用内核QUIC流量')) {
+        options['禁用内核QUIC流量'] = v;
+      } else if (options.containsKey(k)) {
         options[k] = v;
       }
     });
@@ -132,109 +135,6 @@ Future<void> showScriptOtherOptions(
       );
     },
   );
-}
-
-void _showHeartBurst(BuildContext context) {
-  HapticFeedback.lightImpact();
-  late final OverlayEntry entry;
-  entry = OverlayEntry(builder: (_) => _HeartBurst(onDone: entry.remove));
-  Overlay.of(context, rootOverlay: true).insert(entry);
-}
-
-class _HeartBurst extends StatefulWidget {
-  final VoidCallback onDone;
-
-  const _HeartBurst({required this.onDone});
-
-  @override
-  State<_HeartBurst> createState() => _HeartBurstState();
-}
-
-class _HeartBurstState extends State<_HeartBurst>
-    with SingleTickerProviderStateMixin {
-  late final _controller = AnimationController(
-    vsync: this,
-    duration: const Duration(milliseconds: 1400),
-  );
-
-  @override
-  void initState() {
-    super.initState();
-    _controller.forward().whenComplete(widget.onDone);
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  double _phase(double start, double end, Curve curve) => curve.transform(
-    ((_controller.value - start) / (end - start)).clamp(0.0, 1.0),
-  );
-
-  @override
-  Widget build(BuildContext context) {
-    final color = context.colorScheme.error;
-    return IgnorePointer(
-      child: Material(
-        type: MaterialType.transparency,
-        child: Center(
-          child: AnimatedBuilder(
-            animation: _controller,
-            builder: (context, _) {
-              final pop = _phase(0, 0.45, Curves.elasticOut);
-              final burst = _phase(0, 0.8, Curves.easeOutCubic);
-              final fade = 1 - _phase(0.7, 1, Curves.easeIn);
-              return Opacity(
-                opacity: fade,
-                child: SizedBox.square(
-                  dimension: 260,
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      for (var i = 0; i < 7; i++)
-                        Transform.translate(
-                          offset: Offset.fromDirection(
-                            pi + i * pi / 6,
-                            48 + 76 * burst,
-                          ),
-                          child: Opacity(
-                            opacity: 1 - burst,
-                            child: Icon(
-                              Icons.favorite,
-                              size: 16 + (i % 3) * 4,
-                              color: color,
-                            ),
-                          ),
-                        ),
-                      Transform.scale(
-                        scale: pop,
-                        child: Icon(Icons.favorite, size: 72, color: color),
-                      ),
-                      Transform.translate(
-                        offset: const Offset(0, 62),
-                        child: Opacity(
-                          opacity: _phase(0.1, 0.4, Curves.easeOut),
-                          child: Text(
-                            '@AIsouler',
-                            style: context.textTheme.titleMedium?.copyWith(
-                              fontWeight: FontWeight.w600,
-                              color: context.colorScheme.onSurface,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            },
-          ),
-        ),
-      ),
-    );
-  }
 }
 
 class ScriptsView extends ConsumerStatefulWidget {
@@ -374,13 +274,110 @@ class _ScriptsViewState extends ConsumerState<ScriptsView> {
     );
   }
 
+  Future<bool> _handleManagedEditorSave(
+    BuildContext editorContext,
+    String content,
+  ) async {
+    final props = ref.read(managedSettingProvider);
+    final res = await globalState.appController
+        .safeRun<({String? syncedVersion})>(
+          () async {
+            final candidate = await ManagedScript.script(props, raw: content);
+            await globalState.validateScript(candidate, managed: true);
+            return (syncedVersion: await ManagedScript.save(content));
+          },
+          needLoading: true,
+          silence: false,
+        );
+    if (res == null || !mounted) return false;
+    globalState.appController.updateManagedSetting(
+      (state) => state.copyWith(syncedVersion: res.syncedVersion),
+    );
+    if (editorContext.mounted) {
+      Navigator.of(editorContext).pop();
+    }
+    return true;
+  }
+
+  Future<void> _handleEditManaged() async {
+    final props = ref.read(managedSettingProvider);
+    final data = await globalState.appController
+        .safeRun<({String raw, String bundled})>(
+          () async {
+            final (raw, bundled) = await (
+              ManagedScript.read(props),
+              ManagedScript.readBundled(),
+            ).wait;
+            return (raw: raw, bundled: bundled);
+          },
+          needLoading: true,
+          title: appLocalizations.tip,
+        );
+    if (data == null || !mounted) return;
+    var savedContent = CodeForgeController.normalizeLineBreaks(data.raw);
+    final bundledContent = CodeForgeController.normalizeLineBreaks(
+      data.bundled,
+    );
+    BaseNavigator.push(
+      context,
+      EditorPage(
+        title: appLocalizations.managedMode,
+        content: savedContent,
+        defaultContent: bundledContent,
+        languages: const [Language.javaScript],
+        onReset: (_) async {
+          final res = await globalState.showMessage(
+            title: appLocalizations.restoreBundled,
+            message: TextSpan(text: appLocalizations.resetTip),
+          );
+          if (res != true || !mounted) return false;
+          final restored = await globalState.appController.safeRun<bool>(
+            () async {
+              await ManagedScript.restore();
+              return true;
+            },
+            silence: false,
+          );
+          if (restored != true || !mounted) return false;
+          savedContent = bundledContent;
+          if (ref.read(managedSettingProvider).syncedVersion != null) {
+            globalState.appController.updateManagedSetting(
+              (state) => state.copyWith(syncedVersion: null),
+            );
+          }
+          globalState.showNotifier(appLocalizations.success);
+          return true;
+        },
+        onSave: (editorContext, _, content) {
+          _handleManagedEditorSave(editorContext, content);
+        },
+        onPop: (editorContext, _, content) async {
+          if (content == savedContent) {
+            return true;
+          }
+          final res = await globalState.showMessage(
+            message: TextSpan(text: appLocalizations.saveChanges),
+          );
+          if (res == true && editorContext.mounted) {
+            await _handleManagedEditorSave(editorContext, content);
+          } else {
+            return true;
+          }
+          return false;
+        },
+      ),
+      maintainState: false,
+    );
+  }
+
   Widget _buildManagedCard({required bool inUse}) {
     return CommonCard(
       key: const ValueKey(managedScriptId),
       elevated: false,
       radius: 16,
       type: CommonCardType.filled,
-      onPressed: _handleViewManaged,
+      onPressed: () => showManagedOptions(context),
+      onLongPress: _handleEditManaged,
       child: Container(
         constraints: const BoxConstraints(minHeight: 68),
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
@@ -465,11 +462,6 @@ class _ScriptsViewState extends ConsumerState<ScriptsView> {
                     icon: Icons.file_copy_outlined,
                     label: appLocalizations.exportFile,
                     onPressed: _handleExportManaged,
-                  ),
-                  PopupMenuItemData(
-                    emoji: '❤️',
-                    label: '@AIsouler',
-                    onPressed: () => _showHeartBurst(context),
                   ),
                 ],
               ),
@@ -675,8 +667,19 @@ class _ScriptsViewState extends ConsumerState<ScriptsView> {
       }
     }
     final newScript = await globalState.appController.safeRun(
+      needLoading: true,
       silence: false,
-      () => draft.writeContent(content),
+      () async {
+        await globalState.validateScript(
+          draft.copyWith(
+            content: content,
+            digest: content.toMd5(),
+            volatile: volatileScriptPattern.hasMatch(content),
+          ),
+          managed: false,
+        );
+        return draft.writeContent(content);
+      },
     );
     if (newScript == null || !mounted) return;
     ref.read(scriptStateProvider.notifier).setScript(newScript);

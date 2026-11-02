@@ -51,7 +51,9 @@ class _FcmStatusState extends State<FcmStatus> {
     _isUpdating = true;
 
     try {
-      final summary = await clashCore.getConnectionsSummary();
+      final summary = await clashCore.getConnectionsSummary(
+        maxAge: const Duration(seconds: 4),
+      );
 
       if (summary.fcmStart <= 0) {
         _fcmStatusNotifier.value = const FcmStatusData(isConnected: false);
@@ -83,7 +85,11 @@ class _FcmStatusState extends State<FcmStatus> {
             child: Text(appLocalizations.confirm),
           ),
         ],
-        child: Text(appLocalizations.fcmTip),
+        child: Text(
+          system.isAndroid
+              ? '${appLocalizations.fcmTip}${appLocalizations.fcmAndroidTip}'
+              : appLocalizations.fcmTip,
+        ),
       ),
     );
   }
@@ -93,7 +99,7 @@ class _FcmStatusState extends State<FcmStatus> {
     return SizedBox(
       height: getWidgetHeight(context, 1),
       child: CommonCard(
-        onLongPress: system.isAndroid ? () => app.openFcmDiagnostics() : null,
+        onPressed: system.isAndroid ? () => app.openFcmDiagnostics() : null,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [

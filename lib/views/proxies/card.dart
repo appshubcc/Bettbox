@@ -3,9 +3,9 @@ import 'package:bett_box/enum/enum.dart';
 import 'package:bett_box/models/models.dart';
 import 'package:bett_box/providers/providers.dart';
 import 'package:bett_box/state.dart';
+import 'package:bett_box/views/proxies/actions.dart';
 import 'package:bett_box/views/proxies/common.dart';
 import 'package:bett_box/widgets/widgets.dart';
-import 'package:emoji_regex/emoji_regex.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
 
@@ -119,6 +119,7 @@ class ProxyDelayText extends StatelessWidget {
             delay > 0 ? '$delay ms' : 'Timeout',
             style: context.textTheme.labelSmall?.copyWith(
               overflow: TextOverflow.ellipsis,
+              fontWeight: FontWeight.w600,
               color: utils.getDelayColor(delay),
             ),
           );
@@ -133,16 +134,6 @@ class ProxyDelayText extends StatelessWidget {
 }
 
 class ProxyCard extends StatelessWidget {
-  static final _emojiRegex = emojiRegex();
-  static final Map<String, bool> _emojiMatchCache = {};
-
-  static bool _hasEmoji(String name) {
-    if (_emojiMatchCache.length >= 2048) {
-      _emojiMatchCache.clear();
-    }
-    return _emojiMatchCache.putIfAbsent(name, () => _emojiRegex.hasMatch(name));
-  }
-
   final String groupName;
   final Proxy proxy;
   final GroupType groupType;
@@ -172,7 +163,7 @@ class ProxyCard extends StatelessWidget {
       return child;
     }
 
-    if (_hasEmoji(proxy.name)) {
+    if (EmojiText.hasEmoji(proxy.name)) {
       return wrapPadding(nameWidget);
     }
 
@@ -296,14 +287,39 @@ class ProxyCard extends StatelessWidget {
     globalState.showNotifier(appLocalizations.notSelectedTip);
   }
 
+  bool get _hasActions {
+    return switch (proxy.name.toUpperCase()) {
+      'REJECT' || 'REJECT-DROP' || 'PASS' => false,
+      _ => proxy.type.toUpperCase() != 'REMATCH',
+    };
+  }
+
+  void _openActions(BuildContext context, WidgetRef ref, {Offset? position}) {
+    showProxyActions(
+      context,
+      groupName: groupName,
+      groupType: groupType,
+      proxy: proxy,
+      testUrl: testUrl,
+      locked:
+          groupType.isComputedSelected &&
+          ref.read(getProxyNameProvider(groupName)) == proxy.name,
+      coreRunning: ref.read(runTimeProvider) != null,
+      proxyGroup: ref.read(groupsProvider).getGroup(proxy.name),
+      proxyGroupSelected: ref.read(selectedMapProvider)[proxy.name] ?? '',
+      position: position,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final delayText = ProxyDelayText(proxy: proxy, testUrl: testUrl);
     final nameTextWidget = _buildProxyNameText(context);
     final footerWidget = _buildFooter(context, delayText);
     return Consumer(
-      builder: (_, ref, _) {
+      builder: (context, ref, _) {
         final isSelected = _isSelectedProxy(ref);
+        final hasActions = _hasActions;
         final isComputedMatch =
             groupType.isComputedSelected && _isComputedMatch(ref);
         final proxyNameWidget = _buildProxyNameWithIcon(
@@ -311,14 +327,15 @@ class ProxyCard extends StatelessWidget {
           nameWidget: nameTextWidget,
           showComputedMark: isComputedMatch,
         );
-        return Stack(
+        final card = Stack(
           children: [
             CommonCard(
+              radius: 20.0,
+              subtle: true,
               elevated: false,
               clipBehavior: Clip.none,
-              onPressed: () {
-                _changeProxy(ref);
-              },
+              onPressed: () => _changeProxy(ref),
+              onLongPress: hasActions ? () => _openActions(context, ref) : null,
               isSelected: isSelected,
               child: Container(
                 alignment: Alignment.centerLeft,
@@ -338,6 +355,12 @@ class ProxyCard extends StatelessWidget {
                 child: _ProxyComputedMarkIcon(),
               ),
           ],
+        );
+        if (!hasActions) return card;
+        return GestureDetector(
+          onSecondaryTapUp: (details) =>
+              _openActions(context, ref, position: details.globalPosition),
+          child: card,
         );
       },
     );

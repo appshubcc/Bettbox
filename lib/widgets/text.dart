@@ -30,7 +30,7 @@ class TooltipText extends StatelessWidget {
           message = emojiText.text;
         }
         if (textWidget != null) {
-          final size = globalState.measure.computeTextSize(textWidget);
+          final size = globalState.measure.cachedTextSize(textWidget);
           if (maxWidth < size.width) {
             return Tooltip(
               triggerMode: TooltipTriggerMode.longPress,
@@ -54,6 +54,12 @@ class EmojiText extends StatelessWidget {
   final TextAlign? textAlign;
 
   static final _emojiRegex = emojiRegex();
+  static final _emojiFontStyle = TextStyle(
+    fontFamily: FontFamily.twEmoji.value,
+    fontFamilyFallback: [FontFamily.twEmoji.value],
+  );
+  static const _maxCachedSegments = 1024;
+  static final _segmentCache = <String, List<({int end, bool emoji})>>{};
 
   const EmojiText(
     this.text, {
@@ -64,53 +70,67 @@ class EmojiText extends StatelessWidget {
     this.textAlign,
   });
 
+  static List<({int end, bool emoji})> _segmentsOf(String text) {
+    final cached = _segmentCache.remove(text);
+    if (cached != null) {
+      _segmentCache[text] = cached;
+      return cached;
+    }
+    final segments = _emojiRegex.hasMatch(text)
+        ? _splitSegments(text)
+        : const <({int end, bool emoji})>[];
+    if (_segmentCache.length >= _maxCachedSegments) {
+      _segmentCache.remove(_segmentCache.keys.first);
+    }
+    _segmentCache[text] = segments;
+    return segments;
+  }
+
+  static List<({int end, bool emoji})> _splitSegments(String text) {
+    final segments = <({int end, bool emoji})>[];
+    var index = 0;
+    bool? current;
+    for (final char in text.characters) {
+      final isEmoji = _emojiRegex.hasMatch(char);
+      if (current != null && current != isEmoji) {
+        segments.add((end: index, emoji: current));
+      }
+      current = isEmoji;
+      index += char.length;
+    }
+    if (current != null) {
+      segments.add((end: text.length, emoji: current));
+    }
+    return segments;
+  }
+
+  static bool hasEmoji(String text) {
+    if (text.isEmpty) return false;
+    return _segmentsOf(text).isNotEmpty;
+  }
+
   static List<TextSpan> buildSpans(String text, TextStyle style) {
     if (text.isEmpty) {
       return const [];
     }
 
-    if (!_emojiRegex.hasMatch(text)) {
+    final segments = _segmentsOf(text);
+    if (segments.isEmpty) {
       return [TextSpan(text: text, style: style)];
     }
 
-    final emojiStyle = style.merge(
-      TextStyle(
-        fontFamily: FontFamily.twEmoji.value,
-        fontFamilyFallback: [FontFamily.twEmoji.value],
-      ),
-    );
-
-    final List<TextSpan> spans = [];
-    int segmentStart = 0;
-    int currentIndex = 0;
-    bool? isEmojiSegment;
-
-    for (final char in text.characters) {
-      final isEmoji = _emojiRegex.hasMatch(char);
-      if (isEmojiSegment == null) {
-        isEmojiSegment = isEmoji;
-      } else if (isEmojiSegment != isEmoji) {
-        spans.add(
-          TextSpan(
-            text: text.substring(segmentStart, currentIndex),
-            style: isEmojiSegment ? emojiStyle : style,
-          ),
-        );
-        segmentStart = currentIndex;
-        isEmojiSegment = isEmoji;
-      }
-      currentIndex += char.length;
-    }
-
-    if (segmentStart < text.length && isEmojiSegment != null) {
+    final emojiStyle = style.merge(_emojiFontStyle);
+    final spans = <TextSpan>[];
+    var start = 0;
+    for (final (:end, :emoji) in segments) {
       spans.add(
         TextSpan(
-          text: text.substring(segmentStart, text.length),
-          style: isEmojiSegment ? emojiStyle : style,
+          text: text.substring(start, end),
+          style: emoji ? emojiStyle : style,
         ),
       );
+      start = end;
     }
-
     return spans;
   }
 

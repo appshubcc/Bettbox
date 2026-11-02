@@ -5,7 +5,6 @@ import 'package:bett_box/common/common.dart';
 import 'package:bett_box/enum/enum.dart';
 import 'package:bett_box/plugins/app.dart';
 import 'package:bett_box/providers/config.dart';
-import 'package:bett_box/providers/state.dart';
 import 'package:bett_box/state.dart';
 import 'package:bett_box/widgets/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -36,7 +35,6 @@ class ThemeView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final brightness = ref.watch(currentBrightnessProvider);
     final shouldShowHarmonyFont = ref.watch(
       appSettingProvider.select(
         (state) => switch (state.locale) {
@@ -56,7 +54,6 @@ class ThemeView extends ConsumerWidget {
     final items = <Widget>[
       const _ThemeModeItem(),
       const _PrimaryColorItem(),
-      if (brightness == Brightness.dark) const _PrueBlackItem(),
       if (toggleItems.isNotEmpty) ...generateSection(items: toggleItems),
     ];
     return generateListView(items);
@@ -122,39 +119,24 @@ class _ThemeModeItem extends ConsumerWidget {
         label: appLocalizations.themeMode,
         iconData: Icons.brightness_high,
       ),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        height: 56,
-        child: ListView.separated(
-          scrollDirection: Axis.horizontal,
-          itemCount: themeModeItems.length,
-          itemBuilder: (_, index) {
-            final themeModeItem = themeModeItems[index];
-            return CommonCard(
-              isSelected: themeModeItem.themeMode == themeMode,
-              onPressed: () {
-                ref
-                    .read(themeSettingProvider.notifier)
-                    .updateState(
-                      (state) =>
-                          state.copyWith(themeMode: themeModeItem.themeMode),
-                    );
-              },
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    Flexible(child: Icon(themeModeItem.iconData)),
-                    const SizedBox(width: 8),
-                    Flexible(child: Text(themeModeItem.label)),
-                  ],
-                ),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
+        child: SegmentButtonGroup<ThemeMode>(
+          maxWidth: 480,
+          options: [
+            for (final item in themeModeItems)
+              SegmentOption(
+                value: item.themeMode,
+                icon: Icon(item.iconData),
+                label: item.label,
               ),
-            );
+          ],
+          selected: themeMode,
+          onSelected: (mode) {
+            ref
+                .read(themeSettingProvider.notifier)
+                .updateState((state) => state.copyWith(themeMode: mode));
           },
-          separatorBuilder: (_, _) => const SizedBox(width: 16),
         ),
       ),
     );
@@ -183,7 +165,7 @@ class _PrimaryColorItemState extends ConsumerState<_PrimaryColorItem> {
     ref.read(themeSettingProvider.notifier).updateState((state) {
       return state.copyWith(
         primaryColors: defaultPrimaryColors,
-        primaryColor: defaultPrimaryColor,
+        primaryColor: null,
         schemeVariant: DynamicSchemeVariant.content,
       );
     });
@@ -241,7 +223,7 @@ class _PrimaryColorItemState extends ConsumerState<_PrimaryColorItem> {
     final schemeVariant = ref.read(
       themeSettingProvider.select((state) => state.schemeVariant),
     );
-    final value = await globalState.showCommonDialog<DynamicSchemeVariant>(
+    final value = await globalState.showAdaptiveSheet<DynamicSchemeVariant>(
       child: OptionsDialog<DynamicSchemeVariant>(
         title: appLocalizations.colorSchemes,
         options: DynamicSchemeVariant.values,
@@ -265,22 +247,25 @@ class _PrimaryColorItemState extends ConsumerState<_PrimaryColorItem> {
           state.primaryColor,
           state.primaryColors,
           state.schemeVariant,
-          state.primaryColor == defaultPrimaryColor &&
+          state.primaryColor == null &&
               intListEquality.equals(state.primaryColors, defaultPrimaryColors),
         ),
       ),
     );
     final primaryColors = <int?>[null, ...rawPrimaryColors];
+    final isDynamic = primaryColor == null && globalState.corePalette != null;
 
     return ItemCard(
       info: Info(label: appLocalizations.themeColor, iconData: Icons.palette),
       actions: genActions([
         FilledButton(
           style: const ButtonStyle(visualDensity: VisualDensity.compact),
-          onPressed: primaryColor == null && globalState.corePalette != null
-              ? null
-              : _handleChangeSchemeVariant,
-          child: Text(Intl.message('${schemeVariant.name}Scheme')),
+          onPressed: isDynamic ? null : _handleChangeSchemeVariant,
+          child: Text(
+            isDynamic
+                ? appLocalizations.dynamicColor
+                : Intl.message('${schemeVariant.name}Scheme'),
+          ),
         ),
         if (!isEquals)
           IconButton.filledTonal(
@@ -339,35 +324,6 @@ class _PrimaryColorItemState extends ConsumerState<_PrimaryColorItem> {
             );
           },
         ),
-      ),
-    );
-  }
-}
-
-class _PrueBlackItem extends ConsumerWidget {
-  const _PrueBlackItem();
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final prueBlack = ref.watch(
-      themeSettingProvider.select((state) => state.pureBlack),
-    );
-    return ListItem.switchItem(
-      leading: const Icon(Icons.contrast),
-      horizontalTitleGap: 12,
-      title: Text(
-        appLocalizations.pureBlackMode,
-        style: Theme.of(context).textTheme.titleSmall?.copyWith(
-          color: context.colorScheme.onSurfaceVariant,
-        ),
-      ),
-      delegate: SwitchDelegate(
-        value: prueBlack,
-        onChanged: (value) {
-          ref
-              .read(themeSettingProvider.notifier)
-              .updateState((state) => state.copyWith(pureBlack: value));
-        },
       ),
     );
   }

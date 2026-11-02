@@ -13,8 +13,17 @@ import 'package:material_ui/material_ui.dart';
 import 'card.dart';
 import 'common.dart';
 
-class ProxiesListView extends StatelessWidget {
+class ProxiesListView extends StatefulWidget {
   const ProxiesListView({super.key});
+
+  @override
+  State<ProxiesListView> createState() => ProxiesListViewState();
+}
+
+class ProxiesListViewState extends State<ProxiesListView> {
+  final _groupsListKey = GlobalKey<_ProxyGroupsListState>();
+
+  void collapseAll() => _groupsListKey.currentState?.collapseAll();
 
   @override
   Widget build(BuildContext context) {
@@ -25,10 +34,12 @@ class ProxiesListView extends StatelessWidget {
         if (state.groups.isEmpty) {
           return NullStatus(
             label: appLocalizations.nullTip(appLocalizations.proxies),
+            icon: Icons.cloud_off_outlined,
           );
         }
 
         return _ProxyGroupsList(
+          key: _groupsListKey,
           groups: state.groups,
           columns: state.columns,
           cardType: state.proxyCardType,
@@ -46,6 +57,7 @@ class _ProxyGroupsList extends ConsumerStatefulWidget {
   final Set<String> currentUnfoldSet;
 
   const _ProxyGroupsList({
+    super.key,
     required this.groups,
     required this.columns,
     required this.cardType,
@@ -75,6 +87,7 @@ class _ProxyGroupsListState extends ConsumerState<_ProxyGroupsList>
   final _sliverCache = <String, (Group, Object, Widget)>{};
   late final AnimationController _expandController;
   String? _expandingGroup;
+  bool _pendingScrollToTop = false;
 
   @override
   void initState() {
@@ -111,6 +124,10 @@ class _ProxyGroupsListState extends ConsumerState<_ProxyGroupsList>
       final names = {for (final group in widget.groups) group.name};
       _sliverCache.removeWhere((name, _) => !names.contains(name));
     }
+    if (_pendingScrollToTop && widget.currentUnfoldSet.isEmpty) {
+      _pendingScrollToTop = false;
+      WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToTop());
+    }
     final added = _groupsWithRows(
       widget,
     ).difference(_groupsWithRows(oldWidget));
@@ -127,6 +144,65 @@ class _ProxyGroupsListState extends ConsumerState<_ProxyGroupsList>
       tempUnfoldSet.add(groupName);
     }
     globalState.appController.updateCurrentUnfoldSet(tempUnfoldSet);
+  }
+
+  void collapseAll() {
+    if (widget.currentUnfoldSet.isEmpty) return;
+    if (_scrollController.hasClients) {
+      _scrollController.jumpTo(
+        _collapsedAnchorOffset(_scrollController.position),
+      );
+    }
+    _pendingScrollToTop = true;
+    globalState.appController.updateCurrentUnfoldSet({});
+  }
+
+  double _collapsedAnchorOffset(ScrollPosition position) {
+    final offset = position.pixels;
+    final top = 16.0 + _rise;
+    final headerExtent = _getHeaderHeight() + 8.0;
+    final rowExtent = getItemHeight(widget.cardType) + 8.0;
+    final groups = widget.groups;
+    var anchor = offset;
+    var start = top;
+    for (var i = 0; i < groups.length; i++) {
+      final group = groups[i];
+      final rowCount = widget.currentUnfoldSet.contains(group.name)
+          ? (group.all.length / widget.columns).ceil()
+          : 0;
+      final extent = headerExtent + rowCount * rowExtent;
+      if (offset < start + extent) {
+        final delta = offset - start;
+        final collapsedStart = top + i * headerExtent;
+        anchor = delta < headerExtent ? collapsedStart + delta : collapsedStart;
+        break;
+      }
+      start += extent;
+    }
+    final collapsedMax =
+        top +
+        groups.length * headerExtent +
+        _bottomPadding(ref.read(isMobileViewProvider)) -
+        position.viewportDimension;
+    return anchor.clamp(0.0, math.max(0.0, collapsedMax));
+  }
+
+  void _scrollToTop() {
+    if (!mounted || !_scrollController.hasClients) return;
+    final distance = _scrollController.offset;
+    if (distance <= 0) return;
+    _scrollController.animateTo(
+      0,
+      duration: Duration(
+        milliseconds: (240 + distance * 0.12).clamp(240, 560).round(),
+      ),
+      curve: Curves.easeInOutCubic,
+    );
+  }
+
+  double _bottomPadding(bool isMobileView) {
+    return 16.0 +
+        (isMobileView ? getFloatingBottomBarReserveHeight(context) : 0);
   }
 
   double _getHeaderHeight() {
@@ -349,13 +425,7 @@ class _ProxyGroupsListState extends ConsumerState<_ProxyGroupsList>
                   autoStickyHeader,
                 ),
               SliverPadding(
-                padding: EdgeInsets.only(
-                  bottom:
-                      (globalState.isAndroidTV ? 48.0 : 16.0) +
-                      (isMobileView
-                          ? getFloatingBottomBarReserveHeight(context)
-                          : 0),
-                ),
+                padding: EdgeInsets.only(bottom: _bottomPadding(isMobileView)),
               ),
             ],
           ),
@@ -423,8 +493,9 @@ class _GroupHeader extends ConsumerWidget {
     final labelLightStyle = textTheme.labelMedium?.toLight;
 
     return CommonCard(
+      radius: 20.0,
+      subtle: true,
       elevated: false,
-      radius: 16,
       type: CommonCardType.filled,
       onPressed: onToggle,
       child: Padding(
@@ -473,8 +544,8 @@ class _GroupHeader extends ConsumerWidget {
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const SizedBox(width: 4),
-                  _PressScaleWrapper(
+                  const SizedBox(width: 6),
+                  PressScale(
                     child: SizedBox.square(
                       dimension: 36,
                       child: IconButton(
@@ -491,7 +562,7 @@ class _GroupHeader extends ConsumerWidget {
                     builder: (_, _) {
                       final isTestingThisGroup = delayTestCoordinator
                           .isTestingGroup(group.name);
-                      return _PressScaleWrapper(
+                      return PressScale(
                         enabled: !delayTestCoordinator.isTesting,
                         child: SizedBox(
                           width: 44,
@@ -518,10 +589,10 @@ class _GroupHeader extends ConsumerWidget {
                       );
                     },
                   ),
-                  const SizedBox(width: 8),
+                  const SizedBox(width: 6),
                 ],
               ),
-            _PressScaleWrapper(
+            PressScale(
               child: SizedBox.square(
                 dimension: 36,
                 child: showFilled
@@ -575,47 +646,12 @@ class _GroupHeader extends ConsumerWidget {
   }
 
   Future<void> _delayTest(BuildContext context) async {
-    await delayTest(group.all, testUrl: group.testUrl, groupName: group.name);
-  }
-}
-
-class _PressScaleWrapper extends StatefulWidget {
-  final Widget child;
-  final bool enabled;
-
-  const _PressScaleWrapper({required this.child, this.enabled = true});
-
-  @override
-  State<_PressScaleWrapper> createState() => _PressScaleWrapperState();
-}
-
-class _PressScaleWrapperState extends State<_PressScaleWrapper> {
-  bool _isPressed = false;
-
-  @override
-  Widget build(BuildContext context) {
-    final scale = (widget.enabled && _isPressed) ? 0.92 : 1.0;
-    return Listener(
-      onPointerDown: (_) {
-        if (!widget.enabled) return;
-        setState(() => _isPressed = true);
-      },
-      onPointerUp: (_) {
-        if (_isPressed) {
-          setState(() => _isPressed = false);
-        }
-      },
-      onPointerCancel: (_) {
-        if (_isPressed) {
-          setState(() => _isPressed = false);
-        }
-      },
-      child: AnimatedScale(
-        scale: scale,
-        duration: const Duration(milliseconds: 100),
-        curve: Curves.easeOutCubic,
-        child: widget.child,
-      ),
+    final currentGroups = globalState.appController.getCurrentGroups();
+    final targetGroup = currentGroups.getGroup(group.name) ?? group;
+    await delayTest(
+      targetGroup.all,
+      testUrl: targetGroup.testUrl,
+      groupName: targetGroup.name,
     );
   }
 }

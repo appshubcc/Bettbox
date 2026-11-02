@@ -486,22 +486,17 @@ class TrackerInfoDetailView extends ConsumerWidget {
   }
 
   Widget _buildChains(TrackerInfo info) {
-    final chains = Wrap(
-      spacing: 8,
-      runSpacing: 8,
-      alignment: WrapAlignment.end,
-      children: [
-        for (final chain in info.chains)
-          CommonChip(label: chain, onPressed: () {}),
-      ],
-    );
     return ListItem(
-      title: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.start,
+      title: _LeadingWrap(
+        spacing: 8,
+        runSpacing: 8,
         children: [
-          Text(appLocalizations.proxyChains),
-          Flexible(child: chains),
+          Padding(
+            padding: const EdgeInsets.only(right: 8),
+            child: Text(appLocalizations.proxyChains),
+          ),
+          for (final chain in info.chains)
+            CommonChip(label: chain, onPressed: () {}),
         ],
       ),
     );
@@ -589,7 +584,7 @@ class TrackerInfoDetailView extends ConsumerWidget {
                   child: InkWell(
                     borderRadius: BorderRadius.circular(6),
                     onTap: () {
-                      showIpDetailDialog(context, ip);
+                      showIpDetailDialog(context, ip, followRiskSetting: false);
                     },
                     child: Padding(
                       padding: const EdgeInsets.symmetric(

@@ -48,9 +48,7 @@ class GlobalState {
       _config ??
       Config(
         themeProps: defaultThemeProps,
-        patchClashConfig: system.isAndroid
-            ? const ClashConfig(findProcessMode: FindProcessMode.always)
-            : defaultClashConfig,
+        patchClashConfig: defaultClashConfig,
         networkProps: defaultNetworkProps,
         appSetting: defaultAppSettingProps,
       );
@@ -228,13 +226,12 @@ class GlobalState {
     if (system.isAndroid) {
       _isAndroidTV = await app.isAndroidTV();
     }
+    await ManagedScript.loadBundledVersion();
     config =
         await preferences.getConfig() ??
         Config(
           themeProps: defaultThemeProps,
-          patchClashConfig: system.isAndroid
-              ? const ClashConfig(findProcessMode: FindProcessMode.always)
-              : defaultClashConfig,
+          patchClashConfig: defaultClashConfig,
           networkProps: defaultNetworkProps,
           appSetting: defaultAppSettingProps,
         );
@@ -424,10 +421,7 @@ class GlobalState {
   Future<void> _checkAndRunBackgroundCoreGc() async {
     if (!backgroundMode.value) return;
     try {
-      await clashCore.requestGc(
-        forceFreeOSMemory: system.isAndroid,
-        purge: false,
-      );
+      await clashCore.requestGc(forceFreeOSMemory: true, purge: false);
     } catch (e) {
       commonPrint.debug('Background requestGc ignored: $e');
     }
@@ -442,6 +436,7 @@ class GlobalState {
     await Future.delayed(const Duration(milliseconds: 250));
     if (!backgroundMode.value) return;
     WidgetsBinding.instance.handleMemoryPressure();
+    if (system.isAndroid) await app.notifyLowMemory();
 
     await Future.delayed(const Duration(seconds: 3));
     if (!backgroundMode.value) return;
@@ -467,7 +462,6 @@ class GlobalState {
     await prefs?.setBool('is_vpn_running', true);
 
     if (system.isAndroid) {
-      await service?.setQuickResponse(config.vpnProps.quickResponse);
       await service?.setHighPriorityNotification(
         config.vpnProps.highPriorityNotification,
       );
@@ -590,7 +584,10 @@ class GlobalState {
     );
   }
 
-  Future<T?> showAdaptiveSheet<T>({required Widget child}) async {
+  Future<T?> showAdaptiveSheet<T>({
+    required Widget child,
+    bool nested = false,
+  }) async {
     final context = navigatorKey.currentContext;
     if (context == null) return null;
     if (appState.viewMode != ViewMode.mobile) {
@@ -598,7 +595,9 @@ class GlobalState {
     }
     return await showSheet<T>(
       context: context,
-      props: const SheetProps(expandable: false),
+      props: nested
+          ? const SheetProps(expandable: false, initialFraction: 0)
+          : const SheetProps(expandable: false),
       builder: (_, _) => child,
     );
   }
@@ -719,6 +718,20 @@ class GlobalState {
       await prefs.remove(customDashboardTitleKey);
     }
     await prefs?.remove(customSidebarIconKey);
+
+    final synced = config.managedProps.syncedVersion;
+    if (synced != null &&
+        ManagedScript.bundledVersion.isNotEmpty &&
+        !ManagedScript.isCustom(config.managedProps) &&
+        ManagedScript.compareVersions(synced, ManagedScript.bundledVersion) <
+            0) {
+      await ManagedScript.restore();
+      config = config.copyWith(
+        managedProps: config.managedProps.copyWith(syncedVersion: null),
+      );
+      await preferences.saveConfig(config);
+      this.config = config;
+    }
   }
 
   CoreState getCoreState() {
@@ -744,7 +757,6 @@ class GlobalState {
     final params = SetupParams(
       selectedMap: targetProfile?.selectedMap ?? {},
       testUrl: config.appSetting.testUrl,
-      overrideTestUrl: config.overrideTestUrl,
     );
     if (targetProfile == null) {
       return params;
@@ -799,8 +811,8 @@ class GlobalState {
 
   Future<String> _writeScriptedConfig(Profile profile) async {
     if (!_scriptActive(profile)) return '';
+    final managed = profile.runsManagedScript;
     try {
-      final managed = profile.runsManagedScript;
       final script = managed
           ? await ManagedScript.script(config.managedProps)
           : config.scriptProps.scriptOf(profile);
@@ -809,7 +821,99 @@ class GlobalState {
     } catch (e) {
       commonPrint.error('Script execution failed: $e');
       showNotifier('${appLocalizations.profileParseErrorDesc}: $e');
+      if (managed && ManagedScript.syncedVersion(config.managedProps) != null) {
+        return await writeBundledManagedConfig(profile);
+      }
       return '';
+    }
+  }
+
+  Future<String> writeBundledManagedConfig(Profile profile) async {
+    try {
+      final fallback = await ManagedScript.script(
+        config.managedProps,
+        bundled: true,
+      );
+      return await writeScriptedConfig(profile, fallback, managed: true);
+    } catch (e) {
+      commonPrint.error('Bundled managed script execution failed: $e');
+      return '';
+    }
+  }
+
+  Future<void> validateScript(Script script, {required bool managed}) async {
+    Profile? profile = config.currentProfile;
+    if (profile == null || profile.bundle != null || !await profile.check()) {
+      profile = null;
+      for (final item in config.profiles) {
+        if (item.bundle == null && await item.check()) {
+          profile = item;
+          break;
+        }
+      }
+    }
+    if (profile == null) {
+      final stamp = DateTime.now().microsecondsSinceEpoch;
+      final relayPath = await appPath.relayPath;
+      final separator = Platform.pathSeparator;
+      final input = File('$relayPath${separator}validate-in-$stamp.json');
+      final output = File('$relayPath${separator}validate-out-$stamp.json');
+      try {
+        await input.parent.create(recursive: true);
+        await input.writeAsString(
+          '{"proxies":[],"proxy-groups":[],"rules":[]}',
+          flush: true,
+        );
+        await JavaScriptRuntimeManager.evaluateScriptFile(
+          scriptContent: await script.readContent(),
+          inputPath: input.path,
+          outputPath: output.path,
+          customOptions: script.customOptions,
+        );
+      } finally {
+        for (final file in [input, output]) {
+          if (await file.exists()) {
+            try {
+              await file.delete();
+            } catch (_) {}
+          }
+        }
+      }
+      return;
+    }
+    final scriptedPath = await writeScriptedConfig(
+      profile,
+      script,
+      managed: managed,
+      cache: false,
+    );
+    try {
+      final patchConfig = config.patchClashConfig;
+      final realPatchConfig = patchConfig.copyWith.tun(
+        enable: patchConfig.tun.enable && appState.realTunEnable,
+      );
+      final setupParams = SetupParams(
+        selectedMap: profile.selectedMap,
+        testUrl: config.appSetting.testUrl,
+        profilePath: await appPath.getProfilePath(profile.id),
+        ageSecretKey: profile.ageSecretKey ?? '',
+        scriptedConfig: scriptedPath,
+        patch: await buildPatchParams(
+          patchConfig: realPatchConfig,
+          profile: profile,
+        ),
+      );
+      final message = await clashCore.validateConfig('', setup: setupParams);
+      if (message.isNotEmpty) {
+        throw message;
+      }
+    } finally {
+      final file = File(scriptedPath);
+      if (await file.exists()) {
+        try {
+          await file.delete();
+        } catch (_) {}
+      }
     }
   }
 
@@ -818,6 +922,7 @@ class GlobalState {
     Script script, {
     bool managed = false,
     bool refresh = false,
+    bool cache = true,
   }) async {
     final stamp = DateTime.now().microsecondsSinceEpoch;
     final relayPath = await appPath.relayPath;
@@ -827,7 +932,7 @@ class GlobalState {
         '$relayPath${separator}cache-${profile.id}${managed ? '-managed' : ''}';
     return _scriptEvaluateLock.synchronized(() async {
       unawaited(_sweepRelay(relayPath));
-      final cache = File('$stem.json');
+      final cacheFile = File('$stem.json');
       final cacheKey = File('$stem.key');
       String? content;
       var digest = script.digest;
@@ -837,17 +942,17 @@ class GlobalState {
         digest = content.toMd5();
         volatile = volatileScriptPattern.hasMatch(content);
       }
-      final key = volatile
+      final key = !cache || volatile
           ? null
           : await _scriptedCacheKey(profile, script, digest, managed: managed);
       final exported = File('$relayPath${separator}profile-$stamp.json');
       try {
         if (!refresh &&
             key != null &&
-            await cache.exists() &&
+            await cacheFile.exists() &&
             await cacheKey.exists() &&
             await cacheKey.readAsString() == key) {
-          await cache.copy(file.path);
+          await cacheFile.copy(file.path);
           return file.path;
         }
         await _exportProfileConfig(
@@ -866,7 +971,7 @@ class GlobalState {
           if (await cacheKey.exists()) {
             await cacheKey.delete();
           }
-          await file.copy(cache.path);
+          await file.copy(cacheFile.path);
           await cacheKey.writeAsString(key, flush: true);
         }
         return file.path;
@@ -884,11 +989,14 @@ class GlobalState {
     final expire = DateTime.now().subtract(const Duration(minutes: 10));
     try {
       await for (final entity in Directory(relayPath).list()) {
-        if (entity is! File ||
-            entity.uri.pathSegments.last.startsWith('cache-') ||
-            (await entity.stat()).modified.isAfter(expire)) {
-          continue;
-        }
+        if (entity is! File) continue;
+        final name = entity.uri.pathSegments.last;
+        if (name.startsWith('cache-')) continue;
+        final stamp = _relayStampPattern.firstMatch(name)?.group(1);
+        final created = stamp == null
+            ? (await entity.stat()).modified
+            : DateTime.fromMicrosecondsSinceEpoch(int.parse(stamp));
+        if (created.isAfter(expire)) continue;
         await entity.delete();
       }
     } catch (_) {}
@@ -981,6 +1089,8 @@ class GlobalState {
           'https://github.com/Zephyruso/zashboard/releases/latest/download/dist.zip',
       'external-ui-name': '',
       'tcp-concurrent': patchConfig.tcpConcurrent,
+      if (!system.isAndroid && patchConfig.interfaceName.isNotEmpty)
+        'interface-name': patchConfig.interfaceName,
       'unified-delay': patchConfig.unifiedDelay,
       'ipv6': patchConfig.ipv6,
       'log-level': patchConfig.logLevel.name,
@@ -1021,8 +1131,6 @@ class GlobalState {
 
     final scriptActive = profile.isManaged || _scriptActive(profile);
     final overrideData = profile.overrideData;
-    final isRussian =
-        config.appSetting.locale?.toLowerCase().startsWith('ru') ?? false;
     final listenPorts = patchConfig.listenPorts;
 
     return {
@@ -1032,12 +1140,12 @@ class GlobalState {
         for (final host in patchConfig.hosts.entries)
           if (system.isAndroid || host.key != 'services.googleapis.cn')
             {'key': host.key, 'value': host.value.splitByMultipleSeparators},
-        {
-          'key': 'dns.msftncsi.com',
-          'value': ['131.107.255.255', 'fd3e:4f5a:5b81::1'],
-        },
+        if (system.isWindows)
+          {
+            'key': 'dns.msftncsi.com',
+            'value': ['131.107.255.255', 'fd3e:4f5a:5b81::1'],
+          },
       ],
-      'override-dns': config.overrideDns && !profile.isManaged,
       'dns': {
         ...dns.toJson(),
         'nameserver-policy': {
@@ -1058,7 +1166,6 @@ class GlobalState {
       'health-check-timeout': config.healthCheckTimeout,
       'override-rules': overrideData.enable
           ? {
-              'override': overrideData.rule.type == OverrideRuleType.override,
               'rules': overrideData.runningRule,
             }
           : null,
@@ -1071,10 +1178,8 @@ class GlobalState {
           if (system.isAndroid)
             'AND,((DST-PORT,853),(IP-CIDR,198.51.100.0/30,no-resolve)),REJECT',
         ],
-        if (config.vpnProps.disableQuic)
-          config.vpnProps.excludeChina && !isRussian
-              ? 'AND,((NETWORK,UDP),(DST-PORT,443),(NOT,((OR,((GEOSITE,geolocation-cn),(GEOIP,CN,no-resolve)))))),REJECT'
-              : 'AND,((NETWORK,UDP),(DST-PORT,443)),REJECT',
+        if (config.vpnProps.disableQuic && !profile.isManaged)
+          'AND,((NETWORK,UDP),(DST-PORT,443)),REJECT',
       ],
       'disabled-groups': scriptActive
           ? const []
@@ -1222,6 +1327,8 @@ class DashboardRefreshManager {
   }
 }
 
+final _relayStampPattern = RegExp(r'^(?:scripted|profile)-(\d+)\.json$');
+
 final dashboardRefreshManager = DashboardRefreshManager();
 
 final globalState = GlobalState();
@@ -1238,6 +1345,10 @@ class DetectionState {
   String? _pendingCheckKey;
   bool _recheckOnFailure = false;
   bool _pendingInit = false;
+  String? _riskIp;
+  CancelToken? _riskToken;
+
+  final riskyIp = ValueNotifier<String?>(null);
 
   final state = ValueNotifier<NetworkDetectionState>(
     const NetworkDetectionState(
@@ -1272,6 +1383,7 @@ class DetectionState {
   void manualRefresh() {
     _rawIpInfo = null;
     _isIpMasked = false;
+    _riskIp = null;
     state.value = state.value.copyWith(
       isLoading: true,
       ipInfo: null,
@@ -1289,30 +1401,62 @@ class DetectionState {
       ipInfo: _maskIpInfo(_rawIpInfo),
       errorMessage: null,
     );
+    _scheduleRiskCheck();
   }
 
-  Future<void> switchToDomesticIp() async {
-    _rawIpInfo = null;
-    _isIpMasked = false;
-
-    _cancelPreviousRequest();
-    _cancelToken = CancelToken();
-    final requestId = ++_requestId;
-
-    state.value = state.value.copyWith(
-      isLoading: true,
-      ipInfo: null,
-      errorMessage: null,
+  Future<void> _scheduleRiskCheck() async {
+    final ip = _rawIpInfo?.ip;
+    if (ip == null || ip == _riskIp) return;
+    _riskIp = ip;
+    _riskToken?.cancel();
+    debouncer.cancel(FunctionTag.checkIpRisk);
+    riskyIp.value = null;
+    if (!globalState.hasNetworkDetectionWidget ||
+        !globalState.config.appSetting.ipRiskAlert ||
+        utils.classifyIp(ip) != IpCategory.public) {
+      return;
+    }
+    final cached = await request.readIpRiskCache(ip);
+    if (ip != _riskIp) return;
+    if (cached != null) {
+      _applyRisk(ip, cached);
+      return;
+    }
+    debouncer.call(
+      FunctionTag.checkIpRisk,
+      _checkRisk,
+      args: [ip],
+      duration: const Duration(seconds: 2),
     );
+  }
 
-    final res = await request.checkIpDomestic(
-      cancelToken: _cancelToken,
-      onUpdate: (info) => _onIpProgress(requestId, info),
-    );
+  void _applyRisk(String ip, IpRisk? risk) {
+    final level = risk?.level;
+    riskyIp.value = level != null && level != IpRiskLevel.low ? ip : null;
+  }
 
-    if (requestId != _requestId) return;
+  void refreshRiskCheck() {
+    _riskIp = null;
+    _scheduleRiskCheck();
+  }
 
-    _handleResponse(res);
+  Future<void> _checkRisk(String ip) async {
+    if (!globalState.hasNetworkDetectionWidget ||
+        !globalState.config.appSetting.ipRiskAlert) {
+      return;
+    }
+    final token = _riskToken = CancelToken();
+    final res = await request
+        .queryIpRisk(ip, cancelToken: token)
+        .timeout(
+          const Duration(seconds: 5),
+          onTimeout: () {
+            token.cancel();
+            return Result.error('timeout');
+          },
+        );
+    if (ip != _riskIp) return;
+    _applyRisk(ip, res.data);
   }
 
   void startCheck({
@@ -1411,6 +1555,7 @@ class DetectionState {
                 ? appLocalizations.tryManualRefresh
                 : null),
     );
+    _scheduleRiskCheck();
   }
 
   Future<void> _checkIp({bool showLoading = false, bool force = false}) async {
@@ -1454,17 +1599,11 @@ class DetectionState {
 
     final timeout = const Duration(seconds: 8);
 
-    final res = isStart
-        ? await request.checkIp(
-            cancelToken: _cancelToken,
-            timeout: timeout,
-            onUpdate: (info) => _onIpProgress(requestId, info),
-          )
-        : await request.checkIpDomestic(
-            cancelToken: _cancelToken,
-            timeout: timeout,
-            onUpdate: (info) => _onIpProgress(requestId, info),
-          );
+    final res = await request.checkIp(
+      cancelToken: _cancelToken,
+      timeout: timeout,
+      onUpdate: (info) => _onIpProgress(requestId, info),
+    );
 
     if (requestId != _requestId) return;
     _pendingCheckKey = null;

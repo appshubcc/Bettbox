@@ -3221,6 +3221,285 @@ as List<String>,
 
 
 /// @nodoc
+mixin _$CoreInterface {
+
+ String get name; List<String> get addresses;
+/// Create a copy of CoreInterface
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$CoreInterfaceCopyWith<CoreInterface> get copyWith => _$CoreInterfaceCopyWithImpl<CoreInterface>(this as CoreInterface, _$identity);
+
+  /// Serializes this CoreInterface to a JSON map.
+  Map<String, dynamic> toJson();
+
+
+@override
+bool operator ==(Object other) {
+  final _this = this as CoreInterface;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is CoreInterface&&(identical(other.name, _this.name) || other.name == _this.name)&&const DeepCollectionEquality().equals(other.addresses, _this.addresses));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode {
+  final _this = this as CoreInterface;
+  return Object.hash(runtimeType,_this.name,const DeepCollectionEquality().hash(_this.addresses));
+}
+
+@override
+String toString() {
+  final _this = this as CoreInterface;
+  return 'CoreInterface(name: ${_this.name}, addresses: ${_this.addresses})';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $CoreInterfaceCopyWith<$Res>  {
+  factory $CoreInterfaceCopyWith(CoreInterface value, $Res Function(CoreInterface) _then) = _$CoreInterfaceCopyWithImpl;
+@useResult
+$Res call({
+ String name, List<String> addresses
+});
+
+
+
+
+}
+/// @nodoc
+class _$CoreInterfaceCopyWithImpl<$Res>
+    implements $CoreInterfaceCopyWith<$Res> {
+  _$CoreInterfaceCopyWithImpl(this._self, this._then);
+
+  final CoreInterface _self;
+  final $Res Function(CoreInterface) _then;
+
+/// Create a copy of CoreInterface
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? name = null,Object? addresses = null,}) {
+  return _then(CoreInterface(
+name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
+as String,addresses: null == addresses ? _self.addresses : addresses // ignore: cast_nullable_to_non_nullable
+as List<String>,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [CoreInterface].
+extension CoreInterfacePatterns on CoreInterface {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _CoreInterface value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _CoreInterface() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _CoreInterface value)  $default,){
+final _that = this;
+switch (_that) {
+case _CoreInterface():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _CoreInterface value)?  $default,){
+final _that = this;
+switch (_that) {
+case _CoreInterface() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String name,  List<String> addresses)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _CoreInterface() when $default != null:
+return $default(_that.name,_that.addresses);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String name,  List<String> addresses)  $default,) {final _that = this;
+switch (_that) {
+case _CoreInterface():
+return $default(_that.name,_that.addresses);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String name,  List<String> addresses)?  $default,) {final _that = this;
+switch (_that) {
+case _CoreInterface() when $default != null:
+return $default(_that.name,_that.addresses);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+@JsonSerializable()
+
+class _CoreInterface implements CoreInterface {
+  const _CoreInterface({required this.name,  List<String> addresses = const []}): _addresses = addresses;
+  factory _CoreInterface.fromJson(Map<String, dynamic> json) => _$CoreInterfaceFromJson(json);
+
+@override final  String name;
+ final  List<String> _addresses;
+@override@JsonKey() List<String> get addresses {
+  if (_addresses is EqualUnmodifiableListView) return _addresses;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_addresses);
+}
+
+
+/// Create a copy of CoreInterface
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$CoreInterfaceCopyWith<_CoreInterface> get copyWith => __$CoreInterfaceCopyWithImpl<_CoreInterface>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$CoreInterfaceToJson(this, );
+}
+
+@override
+bool operator ==(Object other) {
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _CoreInterface&&(identical(other.name, name) || other.name == name)&&const DeepCollectionEquality().equals(other.addresses, _addresses));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode {
+    return Object.hash(runtimeType,name,const DeepCollectionEquality().hash(_addresses));
+}
+
+@override
+String toString() {
+    return 'CoreInterface(name: $name, addresses: $addresses)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$CoreInterfaceCopyWith<$Res> implements $CoreInterfaceCopyWith<$Res> {
+  factory _$CoreInterfaceCopyWith(_CoreInterface value, $Res Function(_CoreInterface) _then) = __$CoreInterfaceCopyWithImpl;
+@override @useResult
+$Res call({
+ String name, List<String> addresses
+});
+
+
+
+
+}
+/// @nodoc
+class __$CoreInterfaceCopyWithImpl<$Res>
+    implements _$CoreInterfaceCopyWith<$Res> {
+  __$CoreInterfaceCopyWithImpl(this._self, this._then);
+
+  final _CoreInterface _self;
+  final $Res Function(_CoreInterface) _then;
+
+/// Create a copy of CoreInterface
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? name = null,Object? addresses = null,}) {
+  return _then(_CoreInterface(
+name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
+as String,addresses: null == addresses ? _self._addresses : addresses // ignore: cast_nullable_to_non_nullable
+as List<String>,
+  ));
+}
+
+
+}
+
+
+/// @nodoc
 mixin _$VersionInfo {
 
  String get clashName; String get version;
@@ -7231,9 +7510,285 @@ as RouteCategory,
 
 
 /// @nodoc
+mixin _$RouteRegion {
+
+ String get name; String? get icon;@JsonKey(name: 'default') bool get preset;
+/// Create a copy of RouteRegion
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$RouteRegionCopyWith<RouteRegion> get copyWith => _$RouteRegionCopyWithImpl<RouteRegion>(this as RouteRegion, _$identity);
+
+  /// Serializes this RouteRegion to a JSON map.
+  Map<String, dynamic> toJson();
+
+
+@override
+bool operator ==(Object other) {
+  final _this = this as RouteRegion;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is RouteRegion&&(identical(other.name, _this.name) || other.name == _this.name)&&(identical(other.icon, _this.icon) || other.icon == _this.icon)&&(identical(other.preset, _this.preset) || other.preset == _this.preset));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode {
+  final _this = this as RouteRegion;
+  return Object.hash(runtimeType,_this.name,_this.icon,_this.preset);
+}
+
+@override
+String toString() {
+  final _this = this as RouteRegion;
+  return 'RouteRegion(name: ${_this.name}, icon: ${_this.icon}, preset: ${_this.preset})';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $RouteRegionCopyWith<$Res>  {
+  factory $RouteRegionCopyWith(RouteRegion value, $Res Function(RouteRegion) _then) = _$RouteRegionCopyWithImpl;
+@useResult
+$Res call({
+ String name, String? icon,@JsonKey(name: 'default') bool preset
+});
+
+
+
+
+}
+/// @nodoc
+class _$RouteRegionCopyWithImpl<$Res>
+    implements $RouteRegionCopyWith<$Res> {
+  _$RouteRegionCopyWithImpl(this._self, this._then);
+
+  final RouteRegion _self;
+  final $Res Function(RouteRegion) _then;
+
+/// Create a copy of RouteRegion
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? name = null,Object? icon = freezed,Object? preset = null,}) {
+  return _then(RouteRegion(
+name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
+as String,icon: freezed == icon ? _self.icon : icon // ignore: cast_nullable_to_non_nullable
+as String?,preset: null == preset ? _self.preset : preset // ignore: cast_nullable_to_non_nullable
+as bool,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [RouteRegion].
+extension RouteRegionPatterns on RouteRegion {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _RouteRegion value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _RouteRegion() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _RouteRegion value)  $default,){
+final _that = this;
+switch (_that) {
+case _RouteRegion():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _RouteRegion value)?  $default,){
+final _that = this;
+switch (_that) {
+case _RouteRegion() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String name,  String? icon, @JsonKey(name: 'default')  bool preset)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _RouteRegion() when $default != null:
+return $default(_that.name,_that.icon,_that.preset);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String name,  String? icon, @JsonKey(name: 'default')  bool preset)  $default,) {final _that = this;
+switch (_that) {
+case _RouteRegion():
+return $default(_that.name,_that.icon,_that.preset);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String name,  String? icon, @JsonKey(name: 'default')  bool preset)?  $default,) {final _that = this;
+switch (_that) {
+case _RouteRegion() when $default != null:
+return $default(_that.name,_that.icon,_that.preset);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+@JsonSerializable()
+
+class _RouteRegion implements RouteRegion {
+  const _RouteRegion({required this.name, this.icon, @JsonKey(name: 'default') this.preset = false});
+  factory _RouteRegion.fromJson(Map<String, dynamic> json) => _$RouteRegionFromJson(json);
+
+@override final  String name;
+@override final  String? icon;
+@override@JsonKey(name: 'default') final  bool preset;
+
+/// Create a copy of RouteRegion
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$RouteRegionCopyWith<_RouteRegion> get copyWith => __$RouteRegionCopyWithImpl<_RouteRegion>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$RouteRegionToJson(this, );
+}
+
+@override
+bool operator ==(Object other) {
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _RouteRegion&&(identical(other.name, name) || other.name == name)&&(identical(other.icon, icon) || other.icon == icon)&&(identical(other.preset, preset) || other.preset == preset));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode {
+    return Object.hash(runtimeType,name,icon,preset);
+}
+
+@override
+String toString() {
+    return 'RouteRegion(name: $name, icon: $icon, preset: $preset)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$RouteRegionCopyWith<$Res> implements $RouteRegionCopyWith<$Res> {
+  factory _$RouteRegionCopyWith(_RouteRegion value, $Res Function(_RouteRegion) _then) = __$RouteRegionCopyWithImpl;
+@override @useResult
+$Res call({
+ String name, String? icon,@JsonKey(name: 'default') bool preset
+});
+
+
+
+
+}
+/// @nodoc
+class __$RouteRegionCopyWithImpl<$Res>
+    implements _$RouteRegionCopyWith<$Res> {
+  __$RouteRegionCopyWithImpl(this._self, this._then);
+
+  final _RouteRegion _self;
+  final $Res Function(_RouteRegion) _then;
+
+/// Create a copy of RouteRegion
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? name = null,Object? icon = freezed,Object? preset = null,}) {
+  return _then(_RouteRegion(
+name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
+as String,icon: freezed == icon ? _self.icon : icon // ignore: cast_nullable_to_non_nullable
+as String?,preset: null == preset ? _self.preset : preset // ignore: cast_nullable_to_non_nullable
+as bool,
+  ));
+}
+
+
+}
+
+
+/// @nodoc
 mixin _$RouteCatalog {
 
- List<String> get targets; List<String> get reserved; Map<String, RouteCategory> get groupCategories; List<String> get icons; List<RouteService> get services; List<RouteRuleSet> get sets;
+ List<String> get targets; List<String> get reserved; List<RouteRegion> get regions; Map<String, RouteCategory> get groupCategories; List<String> get icons; List<RouteService> get services; List<RouteRuleSet> get sets;
 /// Create a copy of RouteCatalog
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -7247,20 +7802,20 @@ $RouteCatalogCopyWith<RouteCatalog> get copyWith => _$RouteCatalogCopyWithImpl<R
 @override
 bool operator ==(Object other) {
   final _this = this as RouteCatalog;
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is RouteCatalog&&const DeepCollectionEquality().equals(other.targets, _this.targets)&&const DeepCollectionEquality().equals(other.reserved, _this.reserved)&&const DeepCollectionEquality().equals(other.groupCategories, _this.groupCategories)&&const DeepCollectionEquality().equals(other.icons, _this.icons)&&const DeepCollectionEquality().equals(other.services, _this.services)&&const DeepCollectionEquality().equals(other.sets, _this.sets));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is RouteCatalog&&const DeepCollectionEquality().equals(other.targets, _this.targets)&&const DeepCollectionEquality().equals(other.reserved, _this.reserved)&&const DeepCollectionEquality().equals(other.regions, _this.regions)&&const DeepCollectionEquality().equals(other.groupCategories, _this.groupCategories)&&const DeepCollectionEquality().equals(other.icons, _this.icons)&&const DeepCollectionEquality().equals(other.services, _this.services)&&const DeepCollectionEquality().equals(other.sets, _this.sets));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
 int get hashCode {
   final _this = this as RouteCatalog;
-  return Object.hash(runtimeType,const DeepCollectionEquality().hash(_this.targets),const DeepCollectionEquality().hash(_this.reserved),const DeepCollectionEquality().hash(_this.groupCategories),const DeepCollectionEquality().hash(_this.icons),const DeepCollectionEquality().hash(_this.services),const DeepCollectionEquality().hash(_this.sets));
+  return Object.hash(runtimeType,const DeepCollectionEquality().hash(_this.targets),const DeepCollectionEquality().hash(_this.reserved),const DeepCollectionEquality().hash(_this.regions),const DeepCollectionEquality().hash(_this.groupCategories),const DeepCollectionEquality().hash(_this.icons),const DeepCollectionEquality().hash(_this.services),const DeepCollectionEquality().hash(_this.sets));
 }
 
 @override
 String toString() {
   final _this = this as RouteCatalog;
-  return 'RouteCatalog(targets: ${_this.targets}, reserved: ${_this.reserved}, groupCategories: ${_this.groupCategories}, icons: ${_this.icons}, services: ${_this.services}, sets: ${_this.sets})';
+  return 'RouteCatalog(targets: ${_this.targets}, reserved: ${_this.reserved}, regions: ${_this.regions}, groupCategories: ${_this.groupCategories}, icons: ${_this.icons}, services: ${_this.services}, sets: ${_this.sets})';
 }
 
 
@@ -7271,7 +7826,7 @@ abstract mixin class $RouteCatalogCopyWith<$Res>  {
   factory $RouteCatalogCopyWith(RouteCatalog value, $Res Function(RouteCatalog) _then) = _$RouteCatalogCopyWithImpl;
 @useResult
 $Res call({
- List<String> targets, List<String> reserved, Map<String, RouteCategory> groupCategories, List<String> icons, List<RouteService> services, List<RouteRuleSet> sets
+ List<String> targets, List<String> reserved, List<RouteRegion> regions, Map<String, RouteCategory> groupCategories, List<String> icons, List<RouteService> services, List<RouteRuleSet> sets
 });
 
 
@@ -7288,11 +7843,12 @@ class _$RouteCatalogCopyWithImpl<$Res>
 
 /// Create a copy of RouteCatalog
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? targets = null,Object? reserved = null,Object? groupCategories = null,Object? icons = null,Object? services = null,Object? sets = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? targets = null,Object? reserved = null,Object? regions = null,Object? groupCategories = null,Object? icons = null,Object? services = null,Object? sets = null,}) {
   return _then(RouteCatalog(
 targets: null == targets ? _self.targets : targets // ignore: cast_nullable_to_non_nullable
 as List<String>,reserved: null == reserved ? _self.reserved : reserved // ignore: cast_nullable_to_non_nullable
-as List<String>,groupCategories: null == groupCategories ? _self.groupCategories : groupCategories // ignore: cast_nullable_to_non_nullable
+as List<String>,regions: null == regions ? _self.regions : regions // ignore: cast_nullable_to_non_nullable
+as List<RouteRegion>,groupCategories: null == groupCategories ? _self.groupCategories : groupCategories // ignore: cast_nullable_to_non_nullable
 as Map<String, RouteCategory>,icons: null == icons ? _self.icons : icons // ignore: cast_nullable_to_non_nullable
 as List<String>,services: null == services ? _self.services : services // ignore: cast_nullable_to_non_nullable
 as List<RouteService>,sets: null == sets ? _self.sets : sets // ignore: cast_nullable_to_non_nullable
@@ -7381,10 +7937,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( List<String> targets,  List<String> reserved,  Map<String, RouteCategory> groupCategories,  List<String> icons,  List<RouteService> services,  List<RouteRuleSet> sets)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( List<String> targets,  List<String> reserved,  List<RouteRegion> regions,  Map<String, RouteCategory> groupCategories,  List<String> icons,  List<RouteService> services,  List<RouteRuleSet> sets)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _RouteCatalog() when $default != null:
-return $default(_that.targets,_that.reserved,_that.groupCategories,_that.icons,_that.services,_that.sets);case _:
+return $default(_that.targets,_that.reserved,_that.regions,_that.groupCategories,_that.icons,_that.services,_that.sets);case _:
   return orElse();
 
 }
@@ -7402,10 +7958,10 @@ return $default(_that.targets,_that.reserved,_that.groupCategories,_that.icons,_
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( List<String> targets,  List<String> reserved,  Map<String, RouteCategory> groupCategories,  List<String> icons,  List<RouteService> services,  List<RouteRuleSet> sets)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( List<String> targets,  List<String> reserved,  List<RouteRegion> regions,  Map<String, RouteCategory> groupCategories,  List<String> icons,  List<RouteService> services,  List<RouteRuleSet> sets)  $default,) {final _that = this;
 switch (_that) {
 case _RouteCatalog():
-return $default(_that.targets,_that.reserved,_that.groupCategories,_that.icons,_that.services,_that.sets);case _:
+return $default(_that.targets,_that.reserved,_that.regions,_that.groupCategories,_that.icons,_that.services,_that.sets);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -7422,10 +7978,10 @@ return $default(_that.targets,_that.reserved,_that.groupCategories,_that.icons,_
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( List<String> targets,  List<String> reserved,  Map<String, RouteCategory> groupCategories,  List<String> icons,  List<RouteService> services,  List<RouteRuleSet> sets)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( List<String> targets,  List<String> reserved,  List<RouteRegion> regions,  Map<String, RouteCategory> groupCategories,  List<String> icons,  List<RouteService> services,  List<RouteRuleSet> sets)?  $default,) {final _that = this;
 switch (_that) {
 case _RouteCatalog() when $default != null:
-return $default(_that.targets,_that.reserved,_that.groupCategories,_that.icons,_that.services,_that.sets);case _:
+return $default(_that.targets,_that.reserved,_that.regions,_that.groupCategories,_that.icons,_that.services,_that.sets);case _:
   return null;
 
 }
@@ -7437,7 +7993,7 @@ return $default(_that.targets,_that.reserved,_that.groupCategories,_that.icons,_
 @JsonSerializable()
 
 class _RouteCatalog implements RouteCatalog {
-  const _RouteCatalog({ List<String> targets = const [],  List<String> reserved = const [],  Map<String, RouteCategory> groupCategories = const {},  List<String> icons = const [],  List<RouteService> services = const [],  List<RouteRuleSet> sets = const []}): _targets = targets,_reserved = reserved,_groupCategories = groupCategories,_icons = icons,_services = services,_sets = sets;
+  const _RouteCatalog({ List<String> targets = const [],  List<String> reserved = const [],  List<RouteRegion> regions = const [],  Map<String, RouteCategory> groupCategories = const {},  List<String> icons = const [],  List<RouteService> services = const [],  List<RouteRuleSet> sets = const []}): _targets = targets,_reserved = reserved,_regions = regions,_groupCategories = groupCategories,_icons = icons,_services = services,_sets = sets;
   factory _RouteCatalog.fromJson(Map<String, dynamic> json) => _$RouteCatalogFromJson(json);
 
  final  List<String> _targets;
@@ -7452,6 +8008,13 @@ class _RouteCatalog implements RouteCatalog {
   if (_reserved is EqualUnmodifiableListView) return _reserved;
   // ignore: implicit_dynamic_type
   return EqualUnmodifiableListView(_reserved);
+}
+
+ final  List<RouteRegion> _regions;
+@override@JsonKey() List<RouteRegion> get regions {
+  if (_regions is EqualUnmodifiableListView) return _regions;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_regions);
 }
 
  final  Map<String, RouteCategory> _groupCategories;
@@ -7496,18 +8059,18 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _RouteCatalog&&const DeepCollectionEquality().equals(other.targets, _targets)&&const DeepCollectionEquality().equals(other.reserved, _reserved)&&const DeepCollectionEquality().equals(other.groupCategories, _groupCategories)&&const DeepCollectionEquality().equals(other.icons, _icons)&&const DeepCollectionEquality().equals(other.services, _services)&&const DeepCollectionEquality().equals(other.sets, _sets));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _RouteCatalog&&const DeepCollectionEquality().equals(other.targets, _targets)&&const DeepCollectionEquality().equals(other.reserved, _reserved)&&const DeepCollectionEquality().equals(other.regions, _regions)&&const DeepCollectionEquality().equals(other.groupCategories, _groupCategories)&&const DeepCollectionEquality().equals(other.icons, _icons)&&const DeepCollectionEquality().equals(other.services, _services)&&const DeepCollectionEquality().equals(other.sets, _sets));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
 int get hashCode {
-    return Object.hash(runtimeType,const DeepCollectionEquality().hash(_targets),const DeepCollectionEquality().hash(_reserved),const DeepCollectionEquality().hash(_groupCategories),const DeepCollectionEquality().hash(_icons),const DeepCollectionEquality().hash(_services),const DeepCollectionEquality().hash(_sets));
+    return Object.hash(runtimeType,const DeepCollectionEquality().hash(_targets),const DeepCollectionEquality().hash(_reserved),const DeepCollectionEquality().hash(_regions),const DeepCollectionEquality().hash(_groupCategories),const DeepCollectionEquality().hash(_icons),const DeepCollectionEquality().hash(_services),const DeepCollectionEquality().hash(_sets));
 }
 
 @override
 String toString() {
-    return 'RouteCatalog(targets: $targets, reserved: $reserved, groupCategories: $groupCategories, icons: $icons, services: $services, sets: $sets)';
+    return 'RouteCatalog(targets: $targets, reserved: $reserved, regions: $regions, groupCategories: $groupCategories, icons: $icons, services: $services, sets: $sets)';
 }
 
 
@@ -7518,7 +8081,7 @@ abstract mixin class _$RouteCatalogCopyWith<$Res> implements $RouteCatalogCopyWi
   factory _$RouteCatalogCopyWith(_RouteCatalog value, $Res Function(_RouteCatalog) _then) = __$RouteCatalogCopyWithImpl;
 @override @useResult
 $Res call({
- List<String> targets, List<String> reserved, Map<String, RouteCategory> groupCategories, List<String> icons, List<RouteService> services, List<RouteRuleSet> sets
+ List<String> targets, List<String> reserved, List<RouteRegion> regions, Map<String, RouteCategory> groupCategories, List<String> icons, List<RouteService> services, List<RouteRuleSet> sets
 });
 
 
@@ -7535,11 +8098,12 @@ class __$RouteCatalogCopyWithImpl<$Res>
 
 /// Create a copy of RouteCatalog
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? targets = null,Object? reserved = null,Object? groupCategories = null,Object? icons = null,Object? services = null,Object? sets = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? targets = null,Object? reserved = null,Object? regions = null,Object? groupCategories = null,Object? icons = null,Object? services = null,Object? sets = null,}) {
   return _then(_RouteCatalog(
 targets: null == targets ? _self._targets : targets // ignore: cast_nullable_to_non_nullable
 as List<String>,reserved: null == reserved ? _self._reserved : reserved // ignore: cast_nullable_to_non_nullable
-as List<String>,groupCategories: null == groupCategories ? _self._groupCategories : groupCategories // ignore: cast_nullable_to_non_nullable
+as List<String>,regions: null == regions ? _self._regions : regions // ignore: cast_nullable_to_non_nullable
+as List<RouteRegion>,groupCategories: null == groupCategories ? _self._groupCategories : groupCategories // ignore: cast_nullable_to_non_nullable
 as Map<String, RouteCategory>,icons: null == icons ? _self._icons : icons // ignore: cast_nullable_to_non_nullable
 as List<String>,services: null == services ? _self._services : services // ignore: cast_nullable_to_non_nullable
 as List<RouteService>,sets: null == sets ? _self._sets : sets // ignore: cast_nullable_to_non_nullable

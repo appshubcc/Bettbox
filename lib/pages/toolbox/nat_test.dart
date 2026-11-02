@@ -163,7 +163,7 @@ class _NatTestPageState extends ConsumerState<NatTestPage>
 
   Future<void> _selectServer() async {
     if (_testing) return;
-    final result = await globalState.showCommonDialog<String>(
+    final result = await globalState.showAdaptiveSheet<String>(
       child: _ServerDialog(selected: _server),
     );
     if (result == null || !mounted || result == _server) return;

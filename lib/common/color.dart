@@ -113,24 +113,30 @@ extension ColorExtension on Color {
   }
 }
 
+Color _capChroma(Color color, double maxChroma) {
+  final hct = Hct.fromInt(color.toARGB32());
+  if (hct.chroma <= maxChroma) return color;
+  return Color(Hct.from(hct.hue, maxChroma, hct.tone).toInt());
+}
+
 extension ColorSchemeExtension on ColorScheme {
-  ColorScheme toPureBlack(bool isPrueBlack) => isPrueBlack
-      ? copyWith(
-          surface: Colors.black,
-          surfaceContainerLowest: Colors.black,
-          surfaceContainer: Colors.black,
-          surfaceContainerLow: Color.lerp(
-            Colors.black,
-            surfaceContainerLow,
-            0.6,
-          )!,
-          surfaceContainerHigh: Color.lerp(
-            Colors.black,
-            surfaceContainerHigh,
-            0.8,
-          )!,
-        )
-      : this;
+  Color get pageColor =>
+      brightness == Brightness.dark ? surface : surfaceContainer;
+
+  ColorScheme toNeutralSurfaces() {
+    final paper = brightness == Brightness.light ? 1.5 : 3.0;
+    return copyWith(
+      surface: _capChroma(surface, paper),
+      surfaceBright: _capChroma(surfaceBright, paper),
+      surfaceDim: _capChroma(surfaceDim, 3),
+      surfaceContainerLowest: _capChroma(surfaceContainerLowest, 3),
+      surfaceContainerLow: _capChroma(surfaceContainerLow, 3),
+      surfaceContainer: _capChroma(surfaceContainer, 3),
+      surfaceContainerHigh: _capChroma(surfaceContainerHigh, 3),
+      surfaceContainerHighest: _capChroma(surfaceContainerHighest, 3),
+      outlineVariant: _capChroma(outlineVariant, 4),
+    );
+  }
 }
 
 extension DynamicSchemeExtension on DynamicScheme {

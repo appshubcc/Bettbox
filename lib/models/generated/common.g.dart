@@ -173,6 +173,19 @@ Map<String, dynamic> _$NetworkInfoToJson(_NetworkInfo instance) =>
       'dns': instance.dns,
     };
 
+_CoreInterface _$CoreInterfaceFromJson(Map<String, dynamic> json) =>
+    _CoreInterface(
+      name: json['name'] as String,
+      addresses:
+          (json['addresses'] as List<dynamic>?)
+              ?.map((e) => e as String)
+              .toList() ??
+          const [],
+    );
+
+Map<String, dynamic> _$CoreInterfaceToJson(_CoreInterface instance) =>
+    <String, dynamic>{'name': instance.name, 'addresses': instance.addresses};
+
 _VersionInfo _$VersionInfoFromJson(Map<String, dynamic> json) => _VersionInfo(
   clashName: json['clashName'] as String? ?? '',
   version: json['version'] as String? ?? '',
@@ -485,6 +498,19 @@ const _$RouteCategoryEnumMap = {
   RouteCategory.other: 'other',
 };
 
+_RouteRegion _$RouteRegionFromJson(Map<String, dynamic> json) => _RouteRegion(
+  name: json['name'] as String,
+  icon: json['icon'] as String?,
+  preset: json['default'] as bool? ?? false,
+);
+
+Map<String, dynamic> _$RouteRegionToJson(_RouteRegion instance) =>
+    <String, dynamic>{
+      'name': instance.name,
+      'icon': instance.icon,
+      'default': instance.preset,
+    };
+
 _RouteCatalog _$RouteCatalogFromJson(
   Map<String, dynamic> json,
 ) => _RouteCatalog(
@@ -493,6 +519,11 @@ _RouteCatalog _$RouteCatalogFromJson(
       const [],
   reserved:
       (json['reserved'] as List<dynamic>?)?.map((e) => e as String).toList() ??
+      const [],
+  regions:
+      (json['regions'] as List<dynamic>?)
+          ?.map((e) => RouteRegion.fromJson(e as Map<String, dynamic>))
+          .toList() ??
       const [],
   groupCategories:
       (json['groupCategories'] as Map<String, dynamic>?)?.map(
@@ -518,6 +549,7 @@ Map<String, dynamic> _$RouteCatalogToJson(_RouteCatalog instance) =>
     <String, dynamic>{
       'targets': instance.targets,
       'reserved': instance.reserved,
+      'regions': instance.regions,
       'groupCategories': instance.groupCategories.map(
         (k, e) => MapEntry(k, _$RouteCategoryEnumMap[e]!),
       ),

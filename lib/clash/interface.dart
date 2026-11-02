@@ -94,6 +94,8 @@ mixin ClashInterface {
 
   FutureOr<String> getCoreStatus();
 
+  FutureOr<String> getInterfaces();
+
   Future<String> startSpeedTest(String params);
 
   FutureOr<bool> cancelSpeedTest();
@@ -139,6 +141,8 @@ mixin ClashInterface {
   FutureOr<bool> closeConnection(String id);
 
   FutureOr<bool> closeConnections();
+
+  FutureOr<bool> closeGroupConnections(String groupName);
 
   FutureOr<bool> resetConnections();
 
@@ -223,7 +227,12 @@ abstract class ClashHandlerInterface with ClashInterface {
           completer?.complete(result.data);
           return;
         default:
-          completer?.complete(result.data);
+          final data = result.data;
+          completer?.complete(
+            completer is Completer<String> && data is! String
+                ? json.encode(data)
+                : data,
+          );
           return;
       }
     } catch (e) {
@@ -578,6 +587,14 @@ abstract class ClashHandlerInterface with ClashInterface {
   }
 
   @override
+  Future<bool> closeGroupConnections(String groupName) {
+    return invoke<bool>(
+      method: ActionMethod.closeGroupConnections,
+      data: groupName,
+    );
+  }
+
+  @override
   Future<bool> resetConnections() {
     return invoke<bool>(method: ActionMethod.resetConnections);
   }
@@ -699,6 +716,11 @@ abstract class ClashHandlerInterface with ClashInterface {
   @override
   FutureOr<String> getCoreStatus() {
     return invoke<String>(method: ActionMethod.getCoreStatus);
+  }
+
+  @override
+  FutureOr<String> getInterfaces() {
+    return invoke<String>(method: ActionMethod.getInterfaces);
   }
 
   @override

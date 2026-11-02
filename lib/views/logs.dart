@@ -40,7 +40,7 @@ class _LogColors {
     required this.tintAlpha,
   });
 
-  factory _LogColors.of(ColorScheme scheme, {required bool pureBlack}) {
+  factory _LogColors.of(ColorScheme scheme) {
     final isDark = scheme.brightness == Brightness.dark;
     final warning = isDark ? const Color(0xFFFFD54F) : const Color(0xFFB26A00);
     return _LogColors(
@@ -53,7 +53,7 @@ class _LogColors {
       warning: warning.harmonizeWith(scheme.primary),
       expanded: scheme.onSurface.withValues(alpha: 0.06),
       hover: scheme.onSurface.withValues(alpha: 0.04),
-      tintAlpha: isDark && pureBlack ? 0.1 : 0.06,
+      tintAlpha: 0.06,
     );
   }
 
@@ -307,7 +307,7 @@ class _LogsViewState extends ConsumerState<LogsView>
       patchClashConfigProvider.select((state) => state.logLevel),
     );
 
-    final selectedLogLevel = await globalState.showCommonDialog<LogLevel>(
+    final selectedLogLevel = await globalState.showAdaptiveSheet<LogLevel>(
       child: OptionsDialog<LogLevel>(
         title: appLocalizations.logLevel,
         options: LogLevel.values,
@@ -444,7 +444,6 @@ class _LogsConsoleState extends ConsumerState<LogsConsole> {
   var _heights = Expando<double>();
   var _rows = Expando<Widget>();
   ColorScheme? _colorScheme;
-  bool? _pureBlack;
   var _filter = const LogsFilterState();
   Log? _expanded;
   var _aiSearch = true;
@@ -603,15 +602,14 @@ class _LogsConsoleState extends ConsumerState<LogsConsole> {
         metrics.verticalPadding * 2;
   }
 
-  _LogColors _resolveColors(ColorScheme scheme, bool pureBlack) {
+  _LogColors _resolveColors(ColorScheme scheme) {
     final prev = _colors;
-    if (prev != null && scheme == _colorScheme && pureBlack == _pureBlack) {
+    if (prev != null && scheme == _colorScheme) {
       return prev;
     }
     _colorScheme = scheme;
-    _pureBlack = pureBlack;
     _rows = Expando<Widget>();
-    return _colors = _LogColors.of(scheme, pureBlack: pureBlack);
+    return _colors = _LogColors.of(scheme);
   }
 
   Widget _rowOf(Log log, _LogMetrics metrics, _LogColors colors) {
@@ -709,6 +707,20 @@ class _LogsConsoleState extends ConsumerState<LogsConsole> {
           mainAxisSize: MainAxisSize.min,
           spacing: 8,
           children: [
+            Container(
+              width: 76,
+              height: 76,
+              margin: const EdgeInsets.only(bottom: 10),
+              decoration: BoxDecoration(
+                color: context.colorScheme.primary.withValues(alpha: 0.08),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                hasLogs ? Icons.search_off_rounded : Icons.notes_rounded,
+                size: 34,
+                color: context.colorScheme.primary.withValues(alpha: 0.85),
+              ),
+            ),
             Text(
               hasLogs
                   ? appLocalizations.noMatchedLogs
@@ -733,7 +745,6 @@ class _LogsConsoleState extends ConsumerState<LogsConsole> {
   Widget _buildList({
     required List<Log> logs,
     required bool compact,
-    required bool pureBlack,
     required LogLevel level,
   }) {
     final textDirection = Directionality.of(context);
@@ -749,7 +760,7 @@ class _LogsConsoleState extends ConsumerState<LogsConsole> {
           compact,
           level != LogLevel.debug,
         );
-        final colors = _resolveColors(context.colorScheme, pureBlack);
+        final colors = _resolveColors(context.colorScheme);
         final extents = List<double?>.filled(logs.length, null);
         final slivers = [
           SliverPadding(
@@ -850,9 +861,6 @@ class _LogsConsoleState extends ConsumerState<LogsConsole> {
       appSettingProvider.select((state) => state.logAiSearch),
     );
     final compact = ref.watch(isMobileViewProvider);
-    final pureBlack = ref.watch(
-      themeSettingProvider.select((state) => state.pureBlack),
-    );
 
     ref.listen<FilteredLogs>(filteredLogsProvider, _handleLogsChanged);
 
@@ -862,7 +870,6 @@ class _LogsConsoleState extends ConsumerState<LogsConsole> {
           errors: filtered.errors,
           warnings: filtered.warnings,
           compact: compact,
-          pureBlack: pureBlack,
         ),
         Expanded(
           child: filtered.logs.isEmpty
@@ -870,7 +877,6 @@ class _LogsConsoleState extends ConsumerState<LogsConsole> {
               : _buildList(
                   logs: filtered.logs,
                   compact: compact,
-                  pureBlack: pureBlack,
                   level: level,
                 ),
         ),
@@ -1053,13 +1059,11 @@ class _LogsFilterBar extends ConsumerWidget {
   final int errors;
   final int warnings;
   final bool compact;
-  final bool pureBlack;
 
   const _LogsFilterBar({
     required this.errors,
     required this.warnings,
     required this.compact,
-    required this.pureBlack,
   });
 
   @override
@@ -1070,7 +1074,7 @@ class _LogsFilterBar extends ConsumerWidget {
       ),
     );
     final notifier = ref.read(logsFilterProvider.notifier);
-    final colors = _LogColors.of(context.colorScheme, pureBlack: pureBlack);
+    final colors = _LogColors.of(context.colorScheme);
     final debug = ref.watch(
       patchClashConfigProvider.select(
         (state) => state.logLevel == LogLevel.debug,

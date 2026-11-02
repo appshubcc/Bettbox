@@ -12,6 +12,7 @@ import 'package:bett_box/enum/enum.dart';
 import 'package:intl/intl.dart';
 
 import 'tile.dart';
+import 'quick_options.dart';
 
 class StartButton extends ConsumerStatefulWidget {
   final DashboardTileSize? size;
@@ -28,8 +29,8 @@ class _StartButtonState extends ConsumerState<StartButton> {
 
   void _handleStart() async {
     if (_isDisabled) return;
-    final isStart = ref.read(runTimeProvider) != null;
-    final newState = !isStart;
+    final newState =
+        ref.read(isSmartStoppedProvider) || ref.read(runTimeProvider) == null;
     setState(() {
       _isDisabled = true;
       _optimisticStart = newState;
@@ -53,25 +54,9 @@ class _StartButtonState extends ConsumerState<StartButton> {
     final isStart = ref.read(runTimeProvider) != null;
     if (!isStart) return;
 
-    final result = await globalState.showCommonDialog<bool>(
-      child: CommonDialog(
-        title: appLocalizations.restartCoreTitle,
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(context, rootNavigator: true).pop(false);
-            },
-            child: Text(appLocalizations.cancel),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.of(context, rootNavigator: true).pop(true);
-            },
-            child: Text(appLocalizations.confirm),
-          ),
-        ],
-        child: Text(appLocalizations.restartCoreDesc),
-      ),
+    final result = await globalState.showMessage(
+      title: appLocalizations.restartCoreTitle,
+      message: TextSpan(text: appLocalizations.restartCoreDesc),
     );
 
     if (result == true) {
@@ -107,13 +92,19 @@ class _StartButtonState extends ConsumerState<StartButton> {
           Mode.direct => Icons.east_rounded,
         },
         label: Intl.message(mode.name),
+        onTap: () => showOutboundModeSheet(context),
       ),
       if (system.isDesktop && tun)
-        DashboardChip(icon: Icons.vpn_lock_rounded, label: appLocalizations.tun)
+        DashboardChip(
+          icon: Icons.vpn_lock_rounded,
+          label: appLocalizations.tun,
+          onTap: () => showTunSheet(context),
+        )
       else if (system.isDesktop && systemProxy)
         DashboardChip(
           icon: Icons.settings_ethernet_rounded,
           label: appLocalizations.systemProxy,
+          onTap: () => showSystemProxySheet(context),
         ),
     ];
   }
@@ -174,8 +165,7 @@ class _StartButtonState extends ConsumerState<StartButton> {
     final isRestarting = ref.watch(isRestartingCoreProvider);
     final isStart = ref.watch(runTimeProvider.select((time) => time != null));
     final displayStart = isSmartStopped ? false : (_optimisticStart ?? isStart);
-    final canPress =
-        state.isInit && state.hasProfile && !_isDisabled && !isSmartStopped;
+    final canPress = state.isInit && state.hasProfile && !_isDisabled;
     final hasNoProfile =
         state.isInit && !state.hasProfile && !_isDisabled && !isSmartStopped;
     final colorScheme = context.colorScheme;
@@ -194,7 +184,7 @@ class _StartButtonState extends ConsumerState<StartButton> {
         : hasNoProfile
         ? _handleShowAddProfile
         : null;
-    final onLongPress = canPress ? _handleLongPress : null;
+    final onLongPress = canPress && !isSmartStopped ? _handleLongPress : null;
     return DashboardTileCard(
       size: size,
       info: Info(
@@ -210,8 +200,8 @@ class _StartButtonState extends ConsumerState<StartButton> {
       mark: DashboardDecor.icon(context, Icons.power_settings_new, 80),
       markBottom: !isTall,
       markAngle: isTall ? -0.08 : 0.1,
-      onPressed: isTall ? null : onPressed,
-      onLongPress: isTall ? null : onLongPress,
+      onPressed: null,
+      onLongPress: null,
       child: isTall
           ? Padding(
               padding: const EdgeInsets.fromLTRB(16, 4, 12, 14),
@@ -269,13 +259,28 @@ class _StartButtonState extends ConsumerState<StartButton> {
               ),
             )
           : Padding(
-              padding: const EdgeInsets.fromLTRB(16, 0, 72, 14),
+              padding: const EdgeInsets.fromLTRB(11, 0, 72, 14),
               child: Align(
                 alignment: Alignment.bottomLeft,
                 child: Row(
                   children: [
-                    Icon(icon, size: 22, color: colorScheme.primary),
-                    const SizedBox(width: 6),
+                    Material(
+                      type: MaterialType.transparency,
+                      child: InkWell(
+                        customBorder: const CircleBorder(),
+                        onTap: onPressed,
+                        onLongPress: onLongPress,
+                        child: Padding(
+                          padding: const EdgeInsets.all(5),
+                          child: Icon(
+                            icon,
+                            size: 22,
+                            color: colorScheme.primary,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 3),
                     Flexible(
                       child: FittedBox(fit: BoxFit.scaleDown, child: status),
                     ),
@@ -295,8 +300,7 @@ class _StartButtonState extends ConsumerState<StartButton> {
     if (widget.size case final size?) return _buildTile(context, size);
     final state = ref.watch(startButtonSelectorStateProvider);
     final isSmartStopped = ref.watch(isSmartStoppedProvider);
-    final canPress =
-        state.isInit && state.hasProfile && !_isDisabled && !isSmartStopped;
+    final canPress = state.isInit && state.hasProfile && !_isDisabled;
     final hasNoProfile =
         state.isInit && !state.hasProfile && !_isDisabled && !isSmartStopped;
     final isRestarting = ref.watch(isRestartingCoreProvider);
@@ -321,7 +325,7 @@ class _StartButtonState extends ConsumerState<StartButton> {
             : hasNoProfile
             ? _handleShowAddProfile
             : null,
-        onLongPress: canPress ? _handleLongPress : null,
+        onLongPress: canPress && !isSmartStopped ? _handleLongPress : null,
         child: Container(
           padding: baseInfoEdgeInsets.copyWith(top: 0),
           child: Column(

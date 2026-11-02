@@ -123,7 +123,7 @@ class _BackupAndRecoveryState extends ConsumerState<BackupAndRecovery> {
       return;
     }
 
-    final selectedFile = await globalState.showCommonDialog<webdav.File>(
+    final selectedFile = await globalState.showAdaptiveSheet<webdav.File>(
       child: BackupVersionsDialog(files: files),
     );
     if (selectedFile == null || !context.mounted) return;
@@ -244,7 +244,7 @@ class _BackupAndRecoveryState extends ConsumerState<BackupAndRecovery> {
     final recoveryStrategy = ref.read(
       appSettingProvider.select((state) => state.recoveryStrategy),
     );
-    final res = await globalState.showCommonDialog(
+    final res = await globalState.showAdaptiveSheet(
       child: OptionsDialog<RecoveryStrategy>(
         title: appLocalizations.recoveryStrategy,
         options: RecoveryStrategy.values,

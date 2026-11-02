@@ -49,43 +49,15 @@ class Service {
 
   Future<bool?> stopVpn() => methodChannel.invokeMethod<bool>('stopVpn');
 
-  Future<bool?> smartStop() => methodChannel.invokeMethod<bool>('smartStop');
-
-  Future<bool?> smartResume() async {
-    final options = await clashLib?.getAndroidVpnOptions();
-    return await methodChannel.invokeMethod<bool>('smartResume', {
-      'data': json.encode(options),
-    });
-  }
-
-  Future<void> setSmartStopped(bool value) async {
-    await methodChannel.invokeMethod<bool>('setSmartStopped', {'value': value});
-  }
-
   Future<bool> isSmartStopped() async {
     return await methodChannel.invokeMethod<bool>('isSmartStopped') ?? false;
   }
 
-  Future<List<String>> getLocalIpAddresses() async {
-    return await methodChannel.invokeListMethod<String>(
-          'getLocalIpAddresses',
-        ) ??
-        const [];
-  }
-
-  Future<List<String>> getLocalGateways() async {
-    return await methodChannel.invokeListMethod<String>('getLocalGateways') ??
-        const [];
-  }
+  Future<void> requestSmartAutoStopCheck() =>
+      methodChannel.invokeMethod<bool>('requestSmartAutoStopCheck');
 
   Future<String?> getCurrentDns() =>
       methodChannel.invokeMethod<String>('getCurrentDns');
-
-  Future<bool?> setQuickResponse(bool enabled) async {
-    return await methodChannel.invokeMethod<bool>('setQuickResponse', {
-      'enabled': enabled,
-    });
-  }
 
   Future<bool> isServiceEngineRunning() async {
     return await methodChannel.invokeMethod<bool>('isServiceEngineRunning') ??

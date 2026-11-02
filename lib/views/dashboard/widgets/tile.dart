@@ -3,7 +3,9 @@ import 'dart:math' as math;
 import 'package:bett_box/common/common.dart';
 import 'package:bett_box/enum/enum.dart';
 import 'package:bett_box/widgets/widgets.dart';
+import 'package:bett_box/providers/providers.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
 
 import 'connections_count.dart';
@@ -13,6 +15,7 @@ import 'network_detection.dart';
 import 'network_speed.dart';
 import 'profile_info.dart';
 import 'start_button.dart';
+import 'toolbox_shortcut.dart';
 import 'traffic_usage.dart';
 
 typedef DashboardTile = ({DashboardWidget widget, DashboardTileSize size});
@@ -45,11 +48,12 @@ Widget buildDashboardTile(DashboardTile tile) {
     DashboardWidget.memoryInfo => MemoryInfo(size: size),
     DashboardWidget.connectionsCount => ConnectionsCount(size: size),
     DashboardWidget.startButton => StartButton(size: size),
+    DashboardWidget.toolboxShortcut => ToolboxShortcut(size: size),
     _ => widget.widget.child,
   };
 }
 
-class DashboardDecor extends StatelessWidget {
+class DashboardDecor extends ConsumerWidget {
   final Widget mark;
   final bool bottom;
   final double angle;
@@ -109,7 +113,11 @@ class DashboardDecor extends StatelessWidget {
   );
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final visible = ref.watch(
+      appSettingProvider.select((state) => state.dashboardWatermark),
+    );
+    if (!visible) return child;
     final offset = -size * 0.17;
     return Stack(
       children: [
@@ -130,7 +138,7 @@ class DashboardDecor extends StatelessWidget {
 class DashboardTileCard extends StatelessWidget {
   final DashboardTileSize size;
   final Info info;
-  final Widget mark;
+  final Widget? mark;
   final bool markBottom;
   final double markAngle;
   final VoidCallback? onPressed;
@@ -142,8 +150,8 @@ class DashboardTileCard extends StatelessWidget {
     super.key,
     required this.size,
     required this.info,
-    required this.mark,
     required this.child,
+    this.mark,
     this.markBottom = false,
     this.markAngle = 0,
     this.onPressed,
@@ -153,27 +161,31 @@ class DashboardTileCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final mark = this.mark;
+    final content = Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        InfoHeader(
+          info: info,
+          actions: actions,
+          padding: baseInfoEdgeInsets.copyWith(bottom: 0),
+        ),
+        Expanded(child: child),
+      ],
+    );
     return SizedBox(
       height: getWidgetHeight(context, size.rows),
       child: CommonCard(
         onPressed: onPressed,
         onLongPress: onLongPress,
-        child: DashboardDecor(
-          mark: mark,
-          bottom: markBottom,
-          angle: markAngle,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              InfoHeader(
-                info: info,
-                actions: actions,
-                padding: baseInfoEdgeInsets.copyWith(bottom: 0),
+        child: mark == null
+            ? content
+            : DashboardDecor(
+                mark: mark,
+                bottom: markBottom,
+                angle: markAngle,
+                child: content,
               ),
-              Expanded(child: child),
-            ],
-          ),
-        ),
       ),
     );
   }
@@ -296,32 +308,55 @@ class _TrendLinePainter extends CustomPainter {
 class DashboardChip extends StatelessWidget {
   final IconData icon;
   final String label;
+  final VoidCallback? onTap;
 
-  const DashboardChip({super.key, required this.icon, required this.label});
+  const DashboardChip({
+    super.key,
+    required this.icon,
+    required this.label,
+    this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
     final primary = context.colorScheme.primary;
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: primary.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 13, color: primary),
-          const SizedBox(width: 4),
-          Flexible(
-            child: Text(
-              label,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: context.textTheme.labelSmall?.copyWith(color: primary),
-            ),
+    final content = Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(icon, size: 13, color: primary),
+        const SizedBox(width: 4),
+        Flexible(
+          child: Text(
+            label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: context.textTheme.labelSmall?.copyWith(color: primary),
           ),
-        ],
+        ),
+      ],
+    );
+
+    if (onTap == null) {
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        decoration: BoxDecoration(
+          color: primary.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: content,
+      );
+    }
+
+    return Material(
+      color: primary.withValues(alpha: 0.1),
+      borderRadius: BorderRadius.circular(8),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          child: content,
+        ),
       ),
     );
   }

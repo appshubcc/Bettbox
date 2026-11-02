@@ -222,23 +222,19 @@ class _StartSwitchDialogState extends State<_StartSwitchDialog> {
             style: context.textTheme.titleSmall,
           ),
           const SizedBox(height: 8),
-          SegmentedButton<StartSwitchStyle>(
-            segments: [
-              ButtonSegment(
+          SegmentButtonGroup<StartSwitchStyle>(
+            options: [
+              SegmentOption(
                 value: StartSwitchStyle.tonal,
-                label: Text(appLocalizations.startSwitchTonal),
+                label: appLocalizations.startSwitchTonal,
               ),
-              ButtonSegment(
+              SegmentOption(
                 value: StartSwitchStyle.outlined,
-                label: Text(appLocalizations.startSwitchOutlined),
+                label: appLocalizations.startSwitchOutlined,
               ),
             ],
-            selected: {_style},
-            showSelectedIcon: false,
-            expandedInsets: EdgeInsets.zero,
-            onSelectionChanged: (selection) {
-              setState(() => _style = selection.first);
-            },
+            selected: _style,
+            onSelected: (style) => setState(() => _style = style),
           ),
           const SizedBox(height: 20),
           Text(
@@ -393,27 +389,23 @@ class _SidebarFlyoutDialogState extends State<_SidebarFlyoutDialog> {
             style: context.textTheme.titleSmall,
           ),
           const SizedBox(height: 8),
-          SegmentedButton<SidebarFlyoutDelay>(
-            segments: [
-              ButtonSegment(
+          SegmentButtonGroup<SidebarFlyoutDelay>(
+            options: [
+              SegmentOption(
                 value: SidebarFlyoutDelay.fast,
-                label: Text(appLocalizations.fast),
+                label: appLocalizations.fast,
               ),
-              ButtonSegment(
+              SegmentOption(
                 value: SidebarFlyoutDelay.standard,
-                label: Text(appLocalizations.standard),
+                label: appLocalizations.standard,
               ),
-              ButtonSegment(
+              SegmentOption(
                 value: SidebarFlyoutDelay.slow,
-                label: Text(appLocalizations.slow),
+                label: appLocalizations.slow,
               ),
             ],
-            selected: {_delay},
-            showSelectedIcon: false,
-            expandedInsets: EdgeInsets.zero,
-            onSelectionChanged: (selection) {
-              setState(() => _delay = selection.first);
-            },
+            selected: _delay,
+            onSelected: (delay) => setState(() => _delay = delay),
           ),
           const SizedBox(height: 12),
           Row(

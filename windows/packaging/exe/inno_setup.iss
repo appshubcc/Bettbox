@@ -78,6 +78,13 @@ begin
 
   if IsProcessRunning('{{CORE_EXECUTABLE_NAME}}') then
     Exec('taskkill', '/f /im {{CORE_EXECUTABLE_NAME}}', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
+
+  WaitCount := 0;
+  while (WaitCount < 4) and (IsProcessRunning('{{EXECUTABLE_NAME}}') or IsProcessRunning('{{CORE_EXECUTABLE_NAME}}')) do
+  begin
+    Sleep(500);
+    WaitCount := WaitCount + 1;
+  end;
 end;
 
 procedure CleanWintunDevices;

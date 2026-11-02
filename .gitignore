@@ -64,6 +64,7 @@ app.*.map.json
 /android/app/release
 
 /android/core/.cxx
+/android/.kotlin/
 
 #libclash
 /libclash/

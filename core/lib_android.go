@@ -15,10 +15,12 @@ import (
 	"fmt"
 	"github.com/metacubex/mihomo/component/dialer"
 	"github.com/metacubex/mihomo/component/process"
+	"github.com/metacubex/mihomo/component/resolver"
 	"github.com/metacubex/mihomo/constant"
 	"github.com/metacubex/mihomo/dns"
 	"github.com/metacubex/mihomo/listener/sing_tun"
 	"github.com/metacubex/mihomo/log"
+	"github.com/metacubex/mihomo/tunnel"
 	"golang.org/x/sync/semaphore"
 	"net"
 	"strconv"
@@ -210,7 +212,7 @@ func handleUpdateDns(value string) {
 	go func() {
 		log.Infoln("[DNS] updateDns %s", value)
 		dns.UpdateSystemDNS(strings.Split(value, ","))
-		dns.FlushCacheWithDefaultResolver()
+		resolver.ResetConnection()
 	}()
 }
 
@@ -299,4 +301,19 @@ func setState(s *C.char) {
 func updateDns(s *C.char) {
 	dnsList := C.GoString(s)
 	handleUpdateDns(dnsList)
+}
+
+//export networkChanged
+func networkChanged() {
+	handleNetworkChanged()
+}
+
+func handleNetworkChanged() {
+	if !isInit || !state.CurrentState.VpnProps.QuickResponse {
+		return
+	}
+	log.Infoln("[APP] Network changed, resetting connections")
+	closeConnections()
+	closeIdleOutbounds(tunnel.Proxies(), tunnel.Providers())
+	resolver.ResetConnection()
 }

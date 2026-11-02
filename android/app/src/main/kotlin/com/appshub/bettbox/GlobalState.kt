@@ -67,6 +67,9 @@ object GlobalState {
     var isSmartStopped = false
 
     @Volatile
+    var smartStopOverride = false
+
+    @Volatile
     var isStopping = false
 
     @Volatile

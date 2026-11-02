@@ -51,20 +51,27 @@ class FilesProvider : DocumentsProvider() {
         sortOrder: String?
     ): Cursor {
         val result = MatrixCursor(resolveDocumentProjection(projection))
-        val parentFile = (if (parentDocumentId == "/") context?.filesDir else File(parentDocumentId))
-            ?: throw FileNotFoundException("Parent directory not found")
+        val parentFile = resolveSafeFile(parentDocumentId)
         parentFile.listFiles()?.forEach { includeFile(result, it) }
         return result
     }
 
     override fun queryDocument(documentId: String, projection: Array<String>?): Cursor =
-        MatrixCursor(resolveDocumentProjection(projection)).apply { includeFile(this, File(documentId)) }
+        MatrixCursor(resolveDocumentProjection(projection)).apply { includeFile(this, resolveSafeFile(documentId)) }
 
     override fun openDocument(
         documentId: String,
         mode: String,
         signal: CancellationSignal?
-    ): ParcelFileDescriptor = ParcelFileDescriptor.open(File(documentId), ParcelFileDescriptor.parseMode(sanitizeMode(mode)))
+    ): ParcelFileDescriptor = ParcelFileDescriptor.open(resolveSafeFile(documentId), ParcelFileDescriptor.parseMode(sanitizeMode(mode)))
+
+    private fun resolveSafeFile(documentId: String): File {
+        val root = context?.filesDir?.canonicalFile ?: throw FileNotFoundException(documentId)
+        if (documentId == "/") return root
+        val file = File(documentId).canonicalFile
+        if (!file.startsWith(root)) throw FileNotFoundException(documentId)
+        return file
+    }
 
     private fun sanitizeMode(mode: String): String {
         val hasR = mode.contains('r')

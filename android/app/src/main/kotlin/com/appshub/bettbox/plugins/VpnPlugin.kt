@@ -10,8 +10,11 @@ import android.net.Network
 import android.net.NetworkCapabilities
 import android.net.NetworkRequest
 import android.os.Build
+import android.os.Handler
 import android.os.IBinder
+import android.os.Looper
 import android.os.PowerManager
+import android.os.SystemClock
 import android.widget.Toast
 import androidx.core.content.getSystemService
 import com.appshub.bettbox.BettboxApplication
@@ -69,10 +72,14 @@ data object VpnPlugin : FlutterPlugin, MethodChannel.MethodCallHandler {
     private var speedTickerJob: Job? = null
     private val speedTickerLock = Any()
 
+    private var defaultNetwork: Network? = null
+    private var defaultNetworkTracked = false
     @Volatile
-    private var quickResponseEnabled = false
-    private var quickResponseJob: Job? = null
-    private var lastNetworkType: Int? = null
+    private var defaultNetworkChangedAt = 0L
+    @Volatile
+    private var tunStartedAt = 0L
+    @Volatile
+    private var quickResponseAt = 0L
     private var lastDns = ""
 
     val networks: MutableSet<Network> = Collections.newSetFromMap(ConcurrentHashMap())
@@ -202,14 +209,26 @@ data object VpnPlugin : FlutterPlugin, MethodChannel.MethodCallHandler {
                 result.success(getCurrentDns())
             }
 
-            "setSmartStopped" -> {
-                val value = call.argument<Boolean>("value") ?: false
-                GlobalState.isSmartStopped = value
+            "hasPhysicalNetwork" -> {
+                result.success(getActivePhysicalNetworks().isNotEmpty())
+            }
+
+            "quickResponse" -> {
+                handleQuickResponse()
                 result.success(true)
             }
 
             "isSmartStopped" -> {
                 result.success(GlobalState.isSmartStopped)
+            }
+
+            "isSmartStopOverride" -> {
+                result.success(GlobalState.smartStopOverride)
+            }
+
+            "clearSmartStopOverride" -> {
+                GlobalState.smartStopOverride = false
+                result.success(true)
             }
 
             "smartStop" -> {
@@ -220,11 +239,6 @@ data object VpnPlugin : FlutterPlugin, MethodChannel.MethodCallHandler {
             "smartResume" -> {
                 val data = call.argument<String>("data")
                 result.success(handleSmartResume(Gson().fromJson(data, VpnOptions::class.java)))
-            }
-            
-            "setQuickResponse" -> {
-                quickResponseEnabled = call.argument<Boolean>("enabled") ?: false
-                result.success(true)
             }
 
             "updateNotificationSpeed" -> {
@@ -244,10 +258,6 @@ data object VpnPlugin : FlutterPlugin, MethodChannel.MethodCallHandler {
             }
         }
     }
-    
-    fun setQuickResponse(enabled: Boolean) {
-        quickResponseEnabled = enabled
-    }
 
     private fun getActivePhysicalNetworks(): Set<Network> {
         val current = networks
@@ -264,8 +274,15 @@ data object VpnPlugin : FlutterPlugin, MethodChannel.MethodCallHandler {
         return cm.activeNetwork?.takeIf(isPhysical)?.let { setOf(it) } ?: emptySet()
     }
 
+    private fun getLanNetworks(): List<Network> {
+        val cm = connectivity ?: return emptyList()
+        return getActivePhysicalNetworks().filter { network ->
+            cm.getNetworkCapabilities(network)?.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) == false
+        }
+    }
+
     fun getLocalIpAddresses(): List<String> = runCatching {
-        getActivePhysicalNetworks().flatMap { network ->
+        getLanNetworks().flatMap { network ->
             connectivity?.getLinkProperties(network)
                 ?.linkAddresses
                 ?.mapNotNull { it.address }
@@ -279,7 +296,7 @@ data object VpnPlugin : FlutterPlugin, MethodChannel.MethodCallHandler {
     }
 
     fun getLocalGateways(): List<String> = runCatching {
-        getActivePhysicalNetworks().flatMap { network ->
+        getLanNetworks().flatMap { network ->
             connectivity?.getLinkProperties(network)
                 ?.routes
                 ?.filter { it.isDefaultRoute() }
@@ -364,7 +381,7 @@ data object VpnPlugin : FlutterPlugin, MethodChannel.MethodCallHandler {
     }
 
     fun requestGc() {
-        invokeDart("gc", Build.VERSION.SDK_INT)
+        invokeDart("gc")
     }
 
     fun onUpdateNetwork() {
@@ -413,7 +430,6 @@ data object VpnPlugin : FlutterPlugin, MethodChannel.MethodCallHandler {
     private val callback = object : ConnectivityManager.NetworkCallback() {
         override fun onAvailable(network: Network) {
             networks.add(network)
-            handleNetworkChange()
             invokeDart("networkChanged")
         }
 
@@ -421,7 +437,6 @@ data object VpnPlugin : FlutterPlugin, MethodChannel.MethodCallHandler {
             networks.remove(network)
             networkDnsMap.remove(network)
             onUpdateNetwork()
-            handleNetworkChange()
             invokeDart("networkChanged")
         }
 
@@ -438,6 +453,16 @@ data object VpnPlugin : FlutterPlugin, MethodChannel.MethodCallHandler {
         addCapability(NetworkCapabilities.NET_CAPABILITY_NOT_RESTRICTED)
     }.build()
 
+    private val defaultNetworkCallback = object : ConnectivityManager.NetworkCallback() {
+        override fun onAvailable(network: Network) {
+            handleDefaultNetworkChanged(network)
+        }
+
+        override fun onLost(network: Network) {
+            if (network == defaultNetwork) defaultNetwork = null
+        }
+    }
+
     private fun registerNetworkCallback() {
         if (!networkCallbackRegistered.compareAndSet(false, true)) return
         runCatching {
@@ -446,11 +471,34 @@ data object VpnPlugin : FlutterPlugin, MethodChannel.MethodCallHandler {
         }.onFailure {
             networkCallbackRegistered.set(false)
             android.util.Log.e("VpnPlugin", "Failed to register network callback: ${it.message}")
+            return
+        }
+        registerDefaultNetworkCallback()
+    }
+
+    private fun registerDefaultNetworkCallback() {
+        val cm = connectivity ?: return
+        val handler = Handler(Looper.getMainLooper())
+        defaultNetwork = null
+        defaultNetworkTracked = false
+        runCatching {
+            when {
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.S ->
+                    cm.registerBestMatchingNetworkCallback(request, defaultNetworkCallback, handler)
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.P ->
+                    cm.requestNetwork(request, defaultNetworkCallback, handler)
+                else -> cm.registerDefaultNetworkCallback(defaultNetworkCallback, handler)
+            }
+        }.onFailure {
+            android.util.Log.e("VpnPlugin", "Failed to register default network callback: ${it.message}")
         }
     }
 
     private fun unRegisterNetworkCallback() {
         if (!networkCallbackRegistered.compareAndSet(true, false)) return
+        runCatching {
+            connectivity?.unregisterNetworkCallback(defaultNetworkCallback)
+        }
         runCatching {
             connectivity?.unregisterNetworkCallback(callback)
         }.onFailure {
@@ -461,32 +509,27 @@ data object VpnPlugin : FlutterPlugin, MethodChannel.MethodCallHandler {
             onUpdateNetwork()
         }
     }
-    
-    private fun handleNetworkChange() {
-        val currentNetworkType = getCurrentNetworkType()
-        if (lastNetworkType == null) {
-            lastNetworkType = currentNetworkType
-            return
-        }
 
-        if (currentNetworkType != lastNetworkType) {
-            lastNetworkType = currentNetworkType
+    private fun handleDefaultNetworkChanged(network: Network) {
+        val changed = defaultNetworkTracked && network != defaultNetwork
+        defaultNetwork = network
+        defaultNetworkTracked = true
+        if (!changed) return
 
-            ServicePlugin.notifyNetworkChanged()
-            invokeDart("networkChanged")
-
-            if (!quickResponseEnabled) return
-
-            quickResponseJob?.cancel()
-            quickResponseJob = scope.launch {
-                delay(150)
-                if (GlobalState.currentRunState == RunState.START) {
-                    android.util.Log.d("VpnPlugin", "Quick Response: Network changed, notifying Dart")
-                    ServicePlugin.notifyQuickResponse()
-                }
-            }
-        }
+        defaultNetworkChangedAt = SystemClock.elapsedRealtime()
+        ServicePlugin.notifyNetworkChanged()
+        invokeDart("networkChanged", true)
     }
+
+    private fun handleQuickResponse() {
+        if (GlobalState.currentRunState != RunState.START) return
+        if (defaultNetworkChangedAt <= maxOf(tunStartedAt, quickResponseAt)) return
+        quickResponseAt = SystemClock.elapsedRealtime()
+        android.util.Log.d("VpnPlugin", "Quick Response: Default network changed")
+        scope.launch { Core.onNetworkChanged() }
+    }
+
+    fun requestSmartAutoStopCheck() = invokeDart("networkChanged")
 
     private fun invokeDart(method: String, arguments: Any? = null) {
         if (activeChannels.isEmpty()) return
@@ -502,17 +545,6 @@ data object VpnPlugin : FlutterPlugin, MethodChannel.MethodCallHandler {
         }
     }
     
-    private fun getCurrentNetworkType(): Int {
-        val activeNetwork = connectivity?.activeNetwork ?: return -1
-        val caps = connectivity?.getNetworkCapabilities(activeNetwork) ?: return -1
-        return when {
-            caps.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> 1
-            caps.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> 2
-            caps.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) -> 3
-            else -> 0
-        }
-    }
-
     private suspend fun startForeground() {
         val shouldUpdate = GlobalState.runLock.withLock {
             GlobalState.currentRunState == RunState.START || GlobalState.isSmartStopped
@@ -672,6 +704,7 @@ data object VpnPlugin : FlutterPlugin, MethodChannel.MethodCallHandler {
                     }
                     wasSmartStopped = GlobalState.isSmartStopped
                     GlobalState.isSmartStopped = false
+                    GlobalState.smartStopOverride = wasSmartStopped
                     GlobalState.updateRunState(RunState.START)
                     lastStartForegroundParams = null
                     true
@@ -680,6 +713,7 @@ data object VpnPlugin : FlutterPlugin, MethodChannel.MethodCallHandler {
                 if (!startAllowed || currentOptions == null) return@launch
 
                 performStartCore(currentOptions, retry = true, notifyOnFailure = true)
+                requestSmartAutoStopCheck()
                 if (wasSmartStopped) {
                     ServicePlugin.notifyNetworkChanged()
                 }
@@ -732,6 +766,7 @@ data object VpnPlugin : FlutterPlugin, MethodChannel.MethodCallHandler {
         }
         if (!canStart) return
 
+        tunStartedAt = SystemClock.elapsedRealtime()
         val tunStarted = com.appshub.bettbox.core.Core.startTun(
             fd = fd ?: 0,
             protect = this@VpnPlugin::protect,
@@ -825,6 +860,8 @@ data object VpnPlugin : FlutterPlugin, MethodChannel.MethodCallHandler {
         val shouldForceStop: Boolean
         GlobalState.runLock.withLock {
             if (!force && GlobalState.currentRunState == RunState.STOP) return
+            GlobalState.isSmartStopped = false
+            GlobalState.smartStopOverride = false
             GlobalState.updateIsStopping(true)
             GlobalState.updateRunState(RunState.STOP)
             if (!force) {

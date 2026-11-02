@@ -231,10 +231,9 @@ abstract class AppSettingProps with _$AppSettingProps {
     List<SidebarFlyoutEntry> sidebarFlyoutEntries,
     String? dashboardTitle,
     @Default(<String>[]) List<String> toolboxTiles,
-    @Default(false) bool mrsCopyRawLink,
-    @JsonKey(unknownEnumValue: MrsRawSource.bettRules)
-    @Default(MrsRawSource.bettRules)
-    MrsRawSource mrsRawSource,
+    @JsonKey(unknownEnumValue: MrsTapAction.viewRules)
+    @Default(MrsTapAction.viewRules)
+    MrsTapAction mrsTapAction,
     @Default(true) bool mrsResolveDns,
     @Default(false) bool ipRiskDetail,
     @Default(IperfOptions()) IperfOptions iperfOptions,
@@ -361,6 +360,11 @@ List<String> bypassDomainSafeFromJson(List<dynamic>? bypassDomain) {
   }
 }
 
+int concurrencyLimitFromJson(Object? value) {
+  if (value is! int || value > 32) return maxDelayTestConcurrency;
+  return value < 1 ? 1 : value;
+}
+
 @freezed
 abstract class NetworkProps with _$NetworkProps {
   const factory NetworkProps({
@@ -370,6 +374,7 @@ abstract class NetworkProps with _$NetworkProps {
     List<String> bypassDomain,
     @Default(true) bool bypassPrivateRoute,
     @Default([]) List<String> bypassPrivateRouteAddress,
+    @Default(ProfileSwitchMode.hotReload) ProfileSwitchMode profileSwitchMode,
   }) = _NetworkProps;
 
   factory NetworkProps.fromJson(Map<String, Object?>? json) =>
@@ -396,7 +401,9 @@ abstract class ProxiesStyle with _$ProxiesStyle {
     @Default(DelayAnimationType.pulse) DelayAnimationType delayAnimation,
     @Default(true) bool syncDelayAnimation,
     @Default({}) Map<String, String> iconMap,
-    @Default(250) int concurrencyLimit,
+    @Default(maxDelayTestConcurrency)
+    @JsonKey(fromJson: concurrencyLimitFromJson)
+    int concurrencyLimit,
     @Default(false) bool autoStickyHeader,
     @Default(false) bool showHiddenItems,
     @Default(false) bool hideTimeoutProxies,
@@ -449,31 +456,18 @@ abstract class ThemeProps with _$ThemeProps {
 
 @freezed
 abstract class ScriptProps with _$ScriptProps {
-  const factory ScriptProps({
-    String? currentId,
-    @Default([]) List<Script> scripts,
-  }) = _ScriptProps;
+  const factory ScriptProps({@Default([]) List<Script> scripts}) = _ScriptProps;
 
   factory ScriptProps.fromJson(Map<String, Object?> json) =>
       _$ScriptPropsFromJson(json);
 }
 
 extension ScriptPropsExt on ScriptProps {
-  String? get realId {
-    final index = scripts.indexWhere((script) => script.id == currentId);
-    if (index != -1) {
-      return currentId;
-    }
-    return null;
-  }
+  Script? findScript(String? id) =>
+      scripts.where((script) => script.id == id).firstOrNull;
 
-  Script? get currentScript {
-    final index = scripts.indexWhere((script) => script.id == currentId);
-    if (index != -1) {
-      return scripts[index];
-    }
-    return null;
-  }
+  Script? scriptOf(Profile profile) =>
+      profile.isManaged ? null : findScript(profile.scriptId);
 
   Future<ScriptProps> externalize() async {
     if (scripts.every((script) => script.content.isEmpty)) return this;
@@ -492,6 +486,34 @@ extension ScriptPropsExt on ScriptProps {
     }
     return copyWith(scripts: next);
   }
+}
+
+@freezed
+abstract class CustomRoute with _$CustomRoute {
+  const factory CustomRoute({
+    required String id,
+    required String name,
+    String? icon,
+    @Default([]) List<String> sets,
+    String? target,
+    @Default(true) bool enabled,
+  }) = _CustomRoute;
+
+  factory CustomRoute.fromJson(Map<String, Object?> json) =>
+      _$CustomRouteFromJson(json);
+}
+
+@freezed
+abstract class ManagedProps with _$ManagedProps {
+  const factory ManagedProps({
+    @Default({}) Map<String, bool> options,
+    String? syncedVersion,
+    @Default([]) List<CustomRoute> routes,
+    @Default([]) List<String> order,
+  }) = _ManagedProps;
+
+  factory ManagedProps.fromJson(Map<String, Object?> json) =>
+      _$ManagedPropsFromJson(json);
 }
 
 @freezed
@@ -522,6 +544,7 @@ abstract class Config with _$Config {
     @Default(defaultClashConfig)
     ClashConfig patchClashConfig,
     @Default(ScriptProps()) ScriptProps scriptProps,
+    @Default(ManagedProps()) ManagedProps managedProps,
     @Default('') String nodeExcludeFilter,
     @Default(5000) int healthCheckTimeout,
   }) = _Config;
@@ -576,6 +599,24 @@ abstract class Config with _$Config {
             if (id != null && id is int) {
               profile['id'] = id.toString();
             }
+          }
+        }
+      }
+    } catch (_) {}
+
+    try {
+      final scriptProps = json['scriptProps'];
+      final profiles = json['profiles'];
+      if (scriptProps is Map && profiles is List) {
+        final currentId = scriptProps.remove('currentId');
+        for (final profile in profiles) {
+          if (profile is! Map) continue;
+          final enabled = profile.remove('useScriptOverride') != false;
+          if (currentId is String &&
+              enabled &&
+              profile['scriptId'] == null &&
+              profile['bundle'] == null) {
+            profile['scriptId'] = currentId;
           }
         }
       }

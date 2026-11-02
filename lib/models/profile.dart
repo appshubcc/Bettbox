@@ -85,12 +85,15 @@ abstract class Profile with _$Profile {
     @JsonKey(includeToJson: false, includeFromJson: false)
     @Default(false)
     bool isUpdating,
-    @Default(true) bool useScriptOverride,
+    String? scriptId,
+    @Default(false) bool managed,
+    @Default(false) bool managedStyleApplied,
     String? ageSecretKey,
     @JsonKey(name: 'group-switches')
     @Default({})
     Map<String, bool> groupSwitches,
     @Default(ProfileUsageStyle.bar) ProfileUsageStyle usageStyle,
+    ProfileBundle? bundle,
   }) = _Profile;
 
   factory Profile.fromJson(Map<String, Object?> json) =>
@@ -109,6 +112,40 @@ abstract class Profile with _$Profile {
       ageSecretKey: ageSecretKey,
     );
   }
+}
+
+@freezed
+abstract class BundleMember with _$BundleMember {
+  const factory BundleMember({required String id, String? prefix}) =
+      _BundleMember;
+
+  factory BundleMember.fromJson(Map<String, Object?> json) =>
+      _$BundleMemberFromJson(json);
+}
+
+@freezed
+abstract class BundleReport with _$BundleReport {
+  const factory BundleReport({
+    @Default(0) int proxies,
+    @Default(0) int duplicates,
+    @Default(0) int groups,
+  }) = _BundleReport;
+
+  factory BundleReport.fromJson(Map<String, Object?> json) =>
+      _$BundleReportFromJson(json);
+}
+
+@freezed
+abstract class ProfileBundle with _$ProfileBundle {
+  const factory ProfileBundle({
+    @Default([]) List<BundleMember> members,
+    @Default(BundleReport()) BundleReport report,
+    @Default({}) Map<String, String> failures,
+    @Default(false) bool collapsed,
+  }) = _ProfileBundle;
+
+  factory ProfileBundle.fromJson(Map<String, Object?> json) =>
+      _$ProfileBundleFromJson(json);
 }
 
 @freezed
@@ -133,27 +170,18 @@ extension OverrideDataExt on OverrideData {
 
 @freezed
 abstract class OverrideRule with _$OverrideRule {
-  const factory OverrideRule({
-    @Default(OverrideRuleType.added) OverrideRuleType type,
-    @Default([]) List<Rule> overrideRules,
-    @Default([]) List<Rule> addedRules,
-  }) = _OverrideRule;
+  const factory OverrideRule({@Default([]) List<Rule> addedRules}) =
+      _OverrideRule;
 
   factory OverrideRule.fromJson(Map<String, Object?> json) =>
       _$OverrideRuleFromJson(json);
 }
 
 extension OverrideRuleExt on OverrideRule {
-  List<Rule> get rules => switch (type == OverrideRuleType.override) {
-    true => overrideRules,
-    false => addedRules,
-  };
+  List<Rule> get rules => addedRules;
 
   OverrideRule updateRules(List<Rule> Function(List<Rule> rules) builder) {
-    if (type == OverrideRuleType.added) {
-      return copyWith(addedRules: builder(addedRules));
-    }
-    return copyWith(overrideRules: builder(overrideRules));
+    return copyWith(addedRules: builder(addedRules));
   }
 }
 
@@ -162,6 +190,19 @@ extension ProfilesExt on List<Profile> {
     final index = indexWhere((profile) => profile.id == profileId);
     return index == -1 ? null : this[index];
   }
+
+  Set<String> get collapsedMemberIds => {
+    for (final profile in this)
+      if (profile.bundle case final bundle? when bundle.collapsed)
+        for (final member in bundle.members) member.id,
+  };
+
+  List<Profile> bundlesOf(String memberId) => [
+    for (final profile in this)
+      if (profile.bundle?.members.any((member) => member.id == memberId) ??
+          false)
+        profile,
+  ];
 
   bool hasAddedOrChanged(List<Profile> previous) {
     return any((profile) {
@@ -185,10 +226,17 @@ extension SubscriptionUsagesExtension
 }
 
 extension ProfileExtension on Profile {
-  ProfileType get type =>
-      url.isEmpty == true ? ProfileType.file : ProfileType.url;
+  ProfileType get type => bundle != null
+      ? ProfileType.bundle
+      : url.isEmpty
+      ? ProfileType.file
+      : ProfileType.url;
 
   bool get realAutoUpdate => url.isEmpty == true ? false : autoUpdate;
+
+  bool get isManaged => bundle != null || managed;
+
+  bool get runsManagedScript => bundle == null && managed;
 
   List<MapEntry<String, SubscriptionInfo>> get subscriptionUsages {
     final info = subscriptionInfo;

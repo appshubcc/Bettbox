@@ -16,7 +16,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$AppSettingProps {
 
- String? get locale;@JsonKey(fromJson: dashboardWidgetsSafeFromJson) List<DashboardWidget> get dashboardWidgets;@JsonKey(fromJson: mobileDashboardWidgetsSafeFromJson) List<DashboardWidget> get mobileDashboardWidgets;@JsonKey(fromJson: desktopDashboardWidgetsSafeFromJson) List<DashboardWidget> get desktopDashboardWidgets;@JsonKey(fromJson: pinnedMediaPlatformsSafeFromJson) List<MediaPlatform> get pinnedMediaPlatforms; bool get mediaUnlockMoreStreamingPlatforms; bool get mediaUnlockExtraDetails; bool get mediaUnlockRefreshOnNodeChange; bool get mediaUnlockColorfulIcons; bool get mediaUnlockRefreshByCategory; bool get onlyStatisticsProxy; bool get autoLaunch; bool get silentLaunch; bool get smartDelayLaunch; bool get autoRun; bool get openLogs; bool get closeConnections; bool get logAiSearch; bool get flushDnsOnNetworkChange; String get testUrl; bool get showStartSwitch; StartSwitchStyle get startSwitchStyle; String? get startSwitchOnLabel; String? get startSwitchOffLabel; bool get enableNavBarHapticFeedback; bool get autoCheckUpdate; bool get showLabel; bool get disclaimerAccepted; bool get minimizeOnExit; bool get hidden; bool get keepDockIcon; bool get developerMode; RecoveryStrategy get recoveryStrategy; String get backupPassword; bool get enableHighPriority; bool get sidebarCollapsed; bool get sidebarFlyout; bool get sidebarFlyoutOutsideTools; SidebarFlyoutDelay get sidebarFlyoutDelay;@JsonKey(fromJson: sidebarFlyoutEntriesSafeFromJson) List<SidebarFlyoutEntry> get sidebarFlyoutEntries; String? get dashboardTitle; List<String> get toolboxTiles; bool get mrsCopyRawLink;@JsonKey(unknownEnumValue: MrsRawSource.bettRules) MrsRawSource get mrsRawSource; bool get mrsResolveDns; bool get ipRiskDetail; IperfOptions get iperfOptions; LocalPingOptions get localPingOptions; Map<String, String> get mobileDashboardSizes; Map<String, String> get desktopDashboardSizes;
+ String? get locale;@JsonKey(fromJson: dashboardWidgetsSafeFromJson) List<DashboardWidget> get dashboardWidgets;@JsonKey(fromJson: mobileDashboardWidgetsSafeFromJson) List<DashboardWidget> get mobileDashboardWidgets;@JsonKey(fromJson: desktopDashboardWidgetsSafeFromJson) List<DashboardWidget> get desktopDashboardWidgets;@JsonKey(fromJson: pinnedMediaPlatformsSafeFromJson) List<MediaPlatform> get pinnedMediaPlatforms; bool get mediaUnlockMoreStreamingPlatforms; bool get mediaUnlockExtraDetails; bool get mediaUnlockRefreshOnNodeChange; bool get mediaUnlockColorfulIcons; bool get mediaUnlockRefreshByCategory; bool get onlyStatisticsProxy; bool get autoLaunch; bool get silentLaunch; bool get smartDelayLaunch; bool get autoRun; bool get openLogs; bool get closeConnections; bool get logAiSearch; bool get flushDnsOnNetworkChange; String get testUrl; bool get showStartSwitch; StartSwitchStyle get startSwitchStyle; String? get startSwitchOnLabel; String? get startSwitchOffLabel; bool get enableNavBarHapticFeedback; bool get autoCheckUpdate; bool get showLabel; bool get disclaimerAccepted; bool get minimizeOnExit; bool get hidden; bool get keepDockIcon; bool get developerMode; RecoveryStrategy get recoveryStrategy; String get backupPassword; bool get enableHighPriority; bool get sidebarCollapsed; bool get sidebarFlyout; bool get sidebarFlyoutOutsideTools; SidebarFlyoutDelay get sidebarFlyoutDelay;@JsonKey(fromJson: sidebarFlyoutEntriesSafeFromJson) List<SidebarFlyoutEntry> get sidebarFlyoutEntries; String? get dashboardTitle; List<String> get toolboxTiles;@JsonKey(unknownEnumValue: MrsTapAction.viewRules) MrsTapAction get mrsTapAction; bool get mrsResolveDns; bool get ipRiskDetail; IperfOptions get iperfOptions; LocalPingOptions get localPingOptions; Map<String, String> get mobileDashboardSizes; Map<String, String> get desktopDashboardSizes;
 /// Create a copy of AppSettingProps
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -30,20 +30,20 @@ $AppSettingPropsCopyWith<AppSettingProps> get copyWith => _$AppSettingPropsCopyW
 @override
 bool operator ==(Object other) {
   final _this = this as AppSettingProps;
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is AppSettingProps&&(identical(other.locale, _this.locale) || other.locale == _this.locale)&&const DeepCollectionEquality().equals(other.dashboardWidgets, _this.dashboardWidgets)&&const DeepCollectionEquality().equals(other.mobileDashboardWidgets, _this.mobileDashboardWidgets)&&const DeepCollectionEquality().equals(other.desktopDashboardWidgets, _this.desktopDashboardWidgets)&&const DeepCollectionEquality().equals(other.pinnedMediaPlatforms, _this.pinnedMediaPlatforms)&&(identical(other.mediaUnlockMoreStreamingPlatforms, _this.mediaUnlockMoreStreamingPlatforms) || other.mediaUnlockMoreStreamingPlatforms == _this.mediaUnlockMoreStreamingPlatforms)&&(identical(other.mediaUnlockExtraDetails, _this.mediaUnlockExtraDetails) || other.mediaUnlockExtraDetails == _this.mediaUnlockExtraDetails)&&(identical(other.mediaUnlockRefreshOnNodeChange, _this.mediaUnlockRefreshOnNodeChange) || other.mediaUnlockRefreshOnNodeChange == _this.mediaUnlockRefreshOnNodeChange)&&(identical(other.mediaUnlockColorfulIcons, _this.mediaUnlockColorfulIcons) || other.mediaUnlockColorfulIcons == _this.mediaUnlockColorfulIcons)&&(identical(other.mediaUnlockRefreshByCategory, _this.mediaUnlockRefreshByCategory) || other.mediaUnlockRefreshByCategory == _this.mediaUnlockRefreshByCategory)&&(identical(other.onlyStatisticsProxy, _this.onlyStatisticsProxy) || other.onlyStatisticsProxy == _this.onlyStatisticsProxy)&&(identical(other.autoLaunch, _this.autoLaunch) || other.autoLaunch == _this.autoLaunch)&&(identical(other.silentLaunch, _this.silentLaunch) || other.silentLaunch == _this.silentLaunch)&&(identical(other.smartDelayLaunch, _this.smartDelayLaunch) || other.smartDelayLaunch == _this.smartDelayLaunch)&&(identical(other.autoRun, _this.autoRun) || other.autoRun == _this.autoRun)&&(identical(other.openLogs, _this.openLogs) || other.openLogs == _this.openLogs)&&(identical(other.closeConnections, _this.closeConnections) || other.closeConnections == _this.closeConnections)&&(identical(other.logAiSearch, _this.logAiSearch) || other.logAiSearch == _this.logAiSearch)&&(identical(other.flushDnsOnNetworkChange, _this.flushDnsOnNetworkChange) || other.flushDnsOnNetworkChange == _this.flushDnsOnNetworkChange)&&(identical(other.testUrl, _this.testUrl) || other.testUrl == _this.testUrl)&&(identical(other.showStartSwitch, _this.showStartSwitch) || other.showStartSwitch == _this.showStartSwitch)&&(identical(other.startSwitchStyle, _this.startSwitchStyle) || other.startSwitchStyle == _this.startSwitchStyle)&&(identical(other.startSwitchOnLabel, _this.startSwitchOnLabel) || other.startSwitchOnLabel == _this.startSwitchOnLabel)&&(identical(other.startSwitchOffLabel, _this.startSwitchOffLabel) || other.startSwitchOffLabel == _this.startSwitchOffLabel)&&(identical(other.enableNavBarHapticFeedback, _this.enableNavBarHapticFeedback) || other.enableNavBarHapticFeedback == _this.enableNavBarHapticFeedback)&&(identical(other.autoCheckUpdate, _this.autoCheckUpdate) || other.autoCheckUpdate == _this.autoCheckUpdate)&&(identical(other.showLabel, _this.showLabel) || other.showLabel == _this.showLabel)&&(identical(other.disclaimerAccepted, _this.disclaimerAccepted) || other.disclaimerAccepted == _this.disclaimerAccepted)&&(identical(other.minimizeOnExit, _this.minimizeOnExit) || other.minimizeOnExit == _this.minimizeOnExit)&&(identical(other.hidden, _this.hidden) || other.hidden == _this.hidden)&&(identical(other.keepDockIcon, _this.keepDockIcon) || other.keepDockIcon == _this.keepDockIcon)&&(identical(other.developerMode, _this.developerMode) || other.developerMode == _this.developerMode)&&(identical(other.recoveryStrategy, _this.recoveryStrategy) || other.recoveryStrategy == _this.recoveryStrategy)&&(identical(other.backupPassword, _this.backupPassword) || other.backupPassword == _this.backupPassword)&&(identical(other.enableHighPriority, _this.enableHighPriority) || other.enableHighPriority == _this.enableHighPriority)&&(identical(other.sidebarCollapsed, _this.sidebarCollapsed) || other.sidebarCollapsed == _this.sidebarCollapsed)&&(identical(other.sidebarFlyout, _this.sidebarFlyout) || other.sidebarFlyout == _this.sidebarFlyout)&&(identical(other.sidebarFlyoutOutsideTools, _this.sidebarFlyoutOutsideTools) || other.sidebarFlyoutOutsideTools == _this.sidebarFlyoutOutsideTools)&&(identical(other.sidebarFlyoutDelay, _this.sidebarFlyoutDelay) || other.sidebarFlyoutDelay == _this.sidebarFlyoutDelay)&&const DeepCollectionEquality().equals(other.sidebarFlyoutEntries, _this.sidebarFlyoutEntries)&&(identical(other.dashboardTitle, _this.dashboardTitle) || other.dashboardTitle == _this.dashboardTitle)&&const DeepCollectionEquality().equals(other.toolboxTiles, _this.toolboxTiles)&&(identical(other.mrsCopyRawLink, _this.mrsCopyRawLink) || other.mrsCopyRawLink == _this.mrsCopyRawLink)&&(identical(other.mrsRawSource, _this.mrsRawSource) || other.mrsRawSource == _this.mrsRawSource)&&(identical(other.mrsResolveDns, _this.mrsResolveDns) || other.mrsResolveDns == _this.mrsResolveDns)&&(identical(other.ipRiskDetail, _this.ipRiskDetail) || other.ipRiskDetail == _this.ipRiskDetail)&&(identical(other.iperfOptions, _this.iperfOptions) || other.iperfOptions == _this.iperfOptions)&&(identical(other.localPingOptions, _this.localPingOptions) || other.localPingOptions == _this.localPingOptions)&&const DeepCollectionEquality().equals(other.mobileDashboardSizes, _this.mobileDashboardSizes)&&const DeepCollectionEquality().equals(other.desktopDashboardSizes, _this.desktopDashboardSizes));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is AppSettingProps&&(identical(other.locale, _this.locale) || other.locale == _this.locale)&&const DeepCollectionEquality().equals(other.dashboardWidgets, _this.dashboardWidgets)&&const DeepCollectionEquality().equals(other.mobileDashboardWidgets, _this.mobileDashboardWidgets)&&const DeepCollectionEquality().equals(other.desktopDashboardWidgets, _this.desktopDashboardWidgets)&&const DeepCollectionEquality().equals(other.pinnedMediaPlatforms, _this.pinnedMediaPlatforms)&&(identical(other.mediaUnlockMoreStreamingPlatforms, _this.mediaUnlockMoreStreamingPlatforms) || other.mediaUnlockMoreStreamingPlatforms == _this.mediaUnlockMoreStreamingPlatforms)&&(identical(other.mediaUnlockExtraDetails, _this.mediaUnlockExtraDetails) || other.mediaUnlockExtraDetails == _this.mediaUnlockExtraDetails)&&(identical(other.mediaUnlockRefreshOnNodeChange, _this.mediaUnlockRefreshOnNodeChange) || other.mediaUnlockRefreshOnNodeChange == _this.mediaUnlockRefreshOnNodeChange)&&(identical(other.mediaUnlockColorfulIcons, _this.mediaUnlockColorfulIcons) || other.mediaUnlockColorfulIcons == _this.mediaUnlockColorfulIcons)&&(identical(other.mediaUnlockRefreshByCategory, _this.mediaUnlockRefreshByCategory) || other.mediaUnlockRefreshByCategory == _this.mediaUnlockRefreshByCategory)&&(identical(other.onlyStatisticsProxy, _this.onlyStatisticsProxy) || other.onlyStatisticsProxy == _this.onlyStatisticsProxy)&&(identical(other.autoLaunch, _this.autoLaunch) || other.autoLaunch == _this.autoLaunch)&&(identical(other.silentLaunch, _this.silentLaunch) || other.silentLaunch == _this.silentLaunch)&&(identical(other.smartDelayLaunch, _this.smartDelayLaunch) || other.smartDelayLaunch == _this.smartDelayLaunch)&&(identical(other.autoRun, _this.autoRun) || other.autoRun == _this.autoRun)&&(identical(other.openLogs, _this.openLogs) || other.openLogs == _this.openLogs)&&(identical(other.closeConnections, _this.closeConnections) || other.closeConnections == _this.closeConnections)&&(identical(other.logAiSearch, _this.logAiSearch) || other.logAiSearch == _this.logAiSearch)&&(identical(other.flushDnsOnNetworkChange, _this.flushDnsOnNetworkChange) || other.flushDnsOnNetworkChange == _this.flushDnsOnNetworkChange)&&(identical(other.testUrl, _this.testUrl) || other.testUrl == _this.testUrl)&&(identical(other.showStartSwitch, _this.showStartSwitch) || other.showStartSwitch == _this.showStartSwitch)&&(identical(other.startSwitchStyle, _this.startSwitchStyle) || other.startSwitchStyle == _this.startSwitchStyle)&&(identical(other.startSwitchOnLabel, _this.startSwitchOnLabel) || other.startSwitchOnLabel == _this.startSwitchOnLabel)&&(identical(other.startSwitchOffLabel, _this.startSwitchOffLabel) || other.startSwitchOffLabel == _this.startSwitchOffLabel)&&(identical(other.enableNavBarHapticFeedback, _this.enableNavBarHapticFeedback) || other.enableNavBarHapticFeedback == _this.enableNavBarHapticFeedback)&&(identical(other.autoCheckUpdate, _this.autoCheckUpdate) || other.autoCheckUpdate == _this.autoCheckUpdate)&&(identical(other.showLabel, _this.showLabel) || other.showLabel == _this.showLabel)&&(identical(other.disclaimerAccepted, _this.disclaimerAccepted) || other.disclaimerAccepted == _this.disclaimerAccepted)&&(identical(other.minimizeOnExit, _this.minimizeOnExit) || other.minimizeOnExit == _this.minimizeOnExit)&&(identical(other.hidden, _this.hidden) || other.hidden == _this.hidden)&&(identical(other.keepDockIcon, _this.keepDockIcon) || other.keepDockIcon == _this.keepDockIcon)&&(identical(other.developerMode, _this.developerMode) || other.developerMode == _this.developerMode)&&(identical(other.recoveryStrategy, _this.recoveryStrategy) || other.recoveryStrategy == _this.recoveryStrategy)&&(identical(other.backupPassword, _this.backupPassword) || other.backupPassword == _this.backupPassword)&&(identical(other.enableHighPriority, _this.enableHighPriority) || other.enableHighPriority == _this.enableHighPriority)&&(identical(other.sidebarCollapsed, _this.sidebarCollapsed) || other.sidebarCollapsed == _this.sidebarCollapsed)&&(identical(other.sidebarFlyout, _this.sidebarFlyout) || other.sidebarFlyout == _this.sidebarFlyout)&&(identical(other.sidebarFlyoutOutsideTools, _this.sidebarFlyoutOutsideTools) || other.sidebarFlyoutOutsideTools == _this.sidebarFlyoutOutsideTools)&&(identical(other.sidebarFlyoutDelay, _this.sidebarFlyoutDelay) || other.sidebarFlyoutDelay == _this.sidebarFlyoutDelay)&&const DeepCollectionEquality().equals(other.sidebarFlyoutEntries, _this.sidebarFlyoutEntries)&&(identical(other.dashboardTitle, _this.dashboardTitle) || other.dashboardTitle == _this.dashboardTitle)&&const DeepCollectionEquality().equals(other.toolboxTiles, _this.toolboxTiles)&&(identical(other.mrsTapAction, _this.mrsTapAction) || other.mrsTapAction == _this.mrsTapAction)&&(identical(other.mrsResolveDns, _this.mrsResolveDns) || other.mrsResolveDns == _this.mrsResolveDns)&&(identical(other.ipRiskDetail, _this.ipRiskDetail) || other.ipRiskDetail == _this.ipRiskDetail)&&(identical(other.iperfOptions, _this.iperfOptions) || other.iperfOptions == _this.iperfOptions)&&(identical(other.localPingOptions, _this.localPingOptions) || other.localPingOptions == _this.localPingOptions)&&const DeepCollectionEquality().equals(other.mobileDashboardSizes, _this.mobileDashboardSizes)&&const DeepCollectionEquality().equals(other.desktopDashboardSizes, _this.desktopDashboardSizes));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
 int get hashCode {
   final _this = this as AppSettingProps;
-  return Object.hashAll([runtimeType,_this.locale,const DeepCollectionEquality().hash(_this.dashboardWidgets),const DeepCollectionEquality().hash(_this.mobileDashboardWidgets),const DeepCollectionEquality().hash(_this.desktopDashboardWidgets),const DeepCollectionEquality().hash(_this.pinnedMediaPlatforms),_this.mediaUnlockMoreStreamingPlatforms,_this.mediaUnlockExtraDetails,_this.mediaUnlockRefreshOnNodeChange,_this.mediaUnlockColorfulIcons,_this.mediaUnlockRefreshByCategory,_this.onlyStatisticsProxy,_this.autoLaunch,_this.silentLaunch,_this.smartDelayLaunch,_this.autoRun,_this.openLogs,_this.closeConnections,_this.logAiSearch,_this.flushDnsOnNetworkChange,_this.testUrl,_this.showStartSwitch,_this.startSwitchStyle,_this.startSwitchOnLabel,_this.startSwitchOffLabel,_this.enableNavBarHapticFeedback,_this.autoCheckUpdate,_this.showLabel,_this.disclaimerAccepted,_this.minimizeOnExit,_this.hidden,_this.keepDockIcon,_this.developerMode,_this.recoveryStrategy,_this.backupPassword,_this.enableHighPriority,_this.sidebarCollapsed,_this.sidebarFlyout,_this.sidebarFlyoutOutsideTools,_this.sidebarFlyoutDelay,const DeepCollectionEquality().hash(_this.sidebarFlyoutEntries),_this.dashboardTitle,const DeepCollectionEquality().hash(_this.toolboxTiles),_this.mrsCopyRawLink,_this.mrsRawSource,_this.mrsResolveDns,_this.ipRiskDetail,_this.iperfOptions,_this.localPingOptions,const DeepCollectionEquality().hash(_this.mobileDashboardSizes),const DeepCollectionEquality().hash(_this.desktopDashboardSizes)]);
+  return Object.hashAll([runtimeType,_this.locale,const DeepCollectionEquality().hash(_this.dashboardWidgets),const DeepCollectionEquality().hash(_this.mobileDashboardWidgets),const DeepCollectionEquality().hash(_this.desktopDashboardWidgets),const DeepCollectionEquality().hash(_this.pinnedMediaPlatforms),_this.mediaUnlockMoreStreamingPlatforms,_this.mediaUnlockExtraDetails,_this.mediaUnlockRefreshOnNodeChange,_this.mediaUnlockColorfulIcons,_this.mediaUnlockRefreshByCategory,_this.onlyStatisticsProxy,_this.autoLaunch,_this.silentLaunch,_this.smartDelayLaunch,_this.autoRun,_this.openLogs,_this.closeConnections,_this.logAiSearch,_this.flushDnsOnNetworkChange,_this.testUrl,_this.showStartSwitch,_this.startSwitchStyle,_this.startSwitchOnLabel,_this.startSwitchOffLabel,_this.enableNavBarHapticFeedback,_this.autoCheckUpdate,_this.showLabel,_this.disclaimerAccepted,_this.minimizeOnExit,_this.hidden,_this.keepDockIcon,_this.developerMode,_this.recoveryStrategy,_this.backupPassword,_this.enableHighPriority,_this.sidebarCollapsed,_this.sidebarFlyout,_this.sidebarFlyoutOutsideTools,_this.sidebarFlyoutDelay,const DeepCollectionEquality().hash(_this.sidebarFlyoutEntries),_this.dashboardTitle,const DeepCollectionEquality().hash(_this.toolboxTiles),_this.mrsTapAction,_this.mrsResolveDns,_this.ipRiskDetail,_this.iperfOptions,_this.localPingOptions,const DeepCollectionEquality().hash(_this.mobileDashboardSizes),const DeepCollectionEquality().hash(_this.desktopDashboardSizes)]);
 }
 
 @override
 String toString() {
   final _this = this as AppSettingProps;
-  return 'AppSettingProps(locale: ${_this.locale}, dashboardWidgets: ${_this.dashboardWidgets}, mobileDashboardWidgets: ${_this.mobileDashboardWidgets}, desktopDashboardWidgets: ${_this.desktopDashboardWidgets}, pinnedMediaPlatforms: ${_this.pinnedMediaPlatforms}, mediaUnlockMoreStreamingPlatforms: ${_this.mediaUnlockMoreStreamingPlatforms}, mediaUnlockExtraDetails: ${_this.mediaUnlockExtraDetails}, mediaUnlockRefreshOnNodeChange: ${_this.mediaUnlockRefreshOnNodeChange}, mediaUnlockColorfulIcons: ${_this.mediaUnlockColorfulIcons}, mediaUnlockRefreshByCategory: ${_this.mediaUnlockRefreshByCategory}, onlyStatisticsProxy: ${_this.onlyStatisticsProxy}, autoLaunch: ${_this.autoLaunch}, silentLaunch: ${_this.silentLaunch}, smartDelayLaunch: ${_this.smartDelayLaunch}, autoRun: ${_this.autoRun}, openLogs: ${_this.openLogs}, closeConnections: ${_this.closeConnections}, logAiSearch: ${_this.logAiSearch}, flushDnsOnNetworkChange: ${_this.flushDnsOnNetworkChange}, testUrl: ${_this.testUrl}, showStartSwitch: ${_this.showStartSwitch}, startSwitchStyle: ${_this.startSwitchStyle}, startSwitchOnLabel: ${_this.startSwitchOnLabel}, startSwitchOffLabel: ${_this.startSwitchOffLabel}, enableNavBarHapticFeedback: ${_this.enableNavBarHapticFeedback}, autoCheckUpdate: ${_this.autoCheckUpdate}, showLabel: ${_this.showLabel}, disclaimerAccepted: ${_this.disclaimerAccepted}, minimizeOnExit: ${_this.minimizeOnExit}, hidden: ${_this.hidden}, keepDockIcon: ${_this.keepDockIcon}, developerMode: ${_this.developerMode}, recoveryStrategy: ${_this.recoveryStrategy}, backupPassword: ${_this.backupPassword}, enableHighPriority: ${_this.enableHighPriority}, sidebarCollapsed: ${_this.sidebarCollapsed}, sidebarFlyout: ${_this.sidebarFlyout}, sidebarFlyoutOutsideTools: ${_this.sidebarFlyoutOutsideTools}, sidebarFlyoutDelay: ${_this.sidebarFlyoutDelay}, sidebarFlyoutEntries: ${_this.sidebarFlyoutEntries}, dashboardTitle: ${_this.dashboardTitle}, toolboxTiles: ${_this.toolboxTiles}, mrsCopyRawLink: ${_this.mrsCopyRawLink}, mrsRawSource: ${_this.mrsRawSource}, mrsResolveDns: ${_this.mrsResolveDns}, ipRiskDetail: ${_this.ipRiskDetail}, iperfOptions: ${_this.iperfOptions}, localPingOptions: ${_this.localPingOptions}, mobileDashboardSizes: ${_this.mobileDashboardSizes}, desktopDashboardSizes: ${_this.desktopDashboardSizes})';
+  return 'AppSettingProps(locale: ${_this.locale}, dashboardWidgets: ${_this.dashboardWidgets}, mobileDashboardWidgets: ${_this.mobileDashboardWidgets}, desktopDashboardWidgets: ${_this.desktopDashboardWidgets}, pinnedMediaPlatforms: ${_this.pinnedMediaPlatforms}, mediaUnlockMoreStreamingPlatforms: ${_this.mediaUnlockMoreStreamingPlatforms}, mediaUnlockExtraDetails: ${_this.mediaUnlockExtraDetails}, mediaUnlockRefreshOnNodeChange: ${_this.mediaUnlockRefreshOnNodeChange}, mediaUnlockColorfulIcons: ${_this.mediaUnlockColorfulIcons}, mediaUnlockRefreshByCategory: ${_this.mediaUnlockRefreshByCategory}, onlyStatisticsProxy: ${_this.onlyStatisticsProxy}, autoLaunch: ${_this.autoLaunch}, silentLaunch: ${_this.silentLaunch}, smartDelayLaunch: ${_this.smartDelayLaunch}, autoRun: ${_this.autoRun}, openLogs: ${_this.openLogs}, closeConnections: ${_this.closeConnections}, logAiSearch: ${_this.logAiSearch}, flushDnsOnNetworkChange: ${_this.flushDnsOnNetworkChange}, testUrl: ${_this.testUrl}, showStartSwitch: ${_this.showStartSwitch}, startSwitchStyle: ${_this.startSwitchStyle}, startSwitchOnLabel: ${_this.startSwitchOnLabel}, startSwitchOffLabel: ${_this.startSwitchOffLabel}, enableNavBarHapticFeedback: ${_this.enableNavBarHapticFeedback}, autoCheckUpdate: ${_this.autoCheckUpdate}, showLabel: ${_this.showLabel}, disclaimerAccepted: ${_this.disclaimerAccepted}, minimizeOnExit: ${_this.minimizeOnExit}, hidden: ${_this.hidden}, keepDockIcon: ${_this.keepDockIcon}, developerMode: ${_this.developerMode}, recoveryStrategy: ${_this.recoveryStrategy}, backupPassword: ${_this.backupPassword}, enableHighPriority: ${_this.enableHighPriority}, sidebarCollapsed: ${_this.sidebarCollapsed}, sidebarFlyout: ${_this.sidebarFlyout}, sidebarFlyoutOutsideTools: ${_this.sidebarFlyoutOutsideTools}, sidebarFlyoutDelay: ${_this.sidebarFlyoutDelay}, sidebarFlyoutEntries: ${_this.sidebarFlyoutEntries}, dashboardTitle: ${_this.dashboardTitle}, toolboxTiles: ${_this.toolboxTiles}, mrsTapAction: ${_this.mrsTapAction}, mrsResolveDns: ${_this.mrsResolveDns}, ipRiskDetail: ${_this.ipRiskDetail}, iperfOptions: ${_this.iperfOptions}, localPingOptions: ${_this.localPingOptions}, mobileDashboardSizes: ${_this.mobileDashboardSizes}, desktopDashboardSizes: ${_this.desktopDashboardSizes})';
 }
 
 
@@ -54,7 +54,7 @@ abstract mixin class $AppSettingPropsCopyWith<$Res>  {
   factory $AppSettingPropsCopyWith(AppSettingProps value, $Res Function(AppSettingProps) _then) = _$AppSettingPropsCopyWithImpl;
 @useResult
 $Res call({
- String? locale,@JsonKey(fromJson: dashboardWidgetsSafeFromJson) List<DashboardWidget> dashboardWidgets,@JsonKey(fromJson: mobileDashboardWidgetsSafeFromJson) List<DashboardWidget> mobileDashboardWidgets,@JsonKey(fromJson: desktopDashboardWidgetsSafeFromJson) List<DashboardWidget> desktopDashboardWidgets,@JsonKey(fromJson: pinnedMediaPlatformsSafeFromJson) List<MediaPlatform> pinnedMediaPlatforms, bool mediaUnlockMoreStreamingPlatforms, bool mediaUnlockExtraDetails, bool mediaUnlockRefreshOnNodeChange, bool mediaUnlockColorfulIcons, bool mediaUnlockRefreshByCategory, bool onlyStatisticsProxy, bool autoLaunch, bool silentLaunch, bool smartDelayLaunch, bool autoRun, bool openLogs, bool closeConnections, bool logAiSearch, bool flushDnsOnNetworkChange, String testUrl, bool showStartSwitch, StartSwitchStyle startSwitchStyle, String? startSwitchOnLabel, String? startSwitchOffLabel, bool enableNavBarHapticFeedback, bool autoCheckUpdate, bool showLabel, bool disclaimerAccepted, bool minimizeOnExit, bool hidden, bool keepDockIcon, bool developerMode, RecoveryStrategy recoveryStrategy, String backupPassword, bool enableHighPriority, bool sidebarCollapsed, bool sidebarFlyout, bool sidebarFlyoutOutsideTools, SidebarFlyoutDelay sidebarFlyoutDelay,@JsonKey(fromJson: sidebarFlyoutEntriesSafeFromJson) List<SidebarFlyoutEntry> sidebarFlyoutEntries, String? dashboardTitle, List<String> toolboxTiles, bool mrsCopyRawLink,@JsonKey(unknownEnumValue: MrsRawSource.bettRules) MrsRawSource mrsRawSource, bool mrsResolveDns, bool ipRiskDetail, IperfOptions iperfOptions, LocalPingOptions localPingOptions, Map<String, String> mobileDashboardSizes, Map<String, String> desktopDashboardSizes
+ String? locale,@JsonKey(fromJson: dashboardWidgetsSafeFromJson) List<DashboardWidget> dashboardWidgets,@JsonKey(fromJson: mobileDashboardWidgetsSafeFromJson) List<DashboardWidget> mobileDashboardWidgets,@JsonKey(fromJson: desktopDashboardWidgetsSafeFromJson) List<DashboardWidget> desktopDashboardWidgets,@JsonKey(fromJson: pinnedMediaPlatformsSafeFromJson) List<MediaPlatform> pinnedMediaPlatforms, bool mediaUnlockMoreStreamingPlatforms, bool mediaUnlockExtraDetails, bool mediaUnlockRefreshOnNodeChange, bool mediaUnlockColorfulIcons, bool mediaUnlockRefreshByCategory, bool onlyStatisticsProxy, bool autoLaunch, bool silentLaunch, bool smartDelayLaunch, bool autoRun, bool openLogs, bool closeConnections, bool logAiSearch, bool flushDnsOnNetworkChange, String testUrl, bool showStartSwitch, StartSwitchStyle startSwitchStyle, String? startSwitchOnLabel, String? startSwitchOffLabel, bool enableNavBarHapticFeedback, bool autoCheckUpdate, bool showLabel, bool disclaimerAccepted, bool minimizeOnExit, bool hidden, bool keepDockIcon, bool developerMode, RecoveryStrategy recoveryStrategy, String backupPassword, bool enableHighPriority, bool sidebarCollapsed, bool sidebarFlyout, bool sidebarFlyoutOutsideTools, SidebarFlyoutDelay sidebarFlyoutDelay,@JsonKey(fromJson: sidebarFlyoutEntriesSafeFromJson) List<SidebarFlyoutEntry> sidebarFlyoutEntries, String? dashboardTitle, List<String> toolboxTiles,@JsonKey(unknownEnumValue: MrsTapAction.viewRules) MrsTapAction mrsTapAction, bool mrsResolveDns, bool ipRiskDetail, IperfOptions iperfOptions, LocalPingOptions localPingOptions, Map<String, String> mobileDashboardSizes, Map<String, String> desktopDashboardSizes
 });
 
 
@@ -71,7 +71,7 @@ class _$AppSettingPropsCopyWithImpl<$Res>
 
 /// Create a copy of AppSettingProps
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? locale = freezed,Object? dashboardWidgets = null,Object? mobileDashboardWidgets = null,Object? desktopDashboardWidgets = null,Object? pinnedMediaPlatforms = null,Object? mediaUnlockMoreStreamingPlatforms = null,Object? mediaUnlockExtraDetails = null,Object? mediaUnlockRefreshOnNodeChange = null,Object? mediaUnlockColorfulIcons = null,Object? mediaUnlockRefreshByCategory = null,Object? onlyStatisticsProxy = null,Object? autoLaunch = null,Object? silentLaunch = null,Object? smartDelayLaunch = null,Object? autoRun = null,Object? openLogs = null,Object? closeConnections = null,Object? logAiSearch = null,Object? flushDnsOnNetworkChange = null,Object? testUrl = null,Object? showStartSwitch = null,Object? startSwitchStyle = null,Object? startSwitchOnLabel = freezed,Object? startSwitchOffLabel = freezed,Object? enableNavBarHapticFeedback = null,Object? autoCheckUpdate = null,Object? showLabel = null,Object? disclaimerAccepted = null,Object? minimizeOnExit = null,Object? hidden = null,Object? keepDockIcon = null,Object? developerMode = null,Object? recoveryStrategy = null,Object? backupPassword = null,Object? enableHighPriority = null,Object? sidebarCollapsed = null,Object? sidebarFlyout = null,Object? sidebarFlyoutOutsideTools = null,Object? sidebarFlyoutDelay = null,Object? sidebarFlyoutEntries = null,Object? dashboardTitle = freezed,Object? toolboxTiles = null,Object? mrsCopyRawLink = null,Object? mrsRawSource = null,Object? mrsResolveDns = null,Object? ipRiskDetail = null,Object? iperfOptions = null,Object? localPingOptions = null,Object? mobileDashboardSizes = null,Object? desktopDashboardSizes = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? locale = freezed,Object? dashboardWidgets = null,Object? mobileDashboardWidgets = null,Object? desktopDashboardWidgets = null,Object? pinnedMediaPlatforms = null,Object? mediaUnlockMoreStreamingPlatforms = null,Object? mediaUnlockExtraDetails = null,Object? mediaUnlockRefreshOnNodeChange = null,Object? mediaUnlockColorfulIcons = null,Object? mediaUnlockRefreshByCategory = null,Object? onlyStatisticsProxy = null,Object? autoLaunch = null,Object? silentLaunch = null,Object? smartDelayLaunch = null,Object? autoRun = null,Object? openLogs = null,Object? closeConnections = null,Object? logAiSearch = null,Object? flushDnsOnNetworkChange = null,Object? testUrl = null,Object? showStartSwitch = null,Object? startSwitchStyle = null,Object? startSwitchOnLabel = freezed,Object? startSwitchOffLabel = freezed,Object? enableNavBarHapticFeedback = null,Object? autoCheckUpdate = null,Object? showLabel = null,Object? disclaimerAccepted = null,Object? minimizeOnExit = null,Object? hidden = null,Object? keepDockIcon = null,Object? developerMode = null,Object? recoveryStrategy = null,Object? backupPassword = null,Object? enableHighPriority = null,Object? sidebarCollapsed = null,Object? sidebarFlyout = null,Object? sidebarFlyoutOutsideTools = null,Object? sidebarFlyoutDelay = null,Object? sidebarFlyoutEntries = null,Object? dashboardTitle = freezed,Object? toolboxTiles = null,Object? mrsTapAction = null,Object? mrsResolveDns = null,Object? ipRiskDetail = null,Object? iperfOptions = null,Object? localPingOptions = null,Object? mobileDashboardSizes = null,Object? desktopDashboardSizes = null,}) {
   return _then(AppSettingProps(
 locale: freezed == locale ? _self.locale : locale // ignore: cast_nullable_to_non_nullable
 as String?,dashboardWidgets: null == dashboardWidgets ? _self.dashboardWidgets : dashboardWidgets // ignore: cast_nullable_to_non_nullable
@@ -115,9 +115,8 @@ as bool,sidebarFlyoutDelay: null == sidebarFlyoutDelay ? _self.sidebarFlyoutDela
 as SidebarFlyoutDelay,sidebarFlyoutEntries: null == sidebarFlyoutEntries ? _self.sidebarFlyoutEntries : sidebarFlyoutEntries // ignore: cast_nullable_to_non_nullable
 as List<SidebarFlyoutEntry>,dashboardTitle: freezed == dashboardTitle ? _self.dashboardTitle : dashboardTitle // ignore: cast_nullable_to_non_nullable
 as String?,toolboxTiles: null == toolboxTiles ? _self.toolboxTiles : toolboxTiles // ignore: cast_nullable_to_non_nullable
-as List<String>,mrsCopyRawLink: null == mrsCopyRawLink ? _self.mrsCopyRawLink : mrsCopyRawLink // ignore: cast_nullable_to_non_nullable
-as bool,mrsRawSource: null == mrsRawSource ? _self.mrsRawSource : mrsRawSource // ignore: cast_nullable_to_non_nullable
-as MrsRawSource,mrsResolveDns: null == mrsResolveDns ? _self.mrsResolveDns : mrsResolveDns // ignore: cast_nullable_to_non_nullable
+as List<String>,mrsTapAction: null == mrsTapAction ? _self.mrsTapAction : mrsTapAction // ignore: cast_nullable_to_non_nullable
+as MrsTapAction,mrsResolveDns: null == mrsResolveDns ? _self.mrsResolveDns : mrsResolveDns // ignore: cast_nullable_to_non_nullable
 as bool,ipRiskDetail: null == ipRiskDetail ? _self.ipRiskDetail : ipRiskDetail // ignore: cast_nullable_to_non_nullable
 as bool,iperfOptions: null == iperfOptions ? _self.iperfOptions : iperfOptions // ignore: cast_nullable_to_non_nullable
 as IperfOptions,localPingOptions: null == localPingOptions ? _self.localPingOptions : localPingOptions // ignore: cast_nullable_to_non_nullable
@@ -226,10 +225,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String? locale, @JsonKey(fromJson: dashboardWidgetsSafeFromJson)  List<DashboardWidget> dashboardWidgets, @JsonKey(fromJson: mobileDashboardWidgetsSafeFromJson)  List<DashboardWidget> mobileDashboardWidgets, @JsonKey(fromJson: desktopDashboardWidgetsSafeFromJson)  List<DashboardWidget> desktopDashboardWidgets, @JsonKey(fromJson: pinnedMediaPlatformsSafeFromJson)  List<MediaPlatform> pinnedMediaPlatforms,  bool mediaUnlockMoreStreamingPlatforms,  bool mediaUnlockExtraDetails,  bool mediaUnlockRefreshOnNodeChange,  bool mediaUnlockColorfulIcons,  bool mediaUnlockRefreshByCategory,  bool onlyStatisticsProxy,  bool autoLaunch,  bool silentLaunch,  bool smartDelayLaunch,  bool autoRun,  bool openLogs,  bool closeConnections,  bool logAiSearch,  bool flushDnsOnNetworkChange,  String testUrl,  bool showStartSwitch,  StartSwitchStyle startSwitchStyle,  String? startSwitchOnLabel,  String? startSwitchOffLabel,  bool enableNavBarHapticFeedback,  bool autoCheckUpdate,  bool showLabel,  bool disclaimerAccepted,  bool minimizeOnExit,  bool hidden,  bool keepDockIcon,  bool developerMode,  RecoveryStrategy recoveryStrategy,  String backupPassword,  bool enableHighPriority,  bool sidebarCollapsed,  bool sidebarFlyout,  bool sidebarFlyoutOutsideTools,  SidebarFlyoutDelay sidebarFlyoutDelay, @JsonKey(fromJson: sidebarFlyoutEntriesSafeFromJson)  List<SidebarFlyoutEntry> sidebarFlyoutEntries,  String? dashboardTitle,  List<String> toolboxTiles,  bool mrsCopyRawLink, @JsonKey(unknownEnumValue: MrsRawSource.bettRules)  MrsRawSource mrsRawSource,  bool mrsResolveDns,  bool ipRiskDetail,  IperfOptions iperfOptions,  LocalPingOptions localPingOptions,  Map<String, String> mobileDashboardSizes,  Map<String, String> desktopDashboardSizes)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String? locale, @JsonKey(fromJson: dashboardWidgetsSafeFromJson)  List<DashboardWidget> dashboardWidgets, @JsonKey(fromJson: mobileDashboardWidgetsSafeFromJson)  List<DashboardWidget> mobileDashboardWidgets, @JsonKey(fromJson: desktopDashboardWidgetsSafeFromJson)  List<DashboardWidget> desktopDashboardWidgets, @JsonKey(fromJson: pinnedMediaPlatformsSafeFromJson)  List<MediaPlatform> pinnedMediaPlatforms,  bool mediaUnlockMoreStreamingPlatforms,  bool mediaUnlockExtraDetails,  bool mediaUnlockRefreshOnNodeChange,  bool mediaUnlockColorfulIcons,  bool mediaUnlockRefreshByCategory,  bool onlyStatisticsProxy,  bool autoLaunch,  bool silentLaunch,  bool smartDelayLaunch,  bool autoRun,  bool openLogs,  bool closeConnections,  bool logAiSearch,  bool flushDnsOnNetworkChange,  String testUrl,  bool showStartSwitch,  StartSwitchStyle startSwitchStyle,  String? startSwitchOnLabel,  String? startSwitchOffLabel,  bool enableNavBarHapticFeedback,  bool autoCheckUpdate,  bool showLabel,  bool disclaimerAccepted,  bool minimizeOnExit,  bool hidden,  bool keepDockIcon,  bool developerMode,  RecoveryStrategy recoveryStrategy,  String backupPassword,  bool enableHighPriority,  bool sidebarCollapsed,  bool sidebarFlyout,  bool sidebarFlyoutOutsideTools,  SidebarFlyoutDelay sidebarFlyoutDelay, @JsonKey(fromJson: sidebarFlyoutEntriesSafeFromJson)  List<SidebarFlyoutEntry> sidebarFlyoutEntries,  String? dashboardTitle,  List<String> toolboxTiles, @JsonKey(unknownEnumValue: MrsTapAction.viewRules)  MrsTapAction mrsTapAction,  bool mrsResolveDns,  bool ipRiskDetail,  IperfOptions iperfOptions,  LocalPingOptions localPingOptions,  Map<String, String> mobileDashboardSizes,  Map<String, String> desktopDashboardSizes)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _AppSettingProps() when $default != null:
-return $default(_that.locale,_that.dashboardWidgets,_that.mobileDashboardWidgets,_that.desktopDashboardWidgets,_that.pinnedMediaPlatforms,_that.mediaUnlockMoreStreamingPlatforms,_that.mediaUnlockExtraDetails,_that.mediaUnlockRefreshOnNodeChange,_that.mediaUnlockColorfulIcons,_that.mediaUnlockRefreshByCategory,_that.onlyStatisticsProxy,_that.autoLaunch,_that.silentLaunch,_that.smartDelayLaunch,_that.autoRun,_that.openLogs,_that.closeConnections,_that.logAiSearch,_that.flushDnsOnNetworkChange,_that.testUrl,_that.showStartSwitch,_that.startSwitchStyle,_that.startSwitchOnLabel,_that.startSwitchOffLabel,_that.enableNavBarHapticFeedback,_that.autoCheckUpdate,_that.showLabel,_that.disclaimerAccepted,_that.minimizeOnExit,_that.hidden,_that.keepDockIcon,_that.developerMode,_that.recoveryStrategy,_that.backupPassword,_that.enableHighPriority,_that.sidebarCollapsed,_that.sidebarFlyout,_that.sidebarFlyoutOutsideTools,_that.sidebarFlyoutDelay,_that.sidebarFlyoutEntries,_that.dashboardTitle,_that.toolboxTiles,_that.mrsCopyRawLink,_that.mrsRawSource,_that.mrsResolveDns,_that.ipRiskDetail,_that.iperfOptions,_that.localPingOptions,_that.mobileDashboardSizes,_that.desktopDashboardSizes);case _:
+return $default(_that.locale,_that.dashboardWidgets,_that.mobileDashboardWidgets,_that.desktopDashboardWidgets,_that.pinnedMediaPlatforms,_that.mediaUnlockMoreStreamingPlatforms,_that.mediaUnlockExtraDetails,_that.mediaUnlockRefreshOnNodeChange,_that.mediaUnlockColorfulIcons,_that.mediaUnlockRefreshByCategory,_that.onlyStatisticsProxy,_that.autoLaunch,_that.silentLaunch,_that.smartDelayLaunch,_that.autoRun,_that.openLogs,_that.closeConnections,_that.logAiSearch,_that.flushDnsOnNetworkChange,_that.testUrl,_that.showStartSwitch,_that.startSwitchStyle,_that.startSwitchOnLabel,_that.startSwitchOffLabel,_that.enableNavBarHapticFeedback,_that.autoCheckUpdate,_that.showLabel,_that.disclaimerAccepted,_that.minimizeOnExit,_that.hidden,_that.keepDockIcon,_that.developerMode,_that.recoveryStrategy,_that.backupPassword,_that.enableHighPriority,_that.sidebarCollapsed,_that.sidebarFlyout,_that.sidebarFlyoutOutsideTools,_that.sidebarFlyoutDelay,_that.sidebarFlyoutEntries,_that.dashboardTitle,_that.toolboxTiles,_that.mrsTapAction,_that.mrsResolveDns,_that.ipRiskDetail,_that.iperfOptions,_that.localPingOptions,_that.mobileDashboardSizes,_that.desktopDashboardSizes);case _:
   return orElse();
 
 }
@@ -247,10 +246,10 @@ return $default(_that.locale,_that.dashboardWidgets,_that.mobileDashboardWidgets
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String? locale, @JsonKey(fromJson: dashboardWidgetsSafeFromJson)  List<DashboardWidget> dashboardWidgets, @JsonKey(fromJson: mobileDashboardWidgetsSafeFromJson)  List<DashboardWidget> mobileDashboardWidgets, @JsonKey(fromJson: desktopDashboardWidgetsSafeFromJson)  List<DashboardWidget> desktopDashboardWidgets, @JsonKey(fromJson: pinnedMediaPlatformsSafeFromJson)  List<MediaPlatform> pinnedMediaPlatforms,  bool mediaUnlockMoreStreamingPlatforms,  bool mediaUnlockExtraDetails,  bool mediaUnlockRefreshOnNodeChange,  bool mediaUnlockColorfulIcons,  bool mediaUnlockRefreshByCategory,  bool onlyStatisticsProxy,  bool autoLaunch,  bool silentLaunch,  bool smartDelayLaunch,  bool autoRun,  bool openLogs,  bool closeConnections,  bool logAiSearch,  bool flushDnsOnNetworkChange,  String testUrl,  bool showStartSwitch,  StartSwitchStyle startSwitchStyle,  String? startSwitchOnLabel,  String? startSwitchOffLabel,  bool enableNavBarHapticFeedback,  bool autoCheckUpdate,  bool showLabel,  bool disclaimerAccepted,  bool minimizeOnExit,  bool hidden,  bool keepDockIcon,  bool developerMode,  RecoveryStrategy recoveryStrategy,  String backupPassword,  bool enableHighPriority,  bool sidebarCollapsed,  bool sidebarFlyout,  bool sidebarFlyoutOutsideTools,  SidebarFlyoutDelay sidebarFlyoutDelay, @JsonKey(fromJson: sidebarFlyoutEntriesSafeFromJson)  List<SidebarFlyoutEntry> sidebarFlyoutEntries,  String? dashboardTitle,  List<String> toolboxTiles,  bool mrsCopyRawLink, @JsonKey(unknownEnumValue: MrsRawSource.bettRules)  MrsRawSource mrsRawSource,  bool mrsResolveDns,  bool ipRiskDetail,  IperfOptions iperfOptions,  LocalPingOptions localPingOptions,  Map<String, String> mobileDashboardSizes,  Map<String, String> desktopDashboardSizes)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String? locale, @JsonKey(fromJson: dashboardWidgetsSafeFromJson)  List<DashboardWidget> dashboardWidgets, @JsonKey(fromJson: mobileDashboardWidgetsSafeFromJson)  List<DashboardWidget> mobileDashboardWidgets, @JsonKey(fromJson: desktopDashboardWidgetsSafeFromJson)  List<DashboardWidget> desktopDashboardWidgets, @JsonKey(fromJson: pinnedMediaPlatformsSafeFromJson)  List<MediaPlatform> pinnedMediaPlatforms,  bool mediaUnlockMoreStreamingPlatforms,  bool mediaUnlockExtraDetails,  bool mediaUnlockRefreshOnNodeChange,  bool mediaUnlockColorfulIcons,  bool mediaUnlockRefreshByCategory,  bool onlyStatisticsProxy,  bool autoLaunch,  bool silentLaunch,  bool smartDelayLaunch,  bool autoRun,  bool openLogs,  bool closeConnections,  bool logAiSearch,  bool flushDnsOnNetworkChange,  String testUrl,  bool showStartSwitch,  StartSwitchStyle startSwitchStyle,  String? startSwitchOnLabel,  String? startSwitchOffLabel,  bool enableNavBarHapticFeedback,  bool autoCheckUpdate,  bool showLabel,  bool disclaimerAccepted,  bool minimizeOnExit,  bool hidden,  bool keepDockIcon,  bool developerMode,  RecoveryStrategy recoveryStrategy,  String backupPassword,  bool enableHighPriority,  bool sidebarCollapsed,  bool sidebarFlyout,  bool sidebarFlyoutOutsideTools,  SidebarFlyoutDelay sidebarFlyoutDelay, @JsonKey(fromJson: sidebarFlyoutEntriesSafeFromJson)  List<SidebarFlyoutEntry> sidebarFlyoutEntries,  String? dashboardTitle,  List<String> toolboxTiles, @JsonKey(unknownEnumValue: MrsTapAction.viewRules)  MrsTapAction mrsTapAction,  bool mrsResolveDns,  bool ipRiskDetail,  IperfOptions iperfOptions,  LocalPingOptions localPingOptions,  Map<String, String> mobileDashboardSizes,  Map<String, String> desktopDashboardSizes)  $default,) {final _that = this;
 switch (_that) {
 case _AppSettingProps():
-return $default(_that.locale,_that.dashboardWidgets,_that.mobileDashboardWidgets,_that.desktopDashboardWidgets,_that.pinnedMediaPlatforms,_that.mediaUnlockMoreStreamingPlatforms,_that.mediaUnlockExtraDetails,_that.mediaUnlockRefreshOnNodeChange,_that.mediaUnlockColorfulIcons,_that.mediaUnlockRefreshByCategory,_that.onlyStatisticsProxy,_that.autoLaunch,_that.silentLaunch,_that.smartDelayLaunch,_that.autoRun,_that.openLogs,_that.closeConnections,_that.logAiSearch,_that.flushDnsOnNetworkChange,_that.testUrl,_that.showStartSwitch,_that.startSwitchStyle,_that.startSwitchOnLabel,_that.startSwitchOffLabel,_that.enableNavBarHapticFeedback,_that.autoCheckUpdate,_that.showLabel,_that.disclaimerAccepted,_that.minimizeOnExit,_that.hidden,_that.keepDockIcon,_that.developerMode,_that.recoveryStrategy,_that.backupPassword,_that.enableHighPriority,_that.sidebarCollapsed,_that.sidebarFlyout,_that.sidebarFlyoutOutsideTools,_that.sidebarFlyoutDelay,_that.sidebarFlyoutEntries,_that.dashboardTitle,_that.toolboxTiles,_that.mrsCopyRawLink,_that.mrsRawSource,_that.mrsResolveDns,_that.ipRiskDetail,_that.iperfOptions,_that.localPingOptions,_that.mobileDashboardSizes,_that.desktopDashboardSizes);case _:
+return $default(_that.locale,_that.dashboardWidgets,_that.mobileDashboardWidgets,_that.desktopDashboardWidgets,_that.pinnedMediaPlatforms,_that.mediaUnlockMoreStreamingPlatforms,_that.mediaUnlockExtraDetails,_that.mediaUnlockRefreshOnNodeChange,_that.mediaUnlockColorfulIcons,_that.mediaUnlockRefreshByCategory,_that.onlyStatisticsProxy,_that.autoLaunch,_that.silentLaunch,_that.smartDelayLaunch,_that.autoRun,_that.openLogs,_that.closeConnections,_that.logAiSearch,_that.flushDnsOnNetworkChange,_that.testUrl,_that.showStartSwitch,_that.startSwitchStyle,_that.startSwitchOnLabel,_that.startSwitchOffLabel,_that.enableNavBarHapticFeedback,_that.autoCheckUpdate,_that.showLabel,_that.disclaimerAccepted,_that.minimizeOnExit,_that.hidden,_that.keepDockIcon,_that.developerMode,_that.recoveryStrategy,_that.backupPassword,_that.enableHighPriority,_that.sidebarCollapsed,_that.sidebarFlyout,_that.sidebarFlyoutOutsideTools,_that.sidebarFlyoutDelay,_that.sidebarFlyoutEntries,_that.dashboardTitle,_that.toolboxTiles,_that.mrsTapAction,_that.mrsResolveDns,_that.ipRiskDetail,_that.iperfOptions,_that.localPingOptions,_that.mobileDashboardSizes,_that.desktopDashboardSizes);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -267,10 +266,10 @@ return $default(_that.locale,_that.dashboardWidgets,_that.mobileDashboardWidgets
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String? locale, @JsonKey(fromJson: dashboardWidgetsSafeFromJson)  List<DashboardWidget> dashboardWidgets, @JsonKey(fromJson: mobileDashboardWidgetsSafeFromJson)  List<DashboardWidget> mobileDashboardWidgets, @JsonKey(fromJson: desktopDashboardWidgetsSafeFromJson)  List<DashboardWidget> desktopDashboardWidgets, @JsonKey(fromJson: pinnedMediaPlatformsSafeFromJson)  List<MediaPlatform> pinnedMediaPlatforms,  bool mediaUnlockMoreStreamingPlatforms,  bool mediaUnlockExtraDetails,  bool mediaUnlockRefreshOnNodeChange,  bool mediaUnlockColorfulIcons,  bool mediaUnlockRefreshByCategory,  bool onlyStatisticsProxy,  bool autoLaunch,  bool silentLaunch,  bool smartDelayLaunch,  bool autoRun,  bool openLogs,  bool closeConnections,  bool logAiSearch,  bool flushDnsOnNetworkChange,  String testUrl,  bool showStartSwitch,  StartSwitchStyle startSwitchStyle,  String? startSwitchOnLabel,  String? startSwitchOffLabel,  bool enableNavBarHapticFeedback,  bool autoCheckUpdate,  bool showLabel,  bool disclaimerAccepted,  bool minimizeOnExit,  bool hidden,  bool keepDockIcon,  bool developerMode,  RecoveryStrategy recoveryStrategy,  String backupPassword,  bool enableHighPriority,  bool sidebarCollapsed,  bool sidebarFlyout,  bool sidebarFlyoutOutsideTools,  SidebarFlyoutDelay sidebarFlyoutDelay, @JsonKey(fromJson: sidebarFlyoutEntriesSafeFromJson)  List<SidebarFlyoutEntry> sidebarFlyoutEntries,  String? dashboardTitle,  List<String> toolboxTiles,  bool mrsCopyRawLink, @JsonKey(unknownEnumValue: MrsRawSource.bettRules)  MrsRawSource mrsRawSource,  bool mrsResolveDns,  bool ipRiskDetail,  IperfOptions iperfOptions,  LocalPingOptions localPingOptions,  Map<String, String> mobileDashboardSizes,  Map<String, String> desktopDashboardSizes)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String? locale, @JsonKey(fromJson: dashboardWidgetsSafeFromJson)  List<DashboardWidget> dashboardWidgets, @JsonKey(fromJson: mobileDashboardWidgetsSafeFromJson)  List<DashboardWidget> mobileDashboardWidgets, @JsonKey(fromJson: desktopDashboardWidgetsSafeFromJson)  List<DashboardWidget> desktopDashboardWidgets, @JsonKey(fromJson: pinnedMediaPlatformsSafeFromJson)  List<MediaPlatform> pinnedMediaPlatforms,  bool mediaUnlockMoreStreamingPlatforms,  bool mediaUnlockExtraDetails,  bool mediaUnlockRefreshOnNodeChange,  bool mediaUnlockColorfulIcons,  bool mediaUnlockRefreshByCategory,  bool onlyStatisticsProxy,  bool autoLaunch,  bool silentLaunch,  bool smartDelayLaunch,  bool autoRun,  bool openLogs,  bool closeConnections,  bool logAiSearch,  bool flushDnsOnNetworkChange,  String testUrl,  bool showStartSwitch,  StartSwitchStyle startSwitchStyle,  String? startSwitchOnLabel,  String? startSwitchOffLabel,  bool enableNavBarHapticFeedback,  bool autoCheckUpdate,  bool showLabel,  bool disclaimerAccepted,  bool minimizeOnExit,  bool hidden,  bool keepDockIcon,  bool developerMode,  RecoveryStrategy recoveryStrategy,  String backupPassword,  bool enableHighPriority,  bool sidebarCollapsed,  bool sidebarFlyout,  bool sidebarFlyoutOutsideTools,  SidebarFlyoutDelay sidebarFlyoutDelay, @JsonKey(fromJson: sidebarFlyoutEntriesSafeFromJson)  List<SidebarFlyoutEntry> sidebarFlyoutEntries,  String? dashboardTitle,  List<String> toolboxTiles, @JsonKey(unknownEnumValue: MrsTapAction.viewRules)  MrsTapAction mrsTapAction,  bool mrsResolveDns,  bool ipRiskDetail,  IperfOptions iperfOptions,  LocalPingOptions localPingOptions,  Map<String, String> mobileDashboardSizes,  Map<String, String> desktopDashboardSizes)?  $default,) {final _that = this;
 switch (_that) {
 case _AppSettingProps() when $default != null:
-return $default(_that.locale,_that.dashboardWidgets,_that.mobileDashboardWidgets,_that.desktopDashboardWidgets,_that.pinnedMediaPlatforms,_that.mediaUnlockMoreStreamingPlatforms,_that.mediaUnlockExtraDetails,_that.mediaUnlockRefreshOnNodeChange,_that.mediaUnlockColorfulIcons,_that.mediaUnlockRefreshByCategory,_that.onlyStatisticsProxy,_that.autoLaunch,_that.silentLaunch,_that.smartDelayLaunch,_that.autoRun,_that.openLogs,_that.closeConnections,_that.logAiSearch,_that.flushDnsOnNetworkChange,_that.testUrl,_that.showStartSwitch,_that.startSwitchStyle,_that.startSwitchOnLabel,_that.startSwitchOffLabel,_that.enableNavBarHapticFeedback,_that.autoCheckUpdate,_that.showLabel,_that.disclaimerAccepted,_that.minimizeOnExit,_that.hidden,_that.keepDockIcon,_that.developerMode,_that.recoveryStrategy,_that.backupPassword,_that.enableHighPriority,_that.sidebarCollapsed,_that.sidebarFlyout,_that.sidebarFlyoutOutsideTools,_that.sidebarFlyoutDelay,_that.sidebarFlyoutEntries,_that.dashboardTitle,_that.toolboxTiles,_that.mrsCopyRawLink,_that.mrsRawSource,_that.mrsResolveDns,_that.ipRiskDetail,_that.iperfOptions,_that.localPingOptions,_that.mobileDashboardSizes,_that.desktopDashboardSizes);case _:
+return $default(_that.locale,_that.dashboardWidgets,_that.mobileDashboardWidgets,_that.desktopDashboardWidgets,_that.pinnedMediaPlatforms,_that.mediaUnlockMoreStreamingPlatforms,_that.mediaUnlockExtraDetails,_that.mediaUnlockRefreshOnNodeChange,_that.mediaUnlockColorfulIcons,_that.mediaUnlockRefreshByCategory,_that.onlyStatisticsProxy,_that.autoLaunch,_that.silentLaunch,_that.smartDelayLaunch,_that.autoRun,_that.openLogs,_that.closeConnections,_that.logAiSearch,_that.flushDnsOnNetworkChange,_that.testUrl,_that.showStartSwitch,_that.startSwitchStyle,_that.startSwitchOnLabel,_that.startSwitchOffLabel,_that.enableNavBarHapticFeedback,_that.autoCheckUpdate,_that.showLabel,_that.disclaimerAccepted,_that.minimizeOnExit,_that.hidden,_that.keepDockIcon,_that.developerMode,_that.recoveryStrategy,_that.backupPassword,_that.enableHighPriority,_that.sidebarCollapsed,_that.sidebarFlyout,_that.sidebarFlyoutOutsideTools,_that.sidebarFlyoutDelay,_that.sidebarFlyoutEntries,_that.dashboardTitle,_that.toolboxTiles,_that.mrsTapAction,_that.mrsResolveDns,_that.ipRiskDetail,_that.iperfOptions,_that.localPingOptions,_that.mobileDashboardSizes,_that.desktopDashboardSizes);case _:
   return null;
 
 }
@@ -282,7 +281,7 @@ return $default(_that.locale,_that.dashboardWidgets,_that.mobileDashboardWidgets
 @JsonSerializable()
 
 class _AppSettingProps implements AppSettingProps {
-  const _AppSettingProps({this.locale, @JsonKey(fromJson: dashboardWidgetsSafeFromJson)  List<DashboardWidget> dashboardWidgets = defaultDashboardWidgets, @JsonKey(fromJson: mobileDashboardWidgetsSafeFromJson)  List<DashboardWidget> mobileDashboardWidgets = defaultAndroidDashboardWidgets, @JsonKey(fromJson: desktopDashboardWidgetsSafeFromJson)  List<DashboardWidget> desktopDashboardWidgets = defaultDashboardWidgets, @JsonKey(fromJson: pinnedMediaPlatformsSafeFromJson)  List<MediaPlatform> pinnedMediaPlatforms = defaultPinnedMediaPlatforms, this.mediaUnlockMoreStreamingPlatforms = false, this.mediaUnlockExtraDetails = false, this.mediaUnlockRefreshOnNodeChange = true, this.mediaUnlockColorfulIcons = true, this.mediaUnlockRefreshByCategory = true, this.onlyStatisticsProxy = true, this.autoLaunch = false, this.silentLaunch = false, this.smartDelayLaunch = false, this.autoRun = false, this.openLogs = true, this.closeConnections = true, this.logAiSearch = true, this.flushDnsOnNetworkChange = false, this.testUrl = defaultTestUrl, this.showStartSwitch = true, this.startSwitchStyle = StartSwitchStyle.outlined, this.startSwitchOnLabel, this.startSwitchOffLabel, this.enableNavBarHapticFeedback = true, this.autoCheckUpdate = true, this.showLabel = false, this.disclaimerAccepted = false, this.minimizeOnExit = true, this.hidden = false, this.keepDockIcon = true, this.developerMode = false, this.recoveryStrategy = RecoveryStrategy.compatible, this.backupPassword = '', this.enableHighPriority = false, this.sidebarCollapsed = true, this.sidebarFlyout = false, this.sidebarFlyoutOutsideTools = false, this.sidebarFlyoutDelay = SidebarFlyoutDelay.standard, @JsonKey(fromJson: sidebarFlyoutEntriesSafeFromJson)  List<SidebarFlyoutEntry> sidebarFlyoutEntries = defaultSidebarFlyoutEntries, this.dashboardTitle,  List<String> toolboxTiles = const <String>[], this.mrsCopyRawLink = false, @JsonKey(unknownEnumValue: MrsRawSource.bettRules) this.mrsRawSource = MrsRawSource.bettRules, this.mrsResolveDns = true, this.ipRiskDetail = false, this.iperfOptions = const IperfOptions(), this.localPingOptions = const LocalPingOptions(),  Map<String, String> mobileDashboardSizes = const <String, String>{},  Map<String, String> desktopDashboardSizes = const <String, String>{}}): _dashboardWidgets = dashboardWidgets,_mobileDashboardWidgets = mobileDashboardWidgets,_desktopDashboardWidgets = desktopDashboardWidgets,_pinnedMediaPlatforms = pinnedMediaPlatforms,_sidebarFlyoutEntries = sidebarFlyoutEntries,_toolboxTiles = toolboxTiles,_mobileDashboardSizes = mobileDashboardSizes,_desktopDashboardSizes = desktopDashboardSizes;
+  const _AppSettingProps({this.locale, @JsonKey(fromJson: dashboardWidgetsSafeFromJson)  List<DashboardWidget> dashboardWidgets = defaultDashboardWidgets, @JsonKey(fromJson: mobileDashboardWidgetsSafeFromJson)  List<DashboardWidget> mobileDashboardWidgets = defaultAndroidDashboardWidgets, @JsonKey(fromJson: desktopDashboardWidgetsSafeFromJson)  List<DashboardWidget> desktopDashboardWidgets = defaultDashboardWidgets, @JsonKey(fromJson: pinnedMediaPlatformsSafeFromJson)  List<MediaPlatform> pinnedMediaPlatforms = defaultPinnedMediaPlatforms, this.mediaUnlockMoreStreamingPlatforms = false, this.mediaUnlockExtraDetails = false, this.mediaUnlockRefreshOnNodeChange = true, this.mediaUnlockColorfulIcons = true, this.mediaUnlockRefreshByCategory = true, this.onlyStatisticsProxy = true, this.autoLaunch = false, this.silentLaunch = false, this.smartDelayLaunch = false, this.autoRun = false, this.openLogs = true, this.closeConnections = true, this.logAiSearch = true, this.flushDnsOnNetworkChange = false, this.testUrl = defaultTestUrl, this.showStartSwitch = true, this.startSwitchStyle = StartSwitchStyle.outlined, this.startSwitchOnLabel, this.startSwitchOffLabel, this.enableNavBarHapticFeedback = true, this.autoCheckUpdate = true, this.showLabel = false, this.disclaimerAccepted = false, this.minimizeOnExit = true, this.hidden = false, this.keepDockIcon = true, this.developerMode = false, this.recoveryStrategy = RecoveryStrategy.compatible, this.backupPassword = '', this.enableHighPriority = false, this.sidebarCollapsed = true, this.sidebarFlyout = false, this.sidebarFlyoutOutsideTools = false, this.sidebarFlyoutDelay = SidebarFlyoutDelay.standard, @JsonKey(fromJson: sidebarFlyoutEntriesSafeFromJson)  List<SidebarFlyoutEntry> sidebarFlyoutEntries = defaultSidebarFlyoutEntries, this.dashboardTitle,  List<String> toolboxTiles = const <String>[], @JsonKey(unknownEnumValue: MrsTapAction.viewRules) this.mrsTapAction = MrsTapAction.viewRules, this.mrsResolveDns = true, this.ipRiskDetail = false, this.iperfOptions = const IperfOptions(), this.localPingOptions = const LocalPingOptions(),  Map<String, String> mobileDashboardSizes = const <String, String>{},  Map<String, String> desktopDashboardSizes = const <String, String>{}}): _dashboardWidgets = dashboardWidgets,_mobileDashboardWidgets = mobileDashboardWidgets,_desktopDashboardWidgets = desktopDashboardWidgets,_pinnedMediaPlatforms = pinnedMediaPlatforms,_sidebarFlyoutEntries = sidebarFlyoutEntries,_toolboxTiles = toolboxTiles,_mobileDashboardSizes = mobileDashboardSizes,_desktopDashboardSizes = desktopDashboardSizes;
   factory _AppSettingProps.fromJson(Map<String, dynamic> json) => _$AppSettingPropsFromJson(json);
 
 @override final  String? locale;
@@ -363,8 +362,7 @@ class _AppSettingProps implements AppSettingProps {
   return EqualUnmodifiableListView(_toolboxTiles);
 }
 
-@override@JsonKey() final  bool mrsCopyRawLink;
-@override@JsonKey(unknownEnumValue: MrsRawSource.bettRules) final  MrsRawSource mrsRawSource;
+@override@JsonKey(unknownEnumValue: MrsTapAction.viewRules) final  MrsTapAction mrsTapAction;
 @override@JsonKey() final  bool mrsResolveDns;
 @override@JsonKey() final  bool ipRiskDetail;
 @override@JsonKey() final  IperfOptions iperfOptions;
@@ -397,18 +395,18 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _AppSettingProps&&(identical(other.locale, locale) || other.locale == locale)&&const DeepCollectionEquality().equals(other.dashboardWidgets, _dashboardWidgets)&&const DeepCollectionEquality().equals(other.mobileDashboardWidgets, _mobileDashboardWidgets)&&const DeepCollectionEquality().equals(other.desktopDashboardWidgets, _desktopDashboardWidgets)&&const DeepCollectionEquality().equals(other.pinnedMediaPlatforms, _pinnedMediaPlatforms)&&(identical(other.mediaUnlockMoreStreamingPlatforms, mediaUnlockMoreStreamingPlatforms) || other.mediaUnlockMoreStreamingPlatforms == mediaUnlockMoreStreamingPlatforms)&&(identical(other.mediaUnlockExtraDetails, mediaUnlockExtraDetails) || other.mediaUnlockExtraDetails == mediaUnlockExtraDetails)&&(identical(other.mediaUnlockRefreshOnNodeChange, mediaUnlockRefreshOnNodeChange) || other.mediaUnlockRefreshOnNodeChange == mediaUnlockRefreshOnNodeChange)&&(identical(other.mediaUnlockColorfulIcons, mediaUnlockColorfulIcons) || other.mediaUnlockColorfulIcons == mediaUnlockColorfulIcons)&&(identical(other.mediaUnlockRefreshByCategory, mediaUnlockRefreshByCategory) || other.mediaUnlockRefreshByCategory == mediaUnlockRefreshByCategory)&&(identical(other.onlyStatisticsProxy, onlyStatisticsProxy) || other.onlyStatisticsProxy == onlyStatisticsProxy)&&(identical(other.autoLaunch, autoLaunch) || other.autoLaunch == autoLaunch)&&(identical(other.silentLaunch, silentLaunch) || other.silentLaunch == silentLaunch)&&(identical(other.smartDelayLaunch, smartDelayLaunch) || other.smartDelayLaunch == smartDelayLaunch)&&(identical(other.autoRun, autoRun) || other.autoRun == autoRun)&&(identical(other.openLogs, openLogs) || other.openLogs == openLogs)&&(identical(other.closeConnections, closeConnections) || other.closeConnections == closeConnections)&&(identical(other.logAiSearch, logAiSearch) || other.logAiSearch == logAiSearch)&&(identical(other.flushDnsOnNetworkChange, flushDnsOnNetworkChange) || other.flushDnsOnNetworkChange == flushDnsOnNetworkChange)&&(identical(other.testUrl, testUrl) || other.testUrl == testUrl)&&(identical(other.showStartSwitch, showStartSwitch) || other.showStartSwitch == showStartSwitch)&&(identical(other.startSwitchStyle, startSwitchStyle) || other.startSwitchStyle == startSwitchStyle)&&(identical(other.startSwitchOnLabel, startSwitchOnLabel) || other.startSwitchOnLabel == startSwitchOnLabel)&&(identical(other.startSwitchOffLabel, startSwitchOffLabel) || other.startSwitchOffLabel == startSwitchOffLabel)&&(identical(other.enableNavBarHapticFeedback, enableNavBarHapticFeedback) || other.enableNavBarHapticFeedback == enableNavBarHapticFeedback)&&(identical(other.autoCheckUpdate, autoCheckUpdate) || other.autoCheckUpdate == autoCheckUpdate)&&(identical(other.showLabel, showLabel) || other.showLabel == showLabel)&&(identical(other.disclaimerAccepted, disclaimerAccepted) || other.disclaimerAccepted == disclaimerAccepted)&&(identical(other.minimizeOnExit, minimizeOnExit) || other.minimizeOnExit == minimizeOnExit)&&(identical(other.hidden, hidden) || other.hidden == hidden)&&(identical(other.keepDockIcon, keepDockIcon) || other.keepDockIcon == keepDockIcon)&&(identical(other.developerMode, developerMode) || other.developerMode == developerMode)&&(identical(other.recoveryStrategy, recoveryStrategy) || other.recoveryStrategy == recoveryStrategy)&&(identical(other.backupPassword, backupPassword) || other.backupPassword == backupPassword)&&(identical(other.enableHighPriority, enableHighPriority) || other.enableHighPriority == enableHighPriority)&&(identical(other.sidebarCollapsed, sidebarCollapsed) || other.sidebarCollapsed == sidebarCollapsed)&&(identical(other.sidebarFlyout, sidebarFlyout) || other.sidebarFlyout == sidebarFlyout)&&(identical(other.sidebarFlyoutOutsideTools, sidebarFlyoutOutsideTools) || other.sidebarFlyoutOutsideTools == sidebarFlyoutOutsideTools)&&(identical(other.sidebarFlyoutDelay, sidebarFlyoutDelay) || other.sidebarFlyoutDelay == sidebarFlyoutDelay)&&const DeepCollectionEquality().equals(other.sidebarFlyoutEntries, _sidebarFlyoutEntries)&&(identical(other.dashboardTitle, dashboardTitle) || other.dashboardTitle == dashboardTitle)&&const DeepCollectionEquality().equals(other.toolboxTiles, _toolboxTiles)&&(identical(other.mrsCopyRawLink, mrsCopyRawLink) || other.mrsCopyRawLink == mrsCopyRawLink)&&(identical(other.mrsRawSource, mrsRawSource) || other.mrsRawSource == mrsRawSource)&&(identical(other.mrsResolveDns, mrsResolveDns) || other.mrsResolveDns == mrsResolveDns)&&(identical(other.ipRiskDetail, ipRiskDetail) || other.ipRiskDetail == ipRiskDetail)&&(identical(other.iperfOptions, iperfOptions) || other.iperfOptions == iperfOptions)&&(identical(other.localPingOptions, localPingOptions) || other.localPingOptions == localPingOptions)&&const DeepCollectionEquality().equals(other.mobileDashboardSizes, _mobileDashboardSizes)&&const DeepCollectionEquality().equals(other.desktopDashboardSizes, _desktopDashboardSizes));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _AppSettingProps&&(identical(other.locale, locale) || other.locale == locale)&&const DeepCollectionEquality().equals(other.dashboardWidgets, _dashboardWidgets)&&const DeepCollectionEquality().equals(other.mobileDashboardWidgets, _mobileDashboardWidgets)&&const DeepCollectionEquality().equals(other.desktopDashboardWidgets, _desktopDashboardWidgets)&&const DeepCollectionEquality().equals(other.pinnedMediaPlatforms, _pinnedMediaPlatforms)&&(identical(other.mediaUnlockMoreStreamingPlatforms, mediaUnlockMoreStreamingPlatforms) || other.mediaUnlockMoreStreamingPlatforms == mediaUnlockMoreStreamingPlatforms)&&(identical(other.mediaUnlockExtraDetails, mediaUnlockExtraDetails) || other.mediaUnlockExtraDetails == mediaUnlockExtraDetails)&&(identical(other.mediaUnlockRefreshOnNodeChange, mediaUnlockRefreshOnNodeChange) || other.mediaUnlockRefreshOnNodeChange == mediaUnlockRefreshOnNodeChange)&&(identical(other.mediaUnlockColorfulIcons, mediaUnlockColorfulIcons) || other.mediaUnlockColorfulIcons == mediaUnlockColorfulIcons)&&(identical(other.mediaUnlockRefreshByCategory, mediaUnlockRefreshByCategory) || other.mediaUnlockRefreshByCategory == mediaUnlockRefreshByCategory)&&(identical(other.onlyStatisticsProxy, onlyStatisticsProxy) || other.onlyStatisticsProxy == onlyStatisticsProxy)&&(identical(other.autoLaunch, autoLaunch) || other.autoLaunch == autoLaunch)&&(identical(other.silentLaunch, silentLaunch) || other.silentLaunch == silentLaunch)&&(identical(other.smartDelayLaunch, smartDelayLaunch) || other.smartDelayLaunch == smartDelayLaunch)&&(identical(other.autoRun, autoRun) || other.autoRun == autoRun)&&(identical(other.openLogs, openLogs) || other.openLogs == openLogs)&&(identical(other.closeConnections, closeConnections) || other.closeConnections == closeConnections)&&(identical(other.logAiSearch, logAiSearch) || other.logAiSearch == logAiSearch)&&(identical(other.flushDnsOnNetworkChange, flushDnsOnNetworkChange) || other.flushDnsOnNetworkChange == flushDnsOnNetworkChange)&&(identical(other.testUrl, testUrl) || other.testUrl == testUrl)&&(identical(other.showStartSwitch, showStartSwitch) || other.showStartSwitch == showStartSwitch)&&(identical(other.startSwitchStyle, startSwitchStyle) || other.startSwitchStyle == startSwitchStyle)&&(identical(other.startSwitchOnLabel, startSwitchOnLabel) || other.startSwitchOnLabel == startSwitchOnLabel)&&(identical(other.startSwitchOffLabel, startSwitchOffLabel) || other.startSwitchOffLabel == startSwitchOffLabel)&&(identical(other.enableNavBarHapticFeedback, enableNavBarHapticFeedback) || other.enableNavBarHapticFeedback == enableNavBarHapticFeedback)&&(identical(other.autoCheckUpdate, autoCheckUpdate) || other.autoCheckUpdate == autoCheckUpdate)&&(identical(other.showLabel, showLabel) || other.showLabel == showLabel)&&(identical(other.disclaimerAccepted, disclaimerAccepted) || other.disclaimerAccepted == disclaimerAccepted)&&(identical(other.minimizeOnExit, minimizeOnExit) || other.minimizeOnExit == minimizeOnExit)&&(identical(other.hidden, hidden) || other.hidden == hidden)&&(identical(other.keepDockIcon, keepDockIcon) || other.keepDockIcon == keepDockIcon)&&(identical(other.developerMode, developerMode) || other.developerMode == developerMode)&&(identical(other.recoveryStrategy, recoveryStrategy) || other.recoveryStrategy == recoveryStrategy)&&(identical(other.backupPassword, backupPassword) || other.backupPassword == backupPassword)&&(identical(other.enableHighPriority, enableHighPriority) || other.enableHighPriority == enableHighPriority)&&(identical(other.sidebarCollapsed, sidebarCollapsed) || other.sidebarCollapsed == sidebarCollapsed)&&(identical(other.sidebarFlyout, sidebarFlyout) || other.sidebarFlyout == sidebarFlyout)&&(identical(other.sidebarFlyoutOutsideTools, sidebarFlyoutOutsideTools) || other.sidebarFlyoutOutsideTools == sidebarFlyoutOutsideTools)&&(identical(other.sidebarFlyoutDelay, sidebarFlyoutDelay) || other.sidebarFlyoutDelay == sidebarFlyoutDelay)&&const DeepCollectionEquality().equals(other.sidebarFlyoutEntries, _sidebarFlyoutEntries)&&(identical(other.dashboardTitle, dashboardTitle) || other.dashboardTitle == dashboardTitle)&&const DeepCollectionEquality().equals(other.toolboxTiles, _toolboxTiles)&&(identical(other.mrsTapAction, mrsTapAction) || other.mrsTapAction == mrsTapAction)&&(identical(other.mrsResolveDns, mrsResolveDns) || other.mrsResolveDns == mrsResolveDns)&&(identical(other.ipRiskDetail, ipRiskDetail) || other.ipRiskDetail == ipRiskDetail)&&(identical(other.iperfOptions, iperfOptions) || other.iperfOptions == iperfOptions)&&(identical(other.localPingOptions, localPingOptions) || other.localPingOptions == localPingOptions)&&const DeepCollectionEquality().equals(other.mobileDashboardSizes, _mobileDashboardSizes)&&const DeepCollectionEquality().equals(other.desktopDashboardSizes, _desktopDashboardSizes));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
 int get hashCode {
-    return Object.hashAll([runtimeType,locale,const DeepCollectionEquality().hash(_dashboardWidgets),const DeepCollectionEquality().hash(_mobileDashboardWidgets),const DeepCollectionEquality().hash(_desktopDashboardWidgets),const DeepCollectionEquality().hash(_pinnedMediaPlatforms),mediaUnlockMoreStreamingPlatforms,mediaUnlockExtraDetails,mediaUnlockRefreshOnNodeChange,mediaUnlockColorfulIcons,mediaUnlockRefreshByCategory,onlyStatisticsProxy,autoLaunch,silentLaunch,smartDelayLaunch,autoRun,openLogs,closeConnections,logAiSearch,flushDnsOnNetworkChange,testUrl,showStartSwitch,startSwitchStyle,startSwitchOnLabel,startSwitchOffLabel,enableNavBarHapticFeedback,autoCheckUpdate,showLabel,disclaimerAccepted,minimizeOnExit,hidden,keepDockIcon,developerMode,recoveryStrategy,backupPassword,enableHighPriority,sidebarCollapsed,sidebarFlyout,sidebarFlyoutOutsideTools,sidebarFlyoutDelay,const DeepCollectionEquality().hash(_sidebarFlyoutEntries),dashboardTitle,const DeepCollectionEquality().hash(_toolboxTiles),mrsCopyRawLink,mrsRawSource,mrsResolveDns,ipRiskDetail,iperfOptions,localPingOptions,const DeepCollectionEquality().hash(_mobileDashboardSizes),const DeepCollectionEquality().hash(_desktopDashboardSizes)]);
+    return Object.hashAll([runtimeType,locale,const DeepCollectionEquality().hash(_dashboardWidgets),const DeepCollectionEquality().hash(_mobileDashboardWidgets),const DeepCollectionEquality().hash(_desktopDashboardWidgets),const DeepCollectionEquality().hash(_pinnedMediaPlatforms),mediaUnlockMoreStreamingPlatforms,mediaUnlockExtraDetails,mediaUnlockRefreshOnNodeChange,mediaUnlockColorfulIcons,mediaUnlockRefreshByCategory,onlyStatisticsProxy,autoLaunch,silentLaunch,smartDelayLaunch,autoRun,openLogs,closeConnections,logAiSearch,flushDnsOnNetworkChange,testUrl,showStartSwitch,startSwitchStyle,startSwitchOnLabel,startSwitchOffLabel,enableNavBarHapticFeedback,autoCheckUpdate,showLabel,disclaimerAccepted,minimizeOnExit,hidden,keepDockIcon,developerMode,recoveryStrategy,backupPassword,enableHighPriority,sidebarCollapsed,sidebarFlyout,sidebarFlyoutOutsideTools,sidebarFlyoutDelay,const DeepCollectionEquality().hash(_sidebarFlyoutEntries),dashboardTitle,const DeepCollectionEquality().hash(_toolboxTiles),mrsTapAction,mrsResolveDns,ipRiskDetail,iperfOptions,localPingOptions,const DeepCollectionEquality().hash(_mobileDashboardSizes),const DeepCollectionEquality().hash(_desktopDashboardSizes)]);
 }
 
 @override
 String toString() {
-    return 'AppSettingProps(locale: $locale, dashboardWidgets: $dashboardWidgets, mobileDashboardWidgets: $mobileDashboardWidgets, desktopDashboardWidgets: $desktopDashboardWidgets, pinnedMediaPlatforms: $pinnedMediaPlatforms, mediaUnlockMoreStreamingPlatforms: $mediaUnlockMoreStreamingPlatforms, mediaUnlockExtraDetails: $mediaUnlockExtraDetails, mediaUnlockRefreshOnNodeChange: $mediaUnlockRefreshOnNodeChange, mediaUnlockColorfulIcons: $mediaUnlockColorfulIcons, mediaUnlockRefreshByCategory: $mediaUnlockRefreshByCategory, onlyStatisticsProxy: $onlyStatisticsProxy, autoLaunch: $autoLaunch, silentLaunch: $silentLaunch, smartDelayLaunch: $smartDelayLaunch, autoRun: $autoRun, openLogs: $openLogs, closeConnections: $closeConnections, logAiSearch: $logAiSearch, flushDnsOnNetworkChange: $flushDnsOnNetworkChange, testUrl: $testUrl, showStartSwitch: $showStartSwitch, startSwitchStyle: $startSwitchStyle, startSwitchOnLabel: $startSwitchOnLabel, startSwitchOffLabel: $startSwitchOffLabel, enableNavBarHapticFeedback: $enableNavBarHapticFeedback, autoCheckUpdate: $autoCheckUpdate, showLabel: $showLabel, disclaimerAccepted: $disclaimerAccepted, minimizeOnExit: $minimizeOnExit, hidden: $hidden, keepDockIcon: $keepDockIcon, developerMode: $developerMode, recoveryStrategy: $recoveryStrategy, backupPassword: $backupPassword, enableHighPriority: $enableHighPriority, sidebarCollapsed: $sidebarCollapsed, sidebarFlyout: $sidebarFlyout, sidebarFlyoutOutsideTools: $sidebarFlyoutOutsideTools, sidebarFlyoutDelay: $sidebarFlyoutDelay, sidebarFlyoutEntries: $sidebarFlyoutEntries, dashboardTitle: $dashboardTitle, toolboxTiles: $toolboxTiles, mrsCopyRawLink: $mrsCopyRawLink, mrsRawSource: $mrsRawSource, mrsResolveDns: $mrsResolveDns, ipRiskDetail: $ipRiskDetail, iperfOptions: $iperfOptions, localPingOptions: $localPingOptions, mobileDashboardSizes: $mobileDashboardSizes, desktopDashboardSizes: $desktopDashboardSizes)';
+    return 'AppSettingProps(locale: $locale, dashboardWidgets: $dashboardWidgets, mobileDashboardWidgets: $mobileDashboardWidgets, desktopDashboardWidgets: $desktopDashboardWidgets, pinnedMediaPlatforms: $pinnedMediaPlatforms, mediaUnlockMoreStreamingPlatforms: $mediaUnlockMoreStreamingPlatforms, mediaUnlockExtraDetails: $mediaUnlockExtraDetails, mediaUnlockRefreshOnNodeChange: $mediaUnlockRefreshOnNodeChange, mediaUnlockColorfulIcons: $mediaUnlockColorfulIcons, mediaUnlockRefreshByCategory: $mediaUnlockRefreshByCategory, onlyStatisticsProxy: $onlyStatisticsProxy, autoLaunch: $autoLaunch, silentLaunch: $silentLaunch, smartDelayLaunch: $smartDelayLaunch, autoRun: $autoRun, openLogs: $openLogs, closeConnections: $closeConnections, logAiSearch: $logAiSearch, flushDnsOnNetworkChange: $flushDnsOnNetworkChange, testUrl: $testUrl, showStartSwitch: $showStartSwitch, startSwitchStyle: $startSwitchStyle, startSwitchOnLabel: $startSwitchOnLabel, startSwitchOffLabel: $startSwitchOffLabel, enableNavBarHapticFeedback: $enableNavBarHapticFeedback, autoCheckUpdate: $autoCheckUpdate, showLabel: $showLabel, disclaimerAccepted: $disclaimerAccepted, minimizeOnExit: $minimizeOnExit, hidden: $hidden, keepDockIcon: $keepDockIcon, developerMode: $developerMode, recoveryStrategy: $recoveryStrategy, backupPassword: $backupPassword, enableHighPriority: $enableHighPriority, sidebarCollapsed: $sidebarCollapsed, sidebarFlyout: $sidebarFlyout, sidebarFlyoutOutsideTools: $sidebarFlyoutOutsideTools, sidebarFlyoutDelay: $sidebarFlyoutDelay, sidebarFlyoutEntries: $sidebarFlyoutEntries, dashboardTitle: $dashboardTitle, toolboxTiles: $toolboxTiles, mrsTapAction: $mrsTapAction, mrsResolveDns: $mrsResolveDns, ipRiskDetail: $ipRiskDetail, iperfOptions: $iperfOptions, localPingOptions: $localPingOptions, mobileDashboardSizes: $mobileDashboardSizes, desktopDashboardSizes: $desktopDashboardSizes)';
 }
 
 
@@ -419,7 +417,7 @@ abstract mixin class _$AppSettingPropsCopyWith<$Res> implements $AppSettingProps
   factory _$AppSettingPropsCopyWith(_AppSettingProps value, $Res Function(_AppSettingProps) _then) = __$AppSettingPropsCopyWithImpl;
 @override @useResult
 $Res call({
- String? locale,@JsonKey(fromJson: dashboardWidgetsSafeFromJson) List<DashboardWidget> dashboardWidgets,@JsonKey(fromJson: mobileDashboardWidgetsSafeFromJson) List<DashboardWidget> mobileDashboardWidgets,@JsonKey(fromJson: desktopDashboardWidgetsSafeFromJson) List<DashboardWidget> desktopDashboardWidgets,@JsonKey(fromJson: pinnedMediaPlatformsSafeFromJson) List<MediaPlatform> pinnedMediaPlatforms, bool mediaUnlockMoreStreamingPlatforms, bool mediaUnlockExtraDetails, bool mediaUnlockRefreshOnNodeChange, bool mediaUnlockColorfulIcons, bool mediaUnlockRefreshByCategory, bool onlyStatisticsProxy, bool autoLaunch, bool silentLaunch, bool smartDelayLaunch, bool autoRun, bool openLogs, bool closeConnections, bool logAiSearch, bool flushDnsOnNetworkChange, String testUrl, bool showStartSwitch, StartSwitchStyle startSwitchStyle, String? startSwitchOnLabel, String? startSwitchOffLabel, bool enableNavBarHapticFeedback, bool autoCheckUpdate, bool showLabel, bool disclaimerAccepted, bool minimizeOnExit, bool hidden, bool keepDockIcon, bool developerMode, RecoveryStrategy recoveryStrategy, String backupPassword, bool enableHighPriority, bool sidebarCollapsed, bool sidebarFlyout, bool sidebarFlyoutOutsideTools, SidebarFlyoutDelay sidebarFlyoutDelay,@JsonKey(fromJson: sidebarFlyoutEntriesSafeFromJson) List<SidebarFlyoutEntry> sidebarFlyoutEntries, String? dashboardTitle, List<String> toolboxTiles, bool mrsCopyRawLink,@JsonKey(unknownEnumValue: MrsRawSource.bettRules) MrsRawSource mrsRawSource, bool mrsResolveDns, bool ipRiskDetail, IperfOptions iperfOptions, LocalPingOptions localPingOptions, Map<String, String> mobileDashboardSizes, Map<String, String> desktopDashboardSizes
+ String? locale,@JsonKey(fromJson: dashboardWidgetsSafeFromJson) List<DashboardWidget> dashboardWidgets,@JsonKey(fromJson: mobileDashboardWidgetsSafeFromJson) List<DashboardWidget> mobileDashboardWidgets,@JsonKey(fromJson: desktopDashboardWidgetsSafeFromJson) List<DashboardWidget> desktopDashboardWidgets,@JsonKey(fromJson: pinnedMediaPlatformsSafeFromJson) List<MediaPlatform> pinnedMediaPlatforms, bool mediaUnlockMoreStreamingPlatforms, bool mediaUnlockExtraDetails, bool mediaUnlockRefreshOnNodeChange, bool mediaUnlockColorfulIcons, bool mediaUnlockRefreshByCategory, bool onlyStatisticsProxy, bool autoLaunch, bool silentLaunch, bool smartDelayLaunch, bool autoRun, bool openLogs, bool closeConnections, bool logAiSearch, bool flushDnsOnNetworkChange, String testUrl, bool showStartSwitch, StartSwitchStyle startSwitchStyle, String? startSwitchOnLabel, String? startSwitchOffLabel, bool enableNavBarHapticFeedback, bool autoCheckUpdate, bool showLabel, bool disclaimerAccepted, bool minimizeOnExit, bool hidden, bool keepDockIcon, bool developerMode, RecoveryStrategy recoveryStrategy, String backupPassword, bool enableHighPriority, bool sidebarCollapsed, bool sidebarFlyout, bool sidebarFlyoutOutsideTools, SidebarFlyoutDelay sidebarFlyoutDelay,@JsonKey(fromJson: sidebarFlyoutEntriesSafeFromJson) List<SidebarFlyoutEntry> sidebarFlyoutEntries, String? dashboardTitle, List<String> toolboxTiles,@JsonKey(unknownEnumValue: MrsTapAction.viewRules) MrsTapAction mrsTapAction, bool mrsResolveDns, bool ipRiskDetail, IperfOptions iperfOptions, LocalPingOptions localPingOptions, Map<String, String> mobileDashboardSizes, Map<String, String> desktopDashboardSizes
 });
 
 
@@ -436,7 +434,7 @@ class __$AppSettingPropsCopyWithImpl<$Res>
 
 /// Create a copy of AppSettingProps
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? locale = freezed,Object? dashboardWidgets = null,Object? mobileDashboardWidgets = null,Object? desktopDashboardWidgets = null,Object? pinnedMediaPlatforms = null,Object? mediaUnlockMoreStreamingPlatforms = null,Object? mediaUnlockExtraDetails = null,Object? mediaUnlockRefreshOnNodeChange = null,Object? mediaUnlockColorfulIcons = null,Object? mediaUnlockRefreshByCategory = null,Object? onlyStatisticsProxy = null,Object? autoLaunch = null,Object? silentLaunch = null,Object? smartDelayLaunch = null,Object? autoRun = null,Object? openLogs = null,Object? closeConnections = null,Object? logAiSearch = null,Object? flushDnsOnNetworkChange = null,Object? testUrl = null,Object? showStartSwitch = null,Object? startSwitchStyle = null,Object? startSwitchOnLabel = freezed,Object? startSwitchOffLabel = freezed,Object? enableNavBarHapticFeedback = null,Object? autoCheckUpdate = null,Object? showLabel = null,Object? disclaimerAccepted = null,Object? minimizeOnExit = null,Object? hidden = null,Object? keepDockIcon = null,Object? developerMode = null,Object? recoveryStrategy = null,Object? backupPassword = null,Object? enableHighPriority = null,Object? sidebarCollapsed = null,Object? sidebarFlyout = null,Object? sidebarFlyoutOutsideTools = null,Object? sidebarFlyoutDelay = null,Object? sidebarFlyoutEntries = null,Object? dashboardTitle = freezed,Object? toolboxTiles = null,Object? mrsCopyRawLink = null,Object? mrsRawSource = null,Object? mrsResolveDns = null,Object? ipRiskDetail = null,Object? iperfOptions = null,Object? localPingOptions = null,Object? mobileDashboardSizes = null,Object? desktopDashboardSizes = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? locale = freezed,Object? dashboardWidgets = null,Object? mobileDashboardWidgets = null,Object? desktopDashboardWidgets = null,Object? pinnedMediaPlatforms = null,Object? mediaUnlockMoreStreamingPlatforms = null,Object? mediaUnlockExtraDetails = null,Object? mediaUnlockRefreshOnNodeChange = null,Object? mediaUnlockColorfulIcons = null,Object? mediaUnlockRefreshByCategory = null,Object? onlyStatisticsProxy = null,Object? autoLaunch = null,Object? silentLaunch = null,Object? smartDelayLaunch = null,Object? autoRun = null,Object? openLogs = null,Object? closeConnections = null,Object? logAiSearch = null,Object? flushDnsOnNetworkChange = null,Object? testUrl = null,Object? showStartSwitch = null,Object? startSwitchStyle = null,Object? startSwitchOnLabel = freezed,Object? startSwitchOffLabel = freezed,Object? enableNavBarHapticFeedback = null,Object? autoCheckUpdate = null,Object? showLabel = null,Object? disclaimerAccepted = null,Object? minimizeOnExit = null,Object? hidden = null,Object? keepDockIcon = null,Object? developerMode = null,Object? recoveryStrategy = null,Object? backupPassword = null,Object? enableHighPriority = null,Object? sidebarCollapsed = null,Object? sidebarFlyout = null,Object? sidebarFlyoutOutsideTools = null,Object? sidebarFlyoutDelay = null,Object? sidebarFlyoutEntries = null,Object? dashboardTitle = freezed,Object? toolboxTiles = null,Object? mrsTapAction = null,Object? mrsResolveDns = null,Object? ipRiskDetail = null,Object? iperfOptions = null,Object? localPingOptions = null,Object? mobileDashboardSizes = null,Object? desktopDashboardSizes = null,}) {
   return _then(_AppSettingProps(
 locale: freezed == locale ? _self.locale : locale // ignore: cast_nullable_to_non_nullable
 as String?,dashboardWidgets: null == dashboardWidgets ? _self._dashboardWidgets : dashboardWidgets // ignore: cast_nullable_to_non_nullable
@@ -480,9 +478,8 @@ as bool,sidebarFlyoutDelay: null == sidebarFlyoutDelay ? _self.sidebarFlyoutDela
 as SidebarFlyoutDelay,sidebarFlyoutEntries: null == sidebarFlyoutEntries ? _self._sidebarFlyoutEntries : sidebarFlyoutEntries // ignore: cast_nullable_to_non_nullable
 as List<SidebarFlyoutEntry>,dashboardTitle: freezed == dashboardTitle ? _self.dashboardTitle : dashboardTitle // ignore: cast_nullable_to_non_nullable
 as String?,toolboxTiles: null == toolboxTiles ? _self._toolboxTiles : toolboxTiles // ignore: cast_nullable_to_non_nullable
-as List<String>,mrsCopyRawLink: null == mrsCopyRawLink ? _self.mrsCopyRawLink : mrsCopyRawLink // ignore: cast_nullable_to_non_nullable
-as bool,mrsRawSource: null == mrsRawSource ? _self.mrsRawSource : mrsRawSource // ignore: cast_nullable_to_non_nullable
-as MrsRawSource,mrsResolveDns: null == mrsResolveDns ? _self.mrsResolveDns : mrsResolveDns // ignore: cast_nullable_to_non_nullable
+as List<String>,mrsTapAction: null == mrsTapAction ? _self.mrsTapAction : mrsTapAction // ignore: cast_nullable_to_non_nullable
+as MrsTapAction,mrsResolveDns: null == mrsResolveDns ? _self.mrsResolveDns : mrsResolveDns // ignore: cast_nullable_to_non_nullable
 as bool,ipRiskDetail: null == ipRiskDetail ? _self.ipRiskDetail : ipRiskDetail // ignore: cast_nullable_to_non_nullable
 as bool,iperfOptions: null == iperfOptions ? _self.iperfOptions : iperfOptions // ignore: cast_nullable_to_non_nullable
 as IperfOptions,localPingOptions: null == localPingOptions ? _self.localPingOptions : localPingOptions // ignore: cast_nullable_to_non_nullable
@@ -1459,7 +1456,7 @@ $AccessControlCopyWith<$Res> get accessControl {
 /// @nodoc
 mixin _$NetworkProps {
 
- bool get systemProxy;@JsonKey(fromJson: bypassDomainSafeFromJson) List<String> get bypassDomain; bool get bypassPrivateRoute; List<String> get bypassPrivateRouteAddress;
+ bool get systemProxy;@JsonKey(fromJson: bypassDomainSafeFromJson) List<String> get bypassDomain; bool get bypassPrivateRoute; List<String> get bypassPrivateRouteAddress; ProfileSwitchMode get profileSwitchMode;
 /// Create a copy of NetworkProps
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -1473,20 +1470,20 @@ $NetworkPropsCopyWith<NetworkProps> get copyWith => _$NetworkPropsCopyWithImpl<N
 @override
 bool operator ==(Object other) {
   final _this = this as NetworkProps;
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is NetworkProps&&(identical(other.systemProxy, _this.systemProxy) || other.systemProxy == _this.systemProxy)&&const DeepCollectionEquality().equals(other.bypassDomain, _this.bypassDomain)&&(identical(other.bypassPrivateRoute, _this.bypassPrivateRoute) || other.bypassPrivateRoute == _this.bypassPrivateRoute)&&const DeepCollectionEquality().equals(other.bypassPrivateRouteAddress, _this.bypassPrivateRouteAddress));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is NetworkProps&&(identical(other.systemProxy, _this.systemProxy) || other.systemProxy == _this.systemProxy)&&const DeepCollectionEquality().equals(other.bypassDomain, _this.bypassDomain)&&(identical(other.bypassPrivateRoute, _this.bypassPrivateRoute) || other.bypassPrivateRoute == _this.bypassPrivateRoute)&&const DeepCollectionEquality().equals(other.bypassPrivateRouteAddress, _this.bypassPrivateRouteAddress)&&(identical(other.profileSwitchMode, _this.profileSwitchMode) || other.profileSwitchMode == _this.profileSwitchMode));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
 int get hashCode {
   final _this = this as NetworkProps;
-  return Object.hash(runtimeType,_this.systemProxy,const DeepCollectionEquality().hash(_this.bypassDomain),_this.bypassPrivateRoute,const DeepCollectionEquality().hash(_this.bypassPrivateRouteAddress));
+  return Object.hash(runtimeType,_this.systemProxy,const DeepCollectionEquality().hash(_this.bypassDomain),_this.bypassPrivateRoute,const DeepCollectionEquality().hash(_this.bypassPrivateRouteAddress),_this.profileSwitchMode);
 }
 
 @override
 String toString() {
   final _this = this as NetworkProps;
-  return 'NetworkProps(systemProxy: ${_this.systemProxy}, bypassDomain: ${_this.bypassDomain}, bypassPrivateRoute: ${_this.bypassPrivateRoute}, bypassPrivateRouteAddress: ${_this.bypassPrivateRouteAddress})';
+  return 'NetworkProps(systemProxy: ${_this.systemProxy}, bypassDomain: ${_this.bypassDomain}, bypassPrivateRoute: ${_this.bypassPrivateRoute}, bypassPrivateRouteAddress: ${_this.bypassPrivateRouteAddress}, profileSwitchMode: ${_this.profileSwitchMode})';
 }
 
 
@@ -1497,7 +1494,7 @@ abstract mixin class $NetworkPropsCopyWith<$Res>  {
   factory $NetworkPropsCopyWith(NetworkProps value, $Res Function(NetworkProps) _then) = _$NetworkPropsCopyWithImpl;
 @useResult
 $Res call({
- bool systemProxy,@JsonKey(fromJson: bypassDomainSafeFromJson) List<String> bypassDomain, bool bypassPrivateRoute, List<String> bypassPrivateRouteAddress
+ bool systemProxy,@JsonKey(fromJson: bypassDomainSafeFromJson) List<String> bypassDomain, bool bypassPrivateRoute, List<String> bypassPrivateRouteAddress, ProfileSwitchMode profileSwitchMode
 });
 
 
@@ -1514,13 +1511,14 @@ class _$NetworkPropsCopyWithImpl<$Res>
 
 /// Create a copy of NetworkProps
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? systemProxy = null,Object? bypassDomain = null,Object? bypassPrivateRoute = null,Object? bypassPrivateRouteAddress = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? systemProxy = null,Object? bypassDomain = null,Object? bypassPrivateRoute = null,Object? bypassPrivateRouteAddress = null,Object? profileSwitchMode = null,}) {
   return _then(NetworkProps(
 systemProxy: null == systemProxy ? _self.systemProxy : systemProxy // ignore: cast_nullable_to_non_nullable
 as bool,bypassDomain: null == bypassDomain ? _self.bypassDomain : bypassDomain // ignore: cast_nullable_to_non_nullable
 as List<String>,bypassPrivateRoute: null == bypassPrivateRoute ? _self.bypassPrivateRoute : bypassPrivateRoute // ignore: cast_nullable_to_non_nullable
 as bool,bypassPrivateRouteAddress: null == bypassPrivateRouteAddress ? _self.bypassPrivateRouteAddress : bypassPrivateRouteAddress // ignore: cast_nullable_to_non_nullable
-as List<String>,
+as List<String>,profileSwitchMode: null == profileSwitchMode ? _self.profileSwitchMode : profileSwitchMode // ignore: cast_nullable_to_non_nullable
+as ProfileSwitchMode,
   ));
 }
 
@@ -1605,10 +1603,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( bool systemProxy, @JsonKey(fromJson: bypassDomainSafeFromJson)  List<String> bypassDomain,  bool bypassPrivateRoute,  List<String> bypassPrivateRouteAddress)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( bool systemProxy, @JsonKey(fromJson: bypassDomainSafeFromJson)  List<String> bypassDomain,  bool bypassPrivateRoute,  List<String> bypassPrivateRouteAddress,  ProfileSwitchMode profileSwitchMode)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _NetworkProps() when $default != null:
-return $default(_that.systemProxy,_that.bypassDomain,_that.bypassPrivateRoute,_that.bypassPrivateRouteAddress);case _:
+return $default(_that.systemProxy,_that.bypassDomain,_that.bypassPrivateRoute,_that.bypassPrivateRouteAddress,_that.profileSwitchMode);case _:
   return orElse();
 
 }
@@ -1626,10 +1624,10 @@ return $default(_that.systemProxy,_that.bypassDomain,_that.bypassPrivateRoute,_t
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( bool systemProxy, @JsonKey(fromJson: bypassDomainSafeFromJson)  List<String> bypassDomain,  bool bypassPrivateRoute,  List<String> bypassPrivateRouteAddress)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( bool systemProxy, @JsonKey(fromJson: bypassDomainSafeFromJson)  List<String> bypassDomain,  bool bypassPrivateRoute,  List<String> bypassPrivateRouteAddress,  ProfileSwitchMode profileSwitchMode)  $default,) {final _that = this;
 switch (_that) {
 case _NetworkProps():
-return $default(_that.systemProxy,_that.bypassDomain,_that.bypassPrivateRoute,_that.bypassPrivateRouteAddress);case _:
+return $default(_that.systemProxy,_that.bypassDomain,_that.bypassPrivateRoute,_that.bypassPrivateRouteAddress,_that.profileSwitchMode);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -1646,10 +1644,10 @@ return $default(_that.systemProxy,_that.bypassDomain,_that.bypassPrivateRoute,_t
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( bool systemProxy, @JsonKey(fromJson: bypassDomainSafeFromJson)  List<String> bypassDomain,  bool bypassPrivateRoute,  List<String> bypassPrivateRouteAddress)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( bool systemProxy, @JsonKey(fromJson: bypassDomainSafeFromJson)  List<String> bypassDomain,  bool bypassPrivateRoute,  List<String> bypassPrivateRouteAddress,  ProfileSwitchMode profileSwitchMode)?  $default,) {final _that = this;
 switch (_that) {
 case _NetworkProps() when $default != null:
-return $default(_that.systemProxy,_that.bypassDomain,_that.bypassPrivateRoute,_that.bypassPrivateRouteAddress);case _:
+return $default(_that.systemProxy,_that.bypassDomain,_that.bypassPrivateRoute,_that.bypassPrivateRouteAddress,_that.profileSwitchMode);case _:
   return null;
 
 }
@@ -1661,7 +1659,7 @@ return $default(_that.systemProxy,_that.bypassDomain,_that.bypassPrivateRoute,_t
 @JsonSerializable()
 
 class _NetworkProps implements NetworkProps {
-  const _NetworkProps({this.systemProxy = true, @JsonKey(fromJson: bypassDomainSafeFromJson)  List<String> bypassDomain = defaultBypassDomain, this.bypassPrivateRoute = true,  List<String> bypassPrivateRouteAddress = const []}): _bypassDomain = bypassDomain,_bypassPrivateRouteAddress = bypassPrivateRouteAddress;
+  const _NetworkProps({this.systemProxy = true, @JsonKey(fromJson: bypassDomainSafeFromJson)  List<String> bypassDomain = defaultBypassDomain, this.bypassPrivateRoute = true,  List<String> bypassPrivateRouteAddress = const [], this.profileSwitchMode = ProfileSwitchMode.hotReload}): _bypassDomain = bypassDomain,_bypassPrivateRouteAddress = bypassPrivateRouteAddress;
   factory _NetworkProps.fromJson(Map<String, dynamic> json) => _$NetworkPropsFromJson(json);
 
 @override@JsonKey() final  bool systemProxy;
@@ -1680,6 +1678,7 @@ class _NetworkProps implements NetworkProps {
   return EqualUnmodifiableListView(_bypassPrivateRouteAddress);
 }
 
+@override@JsonKey() final  ProfileSwitchMode profileSwitchMode;
 
 /// Create a copy of NetworkProps
 /// with the given fields replaced by the non-null parameter values.
@@ -1694,18 +1693,18 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _NetworkProps&&(identical(other.systemProxy, systemProxy) || other.systemProxy == systemProxy)&&const DeepCollectionEquality().equals(other.bypassDomain, _bypassDomain)&&(identical(other.bypassPrivateRoute, bypassPrivateRoute) || other.bypassPrivateRoute == bypassPrivateRoute)&&const DeepCollectionEquality().equals(other.bypassPrivateRouteAddress, _bypassPrivateRouteAddress));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _NetworkProps&&(identical(other.systemProxy, systemProxy) || other.systemProxy == systemProxy)&&const DeepCollectionEquality().equals(other.bypassDomain, _bypassDomain)&&(identical(other.bypassPrivateRoute, bypassPrivateRoute) || other.bypassPrivateRoute == bypassPrivateRoute)&&const DeepCollectionEquality().equals(other.bypassPrivateRouteAddress, _bypassPrivateRouteAddress)&&(identical(other.profileSwitchMode, profileSwitchMode) || other.profileSwitchMode == profileSwitchMode));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
 int get hashCode {
-    return Object.hash(runtimeType,systemProxy,const DeepCollectionEquality().hash(_bypassDomain),bypassPrivateRoute,const DeepCollectionEquality().hash(_bypassPrivateRouteAddress));
+    return Object.hash(runtimeType,systemProxy,const DeepCollectionEquality().hash(_bypassDomain),bypassPrivateRoute,const DeepCollectionEquality().hash(_bypassPrivateRouteAddress),profileSwitchMode);
 }
 
 @override
 String toString() {
-    return 'NetworkProps(systemProxy: $systemProxy, bypassDomain: $bypassDomain, bypassPrivateRoute: $bypassPrivateRoute, bypassPrivateRouteAddress: $bypassPrivateRouteAddress)';
+    return 'NetworkProps(systemProxy: $systemProxy, bypassDomain: $bypassDomain, bypassPrivateRoute: $bypassPrivateRoute, bypassPrivateRouteAddress: $bypassPrivateRouteAddress, profileSwitchMode: $profileSwitchMode)';
 }
 
 
@@ -1716,7 +1715,7 @@ abstract mixin class _$NetworkPropsCopyWith<$Res> implements $NetworkPropsCopyWi
   factory _$NetworkPropsCopyWith(_NetworkProps value, $Res Function(_NetworkProps) _then) = __$NetworkPropsCopyWithImpl;
 @override @useResult
 $Res call({
- bool systemProxy,@JsonKey(fromJson: bypassDomainSafeFromJson) List<String> bypassDomain, bool bypassPrivateRoute, List<String> bypassPrivateRouteAddress
+ bool systemProxy,@JsonKey(fromJson: bypassDomainSafeFromJson) List<String> bypassDomain, bool bypassPrivateRoute, List<String> bypassPrivateRouteAddress, ProfileSwitchMode profileSwitchMode
 });
 
 
@@ -1733,13 +1732,14 @@ class __$NetworkPropsCopyWithImpl<$Res>
 
 /// Create a copy of NetworkProps
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? systemProxy = null,Object? bypassDomain = null,Object? bypassPrivateRoute = null,Object? bypassPrivateRouteAddress = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? systemProxy = null,Object? bypassDomain = null,Object? bypassPrivateRoute = null,Object? bypassPrivateRouteAddress = null,Object? profileSwitchMode = null,}) {
   return _then(_NetworkProps(
 systemProxy: null == systemProxy ? _self.systemProxy : systemProxy // ignore: cast_nullable_to_non_nullable
 as bool,bypassDomain: null == bypassDomain ? _self._bypassDomain : bypassDomain // ignore: cast_nullable_to_non_nullable
 as List<String>,bypassPrivateRoute: null == bypassPrivateRoute ? _self.bypassPrivateRoute : bypassPrivateRoute // ignore: cast_nullable_to_non_nullable
 as bool,bypassPrivateRouteAddress: null == bypassPrivateRouteAddress ? _self._bypassPrivateRouteAddress : bypassPrivateRouteAddress // ignore: cast_nullable_to_non_nullable
-as List<String>,
+as List<String>,profileSwitchMode: null == profileSwitchMode ? _self.profileSwitchMode : profileSwitchMode // ignore: cast_nullable_to_non_nullable
+as ProfileSwitchMode,
   ));
 }
 
@@ -1750,7 +1750,7 @@ as List<String>,
 /// @nodoc
 mixin _$ProxiesStyle {
 
- ProxiesType get type; ProxiesSortType get sortType; ProxiesLayout get layout; ProxiesIconStyle get iconStyle; ProxyCardType get cardType; DelayAnimationType get delayAnimation; bool get syncDelayAnimation; Map<String, String> get iconMap; int get concurrencyLimit; bool get autoStickyHeader; bool get showHiddenItems; bool get hideTimeoutProxies; bool get hasCustomizedStyle;
+ ProxiesType get type; ProxiesSortType get sortType; ProxiesLayout get layout; ProxiesIconStyle get iconStyle; ProxyCardType get cardType; DelayAnimationType get delayAnimation; bool get syncDelayAnimation; Map<String, String> get iconMap;@JsonKey(fromJson: concurrencyLimitFromJson) int get concurrencyLimit; bool get autoStickyHeader; bool get showHiddenItems; bool get hideTimeoutProxies; bool get hasCustomizedStyle;
 /// Create a copy of ProxiesStyle
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -1788,7 +1788,7 @@ abstract mixin class $ProxiesStyleCopyWith<$Res>  {
   factory $ProxiesStyleCopyWith(ProxiesStyle value, $Res Function(ProxiesStyle) _then) = _$ProxiesStyleCopyWithImpl;
 @useResult
 $Res call({
- ProxiesType type, ProxiesSortType sortType, ProxiesLayout layout, ProxiesIconStyle iconStyle, ProxyCardType cardType, DelayAnimationType delayAnimation, bool syncDelayAnimation, Map<String, String> iconMap, int concurrencyLimit, bool autoStickyHeader, bool showHiddenItems, bool hideTimeoutProxies, bool hasCustomizedStyle
+ ProxiesType type, ProxiesSortType sortType, ProxiesLayout layout, ProxiesIconStyle iconStyle, ProxyCardType cardType, DelayAnimationType delayAnimation, bool syncDelayAnimation, Map<String, String> iconMap,@JsonKey(fromJson: concurrencyLimitFromJson) int concurrencyLimit, bool autoStickyHeader, bool showHiddenItems, bool hideTimeoutProxies, bool hasCustomizedStyle
 });
 
 
@@ -1905,7 +1905,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( ProxiesType type,  ProxiesSortType sortType,  ProxiesLayout layout,  ProxiesIconStyle iconStyle,  ProxyCardType cardType,  DelayAnimationType delayAnimation,  bool syncDelayAnimation,  Map<String, String> iconMap,  int concurrencyLimit,  bool autoStickyHeader,  bool showHiddenItems,  bool hideTimeoutProxies,  bool hasCustomizedStyle)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( ProxiesType type,  ProxiesSortType sortType,  ProxiesLayout layout,  ProxiesIconStyle iconStyle,  ProxyCardType cardType,  DelayAnimationType delayAnimation,  bool syncDelayAnimation,  Map<String, String> iconMap, @JsonKey(fromJson: concurrencyLimitFromJson)  int concurrencyLimit,  bool autoStickyHeader,  bool showHiddenItems,  bool hideTimeoutProxies,  bool hasCustomizedStyle)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _ProxiesStyle() when $default != null:
 return $default(_that.type,_that.sortType,_that.layout,_that.iconStyle,_that.cardType,_that.delayAnimation,_that.syncDelayAnimation,_that.iconMap,_that.concurrencyLimit,_that.autoStickyHeader,_that.showHiddenItems,_that.hideTimeoutProxies,_that.hasCustomizedStyle);case _:
@@ -1926,7 +1926,7 @@ return $default(_that.type,_that.sortType,_that.layout,_that.iconStyle,_that.car
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( ProxiesType type,  ProxiesSortType sortType,  ProxiesLayout layout,  ProxiesIconStyle iconStyle,  ProxyCardType cardType,  DelayAnimationType delayAnimation,  bool syncDelayAnimation,  Map<String, String> iconMap,  int concurrencyLimit,  bool autoStickyHeader,  bool showHiddenItems,  bool hideTimeoutProxies,  bool hasCustomizedStyle)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( ProxiesType type,  ProxiesSortType sortType,  ProxiesLayout layout,  ProxiesIconStyle iconStyle,  ProxyCardType cardType,  DelayAnimationType delayAnimation,  bool syncDelayAnimation,  Map<String, String> iconMap, @JsonKey(fromJson: concurrencyLimitFromJson)  int concurrencyLimit,  bool autoStickyHeader,  bool showHiddenItems,  bool hideTimeoutProxies,  bool hasCustomizedStyle)  $default,) {final _that = this;
 switch (_that) {
 case _ProxiesStyle():
 return $default(_that.type,_that.sortType,_that.layout,_that.iconStyle,_that.cardType,_that.delayAnimation,_that.syncDelayAnimation,_that.iconMap,_that.concurrencyLimit,_that.autoStickyHeader,_that.showHiddenItems,_that.hideTimeoutProxies,_that.hasCustomizedStyle);case _:
@@ -1946,7 +1946,7 @@ return $default(_that.type,_that.sortType,_that.layout,_that.iconStyle,_that.car
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( ProxiesType type,  ProxiesSortType sortType,  ProxiesLayout layout,  ProxiesIconStyle iconStyle,  ProxyCardType cardType,  DelayAnimationType delayAnimation,  bool syncDelayAnimation,  Map<String, String> iconMap,  int concurrencyLimit,  bool autoStickyHeader,  bool showHiddenItems,  bool hideTimeoutProxies,  bool hasCustomizedStyle)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( ProxiesType type,  ProxiesSortType sortType,  ProxiesLayout layout,  ProxiesIconStyle iconStyle,  ProxyCardType cardType,  DelayAnimationType delayAnimation,  bool syncDelayAnimation,  Map<String, String> iconMap, @JsonKey(fromJson: concurrencyLimitFromJson)  int concurrencyLimit,  bool autoStickyHeader,  bool showHiddenItems,  bool hideTimeoutProxies,  bool hasCustomizedStyle)?  $default,) {final _that = this;
 switch (_that) {
 case _ProxiesStyle() when $default != null:
 return $default(_that.type,_that.sortType,_that.layout,_that.iconStyle,_that.cardType,_that.delayAnimation,_that.syncDelayAnimation,_that.iconMap,_that.concurrencyLimit,_that.autoStickyHeader,_that.showHiddenItems,_that.hideTimeoutProxies,_that.hasCustomizedStyle);case _:
@@ -1961,7 +1961,7 @@ return $default(_that.type,_that.sortType,_that.layout,_that.iconStyle,_that.car
 @JsonSerializable()
 
 class _ProxiesStyle implements ProxiesStyle {
-  const _ProxiesStyle({this.type = ProxiesType.tab, this.sortType = ProxiesSortType.none, this.layout = ProxiesLayout.standard, this.iconStyle = ProxiesIconStyle.none, this.cardType = ProxyCardType.expand, this.delayAnimation = DelayAnimationType.pulse, this.syncDelayAnimation = true,  Map<String, String> iconMap = const {}, this.concurrencyLimit = 250, this.autoStickyHeader = false, this.showHiddenItems = false, this.hideTimeoutProxies = false, this.hasCustomizedStyle = false}): _iconMap = iconMap;
+  const _ProxiesStyle({this.type = ProxiesType.tab, this.sortType = ProxiesSortType.none, this.layout = ProxiesLayout.standard, this.iconStyle = ProxiesIconStyle.none, this.cardType = ProxyCardType.expand, this.delayAnimation = DelayAnimationType.pulse, this.syncDelayAnimation = true,  Map<String, String> iconMap = const {}, @JsonKey(fromJson: concurrencyLimitFromJson) this.concurrencyLimit = maxDelayTestConcurrency, this.autoStickyHeader = false, this.showHiddenItems = false, this.hideTimeoutProxies = false, this.hasCustomizedStyle = false}): _iconMap = iconMap;
   factory _ProxiesStyle.fromJson(Map<String, dynamic> json) => _$ProxiesStyleFromJson(json);
 
 @override@JsonKey() final  ProxiesType type;
@@ -1978,7 +1978,7 @@ class _ProxiesStyle implements ProxiesStyle {
   return EqualUnmodifiableMapView(_iconMap);
 }
 
-@override@JsonKey() final  int concurrencyLimit;
+@override@JsonKey(fromJson: concurrencyLimitFromJson) final  int concurrencyLimit;
 @override@JsonKey() final  bool autoStickyHeader;
 @override@JsonKey() final  bool showHiddenItems;
 @override@JsonKey() final  bool hideTimeoutProxies;
@@ -2019,7 +2019,7 @@ abstract mixin class _$ProxiesStyleCopyWith<$Res> implements $ProxiesStyleCopyWi
   factory _$ProxiesStyleCopyWith(_ProxiesStyle value, $Res Function(_ProxiesStyle) _then) = __$ProxiesStyleCopyWithImpl;
 @override @useResult
 $Res call({
- ProxiesType type, ProxiesSortType sortType, ProxiesLayout layout, ProxiesIconStyle iconStyle, ProxyCardType cardType, DelayAnimationType delayAnimation, bool syncDelayAnimation, Map<String, String> iconMap, int concurrencyLimit, bool autoStickyHeader, bool showHiddenItems, bool hideTimeoutProxies, bool hasCustomizedStyle
+ ProxiesType type, ProxiesSortType sortType, ProxiesLayout layout, ProxiesIconStyle iconStyle, ProxyCardType cardType, DelayAnimationType delayAnimation, bool syncDelayAnimation, Map<String, String> iconMap,@JsonKey(fromJson: concurrencyLimitFromJson) int concurrencyLimit, bool autoStickyHeader, bool showHiddenItems, bool hideTimeoutProxies, bool hasCustomizedStyle
 });
 
 
@@ -2653,7 +2653,7 @@ $TextScaleCopyWith<$Res> get textScale {
 /// @nodoc
 mixin _$ScriptProps {
 
- String? get currentId; List<Script> get scripts;
+ List<Script> get scripts;
 /// Create a copy of ScriptProps
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -2667,20 +2667,20 @@ $ScriptPropsCopyWith<ScriptProps> get copyWith => _$ScriptPropsCopyWithImpl<Scri
 @override
 bool operator ==(Object other) {
   final _this = this as ScriptProps;
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ScriptProps&&(identical(other.currentId, _this.currentId) || other.currentId == _this.currentId)&&const DeepCollectionEquality().equals(other.scripts, _this.scripts));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ScriptProps&&const DeepCollectionEquality().equals(other.scripts, _this.scripts));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
 int get hashCode {
   final _this = this as ScriptProps;
-  return Object.hash(runtimeType,_this.currentId,const DeepCollectionEquality().hash(_this.scripts));
+  return Object.hash(runtimeType,const DeepCollectionEquality().hash(_this.scripts));
 }
 
 @override
 String toString() {
   final _this = this as ScriptProps;
-  return 'ScriptProps(currentId: ${_this.currentId}, scripts: ${_this.scripts})';
+  return 'ScriptProps(scripts: ${_this.scripts})';
 }
 
 
@@ -2691,7 +2691,7 @@ abstract mixin class $ScriptPropsCopyWith<$Res>  {
   factory $ScriptPropsCopyWith(ScriptProps value, $Res Function(ScriptProps) _then) = _$ScriptPropsCopyWithImpl;
 @useResult
 $Res call({
- String? currentId, List<Script> scripts
+ List<Script> scripts
 });
 
 
@@ -2708,10 +2708,9 @@ class _$ScriptPropsCopyWithImpl<$Res>
 
 /// Create a copy of ScriptProps
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? currentId = freezed,Object? scripts = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? scripts = null,}) {
   return _then(ScriptProps(
-currentId: freezed == currentId ? _self.currentId : currentId // ignore: cast_nullable_to_non_nullable
-as String?,scripts: null == scripts ? _self.scripts : scripts // ignore: cast_nullable_to_non_nullable
+scripts: null == scripts ? _self.scripts : scripts // ignore: cast_nullable_to_non_nullable
 as List<Script>,
   ));
 }
@@ -2797,10 +2796,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String? currentId,  List<Script> scripts)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( List<Script> scripts)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _ScriptProps() when $default != null:
-return $default(_that.currentId,_that.scripts);case _:
+return $default(_that.scripts);case _:
   return orElse();
 
 }
@@ -2818,10 +2817,10 @@ return $default(_that.currentId,_that.scripts);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String? currentId,  List<Script> scripts)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( List<Script> scripts)  $default,) {final _that = this;
 switch (_that) {
 case _ScriptProps():
-return $default(_that.currentId,_that.scripts);case _:
+return $default(_that.scripts);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -2838,10 +2837,10 @@ return $default(_that.currentId,_that.scripts);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String? currentId,  List<Script> scripts)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( List<Script> scripts)?  $default,) {final _that = this;
 switch (_that) {
 case _ScriptProps() when $default != null:
-return $default(_that.currentId,_that.scripts);case _:
+return $default(_that.scripts);case _:
   return null;
 
 }
@@ -2853,10 +2852,9 @@ return $default(_that.currentId,_that.scripts);case _:
 @JsonSerializable()
 
 class _ScriptProps implements ScriptProps {
-  const _ScriptProps({this.currentId,  List<Script> scripts = const []}): _scripts = scripts;
+  const _ScriptProps({ List<Script> scripts = const []}): _scripts = scripts;
   factory _ScriptProps.fromJson(Map<String, dynamic> json) => _$ScriptPropsFromJson(json);
 
-@override final  String? currentId;
  final  List<Script> _scripts;
 @override@JsonKey() List<Script> get scripts {
   if (_scripts is EqualUnmodifiableListView) return _scripts;
@@ -2878,18 +2876,18 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _ScriptProps&&(identical(other.currentId, currentId) || other.currentId == currentId)&&const DeepCollectionEquality().equals(other.scripts, _scripts));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _ScriptProps&&const DeepCollectionEquality().equals(other.scripts, _scripts));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
 int get hashCode {
-    return Object.hash(runtimeType,currentId,const DeepCollectionEquality().hash(_scripts));
+    return Object.hash(runtimeType,const DeepCollectionEquality().hash(_scripts));
 }
 
 @override
 String toString() {
-    return 'ScriptProps(currentId: $currentId, scripts: $scripts)';
+    return 'ScriptProps(scripts: $scripts)';
 }
 
 
@@ -2900,7 +2898,7 @@ abstract mixin class _$ScriptPropsCopyWith<$Res> implements $ScriptPropsCopyWith
   factory _$ScriptPropsCopyWith(_ScriptProps value, $Res Function(_ScriptProps) _then) = __$ScriptPropsCopyWithImpl;
 @override @useResult
 $Res call({
- String? currentId, List<Script> scripts
+ List<Script> scripts
 });
 
 
@@ -2917,11 +2915,598 @@ class __$ScriptPropsCopyWithImpl<$Res>
 
 /// Create a copy of ScriptProps
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? currentId = freezed,Object? scripts = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? scripts = null,}) {
   return _then(_ScriptProps(
-currentId: freezed == currentId ? _self.currentId : currentId // ignore: cast_nullable_to_non_nullable
-as String?,scripts: null == scripts ? _self._scripts : scripts // ignore: cast_nullable_to_non_nullable
+scripts: null == scripts ? _self._scripts : scripts // ignore: cast_nullable_to_non_nullable
 as List<Script>,
+  ));
+}
+
+
+}
+
+
+/// @nodoc
+mixin _$CustomRoute {
+
+ String get id; String get name; String? get icon; List<String> get sets; String? get target; bool get enabled;
+/// Create a copy of CustomRoute
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$CustomRouteCopyWith<CustomRoute> get copyWith => _$CustomRouteCopyWithImpl<CustomRoute>(this as CustomRoute, _$identity);
+
+  /// Serializes this CustomRoute to a JSON map.
+  Map<String, dynamic> toJson();
+
+
+@override
+bool operator ==(Object other) {
+  final _this = this as CustomRoute;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is CustomRoute&&(identical(other.id, _this.id) || other.id == _this.id)&&(identical(other.name, _this.name) || other.name == _this.name)&&(identical(other.icon, _this.icon) || other.icon == _this.icon)&&const DeepCollectionEquality().equals(other.sets, _this.sets)&&(identical(other.target, _this.target) || other.target == _this.target)&&(identical(other.enabled, _this.enabled) || other.enabled == _this.enabled));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode {
+  final _this = this as CustomRoute;
+  return Object.hash(runtimeType,_this.id,_this.name,_this.icon,const DeepCollectionEquality().hash(_this.sets),_this.target,_this.enabled);
+}
+
+@override
+String toString() {
+  final _this = this as CustomRoute;
+  return 'CustomRoute(id: ${_this.id}, name: ${_this.name}, icon: ${_this.icon}, sets: ${_this.sets}, target: ${_this.target}, enabled: ${_this.enabled})';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $CustomRouteCopyWith<$Res>  {
+  factory $CustomRouteCopyWith(CustomRoute value, $Res Function(CustomRoute) _then) = _$CustomRouteCopyWithImpl;
+@useResult
+$Res call({
+ String id, String name, String? icon, List<String> sets, String? target, bool enabled
+});
+
+
+
+
+}
+/// @nodoc
+class _$CustomRouteCopyWithImpl<$Res>
+    implements $CustomRouteCopyWith<$Res> {
+  _$CustomRouteCopyWithImpl(this._self, this._then);
+
+  final CustomRoute _self;
+  final $Res Function(CustomRoute) _then;
+
+/// Create a copy of CustomRoute
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? name = null,Object? icon = freezed,Object? sets = null,Object? target = freezed,Object? enabled = null,}) {
+  return _then(CustomRoute(
+id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
+as String,icon: freezed == icon ? _self.icon : icon // ignore: cast_nullable_to_non_nullable
+as String?,sets: null == sets ? _self.sets : sets // ignore: cast_nullable_to_non_nullable
+as List<String>,target: freezed == target ? _self.target : target // ignore: cast_nullable_to_non_nullable
+as String?,enabled: null == enabled ? _self.enabled : enabled // ignore: cast_nullable_to_non_nullable
+as bool,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [CustomRoute].
+extension CustomRoutePatterns on CustomRoute {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _CustomRoute value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _CustomRoute() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _CustomRoute value)  $default,){
+final _that = this;
+switch (_that) {
+case _CustomRoute():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _CustomRoute value)?  $default,){
+final _that = this;
+switch (_that) {
+case _CustomRoute() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String name,  String? icon,  List<String> sets,  String? target,  bool enabled)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _CustomRoute() when $default != null:
+return $default(_that.id,_that.name,_that.icon,_that.sets,_that.target,_that.enabled);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String name,  String? icon,  List<String> sets,  String? target,  bool enabled)  $default,) {final _that = this;
+switch (_that) {
+case _CustomRoute():
+return $default(_that.id,_that.name,_that.icon,_that.sets,_that.target,_that.enabled);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String name,  String? icon,  List<String> sets,  String? target,  bool enabled)?  $default,) {final _that = this;
+switch (_that) {
+case _CustomRoute() when $default != null:
+return $default(_that.id,_that.name,_that.icon,_that.sets,_that.target,_that.enabled);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+@JsonSerializable()
+
+class _CustomRoute implements CustomRoute {
+  const _CustomRoute({required this.id, required this.name, this.icon,  List<String> sets = const [], this.target, this.enabled = true}): _sets = sets;
+  factory _CustomRoute.fromJson(Map<String, dynamic> json) => _$CustomRouteFromJson(json);
+
+@override final  String id;
+@override final  String name;
+@override final  String? icon;
+ final  List<String> _sets;
+@override@JsonKey() List<String> get sets {
+  if (_sets is EqualUnmodifiableListView) return _sets;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_sets);
+}
+
+@override final  String? target;
+@override@JsonKey() final  bool enabled;
+
+/// Create a copy of CustomRoute
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$CustomRouteCopyWith<_CustomRoute> get copyWith => __$CustomRouteCopyWithImpl<_CustomRoute>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$CustomRouteToJson(this, );
+}
+
+@override
+bool operator ==(Object other) {
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _CustomRoute&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.icon, icon) || other.icon == icon)&&const DeepCollectionEquality().equals(other.sets, _sets)&&(identical(other.target, target) || other.target == target)&&(identical(other.enabled, enabled) || other.enabled == enabled));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode {
+    return Object.hash(runtimeType,id,name,icon,const DeepCollectionEquality().hash(_sets),target,enabled);
+}
+
+@override
+String toString() {
+    return 'CustomRoute(id: $id, name: $name, icon: $icon, sets: $sets, target: $target, enabled: $enabled)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$CustomRouteCopyWith<$Res> implements $CustomRouteCopyWith<$Res> {
+  factory _$CustomRouteCopyWith(_CustomRoute value, $Res Function(_CustomRoute) _then) = __$CustomRouteCopyWithImpl;
+@override @useResult
+$Res call({
+ String id, String name, String? icon, List<String> sets, String? target, bool enabled
+});
+
+
+
+
+}
+/// @nodoc
+class __$CustomRouteCopyWithImpl<$Res>
+    implements _$CustomRouteCopyWith<$Res> {
+  __$CustomRouteCopyWithImpl(this._self, this._then);
+
+  final _CustomRoute _self;
+  final $Res Function(_CustomRoute) _then;
+
+/// Create a copy of CustomRoute
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? name = null,Object? icon = freezed,Object? sets = null,Object? target = freezed,Object? enabled = null,}) {
+  return _then(_CustomRoute(
+id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
+as String,icon: freezed == icon ? _self.icon : icon // ignore: cast_nullable_to_non_nullable
+as String?,sets: null == sets ? _self._sets : sets // ignore: cast_nullable_to_non_nullable
+as List<String>,target: freezed == target ? _self.target : target // ignore: cast_nullable_to_non_nullable
+as String?,enabled: null == enabled ? _self.enabled : enabled // ignore: cast_nullable_to_non_nullable
+as bool,
+  ));
+}
+
+
+}
+
+
+/// @nodoc
+mixin _$ManagedProps {
+
+ Map<String, bool> get options; String? get syncedVersion; List<CustomRoute> get routes; List<String> get order;
+/// Create a copy of ManagedProps
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$ManagedPropsCopyWith<ManagedProps> get copyWith => _$ManagedPropsCopyWithImpl<ManagedProps>(this as ManagedProps, _$identity);
+
+  /// Serializes this ManagedProps to a JSON map.
+  Map<String, dynamic> toJson();
+
+
+@override
+bool operator ==(Object other) {
+  final _this = this as ManagedProps;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ManagedProps&&const DeepCollectionEquality().equals(other.options, _this.options)&&(identical(other.syncedVersion, _this.syncedVersion) || other.syncedVersion == _this.syncedVersion)&&const DeepCollectionEquality().equals(other.routes, _this.routes)&&const DeepCollectionEquality().equals(other.order, _this.order));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode {
+  final _this = this as ManagedProps;
+  return Object.hash(runtimeType,const DeepCollectionEquality().hash(_this.options),_this.syncedVersion,const DeepCollectionEquality().hash(_this.routes),const DeepCollectionEquality().hash(_this.order));
+}
+
+@override
+String toString() {
+  final _this = this as ManagedProps;
+  return 'ManagedProps(options: ${_this.options}, syncedVersion: ${_this.syncedVersion}, routes: ${_this.routes}, order: ${_this.order})';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $ManagedPropsCopyWith<$Res>  {
+  factory $ManagedPropsCopyWith(ManagedProps value, $Res Function(ManagedProps) _then) = _$ManagedPropsCopyWithImpl;
+@useResult
+$Res call({
+ Map<String, bool> options, String? syncedVersion, List<CustomRoute> routes, List<String> order
+});
+
+
+
+
+}
+/// @nodoc
+class _$ManagedPropsCopyWithImpl<$Res>
+    implements $ManagedPropsCopyWith<$Res> {
+  _$ManagedPropsCopyWithImpl(this._self, this._then);
+
+  final ManagedProps _self;
+  final $Res Function(ManagedProps) _then;
+
+/// Create a copy of ManagedProps
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? options = null,Object? syncedVersion = freezed,Object? routes = null,Object? order = null,}) {
+  return _then(ManagedProps(
+options: null == options ? _self.options : options // ignore: cast_nullable_to_non_nullable
+as Map<String, bool>,syncedVersion: freezed == syncedVersion ? _self.syncedVersion : syncedVersion // ignore: cast_nullable_to_non_nullable
+as String?,routes: null == routes ? _self.routes : routes // ignore: cast_nullable_to_non_nullable
+as List<CustomRoute>,order: null == order ? _self.order : order // ignore: cast_nullable_to_non_nullable
+as List<String>,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [ManagedProps].
+extension ManagedPropsPatterns on ManagedProps {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _ManagedProps value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _ManagedProps() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _ManagedProps value)  $default,){
+final _that = this;
+switch (_that) {
+case _ManagedProps():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _ManagedProps value)?  $default,){
+final _that = this;
+switch (_that) {
+case _ManagedProps() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( Map<String, bool> options,  String? syncedVersion,  List<CustomRoute> routes,  List<String> order)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _ManagedProps() when $default != null:
+return $default(_that.options,_that.syncedVersion,_that.routes,_that.order);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( Map<String, bool> options,  String? syncedVersion,  List<CustomRoute> routes,  List<String> order)  $default,) {final _that = this;
+switch (_that) {
+case _ManagedProps():
+return $default(_that.options,_that.syncedVersion,_that.routes,_that.order);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( Map<String, bool> options,  String? syncedVersion,  List<CustomRoute> routes,  List<String> order)?  $default,) {final _that = this;
+switch (_that) {
+case _ManagedProps() when $default != null:
+return $default(_that.options,_that.syncedVersion,_that.routes,_that.order);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+@JsonSerializable()
+
+class _ManagedProps implements ManagedProps {
+  const _ManagedProps({ Map<String, bool> options = const {}, this.syncedVersion,  List<CustomRoute> routes = const [],  List<String> order = const []}): _options = options,_routes = routes,_order = order;
+  factory _ManagedProps.fromJson(Map<String, dynamic> json) => _$ManagedPropsFromJson(json);
+
+ final  Map<String, bool> _options;
+@override@JsonKey() Map<String, bool> get options {
+  if (_options is EqualUnmodifiableMapView) return _options;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableMapView(_options);
+}
+
+@override final  String? syncedVersion;
+ final  List<CustomRoute> _routes;
+@override@JsonKey() List<CustomRoute> get routes {
+  if (_routes is EqualUnmodifiableListView) return _routes;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_routes);
+}
+
+ final  List<String> _order;
+@override@JsonKey() List<String> get order {
+  if (_order is EqualUnmodifiableListView) return _order;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_order);
+}
+
+
+/// Create a copy of ManagedProps
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$ManagedPropsCopyWith<_ManagedProps> get copyWith => __$ManagedPropsCopyWithImpl<_ManagedProps>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$ManagedPropsToJson(this, );
+}
+
+@override
+bool operator ==(Object other) {
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _ManagedProps&&const DeepCollectionEquality().equals(other.options, _options)&&(identical(other.syncedVersion, syncedVersion) || other.syncedVersion == syncedVersion)&&const DeepCollectionEquality().equals(other.routes, _routes)&&const DeepCollectionEquality().equals(other.order, _order));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode {
+    return Object.hash(runtimeType,const DeepCollectionEquality().hash(_options),syncedVersion,const DeepCollectionEquality().hash(_routes),const DeepCollectionEquality().hash(_order));
+}
+
+@override
+String toString() {
+    return 'ManagedProps(options: $options, syncedVersion: $syncedVersion, routes: $routes, order: $order)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$ManagedPropsCopyWith<$Res> implements $ManagedPropsCopyWith<$Res> {
+  factory _$ManagedPropsCopyWith(_ManagedProps value, $Res Function(_ManagedProps) _then) = __$ManagedPropsCopyWithImpl;
+@override @useResult
+$Res call({
+ Map<String, bool> options, String? syncedVersion, List<CustomRoute> routes, List<String> order
+});
+
+
+
+
+}
+/// @nodoc
+class __$ManagedPropsCopyWithImpl<$Res>
+    implements _$ManagedPropsCopyWith<$Res> {
+  __$ManagedPropsCopyWithImpl(this._self, this._then);
+
+  final _ManagedProps _self;
+  final $Res Function(_ManagedProps) _then;
+
+/// Create a copy of ManagedProps
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? options = null,Object? syncedVersion = freezed,Object? routes = null,Object? order = null,}) {
+  return _then(_ManagedProps(
+options: null == options ? _self._options : options // ignore: cast_nullable_to_non_nullable
+as Map<String, bool>,syncedVersion: freezed == syncedVersion ? _self.syncedVersion : syncedVersion // ignore: cast_nullable_to_non_nullable
+as String?,routes: null == routes ? _self._routes : routes // ignore: cast_nullable_to_non_nullable
+as List<CustomRoute>,order: null == order ? _self._order : order // ignore: cast_nullable_to_non_nullable
+as List<String>,
   ));
 }
 
@@ -2932,7 +3517,7 @@ as List<Script>,
 /// @nodoc
 mixin _$Config {
 
-@JsonKey(fromJson: AppSettingProps.safeFromJson) AppSettingProps get appSetting; List<Profile> get profiles; List<HotKeyAction> get hotKeyActions; String? get currentProfileId; bool get overrideDns; bool get overrideNtp; bool get overrideSniffer; bool get overrideTunnel; bool get overrideExperimental; bool get overrideTestUrl; DAV? get dav; NetworkProps get networkProps;@JsonKey(fromJson: VpnProps.safeFromJson) VpnProps get vpnProps;@JsonKey(fromJson: ThemeProps.safeFromJson) ThemeProps get themeProps; ProxiesStyle get proxiesStyle; TrafficStatsProps get trafficStatsProps; WindowProps get windowProps;@JsonKey(fromJson: ClashConfig.safeFormJson) ClashConfig get patchClashConfig; ScriptProps get scriptProps; String get nodeExcludeFilter; int get healthCheckTimeout;
+@JsonKey(fromJson: AppSettingProps.safeFromJson) AppSettingProps get appSetting; List<Profile> get profiles; List<HotKeyAction> get hotKeyActions; String? get currentProfileId; bool get overrideDns; bool get overrideNtp; bool get overrideSniffer; bool get overrideTunnel; bool get overrideExperimental; bool get overrideTestUrl; DAV? get dav; NetworkProps get networkProps;@JsonKey(fromJson: VpnProps.safeFromJson) VpnProps get vpnProps;@JsonKey(fromJson: ThemeProps.safeFromJson) ThemeProps get themeProps; ProxiesStyle get proxiesStyle; TrafficStatsProps get trafficStatsProps; WindowProps get windowProps;@JsonKey(fromJson: ClashConfig.safeFormJson) ClashConfig get patchClashConfig; ScriptProps get scriptProps; ManagedProps get managedProps; String get nodeExcludeFilter; int get healthCheckTimeout;
 /// Create a copy of Config
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -2946,20 +3531,20 @@ $ConfigCopyWith<Config> get copyWith => _$ConfigCopyWithImpl<Config>(this as Con
 @override
 bool operator ==(Object other) {
   final _this = this as Config;
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Config&&(identical(other.appSetting, _this.appSetting) || other.appSetting == _this.appSetting)&&const DeepCollectionEquality().equals(other.profiles, _this.profiles)&&const DeepCollectionEquality().equals(other.hotKeyActions, _this.hotKeyActions)&&(identical(other.currentProfileId, _this.currentProfileId) || other.currentProfileId == _this.currentProfileId)&&(identical(other.overrideDns, _this.overrideDns) || other.overrideDns == _this.overrideDns)&&(identical(other.overrideNtp, _this.overrideNtp) || other.overrideNtp == _this.overrideNtp)&&(identical(other.overrideSniffer, _this.overrideSniffer) || other.overrideSniffer == _this.overrideSniffer)&&(identical(other.overrideTunnel, _this.overrideTunnel) || other.overrideTunnel == _this.overrideTunnel)&&(identical(other.overrideExperimental, _this.overrideExperimental) || other.overrideExperimental == _this.overrideExperimental)&&(identical(other.overrideTestUrl, _this.overrideTestUrl) || other.overrideTestUrl == _this.overrideTestUrl)&&(identical(other.dav, _this.dav) || other.dav == _this.dav)&&(identical(other.networkProps, _this.networkProps) || other.networkProps == _this.networkProps)&&(identical(other.vpnProps, _this.vpnProps) || other.vpnProps == _this.vpnProps)&&(identical(other.themeProps, _this.themeProps) || other.themeProps == _this.themeProps)&&(identical(other.proxiesStyle, _this.proxiesStyle) || other.proxiesStyle == _this.proxiesStyle)&&(identical(other.trafficStatsProps, _this.trafficStatsProps) || other.trafficStatsProps == _this.trafficStatsProps)&&(identical(other.windowProps, _this.windowProps) || other.windowProps == _this.windowProps)&&(identical(other.patchClashConfig, _this.patchClashConfig) || other.patchClashConfig == _this.patchClashConfig)&&(identical(other.scriptProps, _this.scriptProps) || other.scriptProps == _this.scriptProps)&&(identical(other.nodeExcludeFilter, _this.nodeExcludeFilter) || other.nodeExcludeFilter == _this.nodeExcludeFilter)&&(identical(other.healthCheckTimeout, _this.healthCheckTimeout) || other.healthCheckTimeout == _this.healthCheckTimeout));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Config&&(identical(other.appSetting, _this.appSetting) || other.appSetting == _this.appSetting)&&const DeepCollectionEquality().equals(other.profiles, _this.profiles)&&const DeepCollectionEquality().equals(other.hotKeyActions, _this.hotKeyActions)&&(identical(other.currentProfileId, _this.currentProfileId) || other.currentProfileId == _this.currentProfileId)&&(identical(other.overrideDns, _this.overrideDns) || other.overrideDns == _this.overrideDns)&&(identical(other.overrideNtp, _this.overrideNtp) || other.overrideNtp == _this.overrideNtp)&&(identical(other.overrideSniffer, _this.overrideSniffer) || other.overrideSniffer == _this.overrideSniffer)&&(identical(other.overrideTunnel, _this.overrideTunnel) || other.overrideTunnel == _this.overrideTunnel)&&(identical(other.overrideExperimental, _this.overrideExperimental) || other.overrideExperimental == _this.overrideExperimental)&&(identical(other.overrideTestUrl, _this.overrideTestUrl) || other.overrideTestUrl == _this.overrideTestUrl)&&(identical(other.dav, _this.dav) || other.dav == _this.dav)&&(identical(other.networkProps, _this.networkProps) || other.networkProps == _this.networkProps)&&(identical(other.vpnProps, _this.vpnProps) || other.vpnProps == _this.vpnProps)&&(identical(other.themeProps, _this.themeProps) || other.themeProps == _this.themeProps)&&(identical(other.proxiesStyle, _this.proxiesStyle) || other.proxiesStyle == _this.proxiesStyle)&&(identical(other.trafficStatsProps, _this.trafficStatsProps) || other.trafficStatsProps == _this.trafficStatsProps)&&(identical(other.windowProps, _this.windowProps) || other.windowProps == _this.windowProps)&&(identical(other.patchClashConfig, _this.patchClashConfig) || other.patchClashConfig == _this.patchClashConfig)&&(identical(other.scriptProps, _this.scriptProps) || other.scriptProps == _this.scriptProps)&&(identical(other.managedProps, _this.managedProps) || other.managedProps == _this.managedProps)&&(identical(other.nodeExcludeFilter, _this.nodeExcludeFilter) || other.nodeExcludeFilter == _this.nodeExcludeFilter)&&(identical(other.healthCheckTimeout, _this.healthCheckTimeout) || other.healthCheckTimeout == _this.healthCheckTimeout));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
 int get hashCode {
   final _this = this as Config;
-  return Object.hashAll([runtimeType,_this.appSetting,const DeepCollectionEquality().hash(_this.profiles),const DeepCollectionEquality().hash(_this.hotKeyActions),_this.currentProfileId,_this.overrideDns,_this.overrideNtp,_this.overrideSniffer,_this.overrideTunnel,_this.overrideExperimental,_this.overrideTestUrl,_this.dav,_this.networkProps,_this.vpnProps,_this.themeProps,_this.proxiesStyle,_this.trafficStatsProps,_this.windowProps,_this.patchClashConfig,_this.scriptProps,_this.nodeExcludeFilter,_this.healthCheckTimeout]);
+  return Object.hashAll([runtimeType,_this.appSetting,const DeepCollectionEquality().hash(_this.profiles),const DeepCollectionEquality().hash(_this.hotKeyActions),_this.currentProfileId,_this.overrideDns,_this.overrideNtp,_this.overrideSniffer,_this.overrideTunnel,_this.overrideExperimental,_this.overrideTestUrl,_this.dav,_this.networkProps,_this.vpnProps,_this.themeProps,_this.proxiesStyle,_this.trafficStatsProps,_this.windowProps,_this.patchClashConfig,_this.scriptProps,_this.managedProps,_this.nodeExcludeFilter,_this.healthCheckTimeout]);
 }
 
 @override
 String toString() {
   final _this = this as Config;
-  return 'Config(appSetting: ${_this.appSetting}, profiles: ${_this.profiles}, hotKeyActions: ${_this.hotKeyActions}, currentProfileId: ${_this.currentProfileId}, overrideDns: ${_this.overrideDns}, overrideNtp: ${_this.overrideNtp}, overrideSniffer: ${_this.overrideSniffer}, overrideTunnel: ${_this.overrideTunnel}, overrideExperimental: ${_this.overrideExperimental}, overrideTestUrl: ${_this.overrideTestUrl}, dav: ${_this.dav}, networkProps: ${_this.networkProps}, vpnProps: ${_this.vpnProps}, themeProps: ${_this.themeProps}, proxiesStyle: ${_this.proxiesStyle}, trafficStatsProps: ${_this.trafficStatsProps}, windowProps: ${_this.windowProps}, patchClashConfig: ${_this.patchClashConfig}, scriptProps: ${_this.scriptProps}, nodeExcludeFilter: ${_this.nodeExcludeFilter}, healthCheckTimeout: ${_this.healthCheckTimeout})';
+  return 'Config(appSetting: ${_this.appSetting}, profiles: ${_this.profiles}, hotKeyActions: ${_this.hotKeyActions}, currentProfileId: ${_this.currentProfileId}, overrideDns: ${_this.overrideDns}, overrideNtp: ${_this.overrideNtp}, overrideSniffer: ${_this.overrideSniffer}, overrideTunnel: ${_this.overrideTunnel}, overrideExperimental: ${_this.overrideExperimental}, overrideTestUrl: ${_this.overrideTestUrl}, dav: ${_this.dav}, networkProps: ${_this.networkProps}, vpnProps: ${_this.vpnProps}, themeProps: ${_this.themeProps}, proxiesStyle: ${_this.proxiesStyle}, trafficStatsProps: ${_this.trafficStatsProps}, windowProps: ${_this.windowProps}, patchClashConfig: ${_this.patchClashConfig}, scriptProps: ${_this.scriptProps}, managedProps: ${_this.managedProps}, nodeExcludeFilter: ${_this.nodeExcludeFilter}, healthCheckTimeout: ${_this.healthCheckTimeout})';
 }
 
 
@@ -2970,11 +3555,11 @@ abstract mixin class $ConfigCopyWith<$Res>  {
   factory $ConfigCopyWith(Config value, $Res Function(Config) _then) = _$ConfigCopyWithImpl;
 @useResult
 $Res call({
-@JsonKey(fromJson: AppSettingProps.safeFromJson) AppSettingProps appSetting, List<Profile> profiles, List<HotKeyAction> hotKeyActions, String? currentProfileId, bool overrideDns, bool overrideNtp, bool overrideSniffer, bool overrideTunnel, bool overrideExperimental, bool overrideTestUrl, DAV? dav, NetworkProps networkProps,@JsonKey(fromJson: VpnProps.safeFromJson) VpnProps vpnProps,@JsonKey(fromJson: ThemeProps.safeFromJson) ThemeProps themeProps, ProxiesStyle proxiesStyle, TrafficStatsProps trafficStatsProps, WindowProps windowProps,@JsonKey(fromJson: ClashConfig.safeFormJson) ClashConfig patchClashConfig, ScriptProps scriptProps, String nodeExcludeFilter, int healthCheckTimeout
+@JsonKey(fromJson: AppSettingProps.safeFromJson) AppSettingProps appSetting, List<Profile> profiles, List<HotKeyAction> hotKeyActions, String? currentProfileId, bool overrideDns, bool overrideNtp, bool overrideSniffer, bool overrideTunnel, bool overrideExperimental, bool overrideTestUrl, DAV? dav, NetworkProps networkProps,@JsonKey(fromJson: VpnProps.safeFromJson) VpnProps vpnProps,@JsonKey(fromJson: ThemeProps.safeFromJson) ThemeProps themeProps, ProxiesStyle proxiesStyle, TrafficStatsProps trafficStatsProps, WindowProps windowProps,@JsonKey(fromJson: ClashConfig.safeFormJson) ClashConfig patchClashConfig, ScriptProps scriptProps, ManagedProps managedProps, String nodeExcludeFilter, int healthCheckTimeout
 });
 
 
-$AppSettingPropsCopyWith<$Res> get appSetting;$DAVCopyWith<$Res>? get dav;$NetworkPropsCopyWith<$Res> get networkProps;$VpnPropsCopyWith<$Res> get vpnProps;$ThemePropsCopyWith<$Res> get themeProps;$ProxiesStyleCopyWith<$Res> get proxiesStyle;$TrafficStatsPropsCopyWith<$Res> get trafficStatsProps;$WindowPropsCopyWith<$Res> get windowProps;$ClashConfigCopyWith<$Res> get patchClashConfig;$ScriptPropsCopyWith<$Res> get scriptProps;
+$AppSettingPropsCopyWith<$Res> get appSetting;$DAVCopyWith<$Res>? get dav;$NetworkPropsCopyWith<$Res> get networkProps;$VpnPropsCopyWith<$Res> get vpnProps;$ThemePropsCopyWith<$Res> get themeProps;$ProxiesStyleCopyWith<$Res> get proxiesStyle;$TrafficStatsPropsCopyWith<$Res> get trafficStatsProps;$WindowPropsCopyWith<$Res> get windowProps;$ClashConfigCopyWith<$Res> get patchClashConfig;$ScriptPropsCopyWith<$Res> get scriptProps;$ManagedPropsCopyWith<$Res> get managedProps;
 
 }
 /// @nodoc
@@ -2987,7 +3572,7 @@ class _$ConfigCopyWithImpl<$Res>
 
 /// Create a copy of Config
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? appSetting = null,Object? profiles = null,Object? hotKeyActions = null,Object? currentProfileId = freezed,Object? overrideDns = null,Object? overrideNtp = null,Object? overrideSniffer = null,Object? overrideTunnel = null,Object? overrideExperimental = null,Object? overrideTestUrl = null,Object? dav = freezed,Object? networkProps = null,Object? vpnProps = null,Object? themeProps = null,Object? proxiesStyle = null,Object? trafficStatsProps = null,Object? windowProps = null,Object? patchClashConfig = null,Object? scriptProps = null,Object? nodeExcludeFilter = null,Object? healthCheckTimeout = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? appSetting = null,Object? profiles = null,Object? hotKeyActions = null,Object? currentProfileId = freezed,Object? overrideDns = null,Object? overrideNtp = null,Object? overrideSniffer = null,Object? overrideTunnel = null,Object? overrideExperimental = null,Object? overrideTestUrl = null,Object? dav = freezed,Object? networkProps = null,Object? vpnProps = null,Object? themeProps = null,Object? proxiesStyle = null,Object? trafficStatsProps = null,Object? windowProps = null,Object? patchClashConfig = null,Object? scriptProps = null,Object? managedProps = null,Object? nodeExcludeFilter = null,Object? healthCheckTimeout = null,}) {
   return _then(Config(
 appSetting: null == appSetting ? _self.appSetting : appSetting // ignore: cast_nullable_to_non_nullable
 as AppSettingProps,profiles: null == profiles ? _self.profiles : profiles // ignore: cast_nullable_to_non_nullable
@@ -3008,7 +3593,8 @@ as ProxiesStyle,trafficStatsProps: null == trafficStatsProps ? _self.trafficStat
 as TrafficStatsProps,windowProps: null == windowProps ? _self.windowProps : windowProps // ignore: cast_nullable_to_non_nullable
 as WindowProps,patchClashConfig: null == patchClashConfig ? _self.patchClashConfig : patchClashConfig // ignore: cast_nullable_to_non_nullable
 as ClashConfig,scriptProps: null == scriptProps ? _self.scriptProps : scriptProps // ignore: cast_nullable_to_non_nullable
-as ScriptProps,nodeExcludeFilter: null == nodeExcludeFilter ? _self.nodeExcludeFilter : nodeExcludeFilter // ignore: cast_nullable_to_non_nullable
+as ScriptProps,managedProps: null == managedProps ? _self.managedProps : managedProps // ignore: cast_nullable_to_non_nullable
+as ManagedProps,nodeExcludeFilter: null == nodeExcludeFilter ? _self.nodeExcludeFilter : nodeExcludeFilter // ignore: cast_nullable_to_non_nullable
 as String,healthCheckTimeout: null == healthCheckTimeout ? _self.healthCheckTimeout : healthCheckTimeout // ignore: cast_nullable_to_non_nullable
 as int,
   ));
@@ -3105,6 +3691,15 @@ $ScriptPropsCopyWith<$Res> get scriptProps {
   
   return $ScriptPropsCopyWith<$Res>(_self.scriptProps, (value) {
     return _then(_self.copyWith(scriptProps: value));
+  });
+}/// Create a copy of Config
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$ManagedPropsCopyWith<$Res> get managedProps {
+  
+  return $ManagedPropsCopyWith<$Res>(_self.managedProps, (value) {
+    return _then(_self.copyWith(managedProps: value));
   });
 }
 }
@@ -3188,10 +3783,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function(@JsonKey(fromJson: AppSettingProps.safeFromJson)  AppSettingProps appSetting,  List<Profile> profiles,  List<HotKeyAction> hotKeyActions,  String? currentProfileId,  bool overrideDns,  bool overrideNtp,  bool overrideSniffer,  bool overrideTunnel,  bool overrideExperimental,  bool overrideTestUrl,  DAV? dav,  NetworkProps networkProps, @JsonKey(fromJson: VpnProps.safeFromJson)  VpnProps vpnProps, @JsonKey(fromJson: ThemeProps.safeFromJson)  ThemeProps themeProps,  ProxiesStyle proxiesStyle,  TrafficStatsProps trafficStatsProps,  WindowProps windowProps, @JsonKey(fromJson: ClashConfig.safeFormJson)  ClashConfig patchClashConfig,  ScriptProps scriptProps,  String nodeExcludeFilter,  int healthCheckTimeout)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function(@JsonKey(fromJson: AppSettingProps.safeFromJson)  AppSettingProps appSetting,  List<Profile> profiles,  List<HotKeyAction> hotKeyActions,  String? currentProfileId,  bool overrideDns,  bool overrideNtp,  bool overrideSniffer,  bool overrideTunnel,  bool overrideExperimental,  bool overrideTestUrl,  DAV? dav,  NetworkProps networkProps, @JsonKey(fromJson: VpnProps.safeFromJson)  VpnProps vpnProps, @JsonKey(fromJson: ThemeProps.safeFromJson)  ThemeProps themeProps,  ProxiesStyle proxiesStyle,  TrafficStatsProps trafficStatsProps,  WindowProps windowProps, @JsonKey(fromJson: ClashConfig.safeFormJson)  ClashConfig patchClashConfig,  ScriptProps scriptProps,  ManagedProps managedProps,  String nodeExcludeFilter,  int healthCheckTimeout)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Config() when $default != null:
-return $default(_that.appSetting,_that.profiles,_that.hotKeyActions,_that.currentProfileId,_that.overrideDns,_that.overrideNtp,_that.overrideSniffer,_that.overrideTunnel,_that.overrideExperimental,_that.overrideTestUrl,_that.dav,_that.networkProps,_that.vpnProps,_that.themeProps,_that.proxiesStyle,_that.trafficStatsProps,_that.windowProps,_that.patchClashConfig,_that.scriptProps,_that.nodeExcludeFilter,_that.healthCheckTimeout);case _:
+return $default(_that.appSetting,_that.profiles,_that.hotKeyActions,_that.currentProfileId,_that.overrideDns,_that.overrideNtp,_that.overrideSniffer,_that.overrideTunnel,_that.overrideExperimental,_that.overrideTestUrl,_that.dav,_that.networkProps,_that.vpnProps,_that.themeProps,_that.proxiesStyle,_that.trafficStatsProps,_that.windowProps,_that.patchClashConfig,_that.scriptProps,_that.managedProps,_that.nodeExcludeFilter,_that.healthCheckTimeout);case _:
   return orElse();
 
 }
@@ -3209,10 +3804,10 @@ return $default(_that.appSetting,_that.profiles,_that.hotKeyActions,_that.curren
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function(@JsonKey(fromJson: AppSettingProps.safeFromJson)  AppSettingProps appSetting,  List<Profile> profiles,  List<HotKeyAction> hotKeyActions,  String? currentProfileId,  bool overrideDns,  bool overrideNtp,  bool overrideSniffer,  bool overrideTunnel,  bool overrideExperimental,  bool overrideTestUrl,  DAV? dav,  NetworkProps networkProps, @JsonKey(fromJson: VpnProps.safeFromJson)  VpnProps vpnProps, @JsonKey(fromJson: ThemeProps.safeFromJson)  ThemeProps themeProps,  ProxiesStyle proxiesStyle,  TrafficStatsProps trafficStatsProps,  WindowProps windowProps, @JsonKey(fromJson: ClashConfig.safeFormJson)  ClashConfig patchClashConfig,  ScriptProps scriptProps,  String nodeExcludeFilter,  int healthCheckTimeout)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function(@JsonKey(fromJson: AppSettingProps.safeFromJson)  AppSettingProps appSetting,  List<Profile> profiles,  List<HotKeyAction> hotKeyActions,  String? currentProfileId,  bool overrideDns,  bool overrideNtp,  bool overrideSniffer,  bool overrideTunnel,  bool overrideExperimental,  bool overrideTestUrl,  DAV? dav,  NetworkProps networkProps, @JsonKey(fromJson: VpnProps.safeFromJson)  VpnProps vpnProps, @JsonKey(fromJson: ThemeProps.safeFromJson)  ThemeProps themeProps,  ProxiesStyle proxiesStyle,  TrafficStatsProps trafficStatsProps,  WindowProps windowProps, @JsonKey(fromJson: ClashConfig.safeFormJson)  ClashConfig patchClashConfig,  ScriptProps scriptProps,  ManagedProps managedProps,  String nodeExcludeFilter,  int healthCheckTimeout)  $default,) {final _that = this;
 switch (_that) {
 case _Config():
-return $default(_that.appSetting,_that.profiles,_that.hotKeyActions,_that.currentProfileId,_that.overrideDns,_that.overrideNtp,_that.overrideSniffer,_that.overrideTunnel,_that.overrideExperimental,_that.overrideTestUrl,_that.dav,_that.networkProps,_that.vpnProps,_that.themeProps,_that.proxiesStyle,_that.trafficStatsProps,_that.windowProps,_that.patchClashConfig,_that.scriptProps,_that.nodeExcludeFilter,_that.healthCheckTimeout);case _:
+return $default(_that.appSetting,_that.profiles,_that.hotKeyActions,_that.currentProfileId,_that.overrideDns,_that.overrideNtp,_that.overrideSniffer,_that.overrideTunnel,_that.overrideExperimental,_that.overrideTestUrl,_that.dav,_that.networkProps,_that.vpnProps,_that.themeProps,_that.proxiesStyle,_that.trafficStatsProps,_that.windowProps,_that.patchClashConfig,_that.scriptProps,_that.managedProps,_that.nodeExcludeFilter,_that.healthCheckTimeout);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -3229,10 +3824,10 @@ return $default(_that.appSetting,_that.profiles,_that.hotKeyActions,_that.curren
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function(@JsonKey(fromJson: AppSettingProps.safeFromJson)  AppSettingProps appSetting,  List<Profile> profiles,  List<HotKeyAction> hotKeyActions,  String? currentProfileId,  bool overrideDns,  bool overrideNtp,  bool overrideSniffer,  bool overrideTunnel,  bool overrideExperimental,  bool overrideTestUrl,  DAV? dav,  NetworkProps networkProps, @JsonKey(fromJson: VpnProps.safeFromJson)  VpnProps vpnProps, @JsonKey(fromJson: ThemeProps.safeFromJson)  ThemeProps themeProps,  ProxiesStyle proxiesStyle,  TrafficStatsProps trafficStatsProps,  WindowProps windowProps, @JsonKey(fromJson: ClashConfig.safeFormJson)  ClashConfig patchClashConfig,  ScriptProps scriptProps,  String nodeExcludeFilter,  int healthCheckTimeout)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function(@JsonKey(fromJson: AppSettingProps.safeFromJson)  AppSettingProps appSetting,  List<Profile> profiles,  List<HotKeyAction> hotKeyActions,  String? currentProfileId,  bool overrideDns,  bool overrideNtp,  bool overrideSniffer,  bool overrideTunnel,  bool overrideExperimental,  bool overrideTestUrl,  DAV? dav,  NetworkProps networkProps, @JsonKey(fromJson: VpnProps.safeFromJson)  VpnProps vpnProps, @JsonKey(fromJson: ThemeProps.safeFromJson)  ThemeProps themeProps,  ProxiesStyle proxiesStyle,  TrafficStatsProps trafficStatsProps,  WindowProps windowProps, @JsonKey(fromJson: ClashConfig.safeFormJson)  ClashConfig patchClashConfig,  ScriptProps scriptProps,  ManagedProps managedProps,  String nodeExcludeFilter,  int healthCheckTimeout)?  $default,) {final _that = this;
 switch (_that) {
 case _Config() when $default != null:
-return $default(_that.appSetting,_that.profiles,_that.hotKeyActions,_that.currentProfileId,_that.overrideDns,_that.overrideNtp,_that.overrideSniffer,_that.overrideTunnel,_that.overrideExperimental,_that.overrideTestUrl,_that.dav,_that.networkProps,_that.vpnProps,_that.themeProps,_that.proxiesStyle,_that.trafficStatsProps,_that.windowProps,_that.patchClashConfig,_that.scriptProps,_that.nodeExcludeFilter,_that.healthCheckTimeout);case _:
+return $default(_that.appSetting,_that.profiles,_that.hotKeyActions,_that.currentProfileId,_that.overrideDns,_that.overrideNtp,_that.overrideSniffer,_that.overrideTunnel,_that.overrideExperimental,_that.overrideTestUrl,_that.dav,_that.networkProps,_that.vpnProps,_that.themeProps,_that.proxiesStyle,_that.trafficStatsProps,_that.windowProps,_that.patchClashConfig,_that.scriptProps,_that.managedProps,_that.nodeExcludeFilter,_that.healthCheckTimeout);case _:
   return null;
 
 }
@@ -3244,7 +3839,7 @@ return $default(_that.appSetting,_that.profiles,_that.hotKeyActions,_that.curren
 @JsonSerializable()
 
 class _Config implements Config {
-  const _Config({@JsonKey(fromJson: AppSettingProps.safeFromJson) this.appSetting = defaultAppSettingProps,  List<Profile> profiles = const [],  List<HotKeyAction> hotKeyActions = const [], this.currentProfileId, this.overrideDns = false, this.overrideNtp = false, this.overrideSniffer = false, this.overrideTunnel = false, this.overrideExperimental = false, this.overrideTestUrl = true, this.dav, this.networkProps = defaultNetworkProps, @JsonKey(fromJson: VpnProps.safeFromJson) this.vpnProps = defaultVpnProps, @JsonKey(fromJson: ThemeProps.safeFromJson) required this.themeProps, this.proxiesStyle = defaultProxiesStyle, this.trafficStatsProps = defaultTrafficStatsProps, this.windowProps = defaultWindowProps, @JsonKey(fromJson: ClashConfig.safeFormJson) this.patchClashConfig = defaultClashConfig, this.scriptProps = const ScriptProps(), this.nodeExcludeFilter = '', this.healthCheckTimeout = 5000}): _profiles = profiles,_hotKeyActions = hotKeyActions;
+  const _Config({@JsonKey(fromJson: AppSettingProps.safeFromJson) this.appSetting = defaultAppSettingProps,  List<Profile> profiles = const [],  List<HotKeyAction> hotKeyActions = const [], this.currentProfileId, this.overrideDns = false, this.overrideNtp = false, this.overrideSniffer = false, this.overrideTunnel = false, this.overrideExperimental = false, this.overrideTestUrl = true, this.dav, this.networkProps = defaultNetworkProps, @JsonKey(fromJson: VpnProps.safeFromJson) this.vpnProps = defaultVpnProps, @JsonKey(fromJson: ThemeProps.safeFromJson) required this.themeProps, this.proxiesStyle = defaultProxiesStyle, this.trafficStatsProps = defaultTrafficStatsProps, this.windowProps = defaultWindowProps, @JsonKey(fromJson: ClashConfig.safeFormJson) this.patchClashConfig = defaultClashConfig, this.scriptProps = const ScriptProps(), this.managedProps = const ManagedProps(), this.nodeExcludeFilter = '', this.healthCheckTimeout = 5000}): _profiles = profiles,_hotKeyActions = hotKeyActions;
   factory _Config.fromJson(Map<String, dynamic> json) => _$ConfigFromJson(json);
 
 @override@JsonKey(fromJson: AppSettingProps.safeFromJson) final  AppSettingProps appSetting;
@@ -3278,6 +3873,7 @@ class _Config implements Config {
 @override@JsonKey() final  WindowProps windowProps;
 @override@JsonKey(fromJson: ClashConfig.safeFormJson) final  ClashConfig patchClashConfig;
 @override@JsonKey() final  ScriptProps scriptProps;
+@override@JsonKey() final  ManagedProps managedProps;
 @override@JsonKey() final  String nodeExcludeFilter;
 @override@JsonKey() final  int healthCheckTimeout;
 
@@ -3294,18 +3890,18 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _Config&&(identical(other.appSetting, appSetting) || other.appSetting == appSetting)&&const DeepCollectionEquality().equals(other.profiles, _profiles)&&const DeepCollectionEquality().equals(other.hotKeyActions, _hotKeyActions)&&(identical(other.currentProfileId, currentProfileId) || other.currentProfileId == currentProfileId)&&(identical(other.overrideDns, overrideDns) || other.overrideDns == overrideDns)&&(identical(other.overrideNtp, overrideNtp) || other.overrideNtp == overrideNtp)&&(identical(other.overrideSniffer, overrideSniffer) || other.overrideSniffer == overrideSniffer)&&(identical(other.overrideTunnel, overrideTunnel) || other.overrideTunnel == overrideTunnel)&&(identical(other.overrideExperimental, overrideExperimental) || other.overrideExperimental == overrideExperimental)&&(identical(other.overrideTestUrl, overrideTestUrl) || other.overrideTestUrl == overrideTestUrl)&&(identical(other.dav, dav) || other.dav == dav)&&(identical(other.networkProps, networkProps) || other.networkProps == networkProps)&&(identical(other.vpnProps, vpnProps) || other.vpnProps == vpnProps)&&(identical(other.themeProps, themeProps) || other.themeProps == themeProps)&&(identical(other.proxiesStyle, proxiesStyle) || other.proxiesStyle == proxiesStyle)&&(identical(other.trafficStatsProps, trafficStatsProps) || other.trafficStatsProps == trafficStatsProps)&&(identical(other.windowProps, windowProps) || other.windowProps == windowProps)&&(identical(other.patchClashConfig, patchClashConfig) || other.patchClashConfig == patchClashConfig)&&(identical(other.scriptProps, scriptProps) || other.scriptProps == scriptProps)&&(identical(other.nodeExcludeFilter, nodeExcludeFilter) || other.nodeExcludeFilter == nodeExcludeFilter)&&(identical(other.healthCheckTimeout, healthCheckTimeout) || other.healthCheckTimeout == healthCheckTimeout));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _Config&&(identical(other.appSetting, appSetting) || other.appSetting == appSetting)&&const DeepCollectionEquality().equals(other.profiles, _profiles)&&const DeepCollectionEquality().equals(other.hotKeyActions, _hotKeyActions)&&(identical(other.currentProfileId, currentProfileId) || other.currentProfileId == currentProfileId)&&(identical(other.overrideDns, overrideDns) || other.overrideDns == overrideDns)&&(identical(other.overrideNtp, overrideNtp) || other.overrideNtp == overrideNtp)&&(identical(other.overrideSniffer, overrideSniffer) || other.overrideSniffer == overrideSniffer)&&(identical(other.overrideTunnel, overrideTunnel) || other.overrideTunnel == overrideTunnel)&&(identical(other.overrideExperimental, overrideExperimental) || other.overrideExperimental == overrideExperimental)&&(identical(other.overrideTestUrl, overrideTestUrl) || other.overrideTestUrl == overrideTestUrl)&&(identical(other.dav, dav) || other.dav == dav)&&(identical(other.networkProps, networkProps) || other.networkProps == networkProps)&&(identical(other.vpnProps, vpnProps) || other.vpnProps == vpnProps)&&(identical(other.themeProps, themeProps) || other.themeProps == themeProps)&&(identical(other.proxiesStyle, proxiesStyle) || other.proxiesStyle == proxiesStyle)&&(identical(other.trafficStatsProps, trafficStatsProps) || other.trafficStatsProps == trafficStatsProps)&&(identical(other.windowProps, windowProps) || other.windowProps == windowProps)&&(identical(other.patchClashConfig, patchClashConfig) || other.patchClashConfig == patchClashConfig)&&(identical(other.scriptProps, scriptProps) || other.scriptProps == scriptProps)&&(identical(other.managedProps, managedProps) || other.managedProps == managedProps)&&(identical(other.nodeExcludeFilter, nodeExcludeFilter) || other.nodeExcludeFilter == nodeExcludeFilter)&&(identical(other.healthCheckTimeout, healthCheckTimeout) || other.healthCheckTimeout == healthCheckTimeout));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
 int get hashCode {
-    return Object.hashAll([runtimeType,appSetting,const DeepCollectionEquality().hash(_profiles),const DeepCollectionEquality().hash(_hotKeyActions),currentProfileId,overrideDns,overrideNtp,overrideSniffer,overrideTunnel,overrideExperimental,overrideTestUrl,dav,networkProps,vpnProps,themeProps,proxiesStyle,trafficStatsProps,windowProps,patchClashConfig,scriptProps,nodeExcludeFilter,healthCheckTimeout]);
+    return Object.hashAll([runtimeType,appSetting,const DeepCollectionEquality().hash(_profiles),const DeepCollectionEquality().hash(_hotKeyActions),currentProfileId,overrideDns,overrideNtp,overrideSniffer,overrideTunnel,overrideExperimental,overrideTestUrl,dav,networkProps,vpnProps,themeProps,proxiesStyle,trafficStatsProps,windowProps,patchClashConfig,scriptProps,managedProps,nodeExcludeFilter,healthCheckTimeout]);
 }
 
 @override
 String toString() {
-    return 'Config(appSetting: $appSetting, profiles: $profiles, hotKeyActions: $hotKeyActions, currentProfileId: $currentProfileId, overrideDns: $overrideDns, overrideNtp: $overrideNtp, overrideSniffer: $overrideSniffer, overrideTunnel: $overrideTunnel, overrideExperimental: $overrideExperimental, overrideTestUrl: $overrideTestUrl, dav: $dav, networkProps: $networkProps, vpnProps: $vpnProps, themeProps: $themeProps, proxiesStyle: $proxiesStyle, trafficStatsProps: $trafficStatsProps, windowProps: $windowProps, patchClashConfig: $patchClashConfig, scriptProps: $scriptProps, nodeExcludeFilter: $nodeExcludeFilter, healthCheckTimeout: $healthCheckTimeout)';
+    return 'Config(appSetting: $appSetting, profiles: $profiles, hotKeyActions: $hotKeyActions, currentProfileId: $currentProfileId, overrideDns: $overrideDns, overrideNtp: $overrideNtp, overrideSniffer: $overrideSniffer, overrideTunnel: $overrideTunnel, overrideExperimental: $overrideExperimental, overrideTestUrl: $overrideTestUrl, dav: $dav, networkProps: $networkProps, vpnProps: $vpnProps, themeProps: $themeProps, proxiesStyle: $proxiesStyle, trafficStatsProps: $trafficStatsProps, windowProps: $windowProps, patchClashConfig: $patchClashConfig, scriptProps: $scriptProps, managedProps: $managedProps, nodeExcludeFilter: $nodeExcludeFilter, healthCheckTimeout: $healthCheckTimeout)';
 }
 
 
@@ -3316,11 +3912,11 @@ abstract mixin class _$ConfigCopyWith<$Res> implements $ConfigCopyWith<$Res> {
   factory _$ConfigCopyWith(_Config value, $Res Function(_Config) _then) = __$ConfigCopyWithImpl;
 @override @useResult
 $Res call({
-@JsonKey(fromJson: AppSettingProps.safeFromJson) AppSettingProps appSetting, List<Profile> profiles, List<HotKeyAction> hotKeyActions, String? currentProfileId, bool overrideDns, bool overrideNtp, bool overrideSniffer, bool overrideTunnel, bool overrideExperimental, bool overrideTestUrl, DAV? dav, NetworkProps networkProps,@JsonKey(fromJson: VpnProps.safeFromJson) VpnProps vpnProps,@JsonKey(fromJson: ThemeProps.safeFromJson) ThemeProps themeProps, ProxiesStyle proxiesStyle, TrafficStatsProps trafficStatsProps, WindowProps windowProps,@JsonKey(fromJson: ClashConfig.safeFormJson) ClashConfig patchClashConfig, ScriptProps scriptProps, String nodeExcludeFilter, int healthCheckTimeout
+@JsonKey(fromJson: AppSettingProps.safeFromJson) AppSettingProps appSetting, List<Profile> profiles, List<HotKeyAction> hotKeyActions, String? currentProfileId, bool overrideDns, bool overrideNtp, bool overrideSniffer, bool overrideTunnel, bool overrideExperimental, bool overrideTestUrl, DAV? dav, NetworkProps networkProps,@JsonKey(fromJson: VpnProps.safeFromJson) VpnProps vpnProps,@JsonKey(fromJson: ThemeProps.safeFromJson) ThemeProps themeProps, ProxiesStyle proxiesStyle, TrafficStatsProps trafficStatsProps, WindowProps windowProps,@JsonKey(fromJson: ClashConfig.safeFormJson) ClashConfig patchClashConfig, ScriptProps scriptProps, ManagedProps managedProps, String nodeExcludeFilter, int healthCheckTimeout
 });
 
 
-@override $AppSettingPropsCopyWith<$Res> get appSetting;@override $DAVCopyWith<$Res>? get dav;@override $NetworkPropsCopyWith<$Res> get networkProps;@override $VpnPropsCopyWith<$Res> get vpnProps;@override $ThemePropsCopyWith<$Res> get themeProps;@override $ProxiesStyleCopyWith<$Res> get proxiesStyle;@override $TrafficStatsPropsCopyWith<$Res> get trafficStatsProps;@override $WindowPropsCopyWith<$Res> get windowProps;@override $ClashConfigCopyWith<$Res> get patchClashConfig;@override $ScriptPropsCopyWith<$Res> get scriptProps;
+@override $AppSettingPropsCopyWith<$Res> get appSetting;@override $DAVCopyWith<$Res>? get dav;@override $NetworkPropsCopyWith<$Res> get networkProps;@override $VpnPropsCopyWith<$Res> get vpnProps;@override $ThemePropsCopyWith<$Res> get themeProps;@override $ProxiesStyleCopyWith<$Res> get proxiesStyle;@override $TrafficStatsPropsCopyWith<$Res> get trafficStatsProps;@override $WindowPropsCopyWith<$Res> get windowProps;@override $ClashConfigCopyWith<$Res> get patchClashConfig;@override $ScriptPropsCopyWith<$Res> get scriptProps;@override $ManagedPropsCopyWith<$Res> get managedProps;
 
 }
 /// @nodoc
@@ -3333,7 +3929,7 @@ class __$ConfigCopyWithImpl<$Res>
 
 /// Create a copy of Config
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? appSetting = null,Object? profiles = null,Object? hotKeyActions = null,Object? currentProfileId = freezed,Object? overrideDns = null,Object? overrideNtp = null,Object? overrideSniffer = null,Object? overrideTunnel = null,Object? overrideExperimental = null,Object? overrideTestUrl = null,Object? dav = freezed,Object? networkProps = null,Object? vpnProps = null,Object? themeProps = null,Object? proxiesStyle = null,Object? trafficStatsProps = null,Object? windowProps = null,Object? patchClashConfig = null,Object? scriptProps = null,Object? nodeExcludeFilter = null,Object? healthCheckTimeout = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? appSetting = null,Object? profiles = null,Object? hotKeyActions = null,Object? currentProfileId = freezed,Object? overrideDns = null,Object? overrideNtp = null,Object? overrideSniffer = null,Object? overrideTunnel = null,Object? overrideExperimental = null,Object? overrideTestUrl = null,Object? dav = freezed,Object? networkProps = null,Object? vpnProps = null,Object? themeProps = null,Object? proxiesStyle = null,Object? trafficStatsProps = null,Object? windowProps = null,Object? patchClashConfig = null,Object? scriptProps = null,Object? managedProps = null,Object? nodeExcludeFilter = null,Object? healthCheckTimeout = null,}) {
   return _then(_Config(
 appSetting: null == appSetting ? _self.appSetting : appSetting // ignore: cast_nullable_to_non_nullable
 as AppSettingProps,profiles: null == profiles ? _self._profiles : profiles // ignore: cast_nullable_to_non_nullable
@@ -3354,7 +3950,8 @@ as ProxiesStyle,trafficStatsProps: null == trafficStatsProps ? _self.trafficStat
 as TrafficStatsProps,windowProps: null == windowProps ? _self.windowProps : windowProps // ignore: cast_nullable_to_non_nullable
 as WindowProps,patchClashConfig: null == patchClashConfig ? _self.patchClashConfig : patchClashConfig // ignore: cast_nullable_to_non_nullable
 as ClashConfig,scriptProps: null == scriptProps ? _self.scriptProps : scriptProps // ignore: cast_nullable_to_non_nullable
-as ScriptProps,nodeExcludeFilter: null == nodeExcludeFilter ? _self.nodeExcludeFilter : nodeExcludeFilter // ignore: cast_nullable_to_non_nullable
+as ScriptProps,managedProps: null == managedProps ? _self.managedProps : managedProps // ignore: cast_nullable_to_non_nullable
+as ManagedProps,nodeExcludeFilter: null == nodeExcludeFilter ? _self.nodeExcludeFilter : nodeExcludeFilter // ignore: cast_nullable_to_non_nullable
 as String,healthCheckTimeout: null == healthCheckTimeout ? _self.healthCheckTimeout : healthCheckTimeout // ignore: cast_nullable_to_non_nullable
 as int,
   ));
@@ -3452,6 +4049,15 @@ $ScriptPropsCopyWith<$Res> get scriptProps {
   
   return $ScriptPropsCopyWith<$Res>(_self.scriptProps, (value) {
     return _then(_self.copyWith(scriptProps: value));
+  });
+}/// Create a copy of Config
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$ManagedPropsCopyWith<$Res> get managedProps {
+  
+  return $ManagedPropsCopyWith<$Res>(_self.managedProps, (value) {
+    return _then(_self.copyWith(managedProps: value));
   });
 }
 }

@@ -22,8 +22,6 @@ class ClashMessage {
             listener.onGroupsChanged();
           case AppMessageType.request:
             listener.onRequest(TrackerInfo.fromJson(m.data));
-          case AppMessageType.loaded:
-            listener.onLoaded(m.data);
           case AppMessageType.speedTest:
             listener.onSpeedTest(SpeedTestState.fromJson(m.data));
           case AppMessageType.stunTest:

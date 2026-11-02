@@ -492,6 +492,26 @@ class DelayDataSource extends _$DelayDataSource with AutoDisposeNotifierMixin {
     }
   }
 
+  void clear() {
+    _flushTimer?.cancel();
+    _flushTimer = null;
+    _pendingDelays.clear();
+    state = {};
+  }
+
+  void dropTesting() {
+    flush();
+    if (!state.values.any((delays) => delays.containsValue(0))) return;
+    state = {
+      for (final MapEntry(:key, :value) in state.entries)
+        if (value.values.any((delay) => delay != 0))
+          key: {
+            for (final entry in value.entries)
+              if (entry.value != 0) entry.key: entry.value,
+          },
+    };
+  }
+
   DelayMap? _merge(DelayMap current) {
     if (_pendingDelays.isEmpty) return null;
     final DelayMap next = Map.of(current);

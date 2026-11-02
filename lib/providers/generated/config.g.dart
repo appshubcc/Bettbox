@@ -925,7 +925,7 @@ final class ScriptStateProvider
   }
 }
 
-String _$scriptStateHash() => r'83560787d30773ddd76a4b279b149f190f94c756';
+String _$scriptStateHash() => r'2ecf9684f97024cd953e1ebb69ee08b44b35b0e4';
 
 abstract class _$ScriptState extends $Notifier<ScriptProps> {
   ScriptProps build();
@@ -938,6 +938,58 @@ abstract class _$ScriptState extends $Notifier<ScriptProps> {
             as $ClassProviderElement<
               AnyNotifier<ScriptProps, ScriptProps>,
               ScriptProps,
+              Object?,
+              Object?
+            >;
+    return element.handleCreate(ref, build);
+  }
+}
+
+@ProviderFor(ManagedSetting)
+final managedSettingProvider = ManagedSettingProvider._();
+
+final class ManagedSettingProvider
+    extends $NotifierProvider<ManagedSetting, ManagedProps> {
+  ManagedSettingProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'managedSettingProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$managedSettingHash();
+
+  @$internal
+  @override
+  ManagedSetting create() => ManagedSetting();
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(ManagedProps value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<ManagedProps>(value),
+    );
+  }
+}
+
+String _$managedSettingHash() => r'0e8d48bd653b0cf34e7ed8f1116649cf166cf587';
+
+abstract class _$ManagedSetting extends $Notifier<ManagedProps> {
+  ManagedProps build();
+  @$mustCallSuper
+  @override
+  WhenComplete runBuild() {
+    final ref = this.ref as $Ref<ManagedProps, ManagedProps>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<ManagedProps, ManagedProps>,
+              ManagedProps,
               Object?,
               Object?
             >;

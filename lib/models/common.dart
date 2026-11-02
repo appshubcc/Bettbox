@@ -1224,6 +1224,58 @@ abstract class Script with _$Script {
 
 final volatileScriptPattern = RegExp(r'\bDate\b|Math\s*\.\s*random');
 
+@freezed
+abstract class RouteRuleSet with _$RouteRuleSet {
+  const factory RouteRuleSet({
+    required String tag,
+    @Default('geosite') String type,
+    String? name,
+    String? icon,
+    int? count,
+  }) = _RouteRuleSet;
+
+  factory RouteRuleSet.fromJson(Map<String, Object?> json) =>
+      _$RouteRuleSetFromJson(json);
+}
+
+extension RouteRuleSetExt on RouteRuleSet {
+  String get key => '$type:$tag';
+
+  String get label => name ?? tag;
+}
+
+@freezed
+abstract class RouteService with _$RouteService {
+  const factory RouteService({
+    required String name,
+    String? icon,
+    @Default([]) List<String> sets,
+    @Default([]) List<String> keywords,
+    @Default([]) List<String> groups,
+    @JsonKey(unknownEnumValue: RouteCategory.other)
+    @Default(RouteCategory.other)
+    RouteCategory category,
+  }) = _RouteService;
+
+  factory RouteService.fromJson(Map<String, Object?> json) =>
+      _$RouteServiceFromJson(json);
+}
+
+@freezed
+abstract class RouteCatalog with _$RouteCatalog {
+  const factory RouteCatalog({
+    @Default([]) List<String> targets,
+    @Default([]) List<String> reserved,
+    @Default({}) Map<String, RouteCategory> groupCategories,
+    @Default([]) List<String> icons,
+    @Default([]) List<RouteService> services,
+    @Default([]) List<RouteRuleSet> sets,
+  }) = _RouteCatalog;
+
+  factory RouteCatalog.fromJson(Map<String, Object?> json) =>
+      _$RouteCatalogFromJson(json);
+}
+
 extension ScriptExt on Script {
   Future<String> readContent() async {
     if (content.isNotEmpty) return content;

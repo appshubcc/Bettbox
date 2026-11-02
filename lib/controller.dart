@@ -34,6 +34,7 @@ import 'common/common.dart';
 import 'common/dav_client.dart';
 import 'models/models.dart';
 import 'views/profiles/override_profile.dart';
+import 'views/proxies/common.dart' show cancelDelayTests;
 
 class AppController {
   int? lastProfileModified;
@@ -55,6 +56,9 @@ class AppController {
   int _setupGeneration = 0;
   String? _loadedProfileId;
   final Set<String> _updatingProfileIds = {};
+  final Lock _bundleLock = Lock();
+  final Set<String> _pendingBundleIds = {};
+  final Set<String> _refreshingBundleIds = {};
   int _localNetworkId = 0;
   Timer? _idleGcTimer;
   bool _isAutoBackupPending = false;
@@ -135,6 +139,11 @@ class AppController {
     _updateGroupsRetryCount = 0;
   }
 
+  void _cancelDelayTests() {
+    cancelDelayTests();
+    _ref.read(delayDataSourceProvider.notifier).dropTesting();
+  }
+
   Future<void> flushDns() async {
     await clashCore.flushFakeIP();
     await clashCore.flushDnsCache();
@@ -160,6 +169,7 @@ class AppController {
   }) async {
     commonPrint.log('restart core');
     _invalidateCoreReads();
+    _cancelDelayTests();
 
     final wasRunning = _ref.read(runTimeProvider.notifier).isStart;
     if (wasRunning) {
@@ -376,6 +386,7 @@ class AppController {
     final params = await globalState.getSetupParams(
       pathConfig: realPatchConfig,
     );
+    _cancelDelayTests();
     final result = await clashCore.setupConfig(params);
     final message = result.message;
     if (message.isNotEmpty) {
@@ -496,6 +507,7 @@ class AppController {
   Future<void> deleteProfile(String id) async {
     _ref.read(profilesProvider.notifier).deleteProfileById(id);
     await clearEffect(id);
+    _detachBundleMember(id);
     if (globalState.config.currentProfileId == id) {
       final profiles = globalState.config.profiles;
       final currentProfileId = _ref.read(currentProfileIdProvider.notifier);
@@ -524,7 +536,7 @@ class AppController {
   void _syncProviderSubscriptions(List<ExternalProvider> providers) {
     final profileId = _loadedProfileId ?? _ref.read(currentProfileIdProvider);
     final profile = _ref.read(profilesProvider).getProfile(profileId);
-    if (profile == null) return;
+    if (profile == null || profile.bundle != null) return;
     final subscriptions = {
       for (final provider in providers)
         if (provider.type == 'Proxy') provider.name: ?provider.subscriptionInfo,
@@ -588,6 +600,247 @@ class AppController {
 
   void setProfiles(List<Profile> profiles) {
     _ref.read(profilesProvider.notifier).value = profiles;
+  }
+
+  Future<void> createBundle({
+    required String label,
+    required List<BundleMember> members,
+    bool collapsed = false,
+    ProfileUsageStyle usageStyle = ProfileUsageStyle.bar,
+  }) {
+    return _bundleLock.synchronized(() async {
+      final profile = Profile.normal(label: label).copyWith(
+        autoUpdate: false,
+        usageStyle: usageStyle,
+        bundle: ProfileBundle(members: members, collapsed: collapsed),
+      );
+      await addProfile(await _generateBundle(profile, refresh: false));
+    });
+  }
+
+  Future<void> generateBundle(String id, {bool refresh = false}) {
+    return _bundleLock.synchronized(() async {
+      final profile = _ref.read(profilesProvider).getProfile(id);
+      if (profile == null || profile.bundle == null) return;
+      if (refresh) _refreshingBundleIds.add(id);
+      setProfile(profile.copyWith(isUpdating: true));
+      try {
+        final file = File(await appPath.getProfilePath(id));
+        final modified = await file.exists()
+            ? (await file.stat()).modified
+            : null;
+        final generated = await _generateBundle(profile, refresh: refresh);
+        final latest = _ref.read(profilesProvider).getProfile(id);
+        final latestBundle = latest?.bundle;
+        if (latest == null || latestBundle == null) return;
+        setProfile(
+          latest.copyWith(
+            isUpdating: false,
+            lastUpdateDate: generated.lastUpdateDate,
+            providerSubscriptions: generated.providerSubscriptions,
+            bundle: latestBundle.copyWith(
+              report: generated.bundle?.report ?? latestBundle.report,
+              failures: generated.bundle?.failures ?? const {},
+            ),
+          ),
+        );
+        if (id != _ref.read(currentProfileIdProvider)) return;
+        if (modified != null && modified == (await file.stat()).modified) {
+          return;
+        }
+        applyProfileDebounce(silence: true);
+      } finally {
+        _refreshingBundleIds.remove(id);
+        final latest = _ref.read(profilesProvider).getProfile(id);
+        if (latest != null && latest.isUpdating) {
+          setProfile(latest.copyWith(isUpdating: false));
+        }
+      }
+    });
+  }
+
+  void updateManagedSetting(ManagedProps Function(ManagedProps state) builder) {
+    _ref.read(managedSettingProvider.notifier).updateState(builder);
+    generateAllBundles();
+  }
+
+  void generateAllBundles() {
+    scheduleBundles([
+      for (final profile in _ref.read(profilesProvider))
+        if (profile.bundle != null) profile.id,
+    ]);
+  }
+
+  void scheduleBundles(Iterable<String> ids) {
+    _pendingBundleIds.addAll(ids);
+    if (_pendingBundleIds.isEmpty) return;
+    debouncer.call(
+      FunctionTag.generateBundles,
+      _flushBundles,
+      duration: const Duration(seconds: 1),
+    );
+  }
+
+  Future<void> _flushBundles() async {
+    final ids = _pendingBundleIds.toList();
+    _pendingBundleIds.clear();
+    for (final id in ids) {
+      try {
+        await generateBundle(id);
+      } catch (e) {
+        final label = _ref.read(profilesProvider).getProfile(id)?.label ?? id;
+        commonPrint.error(
+          '[Bundle] Failed to generate $label: ${e.formatErrorLog}',
+        );
+        globalState.showNotifier('$label: ${e.formatError}');
+      }
+    }
+  }
+
+  void syncBundles(List<Profile> previous, List<Profile> next) {
+    final regenerate = <String>{};
+    var usageChanged = false;
+    for (final profile in next) {
+      if (profile.bundle != null) continue;
+      final old = previous.getProfile(profile.id);
+      if (old == null || old == profile) continue;
+      final bundles = next.bundlesOf(profile.id);
+      if (bundles.isEmpty) continue;
+      if (old.lastUpdateDate != profile.lastUpdateDate ||
+          old.label != profile.label ||
+          old.ageSecretKey != profile.ageSecretKey) {
+        regenerate.addAll(bundles.map((bundle) => bundle.id));
+      }
+      if (old.subscriptionInfo != profile.subscriptionInfo ||
+          !mapEquals(
+            old.providerSubscriptions,
+            profile.providerSubscriptions,
+          )) {
+        usageChanged = true;
+      }
+    }
+    if (usageChanged) {
+      scheduleMicrotask(_syncBundleUsages);
+    }
+    regenerate.removeAll(_refreshingBundleIds);
+    if (regenerate.isNotEmpty) {
+      scheduleBundles(regenerate);
+    }
+  }
+
+  void _syncBundleUsages() {
+    final profiles = _ref.read(profilesProvider);
+    for (final profile in profiles) {
+      if (profile.bundle == null) continue;
+      final usages = _bundleUsages(profile, profiles);
+      if (mapEquals(usages, profile.providerSubscriptions)) continue;
+      setProfile(profile.copyWith(providerSubscriptions: usages));
+    }
+  }
+
+  Map<String, SubscriptionInfo> _bundleUsages(
+    Profile bundle,
+    List<Profile> profiles,
+  ) => {
+    for (final member in bundle.bundle?.members ?? const <BundleMember>[])
+      if (profiles.getProfile(member.id) case final target?)
+        for (final usage in target.subscriptionUsages) usage.key: usage.value,
+  };
+
+  void _detachBundleMember(String id) {
+    final regenerate = <String>[];
+    for (final profile in _ref.read(profilesProvider).bundlesOf(id)) {
+      final bundle = profile.bundle;
+      if (bundle == null) continue;
+      final members = [
+        for (final member in bundle.members)
+          if (member.id != id) member,
+      ];
+      setProfile(
+        profile.copyWith(
+          bundle: bundle.copyWith(
+            members: members,
+            failures: {...bundle.failures}..remove(id),
+          ),
+        ),
+      );
+      if (members.isNotEmpty) regenerate.add(profile.id);
+    }
+    scheduleBundles(regenerate);
+  }
+
+  Future<Profile> _generateBundle(
+    Profile profile, {
+    required bool refresh,
+  }) async {
+    final members = profile.bundle?.members ?? const <BundleMember>[];
+    if (refresh) {
+      for (final member in members) {
+        final target = _ref.read(profilesProvider).getProfile(member.id);
+        if (target == null || target.type != ProfileType.url) continue;
+        try {
+          await updateProfile(target);
+        } catch (e) {
+          commonPrint.error(
+            '[Bundle] Failed to update ${target.label ?? target.id}: ${e.formatErrorLog}',
+          );
+        }
+      }
+    }
+    final profiles = _ref.read(profilesProvider);
+    final script = await ManagedScript.script(
+      _ref.read(managedSettingProvider),
+    );
+    final inputs = <({String prefix, String path})>[];
+    final failures = <String, String>{};
+    final files = <File>[];
+    try {
+      for (final member in members) {
+        final target = profiles.getProfile(member.id);
+        if (target == null) continue;
+        try {
+          final path = await globalState.writeScriptedConfig(
+            target,
+            script,
+            managed: true,
+            refresh: refresh,
+          );
+          files.add(File(path));
+          inputs.add((
+            prefix: member.prefix ?? bundlePrefixOf(target.label ?? target.id),
+            path: path,
+          ));
+        } catch (e) {
+          failures[member.id] = e.formatError.split('\n').first;
+        }
+      }
+      if (inputs.isEmpty) {
+        if (failures.isEmpty) throw appLocalizations.bundleNoMembers;
+        throw [
+          for (final entry in failures.entries)
+            '${profiles.getProfile(entry.key)?.label ?? entry.key}: ${entry.value}',
+        ].join('\n');
+      }
+      final report = await clashCore.mergeProfiles(
+        output: await appPath.getProfilePath(profile.id),
+        members: inputs,
+        setup: await globalState.buildValidateParams(profile),
+      );
+      return profile.copyWith(
+        lastUpdateDate: DateTime.now(),
+        providerSubscriptions: _bundleUsages(
+          profile,
+          _ref.read(profilesProvider),
+        ),
+        bundle: profile.bundle?.copyWith(report: report, failures: failures),
+      );
+    } finally {
+      for (final file in files) {
+        try {
+          if (await file.exists()) await file.delete();
+        } catch (_) {}
+      }
+    }
   }
 
   void addLog(Log log) {
@@ -750,7 +1003,6 @@ class AppController {
 
   Future<void> _applyProfile() async {
     _invalidateCoreReads();
-    _ref.read(delayDataSourceProvider.notifier).value = {};
     unawaited(
       clashCore.requestGc().then<void>(
         (_) {},
@@ -759,6 +1011,7 @@ class AppController {
     );
     final configured = await _setupCoreConfig();
     if (!configured) return;
+    _ref.read(delayDataSourceProvider.notifier).clear();
     _setProviders(await clashCore.getExternalProviders());
     await updateGroups();
     scheduleIdleGc();
@@ -787,6 +1040,7 @@ class AppController {
         _ref.read(isRestartingCoreProvider.notifier).state = true;
         try {
           await _restartCore();
+          _ref.read(delayDataSourceProvider.notifier).clear();
         } catch (err) {
           _reportCoreRestartFailure(err);
           rethrow;
@@ -794,11 +1048,6 @@ class AppController {
           _ref.read(isRestartingCoreProvider.notifier).state = false;
         }
       } else {
-        if (system.isAndroid) {
-          clashCore.closeConnections();
-          await clashCore.flushFakeIP();
-          await clashCore.flushDnsCache();
-        }
         final prevProfileId = _ref.read(currentProfileIdProvider);
         try {
           await _applyProfile();
@@ -809,6 +1058,9 @@ class AppController {
           } catch (_) {}
           globalState.showNotifier(err.toString());
         }
+        await clashCore.closeConnections();
+        await clashCore.flushFakeIP();
+        await clashCore.flushDnsCache();
       }
       _ref.read(logsProvider.notifier).value = FixedList(maxLogLength);
       _ref.read(requestsProvider.notifier).value = FixedList(maxLength);
@@ -830,7 +1082,7 @@ class AppController {
 
   bool _isProfileUpdateNeeded(Profile profile) {
     if (!profile.autoUpdate) return false;
-    if (profile.type == ProfileType.file) return false;
+    if (profile.type != ProfileType.url) return false;
     if (profile.isUpdating) return false;
     final lastUpdate = profile.lastUpdateDate;
     if (lastUpdate == null) return true;
@@ -1026,20 +1278,8 @@ class AppController {
         }
       }
 
-      final proxiesStyle = _ref.read(proxiesStyleSettingProvider);
-      if (!proxiesStyle.hasCustomizedStyle) {
-        final hasGroupIcons = newGroups.any((g) => g.icon.trim().isNotEmpty);
-        if (hasGroupIcons &&
-            (proxiesStyle.type != ProxiesType.list ||
-                proxiesStyle.iconStyle != ProxiesIconStyle.icon)) {
-          _ref.read(proxiesStyleSettingProvider.notifier).updateState((state) {
-            return state.copyWith(
-              type: ProxiesType.list,
-              iconStyle: ProxiesIconStyle.icon,
-            );
-          });
-        }
-      }
+      _applyManagedProxiesStyle();
+      applyListIconStyle(newGroups);
 
       if (!listEquals(currentGroups, newGroups)) {
         _ref.read(groupsProvider.notifier).value = newGroups;
@@ -1055,9 +1295,42 @@ class AppController {
     }
   }
 
+  void _applyManagedProxiesStyle() {
+    final profile = _ref.read(currentProfileProvider);
+    if (profile == null || !profile.isManaged || profile.managedStyleApplied) {
+      return;
+    }
+    _ref
+        .read(profilesProvider.notifier)
+        .updateProfile(
+          profile.id,
+          (state) => state.copyWith(managedStyleApplied: true),
+        );
+    _ref.read(proxiesStyleSettingProvider.notifier).updateState((state) {
+      return state.copyWith(
+        type: ProxiesType.list,
+        iconStyle: ProxiesIconStyle.icon,
+        hasCustomizedStyle: true,
+      );
+    });
+  }
+
+  void applyListIconStyle([List<Group>? groups]) {
+    final style = _ref.read(proxiesStyleSettingProvider);
+    if (style.hasCustomizedStyle || style.type != ProxiesType.list) return;
+    final List<Group> current = groups ?? _ref.read(groupsProvider);
+    if (!current.any((group) => group.icon.trim().isNotEmpty)) return;
+    _ref.read(proxiesStyleSettingProvider.notifier).updateState((state) {
+      return state.copyWith(
+        iconStyle: ProxiesIconStyle.icon,
+        hasCustomizedStyle: true,
+      );
+    });
+  }
+
   Future<void> updateProfiles() async {
     for (final profile in _ref.read(profilesProvider)) {
-      if (profile.type == ProfileType.file) {
+      if (profile.type != ProfileType.url) {
         continue;
       }
       try {
@@ -1463,8 +1736,12 @@ class AppController {
       return;
     }
     final hasProfile = _ref.read(currentProfileProvider) != null;
+    final isSmartStopped =
+        system.isAndroid &&
+        (await vpn_service.service?.isSmartStopped() ?? false);
     final shouldStart =
         hasProfile &&
+        !isSmartStopped &&
         (globalState.isStart || _ref.read(appSettingProvider).autoRun);
 
     if (shouldStart) {
@@ -1715,6 +1992,7 @@ class AppController {
 
   void updateViewSize(Size size) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_ref.read(viewSizeProvider) == size) return;
       _ref.read(viewSizeProvider.notifier).value = size;
     });
   }
@@ -1757,10 +2035,12 @@ class AppController {
       if (isExists) {
         await profileFile.delete(recursive: true);
       }
-      for (final extension in const ['json', 'key']) {
-        final cacheFile = File(join(relayPath, 'cache-$profileId.$extension'));
-        if (await cacheFile.exists()) {
-          await cacheFile.delete();
+      for (final stem in ['cache-$profileId', 'cache-$profileId-managed']) {
+        for (final extension in const ['json', 'key']) {
+          final cacheFile = File(join(relayPath, '$stem.$extension'));
+          if (await cacheFile.exists()) {
+            await cacheFile.delete();
+          }
         }
       }
       final providersFileDir = Directory(providersDirPath);
@@ -2692,8 +2972,6 @@ class AppController {
       } else {
         _ref.read(scriptStateProvider.notifier).value = config.scriptProps
             .copyWith(
-              currentId:
-                  config.scriptProps.currentId ?? currentScriptProps.currentId,
               scripts: [...config.scriptProps.scripts, ...localScripts],
             );
       }

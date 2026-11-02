@@ -16,7 +16,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$SetupParams {
 
-@JsonKey(name: 'selected-map') Map<String, String> get selectedMap;@JsonKey(name: 'test-url') String get testUrl;@JsonKey(name: 'override-test-url') bool get overrideTestUrl;@JsonKey(name: 'profile-path') String get profilePath;@JsonKey(name: 'age-secret-key') String get ageSecretKey;@JsonKey(name: 'scripted-config') String get scriptedConfig; Map<String, dynamic>? get patch;
+@JsonKey(name: 'selected-map') Map<String, String> get selectedMap;@JsonKey(name: 'test-url') String get testUrl;@JsonKey(name: 'profile-path') String get profilePath;@JsonKey(name: 'age-secret-key') String get ageSecretKey;@JsonKey(name: 'scripted-config') String get scriptedConfig; Map<String, dynamic>? get patch;
 /// Create a copy of SetupParams
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -30,20 +30,20 @@ $SetupParamsCopyWith<SetupParams> get copyWith => _$SetupParamsCopyWithImpl<Setu
 @override
 bool operator ==(Object other) {
   final _this = this as SetupParams;
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is SetupParams&&const DeepCollectionEquality().equals(other.selectedMap, _this.selectedMap)&&(identical(other.testUrl, _this.testUrl) || other.testUrl == _this.testUrl)&&(identical(other.overrideTestUrl, _this.overrideTestUrl) || other.overrideTestUrl == _this.overrideTestUrl)&&(identical(other.profilePath, _this.profilePath) || other.profilePath == _this.profilePath)&&(identical(other.ageSecretKey, _this.ageSecretKey) || other.ageSecretKey == _this.ageSecretKey)&&(identical(other.scriptedConfig, _this.scriptedConfig) || other.scriptedConfig == _this.scriptedConfig)&&const DeepCollectionEquality().equals(other.patch, _this.patch));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is SetupParams&&const DeepCollectionEquality().equals(other.selectedMap, _this.selectedMap)&&(identical(other.testUrl, _this.testUrl) || other.testUrl == _this.testUrl)&&(identical(other.profilePath, _this.profilePath) || other.profilePath == _this.profilePath)&&(identical(other.ageSecretKey, _this.ageSecretKey) || other.ageSecretKey == _this.ageSecretKey)&&(identical(other.scriptedConfig, _this.scriptedConfig) || other.scriptedConfig == _this.scriptedConfig)&&const DeepCollectionEquality().equals(other.patch, _this.patch));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
 int get hashCode {
   final _this = this as SetupParams;
-  return Object.hash(runtimeType,const DeepCollectionEquality().hash(_this.selectedMap),_this.testUrl,_this.overrideTestUrl,_this.profilePath,_this.ageSecretKey,_this.scriptedConfig,const DeepCollectionEquality().hash(_this.patch));
+  return Object.hash(runtimeType,const DeepCollectionEquality().hash(_this.selectedMap),_this.testUrl,_this.profilePath,_this.ageSecretKey,_this.scriptedConfig,const DeepCollectionEquality().hash(_this.patch));
 }
 
 @override
 String toString() {
   final _this = this as SetupParams;
-  return 'SetupParams(selectedMap: ${_this.selectedMap}, testUrl: ${_this.testUrl}, overrideTestUrl: ${_this.overrideTestUrl}, profilePath: ${_this.profilePath}, ageSecretKey: ${_this.ageSecretKey}, scriptedConfig: ${_this.scriptedConfig}, patch: ${_this.patch})';
+  return 'SetupParams(selectedMap: ${_this.selectedMap}, testUrl: ${_this.testUrl}, profilePath: ${_this.profilePath}, ageSecretKey: ${_this.ageSecretKey}, scriptedConfig: ${_this.scriptedConfig}, patch: ${_this.patch})';
 }
 
 
@@ -54,7 +54,7 @@ abstract mixin class $SetupParamsCopyWith<$Res>  {
   factory $SetupParamsCopyWith(SetupParams value, $Res Function(SetupParams) _then) = _$SetupParamsCopyWithImpl;
 @useResult
 $Res call({
-@JsonKey(name: 'selected-map') Map<String, String> selectedMap,@JsonKey(name: 'test-url') String testUrl,@JsonKey(name: 'override-test-url') bool overrideTestUrl,@JsonKey(name: 'profile-path') String profilePath,@JsonKey(name: 'age-secret-key') String ageSecretKey,@JsonKey(name: 'scripted-config') String scriptedConfig, Map<String, dynamic>? patch
+@JsonKey(name: 'selected-map') Map<String, String> selectedMap,@JsonKey(name: 'test-url') String testUrl,@JsonKey(name: 'profile-path') String profilePath,@JsonKey(name: 'age-secret-key') String ageSecretKey,@JsonKey(name: 'scripted-config') String scriptedConfig, Map<String, dynamic>? patch
 });
 
 
@@ -71,12 +71,11 @@ class _$SetupParamsCopyWithImpl<$Res>
 
 /// Create a copy of SetupParams
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? selectedMap = null,Object? testUrl = null,Object? overrideTestUrl = null,Object? profilePath = null,Object? ageSecretKey = null,Object? scriptedConfig = null,Object? patch = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? selectedMap = null,Object? testUrl = null,Object? profilePath = null,Object? ageSecretKey = null,Object? scriptedConfig = null,Object? patch = freezed,}) {
   return _then(SetupParams(
 selectedMap: null == selectedMap ? _self.selectedMap : selectedMap // ignore: cast_nullable_to_non_nullable
 as Map<String, String>,testUrl: null == testUrl ? _self.testUrl : testUrl // ignore: cast_nullable_to_non_nullable
-as String,overrideTestUrl: null == overrideTestUrl ? _self.overrideTestUrl : overrideTestUrl // ignore: cast_nullable_to_non_nullable
-as bool,profilePath: null == profilePath ? _self.profilePath : profilePath // ignore: cast_nullable_to_non_nullable
+as String,profilePath: null == profilePath ? _self.profilePath : profilePath // ignore: cast_nullable_to_non_nullable
 as String,ageSecretKey: null == ageSecretKey ? _self.ageSecretKey : ageSecretKey // ignore: cast_nullable_to_non_nullable
 as String,scriptedConfig: null == scriptedConfig ? _self.scriptedConfig : scriptedConfig // ignore: cast_nullable_to_non_nullable
 as String,patch: freezed == patch ? _self.patch : patch // ignore: cast_nullable_to_non_nullable
@@ -165,10 +164,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function(@JsonKey(name: 'selected-map')  Map<String, String> selectedMap, @JsonKey(name: 'test-url')  String testUrl, @JsonKey(name: 'override-test-url')  bool overrideTestUrl, @JsonKey(name: 'profile-path')  String profilePath, @JsonKey(name: 'age-secret-key')  String ageSecretKey, @JsonKey(name: 'scripted-config')  String scriptedConfig,  Map<String, dynamic>? patch)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function(@JsonKey(name: 'selected-map')  Map<String, String> selectedMap, @JsonKey(name: 'test-url')  String testUrl, @JsonKey(name: 'profile-path')  String profilePath, @JsonKey(name: 'age-secret-key')  String ageSecretKey, @JsonKey(name: 'scripted-config')  String scriptedConfig,  Map<String, dynamic>? patch)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _SetupParams() when $default != null:
-return $default(_that.selectedMap,_that.testUrl,_that.overrideTestUrl,_that.profilePath,_that.ageSecretKey,_that.scriptedConfig,_that.patch);case _:
+return $default(_that.selectedMap,_that.testUrl,_that.profilePath,_that.ageSecretKey,_that.scriptedConfig,_that.patch);case _:
   return orElse();
 
 }
@@ -186,10 +185,10 @@ return $default(_that.selectedMap,_that.testUrl,_that.overrideTestUrl,_that.prof
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function(@JsonKey(name: 'selected-map')  Map<String, String> selectedMap, @JsonKey(name: 'test-url')  String testUrl, @JsonKey(name: 'override-test-url')  bool overrideTestUrl, @JsonKey(name: 'profile-path')  String profilePath, @JsonKey(name: 'age-secret-key')  String ageSecretKey, @JsonKey(name: 'scripted-config')  String scriptedConfig,  Map<String, dynamic>? patch)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function(@JsonKey(name: 'selected-map')  Map<String, String> selectedMap, @JsonKey(name: 'test-url')  String testUrl, @JsonKey(name: 'profile-path')  String profilePath, @JsonKey(name: 'age-secret-key')  String ageSecretKey, @JsonKey(name: 'scripted-config')  String scriptedConfig,  Map<String, dynamic>? patch)  $default,) {final _that = this;
 switch (_that) {
 case _SetupParams():
-return $default(_that.selectedMap,_that.testUrl,_that.overrideTestUrl,_that.profilePath,_that.ageSecretKey,_that.scriptedConfig,_that.patch);case _:
+return $default(_that.selectedMap,_that.testUrl,_that.profilePath,_that.ageSecretKey,_that.scriptedConfig,_that.patch);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -206,10 +205,10 @@ return $default(_that.selectedMap,_that.testUrl,_that.overrideTestUrl,_that.prof
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function(@JsonKey(name: 'selected-map')  Map<String, String> selectedMap, @JsonKey(name: 'test-url')  String testUrl, @JsonKey(name: 'override-test-url')  bool overrideTestUrl, @JsonKey(name: 'profile-path')  String profilePath, @JsonKey(name: 'age-secret-key')  String ageSecretKey, @JsonKey(name: 'scripted-config')  String scriptedConfig,  Map<String, dynamic>? patch)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function(@JsonKey(name: 'selected-map')  Map<String, String> selectedMap, @JsonKey(name: 'test-url')  String testUrl, @JsonKey(name: 'profile-path')  String profilePath, @JsonKey(name: 'age-secret-key')  String ageSecretKey, @JsonKey(name: 'scripted-config')  String scriptedConfig,  Map<String, dynamic>? patch)?  $default,) {final _that = this;
 switch (_that) {
 case _SetupParams() when $default != null:
-return $default(_that.selectedMap,_that.testUrl,_that.overrideTestUrl,_that.profilePath,_that.ageSecretKey,_that.scriptedConfig,_that.patch);case _:
+return $default(_that.selectedMap,_that.testUrl,_that.profilePath,_that.ageSecretKey,_that.scriptedConfig,_that.patch);case _:
   return null;
 
 }
@@ -221,7 +220,7 @@ return $default(_that.selectedMap,_that.testUrl,_that.overrideTestUrl,_that.prof
 @JsonSerializable()
 
 class _SetupParams implements SetupParams {
-  const _SetupParams({@JsonKey(name: 'selected-map') required  Map<String, String> selectedMap, @JsonKey(name: 'test-url') required this.testUrl, @JsonKey(name: 'override-test-url') this.overrideTestUrl = true, @JsonKey(name: 'profile-path') this.profilePath = '', @JsonKey(name: 'age-secret-key') this.ageSecretKey = '', @JsonKey(name: 'scripted-config') this.scriptedConfig = '',  Map<String, dynamic>? patch}): _selectedMap = selectedMap,_patch = patch;
+  const _SetupParams({@JsonKey(name: 'selected-map') required  Map<String, String> selectedMap, @JsonKey(name: 'test-url') required this.testUrl, @JsonKey(name: 'profile-path') this.profilePath = '', @JsonKey(name: 'age-secret-key') this.ageSecretKey = '', @JsonKey(name: 'scripted-config') this.scriptedConfig = '',  Map<String, dynamic>? patch}): _selectedMap = selectedMap,_patch = patch;
   factory _SetupParams.fromJson(Map<String, dynamic> json) => _$SetupParamsFromJson(json);
 
  final  Map<String, String> _selectedMap;
@@ -232,7 +231,6 @@ class _SetupParams implements SetupParams {
 }
 
 @override@JsonKey(name: 'test-url') final  String testUrl;
-@override@JsonKey(name: 'override-test-url') final  bool overrideTestUrl;
 @override@JsonKey(name: 'profile-path') final  String profilePath;
 @override@JsonKey(name: 'age-secret-key') final  String ageSecretKey;
 @override@JsonKey(name: 'scripted-config') final  String scriptedConfig;
@@ -259,18 +257,18 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _SetupParams&&const DeepCollectionEquality().equals(other.selectedMap, _selectedMap)&&(identical(other.testUrl, testUrl) || other.testUrl == testUrl)&&(identical(other.overrideTestUrl, overrideTestUrl) || other.overrideTestUrl == overrideTestUrl)&&(identical(other.profilePath, profilePath) || other.profilePath == profilePath)&&(identical(other.ageSecretKey, ageSecretKey) || other.ageSecretKey == ageSecretKey)&&(identical(other.scriptedConfig, scriptedConfig) || other.scriptedConfig == scriptedConfig)&&const DeepCollectionEquality().equals(other.patch, _patch));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _SetupParams&&const DeepCollectionEquality().equals(other.selectedMap, _selectedMap)&&(identical(other.testUrl, testUrl) || other.testUrl == testUrl)&&(identical(other.profilePath, profilePath) || other.profilePath == profilePath)&&(identical(other.ageSecretKey, ageSecretKey) || other.ageSecretKey == ageSecretKey)&&(identical(other.scriptedConfig, scriptedConfig) || other.scriptedConfig == scriptedConfig)&&const DeepCollectionEquality().equals(other.patch, _patch));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
 int get hashCode {
-    return Object.hash(runtimeType,const DeepCollectionEquality().hash(_selectedMap),testUrl,overrideTestUrl,profilePath,ageSecretKey,scriptedConfig,const DeepCollectionEquality().hash(_patch));
+    return Object.hash(runtimeType,const DeepCollectionEquality().hash(_selectedMap),testUrl,profilePath,ageSecretKey,scriptedConfig,const DeepCollectionEquality().hash(_patch));
 }
 
 @override
 String toString() {
-    return 'SetupParams(selectedMap: $selectedMap, testUrl: $testUrl, overrideTestUrl: $overrideTestUrl, profilePath: $profilePath, ageSecretKey: $ageSecretKey, scriptedConfig: $scriptedConfig, patch: $patch)';
+    return 'SetupParams(selectedMap: $selectedMap, testUrl: $testUrl, profilePath: $profilePath, ageSecretKey: $ageSecretKey, scriptedConfig: $scriptedConfig, patch: $patch)';
 }
 
 
@@ -281,7 +279,7 @@ abstract mixin class _$SetupParamsCopyWith<$Res> implements $SetupParamsCopyWith
   factory _$SetupParamsCopyWith(_SetupParams value, $Res Function(_SetupParams) _then) = __$SetupParamsCopyWithImpl;
 @override @useResult
 $Res call({
-@JsonKey(name: 'selected-map') Map<String, String> selectedMap,@JsonKey(name: 'test-url') String testUrl,@JsonKey(name: 'override-test-url') bool overrideTestUrl,@JsonKey(name: 'profile-path') String profilePath,@JsonKey(name: 'age-secret-key') String ageSecretKey,@JsonKey(name: 'scripted-config') String scriptedConfig, Map<String, dynamic>? patch
+@JsonKey(name: 'selected-map') Map<String, String> selectedMap,@JsonKey(name: 'test-url') String testUrl,@JsonKey(name: 'profile-path') String profilePath,@JsonKey(name: 'age-secret-key') String ageSecretKey,@JsonKey(name: 'scripted-config') String scriptedConfig, Map<String, dynamic>? patch
 });
 
 
@@ -298,12 +296,11 @@ class __$SetupParamsCopyWithImpl<$Res>
 
 /// Create a copy of SetupParams
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? selectedMap = null,Object? testUrl = null,Object? overrideTestUrl = null,Object? profilePath = null,Object? ageSecretKey = null,Object? scriptedConfig = null,Object? patch = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? selectedMap = null,Object? testUrl = null,Object? profilePath = null,Object? ageSecretKey = null,Object? scriptedConfig = null,Object? patch = freezed,}) {
   return _then(_SetupParams(
 selectedMap: null == selectedMap ? _self._selectedMap : selectedMap // ignore: cast_nullable_to_non_nullable
 as Map<String, String>,testUrl: null == testUrl ? _self.testUrl : testUrl // ignore: cast_nullable_to_non_nullable
-as String,overrideTestUrl: null == overrideTestUrl ? _self.overrideTestUrl : overrideTestUrl // ignore: cast_nullable_to_non_nullable
-as bool,profilePath: null == profilePath ? _self.profilePath : profilePath // ignore: cast_nullable_to_non_nullable
+as String,profilePath: null == profilePath ? _self.profilePath : profilePath // ignore: cast_nullable_to_non_nullable
 as String,ageSecretKey: null == ageSecretKey ? _self.ageSecretKey : ageSecretKey // ignore: cast_nullable_to_non_nullable
 as String,scriptedConfig: null == scriptedConfig ? _self.scriptedConfig : scriptedConfig // ignore: cast_nullable_to_non_nullable
 as String,patch: freezed == patch ? _self._patch : patch // ignore: cast_nullable_to_non_nullable

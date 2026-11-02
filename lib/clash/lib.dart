@@ -203,6 +203,7 @@ class ClashLibHandler {
     String id,
     String output, {
     String? ageSecretKey,
+    String? providersPath,
   }) async {
     final action = Action(
       id: '${ActionMethod.exportConfig.name}#${utils.id}',
@@ -211,6 +212,8 @@ class ClashLibHandler {
         'path': await appPath.getProfilePath(id),
         'age-secret-key': ageSecretKey ?? '',
         'output': output,
+        'expand-providers': providersPath != null,
+        'providers-path': providersPath ?? '',
       }),
     );
     final result = decodeActionResult(

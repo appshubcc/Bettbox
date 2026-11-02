@@ -16,6 +16,7 @@ import 'package:bett_box/providers/providers.dart';
 import 'package:bett_box/providers/state.dart' as providers_state;
 
 import 'package:bett_box/widgets/dialog.dart';
+import 'package:bett_box/widgets/sheet.dart';
 import 'package:flutter/foundation.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
@@ -422,29 +423,14 @@ class GlobalState {
 
   Future<void> _checkAndRunBackgroundCoreGc() async {
     if (!backgroundMode.value) return;
-
-    const threshold = 2 * 1024 * 1024;
-    var consecutiveBusyCount = 0;
-
-    for (var i = 0; i < 3; i++) {
-      if (!backgroundMode.value) return;
-      try {
-        final traffic = await clashCore.getTraffic();
-        if (traffic.down.value > threshold || traffic.speed > threshold) {
-          consecutiveBusyCount++;
-        }
-      } catch (_) {}
-      if (i < 2) {
-        await Future.delayed(const Duration(seconds: 1));
-      }
+    try {
+      await clashCore.requestGc(
+        forceFreeOSMemory: system.isAndroid,
+        purge: false,
+      );
+    } catch (e) {
+      commonPrint.debug('Background requestGc ignored: $e');
     }
-
-    if (!backgroundMode.value) return;
-    if (consecutiveBusyCount < 3) {
-      await clashCore.requestGc(forceFreeOSMemory: system.isAndroid);
-      if (!backgroundMode.value) return;
-    }
-    android?.purgeMemory();
   }
 
   void cleanupBackgroundResources() async {
@@ -557,11 +543,13 @@ class GlobalState {
             ],
             child: Container(
               width: 300,
-              constraints: const BoxConstraints(maxHeight: 200),
+              constraints: const BoxConstraints(maxHeight: 240),
               child: SingleChildScrollView(
                 child: SelectableText.rich(
                   TextSpan(
-                    style: Theme.of(context).textTheme.labelLarge,
+                    style: Theme.of(
+                      context,
+                    ).textTheme.bodyLarge?.copyWith(fontSize: 15, height: 1.5),
                     children: [message],
                   ),
                   style: const TextStyle(overflow: TextOverflow.visible),
@@ -599,6 +587,19 @@ class GlobalState {
           ),
         );
       },
+    );
+  }
+
+  Future<T?> showAdaptiveSheet<T>({required Widget child}) async {
+    final context = navigatorKey.currentContext;
+    if (context == null) return null;
+    if (appState.viewMode != ViewMode.mobile) {
+      return await showCommonDialog<T>(child: child);
+    }
+    return await showSheet<T>(
+      context: context,
+      props: const SheetProps(expandable: false),
+      builder: (_, _) => child,
     );
   }
 
@@ -759,12 +760,13 @@ class GlobalState {
     );
   }
 
+  bool _scriptActive(Profile profile) =>
+      profile.runsManagedScript || config.scriptProps.scriptOf(profile) != null;
+
   Future<SetupParams?> buildValidateParams(Profile profile) async {
     final currentProfileId = config.currentProfileId;
-    final scriptActive =
-        config.scriptProps.currentScript != null && profile.useScriptOverride;
     if (isService ||
-        scriptActive ||
+        _scriptActive(profile) ||
         (currentProfileId != null && currentProfileId != profile.id)) {
       return null;
     }
@@ -796,46 +798,69 @@ class GlobalState {
   }
 
   Future<String> _writeScriptedConfig(Profile profile) async {
-    if (config.scriptProps.currentScript == null ||
-        !profile.useScriptOverride) {
+    if (!_scriptActive(profile)) return '';
+    try {
+      final managed = profile.runsManagedScript;
+      final script = managed
+          ? await ManagedScript.script(config.managedProps)
+          : config.scriptProps.scriptOf(profile);
+      if (script == null) return '';
+      return await writeScriptedConfig(profile, script, managed: managed);
+    } catch (e) {
+      commonPrint.error('Script execution failed: $e');
+      showNotifier('${appLocalizations.profileParseErrorDesc}: $e');
       return '';
     }
+  }
+
+  Future<String> writeScriptedConfig(
+    Profile profile,
+    Script script, {
+    bool managed = false,
+    bool refresh = false,
+  }) async {
     final stamp = DateTime.now().microsecondsSinceEpoch;
     final relayPath = await appPath.relayPath;
     final separator = Platform.pathSeparator;
     final file = File('$relayPath${separator}scripted-$stamp.json');
+    final stem =
+        '$relayPath${separator}cache-${profile.id}${managed ? '-managed' : ''}';
     return _scriptEvaluateLock.synchronized(() async {
-      final currentScript = config.scriptProps.currentScript;
-      if (currentScript == null) return '';
       unawaited(_sweepRelay(relayPath));
-      final cache = File('$relayPath${separator}cache-${profile.id}.json');
-      final cacheKey = File('$relayPath${separator}cache-${profile.id}.key');
+      final cache = File('$stem.json');
+      final cacheKey = File('$stem.key');
       String? content;
-      var digest = currentScript.digest;
-      var volatile = currentScript.volatile;
+      var digest = script.digest;
+      var volatile = script.volatile;
       if (digest == null || volatile == null) {
-        content = await currentScript.readContent();
+        content = await script.readContent();
         digest = content.toMd5();
         volatile = volatileScriptPattern.hasMatch(content);
       }
       final key = volatile
           ? null
-          : await _scriptedCacheKey(profile, currentScript, digest);
+          : await _scriptedCacheKey(profile, script, digest, managed: managed);
       final exported = File('$relayPath${separator}profile-$stamp.json');
       try {
-        if (key != null &&
+        if (!refresh &&
+            key != null &&
             await cache.exists() &&
             await cacheKey.exists() &&
             await cacheKey.readAsString() == key) {
           await cache.copy(file.path);
           return file.path;
         }
-        await _exportProfileConfig(profile, exported.path);
+        await _exportProfileConfig(
+          profile,
+          exported.path,
+          managed: managed,
+          refresh: refresh,
+        );
         await JavaScriptRuntimeManager.evaluateScriptFile(
-          scriptContent: content ?? await currentScript.readContent(),
+          scriptContent: content ?? await script.readContent(),
           inputPath: exported.path,
           outputPath: file.path,
-          customOptions: currentScript.customOptions,
+          customOptions: script.customOptions,
         );
         if (key != null) {
           if (await cacheKey.exists()) {
@@ -845,10 +870,6 @@ class GlobalState {
           await cacheKey.writeAsString(key, flush: true);
         }
         return file.path;
-      } catch (e) {
-        commonPrint.error('Script execution failed: $e');
-        showNotifier('${appLocalizations.profileParseErrorDesc}: $e');
-        return '';
       } finally {
         if (await exported.exists()) {
           try {
@@ -876,11 +897,20 @@ class GlobalState {
   Future<String?> _scriptedCacheKey(
     Profile profile,
     Script script,
-    String digest,
-  ) async {
+    String digest, {
+    required bool managed,
+  }) async {
     final profileFile = File(await appPath.getProfilePath(profile.id));
     if (!await profileFile.exists()) {
       return null;
+    }
+    if (managed) {
+      final providers = Directory(
+        '${await appPath.getProvidersDirPath(profile.id)}${Platform.pathSeparator}proxies',
+      );
+      if (await providers.exists() && !await providers.list().isEmpty) {
+        return null;
+      }
     }
     final stat = await profileFile.stat();
     return [
@@ -894,19 +924,30 @@ class GlobalState {
     ].join('\n').toMd5();
   }
 
-  Future<void> _exportProfileConfig(Profile profile, String output) async {
+  Future<void> _exportProfileConfig(
+    Profile profile,
+    String output, {
+    required bool managed,
+    required bool refresh,
+  }) async {
+    final providersPath = managed
+        ? await appPath.getProvidersDirPath(profile.id)
+        : null;
     final handler = clashLibHandler;
     if (handler != null) {
       return handler.exportConfig(
         profile.id,
         output,
         ageSecretKey: profile.ageSecretKey,
+        providersPath: providersPath,
       );
     }
     return clashCore.exportConfig(
       profile.id,
       output,
       ageSecretKey: profile.ageSecretKey,
+      expandProviders: providersPath != null,
+      refresh: refresh,
     );
   }
 
@@ -962,7 +1003,7 @@ class GlobalState {
         'device': tun.device,
         if (tun.dnsMode case final dnsMode?) 'dns-mode': dnsMode.name,
         'dns-hijack': tun.dnsHijack,
-        'stack': tun.stack.name,
+        'stack': (AppIdentity.isLite ? TunStack.mips : tun.stack).name,
         'route-address': tun.routeAddress,
         'route-exclude-address': tun.routeExcludeAddress,
         'auto-route': !system.isAndroid,
@@ -978,8 +1019,7 @@ class GlobalState {
       'global-ua': patchConfig.globalUa,
     };
 
-    final scriptActive =
-        config.scriptProps.currentScript != null && profile.useScriptOverride;
+    final scriptActive = profile.isManaged || _scriptActive(profile);
     final overrideData = profile.overrideData;
     final isRussian =
         config.appSetting.locale?.toLowerCase().startsWith('ru') ?? false;
@@ -997,7 +1037,7 @@ class GlobalState {
           'value': ['131.107.255.255', 'fd3e:4f5a:5b81::1'],
         },
       ],
-      'override-dns': config.overrideDns,
+      'override-dns': config.overrideDns && !profile.isManaged,
       'dns': {
         ...dns.toJson(),
         'nameserver-policy': {

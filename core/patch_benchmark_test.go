@@ -309,7 +309,7 @@ func BenchmarkSelectGlobalTarget_Fallback_Old(b *testing.B) {
 		{"name": 2},
 	}
 	rules := make([]string, 5000)
-	for i := 0; i < 4999; i++ {
+	for i := range 4999 {
 		rules[i] = fmt.Sprintf("DOMAIN-SUFFIX,domain-%d.com,AutoGroup", i)
 	}
 	rules[4999] = "MATCH,ProxyGroup"
@@ -326,7 +326,7 @@ func BenchmarkSelectGlobalTarget_Fallback_New(b *testing.B) {
 		{"name": 2},
 	}
 	rules := make([]string, 5000)
-	for i := 0; i < 4999; i++ {
+	for i := range 4999 {
 		rules[i] = fmt.Sprintf("DOMAIN-SUFFIX,domain-%d.com,AutoGroup", i)
 	}
 	rules[4999] = "MATCH,ProxyGroup"

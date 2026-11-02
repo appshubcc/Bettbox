@@ -287,6 +287,50 @@ func TestApplyPatchDnsInjection(t *testing.T) {
 	}
 }
 
+func TestApplyPatchBettboxRuleSets(t *testing.T) {
+	rawCfg := parsePatchProfile(t, "dns: {enable: false}\nrule-providers:\n  cn: {type: http, behavior: domain, format: mrs, url: 'https://example.com/cn.mrs'}\n  private_bettbox: {type: http, behavior: domain, format: mrs, url: 'https://example.com/private.mrs'}\nrules:\n  - RULE-SET,cn,DIRECT\n  - MATCH,DIRECT\n")
+	dns, _ := json.Marshal(map[string]any{
+		"enable":            true,
+		"fake-ip-filter":    []string{"*", "rule-set:private_bettbox", "rule-set:fakeip-filter_bettbox", "RULE-SET:category-ntp_bettbox,cn_bettbox"},
+		"nameserver-policy": map[string]any{"rule-set:cn_bettbox": "119.29.29.29"},
+	})
+	params := patchParams(t, `{"providers-path": "/data/providers", "prepend-rules": ["AND,((NETWORK,UDP),(DST-PORT,443),(NOT,((OR,((RULE-SET,cn_bettbox),(RULE-SET,cn_ip_bettbox,no-resolve)))))),REJECT"]}`)
+	params.Dns = dns
+	if _, err := applyPatch(rawCfg, params); err != nil {
+		t.Fatal(err)
+	}
+	if got := rawCfg.RuleProvider["private_bettbox"]["url"]; got != "https://example.com/private.mrs" {
+		t.Errorf("existing provider overwritten: %v", got)
+	}
+	if got := rawCfg.RuleProvider["cn"]["url"]; got != "https://example.com/cn.mrs" {
+		t.Errorf("user provider changed: %v", got)
+	}
+	cases := map[string][2]string{
+		"cn_bettbox":            {"domain", "geosite/cn.mrs"},
+		"cn_ip_bettbox":         {"ipcidr", "geoip/cn.mrs"},
+		"category-ntp_bettbox":  {"domain", "geosite/category-ntp.mrs"},
+		"fakeip-filter_bettbox": {"domain", "geosite/fakeip-filter.mrs"},
+	}
+	for name, want := range cases {
+		provider := rawCfg.RuleProvider[name]
+		url := bettboxRuleSetBaseURL + want[1]
+		if provider == nil || provider["behavior"] != want[0] || provider["url"] != url || provider["format"] != "mrs" || provider["path-in-bundle"] != "geo/"+want[1] || provider["path"] != providerFilePath("/data/providers", "rules", url) {
+			t.Errorf("%s = %v", name, provider)
+		}
+	}
+	if len(rawCfg.RuleProvider) != 6 {
+		t.Errorf("providers = %v", rawCfg.RuleProvider)
+	}
+
+	plain := parsePatchProfile(t, "dns: {enable: true, nameserver: ['10.0.0.1']}\nrules:\n  - MATCH,DIRECT\n")
+	if _, err := applyPatch(plain, patchParams(t, `{}`)); err != nil {
+		t.Fatal(err)
+	}
+	if len(plain.RuleProvider) != 0 {
+		t.Errorf("unreferenced providers added: %v", plain.RuleProvider)
+	}
+}
+
 func TestPrepareSetupReuse(t *testing.T) {
 	dir := t.TempDir()
 	profile := filepath.Join(dir, "profile.yaml")

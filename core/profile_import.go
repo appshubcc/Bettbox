@@ -28,11 +28,20 @@ type ImportProfileParams struct {
 	Setup        *SetupParams `json:"setup"`
 }
 
+const maxDecompressedProfileBytes = 64 << 20
+
 var errInvalidProfileEncoding = errors.New("profile is not valid UTF-8")
 
 func readAllAndClose(reader io.ReadCloser) ([]byte, error) {
 	defer reader.Close()
-	return io.ReadAll(reader)
+	data, err := io.ReadAll(io.LimitReader(reader, maxDecompressedProfileBytes+1))
+	if err != nil {
+		return nil, err
+	}
+	if len(data) > maxDecompressedProfileBytes {
+		return nil, errors.New("decompressed profile exceeds maximum size")
+	}
+	return data, nil
 }
 
 func gunzipProfile(data []byte) ([]byte, error) {
@@ -62,7 +71,7 @@ func decompressProfile(data []byte, encodings []string) []byte {
 	wantGzip := strings.Contains(joined, "gzip")
 	wantDeflate := strings.Contains(joined, "deflate")
 	current := data
-	for i := 0; i < 4; i++ {
+	for range 4 {
 		isGzipMagic := len(current) >= 2 && current[0] == 0x1f && current[1] == 0x8b
 		if wantGzip || isGzipMagic {
 			if !isGzipMagic {
@@ -267,7 +276,7 @@ func tempProfilePath(output string) string {
 }
 
 func writeProfileFile(path string, data []byte, sync bool) error {
-	file, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0o666)
+	file, err := openOutputFile(path)
 	if err != nil {
 		return err
 	}
@@ -277,9 +286,6 @@ func writeProfileFile(path string, data []byte, sync bool) error {
 	}
 	if closeErr := file.Close(); err == nil {
 		err = closeErr
-	}
-	if err == nil {
-		syncFileOwner(path)
 	}
 	return err
 }
@@ -324,18 +330,18 @@ func validateProfileContent(data []byte, ageSecretKey string) string {
 	return ""
 }
 
-func importValidatedProfile(data []byte, params *ImportProfileParams) string {
-	temp, err := writeTempProfile(params.Output, data)
+func importValidatedProfile(data []byte, output string, params *SetupParams) string {
+	temp, err := writeTempProfile(output, data)
 	if err != nil {
 		return err.Error()
 	}
 	defer os.Remove(temp)
-	setup := *params.Setup
+	setup := *params
 	setup.ProfilePath = temp
 	if message := handleValidateConfig(&ValidateConfigParams{Setup: &setup}); message != "" {
 		return message
 	}
-	if err := commitTempProfile(temp, params.Output); err != nil {
+	if err := commitTempProfile(temp, output); err != nil {
 		return err.Error()
 	}
 	return ""
@@ -377,7 +383,7 @@ func handleImportProfile(params *ImportProfileParams) string {
 		return ""
 	}
 	if params.Setup != nil {
-		return importValidatedProfile(data, params)
+		return importValidatedProfile(data, params.Output, params.Setup)
 	}
 	if params.Validate {
 		if message := validateProfileContent(data, params.AgeSecretKey); message != "" {

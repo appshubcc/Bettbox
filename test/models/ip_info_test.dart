@@ -34,19 +34,11 @@ void main() {
   });
 
   test('normalizes traditional chinese 中華民國 to 台灣 (中国)', () {
-    final info = IpInfo(
-      ip: '168.95.1.1',
-      countryCode: 'TW',
-      country: '中華民國',
-    );
+    final info = IpInfo(ip: '168.95.1.1', countryCode: 'TW', country: '中華民國');
     expect(info.countryCode, 'TW');
     expect(info.country, '台灣 (中国)');
 
-    final infoNoCc = IpInfo(
-      ip: '168.95.1.1',
-      countryCode: '',
-      country: '中華民國',
-    );
+    final infoNoCc = IpInfo(ip: '168.95.1.1', countryCode: '', country: '中華民國');
     expect(infoNoCc.countryCode, 'TW');
     expect(infoNoCc.country, '台灣 (中国)');
 
@@ -66,11 +58,7 @@ void main() {
   });
 
   test('normalizes simplified chinese 中华民国 to 台湾 (中国)', () {
-    final info = IpInfo(
-      ip: '140.112.1.1',
-      countryCode: 'TW',
-      country: '中华民国',
-    );
+    final info = IpInfo(ip: '140.112.1.1', countryCode: 'TW', country: '中华民国');
     expect(info.countryCode, 'TW');
     expect(info.country, '台湾 (中国)');
 

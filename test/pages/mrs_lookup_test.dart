@@ -21,11 +21,7 @@ const _result = MrsLookupResult(
   ],
 );
 
-Future<String?> _tapAndCopy(
-  WidgetTester tester,
-  bool copyRaw, {
-  MrsRawSource source = MrsRawSource.bettRules,
-}) async {
+Future<String?> _tap(WidgetTester tester, MrsTapAction action) async {
   String? copied;
   tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
     SystemChannels.platform,
@@ -44,7 +40,7 @@ Future<String?> _tapAndCopy(
   );
   globalState.config = Config(
     themeProps: defaultThemeProps,
-    appSetting: AppSettingProps(mrsCopyRawLink: copyRaw, mrsRawSource: source),
+    appSetting: AppSettingProps(mrsTapAction: action),
   );
   await tester.pumpWidget(
     ProviderScope(
@@ -67,21 +63,14 @@ Future<String?> _tapAndCopy(
 }
 
 void main() {
-  testWidgets('默认复制规则名', (tester) async {
-    expect(await _tapAndCopy(tester, false), 'GEOSITE,telegram');
+  test('默认点击查看规则列表', () {
+    expect(const AppSettingProps().mrsTapAction, MrsTapAction.viewRules);
   });
 
-  testWidgets('开启后复制 GitHub Raw 链接', (tester) async {
+  testWidgets('选择复制链接时复制 GitHub Raw 链接', (tester) async {
     expect(
-      await _tapAndCopy(tester, true),
+      await _tap(tester, MrsTapAction.copyUrl),
       'https://raw.githubusercontent.com/appshubcc/bett-rules/meta/geo/geosite/telegram.mrs',
-    );
-  });
-
-  testWidgets('选择 meta-rules-dat 时复制对应链接', (tester) async {
-    expect(
-      await _tapAndCopy(tester, true, source: MrsRawSource.metaRulesDat),
-      'https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/telegram.mrs',
     );
   });
 }

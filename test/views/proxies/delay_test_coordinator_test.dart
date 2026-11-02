@@ -56,6 +56,54 @@ void main() {
     expect(notifications, 2);
   });
 
+  test('cancel releases the lock and ignores the stale test', () async {
+    final coordinator = DelayTestCoordinator();
+    final stale = Completer<void>();
+    var notifications = 0;
+    coordinator.addListener(() => notifications++);
+
+    final staleRun = coordinator.run('Old', () => stale.future);
+    final epoch = coordinator.epoch;
+    coordinator.cancel();
+
+    expect(coordinator.isTesting, isFalse);
+    expect(coordinator.epoch, epoch + 1);
+
+    final fresh = Completer<void>();
+    final freshRun = coordinator.run('New', () => fresh.future);
+    expect(coordinator.testingGroupName, 'New');
+
+    stale.complete();
+    await staleRun;
+    expect(coordinator.testingGroupName, 'New');
+
+    fresh.complete();
+    await freshRun;
+    expect(coordinator.isTesting, isFalse);
+    expect(notifications, 4);
+  });
+
+  test('clear drops pending requests so new tests start again', () async {
+    final pool = DelayTestRequestPool();
+    const target = DelayTestTarget(name: 'proxy', url: 'u');
+    final stale = Completer<Delay>();
+    var requestCount = 0;
+
+    pool.run(target, () {
+      requestCount += 1;
+      return stale.future;
+    });
+    pool.clear();
+    final fresh = pool.run(target, () async {
+      requestCount += 1;
+      return const Delay(name: 'proxy', url: 'u', value: 10);
+    });
+
+    expect(requestCount, 2);
+    stale.complete(const Delay(name: 'proxy', url: 'u', value: -1));
+    expect((await fresh).value, 10);
+  });
+
   test(
     'deduplicates concurrent requests for the same resolved target',
     () async {

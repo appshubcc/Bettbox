@@ -8,7 +8,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart'
     show ExternalLibrary;
 import 'package:flutter_test/flutter_test.dart';
-import 'package:re_highlight/languages/yaml.dart';
 import 'package:re_highlight/styles/atom-one-light.dart';
 
 const _libraryStem = 'code_forge';
@@ -75,7 +74,7 @@ Future<void> pumpEditor(
     controller: controller,
     undoController: undoController,
     findController: findController,
-    language: langYaml,
+    language: editorYamlMode,
     editorTheme: editorTheme,
     selectionStyle: selectionStyle,
     textStyle: const TextStyle(fontSize: 16, height: editorLineHeight / 16),

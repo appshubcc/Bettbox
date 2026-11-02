@@ -90,3 +90,40 @@ func TestMarshalYamlNodeKeepingSupplementary(t *testing.T) {
 		t.Fatalf("entries changed: %#v", parsed["entries"])
 	}
 }
+
+func TestResidentRawConfigDropsProxiesAndGroups(t *testing.T) {
+	raw, err := parseProfile([]byte(`proxies:
+  - {name: a, type: ss, server: 1.1.1.1, port: 1, cipher: aes-128-gcm, password: p}
+proxy-groups:
+  - {name: g, type: select, proxies: [a]}
+proxy-providers:
+  inline: {type: inline, payload: [{name: b, type: ss, server: 1.1.1.1, port: 2, cipher: aes-128-gcm, password: p}]}
+rule-providers:
+  ads: {type: http, behavior: domain, url: https://example.com/ads.mrs, format: mrs}
+dns:
+  enable: true
+  enhanced-mode: fake-ip
+rules:
+  - GEOSITE,google,g
+  - MATCH,g
+`), "")
+	if err != nil {
+		t.Fatal(err)
+	}
+	resident := residentRawConfig(raw)
+	if resident.Proxy != nil || resident.ProxyGroup != nil {
+		t.Fatalf("proxies or groups kept: %d %d", len(resident.Proxy), len(resident.ProxyGroup))
+	}
+	if len(raw.Proxy) != 1 || len(raw.ProxyGroup) != 1 {
+		t.Fatalf("source changed: %d %d", len(raw.Proxy), len(raw.ProxyGroup))
+	}
+	if !resident.DNS.Enable || len(resident.Rule) != 2 || len(resident.RuleProvider) != 1 {
+		t.Fatalf("resident lost fields: %+v", resident.DNS.Enable)
+	}
+	if _, err := marshalInlineProviderContent(resident, "inline"); err != nil {
+		t.Fatal(err)
+	}
+	if residentRawConfig(nil) != nil {
+		t.Fatal("nil config should stay nil")
+	}
+}

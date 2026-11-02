@@ -31,9 +31,12 @@ type GetConfigParams struct {
 }
 
 type ExportConfigParams struct {
-	Path         string `json:"path"`
-	AgeSecretKey string `json:"age-secret-key"`
-	Output       string `json:"output"`
+	Path            string `json:"path"`
+	AgeSecretKey    string `json:"age-secret-key"`
+	Output          string `json:"output"`
+	ExpandProviders bool   `json:"expand-providers"`
+	ProvidersPath   string `json:"providers-path"`
+	Refresh         bool   `json:"refresh"`
 }
 
 type InitParams struct {
@@ -150,6 +153,7 @@ const (
 	getConfigMethod                      Method = "getConfig"
 	getRuntimeConfigMethod               Method = "getRuntimeConfig"
 	exportConfigMethod                   Method = "exportConfig"
+	mergeProfilesMethod                  Method = "mergeProfiles"
 	flushFakeIPMethod                    Method = "flushFakeIP"
 	flushDnsCacheMethod                  Method = "flushDnsCache"
 	generateAgeKeyPairMethod             Method = "generateAgeKeyPair"
@@ -179,6 +183,7 @@ const (
 	dnsQueryMethod                       Method = "dnsQuery"
 	mrsPrepareMethod                     Method = "mrsPrepare"
 	mrsLookupMethod                      Method = "mrsLookup"
+	mrsDumpMethod                        Method = "mrsDump"
 	getTrafficStatsMethod                Method = "getTrafficStats"
 	clearTrafficStatsMethod              Method = "clearTrafficStats"
 	cancelMrsLookupMethod                Method = "cancelMrsLookup"
@@ -207,7 +212,6 @@ const (
 	DelaysMessage        MessageType = "delays"
 	GroupsChangedMessage MessageType = "groupsChanged"
 	RequestMessage       MessageType = "request"
-	LoadedMessage        MessageType = "loaded"
 )
 
 func (message *Message) Json() (string, error) {

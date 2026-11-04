@@ -39,6 +39,22 @@ jobs:
           - platform: android
             os: ubuntu-24.04
             arch: universal
+          - platform: android
+            os: ubuntu-24.04
+            arch: arm64
+            lite: true
+          - platform: android
+            os: ubuntu-24.04
+            arch: amd64
+            lite: true
+          - platform: android
+            os: ubuntu-24.04
+            arch: arm
+            lite: true
+          - platform: android
+            os: ubuntu-24.04
+            arch: universal
+            lite: true
           - platform: windows
             os: windows-2022
             arch: amd64
@@ -198,7 +214,7 @@ jobs:
         run: |
           flutter pub get
           dart run build_runner build
-          dart setup.dart ${{ matrix.platform }} --arch ${{ matrix.arch }} ${{ env.IS_STABLE == 'true' && '--env stable' || '' }} ${{ matrix.compatible == true && '--compatible' || '' }}
+          dart setup.dart ${{ matrix.platform }} --arch ${{ matrix.arch }} ${{ env.IS_STABLE == 'true' && '--env stable' || '' }} ${{ matrix.compatible == true && '--compatible' || '' }} ${{ matrix.lite == true && '--lite' || '' }}
 
       - name: Install SignPath (Windows)
         if: matrix.platform == 'windows' && env.SIGNPATH_API_TOKEN != ''
@@ -435,7 +451,7 @@ jobs:
         if: matrix.platform != 'linux' && matrix.platform != 'windows'
         uses: actions/upload-artifact@v7
         with:
-          name: Bettbox-${{ matrix.platform }}-${{ matrix.arch }}${{ matrix.compatible == true && '-compatible' || '' }}
+          name: Bettbox-${{ matrix.platform }}-${{ matrix.arch }}${{ matrix.compatible == true && '-compatible' || '' }}${{ matrix.lite == true && '-lite' || '' }}
           path: ./dist/*
           archive: false
           overwrite: true

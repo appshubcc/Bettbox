@@ -12,6 +12,7 @@ void main(List<String> arguments) async {
   final parser = ArgParser()
     ..addOption('arch', allowed: ['amd64', 'arm64'], mandatory: true)
     ..addFlag('compatible', defaultsTo: false)
+    ..addFlag('lite', defaultsTo: false)
     ..addOption('env', defaultsTo: 'pre')
     ..addFlag('dev', defaultsTo: false)
     ..addFlag('portable', defaultsTo: null)
@@ -20,12 +21,17 @@ void main(List<String> arguments) async {
   final args = parser.parse(arguments);
   final arch = args['arch'] as String;
   final compatible = args['compatible'] as bool;
+  final lite = args['lite'] as bool;
   final isDev = args['dev'] as bool;
   final makePortable =
-      (args['portable'] as bool?) ?? (compatible && arch == 'amd64');
+      (args['portable'] as bool?) ?? (compatible && arch == 'amd64' && !lite);
   final makeInstaller = args['installer'] as bool;
 
-  final desc = compatible ? '$arch-compatible' : arch;
+  final desc = [
+    arch,
+    if (compatible) 'compatible',
+    if (lite) 'lite',
+  ].join('-');
 
   // 1. Get version from pubspec.yaml
   final pubspecFile = File('pubspec.yaml');

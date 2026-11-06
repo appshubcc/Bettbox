@@ -1,42 +1,43 @@
 <h4 align="right">
-  <a href="../README.md">简体中文</a> | <a href="README_en.md">English</a> | <a href="README_ru.md">Русский</a> | <a href="README_fa.md">فارسی</a> | <a href="README_ja.md">日本語</a> | <a href="README_ko.md">한국어</a>
+  <strong>简体中文</strong> | <a href="readme/README_en.md">English</a> | <a href="readme/README_ru.md">Русский</a> | <a href="readme/README_fa.md">فارسی</a> | <a href="readme/README_ja.md">日本語</a> | <a href="readme/README_ko.md">한국어</a>
 </h4>
 
 <h1 align="center">⚡ Bettbox</h1>
 <p align="center">
-  <strong>Another Better Mihomo Client</strong>
+  <strong>Another Better Network Toolbox</strong>
 </p>
 
-**Bettbox 是一款多平台的网络分流和 DNS 调试工具，基于强大的 Mihomo 内核深度打造。我们专注于极致的用户体验、严格的隐私安全与细微的功能打磨，致力于提供更加轻量畅快、低资源消耗即可长期稳定运行的现代化客户端体验。**
+**Bettbox 是基于 Mihomo 内核的多平台网络分流与 DNS 调试工具。更专注于极致的用户体验，为长期稳定运行而生，轻量省资源，且不收集任何数据。**
 
-秉承 **“Better Experience, Out of the box”（更优体验，亦开箱可用）** 的设计理念，Bettbox 深度挖掘系统与硬件潜能，实现前台高帧率简洁流畅、后台低能耗与低资源占用。项目已率先通过 SignPath 开源基金会的人工审核安全溯源，Windows 端已装载官方权威的 OV 数字签名证书。
+Bettbox 取自 Better Network Toolbox。项目已通过 SignPath 开源基金会的人工审核安全溯源，Windows 版使用 OV 代码签名证书。
 
 [![Latest Release](https://img.shields.io/github/v/release/appshubcc/Bettbox?style=for-the-badge&logo=github&color=238636&label=Release)](https://github.com/appshubcc/Bettbox/releases/latest) [![Core](https://img.shields.io/github/v/release/MetaCubeX/mihomo?style=for-the-badge&logo=go&logoColor=white&color=8A2BE2&label=Mihomo)](https://github.com/MetaCubeX/mihomo/releases/latest)
 
 <p align="center">
-  <img src="../snapshots/home.png" alt="Bettbox" />
+  <img src="snapshots/home.jpg" alt="Bettbox" />
 </p>
 
 ---
 ### ✈️ Telegram 社区交流
 
-[![Telegram Group](https://img.shields.io/badge/Bettbox-Chat-2CA5E0?style=for-the-badge&logo=telegram&logoColor=white)](https://t.me/appshub_chat) [![Telegram Channel](https://img.shields.io/badge/Bettbox-Channel-2CA5E0?style=for-the-badge&logo=telegram&logoColor=white)](https://t.me/appshub_channel)
+[![Telegram Group](https://img.shields.io/badge/Bettbox-Chat-2CA5E0?style=for-the-badge&logo=telegram&logoColor=white)](https://t.me/bettbox_chat) [![Telegram Channel](https://img.shields.io/badge/Bettbox-Channel-2CA5E0?style=for-the-badge&logo=telegram&logoColor=white)](https://t.me/appshub_channel)
 
 ---
 ## 🚀 核心特性
 
-* **开箱即用**：完善的权限引导与舒适的 TUN / VPN 体验，预置大量合理优化策略，安装即达最佳可用状态。
-* **轻量畅快**：深度调优系统与渲染管线，前台交互动画高帧率简洁丝滑，移动端低能耗，桌面端低资源占用。
-* **安全可信**：内核紧跟 Mihomo 主线，遵循各平台最小权限设计；通过 SignPath 审计并装载 Windows OV 数字签名证书。
-* **稳定容错**：优化多平台极端网络环境下的边界问题，内置双重配置检测验证与保护机制，带来媲美企业级应用的长期稳定性。
-* **架构优化**：桌面端原生 ARM64 架构深度支持，提供硬件性能分级，同时持续维护面向老旧设备的 Compatible 兼容版本。
-* **智能守护**：支持多平台无感智能启停、移动端低功耗休眠策略、一键禁用 QUIC 以及托盘菜单多维快捷控制。
-* **可视化设置**：提供丰富深入的可视化参数调节界面，支持改动即时生效，摆脱繁琐的手动改写配置负担。
-* **首页小组件**：内置多款设计精良的 Widget 小组件，在首页直观掌控实时网速、连接与全局运行状态。
-* **个性化定制**：支持丰富的色彩主题、自定义图标与标题等，并内置 30 种精美的测速动效。
-* **生态与扩展**：支持外置 JS 覆写脚本的可视化 UI 适配，深度重构的Code-forge高性能编辑器。
-* **零隐私风险**：代码完全透明开源、无广告，全自动化 CI/CD 流程接受全方位审计，零后台隐私收集。
-* **社区导向**：我们会认真评估社区反馈，积极响应高质量 Issue，与活跃的用户社群共同打磨进化。
+* **开箱即用**：权限引导、TUN 与托管分流模式均已预置，安装后即可使用。
+* **轻量畅快**：移动端低功耗，桌面端后台占用低，界面动画流畅。
+* **安全可信**：内核跟随 Mihomo 主线，各平台只申请最小权限。
+* **稳定容错**：优化多平台极端网络环境下的边界问题，配置双重校验，适合长期运行。
+* **架构优化**：桌面端原生支持 ARM64，持续维护面向旧设备的 Compatible 兼容版。
+* **智能守护**：多平台智能启停，适配移动端 Doze 休眠，桌面端多平台托盘快捷控制。
+* **可视化设置**：参数可视化调节，改动即时生效，小白用户无需手动改写配置。
+* **首页小组件**：内置多款设计精良的 Widget 小组件，首页可掌控全局运行状态。
+* **全能工具箱**：内置专业级别网络与 DNS 分流调试工具，网络状况一目了然。
+* **个性化定制**：多套类 MD 色彩主题，可自定义图标与标题，甚至 30 种测速动效。
+* **生态与扩展**：外置 JS 覆写脚本可适配图形界面，高性能 Code-forge 编辑器。
+* **零隐私风险**：代码开源、无广告，CI/CD 全自动且公开可审计，无后台数据收集。
+* **社区导向**：认真对待社区反馈，与活跃用户社群共同进化，积极响应高质量 Issue。
 
 ---
 ## 🛠️ 安装与下载
@@ -54,7 +55,7 @@
 
 **Linux社区维护包:**<br>
 * **ArchLinux:** <code>yay -S bettbox-bin</code> 或 <code>paru -S bettbox-bin</code> (由 [lyj404](https://github.com/lyj404/bettbox-aur) 维护)<br>
-* **AMD64=v1 (旧硬件兼容):** <code>yay -S bettbox-compatible-bin</code> 或 <code>paru -S bettbox-compatible-bin</code> (由 [VillagerTom](https://github.com/VillagerTom) 维护)
+* **AMD64=v1 (兼容版):** <code>yay -S bettbox-compatible-bin</code> 或 <code>paru -S bettbox-compatible-bin</code> (由 [VillagerTom](https://github.com/VillagerTom) 维护)
 
 ---
 ## 💡 常见问题
@@ -111,19 +112,29 @@ const Compatible_With_Bettbox = {
 
 ---
 ### 🛩️ 推荐服务
+
+<table>
+<tbody>
+<tr>
+<td width="180"><a href=" 🔗  https://api.muteki.site/register?aff=BETTBOX"><img src="https://raw.githubusercontent.com/sub-store-org/Sub-Store/master/assets/banners/MaruCode.jpg" alt="MaruCode" width="150"></a></td>
+<td><a href=" 🔗  https://api.muteki.site/register?aff=BETTBOX">MaruCode</a> 是一家偶尔做做慈善的小破站 API，自营号池，不搞充值营销套路，主要提供 Codex、Claude Code、GPT Image-2 等主流模型，支持 WebSocket 协议，明码标价(Codex 0.3x, CC 1.7x)，透明汇率(1:1)，<a href="https://api.muteki.site/register?aff=BETTBOX">新用户注册</a></td>
+</tr>
+</tbody>
+</table>
+
+--------------------------------
 #### IEPL 专线  〢  [百变小樱](https://www.bbxy01.com/v2/register?code=c09R)  〢  [白月光](https://www.sibker.com/register?invite_code=YZq6L5zd)  〢  [Ytoo](https://y-too.net/aff.php?aff=10354)
 --------------------------------
 #### 低价 直连  〢  [良心云](https://xn--9kqz23b19z.com/#/register?code=VTnrQYAj)  〢  [吹雪云](https://xn--9kqs1lo79d.com/#/register?code=skKMTab7)  〢  [一分](https://xn--4gqx1hgtfdmt.com/#/register?code=AuCiXprV) 
 --------------------------------
 #### 百变小樱专享68折优惠码：bettbox68 ，参见：[相关介绍](https://t.me/appshub_channel/381)
---------------------------------
 
 **简评** : ❚ ❚ 以上链接基本为自用或 TG 群组讨论推荐，此处仅做 AFF 展示（注：通过链接购买第三方服务，开发者可获得少量佣金支持），这并不代表对其服务作出承诺或保证。请自行甄别并合理选择。
 
 ---
 ### ☕ 赞助支持
 
-**如果您觉得这个项目对您有所帮助，也可通过以下方式赞助开发或使用 [推荐链接](../README.md#%EF%B8%8F-%E6%8E%A8%E8%8D%90%E6%9C%8D%E5%8A%A1)：**
+**如果您觉得这个项目对您有所帮助，也可通过以下方式赞助开发或使用 [推荐链接](https://github.com/appshubcc/Bettbox#%EF%B8%8F-%E6%8E%A8%E8%8D%90%E6%9C%8D%E5%8A%A1)：**
 
 * TRON (TRC-20)： <code>TCkTtZfF2WrciZLaJj3e1aqrh3zdTnCkDa</code>
 * Bitcoin： <code>bc1qu950cl6035qvllmzk6cfw3l30j2lg3cq9n6g6h</code>
@@ -152,4 +163,4 @@ const Compatible_With_Bettbox = {
 ---
 ## 📄 开源协议
 
-本项目采用 [GPL-3.0 License](../LICENSE) 开源协议。
+本项目采用 [GPL-3.0 License](LICENSE) 开源协议。

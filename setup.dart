@@ -624,33 +624,47 @@ class BuildCommand extends Command {
   Future<void> _buildDistributor({
     required Target target,
     required String targets,
-    String args = '',
     required String env,
     required String suffix,
+    String? targetPlatform,
+    List<String>? extraBuildArgs,
+    String description = '',
+    List<String>? dartDefines,
     bool lite = false,
   }) async {
+    final buildArgs = [
+      '--skip-clean',
+      '--platform ${target.name}',
+      '--targets $targets',
+      '--flutter-build-args=${['verbose', ...?extraBuildArgs].join(',')}',
+      if (targetPlatform != null && targetPlatform.isNotEmpty)
+        '--build-target-platform $targetPlatform',
+      if (description.isNotEmpty) '--description $description',
+    ].join(' ');
+
+    final defines = [...?dartDefines];
+    defines.add('APP_ENV=$env');
+
     final sentryDsn = Platform.environment['SENTRY_DSN'] ?? '';
-    final sentryArg = sentryDsn.isNotEmpty
-        ? ' --build-dart-define=SENTRY_DSN=$sentryDsn'
-        : '';
-    final suffixArg = suffix.isNotEmpty
-        ? ' --build-dart-define=APP_ASSET_SUFFIX=$suffix'
-        : '';
-
     final ipinfoToken = Platform.environment['IPINFO_TOKEN'] ?? '';
-    final ipinfoArg = ipinfoToken.isNotEmpty
-        ? ' --build-dart-define=IPINFO_TOKEN=$ipinfoToken'
-        : '';
 
-    final appDevArg = Build.isDev ? ' --build-dart-define=APP_DEV=true' : '';
-    final appLiteArg = lite ? ' --build-dart-define=APP_LITE=true' : '';
+    if (sentryDsn.isNotEmpty) defines.add('SENTRY_DSN=$sentryDsn');
+    if (suffix.isNotEmpty) defines.add('APP_ASSET_SUFFIX=$suffix');
+    if (ipinfoToken.isNotEmpty) defines.add('IPINFO_TOKEN=$ipinfoToken');
+
+    if (Build.isDev) defines.add('APP_DEV=true');
+    if (lite) defines.add('APP_LITE=true');
+
+    final dartDefineArgs = defines
+        .map((e) => '--build-dart-define=$e')
+        .join(' ');
 
     await Build.getDistributor();
     await Build.exec(
-      name: name,
       Build.getExecutable(
-        'flutter_distributor package --skip-clean --platform ${target.name} --targets $targets --flutter-build-args=verbose$args$sentryArg$suffixArg$ipinfoArg --build-dart-define=APP_ENV=$env$appDevArg$appLiteArg',
+        'flutter_distributor package $buildArgs $dartDefineArgs',
       ),
+      name: name,
     );
   }
 
@@ -896,7 +910,8 @@ class BuildCommand extends Command {
         _buildDistributor(
           target: target,
           targets: 'exe',
-          args: ' --description $desc --build-dart-define=CORE_SHA256=$token',
+          description: desc,
+          dartDefines: ['CORE_SHA256=$token'],
           env: env,
           suffix: appAssetSuffix,
         );
@@ -917,7 +932,8 @@ class BuildCommand extends Command {
           await _buildDistributor(
             target: target,
             targets: t,
-            args: ' --description $desc --build-target-platform $defaultTarget',
+            targetPlatform: defaultTarget,
+            description: desc,
             env: env,
             suffix: currentSuffix,
           );
@@ -935,14 +951,20 @@ class BuildCommand extends Command {
             .map((e) => targetMap[e])
             .toList();
 
-        final buildArgs = archName == 'universal'
-            ? ' --build-target-platform ${defaultTargets.join(",")} --description ${lite ? 'lite-universal' : 'universal'}'
-            : ',split-per-abi --build-target-platform ${defaultTargets.join(",")}${lite ? ' --description lite' : ''}';
+        final extraBuildArgs = archName == 'universal'
+            ? null
+            : ['split-per-abi'];
+        final description = [
+          if (lite) 'lite',
+          if (archName == 'universal') 'universal',
+        ].join('-');
 
         _buildDistributor(
           target: target,
           targets: 'apk',
-          args: buildArgs,
+          extraBuildArgs: extraBuildArgs,
+          targetPlatform: defaultTargets.join(','),
+          description: description,
           env: env,
           suffix: appAssetSuffix,
           lite: lite,
@@ -962,7 +984,7 @@ class BuildCommand extends Command {
         await _buildDistributor(
           target: target,
           targets: 'dmg',
-          args: ' --description $desc',
+          description: desc,
           env: env,
           suffix: appAssetSuffix,
         );

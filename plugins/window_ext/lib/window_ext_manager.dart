@@ -50,6 +50,13 @@ class WindowExtManager {
       'size': size,
     });
   }
+
+  Future<Uint8List?> getIcon(String name, int size) {
+    return _channel.invokeMethod<Uint8List>('getIcon', {
+      'name': name,
+      'size': size,
+    });
+  }
 }
 
 final windowExtManager = WindowExtManager.instance;

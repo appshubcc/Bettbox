@@ -7,7 +7,6 @@ import 'dart:ui' as ui;
 
 import 'package:bett_box/common/system.dart';
 import 'package:ffi/ffi.dart';
-import 'package:image/image.dart' as img;
 import 'package:path/path.dart' as p;
 import 'package:win32/win32.dart';
 import 'package:window_ext/window_ext.dart';
@@ -191,25 +190,7 @@ class ProcessIcon {
     final name = p.basename(path).toLowerCase();
     final icon = index[name];
     if (icon == null) return null;
-    return Isolate.run(() => _loadLinuxIcon(icon));
-  }
-
-  static Uint8List? _loadLinuxIcon(String icon) {
-    final file = _resolveLinuxIcon(icon);
-    if (file == null) return null;
-    final bytes = File(file).readAsBytesSync();
-    final image = img.decodePng(bytes);
-    if (image == null || image.width <= _size && image.height <= _size) {
-      return bytes;
-    }
-    final wide = image.width >= image.height;
-    final scaled = img.copyResize(
-      image,
-      width: wide ? _size : null,
-      height: wide ? null : _size,
-      interpolation: img.Interpolation.average,
-    );
-    return img.encodePng(scaled);
+    return windowExtManager.getIcon(icon, _size);
   }
 
   static List<String> get _linuxDataDirs {
@@ -266,29 +247,6 @@ class ProcessIcon {
       return p.basename(text).toLowerCase();
     }
     return null;
-  }
-
-  static String? _resolveLinuxIcon(String icon) {
-    if (p.isAbsolute(icon)) {
-      return icon.toLowerCase().endsWith('.png') && File(icon).existsSync()
-          ? icon
-          : null;
-    }
-    const sizes = ['96x96', '128x128', '256x256', '64x64', '48x48', '32x32'];
-    for (final size in sizes) {
-      for (final dataDir in _linuxDataDirs) {
-        final file = p.join(
-          dataDir,
-          'icons/hicolor',
-          size,
-          'apps',
-          '$icon.png',
-        );
-        if (File(file).existsSync()) return file;
-      }
-    }
-    final pixmap = '/usr/share/pixmaps/$icon.png';
-    return File(pixmap).existsSync() ? pixmap : null;
   }
 }
 

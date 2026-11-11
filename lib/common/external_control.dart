@@ -56,9 +56,32 @@ class ExternalControl {
           .cast<List<int>>()
           .transform(utf8.decoder)
           .transform(const LineSplitter())
-          .listen(_handleCommand),
+          .listen(
+            (line) => unawaited(_handleLine(line, socket)),
+            onError: (e) =>
+                commonPrint.warn('ExternalControl server error: $e'),
+          ),
       onError: (e) => commonPrint.warn('ExternalControl server error: $e'),
     );
+  }
+
+  static Future<void> _handleLine(String line, Socket socket) async {
+    final command = line.trim();
+    if (command.isEmpty) return;
+    String? response;
+    try {
+      response = await _dispatch(command);
+    } catch (e) {
+      response = 'error: $e';
+      commonPrint.warn('ExternalControl command failed [$command]: $e');
+    }
+    if (response == null) return;
+    try {
+      socket.write('$response\n');
+      await socket.flush();
+    } catch (e) {
+      commonPrint.warn('ExternalControl response failed: $e');
+    }
   }
 
   static Future<void> stop() async {
@@ -162,16 +185,64 @@ class ExternalControl {
         resetMessages.any((m) => osError.message.contains(m));
   }
 
-  static void _handleCommand(String command) {
-    switch (command.trim()) {
+  /// 命令表。带返回值的命令会把结果按单行写回同一个连接；
+  /// exit/restart/show 保持原有的「发了就不管」语义（返回 null）。
+  static const _helpText =
+      'commands: ping | status | profiles | profile [id|label] | '
+      'profile-update [id|label|all] | mode rule|global|direct | tun on|off | '
+      'core start|stop|restart|status | apply | dns | show | exit | restart';
+
+  static Future<String?> _dispatch(String command) async {
+    final parts = command.split(RegExp(r'\s+'));
+    final name = parts.first.toLowerCase();
+    final args = parts.skip(1).toList();
+    final controller = globalState.appController;
+
+    switch (name) {
       case 'exit':
-        globalState.appController.handleExit();
+        await controller.handleExit();
+        return null;
       case 'restart':
         system.restartApp();
+        return null;
       case 'show':
         window?.show();
+        return null;
+      case 'ping':
+        return 'pong';
+      case 'status':
+        return json.encode(controller.controlStatus());
+      case 'profiles':
+        return json.encode(controller.controlProfiles());
+      case 'profile':
+        if (args.isEmpty) {
+          return 'error: usage: profile <id|label> (see: profiles)';
+        }
+        return controller.controlSwitchProfile(args.first);
+      case 'profile-update':
+        return controller.controlUpdateProfile(
+          args.isEmpty ? null : args.first,
+        );
+      case 'mode':
+        if (args.isEmpty) {
+          return 'error: usage: mode rule|global|direct';
+        }
+        return controller.controlSetMode(args.first);
+      case 'tun':
+        if (args.isEmpty) return 'error: usage: tun on|off';
+        return controller.controlSetTun(args.first);
+      case 'core':
+        return controller.controlCore(args.isEmpty ? 'status' : args.first);
+      case 'apply':
+        await controller.applyProfile();
+        return 'ok: config applied';
+      case 'dns':
+        await controller.flushDns();
+        return 'ok: dns flushed';
+      case 'help':
+        return _helpText;
       default:
-        commonPrint.warn('ExternalControl unknown command: $command');
+        return 'error: unknown command: $name ($_helpText)';
     }
   }
 }

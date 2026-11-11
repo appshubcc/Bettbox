@@ -2161,6 +2161,141 @@ class AppController {
     addCheckIpNumDebounce();
   }
 
+  // =================== ExternalControl（CLI / agent）API ===================
+  // 供 lib/common/external_control.dart 的控制 socket 调用。全部复用 GUI 自身
+  // 状态路径（provider 变更 + 原有 debounce/apply），因此不会出现
+  //「9090 改了运行时、GUI 状态没跟上」的漂移，也不会被下一次应用覆盖。
+
+  Map<String, dynamic> controlStatus() {
+    final patchConfig = _ref.read(patchClashConfigProvider);
+    final profile = globalState.config.currentProfile;
+    return {
+      'version':
+          '${globalState.packageInfo.version}+${globalState.packageInfo.buildNumber}',
+      'core': globalState.isStart ? 'running' : 'stopped',
+      'mode': patchConfig.mode.name,
+      'tun': patchConfig.tun.enable,
+      'realTun': _ref.read(realTunEnableProvider),
+      'mixedPort': patchConfig.mixedPort,
+      'port': patchConfig.port,
+      'socksPort': patchConfig.socksPort,
+      'allowLan': patchConfig.allowLan,
+      'externalController': patchConfig.externalController.name,
+      'hasSecret': (patchConfig.secret ?? '').isNotEmpty,
+      'findProcessMode': patchConfig.findProcessMode.name,
+      'ipv6': patchConfig.ipv6,
+      'logLevel': patchConfig.logLevel.name,
+      'profileId': profile?.id,
+      'profileLabel': profile?.label,
+      'loadedProfileId': _loadedProfileId,
+    };
+  }
+
+  List<Map<String, dynamic>> controlProfiles() {
+    final currentProfileId = _ref.read(currentProfileIdProvider);
+    return _ref
+        .read(profilesProvider)
+        .map(
+          (e) => {
+            'id': e.id,
+            'label': e.label,
+            'current': e.id == currentProfileId,
+            'loaded': e.id == _loadedProfileId,
+          },
+        )
+        .toList();
+  }
+
+  Profile? _findProfile(String idOrLabel) {
+    return _ref
+        .read(profilesProvider)
+        .where((e) => e.id == idOrLabel || e.label == idOrLabel)
+        .firstOrNull;
+  }
+
+  Future<String> controlSwitchProfile(String idOrLabel) async {
+    final profile = _findProfile(idOrLabel);
+    if (profile == null) return 'error: profile not found: $idOrLabel';
+    final name = profile.label ?? profile.id;
+    _ref.read(currentProfileIdProvider.notifier).value = profile.id;
+    if (!globalState.isStart) {
+      return 'ok: profile=$name (core stopped, applies on next start)';
+    }
+    // 真正的切换由 needSetupProvider 的监听器（manager/clash_manager.dart）
+    // 异步执行，这里只等它落地，避免重复触发一次 apply。
+    final deadline = DateTime.now().add(const Duration(seconds: 20));
+    while (DateTime.now().isBefore(deadline)) {
+      if (_loadedProfileId == profile.id) {
+        return 'ok: profile=$name';
+      }
+      await Future.delayed(const Duration(milliseconds: 200));
+    }
+    await handleChangeProfile();
+    return 'ok: profile=$name (fallback apply)';
+  }
+
+  Future<String> controlUpdateProfile(String? idOrLabel) async {
+    if (idOrLabel == null || idOrLabel == 'all') {
+      await updateProfiles();
+      return 'ok: updated all profiles';
+    }
+    final profile = _findProfile(idOrLabel);
+    if (profile == null) return 'error: profile not found: $idOrLabel';
+    await updateProfile(profile);
+    return 'ok: updated ${profile.label ?? profile.id}';
+  }
+
+  Future<String> controlSetMode(String value) async {
+    final mode = Mode.values
+        .where((e) => e.name == value.toLowerCase())
+        .firstOrNull;
+    if (mode == null) {
+      return 'error: unknown mode: $value (rule|global|direct)';
+    }
+    changeMode(mode);
+    return 'ok: mode=${mode.name}';
+  }
+
+  Future<String> controlSetTun(String value) async {
+    final target = switch (value.toLowerCase()) {
+      'on' || 'true' || '1' || 'enable' => true,
+      'off' || 'false' || '0' || 'disable' => false,
+      _ => null,
+    };
+    if (target == null) {
+      return 'error: unknown tun value: $value (on|off)';
+    }
+    final current = _ref.read(patchClashConfigProvider).tun.enable;
+    if (current == target) return 'ok: tun=$target (already)';
+    updateTun();
+    return 'ok: tun=$target (applying)';
+  }
+
+  Future<String> controlCore(String action) async {
+    switch (action.toLowerCase()) {
+      case 'start':
+      case 'stop':
+        final target = action.toLowerCase() == 'start';
+        if (target == globalState.isStart) {
+          return 'ok: core already ${target ? 'running' : 'stopped'}';
+        }
+        await updateStatus(target);
+        if (globalState.isStart != target) {
+          return 'error: core failed to ${target ? 'start' : 'stop'}'
+              '（无可用订阅或内核启动失败，见 GUI 通知/日志）';
+        }
+        break;
+      case 'restart':
+        await restartCore();
+        break;
+      case 'status':
+        break;
+      default:
+        return 'error: unknown core action: $action (start|stop|restart|status)';
+    }
+    return 'ok: core ${globalState.isStart ? 'running' : 'stopped'}';
+  }
+
   void updateAutoLaunch() {
     _ref
         .read(appSettingProvider.notifier)

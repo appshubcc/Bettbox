@@ -2271,6 +2271,125 @@ class AppController {
     return 'ok: tun=$target (applying)';
   }
 
+  /// `set` 命令受理的字段（GUI 里只能点、又没法通过 9090 持久化的那些项）。
+  static const controlSettableFields = [
+    'mixed-port',
+    'port',
+    'socks-port',
+    'redir-port',
+    'tproxy-port',
+    'log-level',
+    'ipv6',
+    'tcp-concurrent',
+    'unified-delay',
+    'allow-lan',
+    'find-process-mode',
+    'keep-alive-interval',
+    'external-controller',
+    'secret',
+  ];
+
+  Future<String> controlSet(String field, String value) async {
+    final key = field.toLowerCase();
+    final raw = value.trim();
+    final notifier = _ref.read(patchClashConfigProvider.notifier);
+
+    bool? parseBool() => switch (raw.toLowerCase()) {
+      'on' || 'true' || '1' || 'yes' => true,
+      'off' || 'false' || '0' || 'no' => false,
+      _ => null,
+    };
+
+    switch (key) {
+      case 'mixed-port':
+      case 'port':
+      case 'socks-port':
+      case 'redir-port':
+      case 'tproxy-port':
+        final port = int.tryParse(raw);
+        if (port == null || port < 0 || port > 65535) {
+          return 'error: $key expects an integer in 0..65535';
+        }
+        notifier.updateState(
+          (state) => switch (key) {
+            'mixed-port' => state.copyWith(mixedPort: port),
+            'port' => state.copyWith(port: port),
+            'socks-port' => state.copyWith(socksPort: port),
+            'redir-port' => state.copyWith(redirPort: port),
+            _ => state.copyWith(tproxyPort: port),
+          },
+        );
+      case 'log-level':
+        final level = LogLevel.values
+            .where((e) => e.name == raw.toLowerCase())
+            .firstOrNull;
+        if (level == null) {
+          return 'error: log-level expects '
+              '${LogLevel.values.map((e) => e.name).join('|')}';
+        }
+        notifier.updateState((state) => state.copyWith(logLevel: level));
+      case 'find-process-mode':
+        final mode = FindProcessMode.values
+            .where((e) => e.name == raw.toLowerCase())
+            .firstOrNull;
+        if (mode == null) {
+          return 'error: find-process-mode expects '
+              '${FindProcessMode.values.map((e) => e.name).join('|')}';
+        }
+        notifier.updateState((state) => state.copyWith(findProcessMode: mode));
+      case 'ipv6':
+      case 'tcp-concurrent':
+      case 'unified-delay':
+      case 'allow-lan':
+        final value = parseBool();
+        if (value == null) return 'error: $key expects on|off';
+        notifier.updateState(
+          (state) => switch (key) {
+            'ipv6' => state.copyWith(ipv6: value),
+            'tcp-concurrent' => state.copyWith(tcpConcurrent: value),
+            'unified-delay' => state.copyWith(unifiedDelay: value),
+            _ => state.copyWith(allowLan: value),
+          },
+        );
+      case 'keep-alive-interval':
+        final interval = int.tryParse(raw);
+        if (interval == null || interval < 0) {
+          return 'error: keep-alive-interval expects a non-negative integer';
+        }
+        notifier.updateState(
+          (state) => state.copyWith(keepAliveInterval: interval),
+        );
+      case 'external-controller':
+        final status = switch (raw.toLowerCase()) {
+          'on' || 'true' || '1' => ExternalControllerStatus.open,
+          'off' || 'false' || '0' => ExternalControllerStatus.close,
+          _ => null,
+        };
+        if (status == null) return 'error: external-controller expects on|off';
+        notifier.updateState(
+          (state) => state.copyWith(externalController: status),
+        );
+      case 'secret':
+        // 空值 = 清除密钥，回到「不开启外部控制认证」的状态。
+        notifier.updateState(
+          (state) => state.copyWith(secret: raw.isEmpty ? null : raw),
+        );
+      default:
+        return 'error: unknown field: $field '
+            '(settable: ${controlSettableFields.join(', ')})';
+    }
+
+    // 与 GUI 一致的生效路径：外部控制/密钥要整份重新下发，其余走增量更新。
+    if (key == 'external-controller' || key == 'secret') {
+      await applyProfile();
+    } else {
+      await updateClashConfig();
+    }
+    // 立即落盘，别等 GUI 空闲或退出：命令行改完往往马上就退出/被重启。
+    await savePreferences();
+    return 'ok: $key=${raw.isEmpty ? '(cleared)' : raw}';
+  }
+
   Future<String> controlCore(String action) async {
     switch (action.toLowerCase()) {
       case 'start':

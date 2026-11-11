@@ -48,7 +48,10 @@ const customDashboardTitleKey = 'custom_dashboard_title';
 const double dialogCommonWidth = 300;
 const repository = 'appshubcc/Bettbox';
 const ipInfoToken = String.fromEnvironment('IPINFO_TOKEN', defaultValue: '');
-const defaultExternalController = '127.0.0.1:9090';
+const defaultExternalControllerHost = '127.0.0.1';
+const defaultExternalControllerPort = 9090;
+const defaultExternalController =
+    '$defaultExternalControllerHost:$defaultExternalControllerPort';
 const maxMobileWidth = 600;
 const maxLaptopWidth = 840;
 double getFloatingBottomBarReserveHeight(BuildContext context) {

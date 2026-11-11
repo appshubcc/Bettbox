@@ -522,6 +522,9 @@ _ClashConfig _$ClashConfigFromJson(Map<String, dynamic> json) => _ClashConfig(
         json['external-controller'],
       ) ??
       ExternalControllerStatus.close,
+  externalControllerPort:
+      (json['external-controller-port'] as num?)?.toInt() ??
+      defaultExternalControllerPort,
   secret: json['secret'] as String?,
   externalUiName: json['external-ui-name'] as String?,
   externalUiUrl: json['external-ui-url'] as String?,
@@ -562,6 +565,7 @@ Map<String, dynamic> _$ClashConfigToJson(_ClashConfig instance) =>
       'global-ua': instance.globalUa,
       'external-controller':
           _$ExternalControllerStatusEnumMap[instance.externalController]!,
+      'external-controller-port': instance.externalControllerPort,
       'secret': instance.secret,
       'external-ui-name': instance.externalUiName,
       'external-ui-url': instance.externalUiUrl,

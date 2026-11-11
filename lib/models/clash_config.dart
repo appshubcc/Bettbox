@@ -801,6 +801,9 @@ abstract class ClashConfig with _$ClashConfig {
     @Default(ExternalControllerStatus.close)
     @JsonKey(name: 'external-controller')
     ExternalControllerStatus externalController,
+    @Default(defaultExternalControllerPort)
+    @JsonKey(name: 'external-controller-port')
+    int externalControllerPort,
     String? secret,
     @JsonKey(name: 'external-ui-name') String? externalUiName,
     @JsonKey(name: 'external-ui-url') String? externalUiUrl,

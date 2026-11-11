@@ -30,11 +30,15 @@ Future<void> main(List<String> args) async {
   globalState.isService = false;
   WidgetsFlutterBinding.ensureInitialized();
 
-  if (system.isDesktop &&
-      (args.contains('--exit') || args.contains('--restart'))) {
-    final command = args.contains('--exit') ? 'exit' : 'restart';
-    await _sendControlCommand(command);
-    exit(0);
+  // 命令行模式：`Bettbox status`、`Bettbox mode global` 这类调用只把命令
+  // 转发给正在运行的实例，把回执打到 stdout，然后退出，不启动界面。
+  final cliCommand = _commandLineCommand(args);
+  if (system.isDesktop && cliCommand != null) {
+    final (ok, output) = await _sendControlCommand(cliCommand);
+    if (output != null && output.isNotEmpty) {
+      stdout.writeln(output);
+    }
+    exit(ok ? 0 : 1);
   }
 
   if (system.isMacOS || appPath.isPortable) {
@@ -69,20 +73,42 @@ Future<void> main(List<String> args) async {
   await _runApp();
 }
 
-Future<void> _sendControlCommand(String command) async {
+/// 把命令行参数解析成控制命令。
+///
+/// `--exit` / `--restart` 保持原有语义；其余不以 `-` 开头的参数按顺序拼成
+/// 一条命令（`Bettbox mode global` → `mode global`）。没有位置参数时返回
+/// `null`，走正常 GUI 启动。
+String? _commandLineCommand(List<String> args) {
+  if (args.contains('--exit')) return 'exit';
+  if (args.contains('--restart')) return 'restart';
+  final positional = args.where((arg) => !arg.startsWith('-'));
+  if (positional.isEmpty) return null;
+  return positional.join(' ');
+}
+
+/// 把命令发给正在运行的实例。返回 (是否成功, 回执)。
+Future<(bool, String?)> _sendControlCommand(String command) async {
   for (int i = 0; i < 5; i++) {
     try {
-      await ExternalControl.sendCommand(command);
+      final response = await ExternalControl.sendCommand(command);
       commonPrint.log('Sent $command command to running instance');
-      return;
+      final ok = response == null || !response.startsWith('error:');
+      return (ok, response);
+    } on TimeoutException catch (e) {
+      // 命令已经发出去了，重试会重复执行；直接报错。
+      commonPrint.warn('Timed out waiting for $command response: $e');
+      stderr.writeln('error: timed out waiting for response');
+      return (false, null);
     } catch (e) {
       if (i == 4) {
         commonPrint.warn('Failed to send $command command: $e');
-        return;
+        stderr.writeln('error: $e');
+        return (false, null);
       }
       await Future.delayed(const Duration(milliseconds: 200));
     }
   }
+  return (false, null);
 }
 
 Future<void> _runApp() async {

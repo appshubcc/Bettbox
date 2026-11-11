@@ -129,7 +129,18 @@ int APIENTRY wWinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE prev,
   std::vector<std::string> command_line_arguments =
       GetCommandLineArguments();
 
+  // 位置参数（`Bettbox status` 之类）也是控制命令：既不显示窗口，
+  // 也不做正常 GUI 启动，由 Dart 侧转发并打印回执后退出。
+  bool has_positional_argument = false;
+  for (const auto& argument : command_line_arguments) {
+    if (!argument.empty() && argument[0] != '-') {
+      has_positional_argument = true;
+      break;
+    }
+  }
+
   const bool is_control_command =
+      has_positional_argument ||
       std::find(command_line_arguments.begin(),
                 command_line_arguments.end(), "--exit") !=
           command_line_arguments.end() ||

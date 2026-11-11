@@ -75,12 +75,23 @@ class ExternalControl {
       response = 'error: $e';
       commonPrint.warn('ExternalControl command failed [$command]: $e');
     }
-    if (response == null) return;
+    if (response == null) {
+      // exit/restart/show 没有回执，直接断开，免得客户端干等到超时。
+      try {
+        await socket.close();
+      } catch (_) {}
+      return;
+    }
     try {
       socket.write('$response\n');
       await socket.flush();
     } catch (e) {
       commonPrint.warn('ExternalControl response failed: $e');
+    } finally {
+      // 单个连接只处理一行命令，回执写完就关，客户端读到 EOF 即可返回。
+      try {
+        await socket.close();
+      } catch (_) {}
     }
   }
 
@@ -105,17 +116,26 @@ class ExternalControl {
     }
   }
 
-  static Future<void> sendCommand(String command) async {
-    if (!system.isDesktop) return;
+  /// 把一行命令发给正在运行的实例，并返回它的回执。
+  ///
+  /// `exit` / `restart` / `show` 这类命令没有回执，返回 `null`；
+  /// 实例没在跑时抛 [StateError]。
+  static Future<String?> sendCommand(String command) async {
+    if (!system.isDesktop) return null;
+
+    Object? lastError;
 
     // Prefer Unix Domain Socket when the socket file exists.
     final socketPath = await appPath.controlSocketPath;
     final socketType = FileSystemEntity.typeSync(socketPath);
     if (socketType != FileSystemEntityType.notFound) {
       try {
-        await _sendUnixCommand(socketPath, command);
-        return;
-      } catch (_) {}
+        return await _sendUnixCommand(socketPath, command);
+      } on SocketException catch (e) {
+        // 只有连接层面失败才回退到 TCP；命令已发出后的失败直接上抛，
+        // 避免调用方重试导致重复执行。
+        lastError = e;
+      }
     }
 
     // Fall back to TCP loopback port file.
@@ -125,16 +145,21 @@ class ExternalControl {
       final port = int.tryParse(content.trim());
       if (port != null) {
         try {
-          await _sendTcpCommand(port, command);
-          return;
-        } catch (_) {}
+          return await _sendTcpCommand(port, command);
+        } on SocketException catch (e) {
+          lastError = e;
+        }
       }
     }
 
-    throw StateError('Bettbox is not running');
+    throw StateError(
+      lastError == null
+          ? 'Bettbox is not running'
+          : 'Bettbox is not running ($lastError)',
+    );
   }
 
-  static Future<void> _sendUnixCommand(
+  static Future<String?> _sendUnixCommand(
     String socketPath,
     String command,
   ) async {
@@ -143,33 +168,51 @@ class ExternalControl {
       address,
       0,
     ).timeout(const Duration(seconds: 1));
-    try {
-      socket.write('$command\n');
-      await socket.flush();
-    } on SocketException catch (e) {
-      if (!_isConnectionReset(e)) rethrow;
-    } finally {
-      try {
-        await socket.close();
-      } catch (_) {}
-    }
+    return _exchange(socket, command);
   }
 
-  static Future<void> _sendTcpCommand(int port, String command) async {
+  static Future<String?> _sendTcpCommand(int port, String command) async {
     final socket = await Socket.connect(
       InternetAddress.loopbackIPv4,
       port,
     ).timeout(const Duration(seconds: 1));
+    return _exchange(socket, command);
+  }
+
+  /// 写一行命令进连接，等对端回一行（或直接断开），然后关掉连接。
+  static Future<String?> _exchange(Socket socket, String command) async {
+    final buffer = StringBuffer();
+    final received = Completer<void>();
+    final subscription = socket
+        .cast<List<int>>()
+        .transform(utf8.decoder)
+        .transform(const LineSplitter())
+        .listen(
+          (line) => buffer.write('$line\n'),
+          onError: (Object e) {
+            commonPrint.warn('ExternalControl response read failed: $e');
+            if (!received.isCompleted) received.complete();
+          },
+          onDone: () {
+            if (!received.isCompleted) received.complete();
+          },
+          cancelOnError: true,
+        );
     try {
       socket.write('$command\n');
       await socket.flush();
+      // 服务端处理完会主动断开；这里留足切换订阅/重启内核的时间。
+      await received.future.timeout(const Duration(seconds: 10));
     } on SocketException catch (e) {
       if (!_isConnectionReset(e)) rethrow;
     } finally {
+      await subscription.cancel();
       try {
-        await socket.close();
+        socket.destroy();
       } catch (_) {}
     }
+    final response = buffer.toString().trim();
+    return response.isEmpty ? null : response;
   }
 
   static bool _isConnectionReset(SocketException e) {

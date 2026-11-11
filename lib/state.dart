@@ -978,10 +978,16 @@ class GlobalState {
     final secret = patchConfig.secret;
     final hasSecret = secret != null && secret.isNotEmpty;
     final hasAuthentication = patchConfig.authentication.isNotEmpty;
+    // 端口可配置：多个实例（正式版 / Dev 版）同时运行时各自用不同控制端口。
+    final externalControllerHost = patchConfig.allowLan && hasSecret
+        ? '0.0.0.0'
+        : defaultExternalControllerHost;
+    final externalControllerAddress =
+        externalController == ExternalControllerStatus.open
+        ? '$externalControllerHost:${patchConfig.externalControllerPort}'
+        : '';
     final general = <String, dynamic>{
-      'external-controller': patchConfig.allowLan && hasSecret
-          ? externalController.value.replaceAll('127.0.0.1', '0.0.0.0')
-          : externalController.value,
+      'external-controller': externalControllerAddress,
       if (externalController == ExternalControllerStatus.open && hasSecret)
         'secret': secret,
       'external-ui': await appPath.uiPath,

@@ -512,6 +512,9 @@ class ExternalControllerItem extends ConsumerWidget {
         ? ref.watch(patchClashConfigProvider.select((state) => state.secret)) ??
               ''
         : '';
+    final controlPort = ref.watch(
+      patchClashConfigProvider.select((state) => state.externalControllerPort),
+    );
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -574,7 +577,7 @@ class ExternalControllerItem extends ConsumerWidget {
                         tooltip: appLocalizations.onlinePanel,
                         onPressed: () async {
                           final uri = Uri.parse(
-                            'http://127.0.0.1:9090/ui/#/setup?hostname=127.0.0.1&port=9090&secret=$secret',
+                            'http://127.0.0.1:$controlPort/ui/#/setup?hostname=127.0.0.1&port=$controlPort&secret=$secret',
                           );
                           if (await canLaunchUrl(uri)) {
                             await launchUrl(
@@ -603,8 +606,89 @@ class ExternalControllerItem extends ConsumerWidget {
               );
             },
           ),
+          ListItem(
+            leading: const Icon(Icons.settings_ethernet),
+            title: Text(appLocalizations.port),
+            subtitle: Text('127.0.0.1:$controlPort'),
+            onTap: () async {
+              await globalState.showCommonDialog(
+                child: _ControlPortDialog(currentPort: controlPort),
+              );
+            },
+          ),
         ],
       ],
+    );
+  }
+}
+
+class _ControlPortDialog extends ConsumerStatefulWidget {
+  final int currentPort;
+
+  const _ControlPortDialog({required this.currentPort});
+
+  @override
+  ConsumerState<_ControlPortDialog> createState() => _ControlPortDialogState();
+}
+
+class _ControlPortDialogState extends ConsumerState<_ControlPortDialog> {
+  late TextEditingController _controller;
+  final _formKey = GlobalKey<FormState>();
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController(text: '${widget.currentPort}');
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  Future<void> _handleSave() async {
+    if (_formKey.currentState?.validate() == false) return;
+    ref
+        .read(patchClashConfigProvider.notifier)
+        .updateState(
+          (state) => state.copyWith(
+            externalControllerPort: int.parse(_controller.text.trim()),
+          ),
+        );
+    Navigator.of(context).pop();
+    await globalState.appController.applyProfile();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return CommonDialog(
+      title: appLocalizations.port,
+      actions: [
+        TextButton(onPressed: _handleSave, child: Text(appLocalizations.save)),
+      ],
+      child: Form(
+        key: _formKey,
+        child: Padding(
+          padding: const EdgeInsets.only(top: 8),
+          child: TextFormField(
+            controller: _controller,
+            keyboardType: TextInputType.number,
+            decoration: InputDecoration(
+              border: const OutlineInputBorder(),
+              labelText: appLocalizations.port,
+              hintText: '1-65535',
+            ),
+            validator: (value) {
+              final port = int.tryParse(value?.trim() ?? '');
+              if (port == null || port < 1 || port > 65535) {
+                return appLocalizations.port;
+              }
+              return null;
+            },
+          ),
+        ),
+      ),
     );
   }
 }

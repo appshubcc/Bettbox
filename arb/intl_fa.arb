@@ -611,6 +611,8 @@
   "darkIconDesc": "تغییر آیکون برنامه به تم تاریک",
   "harmonyFont": "ترمیم فونت",
   "harmonyFontDesc": "استفاده از فونت داخلی برای رفع مشکلات نمایش",
+  "phosphorIcons": "آیکون‌های Phosphor",
+  "phosphorIconsDesc": "استفاده از سبک آیکون مدرن و ظریف Phosphor در سراسر برنامه",
   "internet": "اینترنت",
   "systemApp": "برنامه‌های سیستم",
   "noNetworkApp": "برنامه‌های بدون شبکه",
@@ -1257,5 +1259,13 @@
   "addRegion": "افزودن منطقه",
   "regionName": "نام منطقه",
   "regionRegex": "عبارت باقاعده منطبق",
-  "regexInvalid": "قالب عبارت باقاعده نامعتبر است"
+  "regexInvalid": "قالب عبارت باقاعده نامعتبر است",
+  "appIconStyle": "سبک آیکون",
+  "appIconStyleDesc": "سفارشی‌سازی سبک بصری آیکون‌های برنامه",
+  "iconStyleCupertino": "Cupertino",
+  "iconStyleCupertinoDesc": "سبک بصری Apple iOS / SF Symbols",
+  "iconStyleMaterial": "Material",
+  "iconStyleMaterialDesc": "سبک بصری Google Material Design",
+  "iconStylePhosphor": "Phosphor",
+  "iconStylePhosphorDesc": "سبک مینیمال هندسی مدرن"
 }

@@ -350,6 +350,10 @@ class MessageLookup extends MessageLookupByLibrary {
       "Маршрутизация приложений",
     ),
     "appDesc": MessageLookupByLibrary.simpleMessage("Настройки приложения"),
+    "appIconStyle": MessageLookupByLibrary.simpleMessage("Стиль иконок"),
+    "appIconStyleDesc": MessageLookupByLibrary.simpleMessage(
+      "Настройка визуального стиля иконок приложения",
+    ),
     "application": MessageLookupByLibrary.simpleMessage("Приложение"),
     "applicationDesc": MessageLookupByLibrary.simpleMessage(
       "Настройки приложения",
@@ -960,6 +964,18 @@ class MessageLookup extends MessageLookupByLibrary {
     "iconCount": m22,
     "iconSets": MessageLookupByLibrary.simpleMessage("Наборы значков"),
     "iconStyle": MessageLookupByLibrary.simpleMessage("Стиль иконок"),
+    "iconStyleCupertino": MessageLookupByLibrary.simpleMessage("Cupertino"),
+    "iconStyleCupertinoDesc": MessageLookupByLibrary.simpleMessage(
+      "Классический стиль Apple iOS / SF Symbols",
+    ),
+    "iconStyleMaterial": MessageLookupByLibrary.simpleMessage("Material"),
+    "iconStyleMaterialDesc": MessageLookupByLibrary.simpleMessage(
+      "Официальный стиль Google Material Design",
+    ),
+    "iconStylePhosphor": MessageLookupByLibrary.simpleMessage("Phosphor"),
+    "iconStylePhosphorDesc": MessageLookupByLibrary.simpleMessage(
+      "Современный геометрический минималистичный стиль",
+    ),
     "iconUrl": MessageLookupByLibrary.simpleMessage("URL значка"),
     "import": MessageLookupByLibrary.simpleMessage("Импорт"),
     "importFailed": MessageLookupByLibrary.simpleMessage("Ошибка импорта"),
@@ -1733,6 +1749,10 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "password": MessageLookupByLibrary.simpleMessage("Пароль"),
     "paste": MessageLookupByLibrary.simpleMessage("Вставить"),
+    "phosphorIcons": MessageLookupByLibrary.simpleMessage("Иконки Phosphor"),
+    "phosphorIconsDesc": MessageLookupByLibrary.simpleMessage(
+      "Использовать современный и утонченный стиль иконок Phosphor",
+    ),
     "pianoWave": MessageLookupByLibrary.simpleMessage("Фортепианная волна"),
     "pin": MessageLookupByLibrary.simpleMessage("Закрепить"),
     "pleaseBindWebDAV": MessageLookupByLibrary.simpleMessage(

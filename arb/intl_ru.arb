@@ -612,6 +612,8 @@
   "darkIconDesc": "Вручную переключить на тёмную иконку приложения",
   "harmonyFont": "Исправление шрифта",
   "harmonyFontDesc": "Встроенный шрифт для исправления отображения",
+  "phosphorIcons": "Иконки Phosphor",
+  "phosphorIconsDesc": "Использовать современный и утонченный стиль иконок Phosphor",
   "internet": "Интернет",
   "systemApp": "Системные приложения",
   "noNetworkApp": "Приложения без сети",
@@ -1261,5 +1263,13 @@
   "addRegion": "Добавить регион",
   "regionName": "Название региона",
   "regionRegex": "Регулярное выражение",
-  "regexInvalid": "Неверный формат регулярного выражения"
+  "regexInvalid": "Неверный формат регулярного выражения",
+  "appIconStyle": "Стиль иконок",
+  "appIconStyleDesc": "Настройка визуального стиля иконок приложения",
+  "iconStyleCupertino": "Cupertino",
+  "iconStyleCupertinoDesc": "Классический стиль Apple iOS / SF Symbols",
+  "iconStyleMaterial": "Material",
+  "iconStyleMaterialDesc": "Официальный стиль Google Material Design",
+  "iconStylePhosphor": "Phosphor",
+  "iconStylePhosphorDesc": "Современный геометрический минималистичный стиль"
 }

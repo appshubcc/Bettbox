@@ -611,6 +611,8 @@
   "darkIconDesc": "アプリアイコンをダーク系に切り替え",
   "harmonyFont": "フォント修復",
   "harmonyFontDesc": "表示異常を改善するため内蔵フォントを使用",
+  "phosphorIcons": "Phosphor アイコン",
+  "phosphorIconsDesc": "アプリ全体でモダンで洗練された Phosphor アイコンを使用",
   "internet": "インターネット",
   "systemApp": "システムアプリ",
   "noNetworkApp": "非通信アプリ",
@@ -1257,5 +1259,13 @@
   "addRegion": "地域を追加",
   "regionName": "国/地域名",
   "regionRegex": "マッチング正規表現",
-  "regexInvalid": "正規表現の形式が無効です"
+  "regexInvalid": "正規表現の形式が無効です",
+  "appIconStyle": "アイコンスタイル",
+  "appIconStyleDesc": "アプリのアイコンスタイルをカスタマイズ",
+  "iconStyleCupertino": "Cupertino",
+  "iconStyleCupertinoDesc": "Apple iOS / SF Symbols スタイル",
+  "iconStyleMaterial": "Material",
+  "iconStyleMaterialDesc": "Google Material Design スタイル",
+  "iconStylePhosphor": "Phosphor",
+  "iconStylePhosphorDesc": "モダンなジオメトリック軽量スタイル"
 }

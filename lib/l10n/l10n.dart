@@ -5030,6 +5030,26 @@ class AppLocalizations {
     );
   }
 
+  /// `Phosphor Icons`
+  String get phosphorIcons {
+    return Intl.message(
+      'Phosphor Icons',
+      name: 'phosphorIcons',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Use modern and refined Phosphor icon style across the app`
+  String get phosphorIconsDesc {
+    return Intl.message(
+      'Use modern and refined Phosphor icon style across the app',
+      name: 'phosphorIconsDesc',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Internet`
   String get internet {
     return Intl.message('Internet', name: 'internet', desc: '', args: []);
@@ -10609,6 +10629,81 @@ class AppLocalizations {
     return Intl.message(
       'Invalid regular expression',
       name: 'regexInvalid',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Icon Style`
+  String get appIconStyle {
+    return Intl.message('Icon Style', name: 'appIconStyle', desc: '', args: []);
+  }
+
+  /// `Customize application icon visual style`
+  String get appIconStyleDesc {
+    return Intl.message(
+      'Customize application icon visual style',
+      name: 'appIconStyleDesc',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Cupertino`
+  String get iconStyleCupertino {
+    return Intl.message(
+      'Cupertino',
+      name: 'iconStyleCupertino',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Apple iOS / SF Symbols visual style`
+  String get iconStyleCupertinoDesc {
+    return Intl.message(
+      'Apple iOS / SF Symbols visual style',
+      name: 'iconStyleCupertinoDesc',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Material`
+  String get iconStyleMaterial {
+    return Intl.message(
+      'Material',
+      name: 'iconStyleMaterial',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Google Material Design visual style`
+  String get iconStyleMaterialDesc {
+    return Intl.message(
+      'Google Material Design visual style',
+      name: 'iconStyleMaterialDesc',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Phosphor`
+  String get iconStylePhosphor {
+    return Intl.message(
+      'Phosphor',
+      name: 'iconStylePhosphor',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Modern geometric lightweight visual style`
+  String get iconStylePhosphorDesc {
+    return Intl.message(
+      'Modern geometric lightweight visual style',
+      name: 'iconStylePhosphorDesc',
       desc: '',
       args: [],
     );

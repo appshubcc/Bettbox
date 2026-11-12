@@ -69,6 +69,7 @@ dependencies:
     path: plugins/code_forge
   material_ui: ^1.8.0
   cupertino_ui: ^1.1.4
+  phosphoricons_flutter: ^1.1.1
 dependency_overrides:
   flutter_rust_bridge: 2.13.0
   hotkey_manager_linux:

@@ -611,6 +611,8 @@
   "darkIconDesc": "앱 아이콘을 어두운 색계열로 전환",
   "harmonyFont": "글꼴 복구",
   "harmonyFontDesc": "표시 이상 해결을 위해 내장 글꼴 사용",
+  "phosphorIcons": "Phosphor 아이콘",
+  "phosphorIconsDesc": "앱 전체에서 모던하고 정교한 Phosphor 아이콘 스타일 사용",
   "internet": "인터넷",
   "systemApp": "시스템 앱",
   "noNetworkApp": "네트워크 미사용 앱",
@@ -1257,5 +1259,13 @@
   "addRegion": "지역 추가",
   "regionName": "국가/지역 이름",
   "regionRegex": "일치 정규식",
-  "regexInvalid": "정규식 형식이 잘못되었습니다"
+  "regexInvalid": "정규식 형식이 잘못되었습니다",
+  "appIconStyle": "아이콘 스타일",
+  "appIconStyleDesc": "앱 아이콘 시각적 스타일 사용자 지정",
+  "iconStyleCupertino": "Cupertino",
+  "iconStyleCupertinoDesc": "Apple iOS / SF Symbols 시각적 스타일",
+  "iconStyleMaterial": "Material",
+  "iconStyleMaterialDesc": "Google Material Design 시각적 스타일",
+  "iconStylePhosphor": "Phosphor",
+  "iconStylePhosphorDesc": "현대적인 기하학적 미니멀 스타일"
 }

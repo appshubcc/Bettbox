@@ -290,6 +290,10 @@ class MessageLookup extends MessageLookupByLibrary {
     "app": MessageLookupByLibrary.simpleMessage("アプリ"),
     "appAccessControl": MessageLookupByLibrary.simpleMessage("アプリのアクセス制御"),
     "appDesc": MessageLookupByLibrary.simpleMessage("アプリ設定を管理"),
+    "appIconStyle": MessageLookupByLibrary.simpleMessage("アイコンスタイル"),
+    "appIconStyleDesc": MessageLookupByLibrary.simpleMessage(
+      "アプリのアイコンスタイルをカスタマイズ",
+    ),
     "application": MessageLookupByLibrary.simpleMessage("アプリケーション"),
     "applicationDesc": MessageLookupByLibrary.simpleMessage("アプリ設定の変更"),
     "authorized": MessageLookupByLibrary.simpleMessage("認証済み"),
@@ -774,6 +778,18 @@ class MessageLookup extends MessageLookupByLibrary {
     "iconCount": m22,
     "iconSets": MessageLookupByLibrary.simpleMessage("アイコンセット"),
     "iconStyle": MessageLookupByLibrary.simpleMessage("アイコンスタイル"),
+    "iconStyleCupertino": MessageLookupByLibrary.simpleMessage("Cupertino"),
+    "iconStyleCupertinoDesc": MessageLookupByLibrary.simpleMessage(
+      "Apple iOS / SF Symbols スタイル",
+    ),
+    "iconStyleMaterial": MessageLookupByLibrary.simpleMessage("Material"),
+    "iconStyleMaterialDesc": MessageLookupByLibrary.simpleMessage(
+      "Google Material Design スタイル",
+    ),
+    "iconStylePhosphor": MessageLookupByLibrary.simpleMessage("Phosphor"),
+    "iconStylePhosphorDesc": MessageLookupByLibrary.simpleMessage(
+      "モダンなジオメトリック軽量スタイル",
+    ),
     "iconUrl": MessageLookupByLibrary.simpleMessage("アイコン URL"),
     "import": MessageLookupByLibrary.simpleMessage("インポート"),
     "importFailed": MessageLookupByLibrary.simpleMessage("インポート失敗"),
@@ -1387,6 +1403,10 @@ class MessageLookup extends MessageLookupByLibrary {
     "parsePureIpDesc": MessageLookupByLibrary.simpleMessage("IP直接接続を解析"),
     "password": MessageLookupByLibrary.simpleMessage("パスワード"),
     "paste": MessageLookupByLibrary.simpleMessage("貼り付け"),
+    "phosphorIcons": MessageLookupByLibrary.simpleMessage("Phosphor アイコン"),
+    "phosphorIconsDesc": MessageLookupByLibrary.simpleMessage(
+      "アプリ全体でモダンで洗練された Phosphor アイコンを使用",
+    ),
     "pianoWave": MessageLookupByLibrary.simpleMessage("ピアノウェーブ"),
     "pin": MessageLookupByLibrary.simpleMessage("固定"),
     "pleaseBindWebDAV": MessageLookupByLibrary.simpleMessage("WebDAVを連携してください"),

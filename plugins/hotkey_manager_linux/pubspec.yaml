@@ -4,7 +4,7 @@ version: 0.2.0
 repository: https://github.com/leanflutter/hotkey_manager/tree/main/packages/hotkey_manager_linux
 
 environment:
-  sdk: '>=3.0.0 <4.0.0'
+  sdk: '>=3.14.0 <4.0.0'
   flutter: '>=3.3.0'
 
 dependencies:

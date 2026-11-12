@@ -611,6 +611,8 @@
   "darkIconDesc": "手动切换深色系桌面 APP 图标",
   "harmonyFont": "字体修复",
   "harmonyFontDesc": "使用内置字体解决显示异常问题",
+  "phosphorIcons": "Phosphor 图标",
+  "phosphorIconsDesc": "在全应用中启用现代精致的 Phosphor 图标风格",
   "internet": "互联网",
   "systemApp": "系统应用",
   "noNetworkApp": "无网络应用",
@@ -1257,5 +1259,13 @@
   "addRegion": "添加地区",
   "regionName": "国家名称",
   "regionRegex": "匹配正则",
-  "regexInvalid": "正则表达式格式错误"
+  "regexInvalid": "正则表达式格式错误",
+  "appIconStyle": "图标风格",
+  "appIconStyleDesc": "自定义全局应用图标视觉风格",
+  "iconStyleCupertino": "Cupertino",
+  "iconStyleCupertinoDesc": "苹果 iOS / SF Symbols 经典视觉风格",
+  "iconStyleMaterial": "Material",
+  "iconStyleMaterialDesc": "谷歌 Material Design 官方视觉风格",
+  "iconStylePhosphor": "Phosphor",
+  "iconStylePhosphorDesc": "现代几何极简视觉风格"
 }

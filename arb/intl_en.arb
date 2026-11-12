@@ -610,6 +610,8 @@
   "darkIconDesc": "Manually switch dark app icon",
   "harmonyFont": "Font Fix",
   "harmonyFontDesc": "Use built-in font to fix display issues",
+  "phosphorIcons": "Phosphor Icons",
+  "phosphorIconsDesc": "Use modern and refined Phosphor icon style across the app",
   "internet": "Internet",
   "systemApp": "System App",
   "noNetworkApp": "No Network App",
@@ -1256,5 +1258,13 @@
   "addRegion": "Add Region",
   "regionName": "Region Name",
   "regionRegex": "Matching Regex",
-  "regexInvalid": "Invalid regular expression"
+  "regexInvalid": "Invalid regular expression",
+  "appIconStyle": "Icon Style",
+  "appIconStyleDesc": "Customize application icon visual style",
+  "iconStyleCupertino": "Cupertino",
+  "iconStyleCupertinoDesc": "Apple iOS / SF Symbols visual style",
+  "iconStyleMaterial": "Material",
+  "iconStyleMaterialDesc": "Google Material Design visual style",
+  "iconStylePhosphor": "Phosphor",
+  "iconStylePhosphorDesc": "Modern geometric lightweight visual style"
 }

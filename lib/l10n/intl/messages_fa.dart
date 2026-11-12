@@ -332,6 +332,10 @@ class MessageLookup extends MessageLookupByLibrary {
       "کنترل دسترسی برنامه‌ها",
     ),
     "appDesc": MessageLookupByLibrary.simpleMessage("تنظیمات مربوط به برنامه"),
+    "appIconStyle": MessageLookupByLibrary.simpleMessage("سبک آیکون"),
+    "appIconStyleDesc": MessageLookupByLibrary.simpleMessage(
+      "سفارشی‌سازی سبک بصری آیکون‌های برنامه",
+    ),
     "application": MessageLookupByLibrary.simpleMessage("برنامه"),
     "applicationDesc": MessageLookupByLibrary.simpleMessage(
       "مدیریت تنظیمات برنامه",
@@ -918,6 +922,18 @@ class MessageLookup extends MessageLookupByLibrary {
     "iconCount": m22,
     "iconSets": MessageLookupByLibrary.simpleMessage("مجموعه‌های آیکون"),
     "iconStyle": MessageLookupByLibrary.simpleMessage("سبک آیکون"),
+    "iconStyleCupertino": MessageLookupByLibrary.simpleMessage("Cupertino"),
+    "iconStyleCupertinoDesc": MessageLookupByLibrary.simpleMessage(
+      "سبک بصری Apple iOS / SF Symbols",
+    ),
+    "iconStyleMaterial": MessageLookupByLibrary.simpleMessage("Material"),
+    "iconStyleMaterialDesc": MessageLookupByLibrary.simpleMessage(
+      "سبک بصری Google Material Design",
+    ),
+    "iconStylePhosphor": MessageLookupByLibrary.simpleMessage("Phosphor"),
+    "iconStylePhosphorDesc": MessageLookupByLibrary.simpleMessage(
+      "سبک مینیمال هندسی مدرن",
+    ),
     "iconUrl": MessageLookupByLibrary.simpleMessage("نشانی نماد"),
     "import": MessageLookupByLibrary.simpleMessage("وارد کردن"),
     "importFailed": MessageLookupByLibrary.simpleMessage(
@@ -1673,6 +1689,10 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "password": MessageLookupByLibrary.simpleMessage("رمز عبور"),
     "paste": MessageLookupByLibrary.simpleMessage("جایگذاری"),
+    "phosphorIcons": MessageLookupByLibrary.simpleMessage("آیکون‌های Phosphor"),
+    "phosphorIconsDesc": MessageLookupByLibrary.simpleMessage(
+      "استفاده از سبک آیکون مدرن و ظریف Phosphor در سراسر برنامه",
+    ),
     "pianoWave": MessageLookupByLibrary.simpleMessage("موج پیانو"),
     "pin": MessageLookupByLibrary.simpleMessage("پین"),
     "pleaseBindWebDAV": MessageLookupByLibrary.simpleMessage(

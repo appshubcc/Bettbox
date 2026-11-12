@@ -297,6 +297,10 @@ class MessageLookup extends MessageLookupByLibrary {
     "app": MessageLookupByLibrary.simpleMessage("앱"),
     "appAccessControl": MessageLookupByLibrary.simpleMessage("앱 액세스 제어"),
     "appDesc": MessageLookupByLibrary.simpleMessage("앱 관련 설정 관리"),
+    "appIconStyle": MessageLookupByLibrary.simpleMessage("아이콘 스타일"),
+    "appIconStyleDesc": MessageLookupByLibrary.simpleMessage(
+      "앱 아이콘 시각적 스타일 사용자 지정",
+    ),
     "application": MessageLookupByLibrary.simpleMessage("애플리케이션"),
     "applicationDesc": MessageLookupByLibrary.simpleMessage("앱 설정 변경"),
     "authorized": MessageLookupByLibrary.simpleMessage("인증됨"),
@@ -783,6 +787,18 @@ class MessageLookup extends MessageLookupByLibrary {
     "iconCount": m22,
     "iconSets": MessageLookupByLibrary.simpleMessage("아이콘 세트"),
     "iconStyle": MessageLookupByLibrary.simpleMessage("아이콘 스타일"),
+    "iconStyleCupertino": MessageLookupByLibrary.simpleMessage("Cupertino"),
+    "iconStyleCupertinoDesc": MessageLookupByLibrary.simpleMessage(
+      "Apple iOS / SF Symbols 시각적 스타일",
+    ),
+    "iconStyleMaterial": MessageLookupByLibrary.simpleMessage("Material"),
+    "iconStyleMaterialDesc": MessageLookupByLibrary.simpleMessage(
+      "Google Material Design 시각적 스타일",
+    ),
+    "iconStylePhosphor": MessageLookupByLibrary.simpleMessage("Phosphor"),
+    "iconStylePhosphorDesc": MessageLookupByLibrary.simpleMessage(
+      "현대적인 기하학적 미니멀 스타일",
+    ),
     "iconUrl": MessageLookupByLibrary.simpleMessage("아이콘 URL"),
     "import": MessageLookupByLibrary.simpleMessage("가져오기"),
     "importFailed": MessageLookupByLibrary.simpleMessage("가져오기 실패"),
@@ -1396,6 +1412,10 @@ class MessageLookup extends MessageLookupByLibrary {
     "parsePureIpDesc": MessageLookupByLibrary.simpleMessage("순수 IP 연결 분석"),
     "password": MessageLookupByLibrary.simpleMessage("비밀번호"),
     "paste": MessageLookupByLibrary.simpleMessage("붙여넣기"),
+    "phosphorIcons": MessageLookupByLibrary.simpleMessage("Phosphor 아이콘"),
+    "phosphorIconsDesc": MessageLookupByLibrary.simpleMessage(
+      "앱 전체에서 모던하고 정교한 Phosphor 아이콘 스타일 사용",
+    ),
     "pianoWave": MessageLookupByLibrary.simpleMessage("피아노 웨이브"),
     "pin": MessageLookupByLibrary.simpleMessage("고정"),
     "pleaseBindWebDAV": MessageLookupByLibrary.simpleMessage("WebDAV를 연결해 주세요"),

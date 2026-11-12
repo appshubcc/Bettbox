@@ -611,6 +611,8 @@
   "darkIconDesc": "手動切換深色系桌面應用程式圖示",
   "harmonyFont": "字體修復",
   "harmonyFontDesc": "使用內建字體解決顯示異常問題",
+  "phosphorIcons": "Phosphor 圖示",
+  "phosphorIconsDesc": "在全應用中啟用現代精緻的 Phosphor 圖示風格",
   "internet": "網際網路",
   "systemApp": "系統應用程式",
   "noNetworkApp": "無網路應用程式",
@@ -1257,5 +1259,13 @@
   "addRegion": "新增地區",
   "regionName": "國家名稱",
   "regionRegex": "匹配正則",
-  "regexInvalid": "規則運算式格式錯誤"
+  "regexInvalid": "規則運算式格式錯誤",
+  "appIconStyle": "圖示風格",
+  "appIconStyleDesc": "自訂全域應用程式圖示視覺風格",
+  "iconStyleCupertino": "Cupertino",
+  "iconStyleCupertinoDesc": "蘋果 iOS / SF Symbols 經典視覺風格",
+  "iconStyleMaterial": "Material",
+  "iconStyleMaterialDesc": "Google Material Design 官方視覺風格",
+  "iconStylePhosphor": "Phosphor",
+  "iconStylePhosphorDesc": "現代幾何極簡視覺風格"
 }

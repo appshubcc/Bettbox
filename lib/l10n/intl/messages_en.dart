@@ -337,6 +337,10 @@ class MessageLookup extends MessageLookupByLibrary {
       "App Access Control",
     ),
     "appDesc": MessageLookupByLibrary.simpleMessage("App-related settings"),
+    "appIconStyle": MessageLookupByLibrary.simpleMessage("Icon Style"),
+    "appIconStyleDesc": MessageLookupByLibrary.simpleMessage(
+      "Customize application icon visual style",
+    ),
     "application": MessageLookupByLibrary.simpleMessage("Application"),
     "applicationDesc": MessageLookupByLibrary.simpleMessage(
       "Modify application settings",
@@ -923,6 +927,18 @@ class MessageLookup extends MessageLookupByLibrary {
     "iconCount": m22,
     "iconSets": MessageLookupByLibrary.simpleMessage("Icon Sets"),
     "iconStyle": MessageLookupByLibrary.simpleMessage("Icon Style"),
+    "iconStyleCupertino": MessageLookupByLibrary.simpleMessage("Cupertino"),
+    "iconStyleCupertinoDesc": MessageLookupByLibrary.simpleMessage(
+      "Apple iOS / SF Symbols visual style",
+    ),
+    "iconStyleMaterial": MessageLookupByLibrary.simpleMessage("Material"),
+    "iconStyleMaterialDesc": MessageLookupByLibrary.simpleMessage(
+      "Google Material Design visual style",
+    ),
+    "iconStylePhosphor": MessageLookupByLibrary.simpleMessage("Phosphor"),
+    "iconStylePhosphorDesc": MessageLookupByLibrary.simpleMessage(
+      "Modern geometric lightweight visual style",
+    ),
     "iconUrl": MessageLookupByLibrary.simpleMessage("Icon URL"),
     "import": MessageLookupByLibrary.simpleMessage("Import"),
     "importFailed": MessageLookupByLibrary.simpleMessage("Import failed"),
@@ -1654,6 +1670,10 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "password": MessageLookupByLibrary.simpleMessage("Password"),
     "paste": MessageLookupByLibrary.simpleMessage("Paste"),
+    "phosphorIcons": MessageLookupByLibrary.simpleMessage("Phosphor Icons"),
+    "phosphorIconsDesc": MessageLookupByLibrary.simpleMessage(
+      "Use modern and refined Phosphor icon style across the app",
+    ),
     "pianoWave": MessageLookupByLibrary.simpleMessage("Piano Wave"),
     "pin": MessageLookupByLibrary.simpleMessage("Pin"),
     "pleaseBindWebDAV": MessageLookupByLibrary.simpleMessage(

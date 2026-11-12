@@ -1,7 +1,7 @@
 include: package:flutter_lints/flutter.yaml
 analyzer:
   exclude:
-    - lib/l10n/intl/**
+    - lib/l10n/**
     - lib/clash/generated/**
     - lib/**/generated/**
     - "**/*.g.dart"

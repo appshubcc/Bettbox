@@ -11,11 +11,11 @@ flutter_rust_bridge = "=2.13.0"
 fancy-regex = { version = "0.14", default-features = false, features = ["std"] }
 regex-automata = { version = "0.4", default-features = false, features = ["std", "syntax", "meta", "nfa-pikevm", "nfa-backtrack", "hybrid", "perf-literal", "unicode-case", "unicode-perl", "unicode-word-boundary"] }
 ropey = { version = "1.6.1", default-features = false, features = ["simd"] }
-rquickjs = { version = "0.12", default-features = false }
+rquickjs = { version = "0.14", default-features = false }
 serde_json = { version = "1", features = ["preserve_order"] }
 
 [target.'cfg(target_os = "android")'.dependencies]
-rquickjs = { version = "0.12", default-features = false, features = ["bindgen"] }
+rquickjs = { version = "0.14", default-features = false, features = ["bindgen"] }
 
 [profile.release]
 opt-level = "s"

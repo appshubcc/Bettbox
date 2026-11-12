@@ -521,6 +521,7 @@ enum GeodataLoader { standard, memconservative }
 enum PageLabel {
   dashboard,
   proxies,
+  rules,
   profiles,
   tools,
   logs,
@@ -537,6 +538,8 @@ extension PageLabelExtension on PageLabel {
         return appLocalizations.dashboard;
       case PageLabel.proxies:
         return appLocalizations.proxies;
+      case PageLabel.rules:
+        return appLocalizations.rule;
       case PageLabel.profiles:
         return appLocalizations.profiles;
       case PageLabel.tools:

@@ -18,7 +18,7 @@ class ConnectivityManager extends StatefulWidget {
 }
 
 class _ConnectivityManagerState extends State<ConnectivityManager> {
-  late StreamSubscription subscription;
+  late StreamSubscription<List<ConnectivityResult>> subscription;
 
   @override
   void initState() {

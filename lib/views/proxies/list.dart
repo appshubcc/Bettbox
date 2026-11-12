@@ -128,9 +128,8 @@ class _ProxyGroupsListState extends ConsumerState<_ProxyGroupsList>
       _pendingScrollToTop = false;
       WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToTop());
     }
-    final added = _groupsWithRows(
-      widget,
-    ).difference(_groupsWithRows(oldWidget));
+    final added = _groupsWithRows(widget)
+        .difference(_groupsWithRows(oldWidget));
     if (added.length != 1 || !TickerMode.valuesOf(context).enabled) return;
     _expandingGroup = added.first;
     _expandController.forward(from: 0);
@@ -382,6 +381,7 @@ class _ProxyGroupsListState extends ConsumerState<_ProxyGroupsList>
             (context, rowIndex) =>
                 _buildRow(group, sortedProxies, rowIndex, itemHeight),
             childCount: rowCount,
+            addAutomaticKeepAlives: false,
           ),
         ),
       ),
@@ -465,7 +465,6 @@ class _GroupHeader extends ConsumerWidget {
 
     final selectedProxyIcon = ref.watch(proxyIconProvider(selectedProxyName));
 
-    final showFilled = iconStyle == ProxiesIconStyle.none;
     final expandIcon = CommonExpandIcon(
       expand: isExpand,
       duration: const Duration(milliseconds: 320),
@@ -551,12 +550,13 @@ class _GroupHeader extends ConsumerWidget {
                       child: IconButton(
                         padding: EdgeInsets.zero,
                         visualDensity: VisualDensity.compact,
-                        icon: const Icon(Icons.adjust),
+                        icon: Icon(context.resolveIcon(Icons.adjust)),
                         onPressed: onScrollToSelected,
                         tooltip: appLocalizations.locate,
                       ),
                     ),
                   ),
+                  const SizedBox(width: 3),
                   AnimatedBuilder(
                     animation: delayTestCoordinator,
                     builder: (_, _) {
@@ -579,7 +579,7 @@ class _GroupHeader extends ConsumerWidget {
                                       ),
                                     ),
                                   )
-                                : const Icon(Icons.network_ping),
+                                : Icon(context.resolveIcon(Icons.network_ping)),
                             onPressed: delayTestCoordinator.isTesting
                                 ? null
                                 : () => _delayTest(context),
@@ -589,27 +589,19 @@ class _GroupHeader extends ConsumerWidget {
                       );
                     },
                   ),
-                  const SizedBox(width: 6),
+                  const SizedBox(width: 3),
                 ],
               ),
             PressScale(
               child: SizedBox.square(
                 dimension: 36,
-                child: showFilled
-                    ? IconButton.filledTonal(
-                        padding: EdgeInsets.zero,
-                        visualDensity: VisualDensity.compact,
-                        icon: expandIcon,
-                        onPressed: handleToggle,
-                        style: expandButtonStyle,
-                      )
-                    : IconButton(
-                        padding: EdgeInsets.zero,
-                        visualDensity: VisualDensity.compact,
-                        icon: expandIcon,
-                        onPressed: handleToggle,
-                        style: expandButtonStyle,
-                      ),
+                child: IconButton(
+                  padding: EdgeInsets.zero,
+                  visualDensity: VisualDensity.compact,
+                  icon: expandIcon,
+                  onPressed: handleToggle,
+                  style: expandButtonStyle,
+                ),
               ),
             ),
           ],

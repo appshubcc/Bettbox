@@ -54,8 +54,8 @@ class ClashService extends ClashHandlerInterface {
       commonPrint.log('Using TCP Socket on port: $_tcpPort');
     }
 
-    _initServer();
-    reStart();
+    unawaited(_initServer());
+    unawaited(reStart());
   }
 
   String _newSocketPath() {
@@ -72,65 +72,67 @@ class ClashService extends ClashHandlerInterface {
       _socketPath = _newSocketPath();
       await _deleteSocketFile();
     }
-    _initServer();
+    unawaited(_initServer());
   }
 
   Future<void> _initServer() async {
-    runZonedGuarded(
-      () async {
-        late final ServerSocket server;
+    unawaited(
+      runZonedGuarded(
+        () async {
+          late final ServerSocket server;
 
-        if (_transportType == TransportType.unixSocket) {
-          final address = InternetAddress(
-            _socketPath!,
-            type: InternetAddressType.unix,
-          );
-          await _deleteSocketFile();
-          server = await ServerSocket.bind(address, 0, shared: true);
-        } else {
-          server = await ServerSocket.bind(InternetAddress.loopbackIPv4, 0);
-          _tcpPort = server.port;
-          commonPrint.log('TCP Server bound to port: $_tcpPort');
-        }
-
-        serverCompleter.complete(server);
-        await for (final socket in server) {
-          if (_socket != null && !isStarting) {
-            socket.destroy();
-            continue;
+          if (_transportType == TransportType.unixSocket) {
+            final address = InternetAddress(
+              _socketPath!,
+              type: InternetAddressType.unix,
+            );
+            await _deleteSocketFile();
+            server = await ServerSocket.bind(address, 0, shared: true);
+          } else {
+            server = await ServerSocket.bind(InternetAddress.loopbackIPv4, 0);
+            _tcpPort = server.port;
+            commonPrint.log('TCP Server bound to port: $_tcpPort');
           }
-          await _destroySocket();
-          _socket = socket;
-          _coreLost = false;
-          socketCompleter.complete(socket);
 
-          socket
-              .transform(FrameDecoderTransformer())
-              .listen(
-                (data) {
-                  handleResultMessage(data);
-                },
-                onError: (error) {
-                  if (_isDestroying || globalState.isExiting) return;
-                  commonPrint.error('Frame decode error: $error');
-                },
-                onDone: () {
-                  commonPrint.log('Socket connection closed');
-                  abortRequests(socket);
-                  _handleSocketClosed(socket);
-                },
-              );
-        }
-      },
-      (error, stack) {
-        if (_isDestroying || globalState.isExiting) return;
-        commonPrint.error(error.toString());
-        if (error is SocketException &&
-            !_isDestroying &&
-            !globalState.isExiting) {
-          globalState.showNotifier(error.toString());
-        }
-      },
+          serverCompleter.complete(server);
+          await for (final socket in server) {
+            if (_socket != null && !isStarting) {
+              socket.destroy();
+              continue;
+            }
+            await _destroySocket();
+            _socket = socket;
+            _coreLost = false;
+            socketCompleter.complete(socket);
+
+            socket
+                .transform(FrameDecoderTransformer())
+                .listen(
+                  (data) {
+                    handleResultMessage(data);
+                  },
+                  onError: (error) {
+                    if (_isDestroying || globalState.isExiting) return;
+                    commonPrint.error('Frame decode error: $error');
+                  },
+                  onDone: () {
+                    commonPrint.log('Socket connection closed');
+                    abortRequests(socket);
+                    _handleSocketClosed(socket);
+                  },
+                );
+          }
+        },
+        (error, stack) {
+          if (_isDestroying || globalState.isExiting) return;
+          commonPrint.error(error.toString());
+          if (error is SocketException &&
+              !_isDestroying &&
+              !globalState.isExiting) {
+            globalState.showNotifier(error.toString());
+          }
+        },
+      ),
     );
   }
 

@@ -46,10 +46,7 @@ _UpdateParams _$UpdateParamsFromJson(Map<String, dynamic> json) =>
       logLevel: $enumDecode(_$LogLevelEnumMap, json['log-level']),
       ipv6: json['ipv6'] as bool,
       tcpConcurrent: json['tcp-concurrent'] as bool,
-      externalController: $enumDecode(
-        _$ExternalControllerStatusEnumMap,
-        json['external-controller'],
-      ),
+      externalController: json['external-controller'] as String,
       unifiedDelay: json['unified-delay'] as bool,
     );
 
@@ -63,13 +60,13 @@ Map<String, dynamic> _$UpdateParamsToJson(_UpdateParams instance) =>
       'log-level': _$LogLevelEnumMap[instance.logLevel]!,
       'ipv6': instance.ipv6,
       'tcp-concurrent': instance.tcpConcurrent,
-      'external-controller':
-          _$ExternalControllerStatusEnumMap[instance.externalController]!,
+      'external-controller': instance.externalController,
       'unified-delay': instance.unifiedDelay,
     };
 
 const _$FindProcessModeEnumMap = {
   FindProcessMode.always: 'always',
+  FindProcessMode.strict: 'strict',
   FindProcessMode.off: 'off',
 };
 
@@ -85,11 +82,6 @@ const _$LogLevelEnumMap = {
   LogLevel.warning: 'warning',
   LogLevel.error: 'error',
   LogLevel.silent: 'silent',
-};
-
-const _$ExternalControllerStatusEnumMap = {
-  ExternalControllerStatus.close: '',
-  ExternalControllerStatus.open: '127.0.0.1:9090',
 };
 
 _CoreState _$CoreStateFromJson(Map<String, dynamic> json) => _CoreState(
@@ -282,6 +274,8 @@ _ExternalProvider _$ExternalProviderFromJson(Map<String, dynamic> json) =>
         json['subscription-info'] as Map<String, Object?>?,
       ),
       isUpdating: json['isUpdating'] as bool? ?? false,
+      expanded: json['expanded'] as bool? ?? false,
+      interval: (json['interval'] as num?)?.toInt() ?? 0,
       vehicleType: json['vehicle-type'] as String,
       updateAt: DateTime.parse(json['update-at'] as String),
     );
@@ -294,6 +288,8 @@ Map<String, dynamic> _$ExternalProviderToJson(_ExternalProvider instance) =>
       'count': instance.count,
       'subscription-info': instance.subscriptionInfo,
       'isUpdating': instance.isUpdating,
+      'expanded': instance.expanded,
+      'interval': instance.interval,
       'vehicle-type': instance.vehicleType,
       'update-at': instance.updateAt.toIso8601String(),
     };
@@ -318,9 +314,12 @@ const _$ActionMethodEnumMap = {
   ActionMethod.shutdown: 'shutdown',
   ActionMethod.validateConfig: 'validateConfig',
   ActionMethod.importProfile: 'importProfile',
+  ActionMethod.downloadProfile: 'downloadProfile',
   ActionMethod.updateConfig: 'updateConfig',
   ActionMethod.getConfig: 'getConfig',
   ActionMethod.getRuntimeConfig: 'getRuntimeConfig',
+  ActionMethod.getProxyConfig: 'getProxyConfig',
+  ActionMethod.updateExpandedProvider: 'updateExpandedProvider',
   ActionMethod.exportConfig: 'exportConfig',
   ActionMethod.mergeProfiles: 'mergeProfiles',
   ActionMethod.getProxies: 'getProxies',
@@ -337,6 +336,8 @@ const _$ActionMethodEnumMap = {
   ActionMethod.resetConnections: 'resetConnections',
   ActionMethod.closeConnection: 'closeConnection',
   ActionMethod.closeGroupConnections: 'closeGroupConnections',
+  ActionMethod.getDialerDependents: 'getDialerDependents',
+  ActionMethod.checkDialerUdp: 'checkDialerUdp',
   ActionMethod.getExternalProviders: 'getExternalProviders',
   ActionMethod.getExternalProvider: 'getExternalProvider',
   ActionMethod.updateGeoData: 'updateGeoData',
@@ -392,6 +393,9 @@ const _$ActionMethodEnumMap = {
   ActionMethod.cancelIperfClient: 'cancelIperfClient',
   ActionMethod.startLocalPing: 'startLocalPing',
   ActionMethod.cancelLocalPing: 'cancelLocalPing',
+  ActionMethod.parseNodes: 'parseNodes',
+  ActionMethod.registerWarp: 'registerWarp',
+  ActionMethod.testNode: 'testNode',
   ActionMethod.setState: 'setState',
   ActionMethod.startTun: 'startTun',
   ActionMethod.stopTun: 'stopTun',

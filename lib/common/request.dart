@@ -118,7 +118,7 @@ class Request {
     return current;
   }
 
-  Uint8List _bytesFromResponse(Response response) {
+  Uint8List _bytesFromResponse(Response<dynamic> response) {
     final data = response.data;
     if (data is Uint8List) return data;
     return Uint8List.fromList((data as List).cast<int>());
@@ -151,7 +151,7 @@ class Request {
     });
   }
 
-  Future<Response> _getFileResponseForUrl(
+  Future<Response<dynamic>> _getFileResponseForUrl(
     String url,
     ResponseType responseType,
   ) async {
@@ -179,7 +179,7 @@ class Request {
     return '/${segments.join('/')}';
   }
 
-  Response _buildResponseFromBytes({
+  Response<dynamic> _buildResponseFromBytes({
     required String url,
     required Uint8List bytes,
     required ResponseType responseType,
@@ -277,7 +277,7 @@ class Request {
     return (path: downloadPath, headers: response.headers, remote: true);
   }
 
-  Future<Response> _getResponseForUrl(
+  Future<Response<dynamic>> _getResponseForUrl(
     String url,
     ResponseType responseType,
   ) async {
@@ -326,7 +326,7 @@ class Request {
     }
   }
 
-  Future<Response> getTextResponseForUrl(String url) async {
+  Future<Response<dynamic>> getTextResponseForUrl(String url) async {
     return _getResponseForUrl(url, ResponseType.plain);
   }
 
@@ -452,7 +452,7 @@ class Request {
     }
 
     cleanupTimer = Timer(effectiveTimeout, cleanup);
-    cancelToken?.whenCancel.then((_) => cleanup());
+    unawaited(cancelToken?.whenCancel.then((_) => cleanup()));
 
     void checkAllFinished() {
       completedCount++;
@@ -469,65 +469,70 @@ class Request {
     for (int i = 0; i < sources.length; i++) {
       final url = sources[i];
       final isPrimary = i == 0;
-      dio
-          .get<Uint8List>(
-            url,
-            cancelToken: cancelToken,
-            options: Options(responseType: ResponseType.bytes),
-          )
-          .then((res) {
-            if (res.statusCode == HttpStatus.ok && res.data != null) {
-              try {
-                final text = utf8
-                    .decode(
-                      _decompressIfNeeded(_bytesFromResponse(res), res.headers),
-                      allowMalformed: true,
-                    )
-                    .trim();
-                IpInfo? ipInfo;
-                if (text.startsWith('{')) {
-                  final jsonMap = json.decode(text);
-                  if (jsonMap is Map<String, dynamic>) {
-                    if (url.contains('ip-api.com') &&
-                        jsonMap['status'] != 'success') {
-                      ipInfo = null;
-                    } else {
-                      ipInfo = IpInfo.fromJson(jsonMap);
-                    }
-                  }
-                } else {
-                  ipInfo = IpInfo.fromCloudflareTrace(text);
-                }
-
-                if (ipInfo != null) {
-                  if (isPrimary) {
-                    primaryInfo = ipInfo;
-                    onUpdate?.call(ipInfo);
-                    if (!firstCompleter.isCompleted) {
-                      firstCompleter.complete(Result.success(ipInfo));
+      unawaited(
+        dio
+            .get<Uint8List>(
+              url,
+              cancelToken: cancelToken,
+              options: Options(responseType: ResponseType.bytes),
+            )
+            .then((res) {
+              if (res.statusCode == HttpStatus.ok && res.data != null) {
+                try {
+                  final text = utf8
+                      .decode(
+                        _decompressIfNeeded(
+                          _bytesFromResponse(res),
+                          res.headers,
+                        ),
+                        allowMalformed: true,
+                      )
+                      .trim();
+                  IpInfo? ipInfo;
+                  if (text.startsWith('{')) {
+                    final jsonMap = json.decode(text);
+                    if (jsonMap is Map<String, dynamic>) {
+                      if (url.contains('ip-api.com') &&
+                          jsonMap['status'] != 'success') {
+                        ipInfo = null;
+                      } else {
+                        ipInfo = IpInfo.fromJson(jsonMap);
+                      }
                     }
                   } else {
-                    fallbackInfo = ipInfo;
-                    if (sources.length == 1) {
+                    ipInfo = IpInfo.fromCloudflareTrace(text);
+                  }
+
+                  if (ipInfo != null) {
+                    if (isPrimary) {
+                      primaryInfo = ipInfo;
                       onUpdate?.call(ipInfo);
                       if (!firstCompleter.isCompleted) {
                         firstCompleter.complete(Result.success(ipInfo));
                       }
+                    } else {
+                      fallbackInfo = ipInfo;
+                      if (sources.length == 1) {
+                        onUpdate?.call(ipInfo);
+                        if (!firstCompleter.isCompleted) {
+                          firstCompleter.complete(Result.success(ipInfo));
+                        }
+                      }
                     }
                   }
-                }
-              } catch (_) {}
-            }
-            checkAllFinished();
-          })
-          .catchError((e) {
-            if (e is DioException && e.type == DioExceptionType.cancel) {
-              if (!firstCompleter.isCompleted) {
-                firstCompleter.complete(Result.error('cancelled'));
+                } catch (_) {}
               }
-            }
-            checkAllFinished();
-          });
+              checkAllFinished();
+            })
+            .catchError((e) {
+              if (e is DioException && e.type == DioExceptionType.cancel) {
+                if (!firstCompleter.isCompleted) {
+                  firstCompleter.complete(Result.error('cancelled'));
+                }
+              }
+              checkAllFinished();
+            }),
+      );
     }
 
     return await firstCompleter.future.timeout(

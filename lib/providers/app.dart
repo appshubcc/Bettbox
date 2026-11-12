@@ -8,7 +8,6 @@ import 'package:bett_box/state.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_riverpod/legacy.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import 'config.dart';
@@ -572,12 +571,46 @@ class ConnectionsUdpOnly extends _$ConnectionsUdpOnly {
 }
 
 // Connections providers
-final connectionsProvider = StateProvider<List<TrackerInfo>>((ref) => []);
-final connectionsSearchProvider = StateProvider<String>((ref) => '');
-final connectionsKeywordsProvider = StateProvider<List<String>>((ref) => []);
-final connectionsSortProvider = StateProvider<ConnectionsSortType>(
-  (ref) => ConnectionsSortType.defaultSort,
-);
+@Riverpod(keepAlive: true)
+class Connections extends _$Connections with NotifierValueMixin {
+  @override
+  List<TrackerInfo> build() => [];
+}
+
+@Riverpod(keepAlive: true)
+class ConnectionsSearch extends _$ConnectionsSearch with NotifierValueMixin {
+  @override
+  String build() => '';
+}
+
+@Riverpod(keepAlive: true)
+class ConnectionsKeywords extends _$ConnectionsKeywords
+    with NotifierValueMixin {
+  @override
+  List<String> build() => [];
+}
+
+@Riverpod(keepAlive: true)
+class ConnectionsSort extends _$ConnectionsSort with NotifierValueMixin {
+  @override
+  ConnectionsSortType build() => ConnectionsSortType.defaultSort;
+}
+
+@Riverpod(keepAlive: true)
+class ForceRefreshIcon extends _$ForceRefreshIcon with NotifierValueMixin {
+  @override
+  bool build() => false;
+}
+
+@riverpod
+class GeoUpdatingKeys extends _$GeoUpdatingKeys with NotifierValueMixin {
+  @override
+  Set<String> build() => {};
+
+  void add(String key) => state = {...state, key};
+
+  void remove(String key) => state = Set.of(state)..remove(key);
+}
 
 int _compareTrackerInfo(
   ConnectionsSortType sortType,

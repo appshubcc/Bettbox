@@ -1,4 +1,5 @@
 export 'android.dart';
+export 'app_icons.dart';
 export 'app_localizations.dart';
 export 'color.dart';
 export 'constant.dart';
@@ -7,6 +8,7 @@ export 'dashboard_metrics.dart';
 export 'converter.dart';
 export 'datetime.dart';
 export 'fixed.dart';
+export 'frame_probe.dart';
 export 'identity.dart';
 export 'function.dart';
 export 'future.dart';

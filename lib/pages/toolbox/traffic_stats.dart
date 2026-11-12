@@ -501,6 +501,7 @@ class _RuleHits extends StatelessWidget {
         scrollDirection: Axis.horizontal,
         clipBehavior: Clip.none,
         itemCount: rules.length,
+        itemExtentBuilder: (index, _) => index.isEven ? 136.0 : 10.0,
         separatorBuilder: (_, _) => const SizedBox(width: 10),
         itemBuilder: (_, index) => _RuleCard(
           key: ValueKey(rules[index].name),

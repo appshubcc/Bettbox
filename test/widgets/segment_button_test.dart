@@ -63,8 +63,7 @@ void main() {
       of: find.byType(SegmentButtonGroup<int>),
       matching: find.byWidgetPredicate(
         (widget) =>
-            widget is ConstrainedBox &&
-            widget.constraints.maxWidth == 480,
+            widget is ConstrainedBox && widget.constraints.maxWidth == 480,
       ),
     );
     expect(constrainedBoxFinder, findsOneWidget);

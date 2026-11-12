@@ -113,11 +113,14 @@ void main() {
   });
 
   testWidgets('结果卡片与快捷目标', (tester) async {
+    final controller = TextEditingController(text: '192.168.1.1');
+    addTearDown(controller.dispose);
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
           body: SingleChildScrollView(
             child: buildLocalPingPreviewForTesting(
+              controller: controller,
               state: const LocalPingState(
                 phase: LocalPingPhase.done,
                 target: '192.168.1.1',

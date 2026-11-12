@@ -588,7 +588,7 @@ as String,
 /// @nodoc
 mixin _$UpdateParams {
 
- Tun get tun;@JsonKey(name: 'mixed-port') int get mixedPort;@JsonKey(name: 'allow-lan') bool get allowLan;@JsonKey(name: 'find-process-mode') FindProcessMode get findProcessMode; Mode get mode;@JsonKey(name: 'log-level') LogLevel get logLevel; bool get ipv6;@JsonKey(name: 'tcp-concurrent') bool get tcpConcurrent;@JsonKey(name: 'external-controller') ExternalControllerStatus get externalController;@JsonKey(name: 'unified-delay') bool get unifiedDelay;
+ Tun get tun;@JsonKey(name: 'mixed-port') int get mixedPort;@JsonKey(name: 'allow-lan') bool get allowLan;@JsonKey(name: 'find-process-mode') FindProcessMode get findProcessMode; Mode get mode;@JsonKey(name: 'log-level') LogLevel get logLevel; bool get ipv6;@JsonKey(name: 'tcp-concurrent') bool get tcpConcurrent;@JsonKey(name: 'external-controller') String get externalController;@JsonKey(name: 'unified-delay') bool get unifiedDelay;
 /// Create a copy of UpdateParams
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -626,7 +626,7 @@ abstract mixin class $UpdateParamsCopyWith<$Res>  {
   factory $UpdateParamsCopyWith(UpdateParams value, $Res Function(UpdateParams) _then) = _$UpdateParamsCopyWithImpl;
 @useResult
 $Res call({
- Tun tun,@JsonKey(name: 'mixed-port') int mixedPort,@JsonKey(name: 'allow-lan') bool allowLan,@JsonKey(name: 'find-process-mode') FindProcessMode findProcessMode, Mode mode,@JsonKey(name: 'log-level') LogLevel logLevel, bool ipv6,@JsonKey(name: 'tcp-concurrent') bool tcpConcurrent,@JsonKey(name: 'external-controller') ExternalControllerStatus externalController,@JsonKey(name: 'unified-delay') bool unifiedDelay
+ Tun tun,@JsonKey(name: 'mixed-port') int mixedPort,@JsonKey(name: 'allow-lan') bool allowLan,@JsonKey(name: 'find-process-mode') FindProcessMode findProcessMode, Mode mode,@JsonKey(name: 'log-level') LogLevel logLevel, bool ipv6,@JsonKey(name: 'tcp-concurrent') bool tcpConcurrent,@JsonKey(name: 'external-controller') String externalController,@JsonKey(name: 'unified-delay') bool unifiedDelay
 });
 
 
@@ -654,7 +654,7 @@ as Mode,logLevel: null == logLevel ? _self.logLevel : logLevel // ignore: cast_n
 as LogLevel,ipv6: null == ipv6 ? _self.ipv6 : ipv6 // ignore: cast_nullable_to_non_nullable
 as bool,tcpConcurrent: null == tcpConcurrent ? _self.tcpConcurrent : tcpConcurrent // ignore: cast_nullable_to_non_nullable
 as bool,externalController: null == externalController ? _self.externalController : externalController // ignore: cast_nullable_to_non_nullable
-as ExternalControllerStatus,unifiedDelay: null == unifiedDelay ? _self.unifiedDelay : unifiedDelay // ignore: cast_nullable_to_non_nullable
+as String,unifiedDelay: null == unifiedDelay ? _self.unifiedDelay : unifiedDelay // ignore: cast_nullable_to_non_nullable
 as bool,
   ));
 }
@@ -749,7 +749,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( Tun tun, @JsonKey(name: 'mixed-port')  int mixedPort, @JsonKey(name: 'allow-lan')  bool allowLan, @JsonKey(name: 'find-process-mode')  FindProcessMode findProcessMode,  Mode mode, @JsonKey(name: 'log-level')  LogLevel logLevel,  bool ipv6, @JsonKey(name: 'tcp-concurrent')  bool tcpConcurrent, @JsonKey(name: 'external-controller')  ExternalControllerStatus externalController, @JsonKey(name: 'unified-delay')  bool unifiedDelay)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( Tun tun, @JsonKey(name: 'mixed-port')  int mixedPort, @JsonKey(name: 'allow-lan')  bool allowLan, @JsonKey(name: 'find-process-mode')  FindProcessMode findProcessMode,  Mode mode, @JsonKey(name: 'log-level')  LogLevel logLevel,  bool ipv6, @JsonKey(name: 'tcp-concurrent')  bool tcpConcurrent, @JsonKey(name: 'external-controller')  String externalController, @JsonKey(name: 'unified-delay')  bool unifiedDelay)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _UpdateParams() when $default != null:
 return $default(_that.tun,_that.mixedPort,_that.allowLan,_that.findProcessMode,_that.mode,_that.logLevel,_that.ipv6,_that.tcpConcurrent,_that.externalController,_that.unifiedDelay);case _:
@@ -770,7 +770,7 @@ return $default(_that.tun,_that.mixedPort,_that.allowLan,_that.findProcessMode,_
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( Tun tun, @JsonKey(name: 'mixed-port')  int mixedPort, @JsonKey(name: 'allow-lan')  bool allowLan, @JsonKey(name: 'find-process-mode')  FindProcessMode findProcessMode,  Mode mode, @JsonKey(name: 'log-level')  LogLevel logLevel,  bool ipv6, @JsonKey(name: 'tcp-concurrent')  bool tcpConcurrent, @JsonKey(name: 'external-controller')  ExternalControllerStatus externalController, @JsonKey(name: 'unified-delay')  bool unifiedDelay)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( Tun tun, @JsonKey(name: 'mixed-port')  int mixedPort, @JsonKey(name: 'allow-lan')  bool allowLan, @JsonKey(name: 'find-process-mode')  FindProcessMode findProcessMode,  Mode mode, @JsonKey(name: 'log-level')  LogLevel logLevel,  bool ipv6, @JsonKey(name: 'tcp-concurrent')  bool tcpConcurrent, @JsonKey(name: 'external-controller')  String externalController, @JsonKey(name: 'unified-delay')  bool unifiedDelay)  $default,) {final _that = this;
 switch (_that) {
 case _UpdateParams():
 return $default(_that.tun,_that.mixedPort,_that.allowLan,_that.findProcessMode,_that.mode,_that.logLevel,_that.ipv6,_that.tcpConcurrent,_that.externalController,_that.unifiedDelay);case _:
@@ -790,7 +790,7 @@ return $default(_that.tun,_that.mixedPort,_that.allowLan,_that.findProcessMode,_
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( Tun tun, @JsonKey(name: 'mixed-port')  int mixedPort, @JsonKey(name: 'allow-lan')  bool allowLan, @JsonKey(name: 'find-process-mode')  FindProcessMode findProcessMode,  Mode mode, @JsonKey(name: 'log-level')  LogLevel logLevel,  bool ipv6, @JsonKey(name: 'tcp-concurrent')  bool tcpConcurrent, @JsonKey(name: 'external-controller')  ExternalControllerStatus externalController, @JsonKey(name: 'unified-delay')  bool unifiedDelay)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( Tun tun, @JsonKey(name: 'mixed-port')  int mixedPort, @JsonKey(name: 'allow-lan')  bool allowLan, @JsonKey(name: 'find-process-mode')  FindProcessMode findProcessMode,  Mode mode, @JsonKey(name: 'log-level')  LogLevel logLevel,  bool ipv6, @JsonKey(name: 'tcp-concurrent')  bool tcpConcurrent, @JsonKey(name: 'external-controller')  String externalController, @JsonKey(name: 'unified-delay')  bool unifiedDelay)?  $default,) {final _that = this;
 switch (_that) {
 case _UpdateParams() when $default != null:
 return $default(_that.tun,_that.mixedPort,_that.allowLan,_that.findProcessMode,_that.mode,_that.logLevel,_that.ipv6,_that.tcpConcurrent,_that.externalController,_that.unifiedDelay);case _:
@@ -816,7 +816,7 @@ class _UpdateParams implements UpdateParams {
 @override@JsonKey(name: 'log-level') final  LogLevel logLevel;
 @override final  bool ipv6;
 @override@JsonKey(name: 'tcp-concurrent') final  bool tcpConcurrent;
-@override@JsonKey(name: 'external-controller') final  ExternalControllerStatus externalController;
+@override@JsonKey(name: 'external-controller') final  String externalController;
 @override@JsonKey(name: 'unified-delay') final  bool unifiedDelay;
 
 /// Create a copy of UpdateParams
@@ -854,7 +854,7 @@ abstract mixin class _$UpdateParamsCopyWith<$Res> implements $UpdateParamsCopyWi
   factory _$UpdateParamsCopyWith(_UpdateParams value, $Res Function(_UpdateParams) _then) = __$UpdateParamsCopyWithImpl;
 @override @useResult
 $Res call({
- Tun tun,@JsonKey(name: 'mixed-port') int mixedPort,@JsonKey(name: 'allow-lan') bool allowLan,@JsonKey(name: 'find-process-mode') FindProcessMode findProcessMode, Mode mode,@JsonKey(name: 'log-level') LogLevel logLevel, bool ipv6,@JsonKey(name: 'tcp-concurrent') bool tcpConcurrent,@JsonKey(name: 'external-controller') ExternalControllerStatus externalController,@JsonKey(name: 'unified-delay') bool unifiedDelay
+ Tun tun,@JsonKey(name: 'mixed-port') int mixedPort,@JsonKey(name: 'allow-lan') bool allowLan,@JsonKey(name: 'find-process-mode') FindProcessMode findProcessMode, Mode mode,@JsonKey(name: 'log-level') LogLevel logLevel, bool ipv6,@JsonKey(name: 'tcp-concurrent') bool tcpConcurrent,@JsonKey(name: 'external-controller') String externalController,@JsonKey(name: 'unified-delay') bool unifiedDelay
 });
 
 
@@ -882,7 +882,7 @@ as Mode,logLevel: null == logLevel ? _self.logLevel : logLevel // ignore: cast_n
 as LogLevel,ipv6: null == ipv6 ? _self.ipv6 : ipv6 // ignore: cast_nullable_to_non_nullable
 as bool,tcpConcurrent: null == tcpConcurrent ? _self.tcpConcurrent : tcpConcurrent // ignore: cast_nullable_to_non_nullable
 as bool,externalController: null == externalController ? _self.externalController : externalController // ignore: cast_nullable_to_non_nullable
-as ExternalControllerStatus,unifiedDelay: null == unifiedDelay ? _self.unifiedDelay : unifiedDelay // ignore: cast_nullable_to_non_nullable
+as String,unifiedDelay: null == unifiedDelay ? _self.unifiedDelay : unifiedDelay // ignore: cast_nullable_to_non_nullable
 as bool,
   ));
 }
@@ -3762,7 +3762,7 @@ as int,
 /// @nodoc
 mixin _$ExternalProvider {
 
- String get name; String get type; String? get path; int get count;@JsonKey(name: 'subscription-info', fromJson: subscriptionInfoFormCore) SubscriptionInfo? get subscriptionInfo; bool get isUpdating;@JsonKey(name: 'vehicle-type') String get vehicleType;@JsonKey(name: 'update-at') DateTime get updateAt;
+ String get name; String get type; String? get path; int get count;@JsonKey(name: 'subscription-info', fromJson: subscriptionInfoFormCore) SubscriptionInfo? get subscriptionInfo; bool get isUpdating; bool get expanded; int get interval;@JsonKey(name: 'vehicle-type') String get vehicleType;@JsonKey(name: 'update-at') DateTime get updateAt;
 /// Create a copy of ExternalProvider
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -3776,20 +3776,20 @@ $ExternalProviderCopyWith<ExternalProvider> get copyWith => _$ExternalProviderCo
 @override
 bool operator ==(Object other) {
   final _this = this as ExternalProvider;
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ExternalProvider&&(identical(other.name, _this.name) || other.name == _this.name)&&(identical(other.type, _this.type) || other.type == _this.type)&&(identical(other.path, _this.path) || other.path == _this.path)&&(identical(other.count, _this.count) || other.count == _this.count)&&(identical(other.subscriptionInfo, _this.subscriptionInfo) || other.subscriptionInfo == _this.subscriptionInfo)&&(identical(other.isUpdating, _this.isUpdating) || other.isUpdating == _this.isUpdating)&&(identical(other.vehicleType, _this.vehicleType) || other.vehicleType == _this.vehicleType)&&(identical(other.updateAt, _this.updateAt) || other.updateAt == _this.updateAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ExternalProvider&&(identical(other.name, _this.name) || other.name == _this.name)&&(identical(other.type, _this.type) || other.type == _this.type)&&(identical(other.path, _this.path) || other.path == _this.path)&&(identical(other.count, _this.count) || other.count == _this.count)&&(identical(other.subscriptionInfo, _this.subscriptionInfo) || other.subscriptionInfo == _this.subscriptionInfo)&&(identical(other.isUpdating, _this.isUpdating) || other.isUpdating == _this.isUpdating)&&(identical(other.expanded, _this.expanded) || other.expanded == _this.expanded)&&(identical(other.interval, _this.interval) || other.interval == _this.interval)&&(identical(other.vehicleType, _this.vehicleType) || other.vehicleType == _this.vehicleType)&&(identical(other.updateAt, _this.updateAt) || other.updateAt == _this.updateAt));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
 int get hashCode {
   final _this = this as ExternalProvider;
-  return Object.hash(runtimeType,_this.name,_this.type,_this.path,_this.count,_this.subscriptionInfo,_this.isUpdating,_this.vehicleType,_this.updateAt);
+  return Object.hash(runtimeType,_this.name,_this.type,_this.path,_this.count,_this.subscriptionInfo,_this.isUpdating,_this.expanded,_this.interval,_this.vehicleType,_this.updateAt);
 }
 
 @override
 String toString() {
   final _this = this as ExternalProvider;
-  return 'ExternalProvider(name: ${_this.name}, type: ${_this.type}, path: ${_this.path}, count: ${_this.count}, subscriptionInfo: ${_this.subscriptionInfo}, isUpdating: ${_this.isUpdating}, vehicleType: ${_this.vehicleType}, updateAt: ${_this.updateAt})';
+  return 'ExternalProvider(name: ${_this.name}, type: ${_this.type}, path: ${_this.path}, count: ${_this.count}, subscriptionInfo: ${_this.subscriptionInfo}, isUpdating: ${_this.isUpdating}, expanded: ${_this.expanded}, interval: ${_this.interval}, vehicleType: ${_this.vehicleType}, updateAt: ${_this.updateAt})';
 }
 
 
@@ -3800,7 +3800,7 @@ abstract mixin class $ExternalProviderCopyWith<$Res>  {
   factory $ExternalProviderCopyWith(ExternalProvider value, $Res Function(ExternalProvider) _then) = _$ExternalProviderCopyWithImpl;
 @useResult
 $Res call({
- String name, String type, String? path, int count,@JsonKey(name: 'subscription-info', fromJson: subscriptionInfoFormCore) SubscriptionInfo? subscriptionInfo, bool isUpdating,@JsonKey(name: 'vehicle-type') String vehicleType,@JsonKey(name: 'update-at') DateTime updateAt
+ String name, String type, String? path, int count,@JsonKey(name: 'subscription-info', fromJson: subscriptionInfoFormCore) SubscriptionInfo? subscriptionInfo, bool isUpdating, bool expanded, int interval,@JsonKey(name: 'vehicle-type') String vehicleType,@JsonKey(name: 'update-at') DateTime updateAt
 });
 
 
@@ -3817,7 +3817,7 @@ class _$ExternalProviderCopyWithImpl<$Res>
 
 /// Create a copy of ExternalProvider
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? name = null,Object? type = null,Object? path = freezed,Object? count = null,Object? subscriptionInfo = freezed,Object? isUpdating = null,Object? vehicleType = null,Object? updateAt = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? name = null,Object? type = null,Object? path = freezed,Object? count = null,Object? subscriptionInfo = freezed,Object? isUpdating = null,Object? expanded = null,Object? interval = null,Object? vehicleType = null,Object? updateAt = null,}) {
   return _then(ExternalProvider(
 name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
 as String,type: null == type ? _self.type : type // ignore: cast_nullable_to_non_nullable
@@ -3825,7 +3825,9 @@ as String,path: freezed == path ? _self.path : path // ignore: cast_nullable_to_
 as String?,count: null == count ? _self.count : count // ignore: cast_nullable_to_non_nullable
 as int,subscriptionInfo: freezed == subscriptionInfo ? _self.subscriptionInfo : subscriptionInfo // ignore: cast_nullable_to_non_nullable
 as SubscriptionInfo?,isUpdating: null == isUpdating ? _self.isUpdating : isUpdating // ignore: cast_nullable_to_non_nullable
-as bool,vehicleType: null == vehicleType ? _self.vehicleType : vehicleType // ignore: cast_nullable_to_non_nullable
+as bool,expanded: null == expanded ? _self.expanded : expanded // ignore: cast_nullable_to_non_nullable
+as bool,interval: null == interval ? _self.interval : interval // ignore: cast_nullable_to_non_nullable
+as int,vehicleType: null == vehicleType ? _self.vehicleType : vehicleType // ignore: cast_nullable_to_non_nullable
 as String,updateAt: null == updateAt ? _self.updateAt : updateAt // ignore: cast_nullable_to_non_nullable
 as DateTime,
   ));
@@ -3924,10 +3926,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String name,  String type,  String? path,  int count, @JsonKey(name: 'subscription-info', fromJson: subscriptionInfoFormCore)  SubscriptionInfo? subscriptionInfo,  bool isUpdating, @JsonKey(name: 'vehicle-type')  String vehicleType, @JsonKey(name: 'update-at')  DateTime updateAt)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String name,  String type,  String? path,  int count, @JsonKey(name: 'subscription-info', fromJson: subscriptionInfoFormCore)  SubscriptionInfo? subscriptionInfo,  bool isUpdating,  bool expanded,  int interval, @JsonKey(name: 'vehicle-type')  String vehicleType, @JsonKey(name: 'update-at')  DateTime updateAt)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _ExternalProvider() when $default != null:
-return $default(_that.name,_that.type,_that.path,_that.count,_that.subscriptionInfo,_that.isUpdating,_that.vehicleType,_that.updateAt);case _:
+return $default(_that.name,_that.type,_that.path,_that.count,_that.subscriptionInfo,_that.isUpdating,_that.expanded,_that.interval,_that.vehicleType,_that.updateAt);case _:
   return orElse();
 
 }
@@ -3945,10 +3947,10 @@ return $default(_that.name,_that.type,_that.path,_that.count,_that.subscriptionI
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String name,  String type,  String? path,  int count, @JsonKey(name: 'subscription-info', fromJson: subscriptionInfoFormCore)  SubscriptionInfo? subscriptionInfo,  bool isUpdating, @JsonKey(name: 'vehicle-type')  String vehicleType, @JsonKey(name: 'update-at')  DateTime updateAt)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String name,  String type,  String? path,  int count, @JsonKey(name: 'subscription-info', fromJson: subscriptionInfoFormCore)  SubscriptionInfo? subscriptionInfo,  bool isUpdating,  bool expanded,  int interval, @JsonKey(name: 'vehicle-type')  String vehicleType, @JsonKey(name: 'update-at')  DateTime updateAt)  $default,) {final _that = this;
 switch (_that) {
 case _ExternalProvider():
-return $default(_that.name,_that.type,_that.path,_that.count,_that.subscriptionInfo,_that.isUpdating,_that.vehicleType,_that.updateAt);case _:
+return $default(_that.name,_that.type,_that.path,_that.count,_that.subscriptionInfo,_that.isUpdating,_that.expanded,_that.interval,_that.vehicleType,_that.updateAt);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -3965,10 +3967,10 @@ return $default(_that.name,_that.type,_that.path,_that.count,_that.subscriptionI
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String name,  String type,  String? path,  int count, @JsonKey(name: 'subscription-info', fromJson: subscriptionInfoFormCore)  SubscriptionInfo? subscriptionInfo,  bool isUpdating, @JsonKey(name: 'vehicle-type')  String vehicleType, @JsonKey(name: 'update-at')  DateTime updateAt)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String name,  String type,  String? path,  int count, @JsonKey(name: 'subscription-info', fromJson: subscriptionInfoFormCore)  SubscriptionInfo? subscriptionInfo,  bool isUpdating,  bool expanded,  int interval, @JsonKey(name: 'vehicle-type')  String vehicleType, @JsonKey(name: 'update-at')  DateTime updateAt)?  $default,) {final _that = this;
 switch (_that) {
 case _ExternalProvider() when $default != null:
-return $default(_that.name,_that.type,_that.path,_that.count,_that.subscriptionInfo,_that.isUpdating,_that.vehicleType,_that.updateAt);case _:
+return $default(_that.name,_that.type,_that.path,_that.count,_that.subscriptionInfo,_that.isUpdating,_that.expanded,_that.interval,_that.vehicleType,_that.updateAt);case _:
   return null;
 
 }
@@ -3980,7 +3982,7 @@ return $default(_that.name,_that.type,_that.path,_that.count,_that.subscriptionI
 @JsonSerializable()
 
 class _ExternalProvider implements ExternalProvider {
-  const _ExternalProvider({required this.name, required this.type, this.path, required this.count, @JsonKey(name: 'subscription-info', fromJson: subscriptionInfoFormCore) this.subscriptionInfo, this.isUpdating = false, @JsonKey(name: 'vehicle-type') required this.vehicleType, @JsonKey(name: 'update-at') required this.updateAt});
+  const _ExternalProvider({required this.name, required this.type, this.path, required this.count, @JsonKey(name: 'subscription-info', fromJson: subscriptionInfoFormCore) this.subscriptionInfo, this.isUpdating = false, this.expanded = false, this.interval = 0, @JsonKey(name: 'vehicle-type') required this.vehicleType, @JsonKey(name: 'update-at') required this.updateAt});
   factory _ExternalProvider.fromJson(Map<String, dynamic> json) => _$ExternalProviderFromJson(json);
 
 @override final  String name;
@@ -3989,6 +3991,8 @@ class _ExternalProvider implements ExternalProvider {
 @override final  int count;
 @override@JsonKey(name: 'subscription-info', fromJson: subscriptionInfoFormCore) final  SubscriptionInfo? subscriptionInfo;
 @override@JsonKey() final  bool isUpdating;
+@override@JsonKey() final  bool expanded;
+@override@JsonKey() final  int interval;
 @override@JsonKey(name: 'vehicle-type') final  String vehicleType;
 @override@JsonKey(name: 'update-at') final  DateTime updateAt;
 
@@ -4005,18 +4009,18 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _ExternalProvider&&(identical(other.name, name) || other.name == name)&&(identical(other.type, type) || other.type == type)&&(identical(other.path, path) || other.path == path)&&(identical(other.count, count) || other.count == count)&&(identical(other.subscriptionInfo, subscriptionInfo) || other.subscriptionInfo == subscriptionInfo)&&(identical(other.isUpdating, isUpdating) || other.isUpdating == isUpdating)&&(identical(other.vehicleType, vehicleType) || other.vehicleType == vehicleType)&&(identical(other.updateAt, updateAt) || other.updateAt == updateAt));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _ExternalProvider&&(identical(other.name, name) || other.name == name)&&(identical(other.type, type) || other.type == type)&&(identical(other.path, path) || other.path == path)&&(identical(other.count, count) || other.count == count)&&(identical(other.subscriptionInfo, subscriptionInfo) || other.subscriptionInfo == subscriptionInfo)&&(identical(other.isUpdating, isUpdating) || other.isUpdating == isUpdating)&&(identical(other.expanded, expanded) || other.expanded == expanded)&&(identical(other.interval, interval) || other.interval == interval)&&(identical(other.vehicleType, vehicleType) || other.vehicleType == vehicleType)&&(identical(other.updateAt, updateAt) || other.updateAt == updateAt));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
 int get hashCode {
-    return Object.hash(runtimeType,name,type,path,count,subscriptionInfo,isUpdating,vehicleType,updateAt);
+    return Object.hash(runtimeType,name,type,path,count,subscriptionInfo,isUpdating,expanded,interval,vehicleType,updateAt);
 }
 
 @override
 String toString() {
-    return 'ExternalProvider(name: $name, type: $type, path: $path, count: $count, subscriptionInfo: $subscriptionInfo, isUpdating: $isUpdating, vehicleType: $vehicleType, updateAt: $updateAt)';
+    return 'ExternalProvider(name: $name, type: $type, path: $path, count: $count, subscriptionInfo: $subscriptionInfo, isUpdating: $isUpdating, expanded: $expanded, interval: $interval, vehicleType: $vehicleType, updateAt: $updateAt)';
 }
 
 
@@ -4027,7 +4031,7 @@ abstract mixin class _$ExternalProviderCopyWith<$Res> implements $ExternalProvid
   factory _$ExternalProviderCopyWith(_ExternalProvider value, $Res Function(_ExternalProvider) _then) = __$ExternalProviderCopyWithImpl;
 @override @useResult
 $Res call({
- String name, String type, String? path, int count,@JsonKey(name: 'subscription-info', fromJson: subscriptionInfoFormCore) SubscriptionInfo? subscriptionInfo, bool isUpdating,@JsonKey(name: 'vehicle-type') String vehicleType,@JsonKey(name: 'update-at') DateTime updateAt
+ String name, String type, String? path, int count,@JsonKey(name: 'subscription-info', fromJson: subscriptionInfoFormCore) SubscriptionInfo? subscriptionInfo, bool isUpdating, bool expanded, int interval,@JsonKey(name: 'vehicle-type') String vehicleType,@JsonKey(name: 'update-at') DateTime updateAt
 });
 
 
@@ -4044,7 +4048,7 @@ class __$ExternalProviderCopyWithImpl<$Res>
 
 /// Create a copy of ExternalProvider
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? name = null,Object? type = null,Object? path = freezed,Object? count = null,Object? subscriptionInfo = freezed,Object? isUpdating = null,Object? vehicleType = null,Object? updateAt = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? name = null,Object? type = null,Object? path = freezed,Object? count = null,Object? subscriptionInfo = freezed,Object? isUpdating = null,Object? expanded = null,Object? interval = null,Object? vehicleType = null,Object? updateAt = null,}) {
   return _then(_ExternalProvider(
 name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
 as String,type: null == type ? _self.type : type // ignore: cast_nullable_to_non_nullable
@@ -4052,7 +4056,9 @@ as String,path: freezed == path ? _self.path : path // ignore: cast_nullable_to_
 as String?,count: null == count ? _self.count : count // ignore: cast_nullable_to_non_nullable
 as int,subscriptionInfo: freezed == subscriptionInfo ? _self.subscriptionInfo : subscriptionInfo // ignore: cast_nullable_to_non_nullable
 as SubscriptionInfo?,isUpdating: null == isUpdating ? _self.isUpdating : isUpdating // ignore: cast_nullable_to_non_nullable
-as bool,vehicleType: null == vehicleType ? _self.vehicleType : vehicleType // ignore: cast_nullable_to_non_nullable
+as bool,expanded: null == expanded ? _self.expanded : expanded // ignore: cast_nullable_to_non_nullable
+as bool,interval: null == interval ? _self.interval : interval // ignore: cast_nullable_to_non_nullable
+as int,vehicleType: null == vehicleType ? _self.vehicleType : vehicleType // ignore: cast_nullable_to_non_nullable
 as String,updateAt: null == updateAt ? _self.updateAt : updateAt // ignore: cast_nullable_to_non_nullable
 as DateTime,
   ));

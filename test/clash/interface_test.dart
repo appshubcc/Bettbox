@@ -17,7 +17,7 @@ class _FakeHandler extends ClashHandlerInterface {
     if (disconnected) {
       throw const CoreDisconnectedException();
     }
-    sent.add(json.decode(message)['id'] as String);
+    sent.add((json.decode(message) as Map<String, dynamic>)['id'] as String);
     return channel;
   }
 
@@ -104,7 +104,7 @@ void main() {
           'code': 0,
         }, json.encode({'items': items})),
       );
-      expect((await future)['items'], items);
+      expect((await future as Map<String, dynamic>)['items'], items);
     });
 
     test('ignores malformed frames', () async {

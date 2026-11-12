@@ -3,7 +3,7 @@ description: A multi-platform proxy client based on Mihomo, simple and easy to u
 publish_to: 'none'
 version: 1.19.8+2026111101
 environment:
-  sdk: '>=3.9.0 <4.0.0'
+  sdk: '>=3.14.0 <4.0.0'
 
 dependencies:
   flutter:
@@ -78,6 +78,7 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^6.0.0
+  leak_tracker_flutter_testing: any
   ffigen: ^20.1.1
   json_serializable: ^6.15.2
   build_runner: ^2.16.2

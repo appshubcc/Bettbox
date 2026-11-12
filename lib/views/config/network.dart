@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:bett_box/common/common.dart';
 import 'package:bett_box/enum/enum.dart';
 import 'package:bett_box/models/models.dart';
@@ -26,7 +28,7 @@ bool showVpnRestartTip(WidgetRef ref) {
 
 Future<void> _handleNetworkConfigChange(WidgetRef ref) async {
   if (showVpnRestartTip(ref)) return;
-  globalState.appController.updateClashConfig();
+  unawaited(globalState.appController.updateClashConfig());
 }
 
 class VPNItem extends ConsumerWidget {
@@ -341,7 +343,7 @@ class NetworkInterfaceItem extends ConsumerWidget {
             value: interfaceName,
             textBuilder: (value) =>
                 value.isEmpty ? appLocalizations.auto : value,
-            subtitleBuilder: (value) => addresses[value] ?? '',
+            subtitleBuilder: (value) => addresses[value],
           ),
         );
         if (value == null || value == interfaceName) return;

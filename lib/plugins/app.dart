@@ -105,6 +105,16 @@ class App {
     });
   }
 
+  Future<String?> getPackageIconPath(
+    String packageName, {
+    bool forceRefresh = false,
+  }) async {
+    return await methodChannel.invokeMethod<String>('getPackageIconPath', {
+      'packageName': packageName,
+      'forceRefresh': forceRefresh,
+    });
+  }
+
   Future<bool?> tip(String? message) async {
     if (message == null || message.isEmpty) return false;
     return await methodChannel.invokeMethod<bool>('tip', {'message': message});

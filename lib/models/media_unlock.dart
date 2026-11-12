@@ -46,8 +46,6 @@ enum MediaPlatform {
   tiktok,
   iqiyi,
   crunchyroll,
-  missav,
-  ehentai,
   tencent,
   alibaba,
   netease,
@@ -112,8 +110,6 @@ extension MediaPlatformExt on MediaPlatform {
     MediaPlatform.tiktok ||
     MediaPlatform.iqiyi ||
     MediaPlatform.crunchyroll ||
-    MediaPlatform.missav ||
-    MediaPlatform.ehentai ||
     MediaPlatform.mytvsuper ||
     MediaPlatform.viutv ||
     MediaPlatform.hoytv ||
@@ -153,7 +149,7 @@ extension MediaPlatformExt on MediaPlatform {
   };
 
   String get defaultName => switch (this) {
-    MediaPlatform.openai => 'OpenAI',
+    MediaPlatform.openai => 'ChatGPT',
     MediaPlatform.claude => 'Claude',
     MediaPlatform.gemini => 'Gemini',
     MediaPlatform.grok => 'Grok',
@@ -171,8 +167,6 @@ extension MediaPlatformExt on MediaPlatform {
     MediaPlatform.bilibili => 'Bilibili',
     MediaPlatform.iqiyi => 'iQIYI',
     MediaPlatform.crunchyroll => 'Crunchyroll',
-    MediaPlatform.missav => 'MissAV',
-    MediaPlatform.ehentai => 'E-Hentai',
     MediaPlatform.tencent => 'Tencent',
     MediaPlatform.alibaba => 'Alibaba',
     MediaPlatform.netease => 'Netease',
@@ -228,8 +222,6 @@ extension MediaPlatformExt on MediaPlatform {
     MediaPlatform.tiktok => 'TikTok.svg',
     MediaPlatform.iqiyi => 'iQIYI.svg',
     MediaPlatform.crunchyroll => 'Crunchyroll.svg',
-    MediaPlatform.missav => 'MissAV.svg',
-    MediaPlatform.ehentai => 'EHentai.svg',
     MediaPlatform.tencent => 'QQ.svg',
     MediaPlatform.alibaba => 'Alibaba.svg',
     MediaPlatform.netease => 'NetEase.svg',
@@ -303,7 +295,6 @@ extension MediaPlatformExt on MediaPlatform {
     MediaPlatform.viutv ||
     MediaPlatform.hoytv ||
     MediaPlatform.rthk => const Size(18, 18),
-    MediaPlatform.ehentai ||
     MediaPlatform.npm ||
     MediaPlatform.unpkg ||
     MediaPlatform.v2ex => const Size(16, 16),

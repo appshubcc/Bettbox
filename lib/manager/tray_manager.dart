@@ -41,13 +41,13 @@ class _TrayContainerState extends ConsumerState<TrayManager> with TrayListener {
         // ignore: deprecated_member_use
         await trayManager.popUpContextMenu(bringAppToFront: true);
       } else {
-        window?.show();
+        unawaited(window?.show());
       }
       return;
     }
     if (system.isLinux) {
       if (!isRightClick) {
-        window?.show();
+        unawaited(window?.show());
       }
       return;
     }
@@ -71,7 +71,7 @@ class _TrayContainerState extends ConsumerState<TrayManager> with TrayListener {
       await trayManager.popUpContextMenu(bringAppToFront: true);
       return;
     }
-    window?.show();
+    unawaited(window?.show());
   }
 
   @override

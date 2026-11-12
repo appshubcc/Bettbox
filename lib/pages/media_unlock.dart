@@ -38,19 +38,21 @@ class _MediaUnlockPageState extends ConsumerState<MediaUnlockPage> {
     final target = await showBatchOutboundPicker(groups: groups);
     if (target == null || !mounted) return;
     final nodes = collectBatchNodes(groups, target);
-    showSheet<void>(
-      context: context,
-      props: const SheetProps(maxWidth: 480),
-      builder: (_, type) => _MediaBatchSheet(
-        type: type,
-        title: appLocalizations.mediaBatchTest,
-        subject:
-            '${platform.defaultName} · ${switch (target.scope) {
-              OutboundBatchScope.all => appLocalizations.mediaBatchAll,
-              _ => target.name,
-            }}',
-        targets: [for (final node in nodes) (node, platform)],
-        icon: _buildPlatformIcon(platform, size: 22),
+    unawaited(
+      showSheet<void>(
+        context: context,
+        props: const SheetProps(maxWidth: 480),
+        builder: (_, type) => _MediaBatchSheet(
+          type: type,
+          title: appLocalizations.mediaBatchTest,
+          subject:
+              '${platform.defaultName} · ${switch (target.scope) {
+                OutboundBatchScope.all => appLocalizations.mediaBatchAll,
+                _ => target.name,
+              }}',
+          targets: [for (final node in nodes) (node, platform)],
+          icon: _buildPlatformIcon(platform, size: 22),
+        ),
       ),
     );
   }

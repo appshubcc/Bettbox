@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math' as math;
 import 'dart:ui';
 
@@ -196,7 +197,7 @@ class _ProfilesViewState extends ConsumerState<ProfilesView>
   Future<void> _updateProfiles() async {
     final profiles = globalState.config.profiles;
     final messages = <String>[];
-    final updateProfiles = profiles.map<Future>((profile) async {
+    final updateProfiles = profiles.map<Future<void>>((profile) async {
       if (profile.type != ProfileType.url) return;
       globalState.appController.setProfile(profile.copyWith(isUpdating: true));
       try {
@@ -210,12 +211,14 @@ class _ProfilesViewState extends ConsumerState<ProfilesView>
     });
     await Future.wait(updateProfiles);
     if (messages.isNotEmpty) {
-      globalState.showMessage(
-        title: appLocalizations.tip,
-        message: TextSpan(
-          children: [for (final message in messages) TextSpan(text: message)],
+      unawaited(
+        globalState.showMessage(
+          title: appLocalizations.tip,
+          message: TextSpan(
+            children: [for (final message in messages) TextSpan(text: message)],
+          ),
+          cancelable: false,
         ),
-        cancelable: false,
       );
     }
   }
@@ -448,14 +451,20 @@ class ProfileItem extends StatelessWidget {
           content: content,
           readOnly: true,
         );
-        BaseNavigator.push<String>(context, previewPage, maintainState: false);
+        unawaited(
+          BaseNavigator.push<String>(
+            context,
+            previewPage,
+            maintainState: false,
+          ),
+        );
       },
       needLoading: true,
       title: appLocalizations.tip,
     );
   }
 
-  Future updateProfile() async {
+  Future<void> updateProfile() async {
     final appController = globalState.appController;
     if (profile.type == ProfileType.file) return;
     if (profile.type == ProfileType.bundle) {
@@ -470,12 +479,14 @@ class ProfileItem extends StatelessWidget {
       await appController.updateProfile(profile);
     } on Object catch (e) {
       appController.setProfile(profile.copyWith(isUpdating: false));
-      globalState.showMessage(
-        title: appLocalizations.tip,
-        message: TextSpan(
-          text: '${profile.label ?? profile.id}: ${e.formatError}',
+      unawaited(
+        globalState.showMessage(
+          title: appLocalizations.tip,
+          message: TextSpan(
+            text: '${profile.label ?? profile.id}: ${e.formatError}',
+          ),
+          cancelable: false,
         ),
-        cancelable: false,
       );
     }
   }
@@ -595,7 +606,7 @@ class ProfileItem extends StatelessWidget {
     return Padding(padding: const EdgeInsets.only(right: 28), child: summary);
   }
 
-  Widget _buildExpandButton({double size = 22}) {
+  Widget _buildExpandButton(BuildContext context, {double size = 22}) {
     final isExpanded = expanded ?? false;
     return IconButton(
       padding: EdgeInsets.zero,
@@ -604,7 +615,7 @@ class ProfileItem extends StatelessWidget {
           ? appLocalizations.collapse
           : appLocalizations.bundleExpand,
       icon: Icon(
-        isExpanded ? Icons.expand_less : Icons.expand_more,
+        context.resolveIcon(isExpanded ? Icons.expand_less : Icons.expand_more),
         size: size,
       ),
     );
@@ -763,9 +774,8 @@ class ProfileItem extends StatelessWidget {
                 alignment: Alignment.centerLeft,
                 child: Text(
                   compact
-                      ? TrafficValue(
-                          value: info.upload + info.download,
-                        ).shortShow
+                      ? TrafficValue(value: info.upload + info.download)
+                            .shortShow
                       : _compactTrafficText(info),
                   maxLines: 1,
                   style: _providerTrafficStyle(context, info),
@@ -1083,7 +1093,10 @@ class ProfileItem extends StatelessWidget {
           children: [
             for (final item in items)
               ListTile(
-                leading: item.icon != null ? Icon(item.icon) : null,
+                leading: switch (item.icon) {
+                  final icon? => Icon(context.resolveIcon(icon)),
+                  null => null,
+                },
                 title: Text(item.label),
                 onTap: () {
                   Navigator.of(context).pop();
@@ -1121,7 +1134,7 @@ class ProfileItem extends StatelessWidget {
                       open();
                     },
                     tooltip: appLocalizations.more,
-                    icon: const Icon(Icons.more_vert, size: 20),
+                    icon: Icon(context.resolveIcon(Icons.more_vert), size: 20),
                   );
                 },
               ),
@@ -1148,7 +1161,10 @@ class ProfileItem extends StatelessWidget {
           Positioned(
             right: 6,
             bottom: 4,
-            child: SizedBox.square(dimension: 36, child: _buildExpandButton()),
+            child: SizedBox.square(
+              dimension: 36,
+              child: _buildExpandButton(context),
+            ),
           ),
       ],
     );
@@ -1170,7 +1186,7 @@ class ProfileItem extends StatelessWidget {
             ),
           ),
         ),
-        if (onToggleExpanded != null) _buildExpandButton(size: 24),
+        if (onToggleExpanded != null) _buildExpandButton(context, size: 24),
         IconButton(
           onPressed: () => _showTVMenu(context),
           icon: const Icon(Icons.more_vert),
@@ -1293,7 +1309,7 @@ class _ReorderableProfilesSheetState extends State<ReorderableProfilesSheet> {
                 title: EmojiText(profile.label ?? profile.id),
                 trailing: ReorderableDragStartListener(
                   index: index,
-                  child: const Icon(Icons.drag_handle),
+                  child: Icon(context.resolveIcon(Icons.drag_handle)),
                 ),
               ),
             ),

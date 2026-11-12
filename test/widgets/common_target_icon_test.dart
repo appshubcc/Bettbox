@@ -6,13 +6,12 @@ import 'package:bett_box/widgets/widgets.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:leak_tracker_flutter_testing/leak_tracker_flutter_testing.dart';
 import 'package:material_ui/material_ui.dart';
 
 const _pngs = {
-  'red':
-      'iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAYAAADED76LAAAAEklEQVR4nGP4z8DwHx9mGBkKAMLXf4EvceABAAAAAElFTkSuQmCC',
-  'blue':
-      'iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAYAAADED76LAAAAEUlEQVR4nGNgYPj/Hz8eEQoAQ1d/gZtbdTsAAAAASUVORK5CYII=',
+  'red': 'iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAYAAADED76LAAAAEklEQVR4nGP4z8DwHx9mGBkKAMLXf4EvceABAAAAAElFTkSuQmCC',
+  'blue': 'iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAYAAADED76LAAAAEUlEQVR4nGNgYPj/Hz8eEQoAQ1d/gZtbdTsAAAAASUVORK5CYII=',
 };
 
 const _rgb = {'red': (255, 0, 0), 'blue': (0, 0, 255)};
@@ -93,30 +92,39 @@ void main() {
     '/png/b.png?v=2',
     '/png/icon',
   ]) {
-    testWidgets('$path renders and refreshes after reset', (tester) async {
-      color = 'red';
-      await tester.runAsync(CommonTargetIcon.clearCache);
-      final key = GlobalKey();
-      final url = 'http://127.0.0.1:${server.port}$path';
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Center(
-            child: RepaintBoundary(
-              key: key,
-              child: ColoredBox(
-                color: Colors.white,
-                child: CommonTargetIcon(src: url, size: 40),
+    testWidgets(
+      '$path renders and refreshes after reset',
+      (tester) async {
+        color = 'red';
+        await tester.runAsync(CommonTargetIcon.clearCache);
+        final key = GlobalKey();
+        final url = 'http://127.0.0.1:${server.port}$path';
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Center(
+              child: RepaintBoundary(
+                key: key,
+                child: ColoredBox(
+                  color: Colors.white,
+                  child: CommonTargetIcon(src: url, size: 40),
+                ),
               ),
             ),
           ),
-        ),
-      );
-      await settle(tester);
-      expect(await centerColor(tester, key), 'red');
-      color = 'blue';
-      await tester.runAsync(CommonTargetIcon.clearCache);
-      await settle(tester);
-      expect(await centerColor(tester, key), 'blue');
-    });
+        );
+        await settle(tester);
+        expect(await centerColor(tester, key), 'red');
+        color = 'blue';
+        await tester.runAsync(CommonTargetIcon.clearCache);
+        await settle(tester);
+        expect(await centerColor(tester, key), 'blue');
+        await tester.pumpWidget(const SizedBox());
+        imageCache.clear();
+        imageCache.clearLiveImages();
+      },
+      experimentalLeakTesting: LeakTesting.settings.withIgnored(
+        classes: ['ValueNotifier<int>'],
+      ),
+    );
   }
 }

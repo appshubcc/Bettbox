@@ -364,7 +364,8 @@ class _ToolCardState extends State<_ToolCard> {
       child: TweenAnimationBuilder<Color?>(
         duration: const Duration(milliseconds: 180),
         tween: ColorTween(end: iconColor),
-        builder: (_, color, _) => Icon(item.icon, size: iconSize, color: color),
+        builder: (_, color, _) =>
+            Icon(context.resolveIcon(item.icon), size: iconSize, color: color),
       ),
     );
     Widget watermark(double iconSize) => TweenAnimationBuilder<Color?>(
@@ -374,7 +375,8 @@ class _ToolCardState extends State<_ToolCard> {
             ? item.color.withValues(alpha: 0.16)
             : colorScheme.onSurface.withValues(alpha: 0.05),
       ),
-      builder: (_, color, _) => Icon(item.icon, size: iconSize, color: color),
+      builder: (_, color, _) =>
+          Icon(context.resolveIcon(item.icon), size: iconSize, color: color),
     );
     final title = context.textTheme.bodyMedium?.copyWith(
       fontWeight: FontWeight.w600,
@@ -509,7 +511,7 @@ class _ToolCardState extends State<_ToolCard> {
                           : colorScheme.surfaceContainerHigh,
                     ),
                     child: Icon(
-                      Icons.arrow_forward_rounded,
+                      context.resolveIcon(Icons.arrow_forward_rounded),
                       size: 15,
                       color: iconColor,
                     ),

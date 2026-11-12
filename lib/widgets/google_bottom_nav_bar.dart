@@ -1,4 +1,5 @@
 import 'dart:math' as math;
+
 import 'package:bett_box/common/common.dart';
 import 'package:bett_box/enum/enum.dart';
 import 'package:bett_box/models/common.dart';
@@ -199,9 +200,7 @@ class _GoogleBottomNavBarState extends ConsumerState<GoogleBottomNavBar>
     final primaryColor = colorScheme.primary;
     final onSurfaceVariantColor = colorScheme.onSurfaceVariant;
 
-    final navColor = navBarBodyColor(
-      colorScheme,
-    ).withValues(alpha: 0.98);
+    final navColor = navBarBodyColor(colorScheme).withValues(alpha: 0.96);
     final shadowStrength = isLight ? 1.0 : 3.0;
 
     const itemTextStyle = TextStyle(
@@ -364,15 +363,13 @@ class _GoogleBottomNavBarState extends ConsumerState<GoogleBottomNavBar>
                 return RepaintBoundary(
                   child: Container(
                     height: barHeight,
-                    decoration: BoxDecoration(
+                    decoration: ShapeDecoration(
                       color: navColor,
-                      borderRadius: BorderRadius.circular(30),
-                      border: Border.all(
-                        color: Colors.transparent,
-                        width: 1,
-                        strokeAlign: BorderSide.strokeAlignInside,
+                      shape: RoundedSuperellipseBorder(
+                        borderRadius: BorderRadius.circular(barHeight / 2),
+                        side: const BorderSide(color: Colors.transparent),
                       ),
-                      boxShadow: [
+                      shadows: [
                         BoxShadow(
                           blurRadius: 24,
                           offset: const Offset(0, 8),
@@ -518,7 +515,11 @@ class _GoogleBottomNavBarState extends ConsumerState<GoogleBottomNavBar>
                                                 color: itemColor,
                                                 size: 22,
                                               ),
-                                              child: item.icon,
+                                              child:
+                                                  context.resolveIconWidget(
+                                                    item.icon,
+                                                  ) ??
+                                                  item.icon,
                                             ),
                                             const SizedBox(height: 2),
                                             Text(
@@ -599,14 +600,14 @@ class NavBarPillPainter extends CustomPainter {
     final restingRadius = (size.height - 2 * _restingGap) / 2;
     final radius = restingRadius + (size.height / 2 - restingRadius) * t;
     final alpha = baseAlpha + (activeAlpha - baseAlpha) * t;
-    canvas.clipRRect(
-      RRect.fromRectAndRadius(
+    canvas.clipRSuperellipse(
+      RSuperellipse.fromRectAndRadius(
         Offset.zero & size,
         Radius.circular(size.height / 2),
       ),
     );
-    canvas.drawRRect(
-      RRect.fromRectAndRadius(pillRect(size), Radius.circular(radius)),
+    canvas.drawRSuperellipse(
+      RSuperellipse.fromRectAndRadius(pillRect(size), Radius.circular(radius)),
       Paint()..color = color.withValues(alpha: alpha),
     );
   }

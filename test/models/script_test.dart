@@ -52,9 +52,8 @@ void main() {
     final first = await draft.writeContent('function main(c){return c}');
     final second = await first.writeContent('function main(c){return {}}');
 
-    final timed = await Script.create(
-      label: 'D',
-    ).writeContent('const now = new Date()');
+    final timed = await Script.create(label: 'D')
+        .writeContent('const now = new Date()');
 
     expect(first.content, isEmpty);
     expect(first.volatile, isFalse);

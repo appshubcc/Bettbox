@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:bett_box/common/context.dart';
 import 'package:bett_box/common/navigator.dart';
 import 'package:material_ui/material_ui.dart';
@@ -6,6 +8,7 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   testWidgets('转场与手势期间 busy，结束后 whenIdle 完成', (tester) async {
     final observer = RouteIdleObserver();
+    addTearDown(observer.busy.dispose);
     final key = GlobalKey<NavigatorState>();
     await tester.pumpWidget(
       MaterialApp(
@@ -33,17 +36,16 @@ void main() {
     expect(observer.busy.value, isTrue);
 
     var idle = false;
-    observer.whenIdle().then((_) => idle = true);
+    unawaited(observer.whenIdle().then((_) => idle = true));
     await tester.pump();
     expect(idle, isFalse);
     await tester.pumpAndSettle();
     expect(observer.busy.value, isFalse);
     expect(idle, isTrue);
 
-    observer.didStartUserGesture(
-      MaterialPageRoute<void>(builder: (_) => const SizedBox()),
-      null,
-    );
+    final route = MaterialPageRoute<void>(builder: (_) => const SizedBox());
+    addTearDown(route.dispose);
+    observer.didStartUserGesture(route, null);
     expect(observer.busy.value, isTrue);
     observer.didStopUserGesture();
     expect(observer.busy.value, isFalse);
@@ -51,6 +53,7 @@ void main() {
 
   testWidgets('页面退场期间及刚结束时未稳定，稍后才算稳定', (tester) async {
     final observer = RouteIdleObserver();
+    addTearDown(observer.busy.dispose);
     final key = GlobalKey<NavigatorState>();
     await tester.pumpWidget(
       MaterialApp(
@@ -86,6 +89,7 @@ void main() {
 
   testWidgets('无动画的出栈同样需要等待稳定', (tester) async {
     final observer = RouteIdleObserver();
+    addTearDown(observer.busy.dispose);
     final key = GlobalKey<NavigatorState>();
     await tester.pumpWidget(
       MaterialApp(

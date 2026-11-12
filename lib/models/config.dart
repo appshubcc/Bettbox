@@ -429,6 +429,7 @@ abstract class ThemeProps with _$ThemeProps {
     @Default(TextScale()) TextScale textScale,
     @Default(false) bool useDarkIcon,
     @Default(false) bool useHarmonyFont,
+    @Default(false) bool usePhosphorIcons,
     @Default(false) bool invertTrayIcon,
   }) = _ThemeProps;
 
@@ -498,10 +499,8 @@ abstract class CustomRoute with _$CustomRoute {
 
 @freezed
 abstract class CustomRegion with _$CustomRegion {
-  const factory CustomRegion({
-    required String name,
-    required String regex,
-  }) = _CustomRegion;
+  const factory CustomRegion({required String name, required String regex}) =
+      _CustomRegion;
 
   factory CustomRegion.fromJson(Map<String, Object?> json) =>
       _$CustomRegionFromJson(json);

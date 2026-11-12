@@ -389,15 +389,9 @@ Map<String, dynamic> _$ExperimentalToJson(_Experimental instance) =>
     };
 
 _GeoXUrl _$GeoXUrlFromJson(Map<String, dynamic> json) => _GeoXUrl(
-  mmdb:
-      json['mmdb'] as String? ??
-      'https://github.com/appshubcc/bett-rules/releases/download/latest/geoip.metadb',
-  asn:
-      json['asn'] as String? ??
-      'https://github.com/appshubcc/bett-rules/releases/download/latest/GeoLite2-ASN.mmdb',
-  geosite:
-      json['geosite'] as String? ??
-      'https://github.com/appshubcc/bett-rules/releases/download/latest/geosite.dat',
+  mmdb: json['mmdb'] as String? ?? 'https://github.com/appshubcc/bett-rules/releases/download/latest/geoip.metadb',
+  asn: json['asn'] as String? ?? 'https://github.com/appshubcc/bett-rules/releases/download/latest/GeoLite2-ASN.mmdb',
+  geosite: json['geosite'] as String? ?? 'https://github.com/appshubcc/bett-rules/releases/download/latest/geosite.dat',
 );
 
 Map<String, dynamic> _$GeoXUrlToJson(_GeoXUrl instance) => <String, dynamic>{

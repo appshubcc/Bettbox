@@ -28,9 +28,9 @@ extension StringExtension on String {
   }
 
   dynamic get splitByMultipleSeparators {
-    final parts = split(
-      RegExp(r'[, ;]+'),
-    ).where((part) => part.isNotEmpty).toList();
+    final parts = split(RegExp(r'[, ;]+'))
+        .where((part) => part.isNotEmpty)
+        .toList();
 
     return parts.length > 1 ? parts : this;
   }

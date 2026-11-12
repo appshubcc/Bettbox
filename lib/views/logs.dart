@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:bett_box/clash/clash.dart';
@@ -333,10 +334,12 @@ class _LogsViewState extends ConsumerState<LogsView>
       title: appLocalizations.exportLogs,
     );
     if (res != true) return;
-    globalState.showMessage(
-      title: appLocalizations.tip,
-      message: TextSpan(text: appLocalizations.exportSuccess),
-      cancelable: false,
+    unawaited(
+      globalState.showMessage(
+        title: appLocalizations.tip,
+        message: TextSpan(text: appLocalizations.exportSuccess),
+        cancelable: false,
+      ),
     );
   }
 
@@ -645,7 +648,7 @@ class _LogsConsoleState extends ConsumerState<LogsConsole> {
   Future<void> _copy(Log log) async {
     await Clipboard.setData(ClipboardData(text: log.raw));
     if (!mounted) return;
-    context.showNotifier(appLocalizations.copySuccess);
+    unawaited(context.showNotifier(appLocalizations.copySuccess));
   }
 
   void _search(Log log) {
@@ -716,7 +719,9 @@ class _LogsConsoleState extends ConsumerState<LogsConsole> {
                 shape: BoxShape.circle,
               ),
               child: Icon(
-                hasLogs ? Icons.search_off_rounded : Icons.notes_rounded,
+                context.resolveIcon(
+                  hasLogs ? Icons.search_off_rounded : Icons.notes_rounded,
+                ),
                 size: 34,
                 color: context.colorScheme.primary.withValues(alpha: 0.85),
               ),
@@ -874,11 +879,7 @@ class _LogsConsoleState extends ConsumerState<LogsConsole> {
         Expanded(
           child: filtered.logs.isEmpty
               ? _buildEmpty(hasLogs: hasLogs, hasFacet: hasFacet, level: level)
-              : _buildList(
-                  logs: filtered.logs,
-                  compact: compact,
-                  level: level,
-                ),
+              : _buildList(logs: filtered.logs, compact: compact, level: level),
         ),
       ],
     );
@@ -980,14 +981,20 @@ class _LogRow extends StatelessWidget {
                   TextButton.icon(
                     onPressed: onCopy,
                     style: buttonStyle,
-                    icon: const Icon(Icons.copy_rounded, size: 16),
+                    icon: Icon(
+                      context.resolveIcon(Icons.copy_rounded),
+                      size: 16,
+                    ),
                     label: Text(appLocalizations.copy),
                   ),
                   if (onSearch != null)
                     TextButton.icon(
                       onPressed: onSearch,
                       style: buttonStyle,
-                      icon: const Icon(Icons.search_rounded, size: 16),
+                      icon: Icon(
+                        context.resolveIcon(Icons.search_rounded),
+                        size: 16,
+                      ),
                       label: Text(appLocalizations.search),
                     ),
                   Expanded(
@@ -998,7 +1005,10 @@ class _LogRow extends StatelessWidget {
                         child: TextButton.icon(
                           onPressed: onFilter,
                           style: buttonStyle,
-                          icon: const Icon(Icons.filter_list_rounded, size: 16),
+                          icon: Icon(
+                            context.resolveIcon(Icons.filter_list_rounded),
+                            size: 16,
+                          ),
                           label: Text(
                             '[ ${log.tag} ]',
                             maxLines: 1,
@@ -1013,7 +1023,7 @@ class _LogRow extends StatelessWidget {
                     visualDensity: VisualDensity.compact,
                     iconSize: 20,
                     tooltip: appLocalizations.collapse,
-                    icon: const Icon(Icons.expand_less_rounded),
+                    icon: Icon(context.resolveIcon(Icons.expand_less_rounded)),
                   ),
                 ],
               ),
@@ -1155,7 +1165,10 @@ class _LogsFilterBar extends ConsumerWidget {
                   label: module,
                   tooltip: appLocalizations.clearFilter,
                   selected: true,
-                  trailing: const Icon(Icons.close_rounded, size: 14),
+                  trailing: Icon(
+                    context.resolveIcon(Icons.close_rounded),
+                    size: 14,
+                  ),
                   onTap: () => notifier.setModule(null),
                 ),
               ),
@@ -1189,7 +1202,7 @@ class _NewLogsPill extends StatelessWidget {
             spacing: 4,
             children: [
               Icon(
-                Icons.arrow_upward_rounded,
+                context.resolveIcon(Icons.arrow_upward_rounded),
                 size: 14,
                 color: scheme.onSecondaryContainer,
               ),

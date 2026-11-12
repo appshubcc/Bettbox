@@ -76,8 +76,7 @@ abstract class UpdateParams with _$UpdateParams {
     @JsonKey(name: 'log-level') required LogLevel logLevel,
     required bool ipv6,
     @JsonKey(name: 'tcp-concurrent') required bool tcpConcurrent,
-    @JsonKey(name: 'external-controller')
-    required ExternalControllerStatus externalController,
+    @JsonKey(name: 'external-controller') required String externalController,
     @JsonKey(name: 'unified-delay') required bool unifiedDelay,
   }) = _UpdateParams;
 
@@ -241,6 +240,8 @@ abstract class ExternalProvider with _$ExternalProvider {
     @JsonKey(name: 'subscription-info', fromJson: subscriptionInfoFormCore)
     SubscriptionInfo? subscriptionInfo,
     @Default(false) bool isUpdating,
+    @Default(false) bool expanded,
+    @Default(0) int interval,
     @JsonKey(name: 'vehicle-type') required String vehicleType,
     @JsonKey(name: 'update-at') required DateTime updateAt,
   }) = _ExternalProvider;
@@ -274,11 +275,11 @@ abstract class ActionResult with _$ActionResult {
 }
 
 extension ActionResultExt on ActionResult {
-  Result get toResult {
+  Result<dynamic> get toResult {
     if (code == ResultType.success) {
       return Result.success(data);
     } else {
-      return Result.error(data);
+      return Result.error(data as String);
     }
   }
 }

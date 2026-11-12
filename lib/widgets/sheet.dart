@@ -205,7 +205,7 @@ class AdaptiveSheetScaffold extends StatelessWidget {
       scrolledUnderElevation: 0,
       surfaceTintColor: Colors.transparent,
       title: _SheetTitle(title: title, badge: badge),
-      actions: genActions([
+      actions: genActions(context, [
         if (actions.isEmpty && sideSheet) const CloseButton(),
         ...actions,
       ]),
@@ -359,7 +359,7 @@ class _ExpandableBottomSheetState extends State<_ExpandableBottomSheet>
       scrolledUnderElevation: 0,
       surfaceTintColor: Colors.transparent,
       title: _SheetTitle(title: widget.title, badge: widget.badge),
-      actions: genActions(widget.actions),
+      actions: genActions(context, widget.actions),
     );
 
     final header = GestureDetector(

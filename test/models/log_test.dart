@@ -131,16 +131,14 @@ void main() {
     });
 
     test('等级筛选不会命中正文里的 error', () {
-      final result = const LogsFilterState(
-        levels: {LogLevel.error},
-      ).apply(logs);
+      final result = const LogsFilterState(levels: {LogLevel.error})
+          .apply(logs);
       expect(result.logs.map((log) => log.payload), ['dial error', 'Failed']);
     });
 
     test('计数不受等级筛选影响', () {
-      final result = const LogsFilterState(
-        levels: {LogLevel.warning},
-      ).apply(logs);
+      final result = const LogsFilterState(levels: {LogLevel.warning})
+          .apply(logs);
       expect(result.logs.length, 1);
       expect(result.errors, 2);
       expect(result.warnings, 1);

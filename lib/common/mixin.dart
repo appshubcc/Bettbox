@@ -1,5 +1,11 @@
 import 'package:riverpod/riverpod.dart';
 
+mixin NotifierValueMixin<T> on AnyNotifier<T, T> {
+  set value(T value) {
+    state = value;
+  }
+}
+
 mixin AutoDisposeNotifierMixin<T> on AnyNotifier<T, T> {
   set value(T value) {
     state = value;

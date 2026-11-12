@@ -1,5 +1,6 @@
 // ignore_for_file: avoid_print
 
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
@@ -203,8 +204,9 @@ class Build {
         Uri.parse('https://github.com/MetaCubeX/mihomo/releases/latest'),
       );
       request.followRedirects = false;
-      final response =
-          await request.close().timeout(const Duration(seconds: 3));
+      final response = await request.close().timeout(
+        const Duration(seconds: 3),
+      );
       final location = response.headers.value(HttpHeaders.locationHeader);
       client.close(force: true);
       if (location != null) {
@@ -414,28 +416,23 @@ class Build {
 
   static const List<AssetDownloadItem> assetDownloadItems = [
     AssetDownloadItem(
-      url:
-          'https://github.com/appshubcc/bett-rules/releases/download/latest/geosite.dat',
+      url: 'https://github.com/appshubcc/bett-rules/releases/download/latest/geosite.dat',
       fileName: 'GeoSite.dat',
     ),
     AssetDownloadItem(
-      url:
-          'https://github.com/appshubcc/bett-rules/releases/download/latest/geoip.metadb',
+      url: 'https://github.com/appshubcc/bett-rules/releases/download/latest/geoip.metadb',
       fileName: 'geoip.metadb',
     ),
     AssetDownloadItem(
-      url:
-          'https://github.com/appshubcc/bett-rules/releases/download/latest/GeoLite2-ASN-lite.mmdb',
+      url: 'https://github.com/appshubcc/bett-rules/releases/download/latest/GeoLite2-ASN-lite.mmdb',
       fileName: 'ASN.mmdb',
     ),
     AssetDownloadItem(
-      url:
-          'https://github.com/appshubcc/bett-rules/releases/download/latest/BundleMRS.7z',
+      url: 'https://github.com/appshubcc/bett-rules/releases/download/latest/BundleMRS.7z',
       fileName: 'BundleMRS.7z',
     ),
     AssetDownloadItem(
-      url:
-          'https://github.com/Zephyruso/zashboard/releases/download/v3.29.1/dist-no-fonts.zip',
+      url: 'https://github.com/Zephyruso/zashboard/releases/download/v3.29.1/dist-no-fonts.zip',
       fileName: 'zash.zip',
     ),
   ];
@@ -561,7 +558,7 @@ Future<void> _bumpManagedScriptVersion() async {
   print('managed.js version $currentVersion -> $version');
 }
 
-class BuildCommand extends Command {
+class BuildCommand extends Command<void> {
   Target target;
 
   BuildCommand({required this.target}) {
@@ -593,8 +590,7 @@ class BuildCommand extends Command {
     );
     argParser.addOption(
       'core-hash',
-      help:
-          'SHA256 hash of the (signed) core binary, used when --out=helper to embed the correct TOKEN',
+      help: 'SHA256 hash of the (signed) core binary, used when --out=helper to embed the correct TOKEN',
     );
     argParser.addOption(
       'env',
@@ -612,8 +608,7 @@ class BuildCommand extends Command {
     );
     argParser.addFlag(
       'lite',
-      help:
-          'Build the Lite variant without easytier, tailscale, zerotier, fake-tcp and gVisor',
+      help: 'Build the Lite variant without easytier, tailscale, zerotier, fake-tcp and gVisor',
     );
     argParser.addOption(
       'core-version',
@@ -822,14 +817,14 @@ class BuildCommand extends Command {
   @override
   Future<void> run() async {
     await execute(
-      archName: argResults?['arch'],
-      out: argResults?['out'],
-      env: argResults?['env'] ?? 'pre',
-      dev: argResults?['dev'] ?? false,
-      ensure: argResults?['ensure'] ?? false,
-      compatible: argResults?['compatible'] ?? false,
+      archName: argResults?['arch'] as String?,
+      out: argResults?['out'] as String?,
+      env: argResults?['env'] as String? ?? 'pre',
+      dev: argResults?['dev'] as bool? ?? false,
+      ensure: argResults?['ensure'] as bool? ?? false,
+      compatible: argResults?['compatible'] as bool? ?? false,
       coreHash: argResults?['core-hash'] as String?,
-      lite: argResults?['lite'] ?? false,
+      lite: argResults?['lite'] as bool? ?? false,
       coreVersion: argResults?['core-version'] as String?,
     );
   }
@@ -952,7 +947,7 @@ class BuildCommand extends Command {
         final token = target != Target.android
             ? await Build.calcSha256(corePaths.first)
             : null;
-        Build.buildHelper(target, token!);
+        unawaited(Build.buildHelper(target, token!));
         await _buildDistributor(
           target: target,
           targets: 'exe',
@@ -1001,13 +996,15 @@ class BuildCommand extends Command {
             ? ' --build-target-platform ${defaultTargets.join(",")} --description ${lite ? 'lite-universal' : 'universal'}'
             : ',split-per-abi --build-target-platform ${defaultTargets.join(",")}${lite ? ' --description lite' : ''}';
 
-        _buildDistributor(
-          target: target,
-          targets: 'apk',
-          args: buildArgs,
-          env: env,
-          suffix: appAssetSuffix,
-          lite: lite,
+        unawaited(
+          _buildDistributor(
+            target: target,
+            targets: 'apk',
+            args: buildArgs,
+            env: env,
+            suffix: appAssetSuffix,
+            lite: lite,
+          ),
         );
         return;
       case Target.macos:
@@ -1034,12 +1031,11 @@ class BuildCommand extends Command {
   }
 }
 
-class AutoBuildCommand extends Command {
+class AutoBuildCommand extends Command<void> {
   AutoBuildCommand() {
     argParser.addOption(
       'device-id',
-      help:
-          'Target Flutter device ID (e.g. from \${command:flutter.getSelectedDeviceId})',
+      help: 'Target Flutter device ID (e.g. from \${command:flutter.getSelectedDeviceId})',
     );
     argParser.addOption(
       'arch',
@@ -1071,8 +1067,7 @@ class AutoBuildCommand extends Command {
     );
     argParser.addFlag(
       'lite',
-      help:
-          'Build the Lite variant without easytier, tailscale, zerotier, fake-tcp and gVisor',
+      help: 'Build the Lite variant without easytier, tailscale, zerotier, fake-tcp and gVisor',
     );
     argParser.addOption(
       'core-version',
@@ -1090,7 +1085,7 @@ class AutoBuildCommand extends Command {
   Future<void> run() async {
     final optDeviceId = argResults?['device-id']?.toString().trim() ?? '';
     final rawDeviceId = optDeviceId.startsWith('-') ? '' : optDeviceId;
-    final String? explicitArch = argResults?['arch'];
+    final explicitArch = argResults?['arch'] as String?;
 
     Target? target;
     String? archName = explicitArch;
@@ -1179,19 +1174,19 @@ class AutoBuildCommand extends Command {
     final cmd = BuildCommand(target: target);
     await cmd.execute(
       archName: archName,
-      out: argResults?['out'] ?? 'core',
-      env: argResults?['env'] ?? 'pre',
-      dev: argResults?['dev'] ?? false,
-      ensure: argResults?['ensure'] ?? false,
-      compatible: argResults?['compatible'] ?? false,
+      out: argResults?['out'] as String? ?? 'core',
+      env: argResults?['env'] as String? ?? 'pre',
+      dev: argResults?['dev'] as bool? ?? false,
+      ensure: argResults?['ensure'] as bool? ?? false,
+      compatible: argResults?['compatible'] as bool? ?? false,
       coreHash: argResults?['core-hash'] as String?,
-      lite: argResults?['lite'] ?? false,
+      lite: argResults?['lite'] as bool? ?? false,
       coreVersion: argResults?['core-version'] as String?,
     );
   }
 }
 
-class AssetsCommand extends Command {
+class AssetsCommand extends Command<void> {
   AssetsCommand() {
     argParser.addFlag(
       'force',

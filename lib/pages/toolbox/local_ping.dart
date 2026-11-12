@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:bett_box/clash/clash.dart';
@@ -212,7 +213,7 @@ class _LocalPingPageState extends ConsumerState<LocalPingPage>
     if (_running) return;
     final target = _target.text.trim();
     if (target.isEmpty || target.contains(' ')) {
-      context.showNotifier(appLocalizations.ipLookupInvalid);
+      unawaited(context.showNotifier(appLocalizations.ipLookupInvalid));
       return;
     }
     FocusScope.of(context).unfocus();
@@ -233,14 +234,14 @@ class _LocalPingPageState extends ConsumerState<LocalPingPage>
         interval: options.interval,
       );
     });
-    globalState.appController.holdWakelock(true);
+    unawaited(globalState.appController.holdWakelock(true));
     LocalPingState? result;
     try {
       result = await clashCore.startLocalPing(target: target, options: options);
     } catch (_) {
       result = null;
     }
-    globalState.appController.holdWakelock(false);
+    unawaited(globalState.appController.holdWakelock(false));
     if (!mounted) return;
     final finished =
         result ??
@@ -269,7 +270,7 @@ class _LocalPingPageState extends ConsumerState<LocalPingPage>
   Future<void> _copy(String text) async {
     await Clipboard.setData(ClipboardData(text: text));
     if (!mounted) return;
-    context.showNotifier(appLocalizations.copySuccess);
+    unawaited(context.showNotifier(appLocalizations.copySuccess));
   }
 
   @override
@@ -1012,6 +1013,7 @@ class _ReplyList extends StatelessWidget {
 Widget buildLocalPingPreviewForTesting({
   required LocalPingState state,
   required List<LocalPingReply> replies,
+  required TextEditingController controller,
   LocalPingOptions options = const LocalPingOptions(),
   NetworkInfo? network,
 }) {
@@ -1027,7 +1029,7 @@ Widget buildLocalPingPreviewForTesting({
       ),
       const SizedBox(height: 12),
       _TargetField(
-        controller: TextEditingController(text: state.target),
+        controller: controller,
         enabled: true,
         port: options.protocol == LocalPingProtocol.icmp ? null : options.port,
         onEditPort: () {},

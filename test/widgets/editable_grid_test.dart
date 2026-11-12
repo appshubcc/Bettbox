@@ -146,4 +146,46 @@ void main() {
     expect(DashboardWidget.memoryInfo.resizable, isTrue);
     expect(DashboardWidget.ipv6Switch.resizable, isFalse);
   });
+
+  testWidgets('非编辑模式下宽度缩小时卡片立即更新网格位置无多余动画偏移', (tester) async {
+    final log = <String>[];
+    double width = 800;
+    await tester.pumpWidget(
+      StatefulBuilder(
+        builder: (context, setState) {
+          return MaterialApp(
+            home: Scaffold(
+              body: SizedBox(
+                width: width,
+                child: _Harness(editing: false, log: log),
+              ),
+            ),
+          );
+        },
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    final bInitial = tester.getTopLeft(find.text('B'));
+    expect(bInitial.dx, greaterThan(300));
+
+    width = 300;
+    await tester.pumpWidget(
+      StatefulBuilder(
+        builder: (context, setState) {
+          return MaterialApp(
+            home: Scaffold(
+              body: SizedBox(
+                width: width,
+                child: _Harness(editing: false, log: log),
+              ),
+            ),
+          );
+        },
+      ),
+    );
+    await tester.pump();
+    final bAfterResize = tester.getTopLeft(find.text('B'));
+    expect(bAfterResize.dx, closeTo(207.8, 1.0));
+  });
 }

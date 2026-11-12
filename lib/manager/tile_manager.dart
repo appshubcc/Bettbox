@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:bett_box/plugins/tile.dart';
 import 'package:bett_box/state.dart';
 import 'package:material_ui/material_ui.dart';
@@ -25,7 +27,7 @@ class _TileContainerState extends State<TileManager> with TileListener {
 
   @override
   Future<void> onStop() async {
-    globalState.appController.updateStatus(false);
+    unawaited(globalState.appController.updateStatus(false));
     super.onStop();
   }
 

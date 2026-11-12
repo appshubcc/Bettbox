@@ -69,7 +69,7 @@ class AppPlugin : FlutterPlugin, MethodChannel.MethodCallHandler, ActivityAware 
     private val chinaPackageCache = ConcurrentHashMap<String, Boolean>()
 
     private val iconCacheDir by lazy {
-        File(BettboxApplication.getAppContext().cacheDir, "app_icons").apply {
+        File(BettboxApplication.getAppContext().noBackupFilesDir, "app_icons").apply {
             if (!exists()) mkdirs()
         }
     }
@@ -262,6 +262,16 @@ class AppPlugin : FlutterPlugin, MethodChannel.MethodCallHandler, ActivityAware 
                 }.getOrNull() ?: getDefaultIconBytes()
                 result.success(icon)
             }
+            "getPackageIconPath" -> scope.launch {
+                val packageName = call.argument<String>("packageName")
+                val forceRefresh = call.argument<Boolean>("forceRefresh") ?: false
+                val path = runCatching {
+                    packageName?.let {
+                        getPackageIconPath(it, forceRefresh)
+                    }
+                }.getOrNull()
+                result.success(path)
+            }
             "tip" -> {
                 tip(call.argument<String>("message"))
                 result.success(true)
@@ -361,7 +371,7 @@ class AppPlugin : FlutterPlugin, MethodChannel.MethodCallHandler, ActivityAware 
         return bytes.take(PNG_MAGIC_SIZE).toByteArray().contentEquals(magic)
     }
 
-    private suspend fun getPackageIconBytes(packageName: String, forceRefresh: Boolean = false): ByteArray? =
+    private suspend fun ensurePackageIconFile(packageName: String, forceRefresh: Boolean = false): File? =
         withContext(Dispatchers.IO) {
             val pm = BettboxApplication.getAppContext().packageManager ?: return@withContext null
             runCatching {
@@ -379,8 +389,7 @@ class AppPlugin : FlutterPlugin, MethodChannel.MethodCallHandler, ActivityAware 
                 }
 
                 if (cacheFile.exists() && cacheFile.length() > 0) {
-                    val cachedBytes = cacheFile.readBytes()
-                    if (isPngBytes(cachedBytes)) return@withContext cachedBytes
+                    if (isPngBytes(cacheFile.readBytes())) return@withContext cacheFile
                     cacheFile.delete()
                 }
 
@@ -388,11 +397,32 @@ class AppPlugin : FlutterPlugin, MethodChannel.MethodCallHandler, ActivityAware 
 
                 pm.getApplicationIcon(packageName)?.let { drawable ->
                     val bytes = drawableToPngBytes(drawable, getIconSizePx())
-                    runCatching { cacheFile.writeBytes(bytes) }
-                    return@withContext bytes
+                    val tempFile = File(iconCacheDir, ".tmp_${cacheKey}_${System.nanoTime()}")
+                    if (runCatching { tempFile.writeBytes(bytes) }.isFailure) {
+                        tempFile.delete()
+                        return@withContext null
+                    }
+                    if (!tempFile.renameTo(cacheFile)) {
+                        tempFile.delete()
+                        return@withContext cacheFile.takeIf { it.exists() && it.length() > 0 }
+                    }
+                    return@withContext cacheFile
                 }
             }
             null
+        }
+
+    private suspend fun getPackageIconPath(packageName: String, forceRefresh: Boolean = false): String? =
+        ensurePackageIconFile(packageName, forceRefresh)?.absolutePath
+
+    private suspend fun getPackageIconBytes(packageName: String, forceRefresh: Boolean = false): ByteArray? =
+        ensurePackageIconFile(packageName, forceRefresh)?.let { file ->
+            withContext(Dispatchers.IO) {
+                runCatching {
+                    val bytes = file.readBytes()
+                    if (isPngBytes(bytes)) bytes else null
+                }.getOrNull()
+            }
         }
 
     private suspend fun getPackages(forceRefresh: Boolean = false): List<Package> = packagesMutex.withLock {

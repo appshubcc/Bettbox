@@ -61,12 +61,11 @@ void main() {
   test('从 JSON 文本迁移时保留其他 DNS 字段', () {
     final dns = Dns.safeDnsFromJson(
       jsonDecode(
-            jsonEncode({
-              'listen': '0.0.0.0:1053',
-              'nameserver-policy': {'geosite:cn': '223.5.5.5'},
-            }),
-          )
-          as Map<String, Object?>,
+        jsonEncode({
+          'listen': '0.0.0.0:1053',
+          'nameserver-policy': {'geosite:cn': '223.5.5.5'},
+        }),
+      ) as Map<String, Object?>,
     );
 
     expect(dns.listen, '0.0.0.0:1053');

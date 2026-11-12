@@ -340,7 +340,7 @@ class ScriptState extends _$ScriptState with AutoDisposeNotifierMixin {
     final url = script.url;
     if (url == null || url.isEmpty) return;
     final res = await request.getTextResponseForUrl(url);
-    setScript(await script.writeContent(res.data));
+    setScript(await script.writeContent(res.data as String));
   }
 }
 
@@ -380,6 +380,37 @@ class PatchClashConfig extends _$PatchClashConfig
   @override
   onUpdate(value) {
     globalState.config = globalState.config.copyWith(patchClashConfig: value);
+  }
+}
+
+@riverpod
+class Nodes extends _$Nodes with AutoDisposeNotifierMixin {
+  @override
+  List<ProxyNode> build() {
+    return globalState.config.nodes;
+  }
+
+  @override
+  onUpdate(value) {
+    globalState.config = globalState.config.copyWith(nodes: value);
+  }
+
+  void add(List<ProxyNode> nodes) {
+    state = [...state, ...nodes];
+  }
+
+  void setNode(ProxyNode node) {
+    state = [
+      for (final item in state)
+        if (item.id == node.id) node else item,
+    ];
+  }
+
+  void remove(String id) {
+    state = [
+      for (final item in state)
+        if (item.id != id) item,
+    ];
   }
 }
 

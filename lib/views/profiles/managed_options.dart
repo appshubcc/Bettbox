@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:bett_box/common/common.dart';
 import 'package:bett_box/enum/enum.dart';
 import 'package:bett_box/models/models.dart';
@@ -35,14 +37,14 @@ Future<void> syncManagedScript(BuildContext context, WidgetRef ref) async {
   );
   if (result == null || !context.mounted) return;
   if (!result.updated) {
-    context.showNotifier(appLocalizations.managedUpToDate);
+    unawaited(context.showNotifier(appLocalizations.managedUpToDate));
     return;
   }
   globalState.appController.updateManagedSetting(
     (state) => state.copyWith(syncedVersion: result.syncedVersion),
   );
   ref.invalidate(builtInIconSetProvider);
-  context.showNotifier(appLocalizations.success);
+  unawaited(context.showNotifier(appLocalizations.success));
 }
 
 String _targetLabel(String target) =>
@@ -487,8 +489,7 @@ class _ManagedOptionsSheetState extends ConsumerState<ManagedOptionsSheet> {
         if (!mounted) return;
         if (values.containsKey('禁用内核QUIC流量') ||
             values.containsKey('屏蔽内核QUIC流量')) {
-          final quic =
-              values['禁用内核QUIC流量'] ?? values['屏蔽内核QUIC流量'] ?? true;
+          final quic = values['禁用内核QUIC流量'] ?? values['屏蔽内核QUIC流量'] ?? true;
           ref
               .read(vpnSettingProvider.notifier)
               .updateState((state) => state.copyWith(disableQuic: quic));
@@ -778,20 +779,19 @@ class _CustomRegionDialog extends StatefulWidget {
   final CustomRegion? region;
   final Set<String> existingNames;
 
-  const _CustomRegionDialog({
-    this.region,
-    required this.existingNames,
-  });
+  const _CustomRegionDialog({this.region, required this.existingNames});
 
   @override
   State<_CustomRegionDialog> createState() => _CustomRegionDialogState();
 }
 
 class _CustomRegionDialogState extends State<_CustomRegionDialog> {
-  late final TextEditingController _nameController =
-      TextEditingController(text: widget.region?.name ?? '');
-  late final TextEditingController _regexController =
-      TextEditingController(text: widget.region?.regex ?? '');
+  late final TextEditingController _nameController = TextEditingController(
+    text: widget.region?.name ?? '',
+  );
+  late final TextEditingController _regexController = TextEditingController(
+    text: widget.region?.regex ?? '',
+  );
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   @override
@@ -819,10 +819,7 @@ class _CustomRegionDialogState extends State<_CustomRegionDialog> {
           onPressed: () => Navigator.of(context).pop(),
           child: Text(appLocalizations.cancel),
         ),
-        TextButton(
-          onPressed: _submit,
-          child: Text(appLocalizations.confirm),
-        ),
+        TextButton(onPressed: _submit, child: Text(appLocalizations.confirm)),
       ],
       child: Form(
         key: _formKey,
@@ -846,7 +843,9 @@ class _CustomRegionDialogState extends State<_CustomRegionDialog> {
                 }
                 if (widget.region?.name != trimmed &&
                     widget.existingNames.contains(trimmed)) {
-                  return appLocalizations.existsTip(appLocalizations.regionName);
+                  return appLocalizations.existsTip(
+                    appLocalizations.regionName,
+                  );
                 }
                 return null;
               },
@@ -860,7 +859,9 @@ class _CustomRegionDialogState extends State<_CustomRegionDialog> {
               validator: (value) {
                 final trimmed = value?.trim() ?? '';
                 if (trimmed.isEmpty) {
-                  return appLocalizations.emptyTip(appLocalizations.regionRegex);
+                  return appLocalizations.emptyTip(
+                    appLocalizations.regionRegex,
+                  );
                 }
                 try {
                   RegExp(trimmed);
@@ -884,7 +885,7 @@ class _RegionsSheet extends StatefulWidget {
   final Map<String, String?> icons;
   final List<String> enabled;
   final void Function(List<String> enabled, List<CustomRegion> customRegions)
-      onSave;
+  onSave;
 
   const _RegionsSheet({
     required this.type,
@@ -932,10 +933,7 @@ class _RegionsSheetState extends State<_RegionsSheet> {
         if (cr != region) cr.name,
     };
     final res = await globalState.showCommonDialog<CustomRegion>(
-      child: _CustomRegionDialog(
-        region: region,
-        existingNames: existingNames,
-      ),
+      child: _CustomRegionDialog(region: region, existingNames: existingNames),
     );
     if (res == null) return;
     setState(() {
@@ -963,7 +961,8 @@ class _RegionsSheetState extends State<_RegionsSheet> {
   }
 
   String? _customIconUrl(String name) {
-    final alias = defaultRouteAliases[name.trim().toLowerCase()] ??
+    final alias =
+        defaultRouteAliases[name.trim().toLowerCase()] ??
         defaultRouteAliases[name.trim()];
     if (alias != null) {
       return routeIconUrl(alias);
@@ -1269,8 +1268,10 @@ class _RouteSheetState extends State<_RouteSheet> {
       return;
     }
     if (draft.sets.isEmpty) {
-      context.showNotifier(
-        appLocalizations.emptyTip(appLocalizations.ruleSets),
+      unawaited(
+        context.showNotifier(
+          appLocalizations.emptyTip(appLocalizations.ruleSets),
+        ),
       );
       return;
     }

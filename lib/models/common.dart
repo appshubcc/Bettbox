@@ -343,7 +343,7 @@ class Traffic {
   num get speed => up.value + down.value;
 
   factory Traffic.fromMap(Map<String, dynamic> map) {
-    return Traffic(up: map['up'], down: map['down']);
+    return Traffic(up: map['up'] as int?, down: map['down'] as int?);
   }
 
   String toSpeedText() {
@@ -1223,7 +1223,7 @@ abstract class Result<T> with _$Result<T> {
       Result(data: null, type: ResultType.error, message: message);
 }
 
-extension ResultExt on Result {
+extension ResultExt on Result<dynamic> {
   bool get isError => type == ResultType.error;
 
   bool get isSuccess => type == ResultType.success;

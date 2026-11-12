@@ -9,7 +9,7 @@ typedef InstallConfigCallBack = void Function(String url);
 class LinkManager {
   static LinkManager? _instance;
   late AppLinks _appLinks;
-  StreamSubscription? subscription;
+  StreamSubscription<Uri>? subscription;
 
   LinkManager._internal() {
     _appLinks = AppLinks();

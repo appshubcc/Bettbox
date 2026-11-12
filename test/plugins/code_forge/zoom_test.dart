@@ -388,14 +388,12 @@ void _pinchZoomTreeStability() {
       expect(
         identical(inPinchScrollableElement, initialScrollableElement),
         isTrue,
-        reason:
-            'TwoDimensionalScrollable element should not be unmounted during pinch',
+        reason: 'TwoDimensionalScrollable element should not be unmounted during pinch',
       );
       expect(
         identical(inPinchScrollableState, initialScrollableState),
         isTrue,
-        reason:
-            'TwoDimensionalScrollable state should not be recreated during pinch',
+        reason: 'TwoDimensionalScrollable state should not be recreated during pinch',
       );
 
       await touch1.up();
@@ -412,14 +410,12 @@ void _pinchZoomTreeStability() {
       expect(
         identical(afterPinchScrollableElement, initialScrollableElement),
         isTrue,
-        reason:
-            'TwoDimensionalScrollable element should remain identical after pinch ends',
+        reason: 'TwoDimensionalScrollable element should remain identical after pinch ends',
       );
       expect(
         identical(afterPinchScrollableState, initialScrollableState),
         isTrue,
-        reason:
-            'TwoDimensionalScrollable state should remain identical after pinch ends',
+        reason: 'TwoDimensionalScrollable state should remain identical after pinch ends',
       );
     },
   );

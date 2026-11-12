@@ -119,8 +119,7 @@ class _OverrideProfileViewState extends State<OverrideProfileView> {
               controller: _controller,
               child: CustomScrollView(
                 controller: _controller,
-                // ignore: deprecated_member_use
-                cacheExtent: 500,
+                scrollCacheExtent: const ScrollCacheExtent.pixels(500),
                 slivers: [
                   SliverToBoxAdapter(child: SizedBox(height: 8 + rise)),
                   SliverToBoxAdapter(child: SizedBox(height: 8)),
@@ -986,7 +985,9 @@ class _AddRuleDialogState extends State<AddRuleDialog> {
                   ),
                   validator: (_) {
                     if (_contentController.text.isEmpty) {
-                      return appLocalizations.emptyTip(appLocalizations.content);
+                      return appLocalizations.emptyTip(
+                        appLocalizations.content,
+                      );
                     }
                     return null;
                   },

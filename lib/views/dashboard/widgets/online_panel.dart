@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:bett_box/common/common.dart';
 import 'package:bett_box/enum/enum.dart';
 import 'package:bett_box/providers/config.dart';
@@ -22,17 +24,20 @@ class OnlinePanel extends ConsumerWidget {
           final clashConfig = ref.read(patchClashConfigProvider);
           final externalController = clashConfig.externalController;
           final secret = clashConfig.secret;
+          final port = clashConfig.externalControllerPort;
 
           if (externalController != ExternalControllerStatus.open) {
-            showSheet(
-              context: context,
-              props: const SheetProps(expandable: false),
-              builder: (_, type) => AdaptiveSheetScaffold(
-                title: appLocalizations.externalController,
-                type: type,
-                body: generateListView(
-                  shrinkWrap: true,
-                  generateSection(items: const [ExternalControllerItem()]),
+            unawaited(
+              showSheet(
+                context: context,
+                props: const SheetProps(expandable: false),
+                builder: (_, type) => AdaptiveSheetScaffold(
+                  title: appLocalizations.externalController,
+                  type: type,
+                  body: generateListView(
+                    shrinkWrap: true,
+                    generateSection(items: const [ExternalControllerItem()]),
+                  ),
                 ),
               ),
             );
@@ -43,14 +48,14 @@ class OnlinePanel extends ConsumerWidget {
           if (secret != null && secret.isNotEmpty) {
             // Build URL with secret in fragment
             final uri = Uri.parse(
-              'http://127.0.0.1:9090/ui/#/setup?hostname=127.0.0.1&port=9090&secret=$secret',
+              'http://127.0.0.1:$port/ui/#/setup?hostname=127.0.0.1&port=$port&secret=$secret',
             );
             if (await canLaunchUrl(uri)) {
               await launchUrl(uri, mode: LaunchMode.externalApplication);
             }
           } else {
             // External controller enabled but no secret
-            final uri = Uri.parse('http://127.0.0.1:9090/ui/');
+            final uri = Uri.parse('http://127.0.0.1:$port/ui/');
             if (await canLaunchUrl(uri)) {
               await launchUrl(uri, mode: LaunchMode.externalApplication);
             }

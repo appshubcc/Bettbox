@@ -189,7 +189,6 @@ class _HomePageState extends State<HomePage> {
                   item: navigationItem,
                   isMobile: isMobile,
                   keep: navigationItem.keep || keepAll,
-                  view: navigationItem.builder(context),
                 );
               },
             );
@@ -308,7 +307,9 @@ class _HomePageState extends State<HomePage> {
                                     : context.colorScheme.onSurfaceVariant,
                                 size: 24,
                               ),
-                              child: item.icon,
+                              child:
+                                  context.resolveIconWidget(item.icon) ??
+                                  item.icon,
                             ),
                             const SizedBox(height: 4),
                             Text(
@@ -349,34 +350,43 @@ class _ActivePageLabelsScope
   }
 }
 
-class _NavigationPage extends StatelessWidget {
+class _NavigationPage extends StatefulWidget {
+  final NavigationItem item;
+  final bool isMobile;
+  final bool keep;
+
   const _NavigationPage({
     super.key,
     required this.item,
     required this.isMobile,
     required this.keep,
-    required this.view,
   });
 
-  final NavigationItem item;
-  final bool isMobile;
-  final bool keep;
-  final Widget view;
+  @override
+  State<_NavigationPage> createState() => _NavigationPageState();
+}
+
+class _NavigationPageState extends State<_NavigationPage> {
+  Widget? _view;
 
   @override
   Widget build(BuildContext context) {
+    final view = _view ??= widget.item.builder(context);
     final keptView = KeepScope(
-      key: ValueKey(item.label),
-      keep: keep,
-      child: isMobile
+      key: ValueKey(widget.item.label),
+      keep: widget.keep,
+      child: widget.isMobile
           ? view
           : Navigator(
-              key: ValueKey('${item.label.name}_navigator'),
+              key: ValueKey('${widget.item.label.name}_navigator'),
               pages: [MaterialPage(child: view)],
               onDidRemovePage: (_) {},
             ),
     );
-    final isActive = _ActivePageLabelsScope.isActive(context, item.label);
+    final isActive = _ActivePageLabelsScope.isActive(
+      context,
+      widget.item.label,
+    );
     return PageActivityScope(
       isActive: isActive,
       child: TickerMode(
@@ -450,16 +460,21 @@ class _HomePageViewState extends ConsumerState<_HomePageView> {
       [for (final item in widget.navigationItems) item.label],
     )) {
       _order = null;
-      final currentLabel = ref.read(currentPageLabelProvider);
+      final currentLabel = shownPageLabelOf(
+        ref.read(currentPageLabelProvider),
+        widget.navigationItems,
+      );
       _activeLabels.value = {currentLabel};
       _updatePageController();
     }
   }
 
   int get _pageIndex {
-    return widget.navigationItems.indexWhere(
-      (item) => item.label == globalState.appState.pageLabel,
+    final pageLabel = shownPageLabelOf(
+      globalState.appState.pageLabel,
+      widget.navigationItems,
     );
+    return widget.navigationItems.indexWhere((item) => item.label == pageLabel);
   }
 
   Future<void> _toPage(
@@ -469,8 +484,10 @@ class _HomePageViewState extends ConsumerState<_HomePageView> {
     if (!mounted) {
       return;
     }
+    FrameProbe.mark('tab:${pageLabel.name}');
+    final targetLabel = shownPageLabelOf(pageLabel, widget.navigationItems);
     final index = widget.navigationItems.indexWhere(
-      (item) => item.label == pageLabel,
+      (item) => item.label == targetLabel,
     );
     if (index == -1) {
       return;
@@ -484,6 +501,7 @@ class _HomePageViewState extends ConsumerState<_HomePageView> {
     final animate =
         isMobile &&
         !ignoreAnimateTo &&
+        !MediaQuery.reduceMotionOf(context) &&
         ref.read(appSettingProvider).enableNavBarHapticFeedback;
 
     if (!_pageController.hasClients) {
@@ -558,9 +576,8 @@ class _HomePageViewState extends ConsumerState<_HomePageView> {
       child: PageView.builder(
         controller: _pageController,
         physics: const NeverScrollableScrollPhysics(),
-        scrollBehavior: ScrollConfiguration.of(
-          context,
-        ).copyWith(scrollbars: false),
+        scrollBehavior: ScrollConfiguration.of(context)
+            .copyWith(scrollbars: false),
         itemCount: widget.navigationItems.length,
         findChildIndexCallback: (key) {
           if (key is! ValueKey<PageLabel>) {

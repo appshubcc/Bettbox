@@ -7,7 +7,6 @@ import 'package:material_color_utilities/material_color_utilities.dart'
     show DynamicScheme, Variant;
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_riverpod/legacy.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import 'app.dart';
@@ -196,7 +195,7 @@ ProxyState proxyState(Ref ref) {
   final isStart = ref.watch(runTimeProvider.select((state) => state != null));
   final vm2 = ref.watch(
     networkSettingProvider.select(
-      (state) => VM2(a: state.systemProxy, b: state.bypassDomain),
+      (state) => (a: state.systemProxy, b: state.bypassDomain),
     ),
   );
   final mixedPort = ref.watch(
@@ -210,9 +209,17 @@ ProxyState proxyState(Ref ref) {
   );
 }
 
-final wakelockStateProvider = StateProvider<bool>((ref) => false);
+@Riverpod(keepAlive: true)
+class WakelockState extends _$WakelockState with NotifierValueMixin {
+  @override
+  bool build() => false;
+}
 
-final isRestartingCoreProvider = StateProvider<bool>((ref) => false);
+@Riverpod(keepAlive: true)
+class IsRestartingCore extends _$IsRestartingCore with NotifierValueMixin {
+  @override
+  bool build() => false;
+}
 
 @riverpod
 TrayState trayState(Ref ref) {
@@ -255,10 +262,22 @@ VpnState vpnState(Ref ref) {
   return VpnState(stack: stack, vpnProps: vpnProps);
 }
 
+PageLabel shownPageLabelOf(
+  PageLabel pageLabel,
+  List<NavigationItem> navigationItems,
+) {
+  if (navigationItems.isEmpty ||
+      navigationItems.any((item) => item.label == pageLabel)) {
+    return pageLabel;
+  }
+  return navigationItems.first.label;
+}
+
 @riverpod
 NavigationState navigationState(Ref ref) {
-  final pageLabel = ref.watch(currentPageLabelProvider);
+  final rawPageLabel = ref.watch(currentPageLabelProvider);
   final navigationItems = ref.watch(currentNavigationItemsStateProvider).value;
+  final pageLabel = shownPageLabelOf(rawPageLabel, navigationItems);
   final viewMode = ref.watch(viewModeProvider);
   final locale = ref.watch(appSettingProvider).locale;
   final index = navigationItems.lastIndexWhere(
@@ -557,9 +576,8 @@ class SortedGroupProxies extends _$SortedGroupProxies {
   @override
   List<Proxy>? build(String query, String groupName) {
     final group = ref.watch(
-      filterGroupsStateProvider(
-        query,
-      ).select((state) => state.value.getGroup(groupName)),
+      filterGroupsStateProvider(query)
+          .select((state) => state.value.getGroup(groupName)),
     );
     if (group == null) return _lastSorted = const [];
     final proxies = group.all;
@@ -660,7 +678,7 @@ ProxiesTabState proxiesTabState(Ref ref) {
   );
   final vm2 = ref.watch(
     proxiesStyleSettingProvider.select(
-      (state) => VM2(a: state.sortType, b: state.cardType),
+      (state) => (a: state.sortType, b: state.cardType),
     ),
   );
   final sortNum = ref.watch(sortNumProvider);
@@ -676,10 +694,10 @@ ProxiesTabState proxiesTabState(Ref ref) {
 }
 
 @Riverpod(dependencies: [proxiesTabState])
-VM2<List<String>, String?> proxiesTabControllerState(Ref ref) {
+({List<String> a, String? b}) proxiesTabControllerState(Ref ref) {
   return ref.watch(
     proxiesTabStateProvider.select(
-      (state) => VM2(
+      (state) => (
         a: state.groups.map((group) => group.name).toList(),
         b: state.currentGroupName,
       ),
@@ -966,16 +984,16 @@ OverrideData? getProfileOverrideData(Ref ref, String profileId) {
 }
 
 @riverpod
-VM2? layoutChange(Ref ref) {
+({double a, TextScale b})? layoutChange(Ref ref) {
   final viewWidth = ref.watch(viewWidthProvider);
   final textScale = ref.watch(
     themeSettingProvider.select((state) => state.textScale),
   );
-  return VM2(a: viewWidth, b: textScale);
+  return (a: viewWidth, b: textScale);
 }
 
 @riverpod
-VM2<int, bool> checkIp(Ref ref) {
+({int a, bool b}) checkIp(Ref ref) {
   final checkIpNum = ref.watch(checkIpNumProvider);
   final containsDetection = ref.watch(
     dashboardStateProvider.select(
@@ -983,11 +1001,11 @@ VM2<int, bool> checkIp(Ref ref) {
           state.dashboardWidgets.contains(DashboardWidget.networkDetection),
     ),
   );
-  return VM2(a: checkIpNum, b: containsDetection);
+  return (a: checkIpNum, b: containsDetection);
 }
 
 @riverpod
-VM2<int, bool> checkMediaUnlock(Ref ref) {
+({int a, bool b}) checkMediaUnlock(Ref ref) {
   final checkIpNum = ref.watch(checkIpNumProvider);
   final containsMediaUnlock = ref.watch(
     dashboardStateProvider.select(
@@ -996,10 +1014,10 @@ VM2<int, bool> checkMediaUnlock(Ref ref) {
           state.dashboardWidgets.contains(DashboardWidget.mediaUnlockSmall),
     ),
   );
-  return VM2(a: checkIpNum, b: containsMediaUnlock);
+  return (a: checkIpNum, b: containsMediaUnlock);
 }
 
-@riverpod
+@Riverpod(keepAlive: true)
 ColorScheme genColorScheme(
   Ref ref,
   Brightness brightness, {
@@ -1008,7 +1026,7 @@ ColorScheme genColorScheme(
 }) {
   final vm2 = ref.watch(
     themeSettingProvider.select(
-      (state) => VM2(a: state.primaryColor, b: state.schemeVariant),
+      (state) => (a: state.primaryColor, b: state.schemeVariant),
     ),
   );
   if (color == null && (ignoreConfig == true || vm2.a == null)) {
@@ -1061,7 +1079,7 @@ bool currentProfileScriptActive(Ref ref) {
 }
 
 @riverpod
-VM5<String?, String?, String?, bool, String> needSetup(Ref ref) {
+({String? a, String? b, String? c, bool d, String e}) needSetup(Ref ref) {
   final profileId = ref.watch(currentProfileIdProvider);
   final runsManagedScript = ref.watch(
     currentProfileProvider.select(
@@ -1089,7 +1107,7 @@ VM5<String?, String?, String?, bool, String> needSetup(Ref ref) {
   final interfaceName = ref.watch(
     patchClashConfigProvider.select((state) => state.interfaceName),
   );
-  return VM5(
+  return (
     a: profileId,
     b: scriptDigest,
     c: loopbackPorts,

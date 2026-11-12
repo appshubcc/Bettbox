@@ -154,7 +154,7 @@ class _ConnectionsViewState extends ConsumerState<ConnectionsView>
 
   void _applyPendingConnections() {
     if (_pendingConnections != null) {
-      ref.read(connectionsProvider.notifier).state = _pendingConnections!;
+      ref.read(connectionsProvider.notifier).value = _pendingConnections!;
       _pendingConnections = null;
     }
   }
@@ -208,7 +208,7 @@ class _ConnectionsViewState extends ConsumerState<ConnectionsView>
       if (_isScrolling) {
         _pendingConnections = newConnections;
       } else {
-        ref.read(connectionsProvider.notifier).state = newConnections;
+        ref.read(connectionsProvider.notifier).value = newConnections;
       }
     }
   }
@@ -284,18 +284,17 @@ class _ConnectionsViewState extends ConsumerState<ConnectionsView>
         );
     if (selectedSortType == null || !mounted) return;
     if (selectedSortType != currentSortType) {
-      ref.read(connectionsSortProvider.notifier).state = selectedSortType;
+      ref.read(connectionsSortProvider.notifier).value = selectedSortType;
     }
   }
 
   void _onSearch(String value) {
-    ref.read(connectionsSearchProvider.notifier).state = value;
+    ref.read(connectionsSearchProvider.notifier).value = value;
   }
 
   void _onKeywordsUpdate(List<String> keywords) {
-    final notifier = ref.read(connectionsKeywordsProvider.notifier);
-    if (listEquals(notifier.state, keywords)) return;
-    notifier.state = keywords;
+    if (listEquals(ref.read(connectionsKeywordsProvider), keywords)) return;
+    ref.read(connectionsKeywordsProvider.notifier).value = keywords;
   }
 
   void _handleTabChanged(_ConnectionsTab tab) {
@@ -397,7 +396,7 @@ class _ConnectionsViewState extends ConsumerState<ConnectionsView>
               const SizedBox(width: 8),
               SegmentButton(
                 selected: udpOnly,
-                leading: const Icon(Icons.stream_rounded),
+                leading: Icon(context.resolveIcon(Icons.stream_rounded)),
                 label: 'UDP',
                 onTap: () =>
                     ref.read(connectionsUdpOnlyProvider.notifier).toggle(),
@@ -415,7 +414,10 @@ class _ConnectionsViewState extends ConsumerState<ConnectionsView>
       onTap: () => _handleBlockConnection(id),
       child: SizedBox.square(
         dimension: 40,
-        child: Icon(Icons.block, color: context.colorScheme.onSurfaceVariant),
+        child: Icon(
+          context.resolveIcon(Icons.block),
+          color: context.colorScheme.onSurfaceVariant,
+        ),
       ),
     );
   }

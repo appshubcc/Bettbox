@@ -27,9 +27,11 @@ class AboutView extends StatelessWidget {
       title: appLocalizations.checkUpdate,
       needLoading: true,
     );
-    globalState.appController.checkUpdateResultHandle(
-      data: data,
-      handleError: true,
+    unawaited(
+      globalState.appController.checkUpdateResultHandle(
+        data: data,
+        handleError: true,
+      ),
     );
   }
 

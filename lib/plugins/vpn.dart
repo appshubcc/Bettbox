@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:bett_box/clash/clash.dart';
@@ -25,7 +26,7 @@ class Vpn {
           await clashLibHandler?.freeOSMemory();
           break;
         case 'closeConnections':
-          clashCore.closeConnections();
+          unawaited(clashCore.closeConnections());
           break;
         case 'status':
           return clashLibHandler?.getRunTime() != null;

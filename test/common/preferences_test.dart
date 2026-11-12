@@ -24,7 +24,7 @@ void main() {
     final file = File(target ?? path);
     if (!await file.exists()) return null;
     final config = Config.compatibleFromJson(
-      json.decode(await file.readAsString()),
+      json.decode(await file.readAsString()) as Map<String, Object?>,
     );
     return config.profiles.firstOrNull?.label;
   }
@@ -103,5 +103,21 @@ void main() {
     final store = await prefs();
     expect(store.containsKey(configKey), isFalse);
     expect(store.getBool('autoLaunch'), isFalse);
+  });
+
+  test('延迟备份在 flushStartupBackup 时写入且内容未变不重复写盘', () async {
+    await preferences.saveConfig(_config('deferred'));
+    final loaded = await preferences.getConfig(deferBackup: true);
+    expect(loaded?.profiles.single.label, 'deferred');
+    expect(await savedLabel('$path.bak'), isNull);
+
+    await preferences.flushStartupBackup();
+    expect(await savedLabel('$path.bak'), 'deferred');
+
+    final modified = await File('$path.bak').lastModified();
+    await Future.delayed(const Duration(milliseconds: 20));
+    await preferences.getConfig(deferBackup: true);
+    await preferences.flushStartupBackup();
+    expect(await File('$path.bak').lastModified(), modified);
   });
 }

@@ -40,7 +40,7 @@ class InfoHeader extends StatelessWidget {
               children: [
                 if (info.iconData != null) ...[
                   Icon(
-                    info.iconData,
+                    context.resolveIcon(info.iconData!),
                     color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
                   const SizedBox(width: 8),

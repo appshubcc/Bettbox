@@ -89,10 +89,12 @@ void main() {
     final stale = Completer<Delay>();
     var requestCount = 0;
 
-    pool.run(target, () {
-      requestCount += 1;
-      return stale.future;
-    });
+    unawaited(
+      pool.run(target, () {
+        requestCount += 1;
+        return stale.future;
+      }),
+    );
     pool.clear();
     final fresh = pool.run(target, () async {
       requestCount += 1;

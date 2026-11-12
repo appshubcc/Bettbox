@@ -5,6 +5,7 @@ import 'package:bett_box/models/models.dart';
 import 'package:flutter/foundation.dart';
 
 class ClashMessage {
+  // ignore: close_sinks
   final controller = StreamController<Map<String, Object?>>.broadcast();
 
   ClashMessage._() {
@@ -15,21 +16,31 @@ class ClashMessage {
       for (final AppMessageListener listener in _listeners) {
         switch (m.type) {
           case AppMessageType.log:
-            listener.onLog(Log.core(m.data));
+            listener.onLog(Log.core(m.data as Map<String, Object?>));
           case AppMessageType.delays:
             listener.onDelays(delays ??= _decodeDelays(m.data));
           case AppMessageType.groupsChanged:
             listener.onGroupsChanged();
           case AppMessageType.request:
-            listener.onRequest(TrackerInfo.fromJson(m.data));
+            listener.onRequest(
+              TrackerInfo.fromJson(m.data as Map<String, Object?>),
+            );
           case AppMessageType.speedTest:
-            listener.onSpeedTest(SpeedTestState.fromJson(m.data));
+            listener.onSpeedTest(
+              SpeedTestState.fromJson(m.data as Map<String, Object?>),
+            );
           case AppMessageType.stunTest:
-            listener.onStunTest(StunTestState.fromJson(m.data));
+            listener.onStunTest(
+              StunTestState.fromJson(m.data as Map<String, Object?>),
+            );
           case AppMessageType.iperf:
-            listener.onIperf(IperfState.fromJson(m.data));
+            listener.onIperf(
+              IperfState.fromJson(m.data as Map<String, Object?>),
+            );
           case AppMessageType.localPing:
-            listener.onLocalPing(LocalPingState.fromJson(m.data));
+            listener.onLocalPing(
+              LocalPingState.fromJson(m.data as Map<String, Object?>),
+            );
         }
       }
     });

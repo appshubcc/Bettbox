@@ -375,9 +375,7 @@ class DisableQuicSection extends ConsumerWidget {
       managedSettingProvider.select((state) => state.options),
     );
     final managedQuic =
-        managedOptions['禁用内核QUIC流量'] ??
-        managedOptions['屏蔽内核QUIC流量'] ??
-        true;
+        managedOptions['禁用内核QUIC流量'] ?? managedOptions['屏蔽内核QUIC流量'] ?? true;
     final enabled = isManaged ? managedQuic : disableQuic;
 
     return ListItem.switchItem(
@@ -392,10 +390,8 @@ class DisableQuicSection extends ConsumerWidget {
           if (isManaged) {
             globalState.appController.updateManagedSetting(
               (state) => state.copyWith(
-                options: {
-                  ...state.options,
-                  '禁用内核QUIC流量': value,
-                }..remove('屏蔽内核QUIC流量'),
+                options: {...state.options, '禁用内核QUIC流量': value}
+                  ..remove('屏蔽内核QUIC流量'),
               ),
             );
           }

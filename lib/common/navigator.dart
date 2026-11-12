@@ -1,6 +1,8 @@
+import 'package:bett_box/common/frame_probe.dart';
 import 'package:bett_box/enum/enum.dart';
 import 'package:bett_box/models/app.dart';
 import 'package:bett_box/state.dart';
+
 import 'dart:async';
 import 'dart:ui' show FlutterView;
 
@@ -39,13 +41,21 @@ class BaseNavigator {
         ),
       );
     }
+    final reduceMotion = MediaQuery.maybeReduceMotionOf(context) ?? false;
+    final keyboardVisible = (View.maybeOf(context)?.viewInsets.bottom ?? 0) > 0;
     await _dismissKeyboard(context);
+    if (keyboardVisible) await WidgetsBinding.instance.endOfFrame;
     if (!navigator.mounted) return null;
     return await navigator.push<T>(
-      _CleanCupertinoPageRoute(
-        builder: (context) => child,
-        maintainState: maintainState,
-      ),
+      reduceMotion
+          ? CommonDesktopRoute(
+              builder: (context) => child,
+              maintainState: maintainState,
+            )
+          : _CleanCupertinoPageRoute(
+              builder: (context) => child,
+              maintainState: maintainState,
+            ),
     );
   }
 }
@@ -72,7 +82,13 @@ class _CleanCupertinoPageRoute<T> extends CupertinoPageRoute<T> {
     super.settings,
     super.fullscreenDialog,
     super.maintainState,
-  });
+  }) : super(allowSnapshotting: false);
+
+  @override
+  Duration get transitionDuration => const Duration(milliseconds: 500);
+
+  @override
+  Duration get reverseTransitionDuration => const Duration(milliseconds: 500);
 
   @override
   Color? get barrierColor => null;
@@ -85,6 +101,17 @@ class _CleanCupertinoPageRoute<T> extends CupertinoPageRoute<T> {
     route.dispose();
     return transition;
   }();
+
+  @override
+  Simulation? createSimulation({required bool forward}) {
+    if (defaultTargetPlatform != TargetPlatform.android) return null;
+    final begin = controller?.value ?? (forward ? 0.0 : 1.0);
+    return _FrameAlignedSimulation(
+      duration: forward ? transitionDuration : reverseTransitionDuration,
+      begin: begin,
+      end: forward ? 1.0 : 0.0,
+    );
+  }
 
   @override
   DelegatedTransitionBuilder? get delegatedTransition =>
@@ -109,7 +136,11 @@ class _CleanCupertinoPageRoute<T> extends CupertinoPageRoute<T> {
       primaryRouteAnimation: animation,
       secondaryRouteAnimation: secondaryAnimation,
       linearTransition: false,
-      child: child,
+      child: _TransitionSnapshot(
+        animation: animation,
+        snapshotOnReverse: true,
+        child: child,
+      ),
     );
   }
 }
@@ -233,11 +264,13 @@ class RouteIdleObserver extends NavigatorObserver {
 
   @override
   void didPush(Route<dynamic> route, Route<dynamic>? previousRoute) {
+    FrameProbe.mark('push');
     _track(route);
   }
 
   @override
   void didPop(Route<dynamic> route, Route<dynamic>? previousRoute) {
+    FrameProbe.mark('pop');
     _track(route);
   }
 
@@ -301,5 +334,105 @@ extension FocusNodeIdleExt on FocusNode {
     await binding.endOfFrame;
     if (context == null || !canRequestFocus) return;
     requestFocus();
+  }
+}
+
+class _FrameAlignedSimulation extends Simulation {
+  _FrameAlignedSimulation({
+    required this.duration,
+    required this.begin,
+    required this.end,
+  });
+
+  final Duration duration;
+  final double begin;
+  final double end;
+  double? _origin;
+
+  double get _duration =>
+      duration.inMicroseconds / Duration.microsecondsPerSecond;
+
+  double _progress(double time) {
+    if (time <= 0) return 0;
+    final origin = _origin ??= time;
+    return ((time - origin) / _duration).clamp(0.0, 1.0);
+  }
+
+  @override
+  double x(double time) => begin + (end - begin) * _progress(time);
+
+  @override
+  double dx(double time) {
+    final origin = _origin;
+    if (origin == null || time <= origin) return 0;
+    return (end - begin) / _duration;
+  }
+
+  @override
+  bool isDone(double time) {
+    final origin = _origin;
+    return origin != null && time - origin >= _duration;
+  }
+}
+
+class _TransitionSnapshot extends StatefulWidget {
+  final Animation<double> animation;
+  final bool snapshotOnReverse;
+  final Widget child;
+
+  const _TransitionSnapshot({
+    required this.animation,
+    this.snapshotOnReverse = false,
+    required this.child,
+  });
+
+  @override
+  State<_TransitionSnapshot> createState() => _TransitionSnapshotState();
+}
+
+class _TransitionSnapshotState extends State<_TransitionSnapshot> {
+  final _controller = SnapshotController();
+
+  bool get _shouldSnapshot => widget.snapshotOnReverse
+      ? widget.animation.status.isAnimating
+      : widget.animation.status == AnimationStatus.forward;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller.allowSnapshotting = _shouldSnapshot;
+    widget.animation.addStatusListener(_handleStatus);
+  }
+
+  void _handleStatus(AnimationStatus status) {
+    _controller.allowSnapshotting = widget.snapshotOnReverse
+        ? status.isAnimating
+        : status == AnimationStatus.forward;
+  }
+
+  @override
+  void didUpdateWidget(_TransitionSnapshot oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.animation == widget.animation) return;
+    oldWidget.animation.removeStatusListener(_handleStatus);
+    widget.animation.addStatusListener(_handleStatus);
+    _controller.allowSnapshotting = _shouldSnapshot;
+  }
+
+  @override
+  void dispose() {
+    widget.animation.removeStatusListener(_handleStatus);
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SnapshotWidget(
+      controller: _controller,
+      mode: SnapshotMode.permissive,
+      autoresize: true,
+      child: widget.child,
+    );
   }
 }

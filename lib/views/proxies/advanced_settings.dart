@@ -292,6 +292,7 @@ class _IconConfigItem extends StatelessWidget {
     return ListItem(
       leading: const Icon(Icons.style_outlined),
       title: Text(appLocalizations.iconConfiguration),
+      disableSplash: true,
       subtitle: Text(appLocalizations.iconConfigurationDesc),
       onTap: () {
         showExtend(

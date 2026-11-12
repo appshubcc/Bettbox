@@ -432,9 +432,8 @@ void _caretScroll() {
       'once scrolled to', (tester) async {
     late ScrollController vertical;
     final controller = CodeForgeController()
-      ..text = [
-        for (var i = 0; i < 200; i++) i == 150 ? 'b' * 100 : 'a',
-      ].join('\n');
+      ..text = [for (var i = 0; i < 200; i++) i == 150 ? 'b' * 100 : 'a']
+          .join('\n');
     await pumpEditor(
       tester,
       controller,
@@ -463,9 +462,8 @@ void _caretScroll() {
   ) async {
     late ScrollController vertical;
     final controller = CodeForgeController()
-      ..text = [
-        for (var i = 0; i < 1000; i++) i < 900 ? 'a' : 'b' * 100,
-      ].join('\n');
+      ..text = [for (var i = 0; i < 1000; i++) i < 900 ? 'a' : 'b' * 100]
+          .join('\n');
     await pumpEditor(
       tester,
       controller,
@@ -2232,9 +2230,8 @@ void _painting() {
     );
     await tester.pump();
 
-    final longRow = _selectionRects(
-      tester,
-    ).firstWhere((rect) => rect.top > 0 && rect.width > viewWidth);
+    final longRow = _selectionRects(tester)
+        .firstWhere((rect) => rect.top > 0 && rect.width > viewWidth);
     expect(longRow.width, lessThan(4 * viewWidth));
     expect(longRow.left, lessThanOrEqualTo(0));
     expect(longRow.right, greaterThanOrEqualTo(viewWidth));

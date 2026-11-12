@@ -9,6 +9,7 @@ import 'package:ffi/ffi.dart';
 import 'package:win32/win32.dart';
 
 import 'package:win32_registry/win32_registry.dart';
+
 import 'common.dart';
 
 const _cryptProtectUiForbidden = 0x1;

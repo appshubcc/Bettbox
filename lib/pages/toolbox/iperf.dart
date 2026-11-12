@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:bett_box/clash/clash.dart';
@@ -287,7 +288,7 @@ class _IperfPageState extends ConsumerState<IperfPage>
     if (!mounted || value == null) return;
     final target = parseIperfLink(value);
     if (target == null) {
-      context.showNotifier(appLocalizations.iperfScanInvalid);
+      unawaited(context.showNotifier(appLocalizations.iperfScanInvalid));
       return;
     }
     setState(() => _applyTarget(target));
@@ -308,10 +309,12 @@ class _IperfPageState extends ConsumerState<IperfPage>
     } else {
       final address = parseIperfAddress(text);
       if (address == null) {
-        context.showNotifier(
-          text.isEmpty
-              ? appLocalizations.iperfAddressRequired
-              : appLocalizations.ipLookupInvalid,
+        unawaited(
+          context.showNotifier(
+            text.isEmpty
+                ? appLocalizations.iperfAddressRequired
+                : appLocalizations.ipLookupInvalid,
+          ),
         );
         return;
       }
@@ -399,7 +402,7 @@ class _IperfPageState extends ConsumerState<IperfPage>
     final addresses = await utils.getLanAddresses();
     final name = await system.deviceName;
     if (!mounted) {
-      if (info.error.isEmpty) clashCore.stopIperfServer();
+      if (info.error.isEmpty) unawaited(clashCore.stopIperfServer());
       return;
     }
     if (info.error.isNotEmpty) {
@@ -409,7 +412,7 @@ class _IperfPageState extends ConsumerState<IperfPage>
       });
       return;
     }
-    globalState.appController.holdWakelock(true);
+    unawaited(globalState.appController.holdWakelock(true));
     setState(() {
       _serverBusy = false;
       _server = info;
@@ -427,7 +430,7 @@ class _IperfPageState extends ConsumerState<IperfPage>
     try {
       await clashCore.stopIperfServer();
     } catch (_) {}
-    globalState.appController.holdWakelock(false);
+    unawaited(globalState.appController.holdWakelock(false));
     if (!mounted) return;
     setState(() {
       _serverBusy = false;

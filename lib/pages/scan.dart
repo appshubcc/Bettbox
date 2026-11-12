@@ -153,27 +153,27 @@ class _ScanPageState extends State<ScanPage> with WidgetsBindingObserver {
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              icon: const Icon(Icons.close),
+              icon: Icon(context.resolveIcon(Icons.close)),
             ),
             actions: [
               if (!_permissionDenied)
                 ValueListenableBuilder<MobileScannerState>(
                   valueListenable: controller,
                   builder: (context, state, _) {
-                    var icon = const Icon(Icons.flash_off);
+                    var icon = Icon(context.resolveIcon(Icons.flash_off));
                     var backgroundColor = Colors.black12;
                     switch (state.torchState) {
                       case TorchState.off:
-                        icon = const Icon(Icons.flash_off);
+                        icon = Icon(context.resolveIcon(Icons.flash_off));
                         backgroundColor = Colors.black12;
                       case TorchState.on:
-                        icon = const Icon(Icons.flash_on);
+                        icon = Icon(context.resolveIcon(Icons.flash_on));
                         backgroundColor = Colors.orange;
                       case TorchState.unavailable:
-                        icon = const Icon(Icons.flash_off);
+                        icon = Icon(context.resolveIcon(Icons.flash_off));
                         backgroundColor = Colors.transparent;
                       case TorchState.auto:
-                        icon = const Icon(Icons.flash_auto);
+                        icon = Icon(context.resolveIcon(Icons.flash_auto));
                         backgroundColor = Colors.orange;
                     }
                     return Container(
@@ -212,7 +212,7 @@ class _ScanPageState extends State<ScanPage> with WidgetsBindingObserver {
                 padding: const EdgeInsets.all(16),
                 iconSize: 32.0,
                 onPressed: globalState.appController.addProfileFormQrCode,
-                icon: const Icon(Icons.photo_camera_back),
+                icon: Icon(context.resolveIcon(Icons.photo_camera_back)),
               ),
             ),
         ],
@@ -230,8 +230,8 @@ class _ScanPageState extends State<ScanPage> with WidgetsBindingObserver {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(
-                Icons.camera_alt_outlined,
+              Icon(
+                context.resolveIcon(Icons.camera_alt_outlined),
                 size: 80,
                 color: Colors.white54,
               ),
@@ -282,7 +282,11 @@ class _ScanPageState extends State<ScanPage> with WidgetsBindingObserver {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.error_outline, size: 80, color: Colors.red),
+              Icon(
+                context.resolveIcon(Icons.error_outline),
+                size: 80,
+                color: Colors.red,
+              ),
               const SizedBox(height: 24),
               Text(
                 errorMessage,

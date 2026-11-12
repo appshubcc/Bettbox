@@ -26,7 +26,7 @@ class Debouncer {
     });
   }
 
-  void cancel(dynamic tag) {
+  void cancel(FunctionTag tag) {
     _operations[tag]?.cancel();
     _operations[tag] = null;
   }
@@ -57,7 +57,7 @@ class Throttler {
     return false;
   }
 
-  void cancel(dynamic tag) {
+  void cancel(FunctionTag tag) {
     _operations[tag]?.cancel();
     _operations[tag] = null;
   }

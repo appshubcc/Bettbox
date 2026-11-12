@@ -140,6 +140,7 @@ void main() {
   testWidgets('TV 上用遥控器可以走完整个工具页', (tester) async {
     globalState.isAndroidTV = true;
     final search = TextEditingController();
+    addTearDown(search.dispose);
     var count = 10;
     await tester.pumpWidget(
       MaterialApp(

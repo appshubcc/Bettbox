@@ -53,13 +53,15 @@ Future<void> showIpDetailDialog(
                 )
           : null);
 
-  globalState.showAdaptiveSheet(
-    child: _IpDetailDialog(
-      ip: cleanIp,
-      preloaded: info,
-      riskView: riskView,
-      preloadedRisk: preloadedRisk,
-      persistRisk: followRiskSetting,
+  unawaited(
+    globalState.showAdaptiveSheet(
+      child: _IpDetailDialog(
+        ip: cleanIp,
+        preloaded: info,
+        riskView: riskView,
+        preloadedRisk: preloadedRisk,
+        persistRisk: followRiskSetting,
+      ),
     ),
   );
 }

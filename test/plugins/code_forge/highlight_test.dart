@@ -86,9 +86,8 @@ void _expectSame(String line, [String language = 'yaml']) {
   if (actual == null) return;
   final expected = _expected(line, language);
   if (expected.length == actual.length &&
-      Iterable.generate(
-        expected.length,
-      ).every((i) => expected[i] == actual[i])) {
+      Iterable<int>.generate(expected.length)
+          .every((i) => expected[i] == actual[i])) {
     return;
   }
   fail(

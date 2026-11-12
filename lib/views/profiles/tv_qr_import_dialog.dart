@@ -53,7 +53,7 @@ class _TvQrImportDialogState extends State<TvQrImportDialog> {
       }
 
       if (!mounted) {
-        server.close(force: true);
+        unawaited(server.close(force: true));
         return;
       }
 
@@ -208,16 +208,17 @@ class _TvQrImportDialogState extends State<TvQrImportDialog> {
       if (!mounted) return;
       Navigator.of(context).pop();
       try {
-        final profile = await Profile.normal(
-          label: name,
-        ).saveFileWithString(content);
+        final profile = await Profile.normal(label: name)
+            .saveFileWithString(content);
         await globalState.appController.addProfile(profile);
         globalState.appController.toProfiles();
       } catch (e) {
-        globalState.showMessage(
-          title: appLocalizations.file,
-          message: TextSpan(text: e.toString()),
-          cancelable: false,
+        unawaited(
+          globalState.showMessage(
+            title: appLocalizations.file,
+            message: TextSpan(text: e.toString()),
+            cancelable: false,
+          ),
         );
       }
     });

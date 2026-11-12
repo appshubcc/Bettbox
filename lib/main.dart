@@ -60,12 +60,6 @@ Future<void> main(List<String> args) async {
     loadBundledRouteIcons(),
   ]);
 
-  try {
-    await uiManager.initializeUI();
-  } catch (e) {
-    commonPrint.error('Failed to initialize UI: $e');
-  }
-
   await _runApp();
 }
 
@@ -86,8 +80,6 @@ Future<void> _sendControlCommand(String command) async {
 }
 
 Future<void> _runApp() async {
-  await ensureRustLib();
-
   if (system.isAndroid) {
     await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
   }
@@ -119,7 +111,7 @@ Future<void> _service(List<String> flags) async {
         final configFile = File(await appPath.appConfigPath);
         if (!await configFile.exists()) return;
         final latestConfig = Config.compatibleFromJson(
-          json.decode(await configFile.readAsString()),
+          json.decode(await configFile.readAsString()) as Map<String, Object?>,
         );
         globalState.config = globalState.config.copyWith(
           vpnProps: latestConfig.vpnProps,
@@ -186,51 +178,55 @@ Future<void> _service(List<String> flags) async {
 
     Future<void> startCore() async {
       await ClashCore.initGeo();
-      app.tip(appLocalizations.startVpn);
+      unawaited(app.tip(appLocalizations.startVpn));
       final homeDirPath = await appPath.homeDirPath;
       final version = await system.version;
       final clashConfig = globalState.config.patchClashConfig.copyWith.tun(
         enable: false,
       );
 
-      Future(() async {
-        try {
-          final profileId = globalState.config.currentProfileId;
-          if (profileId == null) {
-            return;
-          }
-          final params = await globalState.getSetupParams(
-            pathConfig: clashConfig,
-          );
-          final res = await clashLibHandler.quickStart(
-            InitParams(homeDir: homeDirPath, version: version),
-            params,
-            globalState.getCoreState(),
-          );
-          final message = res.message;
-          debugPrint(message);
-          if (message.isNotEmpty) {
-            commonPrint.error('QuickStart failed with error: $message');
+      unawaited(
+        Future(() async {
+          try {
+            final profileId = globalState.config.currentProfileId;
+            if (profileId == null) {
+              return;
+            }
+            final params = await globalState.getSetupParams(
+              pathConfig: clashConfig,
+            );
+            final res = await clashLibHandler.quickStart(
+              InitParams(homeDir: homeDirPath, version: version),
+              params,
+              globalState.getCoreState(),
+            );
+            final message = res.message;
+            debugPrint(message);
+            if (message.isNotEmpty) {
+              commonPrint.error('QuickStart failed with error: $message');
+              await vpn?.stop();
+              return;
+            }
+            await vpn?.start(clashLibHandler.getAndroidVpnOptions());
+            Future.delayed(const Duration(seconds: 2), checkSmartAutoStop);
+
+            if (globalState.config.vpnProps.networkSpeedNotification) {
+              final profile = globalState.config.profiles
+                  .where((e) => e.id == profileId)
+                  .firstOrNull;
+              final profileName = profile?.label ?? 'Bettbox';
+              await vpn?.updateNotificationSpeed(profileName, '↑0B/s ↓0B/s');
+            }
+
+            unawaited(clashLibHandler.startListener());
+          } catch (e) {
+            commonPrint.error(
+              'Fatal error during service background start: $e',
+            );
             await vpn?.stop();
-            return;
           }
-          await vpn?.start(clashLibHandler.getAndroidVpnOptions());
-          Future.delayed(const Duration(seconds: 2), checkSmartAutoStop);
-
-          if (globalState.config.vpnProps.networkSpeedNotification) {
-            final profile = globalState.config.profiles
-                .where((e) => e.id == profileId)
-                .firstOrNull;
-            final profileName = profile?.label ?? 'Bettbox';
-            await vpn?.updateNotificationSpeed(profileName, '↑0B/s ↓0B/s');
-          }
-
-          clashLibHandler.startListener();
-        } catch (e) {
-          commonPrint.error('Fatal error during service background start: $e');
-          await vpn?.stop();
-        }
-      });
+        }),
+      );
     }
 
     tile?.addListener(
@@ -238,7 +234,7 @@ Future<void> _service(List<String> flags) async {
         onStart: startCore,
         onStop: () async {
           await app.tip(appLocalizations.stopVpn);
-          clashLibHandler.stopListener();
+          unawaited(clashLibHandler.stopListener());
           await vpn?.stop();
         },
         onReconnectIpc: () {
@@ -291,7 +287,7 @@ void _handleMainIpc(ClashLibHandler clashLibHandler) {
 
   _serviceReceiverPort = ReceivePort();
   _serviceReceiverPort!.listen((message) async {
-    final res = await clashLibHandler.invokeAction(message);
+    final res = await clashLibHandler.invokeAction(message as String);
     _safeSend(sendPort, res);
   });
   _safeSend(sendPort, _serviceReceiverPort!.sendPort);
@@ -328,12 +324,10 @@ class _TileListenerWithService with TileListener {
   final Function() _onReconnectIpc;
 
   const _TileListenerWithService({
-    required Function() onStart,
-    required Function() onStop,
-    required Function() onReconnectIpc,
-  }) : _onStart = onStart,
-       _onStop = onStop,
-       _onReconnectIpc = onReconnectIpc;
+    required this._onStart,
+    required this._onStop,
+    required this._onReconnectIpc,
+  });
 
   @override
   void onStart() => _onStart();
@@ -351,10 +345,9 @@ class _VpnListenerWithService with VpnListener {
   final Function(bool defaultChanged) _onNetworkChanged;
 
   const _VpnListenerWithService({
-    required Function(String dns) onDnsChanged,
-    required Function(bool defaultChanged) onNetworkChanged,
-  }) : _onDnsChanged = onDnsChanged,
-       _onNetworkChanged = onNetworkChanged;
+    required this._onDnsChanged,
+    required this._onNetworkChanged,
+  });
 
   @override
   void onDnsChanged(String dns) {

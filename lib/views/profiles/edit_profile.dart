@@ -198,10 +198,12 @@ class EditProfileViewState extends State<EditProfileView> {
       return patchedMessage.isEmpty ? '' : originalMessage;
     }, silence: false);
     if (message?.isNotEmpty == true) {
-      globalState.showMessage(
-        title: appLocalizations.tip,
-        message: TextSpan(text: message),
-        cancelable: false,
+      unawaited(
+        globalState.showMessage(
+          title: appLocalizations.tip,
+          message: TextSpan(text: message),
+          cancelable: false,
+        ),
       );
       return;
     }
@@ -235,7 +237,7 @@ class EditProfileViewState extends State<EditProfileView> {
           message: TextSpan(text: appLocalizations.hasCacheChange),
         );
         if (res == true && context.mounted) {
-          _handleSaveEdit(context, content);
+          unawaited(_handleSaveEdit(context, content));
         } else {
           return true;
         }
@@ -289,7 +291,7 @@ class EditProfileViewState extends State<EditProfileView> {
       title: appLocalizations.tip,
     );
     if (res != true || !mounted) return;
-    context.showNotifier(appLocalizations.exportSuccess);
+    unawaited(context.showNotifier(appLocalizations.exportSuccess));
   }
 
   Future<void> _handleBack() async {
@@ -298,7 +300,7 @@ class EditProfileViewState extends State<EditProfileView> {
       message: TextSpan(text: appLocalizations.fileIsUpdate),
     );
     if (res == true) {
-      _handleConfirm();
+      unawaited(_handleConfirm());
     } else {
       if (mounted) {
         Navigator.of(context).pop();
@@ -666,7 +668,7 @@ class _AgeKeyGeneratorDialogState extends State<_AgeKeyGeneratorDialog> {
     if (text.isEmpty) return;
     await Clipboard.setData(ClipboardData(text: text));
     if (mounted) {
-      context.showNotifier(appLocalizations.copySuccess);
+      unawaited(context.showNotifier(appLocalizations.copySuccess));
     }
   }
 

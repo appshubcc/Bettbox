@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+
 import 'package:dio/dio.dart';
 import 'package:dio/io.dart';
 import 'package:bett_box/common/common.dart';
@@ -707,15 +708,12 @@ class MediaUnlockChecker {
       String? region;
       if (res.statusCode == 200) {
         final body = utf8.decode(chunks, allowMalformed: true);
-        final glMatch = RegExp(
-          r'"INNERTUBE_CONTEXT_GL"\s*:\s*"([A-Z]{2})"',
-        ).firstMatch(body);
-        final ccMatch = RegExp(
-          r'"countryCode"\s*:\s*"([A-Z]{2})"',
-        ).firstMatch(body);
-        final reqDomainMatch = RegExp(
-          r'"REQUEST_DOMAIN"\s*:\s*"([a-zA-Z]{2})"',
-        ).firstMatch(body);
+        final glMatch = RegExp(r'"INNERTUBE_CONTEXT_GL"\s*:\s*"([A-Z]{2})"')
+            .firstMatch(body);
+        final ccMatch = RegExp(r'"countryCode"\s*:\s*"([A-Z]{2})"')
+            .firstMatch(body);
+        final reqDomainMatch = RegExp(r'"REQUEST_DOMAIN"\s*:\s*"([a-zA-Z]{2})"')
+            .firstMatch(body);
         region =
             glMatch?.group(1) ??
             ccMatch?.group(1) ??
@@ -758,8 +756,7 @@ class MediaUnlockChecker {
           receiveTimeout: const Duration(seconds: 4),
           sendTimeout: const Duration(seconds: 4),
           headers: {
-            'User-Agent':
-                'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36',
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36',
             'Accept-Language': 'en-US,en;q=0.9',
           },
         ),
@@ -889,9 +886,8 @@ class MediaUnlockChecker {
         ),
       );
       final finalUrl = res.realUri.toString();
-      final pathMatch = RegExp(
-        r'spotify\.com/([a-z]{2})(?:-[a-z]{2})?/',
-      ).firstMatch(finalUrl);
+      final pathMatch = RegExp(r'spotify\.com/([a-z]{2})(?:-[a-z]{2})?/')
+          .firstMatch(finalUrl);
       String? rawRegion = pathMatch?.group(1)?.toUpperCase();
 
       if (rawRegion == null) {
@@ -908,9 +904,8 @@ class MediaUnlockChecker {
           } catch (_) {}
         }
         final body = utf8.decode(chunks, allowMalformed: true);
-        final geoMatch = RegExp(
-          r'geoCountry"?\s*:\s*"([A-Z]{2})"',
-        ).firstMatch(body);
+        final geoMatch = RegExp(r'geoCountry"?\s*:\s*"([A-Z]{2})"')
+            .firstMatch(body);
         rawRegion = geoMatch?.group(1);
       }
 
@@ -980,9 +975,8 @@ class MediaUnlockChecker {
         r'oversea-([A-Z]{2})-',
         caseSensitive: false,
       ).firstMatch(via);
-      final cinfoMatch = RegExp(
-        r'\b([A-Z]{2})\b',
-      ).firstMatch(cinfo.replaceAll(RegExp(r'\d+\.\d+\.\d+\.\d+'), ''));
+      final cinfoMatch = RegExp(r'\b([A-Z]{2})\b')
+          .firstMatch(cinfo.replaceAll(RegExp(r'\d+\.\d+\.\d+\.\d+'), ''));
       final rawRegion = viaMatch?.group(1) ?? cinfoMatch?.group(1);
       final region = rawRegion != null
           ? utils.normalizeRegion(rawRegion)
@@ -1145,13 +1139,10 @@ class MediaUnlockChecker {
           receiveTimeout: const Duration(seconds: 6),
           sendTimeout: const Duration(seconds: 6),
           headers: {
-            'User-Agent':
-                'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36',
-            'Accept':
-                'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36',
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
             'Accept-Language': 'en-US,en;q=0.9',
-            'sec-ch-ua':
-                '"Not(A:Brand";v="99", "Google Chrome";v="133", "Chromium";v="133"',
+            'sec-ch-ua': '"Not(A:Brand";v="99", "Google Chrome";v="133", "Chromium";v="133"',
             'sec-ch-ua-mobile': '?0',
             'sec-ch-ua-platform': '"Windows"',
             'sec-fetch-dest': 'document',
@@ -1173,9 +1164,8 @@ class MediaUnlockChecker {
 
       final body = res.data ?? '';
       final regMatch = RegExp(r',2,1,200,"([A-Z]{3})"').firstMatch(body);
-      final altMatch = RegExp(
-        r'\[1,null,null,\d+,\d+,"([A-Z]{3})"',
-      ).firstMatch(body);
+      final altMatch = RegExp(r'\[1,null,null,\d+,\d+,"([A-Z]{3})"')
+          .firstMatch(body);
       final rawRegion = regMatch?.group(1) ?? altMatch?.group(1);
       final region = rawRegion != null
           ? utils.normalizeRegion(rawRegion)
@@ -1266,9 +1256,8 @@ class MediaUnlockChecker {
         'https://geolocation.onetrust.com/cookieconsentpub/v1/geo/location',
       );
       final body = res.data ?? '';
-      final countryMatch = RegExp(
-        r'"country":\s*"([A-Z]{2})"',
-      ).firstMatch(body);
+      final countryMatch = RegExp(r'"country":\s*"([A-Z]{2})"')
+          .firstMatch(body);
       final region = countryMatch?.group(1);
       final status = (res.statusCode == 200 && region != null)
           ? MediaUnlockStatus.unlocked
@@ -1303,9 +1292,8 @@ class MediaUnlockChecker {
       );
       final cookies = res.headers['set-cookie']?.join('; ') ?? '';
       final customIp = res.headers.value('x-custom-client-ip') ?? '';
-      final modMatch = RegExp(
-        r'mod=([a-zA-Z]+)',
-      ).firstMatch('$cookies $customIp');
+      final modMatch = RegExp(r'mod=([a-zA-Z]+)')
+          .firstMatch('$cookies $customIp');
       final rawMod = modMatch?.group(1)?.toUpperCase();
       final region = rawMod != null ? utils.normalizeRegion(rawMod) : null;
       final status = res.statusCode == 200
@@ -1637,172 +1625,160 @@ class MediaUnlockChecker {
 
   Future<MediaUnlockResult> checkPlatform(MediaPlatform platform) {
     final cancelToken = CancelToken();
-    return runZoned(
-      () {
-        final checkFuture = switch (platform) {
-      MediaPlatform.openai => _checkCloudflareTrace(
-        MediaPlatform.openai,
-        'chatgpt.com',
-        unsupportedRegions: _openaiUnsupportedRegions,
-      ),
-      MediaPlatform.claude => _checkCloudflareTrace(
-        MediaPlatform.claude,
-        'api.anthropic.com',
-        unsupportedRegions: _claudeUnsupportedRegions,
-      ),
-      MediaPlatform.gemini => checkGemini(),
-      MediaPlatform.grok => _checkCloudflareTrace(
-        MediaPlatform.grok,
-        'api.x.ai',
-      ),
-      MediaPlatform.openrouter => _checkCloudflareTrace(
-        MediaPlatform.openrouter,
-        'openrouter.ai',
-      ),
-      MediaPlatform.opencode => _checkCloudflareTrace(
-        MediaPlatform.opencode,
-        'opencode.ai',
-      ),
-      MediaPlatform.suno => _checkCloudflareTrace(
-        MediaPlatform.suno,
-        'suno.com',
-      ),
-      MediaPlatform.cloudflare => _checkCloudflareTrace(
-        MediaPlatform.cloudflare,
-        'api.cloudflare.com',
-      ),
-      MediaPlatform.perplexity => _checkCloudflareTrace(
-        MediaPlatform.perplexity,
-        'www.perplexity.ai',
-      ),
-      MediaPlatform.netflix => checkNetflix(),
-      MediaPlatform.disney => checkDisney(),
-      MediaPlatform.youtube => checkYouTube(),
-      MediaPlatform.youtubemusic => checkYouTubeMusic(),
-      MediaPlatform.spotify => checkSpotify(),
-      MediaPlatform.tiktok => checkTikTok(),
-      MediaPlatform.bilibili => checkBilibili(),
-      MediaPlatform.iqiyi => checkIqiyi(),
-      MediaPlatform.crunchyroll => _checkCloudflareTrace(
-        MediaPlatform.crunchyroll,
-        'crunchyroll.com',
-      ),
-      MediaPlatform.missav => _checkCloudflareTrace(
-        MediaPlatform.missav,
-        'missav.ws',
-        fallbackDomains: const ['missav.ai'],
-      ),
-      MediaPlatform.ehentai => _checkCloudflareTrace(
-        MediaPlatform.ehentai,
-        'e-hentai.org',
-      ),
-      MediaPlatform.tencent => checkTencent(),
-      MediaPlatform.alibaba => checkAlibaba(),
-      MediaPlatform.netease => checkNetease(),
-      MediaPlatform.douyin => checkDouyin(),
-      MediaPlatform.reddit => checkReddit(),
-      MediaPlatform.x => _checkCloudflareTrace(
-        MediaPlatform.x,
-        'x.com',
-        fallbackUrl: 'https://x.com/',
-      ),
-      MediaPlatform.discord => _checkCloudflareTrace(
-        MediaPlatform.discord,
-        'gateway.discord.gg',
-      ),
-      MediaPlatform.v2ex => _checkCloudflareTrace(
-        MediaPlatform.v2ex,
-        'v2ex.com',
-      ),
-      MediaPlatform.medium => _checkCloudflareTrace(
-        MediaPlatform.medium,
-        'medium.com',
-      ),
-      MediaPlatform.stackoverflow => _checkCloudflareTrace(
-        MediaPlatform.stackoverflow,
-        'stackoverflow.com',
-      ),
-      MediaPlatform.quora => _checkCloudflareTrace(
-        MediaPlatform.quora,
-        'www.quora.com',
-      ),
-      MediaPlatform.telegram => checkTelegram(),
-      MediaPlatform.github => checkGitHub(),
-      MediaPlatform.wikipedia => checkWikipedia(),
-      MediaPlatform.apple => checkApple(),
-      MediaPlatform.onetrust => checkOneTrust(),
-      MediaPlatform.gitlab => _checkCloudflareTrace(
-        MediaPlatform.gitlab,
-        'gitlab.com',
-      ),
-      MediaPlatform.npm => _checkCloudflareTrace(
-        MediaPlatform.npm,
-        'registry.npmjs.org',
-      ),
-      MediaPlatform.cdnjs => _checkCloudflareTrace(
-        MediaPlatform.cdnjs,
-        'cdnjs.cloudflare.com',
-      ),
-      MediaPlatform.unpkg => _checkCloudflareTrace(
-        MediaPlatform.unpkg,
-        'unpkg.com',
-      ),
-      MediaPlatform.nodejs => _checkCloudflareTrace(
-        MediaPlatform.nodejs,
-        'nodejs.org',
-      ),
-      MediaPlatform.steam => checkSteam(),
-      MediaPlatform.epic => _checkCloudflareTrace(
-        MediaPlatform.epic,
-        'store.epicgames.com',
-      ),
-      MediaPlatform.ubisoft => _checkCloudflareTrace(
-        MediaPlatform.ubisoft,
-        'store.ubisoft.com',
-      ),
-      MediaPlatform.humblebundle => _checkCloudflareTrace(
-        MediaPlatform.humblebundle,
-        'humblebundle.com',
-      ),
-      MediaPlatform.coinbase => _checkCloudflareTrace(
-        MediaPlatform.coinbase,
-        'www.coinbase.com',
-      ),
-      MediaPlatform.okx => _checkCloudflareTrace(
-        MediaPlatform.okx,
-        'www.okx.com',
-      ),
-      MediaPlatform.kraken => _checkCloudflareTrace(
-        MediaPlatform.kraken,
-        'www.kraken.com',
-      ),
-      MediaPlatform.cryptocom => _checkCloudflareTrace(
-        MediaPlatform.cryptocom,
-        'crypto.com',
-      ),
-      MediaPlatform.phantom => _checkCloudflareTrace(
-        MediaPlatform.phantom,
-        'phantom.com',
-      ),
-      MediaPlatform.paypal => checkPayPal(),
-      MediaPlatform.mytvsuper => checkMyTvSuper(),
-      MediaPlatform.viutv => checkViuTv(),
-      MediaPlatform.hoytv => checkHoyTv(),
-      MediaPlatform.rthk => checkRthk(),
-    };
-        return checkFuture.timeout(
-          const Duration(seconds: 8),
-          onTimeout: () {
-            cancelToken.cancel('timeout');
-            return MediaUnlockResult(
-              platform: platform,
-              status: MediaUnlockStatus.failed,
-            );
-          },
-        );
-      },
-      zoneValues: {#_platformCancelToken: cancelToken},
-    );
+    return runZoned(() {
+      final checkFuture = switch (platform) {
+        MediaPlatform.openai => _checkCloudflareTrace(
+          MediaPlatform.openai,
+          'chatgpt.com',
+          unsupportedRegions: _openaiUnsupportedRegions,
+        ),
+        MediaPlatform.claude => _checkCloudflareTrace(
+          MediaPlatform.claude,
+          'api.anthropic.com',
+          unsupportedRegions: _claudeUnsupportedRegions,
+        ),
+        MediaPlatform.gemini => checkGemini(),
+        MediaPlatform.grok => _checkCloudflareTrace(
+          MediaPlatform.grok,
+          'api.x.ai',
+        ),
+        MediaPlatform.openrouter => _checkCloudflareTrace(
+          MediaPlatform.openrouter,
+          'openrouter.ai',
+        ),
+        MediaPlatform.opencode => _checkCloudflareTrace(
+          MediaPlatform.opencode,
+          'opencode.ai',
+        ),
+        MediaPlatform.suno => _checkCloudflareTrace(
+          MediaPlatform.suno,
+          'suno.com',
+        ),
+        MediaPlatform.cloudflare => _checkCloudflareTrace(
+          MediaPlatform.cloudflare,
+          'api.cloudflare.com',
+        ),
+        MediaPlatform.perplexity => _checkCloudflareTrace(
+          MediaPlatform.perplexity,
+          'www.perplexity.ai',
+        ),
+        MediaPlatform.netflix => checkNetflix(),
+        MediaPlatform.disney => checkDisney(),
+        MediaPlatform.youtube => checkYouTube(),
+        MediaPlatform.youtubemusic => checkYouTubeMusic(),
+        MediaPlatform.spotify => checkSpotify(),
+        MediaPlatform.tiktok => checkTikTok(),
+        MediaPlatform.bilibili => checkBilibili(),
+        MediaPlatform.iqiyi => checkIqiyi(),
+        MediaPlatform.crunchyroll => _checkCloudflareTrace(
+          MediaPlatform.crunchyroll,
+          'crunchyroll.com',
+        ),
+        MediaPlatform.tencent => checkTencent(),
+        MediaPlatform.alibaba => checkAlibaba(),
+        MediaPlatform.netease => checkNetease(),
+        MediaPlatform.douyin => checkDouyin(),
+        MediaPlatform.reddit => checkReddit(),
+        MediaPlatform.x => _checkCloudflareTrace(
+          MediaPlatform.x,
+          'x.com',
+          fallbackUrl: 'https://x.com/',
+        ),
+        MediaPlatform.discord => _checkCloudflareTrace(
+          MediaPlatform.discord,
+          'gateway.discord.gg',
+        ),
+        MediaPlatform.v2ex => _checkCloudflareTrace(
+          MediaPlatform.v2ex,
+          'v2ex.com',
+        ),
+        MediaPlatform.medium => _checkCloudflareTrace(
+          MediaPlatform.medium,
+          'medium.com',
+        ),
+        MediaPlatform.stackoverflow => _checkCloudflareTrace(
+          MediaPlatform.stackoverflow,
+          'stackoverflow.com',
+        ),
+        MediaPlatform.quora => _checkCloudflareTrace(
+          MediaPlatform.quora,
+          'www.quora.com',
+        ),
+        MediaPlatform.telegram => checkTelegram(),
+        MediaPlatform.github => checkGitHub(),
+        MediaPlatform.wikipedia => checkWikipedia(),
+        MediaPlatform.apple => checkApple(),
+        MediaPlatform.onetrust => checkOneTrust(),
+        MediaPlatform.gitlab => _checkCloudflareTrace(
+          MediaPlatform.gitlab,
+          'gitlab.com',
+        ),
+        MediaPlatform.npm => _checkCloudflareTrace(
+          MediaPlatform.npm,
+          'registry.npmjs.org',
+        ),
+        MediaPlatform.cdnjs => _checkCloudflareTrace(
+          MediaPlatform.cdnjs,
+          'cdnjs.cloudflare.com',
+        ),
+        MediaPlatform.unpkg => _checkCloudflareTrace(
+          MediaPlatform.unpkg,
+          'unpkg.com',
+        ),
+        MediaPlatform.nodejs => _checkCloudflareTrace(
+          MediaPlatform.nodejs,
+          'nodejs.org',
+        ),
+        MediaPlatform.steam => checkSteam(),
+        MediaPlatform.epic => _checkCloudflareTrace(
+          MediaPlatform.epic,
+          'store.epicgames.com',
+        ),
+        MediaPlatform.ubisoft => _checkCloudflareTrace(
+          MediaPlatform.ubisoft,
+          'store.ubisoft.com',
+        ),
+        MediaPlatform.humblebundle => _checkCloudflareTrace(
+          MediaPlatform.humblebundle,
+          'humblebundle.com',
+        ),
+        MediaPlatform.coinbase => _checkCloudflareTrace(
+          MediaPlatform.coinbase,
+          'www.coinbase.com',
+        ),
+        MediaPlatform.okx => _checkCloudflareTrace(
+          MediaPlatform.okx,
+          'www.okx.com',
+        ),
+        MediaPlatform.kraken => _checkCloudflareTrace(
+          MediaPlatform.kraken,
+          'www.kraken.com',
+        ),
+        MediaPlatform.cryptocom => _checkCloudflareTrace(
+          MediaPlatform.cryptocom,
+          'crypto.com',
+        ),
+        MediaPlatform.phantom => _checkCloudflareTrace(
+          MediaPlatform.phantom,
+          'phantom.com',
+        ),
+        MediaPlatform.paypal => checkPayPal(),
+        MediaPlatform.mytvsuper => checkMyTvSuper(),
+        MediaPlatform.viutv => checkViuTv(),
+        MediaPlatform.hoytv => checkHoyTv(),
+        MediaPlatform.rthk => checkRthk(),
+      };
+      return checkFuture.timeout(
+        const Duration(seconds: 8),
+        onTimeout: () {
+          cancelToken.cancel('timeout');
+          return MediaUnlockResult(
+            platform: platform,
+            status: MediaUnlockStatus.failed,
+          );
+        },
+      );
+    }, zoneValues: {#_platformCancelToken: cancelToken});
   }
 
   Future<Map<MediaPlatform, MediaUnlockResult>> checkAll({

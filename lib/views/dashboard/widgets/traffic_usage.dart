@@ -339,13 +339,21 @@ class _TrafficUsageState extends ConsumerState<TrafficUsage> {
                   ),
                   _buildTrafficDataItem(
                     context,
-                    Icon(Icons.arrow_upward, color: primaryColor, size: 14),
+                    Icon(
+                      context.resolveIcon(Icons.arrow_upward),
+                      color: primaryColor,
+                      size: 14,
+                    ),
                     upTotalTrafficValue,
                   ),
                   const SizedBox(height: 8),
                   _buildTrafficDataItem(
                     context,
-                    Icon(Icons.arrow_downward, color: secondaryColor, size: 14),
+                    Icon(
+                      context.resolveIcon(Icons.arrow_downward),
+                      color: secondaryColor,
+                      size: 14,
+                    ),
                     downTotalTrafficValue,
                   ),
                 ],

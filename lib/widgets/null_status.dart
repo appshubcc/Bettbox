@@ -2,20 +2,13 @@ import 'package:material_ui/material_ui.dart';
 
 import '../common/common.dart';
 
-class NullStatus extends StatelessWidget {
-  final String label;
-  final IconData? icon;
-  final String? description;
-  final Widget? action;
-
-  const NullStatus({
-    super.key,
-    required this.label,
-    this.icon,
-    this.description,
-    this.action,
-  });
-
+class const NullStatus({
+  super.key,
+  required final String label,
+  final IconData? icon,
+  final String? description,
+  final Widget? action,
+}) extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final icon = this.icon;
@@ -45,7 +38,7 @@ class NullStatus extends StatelessWidget {
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
-                  icon,
+                  context.resolveIcon(icon),
                   size: 34,
                   color: colorScheme.primary.withValues(alpha: 0.85),
                 ),

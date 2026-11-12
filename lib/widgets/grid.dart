@@ -82,18 +82,13 @@ class RenderGrid extends RenderBox
         ContainerRenderObjectMixin<RenderBox, GridParentData>,
         RenderBoxContainerDefaultsMixin<RenderBox, GridParentData> {
   RenderGrid({
-    required double mainAxisSpacing,
-    required double crossAxisSpacing,
-    required int crossAxisCount,
-    required AxisDirection axisDirection,
-    required TextDirection textDirection,
-    double? mainAxisExtent,
-  }) : _crossAxisCount = crossAxisCount,
-       _crossAxisSpacing = crossAxisSpacing,
-       _mainAxisSpacing = mainAxisSpacing,
-       _axisDirection = axisDirection,
-       _textDirection = textDirection,
-       _mainAxisExtent = mainAxisExtent;
+    required this._mainAxisSpacing,
+    required this._crossAxisSpacing,
+    required this._crossAxisCount,
+    required this._axisDirection,
+    required this._textDirection,
+    this._mainAxisExtent,
+  });
 
   int _crossAxisCount;
 

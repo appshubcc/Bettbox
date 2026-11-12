@@ -44,7 +44,7 @@ class CommonChip extends StatelessWidget {
       return null;
     });
     return Chip(
-      avatar: avatar,
+      avatar: avatar == null ? null : context.resolveIconWidget(avatar),
       side: focusedBorder,
       color: focusedColor,
       labelPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 4),
@@ -186,7 +186,7 @@ class _ActionChipState extends State<_ActionChip> {
                         color: colorScheme.primary,
                         size: 18,
                       ).merge(chipTheme.iconTheme),
-                      child: avatar,
+                      child: context.resolveIconWidget(avatar) ?? avatar,
                     ),
                   ),
                 ),

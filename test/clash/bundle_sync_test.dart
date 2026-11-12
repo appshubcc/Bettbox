@@ -28,9 +28,8 @@ void main() {
     home = await Directory.systemTemp.createTemp('bundle_sync');
     bundle = File('${home.path}/$bundleMRSFileName');
     version = File('${home.path}/$bundleMRSFileName.version');
-    bundledLength = (await rootBundle.load(
-      'assets/data/$bundleMRSFileName',
-    )).lengthInBytes;
+    bundledLength = (await rootBundle.load('assets/data/$bundleMRSFileName'))
+        .lengthInBytes;
     setVersion('1.0.0', '1');
   });
 

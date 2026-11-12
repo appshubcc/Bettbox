@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:bett_box/clash/clash.dart';
@@ -10,12 +11,7 @@ import 'package:bett_box/state.dart';
 import 'package:bett_box/widgets/widgets.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_riverpod/legacy.dart';
 import 'package:path/path.dart' hide context;
-
-final geoUpdatingKeysProvider = StateProvider.autoDispose<Set<String>>(
-  (ref) => {},
-);
 
 @immutable
 class GeoItem {
@@ -48,13 +44,14 @@ class _ResourcesViewState extends ConsumerState<ResourcesView> {
   ];
 
   Future<void> _handleSyncAll() async {
-    final updatingKeysNotifier = ref.read(geoUpdatingKeysProvider.notifier);
-    if (updatingKeysNotifier.state.isNotEmpty) return;
+    if (ref.read(geoUpdatingKeysProvider).isNotEmpty) return;
 
     final syncItems = geoItems
         .where((geoItem) => geoItem.key != 'mrs')
         .toList();
-    updatingKeysNotifier.state = syncItems.map((e) => e.key).toSet();
+    ref.read(geoUpdatingKeysProvider.notifier).value = syncItems
+        .map((e) => e.key)
+        .toSet();
 
     final errors = <String>[];
     try {
@@ -74,23 +71,23 @@ class _ResourcesViewState extends ConsumerState<ResourcesView> {
             errors.add('${geoItem.label}: $e');
           } finally {
             if (mounted) {
-              updatingKeysNotifier.update(
-                (s) => Set.of(s)..remove(geoItem.key),
-              );
+              ref.read(geoUpdatingKeysProvider.notifier).remove(geoItem.key);
             }
           }
         }),
       );
       if (errors.isNotEmpty) {
-        globalState.showMessage(
-          title: appLocalizations.syncFailed,
-          message: TextSpan(text: errors.join('\n')),
-          cancelable: false,
+        unawaited(
+          globalState.showMessage(
+            title: appLocalizations.syncFailed,
+            message: TextSpan(text: errors.join('\n')),
+            cancelable: false,
+          ),
         );
       }
     } finally {
       if (mounted) {
-        updatingKeysNotifier.state = {};
+        ref.read(geoUpdatingKeysProvider.notifier).value = {};
       }
     }
   }
@@ -316,10 +313,12 @@ class _GeoDataListItemState extends ConsumerState<GeoDataListItem> {
         });
         await globalState.appController.setupClashConfig();
       } catch (e) {
-        globalState.showMessage(
-          title: geoItem.label,
-          message: TextSpan(text: e.toString()),
-          cancelable: false,
+        unawaited(
+          globalState.showMessage(
+            title: geoItem.label,
+            message: TextSpan(text: e.toString()),
+            cancelable: false,
+          ),
         );
       }
     }
@@ -334,12 +333,11 @@ class _GeoDataListItemState extends ConsumerState<GeoDataListItem> {
   }
 
   Future<void> _handleUpdateGeoDataItem() async {
-    final updatingKeysNotifier = ref.read(geoUpdatingKeysProvider.notifier);
     if (ref.read(geoUpdatingKeysProvider).contains(geoItem.key)) return;
 
     await globalState.appController.safeRun<void>(
       () async {
-        updatingKeysNotifier.update((s) => Set.of(s)..add(geoItem.key));
+        ref.read(geoUpdatingKeysProvider.notifier).add(geoItem.key);
         try {
           final message = await clashCore.updateGeoData(
             UpdateGeoDataParams(
@@ -350,7 +348,7 @@ class _GeoDataListItemState extends ConsumerState<GeoDataListItem> {
           if (message.isNotEmpty) throw message;
         } finally {
           if (mounted) {
-            updatingKeysNotifier.update((s) => Set.of(s)..remove(geoItem.key));
+            ref.read(geoUpdatingKeysProvider.notifier).remove(geoItem.key);
           }
         }
       },

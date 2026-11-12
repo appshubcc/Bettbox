@@ -7,8 +7,10 @@ import 'package:flutter/services.dart';
 
 import '../clash/lib.dart';
 
-typedef NativeEventCallback =
-    Future<void> Function(String method, dynamic arguments);
+typedef NativeEventCallback = Future<void> Function(
+  String method,
+  dynamic arguments,
+);
 
 class Service {
   static final Service _instance = Service._internal();

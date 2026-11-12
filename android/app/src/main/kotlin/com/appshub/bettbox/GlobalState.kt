@@ -276,6 +276,10 @@ object GlobalState {
                         plugins.add(plugin)
                     }
                 }
+                plugins.remove(dev.steenbakker.mobile_scanner.MobileScannerPlugin::class.java)
+                plugins.remove(io.flutter.plugins.imagepicker.ImagePickerPlugin::class.java)
+                plugins.remove(com.mr.flutter.plugin.filepicker.FilePickerPlugin::class.java)
+                plugins.remove(io.material.plugins.dynamic_color.DynamicColorPlugin::class.java)
             }
         }
     }

@@ -462,15 +462,7 @@ class ManagedScript {
         'const bettboxRegions = ${jsonEncode(regions)};',
       if (props.customRegions.isNotEmpty)
         'const bettboxCustomRegions = ${jsonEncode([
-          for (final cr in props.customRegions)
-            {
-              'name': cr.name,
-              'regex': cr.regex,
-              'icon': ?routeIconUrl(
-                defaultRouteAliases[cr.name.trim().toLowerCase()] ??
-                    defaultRouteAliases[cr.name.trim()],
-              ),
-            },
+          for (final cr in props.customRegions) {'name': cr.name, 'regex': cr.regex, 'icon': ?routeIconUrl(defaultRouteAliases[cr.name.trim().toLowerCase()] ?? defaultRouteAliases[cr.name.trim()])},
         ])};',
       if (props.order.isNotEmpty)
         'const bettboxOrder = ${jsonEncode(props.order)};',

@@ -19,7 +19,7 @@ class OptionsDialog<T> extends StatelessWidget {
   final List<T> options;
   final T value;
   final String Function(T value) textBuilder;
-  final String Function(T value)? subtitleBuilder;
+  final String? Function(T value)? subtitleBuilder;
 
   const OptionsDialog({
     super.key,
@@ -86,7 +86,11 @@ class OptionItem extends StatelessWidget {
             child: Row(
               children: [
                 Icon(
-                  selected ? Icons.check_circle_rounded : Icons.circle_outlined,
+                  context.resolveIcon(
+                    selected
+                        ? Icons.check_circle_rounded
+                        : Icons.circle_outlined,
+                  ),
                   size: 21,
                   color: selected
                       ? colorScheme.primary
@@ -95,6 +99,7 @@ class OptionItem extends StatelessWidget {
                 const SizedBox(width: 12),
                 Expanded(
                   child: Column(
+                    mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       if (selected)
@@ -115,7 +120,8 @@ class OptionItem extends StatelessWidget {
                           overflow: TextOverflow.ellipsis,
                           maxLines: 1,
                         ),
-                      if (subtitle case final subtitle?)
+                      if (subtitle case final subtitle?
+                          when subtitle.trim().isNotEmpty)
                         Text(
                           subtitle,
                           maxLines: 2,
@@ -298,7 +304,11 @@ class _InputDialogState extends State<InputDialog> with IdleAutofocusMixin {
                   suffixIcon: widget.obscureText == true
                       ? IconButton(
                           icon: Icon(
-                            _obscure ? Icons.visibility : Icons.visibility_off,
+                            context.resolveIcon(
+                              _obscure
+                                  ? Icons.visibility
+                                  : Icons.visibility_off,
+                            ),
                           ),
                           onPressed: () {
                             setState(() {
@@ -390,9 +400,9 @@ class ListInputPage extends StatelessWidget {
           onPressed: () async {
             await context.dismissKeyboard();
             if (!context.mounted) return;
-            _handleAddOrEdit();
+            unawaited(_handleAddOrEdit());
           },
-          child: const Icon(Icons.add),
+          child: Icon(context.resolveIcon(Icons.add)),
         ),
       ),
       child: items.isEmpty
@@ -422,7 +432,9 @@ class ListInputPage extends StatelessWidget {
                               ? subtitleBuilder!(e)
                               : null,
                           trailing: IconButton(
-                            icon: const Icon(Icons.delete_outline),
+                            icon: Icon(
+                              context.resolveIcon(Icons.delete_outline),
+                            ),
                             onPressed: () {
                               _handleDelete(e);
                             },
@@ -553,9 +565,9 @@ class MapInputPage extends StatelessWidget {
           onPressed: () async {
             await context.dismissKeyboard();
             if (!context.mounted) return;
-            _handleAddOrEdit();
+            unawaited(_handleAddOrEdit());
           },
-          child: const Icon(Icons.add),
+          child: Icon(context.resolveIcon(Icons.add)),
         ),
       ),
       child: items.isEmpty
@@ -587,7 +599,9 @@ class MapInputPage extends StatelessWidget {
                               : null,
                           trailing: (canDelete == null || canDelete!(e))
                               ? IconButton(
-                                  icon: const Icon(Icons.delete_outline),
+                                  icon: Icon(
+                                    context.resolveIcon(Icons.delete_outline),
+                                  ),
                                   onPressed: () {
                                     _handleDelete(e);
                                   },

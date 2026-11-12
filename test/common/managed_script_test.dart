@@ -291,17 +291,14 @@ void main() {
   test(
     'regions default to the preset ones and are injected when chosen',
     () async {
-      final catalog = (await ManagedScript.catalog(
-        const ManagedProps(),
-      )).catalog;
+      final catalog = (await ManagedScript.catalog(const ManagedProps()))
+          .catalog;
       expect(managedRegions(catalog, null), ['香港', '日本', '美国', '新加坡', '台湾']);
       expect(managedRegions(catalog, const ['日本', '韩国', 'Gone']), ['日本', '韩国']);
       expect(
-        managedRegions(
-          catalog,
-          null,
-          const [CustomRegion(name: '德国', regex: '德国|DE')],
-        ),
+        managedRegions(catalog, null, const [
+          CustomRegion(name: '德国', regex: '德国|DE'),
+        ]),
         ['香港', '日本', '美国', '新加坡', '台湾', '德国'],
       );
       expect(
@@ -421,7 +418,10 @@ void main() {
   test('version comparison compares numerically when numbers', () {
     expect(ManagedScript.compareVersions('99', '100'), lessThan(0));
     expect(ManagedScript.compareVersions('100', '99'), greaterThan(0));
-    expect(ManagedScript.compareVersions('20241012', '2026111105'), lessThan(0));
+    expect(
+      ManagedScript.compareVersions('20241012', '2026111105'),
+      lessThan(0),
+    );
     expect(ManagedScript.compareVersions('2026111105', '2026111105'), 0);
     expect(ManagedScript.compareVersions('beta', 'alpha'), greaterThan(0));
 

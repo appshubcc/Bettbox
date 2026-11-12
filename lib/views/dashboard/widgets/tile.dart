@@ -70,7 +70,7 @@ class DashboardDecor extends ConsumerWidget {
   });
 
   static Widget icon(BuildContext context, IconData icon, double size) => Icon(
-    icon,
+    context.resolveIcon(icon),
     size: size,
     color: context.colorScheme.onSurface.withValues(alpha: 0.06),
   );
@@ -323,7 +323,7 @@ class DashboardChip extends StatelessWidget {
     final content = Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(icon, size: 13, color: primary),
+        Icon(context.resolveIcon(icon), size: 13, color: primary),
         const SizedBox(width: 4),
         Flexible(
           child: Text(

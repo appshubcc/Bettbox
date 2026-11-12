@@ -151,16 +151,11 @@ class _SideSheetLayoutWithSizeListener extends SingleChildRenderObjectWidget {
 class _RenderSideSheetLayoutWithSizeListener extends RenderShiftedBox {
   _RenderSideSheetLayoutWithSizeListener({
     RenderBox? child,
-    required _SizeChangeCallback<Size> onChildSizeChanged,
-    required double animationValue,
-    required bool isScrollControlled,
-    required double scrollControlDisabledMaxHeightRatio,
-  }) : _onChildSizeChanged = onChildSizeChanged,
-       _animationValue = animationValue,
-       _isScrollControlled = isScrollControlled,
-       _scrollControlDisabledMaxHeightRatio =
-           scrollControlDisabledMaxHeightRatio,
-       super(child);
+    required this._onChildSizeChanged,
+    required this._animationValue,
+    required this._isScrollControlled,
+    required this._scrollControlDisabledMaxHeightRatio,
+  }) : super(child);
 
   Size _lastSize = Size.zero;
 
@@ -219,9 +214,8 @@ class _RenderSideSheetLayoutWithSizeListener extends RenderShiftedBox {
 
   @override
   double computeMinIntrinsicWidth(double height) {
-    final double width = _getSize(
-      BoxConstraints.tightForFinite(height: height),
-    ).width;
+    final double width = _getSize(BoxConstraints.tightForFinite(height: height))
+        .width;
     if (width.isFinite) {
       return width;
     }
@@ -230,9 +224,8 @@ class _RenderSideSheetLayoutWithSizeListener extends RenderShiftedBox {
 
   @override
   double computeMaxIntrinsicWidth(double height) {
-    final double width = _getSize(
-      BoxConstraints.tightForFinite(height: height),
-    ).width;
+    final double width = _getSize(BoxConstraints.tightForFinite(height: height))
+        .width;
     if (width.isFinite) {
       return width;
     }
@@ -241,9 +234,8 @@ class _RenderSideSheetLayoutWithSizeListener extends RenderShiftedBox {
 
   @override
   double computeMinIntrinsicHeight(double width) {
-    final double height = _getSize(
-      BoxConstraints.tightForFinite(width: width),
-    ).height;
+    final double height = _getSize(BoxConstraints.tightForFinite(width: width))
+        .height;
     if (height.isFinite) {
       return height;
     }
@@ -252,9 +244,8 @@ class _RenderSideSheetLayoutWithSizeListener extends RenderShiftedBox {
 
   @override
   double computeMaxIntrinsicHeight(double width) {
-    final double height = _getSize(
-      BoxConstraints.tightForFinite(width: width),
-    ).height;
+    final double height = _getSize(BoxConstraints.tightForFinite(width: width))
+        .height;
     if (height.isFinite) {
       return height;
     }

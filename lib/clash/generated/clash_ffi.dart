@@ -3950,33 +3950,37 @@ final class _malloc_zone_t extends ffi.Opaque {}
 typedef malloc_zone_t = _malloc_zone_t;
 typedef dev_t = __darwin_dev_t;
 typedef mode_t = __darwin_mode_t;
-typedef release_object_funcFunction =
-    ffi.Void Function(ffi.Pointer<ffi.Void> obj);
-typedef Dartrelease_object_funcFunction =
-    void Function(ffi.Pointer<ffi.Void> obj);
+typedef release_object_funcFunction = ffi.Void Function(
+  ffi.Pointer<ffi.Void> obj,
+);
+typedef Dartrelease_object_funcFunction = void Function(
+  ffi.Pointer<ffi.Void> obj,
+);
 typedef release_object_func =
     ffi.Pointer<ffi.NativeFunction<release_object_funcFunction>>;
-typedef protect_funcFunction =
-    ffi.Void Function(ffi.Pointer<ffi.Void> tun_interface, ffi.Int fd);
-typedef Dartprotect_funcFunction =
-    void Function(ffi.Pointer<ffi.Void> tun_interface, int fd);
+typedef protect_funcFunction = ffi.Void Function(
+  ffi.Pointer<ffi.Void> tun_interface,
+  ffi.Int fd,
+);
+typedef Dartprotect_funcFunction = void Function(
+  ffi.Pointer<ffi.Void> tun_interface,
+  int fd,
+);
 typedef protect_func = ffi.Pointer<ffi.NativeFunction<protect_funcFunction>>;
-typedef resolve_process_funcFunction =
-    ffi.Pointer<ffi.Char> Function(
-      ffi.Pointer<ffi.Void> tun_interface,
-      ffi.Int protocol,
-      ffi.Pointer<ffi.Char> source,
-      ffi.Pointer<ffi.Char> target,
-      ffi.Int uid,
-    );
-typedef Dartresolve_process_funcFunction =
-    ffi.Pointer<ffi.Char> Function(
-      ffi.Pointer<ffi.Void> tun_interface,
-      int protocol,
-      ffi.Pointer<ffi.Char> source,
-      ffi.Pointer<ffi.Char> target,
-      int uid,
-    );
+typedef resolve_process_funcFunction = ffi.Pointer<ffi.Char> Function(
+  ffi.Pointer<ffi.Void> tun_interface,
+  ffi.Int protocol,
+  ffi.Pointer<ffi.Char> source,
+  ffi.Pointer<ffi.Char> target,
+  ffi.Int uid,
+);
+typedef Dartresolve_process_funcFunction = ffi.Pointer<ffi.Char> Function(
+  ffi.Pointer<ffi.Void> tun_interface,
+  int protocol,
+  ffi.Pointer<ffi.Char> source,
+  ffi.Pointer<ffi.Char> target,
+  int uid,
+);
 typedef resolve_process_func =
     ffi.Pointer<ffi.NativeFunction<resolve_process_funcFunction>>;
 typedef GoInt8 = ffi.SignedChar;

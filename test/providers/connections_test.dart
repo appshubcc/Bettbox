@@ -54,7 +54,7 @@ void main() {
       .toList();
 
   test('只看 UDP 时筛选活动、已关闭与全部', () {
-    container.read(connectionsProvider.notifier).state = [
+    container.read(connectionsProvider.notifier).value = [
       _info('a', 1, speed: 0, network: 'udp'),
       _info('b', 2, speed: 0, network: 'tcp'),
       _info('c', 3, speed: 0, network: 'udp'),
@@ -76,7 +76,7 @@ void main() {
   });
 
   test('已关闭的连接不再出现在活动列表中', () {
-    container.read(connectionsProvider.notifier).state = [
+    container.read(connectionsProvider.notifier).value = [
       _info('a', 1, speed: 0),
       _info('b', 2, speed: 0),
     ];
@@ -87,7 +87,7 @@ void main() {
   });
 
   test('全部默认按创建时间排列，连接关闭后位置不变', () {
-    container.read(connectionsProvider.notifier).state = [
+    container.read(connectionsProvider.notifier).value = [
       _info('a', 1, speed: 0),
       _info('b', 2, speed: 0),
       _info('c', 3, speed: 0),
@@ -98,7 +98,7 @@ void main() {
       _info('c', 3),
       _info('a', 1),
     ]);
-    container.read(connectionsProvider.notifier).state = [
+    container.read(connectionsProvider.notifier).value = [
       _info('b', 2, speed: 0),
     ];
 
@@ -106,9 +106,9 @@ void main() {
   });
 
   test('按速度排序时同速连接按创建时间稳定排列', () {
-    container.read(connectionsSortProvider.notifier).state =
+    container.read(connectionsSortProvider.notifier).value =
         ConnectionsSortType.realTimeSpeed;
-    container.read(connectionsProvider.notifier).state = [
+    container.read(connectionsProvider.notifier).value = [
       _info('a', 1, speed: 0),
       _info('b', 2, speed: 50),
       _info('c', 3, speed: 0),
@@ -119,14 +119,14 @@ void main() {
   });
 
   test('搜索同时作用于活动与已关闭', () {
-    container.read(connectionsProvider.notifier).state = [
+    container.read(connectionsProvider.notifier).value = [
       _info('a', 1, speed: 0, host: 'github.com'),
       _info('b', 2, speed: 0, host: 'google.com'),
     ];
     container.read(requestsProvider.notifier).addRequests([
       _info('c', 3, host: 'api.github.com'),
     ]);
-    container.read(connectionsSearchProvider.notifier).state = 'github';
+    container.read(connectionsSearchProvider.notifier).value = 'github';
 
     expect(activeIds(), ['a']);
     expect(container.read(filteredRequestsProvider).map((e) => e.id).toList(), [

@@ -822,7 +822,7 @@ final class ScriptStateProvider
   }
 }
 
-String _$scriptStateHash() => r'2ecf9684f97024cd953e1ebb69ee08b44b35b0e4';
+String _$scriptStateHash() => r'1dc0e5a19ef48746421fe4a349bdc586012fa2a3';
 
 abstract class _$ScriptState extends $Notifier<ScriptProps> {
   ScriptProps build();
@@ -939,6 +939,57 @@ abstract class _$PatchClashConfig extends $Notifier<ClashConfig> {
             as $ClassProviderElement<
               AnyNotifier<ClashConfig, ClashConfig>,
               ClashConfig,
+              Object?,
+              Object?
+            >;
+    return element.handleCreate(ref, build);
+  }
+}
+
+@ProviderFor(Nodes)
+final nodesProvider = NodesProvider._();
+
+final class NodesProvider extends $NotifierProvider<Nodes, List<ProxyNode>> {
+  NodesProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'nodesProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$nodesHash();
+
+  @$internal
+  @override
+  Nodes create() => Nodes();
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(List<ProxyNode> value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<List<ProxyNode>>(value),
+    );
+  }
+}
+
+String _$nodesHash() => r'd2c13847c710c41b6d1f74d6caf910cfa9ed6f5b';
+
+abstract class _$Nodes extends $Notifier<List<ProxyNode>> {
+  List<ProxyNode> build();
+  @$mustCallSuper
+  @override
+  WhenComplete runBuild() {
+    final ref = this.ref as $Ref<List<ProxyNode>, List<ProxyNode>>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<List<ProxyNode>, List<ProxyNode>>,
+              List<ProxyNode>,
               Object?,
               Object?
             >;

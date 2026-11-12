@@ -38,7 +38,7 @@ class Navigation {
             ProfilesView(key: const GlobalObjectKey(PageLabel.profiles)),
       ),
       NavigationItem(
-        icon: Icon(Icons.cable_rounded),
+        icon: const Icon(Icons.cable_rounded),
         label: PageLabel.connections,
         builder: (_) =>
             ConnectionsView(key: const GlobalObjectKey(PageLabel.connections)),
@@ -77,7 +77,7 @@ class Navigation {
         modes: [NavigationItemMode.desktop, NavigationItemMode.more],
       ),
       NavigationItem(
-        icon: Icon(Icons.construction),
+        icon: const Icon(Icons.construction),
         label: PageLabel.tools,
         builder: (_) => ToolsView(key: const GlobalObjectKey(PageLabel.tools)),
         modes: [NavigationItemMode.desktop, NavigationItemMode.mobile],

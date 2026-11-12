@@ -107,7 +107,7 @@ class ProxyDelayText extends StatelessWidget {
                 behavior: HitTestBehavior.opaque,
                 onTap: _handleTestCurrentDelay,
                 child: Icon(
-                  Icons.bolt,
+                  context.resolveIcon(Icons.bolt),
                   size: labelSmallHeight,
                   color: context.colorScheme.onSurfaceVariant,
                 ),
@@ -186,9 +186,8 @@ class ProxyCard extends StatelessWidget {
 
   bool _isSelectedProxy(WidgetRef ref) {
     return ref.watch(
-      getSelectedProxyNameProvider(
-        groupName,
-      ).select((name) => name == proxy.name),
+      getSelectedProxyNameProvider(groupName)
+          .select((name) => name == proxy.name),
     );
   }
 
@@ -423,7 +422,7 @@ class _ProxyComputedMarkIcon extends StatelessWidget {
           color: colorScheme.secondaryContainer,
         ),
         child: Icon(
-          Icons.lock_outline,
+          context.resolveIcon(Icons.lock_outline),
           size: 18,
           color: colorScheme.onSecondaryContainer,
         ),

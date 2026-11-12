@@ -203,9 +203,7 @@ class _NetworkDetectionState extends ConsumerState<NetworkDetection> {
                     style: context.textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.w600,
                       height: 1.2,
-                      fontFeatures: const [
-                        FontFeature.tabularFigures(),
-                      ],
+                      fontFeatures: const [FontFeature.tabularFigures()],
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -345,9 +343,9 @@ class _NetworkDetectionState extends ConsumerState<NetworkDetection> {
                             )
                           : Icon(
                               Icons.network_check,
-                              color: Theme.of(
-                                context,
-                              ).colorScheme.onSurfaceVariant,
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .onSurfaceVariant,
                             ),
                       const SizedBox(width: 8),
                       Flexible(

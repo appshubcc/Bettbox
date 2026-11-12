@@ -30,7 +30,7 @@ import 'common/common.dart';
 import 'controller.dart';
 import 'models/models.dart';
 
-typedef UpdateTasks = List<FutureOr Function()>;
+typedef UpdateTasks = List<FutureOr<void> Function()>;
 
 class GlobalState {
   static GlobalState? _instance;
@@ -469,7 +469,7 @@ class GlobalState {
     await startUpdateTasks(tasks);
   }
 
-  Future updateStartTime() async {
+  Future<void> updateStartTime() async {
     startTime = await clashLib?.getRunTime();
   }
 
@@ -483,13 +483,13 @@ class GlobalState {
         );
         providerContainer
                 .read(providers_state.wakelockStateProvider.notifier)
-                .state =
+                .value =
             enabled;
       }
     }
   }
 
-  Future handleStop([bool includeVpnService = true]) async {
+  Future<void> handleStop([bool includeVpnService = true]) async {
     startTime = null;
     if (system.isAndroid && isService) {
       await clashLibHandler?.stopListener();
@@ -541,9 +541,8 @@ class GlobalState {
               child: SingleChildScrollView(
                 child: SelectableText.rich(
                   TextSpan(
-                    style: Theme.of(
-                      context,
-                    ).textTheme.bodyLarge?.copyWith(fontSize: 15, height: 1.5),
+                    style: Theme.of(context).textTheme.bodyLarge
+                        ?.copyWith(fontSize: 15, height: 1.5),
                     children: [message],
                   ),
                   style: const TextStyle(overflow: TextOverflow.visible),
@@ -602,62 +601,6 @@ class GlobalState {
     );
   }
 
-  bool _dialogWarmedUp = false;
-
-  void warmupCommonDialog() {
-    if (_dialogWarmedUp) return;
-    _dialogWarmedUp = true;
-
-    final state = navigatorKey.currentState;
-    if (state == null) return;
-    final overlayState = state.overlay;
-    if (overlayState == null) return;
-
-    late OverlayEntry entry;
-    entry = OverlayEntry(
-      builder: (context) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          entry.remove();
-          entry.dispose();
-        });
-        return Offstage(
-          offstage: true,
-          child: RepaintBoundary(
-            child: Material(
-              type: MaterialType.transparency,
-              child: FadeTransition(
-                opacity: const AlwaysStoppedAnimation(1.0),
-                child: ScaleTransition(
-                  scale: const AlwaysStoppedAnimation(1.0),
-                  child: Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.surface,
-                      borderRadius: BorderRadius.circular(28),
-                      boxShadow: const [
-                        BoxShadow(blurRadius: 10, color: Colors.black12),
-                      ],
-                    ),
-                    child: const Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(Icons.check_circle_outline),
-                        SizedBox(height: 8),
-                        Text('warmup'),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-        );
-      },
-    );
-
-    overlayState.insert(entry);
-  }
-
   void showNotifier(
     String text, {
     VoidCallback? onAction,
@@ -684,15 +627,15 @@ class GlobalState {
         return;
       }
     }
-    launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+    unawaited(launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication));
   }
 
   Future<void> migrateOldData(Config config) async {
     final clashConfig = await preferences.getClashConfig();
     if (clashConfig != null) {
       config = config.copyWith(patchClashConfig: clashConfig);
-      preferences.clearClashConfig();
-      preferences.saveConfig(config);
+      unawaited(preferences.clearClashConfig());
+      unawaited(preferences.saveConfig(config));
     }
 
     if (config.appSetting.locale == null) {
@@ -700,7 +643,7 @@ class GlobalState {
       config = config.copyWith(
         appSetting: config.appSetting.copyWith(locale: systemLocale.toString()),
       );
-      preferences.saveConfig(config);
+      unawaited(preferences.saveConfig(config));
       this.config = config;
     }
 
@@ -1085,8 +1028,7 @@ class GlobalState {
       if (externalController == ExternalControllerStatus.open && hasSecret)
         'secret': secret,
       'external-ui': await appPath.uiPath,
-      'external-ui-url':
-          'https://github.com/Zephyruso/zashboard/releases/latest/download/dist.zip',
+      'external-ui-url': 'https://github.com/Zephyruso/zashboard/releases/latest/download/dist.zip',
       'external-ui-name': '',
       'tcp-concurrent': patchConfig.tcpConcurrent,
       if (!system.isAndroid && patchConfig.interfaceName.isNotEmpty)
@@ -1165,9 +1107,7 @@ class GlobalState {
       'node-exclude-filter': config.nodeExcludeFilter,
       'health-check-timeout': config.healthCheckTimeout,
       'override-rules': overrideData.enable
-          ? {
-              'rules': overrideData.runningRule,
-            }
+          ? {'rules': overrideData.runningRule}
           : null,
       'prepend-rules': [
         if (config.vpnProps.loopbackProtection) ...[

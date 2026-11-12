@@ -1,10 +1,14 @@
+import 'dart:async';
 import 'dart:io';
+
 import 'package:bett_box/common/common.dart';
 import 'package:dio/dio.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:crypto/crypto.dart';
+
 import 'dart:convert';
+
 import 'package:path/path.dart' as path;
 
 class _IconFileManager {
@@ -54,7 +58,7 @@ class _IconFileManager {
     try {
       return await future;
     } finally {
-      _inFlightDownloads.remove(url);
+      unawaited(_inFlightDownloads.remove(url));
     }
   }
 
@@ -387,15 +391,15 @@ class _CommonTargetIconState extends State<CommonTargetIcon> {
       );
     }
     final base64 = widget.src.getBase64;
-    final devicePixelRatio = MediaQuery.devicePixelRatioOf(context);
-    final cacheSize = (widget.size * devicePixelRatio).ceil();
+    final iconSize = widget.size.toInt();
 
     if (base64 != null) {
       return Image(
         image: ResizeImage(
           MemoryImage(base64),
-          width: cacheSize,
-          height: cacheSize,
+          width: iconSize,
+          height: iconSize,
+          useLogicalSize: true,
           policy: ResizeImagePolicy.fit,
         ),
         gaplessPlayback: true,
@@ -429,8 +433,9 @@ class _CommonTargetIconState extends State<CommonTargetIcon> {
         _file!,
         gaplessPlayback: true,
         fit: BoxFit.contain,
-        cacheWidth: cacheSize,
-        cacheHeight: cacheSize,
+        cacheWidth: iconSize,
+        cacheHeight: iconSize,
+        useLogicalCacheSize: true,
         errorBuilder: (_, _, _) {
           _moduleFileCache.remove(key);
           _moduleFailureCache[key] = DateTime.now();

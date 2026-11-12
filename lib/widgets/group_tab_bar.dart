@@ -208,19 +208,20 @@ class _GroupTabBarState extends ConsumerState<GroupTabBar> {
       return child;
     }
     final leftFactor = (position.pixels / 20).clamp(0.0, 1.0);
-    final rightFactor =
-        ((position.maxScrollExtent - position.pixels) / 20).clamp(0.0, 1.0);
+    final rightFactor = ((position.maxScrollExtent - position.pixels) / 20)
+        .clamp(0.0, 1.0);
     if (leftFactor <= 0 && rightFactor <= 0) return child;
     return ShaderMask(
       shaderCallback: (bounds) {
         if (bounds.width <= 0) {
-          return const LinearGradient(
-            colors: [Colors.white, Colors.white],
-          ).createShader(bounds);
+          return const LinearGradient(colors: [Colors.white, Colors.white])
+              .createShader(bounds);
         }
         final leftStop = (18 * leftFactor / bounds.width).clamp(0.0, 0.15);
-        final rightStop =
-            (1.0 - (24 * rightFactor / bounds.width)).clamp(0.82, 1.0);
+        final rightStop = (1.0 - (24 * rightFactor / bounds.width)).clamp(
+          0.82,
+          1.0,
+        );
         return LinearGradient(
           colors: [
             Colors.white.withValues(alpha: 1 - leftFactor),
@@ -246,9 +247,7 @@ class _GroupTabBarState extends ConsumerState<GroupTabBar> {
     return PressScale(
       child: Material(
         color: backgroundColor,
-        shape: CircleBorder(
-          side: BorderSide(color: borderColor),
-        ),
+        shape: CircleBorder(side: BorderSide(color: borderColor)),
         clipBehavior: Clip.antiAlias,
         child: InkWell(
           customBorder: const CircleBorder(),
@@ -516,10 +515,7 @@ class _GroupTabChipState extends State<_GroupTabChip>
                 color: bgColor,
                 shape: RoundedSuperellipseBorder(
                   borderRadius: BorderRadius.circular(GroupTabBar.height / 2),
-                  side: BorderSide(
-                    color: borderColor,
-                    width: 1.0 + 0.15 * t,
-                  ),
+                  side: BorderSide(color: borderColor, width: 1.0 + 0.15 * t),
                 ),
               ),
               alignment: Alignment.center,

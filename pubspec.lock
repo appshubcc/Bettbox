@@ -803,7 +803,7 @@ packages:
     source: hosted
     version: "11.0.2"
   leak_tracker_flutter_testing:
-    dependency: transitive
+    dependency: "direct dev"
     description:
       name: leak_tracker_flutter_testing
       sha256: "1dbc140bb5a23c75ea9c4811222756104fbcd1a27173f0c34ca01e16bea473c1"
@@ -1653,5 +1653,5 @@ packages:
     source: hosted
     version: "0.2.4"
 sdks:
-  dart: ">=3.13.0 <4.0.0"
+  dart: ">=3.14.0 <4.0.0"
   flutter: ">=3.47.0"

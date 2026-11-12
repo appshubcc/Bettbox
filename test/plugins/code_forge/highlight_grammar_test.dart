@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_dynamic_calls
+
 import 'dart:convert';
 import 'dart:io';
 
@@ -22,12 +24,15 @@ Map<String, Object?> _export(Mode language) {
       'wrap': scope.wrap,
       'multi': scope.multi == true,
       'emit': {
-        for (final MapEntry<int, bool> entry in (scope.emit ?? {}).entries)
+        for (final entry
+            in ((scope.emit ?? {}).entries as Iterable<dynamic>)
+                .cast<MapEntry<int, bool>>())
           '${entry.key}': entry.value,
       },
       'positions': {
-        for (final MapEntry<int, String?> entry
-            in (scope.positions ?? {}).entries)
+        for (final entry
+            in ((scope.positions ?? {}).entries as Iterable<dynamic>)
+                .cast<MapEntry<int, String?>>())
           '${entry.key}': entry.value,
       },
     };
@@ -77,7 +82,8 @@ Map<String, Object?> _export(Mode language) {
       'starts': mode.starts == null ? null : visit(mode.starts!),
       'count': matcher.count,
       'rules': [
-        for (final List<dynamic> rule in matcher.rules)
+        for (final rule
+            in (matcher.rules as Iterable<dynamic>).cast<List<dynamic>>())
           [
             rule.first as String,
             rule.last.type as String,

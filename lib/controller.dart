@@ -109,7 +109,7 @@ class AppController {
   }
 
   void applyProfileDebounce({bool silence = false}) {
-    debouncer.call(FunctionTag.applyProfile, (silence) {
+    debouncer.call(FunctionTag.applyProfile, (bool silence) {
       applyProfile(silence: silence);
     }, args: [silence]);
   }
@@ -152,14 +152,14 @@ class AppController {
 
   Future<void> restartCore() {
     return _coreLifecycleLock.synchronized(() async {
-      _ref.read(isRestartingCoreProvider.notifier).state = true;
+      _ref.read(isRestartingCoreProvider.notifier).value = true;
       try {
         await _restartCore();
       } catch (err) {
         _reportCoreRestartFailure(err);
         rethrow;
       } finally {
-        _ref.read(isRestartingCoreProvider.notifier).state = false;
+        _ref.read(isRestartingCoreProvider.notifier).value = false;
       }
     });
   }
@@ -248,14 +248,16 @@ class AppController {
           }
           await globalState.handleStart([updateRunTime, updateTraffic]);
           if (res.data == true) {
-            Future.microtask(() async {
-              try {
-                await _updateClashConfig();
-              } catch (e) {
-                commonPrint.warn('FastStart desktop TUN update failed: $e');
-              }
-              _backgroundLoad();
-            });
+            unawaited(
+              Future.microtask(() async {
+                try {
+                  await _updateClashConfig();
+                } catch (e) {
+                  commonPrint.warn('FastStart desktop TUN update failed: $e');
+                }
+                _backgroundLoad();
+              }),
+            );
           } else {
             _backgroundLoad();
           }
@@ -270,21 +272,23 @@ class AppController {
 
       await globalState.handleStart([updateRunTime, updateTraffic]);
 
-      Future.microtask(() async {
-        try {
-          final res = await _requestAdmin(true);
-          if (res.needRestart) {
-            await restartCore();
-            return;
+      unawaited(
+        Future.microtask(() async {
+          try {
+            final res = await _requestAdmin(true);
+            if (res.needRestart) {
+              await restartCore();
+              return;
+            }
+            if (res.data == true) {
+              await _updateClashConfig();
+            }
+          } catch (e) {
+            commonPrint.error('FastStart update config failed: $e');
           }
-          if (res.data == true) {
-            await _updateClashConfig();
-          }
-        } catch (e) {
-          commonPrint.error('FastStart update config failed: $e');
-        }
-        _backgroundLoad();
-      });
+          _backgroundLoad();
+        }),
+      );
 
       _scheduleCheckIpRefresh();
       return;
@@ -533,7 +537,7 @@ class AppController {
         currentProfileId.value = updateId;
       } else {
         currentProfileId.value = null;
-        updateStatus(false);
+        unawaited(updateStatus(false));
       }
     }
   }
@@ -1073,7 +1077,7 @@ class AppController {
   Future<void> handleChangeProfile({bool hardRestart = false}) {
     return _coreLifecycleLock.synchronized(() async {
       if (hardRestart) {
-        _ref.read(isRestartingCoreProvider.notifier).state = true;
+        _ref.read(isRestartingCoreProvider.notifier).value = true;
         try {
           await _restartCore();
           _ref.read(delayDataSourceProvider.notifier).clear();
@@ -1081,7 +1085,7 @@ class AppController {
           _reportCoreRestartFailure(err);
           rethrow;
         } finally {
-          _ref.read(isRestartingCoreProvider.notifier).state = false;
+          _ref.read(isRestartingCoreProvider.notifier).value = false;
         }
       } else {
         final prevProfileId = _ref.read(currentProfileIdProvider);
@@ -1479,11 +1483,11 @@ class AppController {
       if (!exitLock.isCompleted) {
         exitLock.complete();
       }
-      system.exit();
+      unawaited(system.exit());
     }
   }
 
-  Future handleClear() async {
+  Future<void> handleClear() async {
     await preferences.clearPreferences();
     commonPrint.log('clear preferences');
     globalState.config = Config(
@@ -1505,7 +1509,7 @@ class AppController {
 
     final res = await request.checkForUpdate();
     if (res != null) {
-      checkUpdateResultHandle(data: res);
+      unawaited(checkUpdateResultHandle(data: res));
     }
 
     await prefs?.setInt('last_check_update_time', now);
@@ -1519,8 +1523,8 @@ class AppController {
       return;
     }
     if (data != null) {
-      final tagName = data['tag_name'];
-      final body = data['body'];
+      final tagName = data['tag_name'] as String;
+      final body = data['body'] as String?;
       final submits = utils.parseReleaseBody(body);
       final textTheme = context.textTheme;
       final res = await globalState.showMessage(
@@ -1554,12 +1558,14 @@ class AppController {
             'https://github.com/$repository/releases/download/$tagName/Bettbox-$versionWithoutV-$finalSuffix';
       }
 
-      globalState.openUrl(downloadUrl);
+      unawaited(globalState.openUrl(downloadUrl));
     } else if (handleError) {
-      globalState.showMessage(
-        title: appLocalizations.checkUpdate,
-        message: TextSpan(text: appLocalizations.checkUpdateError),
-        cancelable: false,
+      unawaited(
+        globalState.showMessage(
+          title: appLocalizations.checkUpdate,
+          message: TextSpan(text: appLocalizations.checkUpdateError),
+          cancelable: false,
+        ),
       );
     }
   }
@@ -1687,7 +1693,7 @@ class AppController {
 
     try {
       final wakelockEnabled = await WakelockPlus.enabled;
-      _ref.read(wakelockStateProvider.notifier).state = wakelockEnabled;
+      _ref.read(wakelockStateProvider.notifier).value = wakelockEnabled;
 
       if (wakelockEnabled) {
         startWakelockAutoRecovery();
@@ -1713,20 +1719,22 @@ class AppController {
     await updateGroups();
     unawaited(checkManagedScriptVersionUpgrade());
 
-    autoLaunch?.updateStatus(_ref.read(appSettingProvider).autoLaunch);
+    unawaited(
+      autoLaunch?.updateStatus(_ref.read(appSettingProvider).autoLaunch),
+    );
     Future.delayed(const Duration(seconds: 5), () {
       autoUpdateProfiles();
     });
-    autoCheckUpdate();
+    unawaited(autoCheckUpdate());
 
     final isWindowVisible = await window?.isVisible ?? false;
     if (isWindowVisible) {
-      window?.show();
+      unawaited(window?.show());
     } else {
       if (!_ref.read(appSettingProvider).silentLaunch) {
-        window?.show();
+        unawaited(window?.show());
       } else {
-        window?.hide();
+        unawaited(window?.hide());
       }
     }
     await syncDesktopRuntimeState(preferCurrentState: true);
@@ -1736,11 +1744,10 @@ class AppController {
     await _handlerDisclaimer();
     if (system.isWindows) {
       unawaited(
-        setProcessPriority(
-          _ref.read(appSettingProvider).enableHighPriority,
-        ).catchError((e) {
-          commonPrint.warn('Failed to set initial process priority: $e');
-        }),
+        setProcessPriority(_ref.read(appSettingProvider).enableHighPriority)
+            .catchError((e) {
+              commonPrint.warn('Failed to set initial process priority: $e');
+            }),
       );
     }
     _ref.read(initProvider.notifier).value = true;
@@ -1901,7 +1908,7 @@ class AppController {
       if (res != true) {
         return;
       }
-      addProfileFormURL(url);
+      unawaited(addProfileFormURL(url));
     });
   }
 
@@ -1999,9 +2006,8 @@ class AppController {
         try {
           final bytes = await platformFile.readAsBytes();
           if (bytes.isEmpty) continue;
-          final profile = await Profile.normal(
-            label: platformFile.name,
-          ).saveFile(bytes);
+          final profile = await Profile.normal(label: platformFile.name)
+              .saveFile(bytes);
           await addProfile(profile);
           successCount++;
         } on Object catch (e) {
@@ -2028,7 +2034,7 @@ class AppController {
   Future<void> addProfileFormQrCode() async {
     final url = await safeRun(picker.pickerConfigQRCode);
     if (url == null) return;
-    addProfileFormURL(url);
+    unawaited(addProfileFormURL(url));
   }
 
   void updateViewSize(Size size) {
@@ -2171,9 +2177,9 @@ class AppController {
   Future<void> updateVisible() async {
     final visible = await window?.isVisible;
     if (visible != null && !visible) {
-      window?.show();
+      unawaited(window?.show());
     } else {
-      window?.hide();
+      unawaited(window?.hide());
     }
   }
 
@@ -2237,13 +2243,9 @@ class AppController {
         (script) async => script.copyWith(content: await script.readContent()),
       ),
     );
-    final configJson =
-        json.decode(
-              json.encode(
-                globalState.config.copyWith.scriptProps(scripts: scripts),
-              ),
-            )
-            as Map<String, dynamic>;
+    final configJson = json.decode(
+      json.encode(globalState.config.copyWith.scriptProps(scripts: scripts)),
+    ) as Map<String, dynamic>;
     if (configJson['dav'] is Map) {
       final davMap = Map<String, dynamic>.from(configJson['dav'] as Map);
       if (davMap['user'] is String) {
@@ -2358,7 +2360,7 @@ class AppController {
         }
       }
 
-      encoder.close();
+      unawaited(encoder.close());
 
       // Read the zip file and return bytes
       final zipFile = File(tempZipPath);
@@ -2649,7 +2651,7 @@ class AppController {
       throw 'Config file is empty or corrupted';
     }
     var tempConfig = Config.compatibleFromJson(
-      json.decode(utf8.decode(configContent)),
+      json.decode(utf8.decode(configContent)) as Map<String, Object?>,
     );
     if (tempConfig.dav != null) {
       tempConfig = tempConfig.copyWith(
@@ -2775,7 +2777,7 @@ class AppController {
       throw 'Config file is empty or corrupted';
     }
     final backupConfig = Config.compatibleFromJson(
-      json.decode(utf8.decode(configContent)),
+      json.decode(utf8.decode(configContent)) as Map<String, Object?>,
     );
 
     final recoveryStrategy = _ref.read(
@@ -2829,7 +2831,9 @@ class AppController {
         accessControl = vpnProps.accessControl;
       } catch (_) {
         try {
-          final configJson = json.decode(utf8.decode(configFile.content));
+          final configJson = json.decode(
+            utf8.decode(configFile.content),
+          ) as Map<String, dynamic>;
           final vpnPropsJson = configJson['vpnProps'];
           if (vpnPropsJson != null && vpnPropsJson is Map) {
             final accessControlPropsJson = vpnPropsJson['accessControlProps'];

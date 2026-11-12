@@ -150,10 +150,12 @@ class _EditableGridState<T extends Object> extends State<EditableGrid<T>>
                 widget.crossAxisCount,
               ),
               mainAxisCellCount: widget.mainAxisCellCountOf?.call(item),
-              child: _FlipTile(
-                gridKey: _gridKey,
-                child: _buildTile(context, item, index),
-              ),
+              child: widget.editing
+                  ? _FlipTile(
+                      gridKey: _gridKey,
+                      child: _buildTile(context, item, index),
+                    )
+                  : _buildTile(context, item, index),
             ),
         ],
       ),
@@ -184,6 +186,7 @@ class _FlipTileState extends State<_FlipTile>
   );
   Offset? _last;
   Offset _from = Offset.zero;
+  double? _lastGridWidth;
 
   Offset get _offset =>
       Offset.lerp(_from, Offset.zero, _curve.value) ?? Offset.zero;
@@ -199,8 +202,23 @@ class _FlipTileState extends State<_FlipTile>
     if (!mounted) return;
     final box = context.findRenderObject();
     final grid = widget.gridKey.currentContext?.findRenderObject();
-    if (box is! RenderBox || !box.hasSize || grid == null) return;
+    if (box is! RenderBox ||
+        !box.hasSize ||
+        grid is! RenderBox ||
+        !grid.hasSize) {
+      return;
+    }
+    final gridWidth = grid.size.width;
+    final lastGridWidth = _lastGridWidth;
+    _lastGridWidth = gridWidth;
     final position = box.localToGlobal(Offset.zero, ancestor: grid);
+    if (lastGridWidth != null && (lastGridWidth - gridWidth).abs() > 0.5) {
+      _last = position;
+      _from = Offset.zero;
+      _controller.stop();
+      _controller.value = 1;
+      return;
+    }
     final last = _last;
     _last = position;
     if (last == null || (last - position).distance < 0.5) return;

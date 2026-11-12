@@ -21,7 +21,7 @@ List<Group> buildGroups(String proxiesRaw) {
   final names = (decoded['names'] as List? ?? const []).cast<String>();
   final types = (decoded['types'] as List? ?? const []).cast<String>();
   final rawGroups = (decoded['groups'] as List? ?? const [])
-      .whereType<Map>()
+      .whereType<Map<dynamic, dynamic>>()
       .toList();
   final nows = <String, String>{
     for (final group in rawGroups)
@@ -229,7 +229,9 @@ class ClashCore {
     if (res.isError) {
       throw res.message;
     }
-    return BundleReport.fromJson(json.decode(res.data as String));
+    return BundleReport.fromJson(
+      json.decode(res.data as String) as Map<String, Object?>,
+    );
   }
 
   FutureOr<String> decryptAgeConfig(String data, String ageSecretKey) {
@@ -270,7 +272,9 @@ class ClashCore {
     try {
       return await Isolate.run<List<TrackerInfo>>(() {
         final connectionsRaw = json.decode(res) as List? ?? [];
-        return connectionsRaw.map((e) => TrackerInfo.fromJson(e)).toList();
+        return connectionsRaw
+            .map((e) => TrackerInfo.fromJson(e as Map<String, Object?>))
+            .toList();
       });
     } catch (e) {
       commonPrint.warn('Failed to parse connections: $e');
@@ -340,7 +344,10 @@ class ClashCore {
       return await Isolate.run<List<ExternalProvider>>(() {
         final externalProviders =
             (json.decode(externalProvidersRawString) as List<dynamic>)
-                .map((item) => ExternalProvider.fromJson(item))
+                .map(
+                  (item) =>
+                      ExternalProvider.fromJson(item as Map<String, Object?>),
+                )
                 .toList();
         return externalProviders;
       });
@@ -360,7 +367,9 @@ class ClashCore {
       return null;
     }
     try {
-      return ExternalProvider.fromJson(json.decode(externalProvidersRawString));
+      return ExternalProvider.fromJson(
+        json.decode(externalProvidersRawString) as Map<String, Object?>,
+      );
     } catch (e) {
       commonPrint.warn('Failed to parse external provider: $e');
       return null;
@@ -403,7 +412,7 @@ class ClashCore {
       throw Exception('Empty delay response');
     }
     try {
-      return Delay.fromJson(json.decode(data));
+      return Delay.fromJson(json.decode(data) as Map<String, Object?>);
     } catch (e) {
       commonPrint.warn('Failed to parse delay: $e');
       rethrow;
@@ -471,7 +480,9 @@ class ClashCore {
       return Traffic();
     }
     try {
-      return Traffic.fromMap(json.decode(trafficString));
+      return Traffic.fromMap(
+        json.decode(trafficString) as Map<String, dynamic>,
+      );
     } catch (e) {
       commonPrint.warn('Failed to parse traffic: $e');
       return Traffic();
@@ -844,7 +855,7 @@ class ClashCore {
     try {
       return await Isolate.run<List<Log>>(() {
         final logsRaw = json.decode(res) as List? ?? [];
-        return logsRaw.map((e) => Log.core(e)).toList();
+        return logsRaw.map((e) => Log.core(e as Map<String, Object?>)).toList();
       });
     } catch (e) {
       commonPrint.warn('Failed to parse logs: $e');
@@ -864,7 +875,9 @@ class ClashCore {
     try {
       return await Isolate.run<List<TrackerInfo>>(() {
         final requestsRaw = json.decode(res) as List? ?? [];
-        return requestsRaw.map((e) => TrackerInfo.fromJson(e)).toList();
+        return requestsRaw
+            .map((e) => TrackerInfo.fromJson(e as Map<String, Object?>))
+            .toList();
       });
     } catch (e) {
       commonPrint.warn('Failed to parse requests: $e');

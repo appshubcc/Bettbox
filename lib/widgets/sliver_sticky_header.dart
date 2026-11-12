@@ -56,16 +56,12 @@ class RenderSliverStickyHeader extends RenderSliver
         ContainerRenderObjectMixin<RenderObject, SliverStickyHeaderParentData>,
         RenderSliverHelpers {
   RenderSliverStickyHeader({
-    double spacing = 0.0,
-    bool pinned = true,
-    double pinnedInset = 0.0,
-    BoxShadow? pinnedShadow,
-    double headerRadius = 0.0,
-  }) : _spacing = spacing,
-       _pinned = pinned,
-       _pinnedInset = pinnedInset,
-       _pinnedShadow = pinnedShadow,
-       _headerRadius = headerRadius;
+    this._spacing = 0.0,
+    this._pinned = true,
+    this._pinnedInset = 0.0,
+    this._pinnedShadow,
+    this._headerRadius = 0.0,
+  });
 
   double _spacing;
   double get spacing => _spacing;

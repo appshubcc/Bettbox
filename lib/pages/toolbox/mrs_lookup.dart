@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:bett_box/clash/clash.dart';
 import 'package:bett_box/common/common.dart';
 import 'package:bett_box/enum/enum.dart';
@@ -287,15 +289,17 @@ class _MatchList extends ConsumerWidget {
       final content = await clashCore.mrsDump(match.file);
       if (content.isEmpty) throw appLocalizations.mrsPrepareFailed;
       if (!context.mounted) return;
-      BaseNavigator.push(
-        context,
-        EditorPage(
-          title: '${match.kind.toUpperCase()},${match.name}',
-          content: content,
-          readOnly: true,
-          simple: true,
+      unawaited(
+        BaseNavigator.push(
+          context,
+          EditorPage(
+            title: '${match.kind.toUpperCase()},${match.name}',
+            content: content,
+            readOnly: true,
+            simple: true,
+          ),
+          maintainState: false,
         ),
-        maintainState: false,
       );
     }, needLoading: true);
   }

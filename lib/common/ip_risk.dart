@@ -64,9 +64,8 @@ IpRiskLevel? _levelWord(String? word) => switch (word?.trim().toLowerCase()) {
 IpRiskNote? _note(String body) {
   final panel = _panelReg.firstMatch(body)?.group(1);
   if (panel == null) return null;
-  final text = _unescape(
-    panel.replaceAll(_noteTagReg, ' '),
-  ).replaceAll(_spaceReg, ' ');
+  final text = _unescape(panel.replaceAll(_noteTagReg, ' '))
+      .replaceAll(_spaceReg, ' ');
   final indirect = _indirectReg.firstMatch(text);
   final operator = _operatorReg.firstMatch(text);
   final owner = _ownerReg.firstMatch(text);

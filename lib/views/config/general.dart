@@ -686,7 +686,7 @@ class _PortDialogState extends ConsumerState<_PortDialog> {
     super.initState();
     final vm5 = ref.read(
       patchClashConfigProvider.select((state) {
-        return VM5(
+        return (
           a: state.mixedPort,
           b: state.port,
           c: state.socksPort,

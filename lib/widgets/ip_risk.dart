@@ -464,9 +464,8 @@ class IpRiskNoteView extends StatelessWidget {
           appLocalizations.ipRiskNoteShare,
           TextSpan(text: share.label),
         ),
-      if (note case IpRiskNote(
-        :final operatorName,
-      ) when operatorName.isNotEmpty)
+      if (note case IpRiskNote(:final operatorName)
+          when operatorName.isNotEmpty)
         _row(
           context,
           appLocalizations.isp,

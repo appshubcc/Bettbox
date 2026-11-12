@@ -27,13 +27,11 @@ void showOutboundModeSheet(BuildContext context) {
                 items: [
                   for (final item in Mode.values)
                     ListItem(
-                      leading: Icon(
-                        switch (item) {
-                          Mode.rule => Icons.alt_route_rounded,
-                          Mode.global => Icons.language_rounded,
-                          Mode.direct => Icons.east_rounded,
-                        },
-                      ),
+                      leading: Icon(switch (item) {
+                        Mode.rule => Icons.alt_route_rounded,
+                        Mode.global => Icons.language_rounded,
+                        Mode.direct => Icons.east_rounded,
+                      }),
                       title: Text(Intl.message(item.name)),
                       trailing: item == currentMode
                           ? Icon(
@@ -165,9 +163,9 @@ class TUNButton extends StatelessWidget {
                     appLocalizations.options,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: Theme.of(
-                      context,
-                    ).textTheme.titleSmall?.adjustSize(-2).toLight,
+                    style: Theme.of(context).textTheme.titleSmall
+                        ?.adjustSize(-2)
+                        .toLight,
                   ),
                 ),
               ),
@@ -225,9 +223,9 @@ class SystemProxyButton extends StatelessWidget {
                     appLocalizations.options,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: Theme.of(
-                      context,
-                    ).textTheme.titleSmall?.adjustSize(-2).toLight,
+                    style: Theme.of(context).textTheme.titleSmall
+                        ?.adjustSize(-2)
+                        .toLight,
                   ),
                 ),
               ),
@@ -281,9 +279,9 @@ class VpnButton extends StatelessWidget {
                     appLocalizations.options,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: Theme.of(
-                      context,
-                    ).textTheme.titleSmall?.adjustSize(-2).toLight,
+                    style: Theme.of(context).textTheme.titleSmall
+                        ?.adjustSize(-2)
+                        .toLight,
                   ),
                 ),
               ),

@@ -55,9 +55,8 @@ extension SubscriptionInfoExtension on SubscriptionInfo {
 
   String? get expireDesc {
     if (expire > 0) {
-      final expireDate = DateTime.fromMillisecondsSinceEpoch(
-        expire * 1000,
-      ).show;
+      final expireDate = DateTime.fromMillisecondsSinceEpoch(expire * 1000)
+          .show;
       final isExpired = expire * 1000 < DateTime.now().millisecondsSinceEpoch;
       return isExpired
           ? '${appLocalizations.expired} · $expireDate'

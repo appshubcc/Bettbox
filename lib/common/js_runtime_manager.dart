@@ -115,7 +115,7 @@ class JavaScriptRuntimeManager {
     return _ScriptOptionsCache.get(_cacheKey(script));
   }
 
-  static Map<String, dynamic> _deepCastMap(Map dynamicMap) {
+  static Map<String, dynamic> _deepCastMap(Map<dynamic, dynamic> dynamicMap) {
     return dynamicMap.map<String, dynamic>((key, value) {
       return MapEntry(key.toString(), _deepCastValue(value));
     });

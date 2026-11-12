@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:bett_box/common/common.dart';
 import 'package:bett_box/enum/enum.dart';
 import 'package:bett_box/models/models.dart';
@@ -218,10 +220,7 @@ class _MergeProfileViewState extends ConsumerState<MergeProfileView> {
                 SegmentButtonGroup<ProfileUsageStyle>(
                   options: [
                     for (final style in ProfileUsageStyle.values)
-                      SegmentOption(
-                        value: style,
-                        label: style.localizedName,
-                      ),
+                      SegmentOption(value: style, label: style.localizedName),
                   ],
                   selected: _usageStyle,
                   onSelected: (style) => update(() => _usageStyle = style),
@@ -270,7 +269,7 @@ class _MergeProfileViewState extends ConsumerState<MergeProfileView> {
 
   Future<void> _handleConfirm() async {
     if (_members.isEmpty) {
-      context.showNotifier(appLocalizations.bundleNoMembers);
+      unawaited(context.showNotifier(appLocalizations.bundleNoMembers));
       return;
     }
     final appController = globalState.appController;
@@ -326,9 +325,11 @@ class _MergeProfileViewState extends ConsumerState<MergeProfileView> {
     );
     Navigator.of(context).pop();
     if (!changed) return;
-    appController.safeRun(
-      () => appController.generateBundle(id),
-      silence: false,
+    unawaited(
+      appController.safeRun(
+        () => appController.generateBundle(id),
+        silence: false,
+      ),
     );
   }
 

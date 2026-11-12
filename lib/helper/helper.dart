@@ -117,7 +117,7 @@ class HelperRpcException implements Exception {
 }
 
 class HelperClient {
-  HelperClient({required HelperTransport transport}) : _transport = transport;
+  HelperClient({required this._transport});
 
   final HelperTransport _transport;
   final Random _random = Random.secure();

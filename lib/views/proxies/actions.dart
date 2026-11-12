@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:bett_box/clash/clash.dart';
 import 'package:bett_box/common/common.dart';
 import 'package:bett_box/enum/enum.dart';
@@ -178,7 +180,7 @@ Future<void> _checkIpRisk(BuildContext context, String proxyName) async {
       }
       return info;
     } finally {
-      clashCore.stopToolProxy();
+      unawaited(clashCore.stopToolProxy());
     }
   }, needLoading: true);
   if (info == null || !context.mounted) return;

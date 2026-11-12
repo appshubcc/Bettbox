@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:bett_box/common/common.dart';
@@ -30,12 +31,14 @@ Future<void> _updateProfile(Profile profile) async {
     await appController.updateProfile(profile, applyUnchanged: false);
   } on Object catch (e) {
     appController.setProfile(profile.copyWith(isUpdating: false));
-    globalState.showMessage(
-      title: appLocalizations.tip,
-      message: TextSpan(
-        text: '${profile.label ?? profile.id}: ${e.formatError}',
+    unawaited(
+      globalState.showMessage(
+        title: appLocalizations.tip,
+        message: TextSpan(
+          text: '${profile.label ?? profile.id}: ${e.formatError}',
+        ),
+        cancelable: false,
       ),
-      cancelable: false,
     );
   }
 }

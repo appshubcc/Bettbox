@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:bett_box/common/archive.dart';
@@ -134,7 +135,7 @@ class _BackupAndRecoveryState extends ConsumerState<BackupAndRecovery> {
     if (recoveryOption == null || !context.mounted) return;
 
     final fileName = selectedFile.name ?? client.fileName;
-    _recoveryOnWebDAV(context, client, fileName, recoveryOption);
+    unawaited(_recoveryOnWebDAV(context, client, fileName, recoveryOption));
   }
 
   Future<void> _backupOnLocal(BuildContext context) async {
@@ -195,7 +196,7 @@ class _BackupAndRecoveryState extends ConsumerState<BackupAndRecovery> {
       child: const RecoveryOptionsDialog(),
     );
     if (recoveryOption == null || !context.mounted) return;
-    _recoveryOnLocal(recoveryOption);
+    unawaited(_recoveryOnLocal(recoveryOption));
   }
 
   String? _validateBackupPassword(String? value) {
@@ -244,7 +245,7 @@ class _BackupAndRecoveryState extends ConsumerState<BackupAndRecovery> {
     final recoveryStrategy = ref.read(
       appSettingProvider.select((state) => state.recoveryStrategy),
     );
-    final res = await globalState.showAdaptiveSheet(
+    final res = await globalState.showAdaptiveSheet<RecoveryStrategy>(
       child: OptionsDialog<RecoveryStrategy>(
         title: appLocalizations.recoveryStrategy,
         options: RecoveryStrategy.values,

@@ -36,7 +36,7 @@ class _CleanButtonState extends State<CleanButton>
   Future<void> _handle() async {
     final onClean = widget.onClean;
     if (onClean == null || _phase != _CleanPhase.idle) return;
-    if (system.isAndroid) HapticFeedback.lightImpact();
+    if (system.isAndroid) unawaited(HapticFeedback.lightImpact());
     setState(() => _phase = _CleanPhase.running);
     _spin.repeat();
     final minDuration = Future<void>.delayed(const Duration(milliseconds: 700));
@@ -53,7 +53,7 @@ class _CleanButtonState extends State<CleanButton>
     }
     globalState.showNotifier(message);
     if (!mounted) return;
-    if (system.isAndroid) HapticFeedback.mediumImpact();
+    if (system.isAndroid) unawaited(HapticFeedback.mediumImpact());
     _spin.stop();
     setState(() => _phase = _CleanPhase.done);
     _resetTimer = Timer(const Duration(milliseconds: 1500), () {
@@ -65,17 +65,20 @@ class _CleanButtonState extends State<CleanButton>
   @override
   Widget build(BuildContext context) {
     final icon = switch (_phase) {
-      _CleanPhase.idle => const Icon(
-        Icons.cleaning_services_outlined,
-        key: ValueKey(_CleanPhase.idle),
+      _CleanPhase.idle => Icon(
+        context.resolveIcon(Icons.cleaning_services_outlined),
+        key: const ValueKey(_CleanPhase.idle),
       ),
       _CleanPhase.running => RotationTransition(
         key: const ValueKey(_CleanPhase.running),
         turns: _spin,
-        child: Icon(Icons.sync_rounded, color: context.colorScheme.primary),
+        child: Icon(
+          context.resolveIcon(Icons.sync_rounded),
+          color: context.colorScheme.primary,
+        ),
       ),
       _CleanPhase.done => Icon(
-        Icons.check_rounded,
+        context.resolveIcon(Icons.check_rounded),
         key: const ValueKey(_CleanPhase.done),
         color: context.colorScheme.primary,
       ),

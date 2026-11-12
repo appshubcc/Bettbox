@@ -623,6 +623,7 @@ _ThemeProps _$ThemePropsFromJson(Map<String, dynamic> json) => _ThemeProps(
       : TextScale.fromJson(json['textScale'] as Map<String, dynamic>),
   useDarkIcon: json['useDarkIcon'] as bool? ?? false,
   useHarmonyFont: json['useHarmonyFont'] as bool? ?? false,
+  usePhosphorIcons: json['usePhosphorIcons'] as bool? ?? false,
   invertTrayIcon: json['invertTrayIcon'] as bool? ?? false,
 );
 
@@ -635,6 +636,7 @@ Map<String, dynamic> _$ThemePropsToJson(_ThemeProps instance) =>
       'textScale': instance.textScale,
       'useDarkIcon': instance.useDarkIcon,
       'useHarmonyFont': instance.useHarmonyFont,
+      'usePhosphorIcons': instance.usePhosphorIcons,
       'invertTrayIcon': instance.invertTrayIcon,
     };
 

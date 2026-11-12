@@ -425,7 +425,7 @@ class _ToolViewState extends ConsumerState<ToolsView> {
         onTap: (context, _) async {
           final accepted = await globalState.appController.showDisclaimer();
           if (!accepted) {
-            globalState.appController.handleExit();
+            unawaited(globalState.appController.handleExit());
           }
         },
       ),
@@ -1311,6 +1311,7 @@ class _ToolViewState extends ConsumerState<ToolsView> {
                   leading: item.leading,
                   title: Text(item.title),
                   subtitle: item.subtitle != null ? Text(item.subtitle!) : null,
+                  disableSplash: true,
                   onTap: () => item.onTap(context, ref),
                 ),
               )
@@ -1325,7 +1326,7 @@ class _ToolViewState extends ConsumerState<ToolsView> {
   Widget build(BuildContext context) {
     final vm2 = ref.watch(
       appSettingProvider.select(
-        (state) => VM2(a: state.locale, b: state.developerMode),
+        (state) => (a: state.locale, b: state.developerMode),
       ),
     );
     final isMobileView = ref.watch(isMobileViewProvider);
@@ -1642,7 +1643,7 @@ class _DisclaimerItem extends _ToolsItem {
         final isDisclaimerAccepted = await globalState.appController
             .showDisclaimer();
         if (!isDisclaimerAccepted) {
-          globalState.appController.handleExit();
+          unawaited(globalState.appController.handleExit());
         }
       },
     );

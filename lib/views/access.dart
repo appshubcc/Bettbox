@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:bett_box/common/common.dart';
 import 'package:bett_box/enum/enum.dart';
@@ -11,52 +12,48 @@ import 'package:bett_box/widgets/widgets.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_riverpod/legacy.dart';
 
 final _packageNameRegex = RegExp(r'^[a-zA-Z0-9_]+(\.[a-zA-Z0-9_]+)+$');
 final _packageSplitRegex = RegExp(r'[\n,\s]+');
 
-final _packageIconCache = <String, Uint8List?>{};
-final _packageIconPending = <String, Future<Uint8List?>>{};
+final _packageIconPathCache = <String, String?>{};
+final _packageIconPathPending = <String, Future<String?>>{};
 const _maxPackageIconCacheSize = 256;
 
-void _cachePackageIcon(String packageName, Uint8List? bytes) {
-  _packageIconCache.remove(packageName);
-  while (_packageIconCache.length >= _maxPackageIconCacheSize) {
-    _packageIconCache.remove(_packageIconCache.keys.first);
+void _cachePackageIconPath(String packageName, String? path) {
+  _packageIconPathCache.remove(packageName);
+  while (_packageIconPathCache.length >= _maxPackageIconCacheSize) {
+    _packageIconPathCache.remove(_packageIconPathCache.keys.first);
   }
-  _packageIconCache[packageName] = bytes;
+  _packageIconPathCache[packageName] = path;
 }
 
-Future<Uint8List?> _getPackageIcon(
+Future<String?> _getPackageIconPath(
   String packageName, {
   bool forceRefresh = false,
 }) {
   if (forceRefresh) {
-    _packageIconCache.remove(packageName);
-    _packageIconPending.remove(packageName);
+    _packageIconPathCache.remove(packageName);
+    _packageIconPathPending.remove(packageName);
   }
-  if (_packageIconCache.containsKey(packageName)) {
-    final bytes = _packageIconCache[packageName];
-    _cachePackageIcon(packageName, bytes);
-    return Future.value(bytes);
+  if (_packageIconPathCache.containsKey(packageName)) {
+    final path = _packageIconPathCache[packageName];
+    _cachePackageIconPath(packageName, path);
+    return Future.value(path);
   }
-  return _packageIconPending.putIfAbsent(packageName, () async {
+  return _packageIconPathPending.putIfAbsent(packageName, () async {
     try {
-      final bytes = await app.getPackageIcon(
+      final path = await app.getPackageIconPath(
         packageName,
         forceRefresh: forceRefresh,
       );
-      _cachePackageIcon(packageName, bytes);
-      return bytes;
+      _cachePackageIconPath(packageName, path);
+      return path;
     } finally {
-      _packageIconPending.remove(packageName);
+      unawaited(_packageIconPathPending.remove(packageName));
     }
   });
 }
-
-// Force refresh icon flag
-final forceRefreshIconProvider = StateProvider<bool>((ref) => false);
 
 class AccessView extends ConsumerStatefulWidget {
   const AccessView({super.key});
@@ -342,17 +339,17 @@ class _AccessViewState extends ConsumerState<AccessView>
         // Reload app list (auto-checks and requests permissions)
         await globalState.appController.safeRun(() async {
           // Clear cache, force reload
-          _packageIconCache.clear();
-          _packageIconPending.clear();
+          _packageIconPathCache.clear();
+          _packageIconPathPending.clear();
           // Mark as force refresh mode
-          ref.read(forceRefreshIconProvider.notifier).state = true;
+          ref.read(forceRefreshIconProvider.notifier).value = true;
           await _checkPermissionAndLoadPackages(
             interactive: true,
             forceReload: true,
           );
           // Reset force refresh flag
           if (mounted) {
-            ref.read(forceRefreshIconProvider.notifier).state = false;
+            ref.read(forceRefreshIconProvider.notifier).value = false;
           }
         }, needLoading: true);
 
@@ -447,7 +444,7 @@ class _AccessViewState extends ConsumerState<AccessView>
           },
         );
         if (res == 1) {
-          _intelligentSelected();
+          unawaited(_intelligentSelected());
         }
       },
       icon: const Icon(Icons.tune),
@@ -573,9 +570,9 @@ class _AccessViewState extends ConsumerState<AccessView>
                                                   .textTheme
                                                   .labelLarge
                                                   ?.copyWith(
-                                                    color: Theme.of(
-                                                      context,
-                                                    ).colorScheme.primary,
+                                                    color: Theme.of(context)
+                                                        .colorScheme
+                                                        .primary,
                                                   ),
                                             ),
                                           ),
@@ -589,9 +586,9 @@ class _AccessViewState extends ConsumerState<AccessView>
                                                   .textTheme
                                                   .labelLarge
                                                   ?.copyWith(
-                                                    color: Theme.of(
-                                                      context,
-                                                    ).colorScheme.primary,
+                                                    color: Theme.of(context)
+                                                        .colorScheme
+                                                        .primary,
                                                   ),
                                             ),
                                           ),
@@ -646,53 +643,38 @@ class _AccessViewState extends ConsumerState<AccessView>
                           ? NullStatus(label: appLocalizations.noData)
                           : CommonScrollBar(
                               controller: _controller,
-                              child: ListView.separated(
+                              child: ListView.builder(
                                 controller: _controller,
                                 itemCount: packages.length,
                                 padding: const EdgeInsets.only(
                                   bottom: 24,
                                   top: 4,
                                 ),
+                                prototypeItem: _PackageRow(
+                                  package: packages.first,
+                                  value: false,
+                                  isActive: accessControl.enable,
+                                  onChanged: (_) {},
+                                ),
                                 itemBuilder: (_, index) {
                                   final package = packages[index];
-                                  return Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 16,
+                                  return _PackageRow(
+                                    key: Key(package.packageName),
+                                    package: package,
+                                    value: selectedSet.contains(
+                                      package.packageName,
                                     ),
-                                    child: PackageListItem(
-                                      key: Key(package.packageName),
-                                      package: package,
-                                      value: selectedSet.contains(
-                                        package.packageName,
-                                      ),
-                                      isActive: accessControl.enable,
-                                      onChanged: (value) {
-                                        _handleSelected(
-                                          selectedSet,
-                                          package,
-                                          value,
-                                        );
-                                      },
-                                    ),
+                                    isActive: accessControl.enable,
+                                    showDivider: index < packages.length - 1,
+                                    onChanged: (value) {
+                                      _handleSelected(
+                                        selectedSet,
+                                        package,
+                                        value,
+                                      );
+                                    },
                                   );
                                 },
-                                separatorBuilder: (context, _) => Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 16,
-                                  ),
-                                  child: Divider(
-                                    height: 1,
-                                    thickness: 1,
-                                    color: context.colorScheme.outlineVariant
-                                        .withValues(
-                                          alpha:
-                                              context.colorScheme.brightness ==
-                                                  Brightness.light
-                                              ? 0.3
-                                              : 0.2,
-                                        ),
-                                  ),
-                                ),
                               ),
                             );
                     },
@@ -703,6 +685,53 @@ class _AccessViewState extends ConsumerState<AccessView>
           ),
         ),
       ],
+    );
+  }
+}
+
+class _PackageRow extends StatelessWidget {
+  final Package package;
+  final bool value;
+  final bool isActive;
+  final bool showDivider;
+  final void Function(bool?) onChanged;
+
+  const _PackageRow({
+    super.key,
+    required this.package,
+    required this.value,
+    required this.isActive,
+    required this.onChanged,
+    this.showDivider = true,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = context.colorScheme;
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          PackageListItem(
+            package: package,
+            value: value,
+            isActive: isActive,
+            onChanged: onChanged,
+          ),
+          Divider(
+            height: 1,
+            thickness: 1,
+            color: showDivider
+                ? colorScheme.outlineVariant.withValues(
+                    alpha: colorScheme.brightness == Brightness.light
+                        ? 0.3
+                        : 0.2,
+                  )
+                : Colors.transparent,
+          ),
+        ],
+      ),
     );
   }
 }
@@ -754,22 +783,26 @@ class PackageIcon extends ConsumerWidget {
     return SizedBox(
       width: 48,
       height: 48,
-      child: FutureBuilder<Uint8List?>(
-        initialData: _packageIconCache[packageName],
-        future: _getPackageIcon(packageName, forceRefresh: forceRefresh),
+      child: FutureBuilder<String?>(
+        initialData: _packageIconPathCache[packageName],
+        future: _getPackageIconPath(packageName, forceRefresh: forceRefresh),
         builder: (context, snapshot) {
-          final data = snapshot.data;
-          if (data == null) return _buildDefaultIcon(context);
-          final cacheSize = (48 * MediaQuery.devicePixelRatioOf(context))
-              .ceil();
-          return Image.memory(
-            data,
+          final path = snapshot.data;
+          if (path == null || path.isEmpty) return _buildDefaultIcon(context);
+          return Image.file(
+            File(path),
             gaplessPlayback: true,
             width: 48,
             height: 48,
-            cacheWidth: cacheSize,
-            cacheHeight: cacheSize,
-            errorBuilder: (_, _, _) => _buildDefaultIcon(context),
+            cacheWidth: 48,
+            cacheHeight: 48,
+            useLogicalCacheSize: true,
+            errorBuilder: (_, _, _) {
+              if (_packageIconPathCache[packageName] == path) {
+                _packageIconPathCache.remove(packageName);
+              }
+              return _buildDefaultIcon(context);
+            },
           );
         },
       ),
@@ -783,7 +816,7 @@ class PackageIcon extends ConsumerWidget {
         borderRadius: BorderRadius.circular(8),
       ),
       child: Icon(
-        Icons.apps,
+        context.resolveIcon(Icons.apps),
         size: 24,
         color: context.colorScheme.onSurfaceVariant,
       ),
@@ -921,11 +954,11 @@ class _PackagePickerPanelState extends ConsumerState<PackagePickerPanel> {
               onChanged: (value) => setState(() => _query = value),
               decoration: InputDecoration(
                 hintText: appLocalizations.search,
-                prefixIcon: const Icon(Icons.search),
+                prefixIcon: Icon(context.resolveIcon(Icons.search)),
                 suffixIcon: _query.isEmpty
                     ? null
                     : IconButton(
-                        icon: const Icon(Icons.clear),
+                        icon: Icon(context.resolveIcon(Icons.clear)),
                         onPressed: () {
                           _queryController.clear();
                           setState(() => _query = '');
@@ -940,7 +973,9 @@ class _PackagePickerPanelState extends ConsumerState<PackagePickerPanel> {
               child: Row(
                 children: [
                   Icon(
-                    isAccept ? Icons.adjust_outlined : Icons.block_outlined,
+                    context.resolveIcon(
+                      isAccept ? Icons.adjust_outlined : Icons.block_outlined,
+                    ),
                     size: 18,
                     color: colorScheme.primary,
                   ),
@@ -970,7 +1005,9 @@ class _PackagePickerPanelState extends ConsumerState<PackagePickerPanel> {
                       return RepaintBoundary(
                         key: Key(package.packageName),
                         child: ListItem(
-                          leading: PackageIcon(packageName: package.packageName),
+                          leading: PackageIcon(
+                            packageName: package.packageName,
+                          ),
                           title: EmojiText(
                             package.label,
                             style: const TextStyle(
@@ -1009,7 +1046,7 @@ class _PackagePickerPanelState extends ConsumerState<PackagePickerPanel> {
   }
 }
 
-class AccessControlSearchDelegate extends SearchDelegate {
+class AccessControlSearchDelegate extends SearchDelegate<dynamic> {
   List<String> acceptList = [];
   List<String> rejectList = [];
 
@@ -1343,7 +1380,9 @@ class _AccessControlPanelState extends ConsumerState<AccessControlPanel> {
 
       AccessControl newAccessControl;
       try {
-        newAccessControl = AccessControl.fromJson(json.decode(text));
+        newAccessControl = AccessControl.fromJson(
+          json.decode(text) as Map<String, Object?>,
+        );
       } catch (_) {
         final packages = text
             .split(_packageSplitRegex)

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 import 'dart:ui' as ui;
 
@@ -46,6 +47,7 @@ class ThemeView extends ConsumerWidget {
 
     final toggleItems = <Widget>[
       if (shouldShowHarmonyFont) const _HarmonyFontItem(),
+      const _PhosphorIconsItem(),
       if (system.isAndroid) const _DarkIconItem(),
       if (system.isWindows) const _TrayIconInvertItem(),
       const _TextScaleFactorItem(),
@@ -207,8 +209,10 @@ class _PrimaryColorItemState extends ConsumerState<_PrimaryColorItem> {
       themeSettingProvider.select((state) => state.primaryColors.contains(res)),
     );
     if (isExists && mounted) {
-      context.showNotifier(
-        appLocalizations.existsTip(appLocalizations.colorSchemes),
+      unawaited(
+        context.showNotifier(
+          appLocalizations.existsTip(appLocalizations.colorSchemes),
+        ),
       );
       return;
     }
@@ -257,7 +261,7 @@ class _PrimaryColorItemState extends ConsumerState<_PrimaryColorItem> {
 
     return ItemCard(
       info: Info(label: appLocalizations.themeColor, iconData: Icons.palette),
-      actions: genActions([
+      actions: genActions(context, [
         FilledButton(
           style: const ButtonStyle(visualDensity: VisualDensity.compact),
           onPressed: isDynamic ? null : _handleChangeSchemeVariant,
@@ -273,7 +277,7 @@ class _PrimaryColorItemState extends ConsumerState<_PrimaryColorItem> {
             padding: const EdgeInsets.all(4),
             visualDensity: VisualDensity.compact,
             onPressed: _handleReset,
-            icon: const Icon(Icons.replay),
+            icon: Icon(context.resolveIcon(Icons.replay)),
           ),
       ], space: 8),
       child: Container(
@@ -358,6 +362,41 @@ class _HarmonyFontItem extends ConsumerWidget {
           ref
               .read(themeSettingProvider.notifier)
               .updateState((state) => state.copyWith(useHarmonyFont: value));
+        },
+      ),
+    );
+  }
+}
+
+class _PhosphorIconsItem extends ConsumerWidget {
+  const _PhosphorIconsItem();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final usePhosphorIcons = ref.watch(
+      themeSettingProvider.select((state) => state.usePhosphorIcons),
+    );
+    final textTheme = Theme.of(context).textTheme;
+    final onSurfaceVariant = context.colorScheme.onSurfaceVariant;
+    return ListItem.switchItem(
+      leading: const Icon(Icons.style_outlined),
+      horizontalTitleGap: 12,
+      title: Text(
+        appLocalizations.phosphorIcons,
+        style: textTheme.titleSmall?.copyWith(color: onSurfaceVariant),
+      ),
+      subtitle: Text(
+        appLocalizations.phosphorIconsDesc,
+        style: textTheme.bodySmall?.copyWith(
+          color: onSurfaceVariant.withValues(alpha: 0.7),
+        ),
+      ),
+      delegate: SwitchDelegate(
+        value: usePhosphorIcons,
+        onChanged: (value) {
+          ref
+              .read(themeSettingProvider.notifier)
+              .updateState((state) => state.copyWith(usePhosphorIcons: value));
         },
       ),
     );
@@ -457,9 +496,8 @@ class _TextScaleFactorItem extends ConsumerWidget {
             horizontalTitleGap: 12,
             title: Text(
               appLocalizations.textScale,
-              style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                color: context.colorScheme.onSurfaceVariant,
-              ),
+              style: Theme.of(context).textTheme.titleSmall
+                  ?.copyWith(color: context.colorScheme.onSurfaceVariant),
             ),
             delegate: SwitchDelegate(
               value: enable,
@@ -744,9 +782,9 @@ class _SliderDefaultsM3 extends SliderThemeData {
   Color? get overlayColor => _overlayColor;
 
   @override
-  TextStyle? get valueIndicatorTextStyle => Theme.of(
-    context,
-  ).textTheme.labelLarge?.copyWith(color: _colors.onInverseSurface);
+  TextStyle? get valueIndicatorTextStyle =>
+      Theme.of(context).textTheme.labelLarge
+          ?.copyWith(color: _colors.onInverseSurface);
 
   @override
   Color? get valueIndicatorColor => _colors.inverseSurface;

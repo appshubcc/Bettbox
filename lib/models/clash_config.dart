@@ -199,7 +199,7 @@ abstract class Sniffer with _$Sniffer {
   }
 }
 
-List<String> _formJsonPorts(List? ports) {
+List<String> _formJsonPorts(List<dynamic>? ports) {
   return ports?.map((item) => item.toString()).toList() ?? [];
 }
 
@@ -474,7 +474,8 @@ Map<String, Object?> _migrateLegacyGeoSite(Map<String, Object?> json) {
     ...json,
     if (migrateFilter)
       'fake-ip-filter': {
-        for (final item in filter) ...(_legacyFakeIpFilter[item] ?? [item]),
+        for (final item in filter)
+          ...(_legacyFakeIpFilter[item] ?? [item as String]),
       }.toList(),
     if (migratePolicy)
       'nameserver-policy': <String, Object?>{
@@ -710,16 +711,16 @@ List<Rule> _genRule(List<dynamic>? rules) {
   if (rules == null) {
     return [];
   }
-  return rules.map((item) => Rule.value(item)).toList();
+  return rules.map((item) => Rule.value(item as String)).toList();
 }
 
-List<RuleProvider> _genRuleProviders(Map json) {
+List<RuleProvider> _genRuleProviders(Map<dynamic, dynamic> json) {
   return json.entries
       .map((entry) => RuleProvider(name: entry.key.toString()))
       .toList();
 }
 
-List<SubRule> _genSubRules(Map json) {
+List<SubRule> _genSubRules(Map<dynamic, dynamic> json) {
   return json.entries
       .map((entry) => SubRule(name: entry.key.toString()))
       .toList();

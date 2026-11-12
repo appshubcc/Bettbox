@@ -26,9 +26,9 @@ mixin ClashInterface {
 
   Future<String> importProfile(String params);
 
-  Future<Result> getRuntimeConfig(SetupParams setupParams);
+  Future<Result<dynamic>> getRuntimeConfig(SetupParams setupParams);
 
-  Future<Result> exportConfig(
+  Future<Result<dynamic>> exportConfig(
     String path,
     String output, {
     String? ageSecretKey,
@@ -36,11 +36,11 @@ mixin ClashInterface {
     bool refresh,
   });
 
-  Future<Result> mergeProfiles(String params);
+  Future<Result<dynamic>> mergeProfiles(String params);
 
   FutureOr<String> decryptAgeConfig(String data, String ageSecretKey);
 
-  FutureOr<Result> getConfig(
+  FutureOr<Result<dynamic>> getConfig(
     String path, {
     String? ageSecretKey,
     List<String> disabledGroups,
@@ -204,7 +204,7 @@ ActionResult? decodeActionResult(String message) {
 }
 
 abstract class ClashHandlerInterface with ClashInterface {
-  Map<String, Completer> callbackCompleterMap = {};
+  Map<String, Completer<dynamic>> callbackCompleterMap = {};
   final Map<String, Object> _requestChannels = {};
 
   Future<void> handleResult(ActionResult result) async {
@@ -213,7 +213,7 @@ abstract class ClashHandlerInterface with ClashInterface {
     try {
       switch (result.method) {
         case ActionMethod.message:
-          clashMessage.controller.add(result.data);
+          clashMessage.controller.add(result.data as Map<String, Object?>);
           completer?.complete(true);
           return;
         case ActionMethod.getConfig:
@@ -302,7 +302,8 @@ abstract class ClashHandlerInterface with ClashInterface {
         mDefaultValue = <String, dynamic>{};
       }
     }
-    final FutureOr<T> Function() fallback = onTimeout ?? () => mDefaultValue;
+    final FutureOr<T> Function() fallback =
+        onTimeout ?? () => mDefaultValue as FutureOr<T>;
 
     try {
       final channel = await sendMessage(
@@ -406,8 +407,8 @@ abstract class ClashHandlerInterface with ClashInterface {
   }
 
   @override
-  Future<Result> getRuntimeConfig(SetupParams setupParams) {
-    return invoke<Result>(
+  Future<Result<dynamic>> getRuntimeConfig(SetupParams setupParams) {
+    return invoke<Result<dynamic>>(
       method: ActionMethod.getRuntimeConfig,
       data: json.encode(setupParams),
       timeout: const Duration(seconds: 60),
@@ -416,14 +417,14 @@ abstract class ClashHandlerInterface with ClashInterface {
   }
 
   @override
-  Future<Result> exportConfig(
+  Future<Result<dynamic>> exportConfig(
     String path,
     String output, {
     String? ageSecretKey,
     String? providersPath,
     bool refresh = false,
   }) {
-    return invoke<Result>(
+    return invoke<Result<dynamic>>(
       method: ActionMethod.exportConfig,
       data: json.encode({
         'path': path,
@@ -439,8 +440,8 @@ abstract class ClashHandlerInterface with ClashInterface {
   }
 
   @override
-  Future<Result> mergeProfiles(String params) {
-    return invoke<Result>(
+  Future<Result<dynamic>> mergeProfiles(String params) {
+    return invoke<Result<dynamic>>(
       method: ActionMethod.mergeProfiles,
       data: params,
       timeout: const Duration(seconds: 120),
@@ -467,7 +468,7 @@ abstract class ClashHandlerInterface with ClashInterface {
   }
 
   @override
-  Future<Result> getConfig(
+  Future<Result<dynamic>> getConfig(
     String path, {
     String? ageSecretKey,
     List<String> disabledGroups = const [],
@@ -479,7 +480,7 @@ abstract class ClashHandlerInterface with ClashInterface {
       'disabled-groups': disabledGroups,
       'snippet': snippet,
     };
-    final res = await invoke<Result>(
+    final res = await invoke<Result<dynamic>>(
       method: ActionMethod.getConfig,
       data: json.encode(params),
       timeout: const Duration(seconds: 60),
@@ -840,7 +841,7 @@ abstract class ClashHandlerInterface with ClashInterface {
 
   @override
   Future<Map<String, String>> generateAgeKeyPair({bool hybrid = false}) async {
-    final res = await invoke<Map>(
+    final res = await invoke<Map<dynamic, dynamic>>(
       method: ActionMethod.generateAgeKeyPair,
       data: hybrid ? 'mlkem768x25519' : 'x25519',
     );
@@ -851,7 +852,7 @@ abstract class ClashHandlerInterface with ClashInterface {
   Future<Result<String>> convertAgeSecretKeyToPublicKey(
     String secretKey,
   ) async {
-    final res = await invoke<Result>(
+    final res = await invoke<Result<dynamic>>(
       method: ActionMethod.convertAgeSecretKeyToPublicKey,
       data: secretKey,
       defaultValue: Result.error('error'),

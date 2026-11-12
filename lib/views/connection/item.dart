@@ -96,9 +96,8 @@ class TrackerInfoItem extends ConsumerWidget {
         : '';
     if (showSpeed) {
       final upSpeed = TrafficValue(value: trackerInfo.uploadSpeed).toString();
-      final downSpeed = TrafficValue(
-        value: trackerInfo.downloadSpeed,
-      ).toString();
+      final downSpeed = TrafficValue(value: trackerInfo.downloadSpeed)
+          .toString();
       return '$progress$upSpeed/s↑ $downSpeed/s↓';
     }
     final up = TrafficValue(value: trackerInfo.upload).toString();
@@ -333,9 +332,6 @@ class _ConnectionProcessIconState extends State<ConnectionProcessIcon> {
 
   @override
   Widget build(BuildContext context) {
-    final devicePixelRatio = MediaQuery.devicePixelRatioOf(context);
-    final cacheSize = (38 * devicePixelRatio).ceil();
-
     return RepaintBoundary(
       child: GestureDetector(
         onTap: () {
@@ -372,24 +368,17 @@ class _ConnectionProcessIconState extends State<ConnectionProcessIcon> {
                 }
                 return const SizedBox(width: 38, height: 38);
               }
-              if (system.isDesktop) {
-                return Image.memory(
-                  iconBytes,
-                  width: 38,
-                  height: 38,
-                  filterQuality: FilterQuality.medium,
-                  gaplessPlayback: true,
-                );
-              }
               return Image(
                 image: ResizeImage(
                   MemoryImage(iconBytes),
-                  width: cacheSize,
-                  height: cacheSize,
+                  width: 38,
+                  height: 38,
+                  useLogicalSize: true,
                   allowUpscaling: false,
                 ),
                 width: 38,
                 height: 38,
+                filterQuality: FilterQuality.medium,
                 gaplessPlayback: true,
               );
             },
@@ -867,9 +856,7 @@ class _RenderLeadingWrap extends RenderBox
     with
         ContainerRenderObjectMixin<RenderBox, _LeadingWrapParentData>,
         RenderBoxContainerDefaultsMixin<RenderBox, _LeadingWrapParentData> {
-  _RenderLeadingWrap({required double spacing, required double runSpacing})
-    : _spacing = spacing,
-      _runSpacing = runSpacing;
+  _RenderLeadingWrap({required this._spacing, required this._runSpacing});
 
   double _spacing;
   double _runSpacing;

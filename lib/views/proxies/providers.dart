@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
@@ -29,8 +30,8 @@ Future<void> updateExternalProviders(
   if (providers.isEmpty) return;
 
   final appController = globalState.appController;
-  final messages = [];
-  final updateProviders = providers.map<Future>((provider) async {
+  final messages = <String>[];
+  final updateProviders = providers.map<Future<void>>((provider) async {
     appController.setProvider(provider.copyWith(isUpdating: true));
     final message = await clashCore.updateExternalProvider(
       providerName: provider.name,
@@ -49,15 +50,17 @@ Future<void> updateExternalProviders(
     globalState.appController.applyProfileDebounce(silence: true);
   }
   if (messages.isNotEmpty) {
-    globalState.showMessage(
-      title: appLocalizations.tip,
-      message: TextSpan(
-        children: [
-          for (final message in messages)
-            TextSpan(text: message, style: titleMedium),
-        ],
+    unawaited(
+      globalState.showMessage(
+        title: appLocalizations.tip,
+        message: TextSpan(
+          children: [
+            for (final message in messages)
+              TextSpan(text: message, style: titleMedium),
+          ],
+        ),
+        cancelable: false,
       ),
-      cancelable: false,
     );
   }
 }
@@ -290,15 +293,17 @@ class ProviderItem extends StatelessWidget {
           if (decrypted.isNotEmpty) content = decrypted;
         }
         if (!context.mounted) return;
-        BaseNavigator.push(
-          context,
-          EditorPage(
-            title: '${appLocalizations.view} - ${provider.name}',
-            content: content,
-            readOnly: true,
-            simple: provider.type == 'Rule',
+        unawaited(
+          BaseNavigator.push(
+            context,
+            EditorPage(
+              title: '${appLocalizations.view} - ${provider.name}',
+              content: content,
+              readOnly: true,
+              simple: provider.type == 'Rule',
+            ),
+            maintainState: false,
           ),
-          maintainState: false,
         );
       },
       needLoading: true,

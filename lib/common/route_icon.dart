@@ -1,10 +1,7 @@
 final _routeIconKeyPattern = RegExp(r'[^a-z0-9]');
 final _routeTokenPattern = RegExp(r'[-_.]+');
 final _routeTrailingDigits = RegExp(r'\d+$');
-final routeWordPattern = RegExp(
-  r'[a-z0-9]+|[\p{Script=Han}]+',
-  unicode: true,
-);
+final routeWordPattern = RegExp(r'[a-z0-9]+|[\p{Script=Han}]+', unicode: true);
 final routeHanPattern = RegExp(r'[\p{Script=Han}]', unicode: true);
 
 const defaultRouteAliases = <String, String>{

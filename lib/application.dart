@@ -82,6 +82,7 @@ class ApplicationState extends ConsumerState<Application>
     final isLight = colorScheme.brightness == Brightness.light;
     return ThemeData(
       useMaterial3: true,
+      splashFactory: InkRipple.splashFactory,
       pageTransitionsTheme: _pageTransitionsTheme,
       scaffoldBackgroundColor: colorScheme.pageColor,
       appBarTheme: isLight ? _lightAppBarTheme : _darkAppBarTheme,
@@ -233,6 +234,9 @@ class ApplicationState extends ConsumerState<Application>
   }
 
   Future<void> _initApp() async {
+    unawaited(uiManager.initializeUI());
+    unawaited(ensureRustLib());
+    unawaited(preferences.flushStartupBackup());
     final currentContext = globalState.navigatorKey.currentContext;
     if (currentContext != null && currentContext != context) {
       globalState.appController = AppController(currentContext, ref);
@@ -247,11 +251,8 @@ class ApplicationState extends ConsumerState<Application>
     }
     globalState.appController.initLink();
     if (system.isAndroid) {
-      app.initShortcuts();
+      unawaited(app.initShortcuts());
     }
-    Future.delayed(const Duration(seconds: 3), () {
-      globalState.warmupCommonDialog();
-    });
   }
 
   @override
@@ -343,7 +344,7 @@ class ApplicationState extends ConsumerState<Application>
               if (!mounted) return;
               await system.updateDns(!ref.read(systemDnsTakeoverProvider));
             }
-            globalState.appController.updateLocalNetwork();
+            unawaited(globalState.appController.updateLocalNetwork());
             globalState.appController.addCheckIpNumDebounce();
           },
           child: child,
@@ -383,42 +384,47 @@ class ApplicationState extends ConsumerState<Application>
               genColorSchemeProvider(Brightness.dark),
             );
 
-            return MaterialApp(
-              debugShowCheckedModeBanner: false,
-              navigatorKey: globalState.navigatorKey,
-              navigatorObservers: [routeIdleObserver],
-              localizationsDelegates: const [
-                AppLocalizations.delegate,
-                ...GlobalMaterialLocalizations.delegates,
-              ],
-              builder: (_, child) {
-                return Directionality(
-                  textDirection: TextDirection.ltr,
-                  child: ValueListenableBuilder<bool>(
-                    valueListenable: globalState.animationEnabled,
-                    builder: (_, enabled, _) {
-                      return TickerMode(
-                        enabled: enabled,
-                        child: _buildApp(
-                          AppSidebarContainer(child: _buildPlatformApp(child!)),
-                        ),
-                      );
-                    },
-                  ),
-                );
-              },
-              scrollBehavior: BaseScrollBehavior(),
-              title: appName,
-              locale:
-                  utils.getLocaleForString(locale) ?? utils.getSystemLocale(),
-              supportedLocales: AppLocalizations.delegate.supportedLocales,
-              themeMode: themeProps.themeMode,
-              theme: _themeOf(lightColorScheme, fontFamily),
-              darkTheme: _themeOf(darkColorScheme, fontFamily),
-              home: child!,
+            return AppIconScope(
+              usePhosphorIcons: themeProps.usePhosphorIcons,
+              child: MaterialApp(
+                debugShowCheckedModeBanner: false,
+                navigatorKey: globalState.navigatorKey,
+                navigatorObservers: [routeIdleObserver],
+                localizationsDelegates: const [
+                  AppLocalizations.delegate,
+                  ...GlobalMaterialLocalizations.delegates,
+                ],
+                builder: (_, child) {
+                  return Directionality(
+                    textDirection: TextDirection.ltr,
+                    child: ValueListenableBuilder<bool>(
+                      valueListenable: globalState.animationEnabled,
+                      builder: (_, enabled, _) {
+                        return TickerMode(
+                          enabled: enabled,
+                          child: _buildApp(
+                            AppSidebarContainer(
+                              child: _buildPlatformApp(child!),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  );
+                },
+                scrollBehavior: BaseScrollBehavior(),
+                title: appName,
+                locale:
+                    utils.getLocaleForString(locale) ?? utils.getSystemLocale(),
+                supportedLocales: AppLocalizations.delegate.supportedLocales,
+                themeMode: themeProps.themeMode,
+                theme: _themeOf(lightColorScheme, fontFamily),
+                darkTheme: _themeOf(darkColorScheme, fontFamily),
+                home: child!,
+              ),
             );
           },
-          child: const HomePage(),
+          child: const RouteSnapshot(child: HomePage()),
         ),
       ),
     );

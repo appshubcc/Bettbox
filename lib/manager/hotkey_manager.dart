@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:bett_box/common/common.dart';
 import 'package:bett_box/enum/enum.dart';
 import 'package:bett_box/models/common.dart';
@@ -35,7 +37,7 @@ class _HotKeyManagerState extends ConsumerState<HotKeyManager> {
       case HotAction.start:
         globalState.appController.updateStart();
       case HotAction.view:
-        globalState.appController.updateVisible();
+        unawaited(globalState.appController.updateVisible());
       case HotAction.proxy:
         globalState.appController.updateSystemProxy();
       case HotAction.tun:
@@ -51,7 +53,7 @@ class _HotKeyManagerState extends ConsumerState<HotKeyManager> {
         .where((hotKeyAction) {
           return hotKeyAction.key != null && hotKeyAction.modifiers.isNotEmpty;
         })
-        .map<Future>((hotKeyAction) async {
+        .map<Future<void>>((hotKeyAction) async {
           final modifiers = hotKeyAction.modifiers
               .map((item) => item.toHotKeyModifier())
               .toList();

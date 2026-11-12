@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
@@ -193,7 +194,7 @@ class _SpeedTestPageState extends ConsumerState<SpeedTestPage>
       _settings = data.settings.normalized;
       _records = data.records;
     });
-    _runProbe();
+    unawaited(_runProbe());
   }
 
   List<Group> _groups() => ref.read(currentGroupsStateProvider).value;
@@ -426,7 +427,7 @@ class _SpeedTestPageState extends ConsumerState<SpeedTestPage>
       _proxy = result;
       _state = null;
     });
-    _runProbe();
+    unawaited(_runProbe());
   }
 
   Future<void> _openSettings() async {
@@ -644,7 +645,7 @@ class _SpeedTestPageState extends ConsumerState<SpeedTestPage>
     if (!mounted) return;
     final info = res?.data ?? fallback;
     if (info == null || info.ip.isEmpty) return;
-    showIpDetailDialog(context, info.ip, preloaded: info);
+    unawaited(showIpDetailDialog(context, info.ip, preloaded: info));
   }
 
   VoidCallback? _exitInfoAction(SpeedTestState? state) {
@@ -896,7 +897,9 @@ class _StartButton extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Icon(
-                  testing ? Icons.stop_rounded : Icons.play_arrow_rounded,
+                  context.resolveIcon(
+                    testing ? Icons.stop_rounded : Icons.play_arrow_rounded,
+                  ),
                   size: (isCompact ? 18.0 : 20.0) * scale,
                 ),
                 SizedBox(width: (6 * scale).roundToDouble()),
@@ -1055,10 +1058,12 @@ class _SpeedGauge extends StatelessWidget {
                                           ),
                                         )
                                       : Icon(
-                                          isUpload
-                                              ? Icons.arrow_circle_up_outlined
-                                              : Icons
-                                                    .arrow_circle_down_outlined,
+                                          context.resolveIcon(
+                                            isUpload
+                                                ? Icons.arrow_circle_up_outlined
+                                                : Icons
+                                                      .arrow_circle_down_outlined,
+                                          ),
                                           key: ValueKey((isUpload, false)),
                                           size: iconSize,
                                           color: color,
@@ -1494,7 +1499,11 @@ class _SpeedTile extends StatelessWidget {
               color: color.withValues(alpha: 0.14),
               shape: BoxShape.circle,
             ),
-            child: Icon(icon, size: 14 * scale, color: color),
+            child: Icon(
+              context.resolveIcon(icon),
+              size: 14 * scale,
+              color: color,
+            ),
           ),
           SizedBox(width: (7 * scale).roundToDouble()),
           Expanded(
@@ -1665,7 +1674,7 @@ class _OutboundCard extends StatelessWidget {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Icon(
-                              icon,
+                              context.resolveIcon(icon),
                               size: 14,
                               color: colorScheme.onSurfaceVariant,
                             ),
@@ -1703,7 +1712,7 @@ class _OutboundCard extends StatelessWidget {
             Padding(
               padding: const EdgeInsetsDirectional.only(start: 6),
               child: Icon(
-                Icons.unfold_more_rounded,
+                context.resolveIcon(Icons.unfold_more_rounded),
                 size: 20,
                 color: enabled
                     ? colorScheme.onSurfaceVariant
@@ -2499,9 +2508,9 @@ class _OutboundPickerState extends State<_OutboundPicker> {
               subtitle: appLocalizations.mediaBatchAllDesc,
               icon: Icons.done_all_rounded,
               isSelected: false,
-              onTap: () => Navigator.of(
-                context,
-              ).pop((scope: OutboundBatchScope.all, name: '')),
+              onTap: () =>
+                  Navigator.of(context)
+                      .pop((scope: OutboundBatchScope.all, name: '')),
             )
           else
             Row(
@@ -2623,7 +2632,7 @@ class _QuickOutboundCard extends StatelessWidget {
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: Icon(
-                          icon,
+                          context.resolveIcon(icon),
                           size: 19,
                           color: isSelected
                               ? colorScheme.primary
@@ -2684,8 +2693,8 @@ class _QuickOutboundCard extends StatelessWidget {
                     color: colorScheme.primary,
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(
-                    Icons.check_rounded,
+                  child: Icon(
+                    context.resolveIcon(Icons.check_rounded),
                     size: 11,
                     color: Colors.white,
                   ),
@@ -2761,7 +2770,7 @@ class _OutboundGroupCard extends ConsumerWidget {
                         child: icon.isNotEmpty
                             ? CommonTargetIcon(src: icon, size: 18)
                             : Icon(
-                                Icons.hub_outlined,
+                                context.resolveIcon(Icons.hub_outlined),
                                 size: 17,
                                 color: colorScheme.primary,
                               ),
@@ -2818,7 +2827,9 @@ class _OutboundGroupCard extends ConsumerWidget {
                         turns: isExpanded ? 0.5 : 0,
                         duration: const Duration(milliseconds: 200),
                         child: Icon(
-                          Icons.keyboard_arrow_down_rounded,
+                          context.resolveIcon(
+                            Icons.keyboard_arrow_down_rounded,
+                          ),
                           size: 20,
                           color: colorScheme.onSurfaceVariant,
                         ),
@@ -2839,8 +2850,8 @@ class _OutboundGroupCard extends ConsumerWidget {
                     color: colorScheme.primary,
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(
-                    Icons.check_rounded,
+                  child: Icon(
+                    context.resolveIcon(Icons.check_rounded),
                     size: 11,
                     color: Colors.white,
                   ),
@@ -3022,8 +3033,8 @@ class _OutboundProxyCard extends StatelessWidget {
                     color: colorScheme.primary,
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(
-                    Icons.check_rounded,
+                  child: Icon(
+                    context.resolveIcon(Icons.check_rounded),
                     size: 11,
                     color: Colors.white,
                   ),
@@ -3085,7 +3096,7 @@ class _HistorySheetState extends State<_HistorySheet> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Icon(
-                    Icons.history_toggle_off_rounded,
+                    context.resolveIcon(Icons.history_toggle_off_rounded),
                     size: 36,
                     color: context.colorScheme.outlineVariant,
                   ),
@@ -3159,9 +3170,8 @@ class _HistoryItem extends StatelessWidget {
         : record.proxy.isEmpty
         ? appLocalizations.speedTestFollowRules
         : record.proxy;
-    final time = DateTime.fromMillisecondsSinceEpoch(
-      record.time,
-    ).showFull.substring(5, 16);
+    final time = DateTime.fromMillisecondsSinceEpoch(record.time).showFull
+        .substring(5, 16);
     final valueStyle = context.textTheme.titleSmall?.copyWith(
       fontWeight: FontWeight.bold,
       fontFeatures: const [FontFeature.tabularFigures()],

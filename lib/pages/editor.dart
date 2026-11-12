@@ -516,7 +516,7 @@ class _EditorPageState extends ConsumerState<EditorPage> {
       _controller.replaceText(res);
       return;
     }
-    final url = await globalState.showCommonDialog(
+    final url = await globalState.showCommonDialog<String>(
       child: InputDialog(
         title: appLocalizations.import,
         value: '',
@@ -536,7 +536,7 @@ class _EditorPageState extends ConsumerState<EditorPage> {
       return;
     }
     final res = await request.getTextResponseForUrl(url);
-    _controller.replaceText(res.data);
+    _controller.replaceText(res.data as String);
     widget.onUrlImport?.call(url);
   }
 
@@ -667,7 +667,7 @@ class _EditorPageState extends ConsumerState<EditorPage> {
                 style: context.textTheme.titleLarge,
                 autofocus: false,
               ),
-              actions: genActions([
+              actions: genActions(context, [
                 if (widget.onSave != null && !readOnly)
                   _wrapTitleController(() {
                     final isNewScript = widget.title.isEmpty;

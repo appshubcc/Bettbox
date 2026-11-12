@@ -205,7 +205,7 @@ class _ScriptsViewState extends ConsumerState<ScriptsView> {
       title: appLocalizations.tip,
     );
     if (res == true && mounted) {
-      context.showNotifier(appLocalizations.exportSuccess);
+      unawaited(context.showNotifier(appLocalizations.exportSuccess));
     }
   }
 
@@ -262,15 +262,17 @@ class _ScriptsViewState extends ConsumerState<ScriptsView> {
   Future<void> _handleViewManaged() async {
     final script = await _loadManaged();
     if (script == null || !mounted) return;
-    BaseNavigator.push(
-      context,
-      EditorPage(
-        title: appLocalizations.managedMode,
-        content: script.content,
-        languages: const [Language.javaScript],
-        readOnly: true,
+    unawaited(
+      BaseNavigator.push(
+        context,
+        EditorPage(
+          title: appLocalizations.managedMode,
+          content: script.content,
+          languages: const [Language.javaScript],
+          readOnly: true,
+        ),
+        maintainState: false,
       ),
-      maintainState: false,
     );
   }
 
@@ -318,55 +320,57 @@ class _ScriptsViewState extends ConsumerState<ScriptsView> {
     final bundledContent = CodeForgeController.normalizeLineBreaks(
       data.bundled,
     );
-    BaseNavigator.push(
-      context,
-      EditorPage(
-        title: appLocalizations.managedMode,
-        content: savedContent,
-        defaultContent: bundledContent,
-        languages: const [Language.javaScript],
-        onReset: (_) async {
-          final res = await globalState.showMessage(
-            title: appLocalizations.restoreBundled,
-            message: TextSpan(text: appLocalizations.resetTip),
-          );
-          if (res != true || !mounted) return false;
-          final restored = await globalState.appController.safeRun<bool>(
-            () async {
-              await ManagedScript.restore();
-              return true;
-            },
-            silence: false,
-          );
-          if (restored != true || !mounted) return false;
-          savedContent = bundledContent;
-          if (ref.read(managedSettingProvider).syncedVersion != null) {
-            globalState.appController.updateManagedSetting(
-              (state) => state.copyWith(syncedVersion: null),
+    unawaited(
+      BaseNavigator.push(
+        context,
+        EditorPage(
+          title: appLocalizations.managedMode,
+          content: savedContent,
+          defaultContent: bundledContent,
+          languages: const [Language.javaScript],
+          onReset: (_) async {
+            final res = await globalState.showMessage(
+              title: appLocalizations.restoreBundled,
+              message: TextSpan(text: appLocalizations.resetTip),
             );
-          }
-          globalState.showNotifier(appLocalizations.success);
-          return true;
-        },
-        onSave: (editorContext, _, content) {
-          _handleManagedEditorSave(editorContext, content);
-        },
-        onPop: (editorContext, _, content) async {
-          if (content == savedContent) {
+            if (res != true || !mounted) return false;
+            final restored = await globalState.appController.safeRun<bool>(
+              () async {
+                await ManagedScript.restore();
+                return true;
+              },
+              silence: false,
+            );
+            if (restored != true || !mounted) return false;
+            savedContent = bundledContent;
+            if (ref.read(managedSettingProvider).syncedVersion != null) {
+              globalState.appController.updateManagedSetting(
+                (state) => state.copyWith(syncedVersion: null),
+              );
+            }
+            globalState.showNotifier(appLocalizations.success);
             return true;
-          }
-          final res = await globalState.showMessage(
-            message: TextSpan(text: appLocalizations.saveChanges),
-          );
-          if (res == true && editorContext.mounted) {
-            await _handleManagedEditorSave(editorContext, content);
-          } else {
-            return true;
-          }
-          return false;
-        },
+          },
+          onSave: (editorContext, _, content) {
+            _handleManagedEditorSave(editorContext, content);
+          },
+          onPop: (editorContext, _, content) async {
+            if (content == savedContent) {
+              return true;
+            }
+            final res = await globalState.showMessage(
+              message: TextSpan(text: appLocalizations.saveChanges),
+            );
+            if (res == true && editorContext.mounted) {
+              await _handleManagedEditorSave(editorContext, content);
+            } else {
+              return true;
+            }
+            return false;
+          },
+        ),
+        maintainState: false,
       ),
-      maintainState: false,
     );
   }
 
@@ -490,9 +494,8 @@ class _ScriptsViewState extends ConsumerState<ScriptsView> {
           builder: (_, rise) => CommonScrollBar(
             controller: null,
             child: ListView.separated(
-              padding: const EdgeInsets.all(
-                16,
-              ).copyWith(top: 16 + rise, bottom: 16 + 64),
+              padding: const EdgeInsets.all(16)
+                  .copyWith(top: 16 + rise, bottom: 16 + 64),
               itemCount: scripts.length + 1,
               separatorBuilder: (_, _) => const SizedBox(height: 10),
               itemBuilder: (context, index) {
@@ -657,11 +660,13 @@ class _ScriptsViewState extends ConsumerState<ScriptsView> {
           .read(scriptStateProvider.notifier)
           .isExits(draft.label);
       if (isExits) {
-        globalState.showMessage(
-          message: TextSpan(
-            text: appLocalizations.existsTip(appLocalizations.name),
+        unawaited(
+          globalState.showMessage(
+            message: TextSpan(
+              text: appLocalizations.existsTip(appLocalizations.name),
+            ),
+            cancelable: false,
           ),
-          cancelable: false,
         );
         return;
       }
@@ -700,12 +705,14 @@ class _ScriptsViewState extends ConsumerState<ScriptsView> {
       message: TextSpan(text: appLocalizations.saveChanges),
     );
     if (res == true && mounted) {
-      _handleEditorSave(
-        context,
-        title,
-        content,
-        script: script,
-        url: script?.url,
+      unawaited(
+        _handleEditorSave(
+          context,
+          title,
+          content,
+          script: script,
+          url: script?.url,
+        ),
       );
     } else {
       return true;
@@ -723,33 +730,41 @@ class _ScriptsViewState extends ConsumerState<ScriptsView> {
     final raw = initialContent ?? await script?.readContent() ?? scriptTemplate;
     if (!mounted) return;
     String? importedUrl = url ?? script?.url;
-    BaseNavigator.push(
-      context,
-      EditorPage(
-        titleEditable: true,
-        title: title,
-        supportRemoteDownload: true,
-        delayedFocus: delayedFocus,
-        onUrlImport: (downloadedUrl) {
-          importedUrl = downloadedUrl;
-        },
-        onSave: (context, title, content) {
-          final scriptToSave = script != null
-              ? script.copyWith(url: importedUrl)
-              : null;
-          _handleEditorSave(
-            context,
-            title,
-            content,
-            script: scriptToSave,
-            url: importedUrl,
-          );
-        },
-        onPop: (context, title, content) {
-          return _handleEditorPop(context, title, content, raw, script: script);
-        },
-        languages: const [Language.javaScript],
-        content: raw,
+    unawaited(
+      BaseNavigator.push(
+        context,
+        EditorPage(
+          titleEditable: true,
+          title: title,
+          supportRemoteDownload: true,
+          delayedFocus: delayedFocus,
+          onUrlImport: (downloadedUrl) {
+            importedUrl = downloadedUrl;
+          },
+          onSave: (context, title, content) {
+            final scriptToSave = script != null
+                ? script.copyWith(url: importedUrl)
+                : null;
+            _handleEditorSave(
+              context,
+              title,
+              content,
+              script: scriptToSave,
+              url: importedUrl,
+            );
+          },
+          onPop: (context, title, content) {
+            return _handleEditorPop(
+              context,
+              title,
+              content,
+              raw,
+              script: script,
+            );
+          },
+          languages: const [Language.javaScript],
+          content: raw,
+        ),
       ),
     );
   }
@@ -764,7 +779,7 @@ class _ScriptsViewState extends ConsumerState<ScriptsView> {
 
     switch (option) {
       case ImportOption.code:
-        _handleToEditor(delayedFocus: true);
+        unawaited(_handleToEditor(delayedFocus: true));
       case ImportOption.url:
         await _handleUrlImport();
       case ImportOption.file:
@@ -797,12 +812,16 @@ class _ScriptsViewState extends ConsumerState<ScriptsView> {
     try {
       final res = await request.getTextResponseForUrl(url);
       if (mounted) {
-        _handleToEditor(initialContent: res.data, url: url);
+        unawaited(
+          _handleToEditor(initialContent: res.data as String?, url: url),
+        );
       }
     } catch (e) {
-      globalState.showMessage(
-        message: TextSpan(text: '${appLocalizations.importFailed}: $e'),
-        cancelable: false,
+      unawaited(
+        globalState.showMessage(
+          message: TextSpan(text: '${appLocalizations.importFailed}: $e'),
+          cancelable: false,
+        ),
       );
     }
   }
@@ -818,7 +837,7 @@ class _ScriptsViewState extends ConsumerState<ScriptsView> {
     }
     final content = utf8.decode(bytes);
     if (mounted) {
-      _handleToEditor(initialContent: content);
+      unawaited(_handleToEditor(initialContent: content));
     }
   }
 
@@ -1341,7 +1360,9 @@ class _ScriptOptionTile extends StatelessWidget {
           contentPadding: const EdgeInsets.only(left: 16, right: 16),
           leading: _isValidIconUrl(iconUrl)
               ? CommonTargetIcon(src: iconUrl!, size: 24)
-              : Icon(_optionIcons[label] ?? Icons.alt_route),
+              : Icon(
+                  context.resolveIcon(_optionIcons[label] ?? Icons.alt_route),
+                ),
           title: EmojiText(label),
           trailing: Switch(value: value, onChanged: onChanged),
         ),

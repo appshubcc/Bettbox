@@ -187,7 +187,7 @@ class _AppStateManagerState extends ConsumerState<AppStateManager>
 
     if (isBackgroundState) {
       _missedUpdateCheckTimer?.cancel();
-      globalState.appController.savePreferences();
+      unawaited(globalState.appController.savePreferences());
       await globalState.handleBackground();
     } else if (state == AppLifecycleState.resumed) {
       globalState.handleForeground();
@@ -210,12 +210,12 @@ class _AppStateManagerState extends ConsumerState<AppStateManager>
     }
     if (state == AppLifecycleState.resumed && system.isAndroid) {
       final hidden = ref.read(appSettingProvider.select((s) => s.hidden));
-      app.updateExcludeFromRecents(hidden);
+      unawaited(app.updateExcludeFromRecents(hidden));
       SystemChrome.setSystemUIOverlayStyle(
         globalState.appState.systemUiOverlayStyle,
       );
     }
-    _updateDashboardRefreshState();
+    unawaited(_updateDashboardRefreshState());
   }
 
   @override
@@ -949,7 +949,7 @@ class _SidebarItemState extends State<_SidebarItem> {
 
     final iconWidget = IconTheme(
       data: IconThemeData(color: foregroundColor, size: _sidebarIconSize),
-      child: widget.icon,
+      child: context.resolveIconWidget(widget.icon) ?? widget.icon,
     );
 
     final expandedItemWidth = widget.expandedWidth - 18.0;
@@ -1123,7 +1123,7 @@ class _SidebarFlyoutState extends ConsumerState<_SidebarFlyout>
                 color: colorScheme.onSurfaceVariant,
                 size: _sidebarIconSize,
               ),
-              child: shortcut.icon,
+              child: context.resolveIconWidget(shortcut.icon) ?? shortcut.icon,
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -1156,10 +1156,7 @@ class _SidebarFlyoutState extends ConsumerState<_SidebarFlyout>
     );
   }
 
-  Widget _buildPanel(
-    BuildContext context,
-    List<ToolsShortcut> shortcuts,
-  ) {
+  Widget _buildPanel(BuildContext context, List<ToolsShortcut> shortcuts) {
     final itemBox = this.context.findRenderObject();
     final overlayBox = Overlay.of(this.context).context.findRenderObject();
     if (itemBox is! RenderBox || overlayBox is! RenderBox) {

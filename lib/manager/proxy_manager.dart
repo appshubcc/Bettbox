@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:bett_box/common/proxy.dart';
 import 'package:bett_box/models/models.dart';
 import 'package:bett_box/providers/state.dart';
@@ -19,9 +21,9 @@ class _ProxyManagerState extends ConsumerState<ProxyManager> {
     final systemProxy = proxyState.systemProxy;
     final port = proxyState.port;
     if (isStart && systemProxy) {
-      proxy?.startProxy(port, proxyState.bypassDomain);
+      unawaited(proxy?.startProxy(port, proxyState.bypassDomain));
     } else {
-      proxy?.stopProxy();
+      unawaited(proxy?.stopProxy());
     }
   }
 

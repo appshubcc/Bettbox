@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:bett_box/common/common.dart';
 import 'package:bett_box/models/models.dart';
 import 'package:bett_box/providers/providers.dart';
@@ -227,7 +228,7 @@ class _StartButtonState extends ConsumerState<StartButton> {
                             child: SizedBox.square(
                               dimension: 56,
                               child: Icon(
-                                icon,
+                                context.resolveIcon(icon),
                                 size: 30,
                                 color: colorScheme.primary,
                               ),
@@ -367,7 +368,7 @@ class _StartButtonState extends ConsumerState<StartButton> {
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
           Icon(
-            Icons.pause_circle_outline,
+            context.resolveIcon(Icons.pause_circle_outline),
             size: 20,
             color: context.colorScheme.outline,
           ),
@@ -415,7 +416,11 @@ class _StartButtonState extends ConsumerState<StartButton> {
       return Row(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          Icon(Icons.play_arrow, size: 16, color: context.colorScheme.primary),
+          Icon(
+            context.resolveIcon(Icons.play_arrow),
+            size: 16,
+            color: context.colorScheme.primary,
+          ),
           SizedBox(width: 4),
           Expanded(
             child: Text(
@@ -432,7 +437,11 @@ class _StartButtonState extends ConsumerState<StartButton> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
-        Icon(Icons.pause, size: 16, color: context.colorScheme.primary),
+        Icon(
+          context.resolveIcon(Icons.pause),
+          size: 16,
+          color: context.colorScheme.primary,
+        ),
         const SizedBox(width: 4),
         Text('  ', style: context.textTheme.bodyMedium?.toLight.adjustSize(1)),
         Expanded(

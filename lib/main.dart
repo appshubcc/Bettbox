@@ -48,7 +48,7 @@ Future<void> main(List<String> args) async {
         'SingleInstanceLock: another instance detected or lock failed, exiting',
       );
       if (!appPath.isPortable) {
-        await _sendControlCommand('show');
+        await _sendControlCommand('--show');
         await Future.delayed(const Duration(milliseconds: 100));
       }
       exit(0);
@@ -75,15 +75,33 @@ Future<void> main(List<String> args) async {
 
 /// 把命令行参数解析成控制命令。
 ///
-/// `--exit` / `--restart` 保持原有语义；其余不以 `-` 开头的参数按顺序拼成
-/// 一条命令（`Bettbox mode global` → `mode global`）。没有位置参数时返回
-/// `null`，走正常 GUI 启动。
+/// 有参数就是 CLI 调用：原样拼成一行交给正在运行的实例
+/// （`Bettbox profiles --select 魔戒` → `profiles --select 魔戒`），
+/// 语法与校验都在 ExternalControl/ControlCli 一侧，这里不做解释。
+/// 没有参数、或参数是桌面文件里的 `%U` 路径/URL 时返回 `null`，走正常 GUI 启动。
 String? _commandLineCommand(List<String> args) {
-  if (args.contains('--exit')) return 'exit';
-  if (args.contains('--restart')) return 'restart';
-  final positional = args.where((arg) => !arg.startsWith('-'));
-  if (positional.isEmpty) return null;
-  return positional.join(' ');
+  final tokens = args
+      .where((arg) => arg.isNotEmpty && !arg.startsWith('--gapplication'))
+      .toList();
+  if (tokens.isEmpty) return null;
+  if (tokens.any(_looksLikePathOrUrl)) return null;
+  return tokens.join(' ');
+}
+
+bool _looksLikePathOrUrl(String arg) =>
+    arg.startsWith('/') || arg.startsWith('./') || arg.contains('://');
+
+/// 失败判定：文本模式看 `error:` 前缀，`--json` 模式看 `"ok":false`。
+bool _isFailure(String? response) {
+  if (response == null) return false;
+  if (response.startsWith('error:')) return true;
+  if (!response.startsWith('{')) return false;
+  try {
+    final decoded = json.decode(response);
+    return decoded is Map && decoded['ok'] == false;
+  } catch (_) {
+    return false;
+  }
 }
 
 /// 把命令发给正在运行的实例。返回 (是否成功, 回执)。
@@ -92,8 +110,7 @@ Future<(bool, String?)> _sendControlCommand(String command) async {
     try {
       final response = await ExternalControl.sendCommand(command);
       commonPrint.log('Sent $command command to running instance');
-      final ok = response == null || !response.startsWith('error:');
-      return (ok, response);
+      return (!_isFailure(response), response);
     } on TimeoutException catch (e) {
       // 命令已经发出去了，重试会重复执行；直接报错。
       commonPrint.warn('Timed out waiting for $command response: $e');

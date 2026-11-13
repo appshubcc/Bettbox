@@ -2206,6 +2206,28 @@ class AppController {
         .toList();
   }
 
+  /// `settings` 作用域读取的字段集合（与 [controlSettableFields] 对应）。
+  Map<String, dynamic> controlSettings() {
+    final config = _ref.read(patchClashConfigProvider);
+    return {
+      'mixed-port': config.mixedPort,
+      'port': config.port,
+      'socks-port': config.socksPort,
+      'redir-port': config.redirPort,
+      'tproxy-port': config.tproxyPort,
+      'log-level': config.logLevel.name,
+      'ipv6': config.ipv6,
+      'tcp-concurrent': config.tcpConcurrent,
+      'unified-delay': config.unifiedDelay,
+      'allow-lan': config.allowLan,
+      'find-process-mode': config.findProcessMode.name,
+      'keep-alive-interval': config.keepAliveInterval,
+      'external-controller': config.externalController.name,
+      // 密钥不回显明文，只说明有没有设。
+      'secret': (config.secret ?? '').isEmpty ? null : '(set)',
+    };
+  }
+
   Profile? _findProfile(String idOrLabel) {
     return _ref
         .read(profilesProvider)

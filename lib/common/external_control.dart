@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:bett_box/common/common.dart';
-import 'package:bett_box/controller.dart';
+import 'package:bett_box/common/control_cli.dart';
 import 'package:bett_box/state.dart';
 import 'package:bett_box/utils/platform_check.dart';
 
@@ -229,79 +229,157 @@ class ExternalControl {
         resetMessages.any((m) => osError.message.contains(m));
   }
 
-  /// 命令表。带返回值的命令会把结果按单行写回同一个连接；
-  /// exit/restart/show 保持原有的「发了就不管」语义（返回 null）。
-  static const _helpText =
-      'commands: ping | status | profiles | profile [id|label] | '
-      'profile-update [id|label|all] | mode rule|global|direct | tun on|off | '
-      'set <field> <value> | core start|stop|restart|status | '
-      'apply | dns | show | exit | restart';
-
-  static Future<String?> _dispatch(String command) async {
-    final parts = command.split(RegExp(r'\s+'));
-    final name = parts.first.toLowerCase();
-    final args = parts.skip(1).toList();
-    final controller = globalState.appController;
-
-    switch (name) {
-      case 'exit':
-        await controller.handleExit();
-        return null;
-      case 'restart':
-        system.restartApp();
-        return null;
-      case 'show':
-        window?.show();
-        return null;
-      case 'ping':
-        return 'pong';
-      case 'status':
-        return json.encode(controller.controlStatus());
-      case 'profiles':
-        return json.encode(controller.controlProfiles());
-      case 'profile':
-        if (args.isEmpty) {
-          return 'error: usage: profile <id|label> (see: profiles)';
-        }
-        return controller.controlSwitchProfile(args.first);
-      case 'profile-update':
-        return controller.controlUpdateProfile(
-          args.isEmpty ? null : args.first,
-        );
-      case 'mode':
-        if (args.isEmpty) {
-          return 'error: usage: mode rule|global|direct';
-        }
-        return controller.controlSetMode(args.first);
-      case 'tun':
-        if (args.isEmpty) return 'error: usage: tun on|off';
-        return controller.controlSetTun(args.first);
-      case 'core':
-        return controller.controlCore(args.isEmpty ? 'status' : args.first);
-      case 'set':
-        if (args.isEmpty) {
-          return 'error: usage: set <field> <value> '
-              '(fields: ${AppController.controlSettableFields.join(', ')})';
-        }
-        // `set secret`（不带值）= 清除密钥，其余字段都必须带值。
-        if (args.length < 2 && args.first.toLowerCase() != 'secret') {
-          return 'error: usage: set <field> <value> '
-              '(fields: ${AppController.controlSettableFields.join(', ')})';
-        }
-        return controller.controlSet(
-          args.first,
-          args.length < 2 ? '' : args.sublist(1).join(' '),
-        );
-      case 'apply':
-        await controller.applyProfile();
-        return 'ok: config applied';
-      case 'dns':
-        await controller.flushDns();
-        return 'ok: dns flushed';
-      case 'help':
-        return _helpText;
-      default:
-        return 'error: unknown command: $name ($_helpText)';
+  /// 执行一条命令：语法由 [ControlCli] 归一化，这里只做分发。
+  ///
+  /// 回执是 0..N 行文本，写完即关连接；首行以 `error:` 开头表示失败。
+  /// `--exit` / `--restart` / `--show` 保持原语义：动作发出后直接断开，没有回执。
+  static Future<String?> _dispatch(String line) async {
+    final ControlCommand command;
+    try {
+      command = ControlCli.parse(line);
+    } on ControlCliError catch (e) {
+      return 'error: ${e.message}';
     }
+    if (command.help) return ControlCli.help(command.scope);
+
+    final controller = globalState.appController;
+    try {
+      switch (command.key) {
+        case '--exit':
+          await controller.handleExit();
+          return null;
+        case '--restart':
+          system.restartApp();
+          return null;
+        case '--show':
+          window?.show();
+          return null;
+        case '--ping':
+          return _data(command, {'pong': true}, 'pong');
+        case '--status':
+          final data = controller.controlStatus();
+          return _data(command, data, ControlCli.formatAppStatus(data));
+        case '--refresh-dns':
+          await controller.flushDns();
+          return _ok(command, 'dns flushed');
+        case 'profiles --list':
+          final list = controller.controlProfiles();
+          return _data(command, list, ControlCli.formatProfiles(list));
+        case 'profiles --status':
+          final status = controller.controlStatus();
+          final data = {
+            'currentId': status['profileId'],
+            'currentLabel': status['profileLabel'],
+            'loadedId': status['loadedProfileId'],
+          };
+          return _data(command, data, ControlCli.formatProfilesStatus(data));
+        case 'profiles --select':
+          return await _action(
+            command,
+            () => controller.controlSwitchProfile(command.value),
+          );
+        case 'profiles --update':
+          return await _action(
+            command,
+            () => controller.controlUpdateProfile(
+              command.value.isEmpty ? null : command.value,
+            ),
+          );
+        case 'profiles --reapply':
+          return await _action(command, () async {
+            await controller.applyProfile();
+            return 'ok: config applied';
+          });
+        case 'mode --status':
+          final data = {'mode': controller.controlStatus()['mode']};
+          return _data(command, data, ControlCli.formatModeStatus(data));
+        case 'mode --switch':
+          return await _action(
+            command,
+            () => controller.controlSetMode(command.value),
+          );
+        case 'tun --status':
+          final status = controller.controlStatus();
+          final data = {'tun': status['tun'], 'realTun': status['realTun']};
+          return _data(command, data, ControlCli.formatTunStatus(data));
+        case 'tun --enable':
+        case 'tun --disable':
+          return await _action(
+            command,
+            () => controller.controlSetTun(
+              command.option == '--enable' ? 'on' : 'off',
+            ),
+          );
+        case 'core --status':
+          final status = controller.controlStatus();
+          final data = {
+            'core': status['core'],
+            'version': status['version'],
+          };
+          return _data(command, data, ControlCli.formatCoreStatus(data));
+        case 'core --start':
+        case 'core --stop':
+        case 'core --restart':
+          return await _action(
+            command,
+            () => controller.controlCore(command.option.substring(2)),
+          );
+        case 'settings --list':
+        case 'settings --status':
+        case 'settings --get':
+          final all = controller.controlSettings();
+          final field = command.value.toLowerCase();
+          if (field.isEmpty) {
+            return _data(command, all, ControlCli.formatSettings(all));
+          }
+          if (!all.containsKey(field)) {
+            return 'error: unknown field: $field '
+                '(fields: ${all.keys.join(', ')})';
+          }
+          final data = {field: all[field]};
+          return _data(command, data, ControlCli.formatSettings(data));
+        case 'settings --set':
+          return await _action(
+            command,
+            () => controller.controlSet(
+              command.args.first,
+              command.args.length < 2
+                  ? ''
+                  : command.args.sublist(1).join(' '),
+            ),
+          );
+        default:
+          return 'error: unsupported command: ${command.key}'
+              ' (try: Bettbox --help)';
+      }
+    } catch (e) {
+      commonPrint.warn('ExternalControl command failed [${command.key}]: $e');
+      return command.json
+          ? json.encode({'ok': false, 'error': '$e'})
+          : 'error: $e';
+    }
+  }
+
+  /// 查询类回执：`--json` 出单行 JSON，默认出对齐后的文本。
+  static String _data(ControlCommand command, Object? data, String human) =>
+      command.json ? json.encode({'ok': true, 'data': data}) : human;
+
+  static String _ok(ControlCommand command, String message) => command.json
+      ? json.encode({'ok': true, 'message': message})
+      : 'ok: $message';
+
+  /// 动作类命令统一收敛 `ok: ...` / `error: ...` 两种回执。
+  static Future<String> _action(
+    ControlCommand command,
+    Future<String> Function() run,
+  ) async {
+    final text = await run();
+    if (!text.startsWith('error:')) {
+      return command.json ? json.encode({'ok': true, 'message': text}) : text;
+    }
+    final message = text.substring('error:'.length).trim();
+    return command.json
+        ? json.encode({'ok': false, 'error': message})
+        : text;
   }
 }

@@ -2161,6 +2161,282 @@ class AppController {
     addCheckIpNumDebounce();
   }
 
+  // =================== ExternalControl（CLI / agent）API ===================
+  // 供 lib/common/external_control.dart 的控制 socket 调用。全部复用 GUI 自身
+  // 状态路径（provider 变更 + 原有 debounce/apply），因此不会出现
+  //「9090 改了运行时、GUI 状态没跟上」的漂移，也不会被下一次应用覆盖。
+
+  Map<String, dynamic> controlStatus() {
+    final patchConfig = _ref.read(patchClashConfigProvider);
+    final profile = globalState.config.currentProfile;
+    return {
+      'version':
+          '${globalState.packageInfo.version}+${globalState.packageInfo.buildNumber}',
+      'core': globalState.isStart ? 'running' : 'stopped',
+      'mode': patchConfig.mode.name,
+      'tun': patchConfig.tun.enable,
+      'realTun': _ref.read(realTunEnableProvider),
+      'mixedPort': patchConfig.mixedPort,
+      'port': patchConfig.port,
+      'socksPort': patchConfig.socksPort,
+      'allowLan': patchConfig.allowLan,
+      'externalController': patchConfig.externalController.name,
+      'hasSecret': (patchConfig.secret ?? '').isNotEmpty,
+      'findProcessMode': patchConfig.findProcessMode.name,
+      'ipv6': patchConfig.ipv6,
+      'logLevel': patchConfig.logLevel.name,
+      'profileId': profile?.id,
+      'profileLabel': profile?.label,
+      'loadedProfileId': _loadedProfileId,
+    };
+  }
+
+  List<Map<String, dynamic>> controlProfiles() {
+    final currentProfileId = _ref.read(currentProfileIdProvider);
+    return _ref
+        .read(profilesProvider)
+        .map(
+          (e) => {
+            'id': e.id,
+            'label': e.label,
+            'current': e.id == currentProfileId,
+            'loaded': e.id == _loadedProfileId,
+          },
+        )
+        .toList();
+  }
+
+  /// `settings` 作用域读取的字段集合（与 [controlSettableFields] 对应）。
+  Map<String, dynamic> controlSettings() {
+    final config = _ref.read(patchClashConfigProvider);
+    return {
+      'mixed-port': config.mixedPort,
+      'port': config.port,
+      'socks-port': config.socksPort,
+      'redir-port': config.redirPort,
+      'tproxy-port': config.tproxyPort,
+      'log-level': config.logLevel.name,
+      'ipv6': config.ipv6,
+      'tcp-concurrent': config.tcpConcurrent,
+      'unified-delay': config.unifiedDelay,
+      'allow-lan': config.allowLan,
+      'find-process-mode': config.findProcessMode.name,
+      'keep-alive-interval': config.keepAliveInterval,
+      'external-controller': config.externalController.name,
+      // 密钥不回显明文，只说明有没有设。
+      'secret': (config.secret ?? '').isEmpty ? null : '(set)',
+    };
+  }
+
+  Profile? _findProfile(String idOrLabel) {
+    return _ref
+        .read(profilesProvider)
+        .where((e) => e.id == idOrLabel || e.label == idOrLabel)
+        .firstOrNull;
+  }
+
+  Future<String> controlSwitchProfile(String idOrLabel) async {
+    final profile = _findProfile(idOrLabel);
+    if (profile == null) return 'error: profile not found: $idOrLabel';
+    final name = profile.label ?? profile.id;
+    _ref.read(currentProfileIdProvider.notifier).value = profile.id;
+    if (!globalState.isStart) {
+      return 'ok: profile=$name (core stopped, applies on next start)';
+    }
+    // 真正的切换由 needSetupProvider 的监听器（manager/clash_manager.dart）
+    // 异步执行，这里只等它落地，避免重复触发一次 apply。
+    final deadline = DateTime.now().add(const Duration(seconds: 20));
+    while (DateTime.now().isBefore(deadline)) {
+      if (_loadedProfileId == profile.id) {
+        return 'ok: profile=$name';
+      }
+      await Future.delayed(const Duration(milliseconds: 200));
+    }
+    await handleChangeProfile();
+    return 'ok: profile=$name (fallback apply)';
+  }
+
+  Future<String> controlUpdateProfile(String? idOrLabel) async {
+    if (idOrLabel == null || idOrLabel == 'all') {
+      await updateProfiles();
+      return 'ok: updated all profiles';
+    }
+    final profile = _findProfile(idOrLabel);
+    if (profile == null) return 'error: profile not found: $idOrLabel';
+    await updateProfile(profile);
+    return 'ok: updated ${profile.label ?? profile.id}';
+  }
+
+  Future<String> controlSetMode(String value) async {
+    final mode = Mode.values
+        .where((e) => e.name == value.toLowerCase())
+        .firstOrNull;
+    if (mode == null) {
+      return 'error: unknown mode: $value (rule|global|direct)';
+    }
+    changeMode(mode);
+    return 'ok: mode=${mode.name}';
+  }
+
+  Future<String> controlSetTun(String value) async {
+    final target = switch (value.toLowerCase()) {
+      'on' || 'true' || '1' || 'enable' => true,
+      'off' || 'false' || '0' || 'disable' => false,
+      _ => null,
+    };
+    if (target == null) {
+      return 'error: unknown tun value: $value (on|off)';
+    }
+    final current = _ref.read(patchClashConfigProvider).tun.enable;
+    if (current == target) return 'ok: tun=$target (already)';
+    updateTun();
+    return 'ok: tun=$target (applying)';
+  }
+
+  /// `set` 命令受理的字段（GUI 里只能点、又没法通过 9090 持久化的那些项）。
+  static const controlSettableFields = [
+    'mixed-port',
+    'port',
+    'socks-port',
+    'redir-port',
+    'tproxy-port',
+    'log-level',
+    'ipv6',
+    'tcp-concurrent',
+    'unified-delay',
+    'allow-lan',
+    'find-process-mode',
+    'keep-alive-interval',
+    'external-controller',
+    'secret',
+  ];
+
+  Future<String> controlSet(String field, String value) async {
+    final key = field.toLowerCase();
+    final raw = value.trim();
+    final notifier = _ref.read(patchClashConfigProvider.notifier);
+
+    bool? parseBool() => switch (raw.toLowerCase()) {
+      'on' || 'true' || '1' || 'yes' => true,
+      'off' || 'false' || '0' || 'no' => false,
+      _ => null,
+    };
+
+    switch (key) {
+      case 'mixed-port':
+      case 'port':
+      case 'socks-port':
+      case 'redir-port':
+      case 'tproxy-port':
+        final port = int.tryParse(raw);
+        if (port == null || port < 0 || port > 65535) {
+          return 'error: $key expects an integer in 0..65535';
+        }
+        notifier.updateState(
+          (state) => switch (key) {
+            'mixed-port' => state.copyWith(mixedPort: port),
+            'port' => state.copyWith(port: port),
+            'socks-port' => state.copyWith(socksPort: port),
+            'redir-port' => state.copyWith(redirPort: port),
+            _ => state.copyWith(tproxyPort: port),
+          },
+        );
+      case 'log-level':
+        final level = LogLevel.values
+            .where((e) => e.name == raw.toLowerCase())
+            .firstOrNull;
+        if (level == null) {
+          return 'error: log-level expects '
+              '${LogLevel.values.map((e) => e.name).join('|')}';
+        }
+        notifier.updateState((state) => state.copyWith(logLevel: level));
+      case 'find-process-mode':
+        final mode = FindProcessMode.values
+            .where((e) => e.name == raw.toLowerCase())
+            .firstOrNull;
+        if (mode == null) {
+          return 'error: find-process-mode expects '
+              '${FindProcessMode.values.map((e) => e.name).join('|')}';
+        }
+        notifier.updateState((state) => state.copyWith(findProcessMode: mode));
+      case 'ipv6':
+      case 'tcp-concurrent':
+      case 'unified-delay':
+      case 'allow-lan':
+        final value = parseBool();
+        if (value == null) return 'error: $key expects on|off';
+        notifier.updateState(
+          (state) => switch (key) {
+            'ipv6' => state.copyWith(ipv6: value),
+            'tcp-concurrent' => state.copyWith(tcpConcurrent: value),
+            'unified-delay' => state.copyWith(unifiedDelay: value),
+            _ => state.copyWith(allowLan: value),
+          },
+        );
+      case 'keep-alive-interval':
+        final interval = int.tryParse(raw);
+        if (interval == null || interval < 0) {
+          return 'error: keep-alive-interval expects a non-negative integer';
+        }
+        notifier.updateState(
+          (state) => state.copyWith(keepAliveInterval: interval),
+        );
+      case 'external-controller':
+        final status = switch (raw.toLowerCase()) {
+          'on' || 'true' || '1' => ExternalControllerStatus.open,
+          'off' || 'false' || '0' => ExternalControllerStatus.close,
+          _ => null,
+        };
+        if (status == null) return 'error: external-controller expects on|off';
+        notifier.updateState(
+          (state) => state.copyWith(externalController: status),
+        );
+      case 'secret':
+        // 空值 = 清除密钥，回到「不开启外部控制认证」的状态。
+        notifier.updateState(
+          (state) => state.copyWith(secret: raw.isEmpty ? null : raw),
+        );
+      default:
+        return 'error: unknown field: $field '
+            '(settable: ${controlSettableFields.join(', ')})';
+    }
+
+    // 与 GUI 一致的生效路径：外部控制/密钥要整份重新下发，其余走增量更新。
+    if (key == 'external-controller' || key == 'secret') {
+      await applyProfile();
+    } else {
+      await updateClashConfig();
+    }
+    // 立即落盘，别等 GUI 空闲或退出：命令行改完往往马上就退出/被重启。
+    await savePreferences();
+    return 'ok: $key=${raw.isEmpty ? '(cleared)' : raw}';
+  }
+
+  Future<String> controlCore(String action) async {
+    switch (action.toLowerCase()) {
+      case 'start':
+      case 'stop':
+        final target = action.toLowerCase() == 'start';
+        if (target == globalState.isStart) {
+          return 'ok: core already ${target ? 'running' : 'stopped'}';
+        }
+        await updateStatus(target);
+        if (globalState.isStart != target) {
+          return 'error: core failed to ${target ? 'start' : 'stop'}'
+              '（无可用订阅或内核启动失败，见 GUI 通知/日志）';
+        }
+        break;
+      case 'restart':
+        await restartCore();
+        break;
+      case 'status':
+        break;
+      default:
+        return 'error: unknown core action: $action (start|stop|restart|status)';
+    }
+    return 'ok: core ${globalState.isStart ? 'running' : 'stopped'}';
+  }
+
   void updateAutoLaunch() {
     _ref
         .read(appSettingProvider.notifier)

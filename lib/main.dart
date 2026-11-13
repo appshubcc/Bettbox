@@ -30,11 +30,15 @@ Future<void> main(List<String> args) async {
   globalState.isService = false;
   WidgetsFlutterBinding.ensureInitialized();
 
-  if (system.isDesktop &&
-      (args.contains('--exit') || args.contains('--restart'))) {
-    final command = args.contains('--exit') ? 'exit' : 'restart';
-    await _sendControlCommand(command);
-    exit(0);
+  // 命令行模式：`Bettbox status`、`Bettbox mode global` 这类调用只把命令
+  // 转发给正在运行的实例，把回执打到 stdout，然后退出，不启动界面。
+  final cliCommand = _commandLineCommand(args);
+  if (system.isDesktop && cliCommand != null) {
+    final (ok, output) = await _sendControlCommand(cliCommand);
+    if (output != null && output.isNotEmpty) {
+      stdout.writeln(output);
+    }
+    exit(ok ? 0 : 1);
   }
 
   if (system.isMacOS || appPath.isPortable) {
@@ -44,7 +48,7 @@ Future<void> main(List<String> args) async {
         'SingleInstanceLock: another instance detected or lock failed, exiting',
       );
       if (!appPath.isPortable) {
-        await _sendControlCommand('show');
+        await _sendControlCommand('--show');
         await Future.delayed(const Duration(milliseconds: 100));
       }
       exit(0);
@@ -69,20 +73,59 @@ Future<void> main(List<String> args) async {
   await _runApp();
 }
 
-Future<void> _sendControlCommand(String command) async {
+/// 把命令行参数解析成控制命令。
+///
+/// 有参数就是 CLI 调用：原样拼成一行交给正在运行的实例
+/// （`Bettbox profiles --select 魔戒` → `profiles --select 魔戒`），
+/// 语法与校验都在 ExternalControl/ControlCli 一侧，这里不做解释。
+/// 没有参数、或参数是桌面文件里的 `%U` 路径/URL 时返回 `null`，走正常 GUI 启动。
+String? _commandLineCommand(List<String> args) {
+  final tokens = args
+      .where((arg) => arg.isNotEmpty && !arg.startsWith('--gapplication'))
+      .toList();
+  if (tokens.isEmpty) return null;
+  if (tokens.any(_looksLikePathOrUrl)) return null;
+  return tokens.join(' ');
+}
+
+bool _looksLikePathOrUrl(String arg) =>
+    arg.startsWith('/') || arg.startsWith('./') || arg.contains('://');
+
+/// 失败判定：文本模式看 `error:` 前缀，`--json` 模式看 `"ok":false`。
+bool _isFailure(String? response) {
+  if (response == null) return false;
+  if (response.startsWith('error:')) return true;
+  if (!response.startsWith('{')) return false;
+  try {
+    final decoded = json.decode(response);
+    return decoded is Map && decoded['ok'] == false;
+  } catch (_) {
+    return false;
+  }
+}
+
+/// 把命令发给正在运行的实例。返回 (是否成功, 回执)。
+Future<(bool, String?)> _sendControlCommand(String command) async {
   for (int i = 0; i < 5; i++) {
     try {
-      await ExternalControl.sendCommand(command);
+      final response = await ExternalControl.sendCommand(command);
       commonPrint.log('Sent $command command to running instance');
-      return;
+      return (!_isFailure(response), response);
+    } on TimeoutException catch (e) {
+      // 命令已经发出去了，重试会重复执行；直接报错。
+      commonPrint.warn('Timed out waiting for $command response: $e');
+      stderr.writeln('error: timed out waiting for response');
+      return (false, null);
     } catch (e) {
       if (i == 4) {
         commonPrint.warn('Failed to send $command command: $e');
-        return;
+        stderr.writeln('error: $e');
+        return (false, null);
       }
       await Future.delayed(const Duration(milliseconds: 200));
     }
   }
+  return (false, null);
 }
 
 Future<void> _runApp() async {

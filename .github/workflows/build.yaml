@@ -583,6 +583,17 @@ jobs:
             sed -e "s|BASE_VERSION|$base_version|g" -e "s|VERSION|$version|g" ./.github/release_template.md >> release.md
           fi
 
+      - name: Detect existing release
+        id: release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh api "repos/${GITHUB_REPOSITORY}/releases/tags/${GITHUB_REF_NAME}" >/dev/null 2>&1; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Release
         if: ${{ env.SHOULD_RELEASE == 'true' }}
         uses: softprops/action-gh-release@v3.0.0
@@ -590,3 +601,35 @@ jobs:
           files: ./dist/*
           body_path: './release.md'
           prerelease: ${{ env.IS_PRERELEASE == 'true' }}
+
+      - name: Dispatch AUR update CI (VillagerTom/bettbox-aur-updater)
+        if: ${{ env.SHOULD_RELEASE == 'true' }}
+        env:
+          GH_TOKEN: ${{ secrets.AUR_UPDATER_TOKEN }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+          if [ -z "${GH_TOKEN}" ]; then
+            echo "::warning::AUR_UPDATER_TOKEN is not configured; skipping the AUR update for ${TAG}."
+            exit 0
+          fi
+          gh api -X POST repos/VillagerTom/bettbox-aur-updater/dispatches \
+            -f event_type=bettbox-release \
+            -F "client_payload[force]=${{ steps.release.outputs.exists }}"
+          echo "Dispatched 'bettbox-release' for ${TAG} (force=${{ steps.release.outputs.exists }}); see https://github.com/VillagerTom/bettbox-aur-updater/actions"
+
+      - name: Dispatch AUR update CI (lyj404/bettbox-aur)
+        if: ${{ env.SHOULD_RELEASE == 'true' && env.IS_PRERELEASE == 'false' }}
+        env:
+          GH_TOKEN: ${{ secrets.BETTBOX_BIN_TOKEN }}
+          TAG: ${{ github.ref_name}}
+        run: |
+          set -euo pipefail
+          if [ -z "${GH_TOKEN}" ]; then
+            echo "::warning::BETTBOX_BIN_TOKEN is not configured; skipping the AUR update for ${TAG}."
+            exit 0
+          fi
+          gh api -X POST repos/lyj404/bettbox-aur/dispatches \
+            -f event_type=bettbox-release \
+            -F "client_payload[force]=${{ steps.release.outputs.exists }}"
+          echo "Dispatched 'bettbox-release' for ${TAG} (force=${{ steps.release.outputs.exists }}); see https://github.com/lyj404/bettbox-aur/actions"

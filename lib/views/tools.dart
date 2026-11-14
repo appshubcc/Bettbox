@@ -1032,7 +1032,7 @@ class _ToolViewState extends ConsumerState<ToolsView> {
             const NetworkListView(),
           ),
         ),
-      if (!AppIdentity.isLite)
+      if (AppIdentity.isStandard)
         _SearchItem(
           title: appLocalizations.stackMode,
           category: networkCategory,

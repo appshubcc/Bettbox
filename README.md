@@ -49,7 +49,7 @@ Bettbox 取自 Better Network Toolbox。项目已通过 SignPath 开源基金会
   * **Linux Kernel 5.4+:** (x64 / arm64)
   * **macOS 12.0+:** (Intel / Apple Silicon)
 * **移动端及其他**: 
-  * **Android 8.0+:** (ARMv8 / ARMv7 / x86_64 / Universal) 
+  * **Android 7.0+:** (ARMv8 / ARMv7 / x86_64 / Universal) 
   * **Android TV:** 完整大屏适配，可选 ARMv7 32位版本
   * **鸿蒙 NEXT:** 可配合 [[卓易通]](https://harmonyos.cool/android-app) 稳定使用
 
@@ -61,7 +61,7 @@ Bettbox 取自 Better Network Toolbox。项目已通过 SignPath 开源基金会
 ## 💡 常见问题
 
 1. **安装环境与兼容版本**：
-   - 安卓端设备请检查是否授予了充足的后台运行权限，系统需满足 Android 8.0+。
+   - 安卓端设备请检查是否授予了充足的后台运行权限，系统需满足 Android 7.0+。
    - 桌面端老旧硬件请根据 CPU 指令集架构选择对应的 Compatible 兼容版本。
    - 安全相关：Bettbox 全流程开源透明，代码已通过 SignPath 权威安全审计，零隐私收集。
 

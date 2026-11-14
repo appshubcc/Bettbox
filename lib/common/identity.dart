@@ -1,9 +1,9 @@
 const _useDevIdentity = bool.fromEnvironment('APP_DEV');
-const _useLiteBuild = bool.fromEnvironment('APP_LITE');
+const _useStandardBuild = bool.fromEnvironment('APP_STANDARD');
 
 class AppIdentity {
   static const isDev = _useDevIdentity;
-  static const isLite = _useLiteBuild;
+  static const isStandard = _useStandardBuild;
 
   static const productName = 'Bettbox';
   static const devSuffix = 'Dev';

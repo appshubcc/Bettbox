@@ -8,7 +8,7 @@ android {
     ndkVersion = "28.2.13676358"
 
     defaultConfig {
-        minSdk = 26
+        minSdk = 24
     }
 
     buildTypes {

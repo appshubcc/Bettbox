@@ -736,7 +736,7 @@ class NetworkListView extends ConsumerWidget {
           if (system.isDesktop) const DnsHijackItem(),
           const EndpointIndependentNatItem(),
           if (system.isDesktop) const NetworkInterfaceItem(),
-          if (!AppIdentity.isLite) const TunStackItem(),
+          if (AppIdentity.isStandard) const TunStackItem(),
           const MtuItem(),
           if (system.isDesktop) const ProfileSwitchModeItem(),
           const BypassPrivateRouteItem(),

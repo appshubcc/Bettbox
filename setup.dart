@@ -134,8 +134,8 @@ class Build {
     return 'gcc';
   }
 
-  static String getTags(BuildItem buildItem, {bool lite = false}) {
-    if (lite) {
+  static String getTags(BuildItem buildItem, {bool standard = false}) {
+    if (!standard) {
       return 'no_easytier,no_tailscale,no_zerotier,no_fake_tcp,with_low_memory';
     }
     final baseTags = 'with_gvisor';
@@ -225,7 +225,7 @@ class Build {
     required Target target,
     Arch? arch,
     bool compatible = false,
-    bool lite = false,
+    bool standard = false,
     String? coreVersion,
   }) async {
     final isLib = mode == Mode.lib;
@@ -273,7 +273,7 @@ class Build {
         env['CGO_ENABLED'] = '0';
       }
 
-      final buildTags = getTags(item, lite: lite);
+      final buildTags = getTags(item, standard: standard);
 
       await exec(
         ['go', 'mod', 'tidy'],
@@ -607,8 +607,8 @@ class BuildCommand extends Command<void> {
       help: 'Skip build if output artifact already exists',
     );
     argParser.addFlag(
-      'lite',
-      help: 'Build the Lite variant without easytier, tailscale, zerotier, fake-tcp and gVisor',
+      'standard',
+      help: 'Build the Standard variant with easytier, tailscale, zerotier, fake-tcp and gVisor',
     );
     argParser.addOption(
       'core-version',
@@ -675,7 +675,8 @@ class BuildCommand extends Command<void> {
     String args = '',
     required String env,
     required String suffix,
-    bool lite = false,
+    bool standard = false,
+    Map<String, String>? environment,
   }) async {
     final sentryDsn = Platform.environment['SENTRY_DSN'] ?? '';
     final sentryArg = sentryDsn.isNotEmpty
@@ -691,13 +692,16 @@ class BuildCommand extends Command<void> {
         : '';
 
     final appDevArg = Build.isDev ? ' --build-dart-define=APP_DEV=true' : '';
-    final appLiteArg = lite ? ' --build-dart-define=APP_LITE=true' : '';
+    final appStandardArg = standard
+        ? ' --build-dart-define=APP_STANDARD=true'
+        : '';
 
     await Build.getDistributor();
     await Build.exec(
       name: name,
+      environment: environment,
       Build.getExecutable(
-        'flutter_distributor package --skip-clean --platform ${target.name} --targets $targets --flutter-build-args=verbose$args$sentryArg$suffixArg$ipinfoArg --build-dart-define=APP_ENV=$env$appDevArg$appLiteArg',
+        'flutter_distributor package --skip-clean --platform ${target.name} --targets $targets --flutter-build-args=verbose$args$sentryArg$suffixArg$ipinfoArg --build-dart-define=APP_ENV=$env$appDevArg$appStandardArg',
       ),
     );
   }
@@ -783,7 +787,7 @@ class BuildCommand extends Command<void> {
     return _latestModified(sources);
   }
 
-  bool _outputsAreFresh(Arch? arch, bool lite) {
+  bool _outputsAreFresh(Arch? arch, bool standard) {
     final outputs = _expectedOutputs(arch);
     if (outputs.isEmpty || !outputs.every((path) => File(path).existsSync())) {
       return false;
@@ -797,7 +801,8 @@ class BuildCommand extends Command<void> {
         .every((item) {
           final marker = File(Build.tagsMarkerPath(item));
           return marker.existsSync() &&
-              marker.readAsStringSync() == Build.getTags(item, lite: lite);
+              marker.readAsStringSync() ==
+                  Build.getTags(item, standard: standard);
         });
     if (!tagsMatch) {
       return false;
@@ -824,7 +829,7 @@ class BuildCommand extends Command<void> {
       ensure: argResults?['ensure'] as bool? ?? false,
       compatible: argResults?['compatible'] as bool? ?? false,
       coreHash: argResults?['core-hash'] as String?,
-      lite: argResults?['lite'] as bool? ?? false,
+      standard: argResults?['standard'] as bool? ?? false,
       coreVersion: argResults?['core-version'] as String?,
     );
   }
@@ -837,7 +842,7 @@ class BuildCommand extends Command<void> {
     bool ensure = false,
     bool compatible = false,
     String? coreHash,
-    bool lite = false,
+    bool standard = false,
     String? coreVersion,
   }) async {
     if (compatible && target != Target.windows && target != Target.linux) {
@@ -872,7 +877,7 @@ class BuildCommand extends Command<void> {
     }
 
     if (ensure && actualOut != 'app') {
-      if (_outputsAreFresh(arch, lite)) {
+      if (_outputsAreFresh(arch, standard)) {
         print('${target.name} output already exists');
         return;
       }
@@ -883,7 +888,7 @@ class BuildCommand extends Command<void> {
       arch: arch,
       mode: mode,
       compatible: compatible,
-      lite: lite,
+      standard: standard,
       coreVersion: coreVersion,
     );
 
@@ -915,7 +920,7 @@ class BuildCommand extends Command<void> {
     final String desc = [
       if (archName != null && archName.isNotEmpty) archName,
       if (compatible) 'compatible',
-      if (lite && target != Target.android) 'lite',
+      if (standard && target != Target.android) 'standard',
     ].join('-');
 
     String appAssetSuffix = '';
@@ -929,7 +934,7 @@ class BuildCommand extends Command<void> {
       case Target.linux:
         break;
       case Target.android:
-        final variant = lite ? 'android-lite' : 'android';
+        final variant = standard ? 'android-standard' : 'android';
         if (archName == 'universal') {
           appAssetSuffix = '$variant-universal.apk';
         } else if (arch == Arch.arm64) {
@@ -954,7 +959,7 @@ class BuildCommand extends Command<void> {
           args: ' --description $desc --build-dart-define=CORE_SHA256=$token',
           env: env,
           suffix: appAssetSuffix,
-          lite: lite,
+          standard: standard,
         );
         return;
       case Target.linux:
@@ -976,7 +981,7 @@ class BuildCommand extends Command<void> {
             args: ' --description $desc --build-target-platform $defaultTarget',
             env: env,
             suffix: currentSuffix,
-            lite: lite,
+            standard: standard,
           );
         }
         return;
@@ -993,8 +998,8 @@ class BuildCommand extends Command<void> {
             .toList();
 
         final buildArgs = archName == 'universal'
-            ? ' --build-target-platform ${defaultTargets.join(",")} --description ${lite ? 'lite-universal' : 'universal'}'
-            : ',split-per-abi --build-target-platform ${defaultTargets.join(",")}${lite ? ' --description lite' : ''}';
+            ? ' --build-target-platform ${defaultTargets.join(",")} --description ${standard ? 'standard-universal' : 'universal'}'
+            : ',split-per-abi --build-target-platform ${defaultTargets.join(",")}${standard ? ' --description standard' : ''}';
 
         unawaited(
           _buildDistributor(
@@ -1003,7 +1008,7 @@ class BuildCommand extends Command<void> {
             args: buildArgs,
             env: env,
             suffix: appAssetSuffix,
-            lite: lite,
+            standard: standard,
           ),
         );
         return;
@@ -1018,14 +1023,31 @@ class BuildCommand extends Command<void> {
           Build.getExecutable('pod install --repo-update'),
           workingDirectory: 'macos',
         );
-        await _buildDistributor(
-          target: target,
-          targets: 'dmg',
-          args: ' --description $desc',
-          env: env,
-          suffix: appAssetSuffix,
-          lite: lite,
-        );
+        final infoPlist = File('macos/Runner/Info.plist');
+        final infoPlistContent = await infoPlist.readAsString();
+        if (arch == Arch.amd64) {
+          await infoPlist.writeAsString(
+            infoPlistContent.replaceFirst(
+              '<key>FLTEnableImpeller</key>\n\t<true/>',
+              '<key>FLTEnableImpeller</key>\n\t<false/>',
+            ),
+          );
+        }
+        try {
+          await _buildDistributor(
+            target: target,
+            targets: 'dmg',
+            args: ' --description $desc',
+            env: env,
+            suffix: appAssetSuffix,
+            standard: standard,
+            environment: arch == Arch.arm64
+                ? {'FLUTTER_MACOS_ARM64_ONLY': 'true'}
+                : null,
+          );
+        } finally {
+          await infoPlist.writeAsString(infoPlistContent);
+        }
         return;
     }
   }
@@ -1066,8 +1088,8 @@ class AutoBuildCommand extends Command<void> {
       help: 'Skip build if output artifact already exists',
     );
     argParser.addFlag(
-      'lite',
-      help: 'Build the Lite variant without easytier, tailscale, zerotier, fake-tcp and gVisor',
+      'standard',
+      help: 'Build the Standard variant with easytier, tailscale, zerotier, fake-tcp and gVisor',
     );
     argParser.addOption(
       'core-version',
@@ -1180,7 +1202,7 @@ class AutoBuildCommand extends Command<void> {
       ensure: argResults?['ensure'] as bool? ?? false,
       compatible: argResults?['compatible'] as bool? ?? false,
       coreHash: argResults?['core-hash'] as String?,
-      lite: argResults?['lite'] as bool? ?? false,
+      standard: argResults?['standard'] as bool? ?? false,
       coreVersion: argResults?['core-version'] as String?,
     );
   }

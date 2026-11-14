@@ -42,19 +42,19 @@ jobs:
           - platform: android
             os: ubuntu-24.04
             arch: arm64
-            lite: true
+            standard: true
           - platform: android
             os: ubuntu-24.04
             arch: amd64
-            lite: true
+            standard: true
           - platform: android
             os: ubuntu-24.04
             arch: arm
-            lite: true
+            standard: true
           - platform: android
             os: ubuntu-24.04
             arch: universal
-            lite: true
+            standard: true
           - platform: windows
             os: windows-2022
             arch: amd64
@@ -70,17 +70,17 @@ jobs:
           - platform: windows
             os: windows-2022
             arch: amd64
-            lite: true
+            standard: true
             sign: true
           - platform: windows
             os: windows-11-arm
             arch: arm64
-            lite: true
+            standard: true
           - platform: windows
             os: windows-2022
             arch: amd64
             compatible: true
-            lite: true
+            standard: true
           - platform: macos
             os: macos-26
             arch: arm64
@@ -90,11 +90,11 @@ jobs:
           - platform: macos
             os: macos-26
             arch: arm64
-            lite: true
+            standard: true
           - platform: macos
             os: macos-26
             arch: amd64
-            lite: true
+            standard: true
           - platform: linux
             os: ubuntu-22.04
             arch: amd64
@@ -108,16 +108,16 @@ jobs:
           - platform: linux
             os: ubuntu-22.04
             arch: amd64
-            lite: true
+            standard: true
           - platform: linux
             os: ubuntu-24.04-arm
             arch: arm64
-            lite: true
+            standard: true
           - platform: linux
             os: ubuntu-22.04
             arch: amd64
             compatible: true
-            lite: true
+            standard: true
 
     steps:
       - name: Checkout
@@ -165,7 +165,7 @@ jobs:
         uses: actions/setup-java@v5
         with:
           distribution: temurin
-          java-version: '17'
+          java-version: '21'
           cache: 'gradle'
 
       - name: Setup Android NDK
@@ -218,7 +218,7 @@ jobs:
           channel: ${{ contains(matrix.os, 'arm') && 'master' || 'stable' }}
           cache: true
           cache-key: flutter-${{ matrix.platform }}-${{ matrix.arch }}-${{ hashFiles('**/pubspec.lock') }}
-          flutter-version: ${{ contains(matrix.os, 'arm') && '' || '3.47.7' }}
+          flutter-version: ${{ contains(matrix.os, 'arm') && '' || '3.50.0' }}
 
       - name: Clear Pub Cache Credentials
         shell: bash
@@ -255,7 +255,7 @@ jobs:
         run: |
           flutter pub get
           dart run build_runner build
-          dart setup.dart ${{ matrix.platform }} --arch ${{ matrix.arch }} ${{ env.IS_STABLE == 'true' && '--env stable' || '' }} ${{ matrix.compatible == true && '--compatible' || '' }} ${{ matrix.lite == true && '--lite' || '' }}
+          dart setup.dart ${{ matrix.platform }} --arch ${{ matrix.arch }} ${{ env.IS_STABLE == 'true' && '--env stable' || '' }} ${{ matrix.compatible == true && '--compatible' || '' }} ${{ matrix.standard == true && '--standard' || '' }}
 
       - name: Install SignPath (Windows)
         if: matrix.platform == 'windows' && matrix.sign == true && env.SIGNPATH_API_TOKEN != ''
@@ -299,14 +299,14 @@ jobs:
         run: |
           flutter pub get
           dart run build_runner build
-          dart setup.dart windows --arch ${{ matrix.arch }} --out core-only ${{ matrix.compatible == true && '--compatible' || '' }} ${{ matrix.lite == true && '--lite' || '' }}
+          dart setup.dart windows --arch ${{ matrix.arch }} --out core-only ${{ matrix.compatible == true && '--compatible' || '' }} ${{ matrix.standard == true && '--standard' || '' }}
 
       - name: Upload Unsigned Core
         if: matrix.platform == 'windows' && matrix.sign == true && env.SIGNPATH_API_TOKEN != ''
         id: upload-core
         uses: actions/upload-artifact@v7
         with:
-          name: unsigned-core-${{ matrix.arch }}${{ matrix.compatible == true && '-compatible' || '' }}${{ matrix.lite == true && '-lite' || '' }}
+          name: unsigned-core-${{ matrix.arch }}${{ matrix.compatible == true && '-compatible' || '' }}${{ matrix.standard == true && '-standard' || '' }}
           path: libclash/windows/BettboxCore.exe
           if-no-files-found: error
           retention-days: 1
@@ -338,14 +338,14 @@ jobs:
         run: |
           $signedCoreHash = (Get-FileHash libclash/windows/BettboxCore.exe -Algorithm SHA256).Hash.ToLower()
           Write-Host "Signed Core SHA256 (TOKEN for Helper): $signedCoreHash"
-          dart setup.dart windows --arch ${{ matrix.arch }} --out helper --core-hash $signedCoreHash ${{ matrix.compatible == true && '--compatible' || '' }} ${{ matrix.lite == true && '--lite' || '' }}
+          dart setup.dart windows --arch ${{ matrix.arch }} --out helper --core-hash $signedCoreHash ${{ matrix.compatible == true && '--compatible' || '' }} ${{ matrix.standard == true && '--standard' || '' }}
 
       - name: Upload Unsigned HelperService
         if: matrix.platform == 'windows' && matrix.sign == true && env.SIGNPATH_API_TOKEN != ''
         id: upload-helper
         uses: actions/upload-artifact@v7
         with:
-          name: unsigned-helper-${{ matrix.arch }}${{ matrix.compatible == true && '-compatible' || '' }}${{ matrix.lite == true && '-lite' || '' }}
+          name: unsigned-helper-${{ matrix.arch }}${{ matrix.compatible == true && '-compatible' || '' }}${{ matrix.standard == true && '-standard' || '' }}
           path: libclash/windows/BettboxHelperService.exe
           if-no-files-found: error
           retention-days: 1
@@ -382,7 +382,7 @@ jobs:
           
           $descParts = @('${{ matrix.arch }}')
           if ('${{ matrix.compatible }}' -eq 'true') { $descParts += 'compatible' }
-          if ('${{ matrix.lite }}' -eq 'true') { $descParts += 'lite' }
+          if ('${{ matrix.standard }}' -eq 'true') { $descParts += 'standard' }
           $desc = $descParts -join '-'
           $appEnv = if ('${{ env.IS_STABLE }}' -eq 'true') { "stable" } else { "pre" }
           
@@ -392,8 +392,8 @@ jobs:
             "--dart-define=APP_ENV=$appEnv",
             "--dart-define=APP_ASSET_SUFFIX=windows-$desc-setup.exe"
           )
-          if ('${{ matrix.lite }}' -eq 'true') {
-            $flutterArgs += "--dart-define=APP_LITE=true"
+          if ('${{ matrix.standard }}' -eq 'true') {
+            $flutterArgs += "--dart-define=APP_STANDARD=true"
           }
           if ($env:SENTRY_DSN) {
             $flutterArgs += "--dart-define=SENTRY_DSN=$env:SENTRY_DSN"
@@ -409,7 +409,7 @@ jobs:
         id: upload-bettbox
         uses: actions/upload-artifact@v7
         with:
-          name: unsigned-bettbox-${{ matrix.arch }}${{ matrix.compatible == true && '-compatible' || '' }}${{ matrix.lite == true && '-lite' || '' }}
+          name: unsigned-bettbox-${{ matrix.arch }}${{ matrix.compatible == true && '-compatible' || '' }}${{ matrix.standard == true && '-standard' || '' }}
           path: build/windows/${{ matrix.arch == 'arm64' && 'arm64' || 'x64' }}/runner/Release/Bettbox.exe
           if-no-files-found: error
           retention-days: 1
@@ -439,7 +439,7 @@ jobs:
         if: matrix.platform == 'windows'
         shell: bash
         run: |
-          dart windows/packaging/exe/package_windows.dart --arch ${{ matrix.arch }} ${{ matrix.compatible == true && '--compatible' || '' }} ${{ matrix.lite == true && '--lite' || '' }} --env ${{ env.IS_STABLE == 'true' && 'stable' || 'pre' }}
+          dart windows/packaging/exe/package_windows.dart --arch ${{ matrix.arch }} ${{ matrix.compatible == true && '--compatible' || '' }} ${{ matrix.standard == true && '--standard' || '' }} --env ${{ env.IS_STABLE == 'true' && 'stable' || 'pre' }}
 
       - name: Find Installer Path
         if: matrix.platform == 'windows' && matrix.sign == true && env.SIGNPATH_API_TOKEN != ''
@@ -447,7 +447,7 @@ jobs:
         run: |
           $descParts = @('${{ matrix.arch }}')
           if ('${{ matrix.compatible }}' -eq 'true') { $descParts += 'compatible' }
-          if ('${{ matrix.lite }}' -eq 'true') { $descParts += 'lite' }
+          if ('${{ matrix.standard }}' -eq 'true') { $descParts += 'standard' }
           $desc = $descParts -join '-'
           $installer = (Resolve-Path "dist/Bettbox-*-windows-$desc-setup.exe").Path
           echo "INSTALLER_PATH=$installer" | Out-File -FilePath $env:GITHUB_ENV -Append
@@ -458,7 +458,7 @@ jobs:
         id: upload-installer
         uses: actions/upload-artifact@v7
         with:
-          name: unsigned-installer-${{ matrix.arch }}${{ matrix.compatible == true && '-compatible' || '' }}${{ matrix.lite == true && '-lite' || '' }}
+          name: unsigned-installer-${{ matrix.arch }}${{ matrix.compatible == true && '-compatible' || '' }}${{ matrix.standard == true && '-standard' || '' }}
           path: ${{ env.INSTALLER_PATH }}
           if-no-files-found: error
           retention-days: 1
@@ -490,10 +490,10 @@ jobs:
         uses: geekyeggo/delete-artifact@v6
         with:
           name: |
-            unsigned-core-${{ matrix.arch }}${{ matrix.compatible == true && '-compatible' || '' }}${{ matrix.lite == true && '-lite' || '' }}
-            unsigned-helper-${{ matrix.arch }}${{ matrix.compatible == true && '-compatible' || '' }}${{ matrix.lite == true && '-lite' || '' }}
-            unsigned-bettbox-${{ matrix.arch }}${{ matrix.compatible == true && '-compatible' || '' }}${{ matrix.lite == true && '-lite' || '' }}
-            unsigned-installer-${{ matrix.arch }}${{ matrix.compatible == true && '-compatible' || '' }}${{ matrix.lite == true && '-lite' || '' }}
+            unsigned-core-${{ matrix.arch }}${{ matrix.compatible == true && '-compatible' || '' }}${{ matrix.standard == true && '-standard' || '' }}
+            unsigned-helper-${{ matrix.arch }}${{ matrix.compatible == true && '-compatible' || '' }}${{ matrix.standard == true && '-standard' || '' }}
+            unsigned-bettbox-${{ matrix.arch }}${{ matrix.compatible == true && '-compatible' || '' }}${{ matrix.standard == true && '-standard' || '' }}
+            unsigned-installer-${{ matrix.arch }}${{ matrix.compatible == true && '-compatible' || '' }}${{ matrix.standard == true && '-standard' || '' }}
           failOnError: false
       
 
@@ -501,7 +501,7 @@ jobs:
         if: matrix.platform != 'linux' && matrix.platform != 'windows'
         uses: actions/upload-artifact@v7
         with:
-          name: Bettbox-${{ matrix.platform }}-${{ matrix.arch }}${{ matrix.compatible == true && '-compatible' || '' }}${{ matrix.lite == true && '-lite' || '' }}
+          name: Bettbox-${{ matrix.platform }}-${{ matrix.arch }}${{ matrix.compatible == true && '-compatible' || '' }}${{ matrix.standard == true && '-standard' || '' }}
           path: ./dist/*
           archive: false
           overwrite: true
@@ -510,13 +510,13 @@ jobs:
         if: matrix.platform == 'windows'
         uses: actions/upload-artifact@v7
         with:
-          name: Bettbox-${{ matrix.platform }}-${{ matrix.arch }}${{ matrix.compatible == true && '-compatible' || '' }}${{ matrix.lite == true && '-lite' || '' }}-installer
+          name: Bettbox-${{ matrix.platform }}-${{ matrix.arch }}${{ matrix.compatible == true && '-compatible' || '' }}${{ matrix.standard == true && '-standard' || '' }}-installer
           path: ./dist/*.exe
           archive: false
           overwrite: true
 
       - name: Upload Windows Portable Artifact
-        if: matrix.platform == 'windows' && matrix.compatible == true && matrix.arch == 'amd64' && matrix.lite != true
+        if: matrix.platform == 'windows' && matrix.compatible == true && matrix.arch == 'amd64' && matrix.standard != true
         uses: actions/upload-artifact@v7
         with:
           name: Bettbox-${{ matrix.platform }}-${{ matrix.arch }}${{ matrix.compatible == true && '-compatible' || '' }}-portable
@@ -528,7 +528,7 @@ jobs:
         if: matrix.platform == 'linux'
         uses: actions/upload-artifact@v7
         with:
-          name: Bettbox-${{ matrix.platform }}-${{ matrix.arch }}${{ matrix.compatible == true && '-compatible' || '' }}${{ matrix.lite == true && '-lite' || '' }}-deb
+          name: Bettbox-${{ matrix.platform }}-${{ matrix.arch }}${{ matrix.compatible == true && '-compatible' || '' }}${{ matrix.standard == true && '-standard' || '' }}-deb
           path: ./dist/*.deb
           archive: false
           overwrite: true
@@ -537,7 +537,7 @@ jobs:
         if: matrix.platform == 'linux' && matrix.arch == 'amd64'
         uses: actions/upload-artifact@v7
         with:
-          name: Bettbox-${{ matrix.platform }}-${{ matrix.arch }}${{ matrix.compatible == true && '-compatible' || '' }}${{ matrix.lite == true && '-lite' || '' }}-AppImage
+          name: Bettbox-${{ matrix.platform }}-${{ matrix.arch }}${{ matrix.compatible == true && '-compatible' || '' }}${{ matrix.standard == true && '-standard' || '' }}-AppImage
           path: ./dist/*.AppImage
           archive: false
           overwrite: true
@@ -546,7 +546,7 @@ jobs:
         if: matrix.platform == 'linux' && matrix.arch == 'amd64'
         uses: actions/upload-artifact@v7
         with:
-          name: Bettbox-${{ matrix.platform }}-${{ matrix.arch }}${{ matrix.compatible == true && '-compatible' || '' }}${{ matrix.lite == true && '-lite' || '' }}-rpm
+          name: Bettbox-${{ matrix.platform }}-${{ matrix.arch }}${{ matrix.compatible == true && '-compatible' || '' }}${{ matrix.standard == true && '-standard' || '' }}-rpm
           path: ./dist/*.rpm
           archive: false
           overwrite: true
@@ -568,6 +568,11 @@ jobs:
           pattern: Bettbox-*
           merge-multiple: true
           skip-decompress: true
+
+      - name: Generate checksums
+        run: |
+          cd dist
+          find . -maxdepth 1 -type f -name 'Bettbox-*' -printf '%f\n' | sort | xargs -d '\n' sha256sum > sha256sums.txt
 
       - name: Generate release.md
         run: |

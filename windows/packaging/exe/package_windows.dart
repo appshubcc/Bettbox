@@ -2,6 +2,7 @@
 
 import 'dart:convert';
 import 'dart:io';
+
 import 'package:archive/archive_io.dart';
 import 'package:args/args.dart';
 import 'package:liquid_engine/liquid_engine.dart';
@@ -12,7 +13,7 @@ void main(List<String> arguments) async {
   final parser = ArgParser()
     ..addOption('arch', allowed: ['amd64', 'arm64'], mandatory: true)
     ..addFlag('compatible', defaultsTo: false)
-    ..addFlag('lite', defaultsTo: false)
+    ..addFlag('standard', defaultsTo: false)
     ..addOption('env', defaultsTo: 'pre')
     ..addFlag('dev', defaultsTo: false)
     ..addFlag('portable', defaultsTo: null)
@@ -21,16 +22,17 @@ void main(List<String> arguments) async {
   final args = parser.parse(arguments);
   final arch = args['arch'] as String;
   final compatible = args['compatible'] as bool;
-  final lite = args['lite'] as bool;
+  final standard = args['standard'] as bool;
   final isDev = args['dev'] as bool;
   final makePortable =
-      (args['portable'] as bool?) ?? (compatible && arch == 'amd64' && !lite);
+      (args['portable'] as bool?) ??
+      (compatible && arch == 'amd64' && !standard);
   final makeInstaller = args['installer'] as bool;
 
   final desc = [
     arch,
     if (compatible) 'compatible',
-    if (lite) 'lite',
+    if (standard) 'standard',
   ].join('-');
 
   // 1. Get version from pubspec.yaml
@@ -90,7 +92,7 @@ void main(List<String> arguments) async {
   final packagingDir = path.absolute('windows/packaging/exe');
   final locales = [];
   if (makeConfig['locales'] != null) {
-    for (var locale in makeConfig['locales']) {
+    for (final locale in (makeConfig['locales'] as YamlList).cast<YamlMap>()) {
       final fileVal = locale['file'] as String?;
       locales.add({
         'lang': locale['lang'],
@@ -230,9 +232,8 @@ void main(List<String> arguments) async {
     try {
       final zipFileEncoder = ZipFileEncoder()..create(targetPortableZipPath);
       final rootName = makeConfig['display_name'] ?? 'Bettbox';
-      final entries = Directory(
-        sourceDir,
-      ).listSync(recursive: true, followLinks: true);
+      final entries = Directory(sourceDir)
+          .listSync(recursive: true, followLinks: true);
       for (final entry in entries.whereType<File>()) {
         final relative = path
             .relative(entry.path, from: sourceDir)

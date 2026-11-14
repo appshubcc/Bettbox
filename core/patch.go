@@ -7,13 +7,11 @@ import (
 	"fmt"
 	"net"
 	"path/filepath"
-	"regexp"
 	"runtime"
 	"strconv"
 	"strings"
 
 	"github.com/dlclark/regexp2"
-	"github.com/metacubex/mihomo/common/orderedmap"
 	"github.com/metacubex/mihomo/common/yaml"
 	"github.com/metacubex/mihomo/config"
 	LC "github.com/metacubex/mihomo/listener/config"
@@ -32,7 +30,6 @@ type PatchParams struct {
 	General            json.RawMessage `json:"general"`
 	GeoXUrl            json.RawMessage `json:"geox-url"`
 	Hosts              []PatchHost     `json:"hosts"`
-	Dns                json.RawMessage `json:"dns"`
 	Ntp                json.RawMessage `json:"ntp"`
 	Sniffer            json.RawMessage `json:"sniffer"`
 	Experimental       json.RawMessage `json:"experimental"`
@@ -47,13 +44,6 @@ type PatchParams struct {
 }
 
 const defaultHealthCheckTimeout = 5000
-
-const (
-	bettboxRuleSetSuffix  = "_bettbox"
-	bettboxRuleSetBaseURL = "https://cdn.jsdelivr.net/gh/appshubcc/bett-rules@meta/geo/"
-)
-
-var ruleSetReference = regexp.MustCompile(`(?i)\bRULE-SET,\s*([^,()\s]+)`)
 
 var patchForAndroid = runtime.GOOS == "android"
 
@@ -100,9 +90,7 @@ func applyPatch(raw *config.RawConfig, params *PatchParams) (string, error) {
 	patchProviderPaths(raw.ProxyProvider, params.ProvidersPath, "proxies")
 	patchProviderPaths(raw.RuleProvider, params.ProvidersPath, "rules")
 	patchHosts(raw, params.Hosts)
-	if err := patchDns(raw, params, defaults); err != nil {
-		return "", err
-	}
+	patchDns(raw)
 	if !raw.AllowLan {
 		raw.DNS.Listen = loopbackAddress(raw.DNS.Listen)
 	}
@@ -174,70 +162,7 @@ func applyPatch(raw *config.RawConfig, params *PatchParams) (string, error) {
 		return name != "GLOBAL"
 	})
 	raw.Rule = rules
-	patchBettboxRuleSets(raw, params.ProvidersPath)
 	return global, nil
-}
-
-func patchBettboxRuleSets(raw *config.RawConfig, providersPath string) {
-	names := map[string]bool{}
-	add := func(name string) {
-		if strings.HasSuffix(name, bettboxRuleSetSuffix) {
-			names[name] = true
-		}
-	}
-	for _, rule := range raw.Rule {
-		for _, match := range ruleSetReference.FindAllStringSubmatch(rule, -1) {
-			add(match[1])
-		}
-	}
-	addEntry := func(entry string) {
-		const prefix = "rule-set:"
-		entry = strings.TrimSpace(entry)
-		if len(entry) <= len(prefix) || !strings.EqualFold(entry[:len(prefix)], prefix) {
-			return
-		}
-		for _, name := range strings.Split(entry[len(prefix):], ",") {
-			add(strings.TrimSpace(name))
-		}
-	}
-	for _, entry := range raw.DNS.FakeIPFilter {
-		addEntry(entry)
-	}
-	for _, policy := range []*orderedmap.OrderedMap[string, any]{raw.DNS.NameServerPolicy, raw.DNS.ProxyServerNameserverPolicy} {
-		if policy == nil {
-			continue
-		}
-		for pair := policy.Oldest(); pair != nil; pair = pair.Next() {
-			addEntry(pair.Key)
-		}
-	}
-	if len(names) == 0 {
-		return
-	}
-	if raw.RuleProvider == nil {
-		raw.RuleProvider = make(map[string]map[string]any, len(names))
-	}
-	for name := range names {
-		if _, exists := raw.RuleProvider[name]; exists {
-			continue
-		}
-		tag := strings.TrimSuffix(name, bettboxRuleSetSuffix)
-		kind, behavior := "geosite", "domain"
-		if ip, ok := strings.CutSuffix(tag, "_ip"); ok {
-			tag, kind, behavior = ip, "geoip", "ipcidr"
-		}
-		file := kind + "/" + tag + ".mrs"
-		url := bettboxRuleSetBaseURL + file
-		raw.RuleProvider[name] = map[string]any{
-			"type":           "http",
-			"behavior":       behavior,
-			"format":         "mrs",
-			"interval":       86400,
-			"url":            url,
-			"path":           providerFilePath(providersPath, "rules", url),
-			"path-in-bundle": "geo/" + file,
-		}
-	}
 }
 
 func patchProviderPaths(providers map[string]map[string]any, base string, kind string) {
@@ -305,20 +230,7 @@ func loopbackAddress(address string) string {
 	return net.JoinHostPort("127.0.0.1", port)
 }
 
-func patchDns(raw *config.RawConfig, params *PatchParams, defaults *config.RawConfig) error {
-	if !raw.DNS.Enable {
-		dns := defaults.DNS
-		if hasPatchValue(params.Dns) {
-			if err := yaml.Unmarshal(params.Dns, &dns); err != nil {
-				return fmt.Errorf("patch dns: %w", err)
-			}
-		}
-		ns := make([]string, len(dns.NameServer)+1)
-		copy(ns, dns.NameServer)
-		ns[len(dns.NameServer)] = "system://"
-		dns.NameServer = ns
-		raw.DNS = dns
-	}
+func patchDns(raw *config.RawConfig) {
 	raw.DNS.FallbackFilter.GeoSite = []string{}
 	raw.DNS.FallbackFilter.Domain = []string{}
 	if !raw.IPv6 {
@@ -326,7 +238,7 @@ func patchDns(raw *config.RawConfig, params *PatchParams, defaults *config.RawCo
 	}
 
 	if !patchForAndroid {
-		return nil
+		return
 	}
 	listen := raw.DNS.Listen
 	if strings.HasSuffix(listen, ":53") {
@@ -343,7 +255,6 @@ func patchDns(raw *config.RawConfig, params *PatchParams, defaults *config.RawCo
 	if noProviders && hasLocalNameserver && strings.HasPrefix(listen, "0.0.0.0") {
 		raw.DNS.Listen = "127.0.0.1" + strings.TrimPrefix(listen, "0.0.0.0")
 	}
-	return nil
 }
 
 func groupName(group map[string]any) (string, bool) {

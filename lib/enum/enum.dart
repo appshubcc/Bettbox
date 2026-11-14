@@ -173,10 +173,6 @@ enum DnsMode {
   hosts,
 }
 
-enum CacheAlgorithm { arc, lru }
-
-enum FilterMode { blacklist, whitelist, rule }
-
 enum ExternalControllerStatus {
   @JsonValue('')
   close(''),

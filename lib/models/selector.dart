@@ -209,16 +209,6 @@ abstract class ProxyState with _$ProxyState {
 }
 
 @freezed
-abstract class ClashConfigState with _$ClashConfigState {
-  const factory ClashConfigState({
-    required bool overrideDns,
-    required ClashConfig clashConfig,
-    required OverrideData overrideData,
-    required bool bypassPrivateRoute,
-  }) = _ClashConfigState;
-}
-
-@freezed
 abstract class DashboardState with _$DashboardState {
   const factory DashboardState({
     required List<DashboardWidget> dashboardWidgets,

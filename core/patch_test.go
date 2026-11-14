@@ -275,50 +275,13 @@ dns: {enable: true, listen: 0.0.0.0:1053, nameserver: [223.5.5.5]}
 	}
 }
 
-func TestApplyPatchDnsInjection(t *testing.T) {
+func TestApplyPatchDnsDisabledKept(t *testing.T) {
 	rawCfg := parsePatchProfile(t, "dns: {enable: false, nameserver: ['10.0.0.1']}\n")
-	dns, _ := json.Marshal(map[string]any{
-		"enable":            true,
-		"nameserver":        []string{"1.1.1.1"},
-		"nameserver-policy": map[string]any{"+.a.com": []string{"8.8.8.8", "8.8.4.4"}},
-	})
-	params := patchParams(t, `{}`)
-	params.Dns = dns
-	if _, err := applyPatch(rawCfg, params); err != nil {
+	if _, err := applyPatch(rawCfg, patchParams(t, `{}`)); err != nil {
 		t.Fatal(err)
 	}
-	if !rawCfg.DNS.Enable || !reflect.DeepEqual(rawCfg.DNS.NameServer, []string{"1.1.1.1", "system://"}) {
-		t.Errorf("dns = %+v", rawCfg.DNS.NameServer)
-	}
-	if len(rawCfg.DNS.ProxyServerNameserver) != 0 {
-		t.Errorf("original dns should not leak into proxy-server-nameserver: %v", rawCfg.DNS.ProxyServerNameserver)
-	}
-
-	for _, item := range []struct {
-		allowLan bool
-		listen   string
-	}{
-		{false, "127.0.0.1:10053"},
-		{true, "0.0.0.0:10053"},
-	} {
-		injected := parsePatchProfile(t, "dns: {enable: false}\n")
-		dns, _ := json.Marshal(map[string]any{"enable": true, "listen": "0.0.0.0:10053"})
-		params := patchParams(t, `{"general":{"allow-lan":`+strconv.FormatBool(item.allowLan)+`}}`)
-		params.Dns = dns
-		if _, err := applyPatch(injected, params); err != nil {
-			t.Fatal(err)
-		}
-		if injected.DNS.Listen != item.listen {
-			t.Errorf("allow-lan=%t: injected dns listen = %q, want %q", item.allowLan, injected.DNS.Listen, item.listen)
-		}
-	}
-
-	enabled := parsePatchProfile(t, "dns: {enable: true, nameserver: ['10.0.0.1']}\n")
-	if _, err := applyPatch(enabled, params); err != nil {
-		t.Fatal(err)
-	}
-	if !reflect.DeepEqual(enabled.DNS.NameServer, []string{"10.0.0.1"}) {
-		t.Errorf("enabled dns without override should be kept: %v", enabled.DNS.NameServer)
+	if rawCfg.DNS.Enable || !reflect.DeepEqual(rawCfg.DNS.NameServer, []string{"10.0.0.1"}) {
+		t.Errorf("disabled dns should be kept: enable = %t, nameserver = %v", rawCfg.DNS.Enable, rawCfg.DNS.NameServer)
 	}
 }
 
@@ -353,50 +316,6 @@ func TestApplyPatchDnsFallbackFilter(t *testing.T) {
 	}
 	if !filter.GeoIP || len(filter.IPCIDR) != 1 {
 		t.Errorf("fallback-filter geoip = %t, ipcidr = %v, want kept", filter.GeoIP, filter.IPCIDR)
-	}
-}
-
-func TestApplyPatchBettboxRuleSets(t *testing.T) {
-	rawCfg := parsePatchProfile(t, "dns: {enable: false}\nrule-providers:\n  cn: {type: http, behavior: domain, format: mrs, url: 'https://example.com/cn.mrs'}\n  private_bettbox: {type: http, behavior: domain, format: mrs, url: 'https://example.com/private.mrs'}\nrules:\n  - RULE-SET,cn,DIRECT\n  - MATCH,DIRECT\n")
-	dns, _ := json.Marshal(map[string]any{
-		"enable":            true,
-		"fake-ip-filter":    []string{"*", "rule-set:private_bettbox", "rule-set:fakeip-filter_bettbox", "RULE-SET:category-ntp_bettbox,cn_bettbox"},
-		"nameserver-policy": map[string]any{"rule-set:cn_bettbox": "119.29.29.29"},
-	})
-	params := patchParams(t, `{"providers-path": "/data/providers", "prepend-rules": ["AND,((NETWORK,UDP),(DST-PORT,443),(NOT,((OR,((RULE-SET,cn_bettbox),(RULE-SET,cn_ip_bettbox,no-resolve)))))),REJECT"]}`)
-	params.Dns = dns
-	if _, err := applyPatch(rawCfg, params); err != nil {
-		t.Fatal(err)
-	}
-	if got := rawCfg.RuleProvider["private_bettbox"]["url"]; got != "https://example.com/private.mrs" {
-		t.Errorf("existing provider overwritten: %v", got)
-	}
-	if got := rawCfg.RuleProvider["cn"]["url"]; got != "https://example.com/cn.mrs" {
-		t.Errorf("user provider changed: %v", got)
-	}
-	cases := map[string][2]string{
-		"cn_bettbox":            {"domain", "geosite/cn.mrs"},
-		"cn_ip_bettbox":         {"ipcidr", "geoip/cn.mrs"},
-		"category-ntp_bettbox":  {"domain", "geosite/category-ntp.mrs"},
-		"fakeip-filter_bettbox": {"domain", "geosite/fakeip-filter.mrs"},
-	}
-	for name, want := range cases {
-		provider := rawCfg.RuleProvider[name]
-		url := bettboxRuleSetBaseURL + want[1]
-		if provider == nil || provider["behavior"] != want[0] || provider["url"] != url || provider["format"] != "mrs" || provider["path-in-bundle"] != "geo/"+want[1] || provider["path"] != providerFilePath("/data/providers", "rules", url) {
-			t.Errorf("%s = %v", name, provider)
-		}
-	}
-	if len(rawCfg.RuleProvider) != 6 {
-		t.Errorf("providers = %v", rawCfg.RuleProvider)
-	}
-
-	plain := parsePatchProfile(t, "dns: {enable: true, nameserver: ['10.0.0.1']}\nrules:\n  - MATCH,DIRECT\n")
-	if _, err := applyPatch(plain, patchParams(t, `{}`)); err != nil {
-		t.Fatal(err)
-	}
-	if len(plain.RuleProvider) != 0 {
-		t.Errorf("unreferenced providers added: %v", plain.RuleProvider)
 	}
 }
 

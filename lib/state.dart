@@ -1006,14 +1006,8 @@ class GlobalState {
     required ClashConfig patchConfig,
     required Profile profile,
   }) async {
-    final fakeIpRangeV6 = patchConfig.dns.effectiveFakeIpRangeV6(
-      ipv6Enabled: patchConfig.ipv6,
-    );
-    final dns = patchConfig.dns.copyWith(fakeIpRangeV6: fakeIpRangeV6);
     final tun = patchConfig.tun.getRealTun(
       config.networkProps.bypassPrivateRoute,
-      fakeIpRange: patchConfig.dns.fakeIpRange,
-      fakeIpRangeV6: fakeIpRangeV6,
       bypassPrivateRouteAddress:
           config.networkProps.realBypassPrivateRouteAddress,
     );
@@ -1055,7 +1049,7 @@ class GlobalState {
         'device': tun.device,
         if (tun.dnsMode case final dnsMode?) 'dns-mode': dnsMode.name,
         'dns-hijack': tun.dnsHijack,
-        'stack': (AppIdentity.isLite ? TunStack.mips : tun.stack).name,
+        'stack': (AppIdentity.isStandard ? tun.stack : TunStack.mips).name,
         'route-address': tun.routeAddress,
         'route-exclude-address': tun.routeExcludeAddress,
         'auto-route': !system.isAndroid,
@@ -1088,13 +1082,6 @@ class GlobalState {
             'value': ['131.107.255.255', 'fd3e:4f5a:5b81::1'],
           },
       ],
-      'dns': {
-        ...dns.toJson(),
-        'nameserver-policy': {
-          for (final entry in dns.nameserverPolicy.entries)
-            entry.key: entry.value.splitByMultipleSeparators,
-        },
-      },
       'ntp': config.overrideNtp ? patchConfig.ntp.toJson() : null,
       'sniffer': config.overrideSniffer ? patchConfig.sniffer.toJson() : null,
       'experimental': config.overrideExperimental

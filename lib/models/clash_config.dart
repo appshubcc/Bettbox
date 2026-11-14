@@ -12,7 +12,6 @@ typedef HostsMap = Map<String, String>;
 const defaultClashConfig = ClashConfig();
 
 const defaultTun = Tun();
-const defaultDns = Dns();
 const defaultNtp = Ntp();
 const defaultSniffer = Sniffer();
 const defaultTunnel = <TunnelEntry>[];
@@ -155,22 +154,7 @@ abstract class Sniffer with _$Sniffer {
     @Default(['192.168.0.3/32'])
     @JsonKey(name: 'skip-src-address')
     List<String> skipSrcAddress,
-    @Default([
-      '91.108.56.0/22',
-      '91.108.4.0/22',
-      '91.108.8.0/22',
-      '91.108.16.0/22',
-      '91.108.12.0/22',
-      '149.154.160.0/20',
-      '91.105.192.0/23',
-      '91.108.20.0/22',
-      '185.76.151.0/24',
-      '2001:b28:f23d::/48',
-      '2001:b28:f23f::/48',
-      '2001:67c:4e8::/48',
-      '2001:b28:f23c::/48',
-      '2a0a:f280::/32',
-    ])
+    @Default(telegramCidrs)
     @JsonKey(name: 'skip-dst-address')
     List<String> skipDstAddress,
     @Default(['Mijia Cloud', '+.push.apple.com'])
@@ -321,8 +305,6 @@ abstract class Tun with _$Tun {
 extension TunExt on Tun {
   Tun getRealTun(
     bool bypassPrivateRoute, {
-    String? fakeIpRange,
-    String? fakeIpRangeV6,
     List<String>? bypassPrivateRouteAddress,
   }) {
     if (system.isDesktop) {
@@ -359,137 +341,6 @@ extension TunExt on Tun {
     }
 
     return copyWith(autoRoute: true, routeAddress: []);
-  }
-}
-
-@freezed
-abstract class FallbackFilter with _$FallbackFilter {
-  const factory FallbackFilter({
-    @Default(false) bool geoip,
-    @Default('CN') @JsonKey(name: 'geoip-code') String geoipCode,
-    @Default([]) List<String> ipcidr,
-  }) = _FallbackFilter;
-  factory FallbackFilter.fromJson(Map<String, Object?> json) =>
-      _$FallbackFilterFromJson(json);
-}
-
-@freezed
-abstract class Dns with _$Dns {
-  const factory Dns({
-    @Default(true) bool enable,
-    @Default('0.0.0.0:10053') String listen,
-    @Default(false) @JsonKey(name: 'prefer-h3') bool preferH3,
-    @Default(CacheAlgorithm.arc)
-    @JsonKey(name: 'cache-algorithm')
-    CacheAlgorithm cacheAlgorithm,
-    @Default(true) @JsonKey(name: 'use-hosts') bool useHosts,
-    @Default(true) @JsonKey(name: 'use-system-hosts') bool useSystemHosts,
-    @Default(false) @JsonKey(name: 'respect-rules') bool respectRules,
-    @Default(true) bool ipv6,
-    @Default(['114.114.114.114'])
-    @JsonKey(name: 'default-nameserver')
-    List<String> defaultNameserver,
-    @Default(DnsMode.fakeIp)
-    @JsonKey(name: 'enhanced-mode')
-    DnsMode enhancedMode,
-    @Default('198.18.0.1/15')
-    @JsonKey(name: 'fake-ip-range')
-    String fakeIpRange,
-    @Default('') @JsonKey(name: 'fake-ip-range6') String fakeIpRangeV6,
-    @Default(FilterMode.blacklist)
-    @JsonKey(name: 'fake-ip-filter-mode')
-    FilterMode fakeIpFilterMode,
-    @Default([
-      '*',
-      'rule-set:private_bettbox',
-      'rule-set:fakeip-filter_bettbox',
-      'rule-set:category-ntp_bettbox',
-      'rule-set:cn_bettbox',
-      'rule-set:connectivity-check_bettbox',
-    ])
-    @JsonKey(name: 'fake-ip-filter')
-    List<String> fakeIpFilter,
-    @Default(1) @JsonKey(name: 'fake-ip-ttl') int fakeIpTtl,
-    @Default({
-      'rule-set:cn_bettbox': '119.29.29.29',
-      'rule-set:private_bettbox': 'system',
-      '*': 'system',
-    })
-    @JsonKey(name: 'nameserver-policy')
-    Map<String, String> nameserverPolicy,
-    @Default(['1.1.1.1']) List<String> nameserver,
-    @Default([]) List<String> fallback,
-    @Default(['tls://223.6.6.6#DIRECT', 'https://doh.pub/dns-query#DIRECT'])
-    @JsonKey(name: 'proxy-server-nameserver')
-    List<String> proxyServerNameserver,
-    @Default([])
-    @JsonKey(name: 'direct-nameserver')
-    List<String> directNameserver,
-    @Default(false)
-    @JsonKey(name: 'direct-nameserver-follow-policy')
-    bool directNameserverFollowPolicy,
-    @Default(FallbackFilter())
-    @JsonKey(name: 'fallback-filter')
-    FallbackFilter fallbackFilter,
-    @Default(false)
-    @JsonKey(name: 'fallback-lazy-query')
-    bool fallbackLazyQuery,
-  }) = _Dns;
-
-  factory Dns.fromJson(Map<String, Object?> json) => _$DnsFromJson(json);
-
-  factory Dns.safeDnsFromJson(Map<String, Object?> json) {
-    try {
-      return Dns.fromJson(_migrateLegacyGeoSite(json));
-    } catch (_) {
-      return const Dns();
-    }
-  }
-}
-
-const _legacyFakeIpFilter = {
-  'geosite:private': [
-    'rule-set:private_bettbox',
-    'rule-set:fakeip-filter_bettbox',
-  ],
-  'geosite:category-ntp': ['rule-set:category-ntp_bettbox'],
-  'geosite:geolocation-cn': ['rule-set:cn_bettbox'],
-  'geosite:connectivity-check': ['rule-set:connectivity-check_bettbox'],
-};
-
-const _legacyNameserverPolicy = {
-  'geosite:cn': 'rule-set:cn_bettbox',
-  'geosite:private': 'rule-set:private_bettbox',
-};
-
-Map<String, Object?> _migrateLegacyGeoSite(Map<String, Object?> json) {
-  final filter = json['fake-ip-filter'];
-  final policy = json['nameserver-policy'];
-  final migrateFilter =
-      filter is List && filter.any(_legacyFakeIpFilter.containsKey);
-  final migratePolicy =
-      policy is Map && policy.keys.any(_legacyNameserverPolicy.containsKey);
-  if (!migrateFilter && !migratePolicy) return json;
-  return {
-    ...json,
-    if (migrateFilter)
-      'fake-ip-filter': {
-        for (final item in filter)
-          ...(_legacyFakeIpFilter[item] ?? [item as String]),
-      }.toList(),
-    if (migratePolicy)
-      'nameserver-policy': <String, Object?>{
-        for (final MapEntry(:key, :value) in policy.entries)
-          _legacyNameserverPolicy[key] ?? '$key': value,
-      },
-  };
-}
-
-extension DnsExt on Dns {
-  String effectiveFakeIpRangeV6({required bool ipv6Enabled}) {
-    if (fakeIpRangeV6.isNotEmpty) return fakeIpRangeV6;
-    if (ipv6Enabled) return '2001:2::1/48';
-    return '';
   }
 }
 
@@ -751,6 +602,11 @@ extension ClashConfigExt on ClashConfig {
     redirPort,
     tproxyPort,
   }.where((port) => port > 0).join('/');
+
+  String get externalControllerAddress =>
+      externalController == ExternalControllerStatus.open
+      ? '127.0.0.1:$externalControllerPort'
+      : '';
 }
 
 @freezed
@@ -782,7 +638,6 @@ abstract class ClashConfig with _$ClashConfig {
     @Default(true) @JsonKey(name: 'tcp-concurrent') bool tcpConcurrent,
     @Default('') @JsonKey(name: 'interface-name') String interfaceName,
     @Default(defaultTun) @JsonKey(fromJson: Tun.safeFormJson) Tun tun,
-    @Default(defaultDns) @JsonKey(fromJson: Dns.safeDnsFromJson) Dns dns,
     @Default(defaultNtp) @JsonKey(fromJson: Ntp.safeNtpFromJson) Ntp ntp,
     @Default(defaultSniffer)
     @JsonKey(fromJson: Sniffer.safeSnifferFromJson)
@@ -803,6 +658,9 @@ abstract class ClashConfig with _$ClashConfig {
     @Default(ExternalControllerStatus.close)
     @JsonKey(name: 'external-controller')
     ExternalControllerStatus externalController,
+    @Default(defaultExternalControllerPort)
+    @JsonKey(name: 'external-controller-port')
+    int externalControllerPort,
     String? secret,
     @JsonKey(name: 'external-ui-name') String? externalUiName,
     @JsonKey(name: 'external-ui-url') String? externalUiUrl,

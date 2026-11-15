@@ -1,10 +1,10 @@
 /**
- * 托管脚本源作者及仓库：@AIsouler https://github.com/AIsouler/MyClash 
+ * 覆写脚本源作者及仓库：@AIsouler https://github.com/AIsouler/MyClash 
  * 分流管理自定义图标集：@aaANDkk https://github.com/aaANDkk/Qure_Style_SVG
  * 自定义分流远程规则集：@appshubcc https://github.com/appshubcc/bett-rules 
  */
 
-// @version 2026111204
+// @version 2026112001
 const Compatible_With_Bettbox = { ruleOptionsEnable: true };
 
 const ruleOptionsEnable = {
@@ -48,10 +48,8 @@ const prefixRules = [
 
 const directRules = [
   'RULE-SET,geolocation-cn,直连',
-  'RULE-SET,games_cn,直连',
-  'RULE-SET,nvidia_cn,直连',
+  'RULE-SET,category-ai-cn,直连',
   'RULE-SET,apple_cn,直连',
-  'RULE-SET,adobe_cn,直连',
   'RULE-SET,microsoft_cn,直连',
 ];
 
@@ -117,7 +115,7 @@ const regionDefinitions = [
   {
     name: '韩国',
     flag: '🇰🇷',
-    regex: /🇰🇷|(?<!北)(?:韩国|南韩)|首尔|汉城|仁川|春川|釜山|大邱|大田|光州|济州|(?<![A-Za-z])(?:KR|KOR|ICN|(?<!North\s*)(?<!NORTH\s*)(?:[Kk]orea|KOREA)(?:n|N)?|[Ss]eoul|SEOUL|[Ii]ncheon|INCHEON|[Cc]huncheon|CHUNCHEON|[Bb]usan|BUSAN|[Pp]usan|PUSAN|[Jj]eju|JEJU)(?![A-Za-z])/,
+    regex: /🇰🇷|(?<!北)(?:韩国|南韩)|首尔|汉城|仁川|春川|釜山|大邱|大田|光州|济州|(?<![A-Za-z])(?:KR|KOR|ICN|(?i:(?<!north\s*)korean?|seoul|incheon|chuncheon|busan|pusan|jeju))(?![A-Za-z])/,
     icon: `${iconBaseUrl}flag/South_Korea.svg`,
     default: false,
   },
@@ -131,14 +129,11 @@ const customRegionDefinitions =
         let reg;
         try {
           const match = r.regex.match(/^\/(.+)\/([a-z]*)$/i);
-          if (match) {
-            const flags = match[2].includes('i') ? match[2] : `${match[2]}i`;
-            reg = new RegExp(match[1], flags);
-          } else {
-            reg = new RegExp(r.regex, 'i');
-          }
+          const source = match ? match[1] : r.regex.trim();
+          if (!source) throw new SyntaxError('empty pattern');
+          reg = new RegExp(source, `${match ? match[2].replace(/[gyi]/gi, '') : ''}i`);
         } catch {
-          reg = new RegExp(r.name, 'i');
+          reg = new RegExp(RegExp.escape(r.name), 'i');
         }
         return {
           name: r.name,
@@ -162,12 +157,12 @@ const highRateRegionName = '高倍率节点';
 const rateRegionDefinitions = [
   {
     name: lowRateRegionName,
-    regex: /^(?!.*(?:剩|期)).*(?:(?<![\d.])0(\.[0-5]|[*×✕✖⨯⨉x倍]))|(?:[*×✕✖⨯⨉x]0)|^(?!.*(?:客户端|软件)).*下载|低倍|免费|(?<![A-Za-z])free(?![A-Za-z])/i,
+    regex: /^(?!.*(?:剩|期)).*(?:(?<![\d.])0(?:\.[0-5]|[*×✕✖⨯⨉倍]|x(?![A-Za-z])))|(?:(?:[*×✕✖⨯⨉]|(?<![A-Za-z])x)0(?:\.[0-5]\d*)?(?![\d.]))|^(?!.*(?:客户端|软件)).*下载|低倍|免费|(?<![A-Za-z])free(?![A-Za-z])/i,
     icon: `${iconBaseUrl}common/Available.svg`,
   },
   {
     name: highRateRegionName,
-    regex: /(?:[*×✕✖⨯⨉x](?:[2-9]\d*|[1-9]\d+)(?:\.\d+)?)|(?:(?<![\d.])(?:[2-9]\d*|[1-9]\d+)(?:\.\d+)?(?:倍|[*×✕✖⨯⨉x]))/i,
+    regex: /(?:(?:[*×✕✖⨯⨉]|(?<![A-Za-z])x)(?:[2-9]\d*|[1-9]\d+)(?:\.\d+)?)|(?:(?<![\d.])(?:[2-9]\d*|[1-9]\d+)(?:\.\d+)?(?:倍|[*×✕✖⨯⨉]|x(?![A-Za-z])))/i,
     icon: `${iconBaseUrl}common/Airport.svg`,
   },
 ];
@@ -200,29 +195,11 @@ const baseRuleProviders = {
     path: './ruleset/private_ip.mrs',
     'path-in-bundle': 'geo/geoip/private.mrs',
   },
-  games_cn: {
-    ...ruleProviderCommonDomain,
-    url: `${ruleSetBaseUrl}geosite/category-games@cn.mrs`,
-    path: './ruleset/category-games@cn.mrs',
-    'path-in-bundle': 'geo/geosite/category-games@cn.mrs',
-  },
-  nvidia_cn: {
-    ...ruleProviderCommonDomain,
-    url: `${ruleSetBaseUrl}geosite/nvidia@cn.mrs`,
-    path: './ruleset/nvidia@cn.mrs',
-    'path-in-bundle': 'geo/geosite/nvidia@cn.mrs',
-  },
   apple_cn: {
     ...ruleProviderCommonDomain,
     url: `${ruleSetBaseUrl}geosite/apple@cn.mrs`,
     path: './ruleset/apple@cn.mrs',
     'path-in-bundle': 'geo/geosite/apple@cn.mrs',
-  },
-  adobe_cn: {
-    ...ruleProviderCommonDomain,
-    url: `${ruleSetBaseUrl}geosite/adobe@cn.mrs`,
-    path: './ruleset/adobe@cn.mrs',
-    'path-in-bundle': 'geo/geosite/adobe@cn.mrs',
   },
   microsoft_cn: {
     ...ruleProviderCommonDomain,
@@ -235,6 +212,12 @@ const baseRuleProviders = {
     url: `${ruleSetBaseUrl}geosite/geolocation-cn.mrs`,
     path: './ruleset/geolocation-cn.mrs',
     'path-in-bundle': 'geo/geosite/geolocation-cn.mrs',
+  },
+  'category-ai-cn': {
+    ...ruleProviderCommonDomain,
+    url: `${ruleSetBaseUrl}geosite/category-ai-cn.mrs`,
+    path: './ruleset/category-ai-cn.mrs',
+    'path-in-bundle': 'geo/geosite/category-ai-cn.mrs',
   },
   cn_ip: {
     ...ruleProviderCommonIpcidr,
@@ -254,12 +237,6 @@ const baseRuleProviders = {
     path: './ruleset/fakeip-filter.mrs',
     'path-in-bundle': 'geo/geosite/fakeip-filter.mrs',
   },
-  connectcheck: {
-    ...ruleProviderCommonDomain,
-    url: `${ruleSetBaseUrl}geosite/connectivity-check.mrs`,
-    path: './ruleset/connectivity-check.mrs',
-    'path-in-bundle': 'geo/geosite/connectivity-check.mrs',
-  },
   cn: {
     ...ruleProviderCommonDomain,
     url: `${ruleSetBaseUrl}geosite/cn.mrs`,
@@ -275,7 +252,6 @@ const baseRuleProviders = {
 };
 
 const groupBaseOption = {
-  timeout: 5000,
   url: 'http://www.msftncsi.com/ncsi.txt',
   'max-failed-times': 3,
   'empty-fallback': 'REJECT',
@@ -593,6 +569,7 @@ const serviceConfigs = [
   {
     name: 'Spotify',
     baseOption: selectBaseOption,
+    direct: true,
     providers: {
       spotify: {
         ...ruleProviderCommonDomain,
@@ -652,16 +629,34 @@ Compatible_With_Bettbox.policyGroupOptions = serviceConfigs.map((svc) => svc.nam
 
 const customRoutes = typeof bettboxRoutes !== 'undefined' && Array.isArray(bettboxRoutes) ? bettboxRoutes : [];
 const groupOrder = typeof bettboxOrder !== 'undefined' && Array.isArray(bettboxOrder) ? bettboxOrder : [];
+const builtInReservedNames = [
+  'GLOBAL',
+  'DIRECT',
+  'REJECT',
+  'REJECT-DROP',
+  'PASS',
+  'PASS-RULE',
+  'COMPATIBLE',
+  '默认代理',
+  '直连',
+  '其他节点',
+  '其他节点-自动选择',
+  ...serviceConfigs.map((svc) => svc.name),
+  ...allRegionDefinitions.flatMap((region) => [region.name, `${region.name}-自动选择`]),
+  ...directProxies.map((p) => p.name),
+];
 
 /**
  * 零宽/不可见字符：部分机场会在节点名中逐字符插入这类字符（如 H\u200BK），会打断地区、倍率等正则匹配。
  *
  * 刻意排除三类「有语义」的字符，避免误伤：
  * - U+200C / U+200D（ZWNJ / ZWJ）：参与连字与 emoji 组合，删掉会改变字形；
- * - U+FE00–U+FE0F 及 U+E0100–U+E01EF（变体选择符）：控制 emoji 呈现方式。
+ * - U+FE00–U+FE0F 及 U+E0100–U+E01EF（变体选择符）：控制 emoji 呈现方式；
+ * - U+E0020–U+E007F（标签字符）：组成英格兰、苏格兰等地区旗帜。
  * 其余零宽/不可见字符不含任何语义，只用于干扰匹配，可安全忽略。
  */
-const invisibleCharsRegex = /[\u00AD\u180E\u200B\u200E\u200F\u202A-\u202E\u2060-\u206F\uFEFF\u115F\u1160\u3164\uFFA0]/g;
+const invisibleCharsRegex =
+  /[\p{Default_Ignorable_Code_Point}--[\u200C\u200D\uFE00-\uFE0F\u{E0020}-\u{E007F}\u{E0100}-\u{E01EF}]]/gv;
 
 /**
  * 取节点名「可用于匹配」的形式：剥离零宽/不可见字符
@@ -689,7 +684,7 @@ function getMatchedRegions(proxyName) {
 /**
  * 标准化节点名称：补全地区国旗、折叠多余空格，并预缓存匹配结果
  */
-const flagRegex = /[\u{1F1E6}-\u{1F1FF}]{2}/u;
+const flagRegex = /\p{RGI_Emoji_Flag_Sequence}/v;
 function normalizeProxyName(proxy) {
   const originalName = proxy.name;
 
@@ -701,7 +696,9 @@ function normalizeProxyName(proxy) {
 
   const regionFlag = flag || matchedRegions.find((region) => region.flag)?.flag;
 
-  const normalizedName = regionFlag ? `${regionFlag} ${nameWithoutFlag}` : nameWithoutFlag;
+  const normalizedName = regionFlag
+    ? (nameWithoutFlag ? `${regionFlag} ${nameWithoutFlag}` : regionFlag)
+    : nameWithoutFlag;
 
   if (normalizedName !== originalName) {
     regionMatchCache.set(normalizedName, matchedRegions);
@@ -711,23 +708,30 @@ function normalizeProxyName(proxy) {
 }
 
 /**
- * 修复 dialer-proxy 引用：目标被重命名则更新，被移除或不存在则删除引用
+ * 解析 dialer-proxy 目标：节点按重命名更新，只含单个成员的原策略组展开为该成员，无法确定唯一节点时返回 null
  */
-function fixDialerProxy(proxy, renameMap, normalizedProxyNames) {
-  const target = proxy['dialer-proxy'];
-  if (!target) return proxy;
-
-  if (renameMap.has(target)) {
-    return { ...proxy, 'dialer-proxy': renameMap.get(target) };
+function resolveDialerTarget(target, renameMap, proxyNames, groupMembers) {
+  const seen = new Set();
+  let current = target;
+  while (!seen.has(current)) {
+    seen.add(current);
+    if (renameMap.has(current)) return renameMap.get(current);
+    if (proxyNames.has(current)) return current;
+    const members = groupMembers.get(current);
+    if (members?.length !== 1) return null;
+    current = members[0];
   }
+  return null;
+}
 
-  if (normalizedProxyNames.has(target)) {
-    return proxy;
-  }
-
-  const copy = { ...proxy };
-  delete copy['dialer-proxy'];
-  return copy;
+/**
+ * 修复 dialer-proxy 引用：目标无法解析为保留下来的节点时返回 null，由调用方剔除该节点，避免中转失效后直连落地
+ */
+function fixDialerProxy(proxy, renameMap, proxyNames, groupMembers) {
+  if (proxy['dialer-proxy'] == null || proxy['dialer-proxy'] === '') return proxy;
+  const target = resolveDialerTarget(String(proxy['dialer-proxy']), renameMap, proxyNames, groupMembers);
+  if (target === null) return null;
+  return target === proxy['dialer-proxy'] ? proxy : { ...proxy, 'dialer-proxy': target };
 }
 
 /**
@@ -747,7 +751,9 @@ function filterAndNormalizeProxies(config) {
     ? rateRegionDefinitions.find((r) => r.name === highRateRegionName)?.regex
     : null;
 
-  const originalProxies = config.proxies || [];
+  const originalProxies = (Array.isArray(config.proxies) ? config.proxies : [])
+    .filter((proxy) => proxy && typeof proxy === 'object' && proxy.name != null)
+    .map((proxy) => (typeof proxy.name === 'string' ? proxy : { ...proxy, name: String(proxy.name) }));
 
   const filteredRawProxies = originalProxies.filter((proxy) => {
     const type = String(proxy.type ?? '').toLowerCase();
@@ -764,31 +770,56 @@ function filterAndNormalizeProxies(config) {
     return isRegionProxy || !excludeFilter.test(matchableName);
   });
 
+  const reservedProxyNames = new Set([
+    ...builtInReservedNames,
+    ...customRoutes
+      .filter((route) => route && typeof route.name === 'string' && Array.isArray(route.sets) && route.sets.length > 0)
+      .map((route) => route.name),
+  ]);
   const renameMap = new Map();
   const normalizedProxies = [];
-  const uniqueNames = new Set();
+  const rawNames = new Set();
+  const proxyNames = new Set();
 
   for (const rawProxy of filteredRawProxies) {
-    const normalized = normalizeProxyName(rawProxy);
+    if (rawNames.has(rawProxy.name)) continue;
+    rawNames.add(rawProxy.name);
+
+    let normalized = normalizeProxyName(rawProxy);
+    const baseName = normalized.name || '节点';
+    let candidate = baseName;
+    if (proxyNames.has(candidate) || reservedProxyNames.has(candidate)) {
+      let index = 2;
+      while (proxyNames.has(`${baseName} ${index}`) || reservedProxyNames.has(`${baseName} ${index}`)) index++;
+      candidate = `${baseName} ${index}`;
+    }
+    if (candidate !== normalized.name) {
+      regionMatchCache.set(candidate, getMatchedRegions(rawProxy.name));
+      normalized = { ...normalized, name: candidate };
+    }
     if (normalized.name !== rawProxy.name) {
       renameMap.set(rawProxy.name, normalized.name);
     }
-    if (!uniqueNames.has(normalized.name)) {
-      uniqueNames.add(normalized.name);
-      normalizedProxies.push(normalized);
-    }
+    proxyNames.add(normalized.name);
+    normalizedProxies.push(normalized);
   }
 
-  const normalizedProxyNames = new Set(normalizedProxies.map((p) => p.name));
-
-  const filteredProxies = normalizedProxies.map((proxy) => fixDialerProxy(proxy, renameMap, normalizedProxyNames));
-
-  const proxyProviders = config['proxy-providers'] || config.proxyProviders;
-  const hasProviders = Boolean(
-    proxyProviders && typeof proxyProviders === 'object' && Object.keys(proxyProviders).length > 0,
+  const groupMembers = new Map(
+    (Array.isArray(config['proxy-groups']) ? config['proxy-groups'] : [])
+      .filter((group) => group && group.name != null && Array.isArray(group.proxies))
+      .map((group) => [String(group.name), group.proxies.map(String)]),
   );
+  let filteredProxies = normalizedProxies
+    .map((proxy) => fixDialerProxy(proxy, renameMap, proxyNames, groupMembers))
+    .filter(Boolean);
+  for (;;) {
+    const names = new Set(filteredProxies.map((proxy) => proxy.name));
+    const next = filteredProxies.filter((proxy) => !proxy['dialer-proxy'] || names.has(proxy['dialer-proxy']));
+    if (next.length === filteredProxies.length) break;
+    filteredProxies = next;
+  }
 
-  if (!filteredProxies.length && !hasProviders) {
+  if (!filteredProxies.length) {
     throw new Error('配置文件中未找到任何代理节点');
   }
 
@@ -1029,18 +1060,8 @@ function buildFunctionalGroups(filteredProxies, generatedRegionGroups) {
   });
 
   const reservedNames = new Set([
-    'GLOBAL',
-    'DIRECT',
-    'REJECT',
-    'REJECT-DROP',
-    'PASS',
-    'COMPATIBLE',
-    '默认代理',
-    '直连',
-    ...serviceConfigs.map((svc) => svc.name),
-    ...generatedRegionGroups.map((g) => g.name),
+    ...builtInReservedNames,
     ...allProxiesNames,
-    ...directProxies.map((p) => p.name),
   ]);
   const services = [...serviceConfigs];
   const anchorIndex = services.findIndex((svc) => svc.name === 'AdBlock');
@@ -1074,8 +1095,8 @@ function buildFunctionalGroups(filteredProxies, generatedRegionGroups) {
       svc.defaultSelected !== undefined && (!svc.custom || groupProxies.includes(svc.defaultSelected))
         ? svc.defaultSelected
         : undefined;
-    if (!svc.reject) {
-      for (const rule of svc.rules || []) dnsPolicyGroups.push([rule.split(',')[1], svc.name, selected === '直连']);
+    if (!svc.reject && !svc.direct) {
+      for (const rule of svc.rules || []) dnsPolicyGroups.push([rule.split(',')[1], svc.name]);
     }
     functionalGroups.push({
       ...svc.baseOption,
@@ -1271,19 +1292,24 @@ const commonDnsList = [
   'dns.apple',
 ];
 
-const commonDnsRegex = new RegExp(
-  commonDnsList.map((dns) => dns.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|'),
-  'i',
-);
+const commonDnsIps = new Set(commonDnsList.filter(isIpAddress));
+const commonDnsKeywords = commonDnsList.filter((dns) => !isIpAddress(dns));
 
-const chinaDNS = ['223.5.5.5#直连', '223.6.6.6#直连'];
-const douyinDNS = ['180.184.1.1#直连', '180.184.2.2#直连'];
-const policyDNS = (group) => [`1.0.0.1#${group}`, `1.1.1.1#${group}`];
+function dnsHost(dns) {
+  let host = dns.replace(/^[a-z][a-z0-9+.-]*:\/\//, '').split(/[/?#]/, 1)[0];
+  host = host.slice(host.lastIndexOf('@') + 1);
+  const bracketed = host.match(/^\[([^\]]*)\]/);
+  if (bracketed) return bracketed[1];
+  return host.indexOf(':') === host.lastIndexOf(':') ? host.split(':')[0] : host;
+}
+
+const chinaDNS = ['223.6.6.6#DIRECT', '119.29.29.29#DIRECT'];
+const douyinDNS = ['180.184.1.1#DIRECT', '180.184.2.2#DIRECT'];
+const policyDNS = (group) => [`1.1.1.1#${group}`, `tcp://8.8.8.8#${group}`];
 const foreignDNS = policyDNS('默认代理');
-const defaultDNS = ['114.114.114.114#DIRECT', 'tls://223.5.5.5#DIRECT'];
+const defaultDNS = ['114.114.114.114#DIRECT', '119.29.29.29#DIRECT'];
 const proxyServerDNS = [
-  '114.114.114.114#DIRECT',
-  'tls://223.5.5.5#DIRECT',
+  'https://223.5.5.5/dns-query#DIRECT',
   'https://doh.pub/dns-query#DIRECT',
 ];
 
@@ -1434,7 +1460,6 @@ function createHostFinder(hostEntries) {
 /**
  * 根据订阅 hosts 映射改写节点 server，改写后无需再复制 hosts 进新配置。
  * 支持链式映射（如 a: b、b: c 时节点 a 改写为 c）；
- * 回环映射（a: b、b: a）由内核校验拒绝，此处仅以已访问集合防御性终止。
  */
 function applyHostsToProxies(proxies, hosts) {
   if (!hosts || typeof hosts !== 'object') return proxies;
@@ -1512,31 +1537,19 @@ function isIpAddress(server) {
  * 简化节点域名策略：将相同 DNS 的节点域名按后缀归类，至少三段的域名可合并为 +. 后缀形式
  */
 function simplifyDomainPolicy(policy) {
-  const groups = new Map();
-
-  for (const [domain, dns] of Object.entries(policy)) {
-    const dnsKey = JSON.stringify(Array.isArray(dns) ? [...dns].sort() : dns);
-
-    if (domain.startsWith('+.') || domain.startsWith('.') || domain.includes('*')) {
-      groups.set(`keep:${domain}`, [{ domain, dns, dnsKey }]);
-      continue;
-    }
-
-    const parts = domain.split('.');
-
-    if (parts.length < 3) {
-      groups.set(`keep:${domain}`, [{ domain, dns, dnsKey }]);
-      continue;
-    }
-
-    const suffix = parts.slice(-2).join('.');
-
-    if (!groups.has(suffix)) {
-      groups.set(suffix, []);
-    }
-
-    groups.get(suffix).push({ domain, dns, dnsKey });
-  }
+  const groups = Map.groupBy(
+    Object.entries(policy).map(([domain, dns]) => ({
+      domain,
+      dns,
+      dnsKey: JSON.stringify(Array.isArray(dns) ? dns.toSorted() : dns),
+    })),
+    ({ domain }) => {
+      const parts = domain.split('.');
+      return domain.startsWith('+.') || domain.startsWith('.') || domain.includes('*') || parts.length < 3
+        ? `keep:${domain}`
+        : parts.slice(-2).join('.');
+    },
+  );
 
   const result = {};
 
@@ -1557,14 +1570,9 @@ function simplifyDomainPolicy(policy) {
 }
 
 /**
- * 构建 DNS 与 hosts：保留私有 DNS、节点域名 policy/fake-ip-filter，并按 hosts 改写节点 server。
- * hosts 改写条件（满足任意一个条件即可）：
- * 1. proxy-server-nameserver 有且仅有一个 DNS 并且该 DNS 包含非空的 listen 值
- * 2. proxy-server-nameserver 有且仅有一个 DNS 并且该 DNS 包含 127.0.0.1 并且 listen 包含 0.0.0.0
+ * 构建 DNS 与 hosts：保留私有 DNS、节点域名 policy/fake-ip-filter 与命中节点域名的订阅 hosts，并按 hosts 改写节点 server。
  */
 function buildDnsAndHostsConfig(config, filteredProxies, dnsPolicyGroups) {
-  const minimalModeEnabled = ruleOptionsEnable.极简国内外分流模式;
-
   const originalDnsConfig = config.dns || {};
 
   const proxyServerNameservers = originalDnsConfig['proxy-server-nameserver'] || [];
@@ -1595,7 +1603,8 @@ function buildDnsAndHostsConfig(config, filteredProxies, dnsPolicyGroups) {
     const value = String(dns).trim().toLowerCase();
     if (value === 'system' || value === 'system://') return true;
 
-    return commonDnsRegex.test(value);
+    const host = dnsHost(value);
+    return commonDnsIps.has(host) || commonDnsKeywords.some((keyword) => host.includes(keyword));
   };
 
   const privateDNS = [
@@ -1639,8 +1648,8 @@ function buildDnsAndHostsConfig(config, filteredProxies, dnsPolicyGroups) {
     'rule-set:private': 'system',
     'rule-set:douyin': douyinDNS,
   };
-  for (const [provider, group, direct] of dnsPolicyGroups) {
-    nameserverPolicy[`rule-set:${provider}`] ??= direct ? chinaDNS : policyDNS(group);
+  for (const [provider, group] of dnsPolicyGroups) {
+    nameserverPolicy[`rule-set:${provider}`] ??= policyDNS(group);
   }
   delete nameserverPolicy['rule-set:cn'];
   delete nameserverPolicy['rule-set:geolocation-!cn'];
@@ -1660,8 +1669,6 @@ function buildDnsAndHostsConfig(config, filteredProxies, dnsPolicyGroups) {
       'rule-set:cn',
       'rule-set:private',
       'rule-set:fakeip_filter',
-      'rule-set:connectcheck',
-      ...(minimalModeEnabled ? [] : ruleOptionsEnable.FCM ? ['rule-set:googlefcm'] : []),
       ...proxyFakeIpFilter,
     ],
     'fake-ip-range': '198.18.0.1/15',
@@ -1669,23 +1676,28 @@ function buildDnsAndHostsConfig(config, filteredProxies, dnsPolicyGroups) {
     nameserver: ruleOptionsEnable.优先国内DNS加速 ? chinaDNS : foreignDNS,
     'nameserver-policy': nameserverPolicy,
     'proxy-server-nameserver': proxyServerDNS,
+    'direct-nameserver': chinaDNS,
     ...(Object.keys(proxyServerPolicy).length > 0 && {
       'proxy-server-nameserver-policy': proxyServerPolicy,
     }),
   };
 
+  const proxyHosts = Object.fromEntries(
+    Object.entries(config.hosts && typeof config.hosts === 'object' ? config.hosts : {}).filter(
+      ([pattern, value]) =>
+        ((typeof value === 'string' && value.length > 0) || (Array.isArray(value) && value.length > 0)) &&
+        matchProxyDomain(pattern),
+    ),
+  );
+
   const hosts = {
+    ...proxyHosts,
+
     // 解决谷歌商店无法下载的问题
     'services.googleapis.cn': 'services.googleapis.com',
 
     'dns.alidns.com': ['223.5.5.5', '223.6.6.6', '2400:3200::1', '2400:3200:baba::1'],
     'doh.pub': ['120.53.53.53', '1.12.12.12', '2402:4e00:1::', '2402:4e00::'],
-
-    // 屏蔽哔哩哔哩 PCDN，解决访问视频/直播卡顿问题
-    '+.mcdn.bilivideo.com': ['0.0.0.0'],
-    '+.mcdn.bilivideo.cn': ['0.0.0.0'],
-    '+.edge.mountaintoys.cn': ['0.0.0.0'],
-    '+.h2.smtcdns.net': ['0.0.0.0'],
   };
 
   return { dns, hosts, proxies: mappedProxies };
@@ -1716,7 +1728,6 @@ function main(config) {
 
   newConfig.dns = dns;
   newConfig.hosts = hosts;
-  newConfig.ipv6 = true;
 
   newConfig.profile = {
     'store-selected': true,

@@ -6,20 +6,17 @@ import 'package:bett_box/models/models.dart';
 import 'package:flutter/services.dart';
 import 'package:path/path.dart' as p;
 
-import 'constant.dart';
 import 'path.dart';
-import 'request.dart';
 import 'route_icon.dart';
 import 'string.dart';
 
 const managedScriptId = 'managed';
 const managedAnchorGroup = 'AdBlock';
+const managedDefaultGroup = '默认代理';
+const managedManualGroup = '手动选择';
+const managedDirectGroup = '直连';
 const _managedScriptAsset = 'assets/scripts/managed.js';
 const _routeCatalogAsset = 'assets/scripts/routing.json';
-const _managedScriptUrl =
-    'https://raw.githubusercontent.com/$repository/main/$_managedScriptAsset';
-const _routeCatalogUrl =
-    'https://raw.githubusercontent.com/$repository/main/$_routeCatalogAsset';
 const _routeIconBaseUrl =
     'https://cdn.jsdelivr.net/gh/appshubcc/Qure_Style_SVG@main/icon/svg/';
 const _routeIconCommonDir = 'common/';
@@ -346,23 +343,17 @@ class ManagedScript {
     return File(p.join(p.dirname(script), '$managedScriptId.routing.json'));
   }
 
-  static Future<String> _readCatalog(ManagedProps props) async {
-    if (syncedVersion(props) != null) {
-      final file = await _catalogFile();
-      if (await file.exists()) return file.readAsString();
-    }
-    return rootBundle.loadString(_routeCatalogAsset, cache: false);
-  }
-
   static Future<RouteCatalogIndex> _parseCatalog(String text) => Isolate.run(
     () => RouteCatalogIndex(
       RouteCatalog.fromJson(jsonDecode(text) as Map<String, Object?>),
     ),
   );
 
-  static Future<RouteCatalogIndex> catalog(ManagedProps props) async {
+  static Future<RouteCatalogIndex> catalog() async {
     final (index, _) = await (
-      _readCatalog(props).then(_parseCatalog),
+      rootBundle
+          .loadString(_routeCatalogAsset, cache: false)
+          .then(_parseCatalog),
       loadBundledRouteIcons(),
     ).wait;
     return index;
@@ -375,7 +366,7 @@ class ManagedScript {
     ];
     if (enabled.isEmpty) return const [];
     final index = enabled.any((route) => route.icon?.isHttpUrl != true)
-        ? await catalog(props)
+        ? await catalog()
         : null;
     return [
       for (final route in enabled)
@@ -416,27 +407,11 @@ class ManagedScript {
     _bundledVersion = parseVersion(content) ?? '';
   }
 
-  static int compareVersions(String a, String b) {
-    final numA = BigInt.tryParse(a);
-    final numB = BigInt.tryParse(b);
-    if (numA != null && numB != null) {
-      return numA.compareTo(numB);
-    }
-    return a.compareTo(b);
-  }
-
   static bool isCustom(ManagedProps props) =>
       props.syncedVersion?.startsWith(_customVersionPrefix) ?? false;
 
-  static String? syncedVersion(ManagedProps props) {
-    final version = props.syncedVersion;
-    if (version == null) return null;
-    if (version.startsWith(_customVersionPrefix)) return version;
-    if (compareVersions(version, bundledVersion) < 0) {
-      return null;
-    }
-    return version;
-  }
+  static String? syncedVersion(ManagedProps props) =>
+      isCustom(props) ? props.syncedVersion : null;
 
   static String version(ManagedProps props) =>
       syncedVersion(props) ?? bundledVersion;
@@ -496,57 +471,6 @@ class ManagedScript {
     await temp.parent.create(recursive: true);
     await temp.writeAsString(content, flush: true);
     await temp.rename(file.path);
-  }
-
-  static Future<String> _fetchCatalog() async {
-    final res = await request.getTextResponseForUrl(
-      mirrorUrl(_routeCatalogUrl),
-    );
-    final content = res.data;
-    if (content is! String) {
-      throw 'Invalid route catalog';
-    }
-    final index = await _parseCatalog(content);
-    if (index.catalog.sets.isEmpty) {
-      throw 'Invalid route catalog';
-    }
-    return content;
-  }
-
-  static Future<({bool updated, String? syncedVersion})> sync(
-    ManagedProps props,
-  ) async {
-    final (res, catalog) = await (
-      request.getTextResponseForUrl(mirrorUrl(_managedScriptUrl)),
-      _fetchCatalog(),
-    ).wait;
-    final content = res.data;
-    final next = content is String ? parseVersion(content) : null;
-    if (content is! String ||
-        next == null ||
-        !content.contains('function main')) {
-      throw 'Invalid script';
-    }
-    final scriptChanged = content != await read(props);
-    final catalogChanged = catalog != await _readCatalog(props);
-    if (!scriptChanged && !catalogChanged && !isCustom(props)) {
-      return (updated: false, syncedVersion: syncedVersion(props));
-    }
-    final (bundledScript, bundledCatalog) = await (
-      readBundled(),
-      rootBundle.loadString(_routeCatalogAsset, cache: false),
-    ).wait;
-    if (content == bundledScript && catalog == bundledCatalog) {
-      await restore();
-      return (updated: true, syncedVersion: null);
-    }
-    if (scriptChanged) {
-      await _write(File(await appPath.getScriptPath(managedScriptId)), content);
-    }
-    if (catalogChanged) {
-      await _write(await _catalogFile(), catalog);
-    }
-    return (updated: true, syncedVersion: next);
   }
 
   static Future<void> restore() async {

@@ -68,7 +68,7 @@ void main() {
   });
 
   test('route catalog entries point to the bundled rule sets', () async {
-    final index = await ManagedScript.catalog(const ManagedProps());
+    final index = await ManagedScript.catalog();
     final catalog = index.catalog;
     final icons = catalog.icons.toSet();
     expect(catalog.sets, isNotEmpty);
@@ -96,7 +96,7 @@ void main() {
   });
 
   test('icon set picks map back to catalog names', () async {
-    final index = await ManagedScript.catalog(const ManagedProps());
+    final index = await ManagedScript.catalog();
     final iconSet = routeIconSet(index.catalog);
     expect(iconSet.icons.length, index.catalog.icons.length);
     for (final icon in iconSet.icons.take(50)) {
@@ -291,8 +291,7 @@ void main() {
   test(
     'regions default to the preset ones and are injected when chosen',
     () async {
-      final catalog = (await ManagedScript.catalog(const ManagedProps()))
-          .catalog;
+      final catalog = (await ManagedScript.catalog()).catalog;
       expect(managedRegions(catalog, null), ['香港', '日本', '美国', '新加坡', '台湾']);
       expect(managedRegions(catalog, const ['日本', '韩国', 'Gone']), ['日本', '韩国']);
       expect(
@@ -415,17 +414,9 @@ void main() {
     );
   });
 
-  test('version comparison compares numerically when numbers', () {
-    expect(ManagedScript.compareVersions('99', '100'), lessThan(0));
-    expect(ManagedScript.compareVersions('100', '99'), greaterThan(0));
-    expect(
-      ManagedScript.compareVersions('20241012', '2026111105'),
-      lessThan(0),
-    );
-    expect(ManagedScript.compareVersions('2026111105', '2026111105'), 0);
-    expect(ManagedScript.compareVersions('beta', 'alpha'), greaterThan(0));
-
-    const olderProps = ManagedProps(syncedVersion: '99');
-    expect(ManagedScript.syncedVersion(olderProps), isNull);
+  test('legacy upstream version is ignored', () {
+    const legacyProps = ManagedProps(syncedVersion: '2026111105');
+    expect(ManagedScript.isCustom(legacyProps), isFalse);
+    expect(ManagedScript.syncedVersion(legacyProps), isNull);
   });
 }

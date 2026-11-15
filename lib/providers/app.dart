@@ -10,8 +10,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-import 'config.dart';
-
 part 'generated/app.g.dart';
 
 @riverpod
@@ -597,6 +595,12 @@ class ConnectionsSort extends _$ConnectionsSort with NotifierValueMixin {
 }
 
 @Riverpod(keepAlive: true)
+class AppUpdateState extends _$AppUpdateState with NotifierValueMixin {
+  @override
+  AppUpdate? build() => null;
+}
+
+@Riverpod(keepAlive: true)
 class ForceRefreshIcon extends _$ForceRefreshIcon with NotifierValueMixin {
   @override
   bool build() => false;
@@ -665,8 +669,7 @@ final filteredAllConnectionsProvider =
 
 @riverpod
 Future<IconSet> builtInIconSet(Ref ref) async {
-  ref.watch(managedSettingProvider.select((state) => state.syncedVersion));
-  final index = await ManagedScript.catalog(ref.read(managedSettingProvider));
+  final index = await ManagedScript.catalog();
   return routeIconSet(index.catalog);
 }
 

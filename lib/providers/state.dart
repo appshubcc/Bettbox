@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:bett_box/common/common.dart';
 import 'package:bett_box/enum/enum.dart';
 import 'package:bett_box/models/models.dart';
@@ -51,7 +53,9 @@ Config configState(Ref ref) {
   final hotKeyActions = ref.watch(hotKeyActionsProvider);
   final dav = ref.watch(appDAVSettingProvider);
   final windowProps = ref.watch(windowSettingProvider);
+  final nodes = ref.watch(nodesProvider);
   return Config(
+    nodes: nodes,
     dav: dav,
     windowProps: windowProps,
     hotKeyActions: hotKeyActions,
@@ -178,7 +182,7 @@ UpdateParams updateParams(Ref ref) {
         logLevel: state.logLevel,
         ipv6: state.ipv6,
         tcpConcurrent: state.tcpConcurrent,
-        externalController: state.externalController,
+        externalController: state.externalControllerAddress,
         unifiedDelay: state.unifiedDelay,
         mixedPort: state.mixedPort,
       ),
@@ -298,8 +302,12 @@ DashboardState dashboardState(Ref ref) {
           : state.desktopDashboardWidgets,
     ),
   );
+  final showStartSwitch = ref.watch(
+    appSettingProvider.select((state) => state.showStartSwitch),
+  );
   final viewWidth = ref.watch(viewWidthProvider);
-  final widgets = dashboardWidgets.contains(DashboardWidget.startButton)
+  final widgets =
+      showStartSwitch || dashboardWidgets.contains(DashboardWidget.startButton)
       ? dashboardWidgets
       : [...dashboardWidgets, DashboardWidget.startButton];
   return DashboardState(dashboardWidgets: widgets, viewWidth: viewWidth);
@@ -1075,7 +1083,8 @@ bool currentProfileScriptActive(Ref ref) {
 }
 
 @riverpod
-({String? a, String? b, String? c, bool d, String e}) needSetup(Ref ref) {
+({String? a, String? b, String? c, bool d, String e, String f, String g})
+needSetup(Ref ref) {
   final profileId = ref.watch(currentProfileIdProvider);
   final runsManagedScript = ref.watch(
     currentProfileProvider.select(
@@ -1087,12 +1096,18 @@ bool currentProfileScriptActive(Ref ref) {
       ? ref.watch(
           managedSettingProvider.select(
             (state) =>
-                '${ManagedScript.version(state)}:${state.options}:${state.routes}:${state.order}',
+                '${ManagedScript.version(state)}:${state.options}:${state.routes}:${state.order}:${state.regions}:${state.customRegions}',
           ),
         )
       : script == null
       ? null
       : '${script.id}:${script.digest}';
+  final managed = ref.watch(
+    currentProfileProvider.select((profile) => profile?.isManaged ?? false),
+  );
+  final sharedRules = managed
+      ? ref.watch(managedSettingProvider.select((state) => state.rules))
+      : const <Rule>[];
   final loopbackPorts =
       ref.watch(vpnSettingProvider.select((state) => state.loopbackProtection))
       ? ref.watch(patchClashConfigProvider.select((state) => state.listenPorts))
@@ -1103,12 +1118,26 @@ bool currentProfileScriptActive(Ref ref) {
   final interfaceName = ref.watch(
     patchClashConfigProvider.select((state) => state.interfaceName),
   );
+  final nodes = profileId == null
+      ? ''
+      : ref.watch(
+          nodesProvider.select(
+            (state) => jsonEncode(state.patchOf(profileId, managed: managed)),
+          ),
+        );
+  final hosts = jsonEncode(
+    ref.watch(patchClashConfigProvider.select((state) => state.hosts)),
+  );
   return (
     a: profileId,
-    b: scriptDigest,
+    b: sharedRules.isEmpty
+        ? scriptDigest
+        : '$scriptDigest:${[for (final rule in sharedRules) rule.value]}',
     c: loopbackPorts,
     d: ipv6,
     e: interfaceName,
+    f: nodes,
+    g: hosts,
   );
 }
 

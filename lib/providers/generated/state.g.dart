@@ -48,7 +48,7 @@ final class ConfigStateProvider
   }
 }
 
-String _$configStateHash() => r'd4e8a017e3065c96b4c309ee3415fb5fd5e3d334';
+String _$configStateHash() => r'51588e13e097449bf0b71481e42ce5f0aaf286b9';
 
 @ProviderFor(currentGroupsState)
 final currentGroupsStateProvider = CurrentGroupsStateProvider._();
@@ -269,7 +269,7 @@ final class UpdateParamsProvider
   }
 }
 
-String _$updateParamsHash() => r'8f818efc59fa4f27155f147b48b7ff2cac548c73';
+String _$updateParamsHash() => r'd7c86cdf9a5f98d0ea7f6621f88a91ad57f8cdb8';
 
 @ProviderFor(proxyState)
 final proxyStateProvider = ProxyStateProvider._();
@@ -579,7 +579,7 @@ final class DashboardStateProvider
   }
 }
 
-String _$dashboardStateHash() => r'f9159592989464c198dea7bba5152a957643da90';
+String _$dashboardStateHash() => r'83778c83f07a7a1b8ea85417f712f45a4a897cba';
 
 @ProviderFor(proxiesActionsState)
 final proxiesActionsStateProvider = ProxiesActionsStateProvider._();
@@ -2664,11 +2664,46 @@ final needSetupProvider = NeedSetupProvider._();
 final class NeedSetupProvider
     extends
         $FunctionalProvider<
-          ({String? a, String? b, String? c, bool d, String e}),
-          ({String? a, String? b, String? c, bool d, String e}),
-          ({String? a, String? b, String? c, bool d, String e})
+          ({
+            String? a,
+            String? b,
+            String? c,
+            bool d,
+            String e,
+            String f,
+            String g,
+          }),
+          ({
+            String? a,
+            String? b,
+            String? c,
+            bool d,
+            String e,
+            String f,
+            String g,
+          }),
+          ({
+            String? a,
+            String? b,
+            String? c,
+            bool d,
+            String e,
+            String f,
+            String g,
+          })
         >
-    with $Provider<({String? a, String? b, String? c, bool d, String e})> {
+    with
+        $Provider<
+          ({
+            String? a,
+            String? b,
+            String? c,
+            bool d,
+            String e,
+            String f,
+            String g,
+          })
+        > {
   NeedSetupProvider._()
     : super(
         from: null,
@@ -2685,29 +2720,41 @@ final class NeedSetupProvider
 
   @$internal
   @override
-  $ProviderElement<({String? a, String? b, String? c, bool d, String e})>
+  $ProviderElement<
+    ({String? a, String? b, String? c, bool d, String e, String f, String g})
+  >
   $createElement($ProviderPointer pointer) => $ProviderElement(pointer);
 
   @override
-  ({String? a, String? b, String? c, bool d, String e}) create(Ref ref) {
+  ({String? a, String? b, String? c, bool d, String e, String f, String g})
+  create(Ref ref) {
     return needSetup(ref);
   }
 
   /// {@macro riverpod.override_with_value}
   Override overrideWithValue(
-    ({String? a, String? b, String? c, bool d, String e}) value,
+    ({String? a, String? b, String? c, bool d, String e, String f, String g})
+    value,
   ) {
     return $ProviderOverride(
       origin: this,
       providerOverride:
           $SyncValueProvider<
-            ({String? a, String? b, String? c, bool d, String e})
+            ({
+              String? a,
+              String? b,
+              String? c,
+              bool d,
+              String e,
+              String f,
+              String g,
+            })
           >(value),
     );
   }
 }
 
-String _$needSetupHash() => r'84db17e4fb2d9615763a7e55187e8799234caebe';
+String _$needSetupHash() => r'bb597a72b9af6bfa6421aed848f0470c58d59481';
 
 @ProviderFor(currentBrightness)
 final currentBrightnessProvider = CurrentBrightnessProvider._();

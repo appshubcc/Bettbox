@@ -236,5 +236,7 @@ abstract class ProfileOverrideStateModel with _$ProfileOverrideStateModel {
     ClashConfigSnippet? snippet,
     required Set<String> selectedRules,
     OverrideData? overrideData,
+    @Default(false) bool managed,
+    @Default({}) Set<String> sharedRules,
   }) = _ProfileOverrideStateModel;
 }

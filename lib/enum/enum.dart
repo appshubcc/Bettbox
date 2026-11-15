@@ -607,6 +607,8 @@ enum RuleTarget { DIRECT, REJECT }
 
 enum RecoveryStrategy { compatible, override }
 
+enum AppUpdateStatus { available, downloading, ready }
+
 enum StartSwitchStyle { tonal, outlined }
 
 enum ProfileUsageStyle { bar, ring, concentric }

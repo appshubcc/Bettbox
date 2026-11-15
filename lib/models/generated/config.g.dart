@@ -55,6 +55,7 @@ _AppSettingProps _$AppSettingPropsFromJson(
   enableNavBarHapticFeedback:
       json['enableNavBarHapticFeedback'] as bool? ?? true,
   autoCheckUpdate: json['autoCheckUpdate'] as bool? ?? true,
+  autoDownloadUpdate: json['autoDownloadUpdate'] as bool? ?? true,
   showLabel: json['showLabel'] as bool? ?? false,
   disclaimerAccepted: json['disclaimerAccepted'] as bool? ?? false,
   minimizeOnExit: json['minimizeOnExit'] as bool? ?? true,
@@ -111,7 +112,7 @@ _AppSettingProps _$AppSettingPropsFromJson(
       (json['mobileDashboardSizes'] as Map<String, dynamic>?)?.map(
         (k, e) => MapEntry(k, e as String),
       ) ??
-      const <String, String>{},
+      defaultAndroidDashboardSizes,
   desktopDashboardSizes:
       (json['desktopDashboardSizes'] as Map<String, dynamic>?)?.map(
         (k, e) => MapEntry(k, e as String),
@@ -155,6 +156,7 @@ Map<String, dynamic> _$AppSettingPropsToJson(_AppSettingProps instance) =>
       'startSwitchOffLabel': instance.startSwitchOffLabel,
       'enableNavBarHapticFeedback': instance.enableNavBarHapticFeedback,
       'autoCheckUpdate': instance.autoCheckUpdate,
+      'autoDownloadUpdate': instance.autoDownloadUpdate,
       'showLabel': instance.showLabel,
       'disclaimerAccepted': instance.disclaimerAccepted,
       'minimizeOnExit': instance.minimizeOnExit,
@@ -251,8 +253,6 @@ const _$MediaPlatformEnumMap = {
   MediaPlatform.tiktok: 'tiktok',
   MediaPlatform.iqiyi: 'iqiyi',
   MediaPlatform.crunchyroll: 'crunchyroll',
-  MediaPlatform.missav: 'missav',
-  MediaPlatform.ehentai: 'ehentai',
   MediaPlatform.tencent: 'tencent',
   MediaPlatform.alibaba: 'alibaba',
   MediaPlatform.netease: 'netease',
@@ -509,7 +509,7 @@ _ProxiesStyle _$ProxiesStyleFromJson(Map<String, dynamic> json) =>
           ) ??
           const {},
       concurrencyLimit: json['concurrencyLimit'] == null
-          ? maxDelayTestConcurrency
+          ? defaultDelayTestConcurrency
           : concurrencyLimitFromJson(json['concurrencyLimit']),
       autoStickyHeader: json['autoStickyHeader'] as bool? ?? false,
       showHiddenItems: json['showHiddenItems'] as bool? ?? false,
@@ -621,9 +621,8 @@ _ThemeProps _$ThemePropsFromJson(Map<String, dynamic> json) => _ThemeProps(
   textScale: json['textScale'] == null
       ? const TextScale()
       : TextScale.fromJson(json['textScale'] as Map<String, dynamic>),
-  useDarkIcon: json['useDarkIcon'] as bool? ?? false,
   useHarmonyFont: json['useHarmonyFont'] as bool? ?? false,
-  usePhosphorIcons: json['usePhosphorIcons'] as bool? ?? false,
+  usePhosphorIcons: json['usePhosphorIcons'] as bool? ?? true,
   invertTrayIcon: json['invertTrayIcon'] as bool? ?? false,
 );
 
@@ -634,7 +633,6 @@ Map<String, dynamic> _$ThemePropsToJson(_ThemeProps instance) =>
       'themeMode': _$ThemeModeEnumMap[instance.themeMode]!,
       'schemeVariant': _$DynamicSchemeVariantEnumMap[instance.schemeVariant]!,
       'textScale': instance.textScale,
-      'useDarkIcon': instance.useDarkIcon,
       'useHarmonyFont': instance.useHarmonyFont,
       'usePhosphorIcons': instance.usePhosphorIcons,
       'invertTrayIcon': instance.invertTrayIcon,
@@ -725,6 +723,11 @@ _ManagedProps _$ManagedPropsFromJson(Map<String, dynamic> json) =>
               ?.map((e) => CustomRegion.fromJson(e as Map<String, dynamic>))
               .toList() ??
           const [],
+      rules:
+          (json['rules'] as List<dynamic>?)
+              ?.map((e) => Rule.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          const [],
     );
 
 Map<String, dynamic> _$ManagedPropsToJson(_ManagedProps instance) =>
@@ -736,6 +739,7 @@ Map<String, dynamic> _$ManagedPropsToJson(_ManagedProps instance) =>
       'removed': instance.removed,
       'regions': instance.regions,
       'customRegions': instance.customRegions,
+      'rules': instance.rules,
     };
 
 _Config _$ConfigFromJson(Map<String, dynamic> json) => _Config(
@@ -793,6 +797,11 @@ _Config _$ConfigFromJson(Map<String, dynamic> json) => _Config(
   managedProps: json['managedProps'] == null
       ? const ManagedProps()
       : ManagedProps.fromJson(json['managedProps'] as Map<String, dynamic>),
+  nodes:
+      (json['nodes'] as List<dynamic>?)
+          ?.map((e) => ProxyNode.fromJson(e as Map<String, dynamic>))
+          .toList() ??
+      const [],
   nodeExcludeFilter: json['nodeExcludeFilter'] as String? ?? '',
   healthCheckTimeout: (json['healthCheckTimeout'] as num?)?.toInt() ?? 5000,
 );
@@ -816,6 +825,7 @@ Map<String, dynamic> _$ConfigToJson(_Config instance) => <String, dynamic>{
   'patchClashConfig': instance.patchClashConfig,
   'scriptProps': instance.scriptProps,
   'managedProps': instance.managedProps,
+  'nodes': instance.nodes,
   'nodeExcludeFilter': instance.nodeExcludeFilter,
   'healthCheckTimeout': instance.healthCheckTimeout,
 };

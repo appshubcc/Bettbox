@@ -4764,7 +4764,7 @@ $VpnPropsCopyWith<$Res> get vpnProps {
 /// @nodoc
 mixin _$ProfileOverrideStateModel {
 
- ClashConfigSnippet? get snippet; Set<String> get selectedRules; OverrideData? get overrideData;
+ ClashConfigSnippet? get snippet; Set<String> get selectedRules; OverrideData? get overrideData; bool get managed; Set<String> get sharedRules;
 /// Create a copy of ProfileOverrideStateModel
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -4776,20 +4776,20 @@ $ProfileOverrideStateModelCopyWith<ProfileOverrideStateModel> get copyWith => _$
 @override
 bool operator ==(Object other) {
   final _this = this as ProfileOverrideStateModel;
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ProfileOverrideStateModel&&(identical(other.snippet, _this.snippet) || other.snippet == _this.snippet)&&const DeepCollectionEquality().equals(other.selectedRules, _this.selectedRules)&&(identical(other.overrideData, _this.overrideData) || other.overrideData == _this.overrideData));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ProfileOverrideStateModel&&(identical(other.snippet, _this.snippet) || other.snippet == _this.snippet)&&const DeepCollectionEquality().equals(other.selectedRules, _this.selectedRules)&&(identical(other.overrideData, _this.overrideData) || other.overrideData == _this.overrideData)&&(identical(other.managed, _this.managed) || other.managed == _this.managed)&&const DeepCollectionEquality().equals(other.sharedRules, _this.sharedRules));
 }
 
 
 @override
 int get hashCode {
   final _this = this as ProfileOverrideStateModel;
-  return Object.hash(runtimeType,_this.snippet,const DeepCollectionEquality().hash(_this.selectedRules),_this.overrideData);
+  return Object.hash(runtimeType,_this.snippet,const DeepCollectionEquality().hash(_this.selectedRules),_this.overrideData,_this.managed,const DeepCollectionEquality().hash(_this.sharedRules));
 }
 
 @override
 String toString() {
   final _this = this as ProfileOverrideStateModel;
-  return 'ProfileOverrideStateModel(snippet: ${_this.snippet}, selectedRules: ${_this.selectedRules}, overrideData: ${_this.overrideData})';
+  return 'ProfileOverrideStateModel(snippet: ${_this.snippet}, selectedRules: ${_this.selectedRules}, overrideData: ${_this.overrideData}, managed: ${_this.managed}, sharedRules: ${_this.sharedRules})';
 }
 
 
@@ -4800,7 +4800,7 @@ abstract mixin class $ProfileOverrideStateModelCopyWith<$Res>  {
   factory $ProfileOverrideStateModelCopyWith(ProfileOverrideStateModel value, $Res Function(ProfileOverrideStateModel) _then) = _$ProfileOverrideStateModelCopyWithImpl;
 @useResult
 $Res call({
- ClashConfigSnippet? snippet, Set<String> selectedRules, OverrideData? overrideData
+ ClashConfigSnippet? snippet, Set<String> selectedRules, OverrideData? overrideData, bool managed, Set<String> sharedRules
 });
 
 
@@ -4817,12 +4817,14 @@ class _$ProfileOverrideStateModelCopyWithImpl<$Res>
 
 /// Create a copy of ProfileOverrideStateModel
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? snippet = freezed,Object? selectedRules = null,Object? overrideData = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? snippet = freezed,Object? selectedRules = null,Object? overrideData = freezed,Object? managed = null,Object? sharedRules = null,}) {
   return _then(ProfileOverrideStateModel(
 snippet: freezed == snippet ? _self.snippet : snippet // ignore: cast_nullable_to_non_nullable
 as ClashConfigSnippet?,selectedRules: null == selectedRules ? _self.selectedRules : selectedRules // ignore: cast_nullable_to_non_nullable
 as Set<String>,overrideData: freezed == overrideData ? _self.overrideData : overrideData // ignore: cast_nullable_to_non_nullable
-as OverrideData?,
+as OverrideData?,managed: null == managed ? _self.managed : managed // ignore: cast_nullable_to_non_nullable
+as bool,sharedRules: null == sharedRules ? _self.sharedRules : sharedRules // ignore: cast_nullable_to_non_nullable
+as Set<String>,
   ));
 }
 /// Create a copy of ProfileOverrideStateModel
@@ -4931,10 +4933,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( ClashConfigSnippet? snippet,  Set<String> selectedRules,  OverrideData? overrideData)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( ClashConfigSnippet? snippet,  Set<String> selectedRules,  OverrideData? overrideData,  bool managed,  Set<String> sharedRules)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _ProfileOverrideStateModel() when $default != null:
-return $default(_that.snippet,_that.selectedRules,_that.overrideData);case _:
+return $default(_that.snippet,_that.selectedRules,_that.overrideData,_that.managed,_that.sharedRules);case _:
   return orElse();
 
 }
@@ -4952,10 +4954,10 @@ return $default(_that.snippet,_that.selectedRules,_that.overrideData);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( ClashConfigSnippet? snippet,  Set<String> selectedRules,  OverrideData? overrideData)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( ClashConfigSnippet? snippet,  Set<String> selectedRules,  OverrideData? overrideData,  bool managed,  Set<String> sharedRules)  $default,) {final _that = this;
 switch (_that) {
 case _ProfileOverrideStateModel():
-return $default(_that.snippet,_that.selectedRules,_that.overrideData);case _:
+return $default(_that.snippet,_that.selectedRules,_that.overrideData,_that.managed,_that.sharedRules);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -4972,10 +4974,10 @@ return $default(_that.snippet,_that.selectedRules,_that.overrideData);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( ClashConfigSnippet? snippet,  Set<String> selectedRules,  OverrideData? overrideData)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( ClashConfigSnippet? snippet,  Set<String> selectedRules,  OverrideData? overrideData,  bool managed,  Set<String> sharedRules)?  $default,) {final _that = this;
 switch (_that) {
 case _ProfileOverrideStateModel() when $default != null:
-return $default(_that.snippet,_that.selectedRules,_that.overrideData);case _:
+return $default(_that.snippet,_that.selectedRules,_that.overrideData,_that.managed,_that.sharedRules);case _:
   return null;
 
 }
@@ -4987,7 +4989,7 @@ return $default(_that.snippet,_that.selectedRules,_that.overrideData);case _:
 
 
 class _ProfileOverrideStateModel implements ProfileOverrideStateModel {
-  const _ProfileOverrideStateModel({this.snippet, required  Set<String> selectedRules, this.overrideData}): _selectedRules = selectedRules;
+  const _ProfileOverrideStateModel({this.snippet, required  Set<String> selectedRules, this.overrideData, this.managed = false,  Set<String> sharedRules = const {}}): _selectedRules = selectedRules,_sharedRules = sharedRules;
   
 
 @override final  ClashConfigSnippet? snippet;
@@ -4999,6 +5001,14 @@ class _ProfileOverrideStateModel implements ProfileOverrideStateModel {
 }
 
 @override final  OverrideData? overrideData;
+@override@JsonKey() final  bool managed;
+ final  Set<String> _sharedRules;
+@override@JsonKey() Set<String> get sharedRules {
+  if (_sharedRules is EqualUnmodifiableSetView) return _sharedRules;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableSetView(_sharedRules);
+}
+
 
 /// Create a copy of ProfileOverrideStateModel
 /// with the given fields replaced by the non-null parameter values.
@@ -5010,18 +5020,18 @@ _$ProfileOverrideStateModelCopyWith<_ProfileOverrideStateModel> get copyWith => 
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _ProfileOverrideStateModel&&(identical(other.snippet, snippet) || other.snippet == snippet)&&const DeepCollectionEquality().equals(other.selectedRules, _selectedRules)&&(identical(other.overrideData, overrideData) || other.overrideData == overrideData));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _ProfileOverrideStateModel&&(identical(other.snippet, snippet) || other.snippet == snippet)&&const DeepCollectionEquality().equals(other.selectedRules, _selectedRules)&&(identical(other.overrideData, overrideData) || other.overrideData == overrideData)&&(identical(other.managed, managed) || other.managed == managed)&&const DeepCollectionEquality().equals(other.sharedRules, _sharedRules));
 }
 
 
 @override
 int get hashCode {
-    return Object.hash(runtimeType,snippet,const DeepCollectionEquality().hash(_selectedRules),overrideData);
+    return Object.hash(runtimeType,snippet,const DeepCollectionEquality().hash(_selectedRules),overrideData,managed,const DeepCollectionEquality().hash(_sharedRules));
 }
 
 @override
 String toString() {
-    return 'ProfileOverrideStateModel(snippet: $snippet, selectedRules: $selectedRules, overrideData: $overrideData)';
+    return 'ProfileOverrideStateModel(snippet: $snippet, selectedRules: $selectedRules, overrideData: $overrideData, managed: $managed, sharedRules: $sharedRules)';
 }
 
 
@@ -5032,7 +5042,7 @@ abstract mixin class _$ProfileOverrideStateModelCopyWith<$Res> implements $Profi
   factory _$ProfileOverrideStateModelCopyWith(_ProfileOverrideStateModel value, $Res Function(_ProfileOverrideStateModel) _then) = __$ProfileOverrideStateModelCopyWithImpl;
 @override @useResult
 $Res call({
- ClashConfigSnippet? snippet, Set<String> selectedRules, OverrideData? overrideData
+ ClashConfigSnippet? snippet, Set<String> selectedRules, OverrideData? overrideData, bool managed, Set<String> sharedRules
 });
 
 
@@ -5049,12 +5059,14 @@ class __$ProfileOverrideStateModelCopyWithImpl<$Res>
 
 /// Create a copy of ProfileOverrideStateModel
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? snippet = freezed,Object? selectedRules = null,Object? overrideData = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? snippet = freezed,Object? selectedRules = null,Object? overrideData = freezed,Object? managed = null,Object? sharedRules = null,}) {
   return _then(_ProfileOverrideStateModel(
 snippet: freezed == snippet ? _self.snippet : snippet // ignore: cast_nullable_to_non_nullable
 as ClashConfigSnippet?,selectedRules: null == selectedRules ? _self._selectedRules : selectedRules // ignore: cast_nullable_to_non_nullable
 as Set<String>,overrideData: freezed == overrideData ? _self.overrideData : overrideData // ignore: cast_nullable_to_non_nullable
-as OverrideData?,
+as OverrideData?,managed: null == managed ? _self.managed : managed // ignore: cast_nullable_to_non_nullable
+as bool,sharedRules: null == sharedRules ? _self._sharedRules : sharedRules // ignore: cast_nullable_to_non_nullable
+as Set<String>,
   ));
 }
 

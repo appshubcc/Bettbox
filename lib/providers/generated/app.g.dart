@@ -1675,6 +1675,58 @@ abstract class _$ConnectionsSort extends $Notifier<ConnectionsSortType> {
   }
 }
 
+@ProviderFor(AppUpdateState)
+final appUpdateStateProvider = AppUpdateStateProvider._();
+
+final class AppUpdateStateProvider
+    extends $NotifierProvider<AppUpdateState, AppUpdate?> {
+  AppUpdateStateProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'appUpdateStateProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$appUpdateStateHash();
+
+  @$internal
+  @override
+  AppUpdateState create() => AppUpdateState();
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(AppUpdate? value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<AppUpdate?>(value),
+    );
+  }
+}
+
+String _$appUpdateStateHash() => r'768c669846b47b45524fce7da590405c2a551d6d';
+
+abstract class _$AppUpdateState extends $Notifier<AppUpdate?> {
+  AppUpdate? build();
+  @$mustCallSuper
+  @override
+  WhenComplete runBuild() {
+    final ref = this.ref as $Ref<AppUpdate?, AppUpdate?>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<AppUpdate?, AppUpdate?>,
+              AppUpdate?,
+              Object?,
+              Object?
+            >;
+    return element.handleCreate(ref, build);
+  }
+}
+
 @ProviderFor(ForceRefreshIcon)
 final forceRefreshIconProvider = ForceRefreshIconProvider._();
 
@@ -1810,7 +1862,7 @@ final class BuiltInIconSetProvider
   }
 }
 
-String _$builtInIconSetHash() => r'dc9258dbfc06e3b9dc2721432285a3491c95ef5e';
+String _$builtInIconSetHash() => r'e0086ea3f8ff96e9e817c82a1fb7a0e95717df9f';
 
 @ProviderFor(IconSets)
 final iconSetsProvider = IconSetsProvider._();

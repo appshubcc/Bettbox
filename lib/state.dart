@@ -56,6 +56,8 @@ class GlobalState {
   set config(Config value) => _config = value;
   late AppState appState;
   bool isPre = true;
+
+  bool get isPreRelease => isPre && !kDebugMode && !AppIdentity.isDev;
   String? coreSHA256;
   late PackageInfo packageInfo;
   Function? updateCurrentDelayDebounce;
@@ -138,15 +140,7 @@ class GlobalState {
 
   Future<void> initApp(int version) async {
     isExiting = false;
-    if (system.isLinux && appPath.isAppImage) {
-      await appPath.ensureAppImageCoreSynced();
-    }
     coreSHA256 = const String.fromEnvironment('CORE_SHA256');
-    if (system.isWindows &&
-        !kDebugMode &&
-        (coreSHA256 == null || coreSHA256!.isEmpty)) {
-      coreSHA256 = await _calcCoreSHA256();
-    }
     isPre = const String.fromEnvironment('APP_ENV') != 'stable';
     appState = AppState(
       brightness: WidgetsBinding.instance.platformDispatcher.platformBrightness,
@@ -158,8 +152,16 @@ class GlobalState {
       totalTraffic: Traffic(),
       systemUiOverlayStyle: const SystemUiOverlayStyle(),
     );
-    await _initDynamicColor();
-    await init();
+    await Future.wait([
+      if (system.isLinux && appPath.isAppImage)
+        appPath.ensureAppImageCoreSynced(),
+      if (system.isWindows &&
+          !kDebugMode &&
+          (coreSHA256 == null || coreSHA256!.isEmpty))
+        _calcCoreSHA256().then((value) => coreSHA256 = value),
+      _initDynamicColor(),
+      init(deferBackup: !isService),
+    ]);
   }
 
   Future<String?> getOrCalcCoreSHA256() async {
@@ -221,14 +223,17 @@ class GlobalState {
     } catch (_) {}
   }
 
-  Future<void> init() async {
-    packageInfo = await PackageInfo.fromPlatform();
-    if (system.isAndroid) {
-      _isAndroidTV = await app.isAndroidTV();
-    }
-    await ManagedScript.loadBundledVersion();
+  Future<void> init({bool deferBackup = false}) async {
+    final (_, _, _, loadedConfig) = await (
+      PackageInfo.fromPlatform().then((value) => packageInfo = value),
+      system.isAndroid
+          ? app.isAndroidTV().then((value) => _isAndroidTV = value)
+          : Future<void>.value(),
+      ManagedScript.loadBundledVersion(),
+      preferences.getConfig(deferBackup: deferBackup),
+    ).wait;
     config =
-        await preferences.getConfig() ??
+        loadedConfig ??
         Config(
           themeProps: defaultThemeProps,
           patchClashConfig: defaultClashConfig,
@@ -513,6 +518,7 @@ class GlobalState {
     String? title,
     required InlineSpan message,
     String? confirmText,
+    String? cancelText,
     bool cancelable = true,
   }) async {
     return await showCommonDialog<bool>(
@@ -526,7 +532,7 @@ class GlobalState {
                   onPressed: () {
                     Navigator.of(context).pop(false);
                   },
-                  child: Text(appLocalizations.cancel),
+                  child: Text(cancelText ?? appLocalizations.cancel),
                 ),
               TextButton(
                 onPressed: () {
@@ -663,11 +669,7 @@ class GlobalState {
     await prefs?.remove(customSidebarIconKey);
 
     final synced = config.managedProps.syncedVersion;
-    if (synced != null &&
-        ManagedScript.bundledVersion.isNotEmpty &&
-        !ManagedScript.isCustom(config.managedProps) &&
-        ManagedScript.compareVersions(synced, ManagedScript.bundledVersion) <
-            0) {
+    if (synced != null && !ManagedScript.isCustom(config.managedProps)) {
       await ManagedScript.restore();
       config = config.copyWith(
         managedProps: config.managedProps.copyWith(syncedVersion: null),
@@ -743,6 +745,13 @@ class GlobalState {
     );
   }
 
+  Future<({String yaml, String uri})> getProxyConfig(String name) async {
+    return clashCore.getProxyConfig(
+      await buildSetupParams(patchConfig: config.patchClashConfig),
+      name,
+    );
+  }
+
   Future<String> validatePatchedConfig({
     required ClashConfig patchConfig,
   }) async {
@@ -760,15 +769,42 @@ class GlobalState {
           ? await ManagedScript.script(config.managedProps)
           : config.scriptProps.scriptOf(profile);
       if (script == null) return '';
-      return await writeScriptedConfig(profile, script, managed: managed);
+      final refresh = managed && providerRefreshProfileId == profile.id;
+      if (refresh) providerRefreshProfileId = null;
+      return await writeScriptedConfig(
+        profile,
+        script,
+        managed: managed,
+        refresh: refresh,
+      );
     } catch (e) {
       commonPrint.error('Script execution failed: $e');
       showNotifier('${appLocalizations.profileParseErrorDesc}: $e');
-      if (managed && ManagedScript.syncedVersion(config.managedProps) != null) {
-        return await writeBundledManagedConfig(profile);
+      if (!managed) return '';
+      if (ManagedScript.syncedVersion(config.managedProps) != null) {
+        final bundled = await writeBundledManagedConfig(profile);
+        if (bundled.isNotEmpty) return bundled;
       }
-      return '';
+      final last = await _lastManagedConfig(profile);
+      if (last.isEmpty) rethrow;
+      return last;
     }
+  }
+
+  String? providerRefreshProfileId;
+
+  Future<String> _lastManagedConfig(Profile profile) async {
+    final relayPath = await appPath.relayPath;
+    final separator = Platform.pathSeparator;
+    final cacheFile = File(
+      '$relayPath${separator}cache-${profile.id}-managed.json',
+    );
+    if (!await cacheFile.exists()) return '';
+    final file = File(
+      '$relayPath${separator}scripted-${DateTime.now().microsecondsSinceEpoch}.json',
+    );
+    await cacheFile.copy(file.path);
+    return file.path;
   }
 
   Future<String> writeBundledManagedConfig(Profile profile) async {
@@ -910,12 +946,14 @@ class GlobalState {
           outputPath: file.path,
           customOptions: script.customOptions,
         );
-        if (key != null) {
+        if (key != null || (managed && cache)) {
           if (await cacheKey.exists()) {
             await cacheKey.delete();
           }
           await file.copy(cacheFile.path);
-          await cacheKey.writeAsString(key, flush: true);
+          if (key != null) {
+            await cacheKey.writeAsString(key, flush: true);
+          }
         }
         return file.path;
       } finally {
@@ -1006,6 +1044,9 @@ class GlobalState {
     required ClashConfig patchConfig,
     required Profile profile,
   }) async {
+    if (!isService) {
+      await uiManager.initializeUI();
+    }
     final tun = patchConfig.tun.getRealTun(
       config.networkProps.bypassPrivateRoute,
       bypassPrivateRouteAddress:
@@ -1017,8 +1058,11 @@ class GlobalState {
     final hasAuthentication = patchConfig.authentication.isNotEmpty;
     final general = <String, dynamic>{
       'external-controller': patchConfig.allowLan && hasSecret
-          ? externalController.value.replaceAll('127.0.0.1', '0.0.0.0')
-          : externalController.value,
+          ? patchConfig.externalControllerAddress.replaceAll(
+              '127.0.0.1',
+              '0.0.0.0',
+            )
+          : patchConfig.externalControllerAddress,
       if (externalController == ExternalControllerStatus.open && hasSecret)
         'secret': secret,
       'external-ui': await appPath.uiPath,
@@ -1055,6 +1099,7 @@ class GlobalState {
         'auto-route': !system.isAndroid,
         'auto-detect-interface': !system.isAndroid,
         'auto-redirect': system.isLinux,
+        if (system.isLinux) 'gso': true,
         'strict-route': tun.strictRoute,
         'endpoint-independent-nat': tun.endpointIndependentNat,
         'disable-icmp-forwarding': tun.disableIcmpForwarding,
@@ -1091,10 +1136,19 @@ class GlobalState {
           ? null
           : patchConfig.tunnels.map((item) => item.toClashJson()).toList(),
       'providers-path': await appPath.getProvidersDirPath(profile.id),
+      'nodes': config.nodes.patchOf(profile.id, managed: profile.isManaged),
       'node-exclude-filter': config.nodeExcludeFilter,
       'health-check-timeout': config.healthCheckTimeout,
       'override-rules': overrideData.enable
           ? {'rules': overrideData.runningRule}
+          : null,
+      'shared-rules': profile.isManaged && config.managedProps.rules.isNotEmpty
+          ? {
+              'rules': [
+                for (final rule in config.managedProps.rules) rule.value,
+              ],
+              'fallback': managedDefaultGroup,
+            }
           : null,
       'prepend-rules': [
         if (config.vpnProps.loopbackProtection) ...[
@@ -1119,7 +1173,12 @@ class GlobalState {
   }
 
   Future<Map<String, dynamic>?> _readScriptedSnippet(Profile profile) async {
-    final path = await _writeScriptedConfig(profile);
+    final String path;
+    try {
+      path = await _writeScriptedConfig(profile);
+    } catch (_) {
+      return null;
+    }
     if (path.isEmpty) return null;
     final file = File(path);
     try {

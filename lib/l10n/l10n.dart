@@ -295,6 +295,16 @@ class AppLocalizations {
     );
   }
 
+  /// `Direct mode, no proxies`
+  String get directModeNoProxy {
+    return Intl.message(
+      'Direct mode, no proxies',
+      name: 'directModeNoProxy',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `No profile. Please add one.`
   String get nullProfileDesc {
     return Intl.message(
@@ -997,6 +1007,76 @@ class AppLocalizations {
       name: 'autoCheckUpdateDesc',
       desc: '',
       args: [],
+    );
+  }
+
+  /// `Auto Download Updates`
+  String get autoDownloadUpdate {
+    return Intl.message(
+      'Auto Download Updates',
+      name: 'autoDownloadUpdate',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Download new versions in the background`
+  String get autoDownloadUpdateDesc {
+    return Intl.message(
+      'Download new versions in the background',
+      name: 'autoDownloadUpdateDesc',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Update download failed`
+  String get updateDownloadFailed {
+    return Intl.message(
+      'Update download failed',
+      name: 'updateDownloadFailed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Update install failed`
+  String get updateInstallFailed {
+    return Intl.message(
+      'Update install failed',
+      name: 'updateInstallFailed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Upgrade Notice`
+  String get updateTip {
+    return Intl.message(
+      'Upgrade Notice',
+      name: 'updateTip',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The new version package is ready. To keep the service safe, the running VPN service will be stopped before upgrading. Confirm to start the installation.`
+  String get updateReadyVpnTip {
+    return Intl.message(
+      'The new version package is ready. To keep the service safe, the running VPN service will be stopped before upgrading. Confirm to start the installation.',
+      name: 'updateReadyVpnTip',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The new version package is ready. To keep the service safe, the running {appName} will be closed before upgrading. Confirm to start the installation.`
+  String updateReadyAppTip(Object appName) {
+    return Intl.message(
+      'The new version package is ready. To keep the service safe, the running $appName will be closed before upgrading. Confirm to start the installation.',
+      name: 'updateReadyAppTip',
+      desc: '',
+      args: [appName],
     );
   }
 
@@ -2170,6 +2250,16 @@ class AppLocalizations {
     return Intl.message('Download Now', name: 'goDownload', desc: '', args: []);
   }
 
+  /// `View Changelog`
+  String get viewChangelog {
+    return Intl.message(
+      'View Changelog',
+      name: 'viewChangelog',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Unknown`
   String get unknown {
     return Intl.message('Unknown', name: 'unknown', desc: '', args: []);
@@ -3095,6 +3185,16 @@ class AppLocalizations {
     return Intl.message(
       'Smart Select',
       name: 'intelligentSelected',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Auto-select using preset rules?`
+  String get intelligentSelectedConfirm {
+    return Intl.message(
+      'Auto-select using preset rules?',
+      name: 'intelligentSelectedConfirm',
       desc: '',
       args: [],
     );
@@ -4805,10 +4905,10 @@ class AppLocalizations {
     );
   }
 
-  /// `Bottom navigation bar animation and haptic feedback`
+  /// `Enable more animations and haptic feedback`
   String get navBarHapticFeedbackDesc {
     return Intl.message(
-      'Bottom navigation bar animation and haptic feedback',
+      'Enable more animations and haptic feedback',
       name: 'navBarHapticFeedbackDesc',
       desc: '',
       args: [],
@@ -5000,21 +5100,6 @@ class AppLocalizations {
     );
   }
 
-  /// `Dark Icon`
-  String get darkIcon {
-    return Intl.message('Dark Icon', name: 'darkIcon', desc: '', args: []);
-  }
-
-  /// `Manually switch dark app icon`
-  String get darkIconDesc {
-    return Intl.message(
-      'Manually switch dark app icon',
-      name: 'darkIconDesc',
-      desc: '',
-      args: [],
-    );
-  }
-
   /// `Font Fix`
   String get harmonyFont {
     return Intl.message('Font Fix', name: 'harmonyFont', desc: '', args: []);
@@ -5040,10 +5125,10 @@ class AppLocalizations {
     );
   }
 
-  /// `Use modern and refined Phosphor icon style across the app`
+  /// `Use modern, minimalist Phosphor icons`
   String get phosphorIconsDesc {
     return Intl.message(
-      'Use modern and refined Phosphor icon style across the app',
+      'Use modern, minimalist Phosphor icons',
       name: 'phosphorIconsDesc',
       desc: '',
       args: [],
@@ -5595,26 +5680,6 @@ class AppLocalizations {
     return Intl.message(
       'Manually restart the core?',
       name: 'restartCoreDesc',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `High Refresh Rate`
-  String get highRefreshRate {
-    return Intl.message(
-      'High Refresh Rate',
-      name: 'highRefreshRate',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Enable max refresh rate`
-  String get highRefreshRateDesc {
-    return Intl.message(
-      'Enable max refresh rate',
-      name: 'highRefreshRateDesc',
       desc: '',
       args: [],
     );
@@ -9512,6 +9577,71 @@ class AppLocalizations {
     );
   }
 
+  /// `Config info`
+  String get configInfo {
+    return Intl.message('Config info', name: 'configInfo', desc: '', args: []);
+  }
+
+  /// `Generate QR code`
+  String get generateQrCode {
+    return Intl.message(
+      'Generate QR code',
+      name: 'generateQrCode',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Share node (URI)`
+  String get nodeShareUri {
+    return Intl.message(
+      'Share node (URI)',
+      name: 'nodeShareUri',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `View config (edit)`
+  String get configViewEdit {
+    return Intl.message(
+      'View config (edit)',
+      name: 'configViewEdit',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `View config (read-only)`
+  String get configViewReadOnly {
+    return Intl.message(
+      'View config (read-only)',
+      name: 'configViewReadOnly',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Share config (YAML)`
+  String get configShareYaml {
+    return Intl.message(
+      'Share config (YAML)',
+      name: 'configShareYaml',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `This node can't be shared as a URI`
+  String get uriShareUnsupported {
+    return Intl.message(
+      'This node can\'t be shared as a URI',
+      name: 'uriShareUnsupported',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Fraud score`
   String get ipRiskScore {
     return Intl.message('Fraud score', name: 'ipRiskScore', desc: '', args: []);
@@ -10044,66 +10174,11 @@ class AppLocalizations {
     );
   }
 
-  /// `Version`
-  String get managedVersion {
-    return Intl.message('Version', name: 'managedVersion', desc: '', args: []);
-  }
-
-  /// `Built-in {version}`
-  String managedBundled(Object version) {
-    return Intl.message(
-      'Built-in $version',
-      name: 'managedBundled',
-      desc: '',
-      args: [version],
-    );
-  }
-
-  /// `Upstream {version}`
-  String managedSynced(Object version) {
-    return Intl.message(
-      'Upstream $version',
-      name: 'managedSynced',
-      desc: '',
-      args: [version],
-    );
-  }
-
-  /// `Sync from upstream`
-  String get syncFromUpstream {
-    return Intl.message(
-      'Sync from upstream',
-      name: 'syncFromUpstream',
-      desc: '',
-      args: [],
-    );
-  }
-
   /// `Restore built-in version`
   String get restoreBundled {
     return Intl.message(
       'Restore built-in version',
       name: 'restoreBundled',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Download the latest script from upstream and regenerate all merged subscriptions?`
-  String get managedSyncTip {
-    return Intl.message(
-      'Download the latest script from upstream and regenerate all merged subscriptions?',
-      name: 'managedSyncTip',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Restore the built-in script and regenerate all merged subscriptions?`
-  String get managedRestoreTip {
-    return Intl.message(
-      'Restore the built-in script and regenerate all merged subscriptions?',
-      name: 'managedRestoreTip',
       desc: '',
       args: [],
     );
@@ -10211,16 +10286,6 @@ class AppLocalizations {
       name: 'mergedSubscriptionName',
       desc: '',
       args: [index],
-    );
-  }
-
-  /// `Already up to date`
-  String get managedUpToDate {
-    return Intl.message(
-      'Already up to date',
-      name: 'managedUpToDate',
-      desc: '',
-      args: [],
     );
   }
 
@@ -10704,6 +10769,426 @@ class AppLocalizations {
     return Intl.message(
       'Modern geometric lightweight visual style',
       name: 'iconStylePhosphorDesc',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Apply to all managed profiles`
+  String get applyToAllManaged {
+    return Intl.message(
+      'Apply to all managed profiles',
+      name: 'applyToAllManaged',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Add node`
+  String get addNode {
+    return Intl.message('Add node', name: 'addNode', desc: '', args: []);
+  }
+
+  /// `No nodes yet, add one first`
+  String get nullNodeDesc {
+    return Intl.message(
+      'No nodes yet, add one first',
+      name: 'nullNodeDesc',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Share links, Base64 and YAML snippets are supported`
+  String get nodeClipboardDesc {
+    return Intl.message(
+      'Share links, Base64 and YAML snippets are supported',
+      name: 'nodeClipboardDesc',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Scan a node share QR code`
+  String get nodeQrcodeDesc {
+    return Intl.message(
+      'Scan a node share QR code',
+      name: 'nodeQrcodeDesc',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Read nodes from a file`
+  String get nodeFileDesc {
+    return Intl.message(
+      'Read nodes from a file',
+      name: 'nodeFileDesc',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Manual input`
+  String get manualInput {
+    return Intl.message(
+      'Manual input',
+      name: 'manualInput',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Share links, Base64 and YAML are supported`
+  String get nodeManualDesc {
+    return Intl.message(
+      'Share links, Base64 and YAML are supported',
+      name: 'nodeManualDesc',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Register Cloudflare WARP`
+  String get registerWarp {
+    return Intl.message(
+      'Register Cloudflare WARP',
+      name: 'registerWarp',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Create a WireGuard landing node`
+  String get registerWarpDesc {
+    return Intl.message(
+      'Create a WireGuard landing node',
+      name: 'registerWarpDesc',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `A new WARP device will be registered with Cloudflare. By continuing you agree to the Cloudflare Terms of Service.`
+  String get registerWarpTip {
+    return Intl.message(
+      'A new WARP device will be registered with Cloudflare. By continuing you agree to the Cloudflare Terms of Service.',
+      name: 'registerWarpTip',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `WARP registration failed`
+  String get registerWarpFailed {
+    return Intl.message(
+      'WARP registration failed',
+      name: 'registerWarpFailed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `No valid nodes found`
+  String get nodeImportEmpty {
+    return Intl.message(
+      'No valid nodes found',
+      name: 'nodeImportEmpty',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Only one node can be added at a time`
+  String get nodeImportSingle {
+    return Intl.message(
+      'Only one node can be added at a time',
+      name: 'nodeImportSingle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Add from the clipboard, a QR code, a file or manual input, or register WARP`
+  String get addNodeDesc {
+    return Intl.message(
+      'Add from the clipboard, a QR code, a file or manual input, or register WARP',
+      name: 'addNodeDesc',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Front proxy`
+  String get frontProxy {
+    return Intl.message('Front proxy', name: 'frontProxy', desc: '', args: []);
+  }
+
+  /// `The current front node does not support UDP. Please check the configuration.`
+  String get frontUdpUnsupported {
+    return Intl.message(
+      'The current front node does not support UDP. Please check the configuration.',
+      name: 'frontUdpUnsupported',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Front {name} is missing, connecting directly`
+  String frontMissing(Object name) {
+    return Intl.message(
+      'Front $name is missing, connecting directly',
+      name: 'frontMissing',
+      desc: '',
+      args: [name],
+    );
+  }
+
+  /// `Landing node`
+  String get landingNode {
+    return Intl.message(
+      'Landing node',
+      name: 'landingNode',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Regular node`
+  String get regularNode {
+    return Intl.message(
+      'Regular node',
+      name: 'regularNode',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Add to proxy groups`
+  String get joinGroups {
+    return Intl.message(
+      'Add to proxy groups',
+      name: 'joinGroups',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `When the region group does not exist, the node is used as a regular node.`
+  String get managedNodeTip {
+    return Intl.message(
+      'When the region group does not exist, the node is used as a regular node.',
+      name: 'managedNodeTip',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Inject into this profile`
+  String get injectNode {
+    return Intl.message(
+      'Inject into this profile',
+      name: 'injectNode',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Only applies to the current profile in non-managed mode`
+  String get injectNodeDesc {
+    return Intl.message(
+      'Only applies to the current profile in non-managed mode',
+      name: 'injectNodeDesc',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Proxy groups become selectable after the current profile is loaded`
+  String get injectNodeEmpty {
+    return Intl.message(
+      'Proxy groups become selectable after the current profile is loaded',
+      name: 'injectNodeEmpty',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Node role`
+  String get nodeRole {
+    return Intl.message('Node role', name: 'nodeRole', desc: '', args: []);
+  }
+
+  /// `Connects through the chosen front proxy and joins the selected proxy groups`
+  String get landingNodeDesc {
+    return Intl.message(
+      'Connects through the chosen front proxy and joins the selected proxy groups',
+      name: 'landingNodeDesc',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Connects directly and joins the selected proxy groups`
+  String get regularNodeDesc {
+    return Intl.message(
+      'Connects directly and joins the selected proxy groups',
+      name: 'regularNodeDesc',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Apply to managed profiles`
+  String get applyManaged {
+    return Intl.message(
+      'Apply to managed profiles',
+      name: 'applyManaged',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Applies to all profiles in managed mode at the same time`
+  String get applyManagedDesc {
+    return Intl.message(
+      'Applies to all profiles in managed mode at the same time',
+      name: 'applyManagedDesc',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Node Sorting`
+  String get nodesSort {
+    return Intl.message('Node Sorting', name: 'nodesSort', desc: '', args: []);
+  }
+
+  /// `Choose a node or group`
+  String get chooseFront {
+    return Intl.message(
+      'Choose a node or group',
+      name: 'chooseFront',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Connectivity test`
+  String get connectivityTest {
+    return Intl.message(
+      'Connectivity test',
+      name: 'connectivityTest',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Check whether this node's route is working`
+  String get connectivityTestDesc {
+    return Intl.message(
+      'Check whether this node\'s route is working',
+      name: 'connectivityTestDesc',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Unreachable`
+  String get nodeTestFailed {
+    return Intl.message(
+      'Unreachable',
+      name: 'nodeTestFailed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Select`
+  String get pick {
+    return Intl.message('Select', name: 'pick', desc: '', args: []);
+  }
+
+  /// `Always On`
+  String get findProcessAlways {
+    return Intl.message(
+      'Always On',
+      name: 'findProcessAlways',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Always on, so connections can show app icons`
+  String get findProcessAlwaysDesc {
+    return Intl.message(
+      'Always on, so connections can show app icons',
+      name: 'findProcessAlwaysDesc',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `On Demand`
+  String get findProcessStrict {
+    return Intl.message(
+      'On Demand',
+      name: 'findProcessStrict',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Only on when process rules exist, smarter`
+  String get findProcessStrictDesc {
+    return Intl.message(
+      'Only on when process rules exist, smarter',
+      name: 'findProcessStrictDesc',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Off`
+  String get findProcessOff {
+    return Intl.message('Off', name: 'findProcessOff', desc: '', args: []);
+  }
+
+  /// `Process rules no longer apply, more efficient`
+  String get findProcessOffDesc {
+    return Intl.message(
+      'Process rules no longer apply, more efficient',
+      name: 'findProcessOffDesc',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `External Controller Port`
+  String get externalControllerPort {
+    return Intl.message(
+      'External Controller Port',
+      name: 'externalControllerPort',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `App is not installed`
+  String get appNotInstalled {
+    return Intl.message(
+      'App is not installed',
+      name: 'appNotInstalled',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `File no longer exists`
+  String get fileNotFound {
+    return Intl.message(
+      'File no longer exists',
+      name: 'fileNotFound',
       desc: '',
       args: [],
     );

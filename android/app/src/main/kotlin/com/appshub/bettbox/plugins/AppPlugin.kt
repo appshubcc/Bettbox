@@ -3,9 +3,11 @@ package com.appshub.bettbox.plugins
 import android.Manifest
 import android.app.Activity
 import android.app.ActivityManager
+import android.app.PendingIntent
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageInstaller
 import android.content.pm.ApplicationInfo
 import android.content.pm.ComponentInfo
 import android.content.pm.PackageManager
@@ -20,6 +22,7 @@ import androidx.core.content.getSystemService
 import androidx.core.content.pm.ShortcutInfoCompat
 import androidx.core.content.pm.ShortcutManagerCompat
 import androidx.core.graphics.drawable.IconCompat
+import com.appshub.bettbox.receivers.InstallResultReceiver
 import com.appshub.bettbox.BettboxApplication
 import com.appshub.bettbox.GlobalState
 import com.appshub.bettbox.R
@@ -202,6 +205,13 @@ class AppPlugin : FlutterPlugin, MethodChannel.MethodCallHandler, ActivityAware 
         }
     }
 
+    fun notifyInstallFailed() {
+        if (!::channel.isInitialized) return
+        android.os.Handler(android.os.Looper.getMainLooper()).post {
+            runCatching { channel.invokeMethod("installFailed", null) }
+        }
+    }
+
     fun invokeHomeWidget(method: String, argument: Any): Boolean {
         if (!::channel.isInitialized) return false
         android.os.Handler(android.os.Looper.getMainLooper()).post {
@@ -286,10 +296,6 @@ class AppPlugin : FlutterPlugin, MethodChannel.MethodCallHandler, ActivityAware 
                 requestIgnoreBatteryOptimizations()
                 result.success(true)
             }
-            "setLauncherIcon" -> {
-                setLauncherIcon(call.argument<Boolean>("useDarkIcon") ?: false)
-                result.success(true)
-            }
             "hasPackageListPermission" -> {
                 result.success(hasPackageListPermission())
             }
@@ -304,6 +310,13 @@ class AppPlugin : FlutterPlugin, MethodChannel.MethodCallHandler, ActivityAware 
                 openAppSettings()
                 result.success(true)
             }
+            "installApk" -> scope.launch {
+                val path = call.arguments as? String
+                val installed = withContext(Dispatchers.IO) {
+                    runCatching { path?.let(::installApk) ?: false }.getOrDefault(false)
+                }
+                result.success(installed)
+            }
             "isAndroidTV" -> {
                 result.success(isAndroidTV())
             }
@@ -312,6 +325,31 @@ class AppPlugin : FlutterPlugin, MethodChannel.MethodCallHandler, ActivityAware 
             }
             else -> result.notImplemented()
         }
+    }
+
+    private fun installApk(path: String): Boolean {
+        val file = File(path)
+        if (!file.isFile) return false
+        val context = BettboxApplication.getAppContext()
+        val installer = context.packageManager.packageInstaller
+        val params = PackageInstaller.SessionParams(PackageInstaller.SessionParams.MODE_FULL_INSTALL)
+        params.setAppPackageName(context.packageName)
+        val sessionId = installer.createSession(params)
+        installer.openSession(sessionId).use { session ->
+            session.openWrite("base.apk", 0, file.length()).use { output ->
+                file.inputStream().use { it.copyTo(output) }
+                session.fsync(output)
+            }
+            val intent = Intent(context, InstallResultReceiver::class.java)
+            val pendingIntent = PendingIntent.getBroadcast(
+                context,
+                sessionId,
+                intent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
+            )
+            session.commit(pendingIntent.intentSender)
+        }
+        return true
     }
 
     private fun openFcmDiagnostics(): Boolean {
@@ -620,27 +658,6 @@ class AppPlugin : FlutterPlugin, MethodChannel.MethodCallHandler, ActivityAware 
                     })
                 }
             }
-    }
-
-    private fun setLauncherIcon(useDarkIcon: Boolean) {
-        val context = BettboxApplication.getAppContext()
-        val pm = context.packageManager
-        val packageName = context.packageName
-        val defaultComponent = android.content.ComponentName(packageName, "com.appshub.bettbox.MainActivity")
-        val lightComponent = android.content.ComponentName(packageName, "com.appshub.bettbox.MainActivityLight")
-        val darkComponent = android.content.ComponentName(packageName, "com.appshub.bettbox.MainActivityDark")
-
-        if (useDarkIcon) {
-            pm.setComponentEnabledSetting(darkComponent, PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP)
-            pm.setComponentEnabledSetting(defaultComponent, PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP)
-            pm.setComponentEnabledSetting(lightComponent, PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP)
-        } else {
-            pm.setComponentEnabledSetting(defaultComponent, PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP)
-            pm.setComponentEnabledSetting(darkComponent, PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP)
-            pm.setComponentEnabledSetting(lightComponent, PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP)
-        }
-        com.appshub.bettbox.services.NotificationComponentCache.invalidate()
-        VpnPlugin.updateNotificationIcon()
     }
 
     private fun hasPackageListPermission(): Boolean {

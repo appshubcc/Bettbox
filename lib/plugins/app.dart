@@ -10,6 +10,7 @@ class App {
   static App? _instance;
   late MethodChannel methodChannel;
   Function()? onExit;
+  void Function()? onInstallFailed;
   void Function(String action)? onHomeWidgetAction;
   void Function(bool active)? onHomeWidgetsChanged;
 
@@ -19,6 +20,8 @@ class App {
       switch (call.method) {
         case 'exit':
           await onExit?.call();
+        case 'installFailed':
+          onInstallFailed?.call();
         case 'homeWidgetAction':
           onHomeWidgetAction?.call(call.arguments as String);
         case 'homeWidgetsChanged':
@@ -80,6 +83,14 @@ class App {
 
   Future<void> openAppSettings() async {
     await methodChannel.invokeMethod<void>('openAppSettings');
+  }
+
+  Future<bool> openAppDetails(String packageName) async {
+    return await methodChannel.invokeMethod<bool>(
+          'openAppDetails',
+          packageName,
+        ) ??
+        false;
   }
 
   Future<bool> openFcmDiagnostics() async {
@@ -152,13 +163,6 @@ class App {
     await methodChannel.invokeMethod<void>('requestIgnoreBatteryOptimizations');
   }
 
-  Future<bool> setLauncherIcon(bool useDarkIcon) async {
-    final result = await methodChannel.invokeMethod<bool>('setLauncherIcon', {
-      'useDarkIcon': useDarkIcon,
-    });
-    return result ?? false;
-  }
-
   Future<void> updateHomeWidget(String data) async {
     await methodChannel.invokeMethod('updateHomeWidget', data);
   }
@@ -169,6 +173,10 @@ class App {
 
   Future<String?> consumeHomeWidgetAction() async {
     return await methodChannel.invokeMethod<String>('consumeHomeWidgetAction');
+  }
+
+  Future<bool> installApk(String path) async {
+    return await methodChannel.invokeMethod<bool>('installApk', path) ?? false;
   }
 
   Future<bool> isAndroidTV() async {

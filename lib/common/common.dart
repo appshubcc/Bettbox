@@ -45,6 +45,8 @@ export 'route_icon.dart';
 export 'scroll.dart';
 export 'string.dart';
 export 'system.dart';
+export 'telegram_cidrs.dart';
+export 'updater.dart';
 export 'text.dart';
 export 'tray.dart';
 export 'ui_manager.dart';

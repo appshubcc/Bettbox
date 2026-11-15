@@ -384,4 +384,277 @@ $NetworkInfoCopyWith<$Res>? get localNetwork {
 }
 }
 
+/// @nodoc
+mixin _$AppUpdate {
+
+ String get tagName; AppUpdateStatus get status; double get progress; String? get filePath;
+/// Create a copy of AppUpdate
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$AppUpdateCopyWith<AppUpdate> get copyWith => _$AppUpdateCopyWithImpl<AppUpdate>(this as AppUpdate, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  final _this = this as AppUpdate;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is AppUpdate&&(identical(other.tagName, _this.tagName) || other.tagName == _this.tagName)&&(identical(other.status, _this.status) || other.status == _this.status)&&(identical(other.progress, _this.progress) || other.progress == _this.progress)&&(identical(other.filePath, _this.filePath) || other.filePath == _this.filePath));
+}
+
+
+@override
+int get hashCode {
+  final _this = this as AppUpdate;
+  return Object.hash(runtimeType,_this.tagName,_this.status,_this.progress,_this.filePath);
+}
+
+@override
+String toString() {
+  final _this = this as AppUpdate;
+  return 'AppUpdate(tagName: ${_this.tagName}, status: ${_this.status}, progress: ${_this.progress}, filePath: ${_this.filePath})';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $AppUpdateCopyWith<$Res>  {
+  factory $AppUpdateCopyWith(AppUpdate value, $Res Function(AppUpdate) _then) = _$AppUpdateCopyWithImpl;
+@useResult
+$Res call({
+ String tagName, AppUpdateStatus status, double progress, String? filePath
+});
+
+
+
+
+}
+/// @nodoc
+class _$AppUpdateCopyWithImpl<$Res>
+    implements $AppUpdateCopyWith<$Res> {
+  _$AppUpdateCopyWithImpl(this._self, this._then);
+
+  final AppUpdate _self;
+  final $Res Function(AppUpdate) _then;
+
+/// Create a copy of AppUpdate
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? tagName = null,Object? status = null,Object? progress = null,Object? filePath = freezed,}) {
+  return _then(AppUpdate(
+tagName: null == tagName ? _self.tagName : tagName // ignore: cast_nullable_to_non_nullable
+as String,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
+as AppUpdateStatus,progress: null == progress ? _self.progress : progress // ignore: cast_nullable_to_non_nullable
+as double,filePath: freezed == filePath ? _self.filePath : filePath // ignore: cast_nullable_to_non_nullable
+as String?,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [AppUpdate].
+extension AppUpdatePatterns on AppUpdate {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _AppUpdate value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _AppUpdate() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _AppUpdate value)  $default,){
+final _that = this;
+switch (_that) {
+case _AppUpdate():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _AppUpdate value)?  $default,){
+final _that = this;
+switch (_that) {
+case _AppUpdate() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String tagName,  AppUpdateStatus status,  double progress,  String? filePath)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _AppUpdate() when $default != null:
+return $default(_that.tagName,_that.status,_that.progress,_that.filePath);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String tagName,  AppUpdateStatus status,  double progress,  String? filePath)  $default,) {final _that = this;
+switch (_that) {
+case _AppUpdate():
+return $default(_that.tagName,_that.status,_that.progress,_that.filePath);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String tagName,  AppUpdateStatus status,  double progress,  String? filePath)?  $default,) {final _that = this;
+switch (_that) {
+case _AppUpdate() when $default != null:
+return $default(_that.tagName,_that.status,_that.progress,_that.filePath);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+
+
+class _AppUpdate implements AppUpdate {
+  const _AppUpdate({required this.tagName, this.status = AppUpdateStatus.available, this.progress = 0, this.filePath});
+  
+
+@override final  String tagName;
+@override@JsonKey() final  AppUpdateStatus status;
+@override@JsonKey() final  double progress;
+@override final  String? filePath;
+
+/// Create a copy of AppUpdate
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$AppUpdateCopyWith<_AppUpdate> get copyWith => __$AppUpdateCopyWithImpl<_AppUpdate>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _AppUpdate&&(identical(other.tagName, tagName) || other.tagName == tagName)&&(identical(other.status, status) || other.status == status)&&(identical(other.progress, progress) || other.progress == progress)&&(identical(other.filePath, filePath) || other.filePath == filePath));
+}
+
+
+@override
+int get hashCode {
+    return Object.hash(runtimeType,tagName,status,progress,filePath);
+}
+
+@override
+String toString() {
+    return 'AppUpdate(tagName: $tagName, status: $status, progress: $progress, filePath: $filePath)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$AppUpdateCopyWith<$Res> implements $AppUpdateCopyWith<$Res> {
+  factory _$AppUpdateCopyWith(_AppUpdate value, $Res Function(_AppUpdate) _then) = __$AppUpdateCopyWithImpl;
+@override @useResult
+$Res call({
+ String tagName, AppUpdateStatus status, double progress, String? filePath
+});
+
+
+
+
+}
+/// @nodoc
+class __$AppUpdateCopyWithImpl<$Res>
+    implements _$AppUpdateCopyWith<$Res> {
+  __$AppUpdateCopyWithImpl(this._self, this._then);
+
+  final _AppUpdate _self;
+  final $Res Function(_AppUpdate) _then;
+
+/// Create a copy of AppUpdate
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? tagName = null,Object? status = null,Object? progress = null,Object? filePath = freezed,}) {
+  return _then(_AppUpdate(
+tagName: null == tagName ? _self.tagName : tagName // ignore: cast_nullable_to_non_nullable
+as String,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
+as AppUpdateStatus,progress: null == progress ? _self.progress : progress // ignore: cast_nullable_to_non_nullable
+as double,filePath: freezed == filePath ? _self.filePath : filePath // ignore: cast_nullable_to_non_nullable
+as String?,
+  ));
+}
+
+
+}
+
 // dart format on

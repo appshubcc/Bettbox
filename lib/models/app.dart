@@ -37,6 +37,16 @@ abstract class AppState with _$AppState {
   }) = _AppState;
 }
 
+@freezed
+abstract class AppUpdate with _$AppUpdate {
+  const factory AppUpdate({
+    required String tagName,
+    @Default(AppUpdateStatus.available) AppUpdateStatus status,
+    @Default(0) double progress,
+    String? filePath,
+  }) = _AppUpdate;
+}
+
 extension AppStateExt on AppState {
   ViewMode get viewMode => utils.getViewMode(viewSize.width);
 

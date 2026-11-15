@@ -10,6 +10,9 @@ class Android {
     app.onExit = () async {
       await globalState.appController.savePreferences();
     };
+    app.onInstallFailed = () {
+      globalState.appController.resumeAfterInstall();
+    };
   }
 
   void purgeMemory() {

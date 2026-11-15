@@ -55,6 +55,7 @@ class Request {
       createHttpClient: () {
         final client = HttpClient();
         client.autoUncompress = false;
+        client.badCertificateCallback = (_, _, _) => true;
         client.findProxy = (Uri uri) {
           client.userAgent = globalState.ua;
           return BettboxHttpOverrides.handleFindProxy(uri);
@@ -266,15 +267,36 @@ class Request {
       );
     }
     final (requestUrl, headers) = _authorizedRequest(url);
-    final response = await _withPlainEncodingRetry(
-      headers,
-      (requestHeaders) => _clashDio.download(
-        requestUrl,
-        downloadPath,
-        options: Options(headers: requestHeaders),
-      ),
-    );
-    return (path: downloadPath, headers: response.headers, remote: true);
+    try {
+      final response = await _withPlainEncodingRetry(
+        headers,
+        (requestHeaders) => _clashDio.download(
+          requestUrl,
+          downloadPath,
+          options: Options(headers: requestHeaders),
+        ),
+      );
+      return (path: downloadPath, headers: response.headers, remote: true);
+    } on DioException catch (e) {
+      if (e.error is! HandshakeException) rethrow;
+      commonPrint.log('TLS verification failed, retrying through core: $e');
+      final proxy = BettboxHttpOverrides.handleFindProxy(Uri.parse(requestUrl));
+      final responseHeaders = await clashCore.downloadProfile(
+        url: requestUrl,
+        output: downloadPath,
+        headers: {
+          for (final MapEntry(:key, :value) in headers.entries)
+            key: value.toString(),
+          HttpHeaders.userAgentHeader: globalState.ua,
+        },
+        proxy: proxy.startsWith('PROXY ') ? proxy.substring(6) : null,
+      );
+      return (
+        path: downloadPath,
+        headers: Headers.fromMap(responseHeaders),
+        remote: true,
+      );
+    }
   }
 
   Future<Response<dynamic>> _getResponseForUrl(
@@ -369,17 +391,16 @@ class Request {
         final remoteVersion = location.split('/').last.trim();
         if (remoteVersion.isNotEmpty) {
           final version = globalState.packageInfo.version;
+          final compared = utils.compareVersions(
+            remoteVersion.replaceAll('v', ''),
+            version,
+          );
           final hasUpdate =
-              utils.compareVersions(
-                remoteVersion.replaceAll('v', ''),
-                version,
-              ) >
-              0;
+              compared > 0 || (compared == 0 && globalState.isPreRelease);
           if (!hasUpdate) return null;
           return {
             'tag_name': remoteVersion,
             'html_url': 'https://github.com/$repository/releases/latest',
-            'body': 'New version available. Please visit GitHub to download.',
           };
         }
       }

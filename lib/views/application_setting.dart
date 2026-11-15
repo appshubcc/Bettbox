@@ -318,9 +318,26 @@ class ShowStartSwitchItem extends ConsumerWidget {
       delegate: SwitchDelegate(
         value: showStartSwitch,
         onChanged: (value) {
-          ref
-              .read(appSettingProvider.notifier)
-              .updateState((state) => state.copyWith(showStartSwitch: value));
+          ref.read(appSettingProvider.notifier).updateState((state) {
+            final widgets = system.isAndroid
+                ? state.mobileDashboardWidgets
+                : state.desktopDashboardWidgets;
+            if (value || widgets.contains(DashboardWidget.startButton)) {
+              return state.copyWith(showStartSwitch: value);
+            }
+            final next = [...widgets, DashboardWidget.startButton];
+            return system.isAndroid
+                ? state.copyWith(
+                    showStartSwitch: false,
+                    mobileDashboardWidgets: next,
+                    dashboardWidgets: next,
+                  )
+                : state.copyWith(
+                    showStartSwitch: false,
+                    desktopDashboardWidgets: next,
+                    dashboardWidgets: next,
+                  );
+          });
         },
       ),
     );
@@ -577,11 +594,39 @@ class AutoCheckUpdateItem extends ConsumerWidget {
   }
 }
 
-class ApplicationSettingView extends StatelessWidget {
+class AutoDownloadUpdateItem extends ConsumerWidget {
+  const AutoDownloadUpdateItem({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final autoDownloadUpdate = ref.watch(
+      appSettingProvider.select((state) => state.autoDownloadUpdate),
+    );
+    return ListItem.switchItem(
+      title: Text(appLocalizations.autoDownloadUpdate),
+      subtitle: Text(appLocalizations.autoDownloadUpdateDesc),
+      delegate: SwitchDelegate(
+        value: autoDownloadUpdate,
+        onChanged: (bool value) {
+          ref
+              .read(appSettingProvider.notifier)
+              .updateState(
+                (state) => state.copyWith(autoDownloadUpdate: value),
+              );
+        },
+      ),
+    );
+  }
+}
+
+class ApplicationSettingView extends ConsumerWidget {
   const ApplicationSettingView({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final autoCheckUpdate = ref.watch(
+      appSettingProvider.select((state) => state.autoCheckUpdate),
+    );
     List<Widget> items = [
       AutoLaunchItem(),
       if (system.isDesktop) ...[SilentLaunchItem()],
@@ -596,6 +641,8 @@ class ApplicationSettingView extends StatelessWidget {
       if (system.isMacOS) const KeepDockIconItem(),
       UsageItem(),
       AutoCheckUpdateItem(),
+      if (autoCheckUpdate && appUpdater.isSupported)
+        const AutoDownloadUpdateItem(),
     ];
     return generateListView(generateSection(items: items));
   }

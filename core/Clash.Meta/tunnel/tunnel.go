@@ -214,12 +214,16 @@ func Listeners() map[string]C.InboundListener {
 }
 
 // UpdateRules handle update rules
-func UpdateRules(newRules []C.Rule, newSubRule map[string][]C.Rule, rp map[string]P.RuleProvider) {
+func UpdateRules(newRules []C.Rule, newSubRule map[string][]C.Rule, newRuleProviders map[string]P.RuleProvider) (oldRules []C.Rule, oldSubRule map[string][]C.Rule, oldRuleProviders map[string]P.RuleProvider) {
 	configMux.Lock()
+	oldRules = rules
+	oldSubRule = subRules
+	oldRuleProviders = ruleProviders
 	rules = newRules
-	ruleProviders = rp
+	ruleProviders = newRuleProviders
 	subRules = newSubRule
 	configMux.Unlock()
+	return
 }
 
 // Proxies return all proxies
@@ -238,11 +242,14 @@ func RuleProviders() map[string]P.RuleProvider {
 }
 
 // UpdateProxies handle update proxies
-func UpdateProxies(newProxies map[string]C.Proxy, newProviders map[string]P.ProxyProvider) {
+func UpdateProxies(newProxies map[string]C.Proxy, newProviders map[string]P.ProxyProvider) (oldProxies map[string]C.Proxy, oldProviders map[string]P.ProxyProvider) {
 	configMux.Lock()
+	oldProxies = proxies
+	oldProviders = providers
 	proxies = newProxies
 	providers = newProviders
 	configMux.Unlock()
+	return
 }
 
 func UpdateListeners(newListeners map[string]C.InboundListener) {
@@ -488,11 +495,6 @@ func handleUDPConn(packet C.PacketAdapter) {
 				if rejector, ok := packet.(C.PacketRejector); ok {
 					_ = rejector.Reject()
 				}
-				logMetadataProxy(metadata, rule, proxy)
-				return nil, nil, errors.New("rejected")
-			} else if target.Type() == C.RejectDrop {
-				logMetadataProxy(metadata, rule, proxy)
-				return nil, nil, errors.New("reject dropped")
 			}
 
 			dialMetadata := metadata.Pure()
@@ -680,26 +682,6 @@ func logMetadata(metadata *C.Metadata, rule C.Rule, remoteConn C.Connection) {
 		log.Infoln("[%s] %s --> %s using DIRECT", strings.ToUpper(metadata.NetWork.String()), metadata.SourceDetail(), metadata.RemoteAddress())
 	default:
 		log.Infoln("[%s] %s --> %s doesn't match any rule using %s", strings.ToUpper(metadata.NetWork.String()), metadata.SourceDetail(), metadata.RemoteAddress(), remoteConn.Chains().String())
-	}
-}
-
-func logMetadataProxy(metadata *C.Metadata, rule C.Rule, proxy C.Proxy) {
-	name := proxy.Name()
-	switch {
-	case metadata.SpecialProxy != "":
-		log.Infoln("[%s] %s --> %s using %s", strings.ToUpper(metadata.NetWork.String()), metadata.SourceDetail(), metadata.RemoteAddress(), name)
-	case rule != nil:
-		if rule.Payload() != "" {
-			log.Infoln("[%s] %s --> %s match %s using %s", strings.ToUpper(metadata.NetWork.String()), metadata.SourceDetail(), metadata.RemoteAddress(), fmt.Sprintf("%s(%s)", rule.RuleType().String(), rule.Payload()), name)
-		} else {
-			log.Infoln("[%s] %s --> %s match %s using %s", strings.ToUpper(metadata.NetWork.String()), metadata.SourceDetail(), metadata.RemoteAddress(), rule.RuleType().String(), name)
-		}
-	case mode == Global:
-		log.Infoln("[%s] %s --> %s using GLOBAL", strings.ToUpper(metadata.NetWork.String()), metadata.SourceDetail(), metadata.RemoteAddress())
-	case mode == Direct:
-		log.Infoln("[%s] %s --> %s using DIRECT", strings.ToUpper(metadata.NetWork.String()), metadata.SourceDetail(), metadata.RemoteAddress())
-	default:
-		log.Infoln("[%s] %s --> %s doesn't match any rule using %s", strings.ToUpper(metadata.NetWork.String()), metadata.SourceDetail(), metadata.RemoteAddress(), name)
 	}
 }
 

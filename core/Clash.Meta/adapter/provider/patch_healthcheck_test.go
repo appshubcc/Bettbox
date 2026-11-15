@@ -118,3 +118,62 @@ func TestHealthCheckGlobalConcurrency(t *testing.T) {
 		t.Fatalf("peak = %d, want <= %d", got, healthCheckConcurrency)
 	}
 }
+
+func TestHealthCheckBatchSelectionAndEliteRetention(t *testing.T) {
+	total := healthCheckBatchLimit + 200
+	proxies := newTestProxies(total)
+	url := "https://example.com/generate_204"
+	hc := newTestHealthCheck(t, proxies, url)
+
+	firstBatch := hc.selectBatch(url, nil, 0)
+	if len(firstBatch) != healthCheckBatchLimit {
+		t.Fatalf("firstBatch len = %d, want %d", len(firstBatch), healthCheckBatchLimit)
+	}
+	if firstBatch[0] != proxies[0] || firstBatch[healthCheckBatchLimit-1] != proxies[healthCheckBatchLimit-1] {
+		t.Fatal("firstBatch did not select initial slice window")
+	}
+
+	server := newTestServer(t, 0)
+	fastProxy := proxies[10]
+	_, err := fastProxy.URLTest(hc.ctx, server.url, nil)
+	if err != nil {
+		t.Fatalf("URLTest failed: %v", err)
+	}
+	hc.cursors[server.url] = healthCheckBatchLimit
+
+	secondBatch := hc.selectBatch(server.url, nil, 0)
+	if len(secondBatch) != healthCheckBatchLimit {
+		t.Fatalf("secondBatch len = %d, want %d", len(secondBatch), healthCheckBatchLimit)
+	}
+	if secondBatch[0] != fastProxy {
+		t.Fatal("expected measured alive elite proxy to be retained at head of secondBatch")
+	}
+	if secondBatch[1] != proxies[healthCheckBatchLimit] {
+		t.Fatal("expected rolling cursor to advance to healthCheckBatchLimit")
+	}
+}
+
+func TestHealthCheckCompileOptionFilterConcurrent(t *testing.T) {
+	proxies := newTestProxies(2)
+	extraURL := "https://extra.example.com/204"
+	hc := newTestHealthCheck(t, proxies, "https://default.example.com/204")
+	hc.registerHealthCheckTask(extraURL, nil, "HK", 300)
+	opt := hc.extra[extraURL]
+
+	var wg sync.WaitGroup
+	for i := 0; i < 8; i++ {
+		wg.Add(1)
+		go func(id int) {
+			defer wg.Done()
+			patterns := []string{"HK", "JP", "US", "SG"}
+			for j := 0; j < 50; j++ {
+				hc.registerHealthCheckTask(extraURL, nil, patterns[(id+j)%len(patterns)], 300)
+				if reg := hc.compileOptionFilter(opt); reg == nil {
+					t.Error("expected compiled filter regexp")
+					return
+				}
+			}
+		}(i)
+	}
+	wg.Wait()
+}

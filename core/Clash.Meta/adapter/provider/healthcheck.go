@@ -39,6 +39,7 @@ type HealthCheck struct {
 	lastTouch      atomic.TypedValue[time.Time]
 	singleDo       *singledo.Single[struct{}]
 	timeout        time.Duration
+	cursors        map[string]int
 }
 
 func (hc *HealthCheck) process() {
@@ -129,7 +130,7 @@ func (hc *HealthCheck) checkWith(reuse time.Duration) {
 		id := utils.NewUUIDV4().String()
 		log.Debugln("Start New Health Checking {%s}", id)
 		b := new(errgroup.Group)
-		b.SetLimit(10)
+		b.SetLimit(16)
 
 		// execute default health check
 		option := &extraOption{filters: nil, expectedStatus: hc.expectedStatus}
@@ -158,24 +159,10 @@ func (hc *HealthCheck) execute(b *errgroup.Group, url, uid string, option *extra
 	var expectedStatus utils.IntRanges[uint16]
 	if option != nil {
 		expectedStatus = option.expectedStatus
-		if len(option.filters) != 0 {
-			filters := make([]string, 0, len(option.filters))
-			for filter := range option.filters {
-				filters = append(filters, filter)
-			}
-
-			filterReg = regexp2.MustCompile(strings.Join(filters, "|"), regexp2.None)
-		}
+		filterReg = hc.compileOptionFilter(option)
 	}
 
-	for _, proxy := range hc.proxies {
-		// skip proxies that do not require health check
-		if filterReg != nil {
-			if match, _ := filterReg.MatchString(proxy.Name()); !match {
-				continue
-			}
-		}
-
+	for _, proxy := range hc.selectBatch(url, filterReg, reuse) {
 		p := proxy
 		b.Go(func() error {
 			log.Debugln("Health Checking, proxy: %s, url: %s, id: {%s}", p.Name(), url, uid)

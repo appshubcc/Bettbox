@@ -165,7 +165,38 @@ proxy-providers:
 		t.Fatal(err)
 	}
 	expand()
-	if got := hits.Load(); got != 2 {
-		t.Fatalf("stale cache should download again, hits = %d", got)
+	deadline := time.Now().Add(5 * time.Second)
+	for hits.Load() != 2 || !providerCacheFresh(cache, 3600) {
+		if time.Now().After(deadline) {
+			t.Fatalf("stale cache should refresh in the background, hits = %d", hits.Load())
+		}
+		time.Sleep(10 * time.Millisecond)
+	}
+}
+
+func TestExpandHttpProviderServesStaleCacheOffline(t *testing.T) {
+	dir := t.TempDir()
+	url := "http://127.0.0.1:1/missing"
+	cache := providerFilePath(dir, "proxies", url)
+	if err := os.MkdirAll(filepath.Dir(cache), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	links := "ss://" + base64.RawURLEncoding.EncodeToString([]byte("aes-128-gcm:pass")) + "@1.2.3.4:8388#Stale"
+	if err := os.WriteFile(cache, []byte(links), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	stale := time.Now().Add(-2 * time.Hour)
+	if err := os.Chtimes(cache, stale, stale); err != nil {
+		t.Fatal(err)
+	}
+	names := expandProfile(t, `
+proxy-providers:
+  sub:
+    type: http
+    url: `+url+`
+    interval: 3600
+`, expandOptions{ProvidersPath: dir})
+	if !reflect.DeepEqual(names, []string{"Stale"}) {
+		t.Fatalf("names = %v", names)
 	}
 }

@@ -28,6 +28,7 @@ import (
 	"github.com/metacubex/mihomo/common/utils"
 	"github.com/metacubex/mihomo/common/yaml"
 	"github.com/metacubex/mihomo/component/age"
+	"github.com/metacubex/mihomo/component/geodata"
 	"github.com/metacubex/mihomo/component/iface"
 	"github.com/metacubex/mihomo/component/mmdb"
 	"github.com/metacubex/mihomo/component/resolver"
@@ -588,6 +589,7 @@ func handleUpdateGeoData(geoType string, geoName string, fn func(value string)) 
 				fn(err.Error())
 				return
 			}
+			geodata.ClearGeoSiteCache()
 		}
 		fn("")
 	}()

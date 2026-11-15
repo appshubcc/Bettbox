@@ -4,16 +4,49 @@ import (
 	"strconv"
 	"sync"
 	"testing"
+	"time"
 
 	"github.com/metacubex/mihomo/common/atomic"
-	"github.com/metacubex/mihomo/common/queue"
 	C "github.com/metacubex/mihomo/constant"
 )
 
 func newTestState() *internalProxyState {
 	return &internalProxyState{
-		history: queue.New[C.DelayHistory](defaultHistoriesNum),
-		alive:   atomic.NewBool(true),
+		alive: atomic.NewBool(true),
+	}
+}
+
+func TestDelaySlotLifecycle(t *testing.T) {
+	var slot delaySlot
+	if slot.Len() != 0 {
+		t.Fatalf("empty slot Len = %d, want 0", slot.Len())
+	}
+	if slot.Copy() != nil {
+		t.Fatal("empty slot Copy should be nil")
+	}
+	now := time.Now().Truncate(time.Millisecond)
+	slot.Put(C.DelayHistory{Time: now, Delay: 128})
+	if slot.Len() != 1 {
+		t.Fatalf("slot Len = %d, want 1", slot.Len())
+	}
+	last := slot.Last()
+	if !last.Time.Equal(now) || last.Delay != 128 {
+		t.Fatalf("slot Last = %+v, want Time=%v Delay=128", last, now)
+	}
+	copied := slot.Copy()
+	if len(copied) != 1 || copied[0].Delay != 128 {
+		t.Fatalf("slot Copy = %+v", copied)
+	}
+	slot.Put(C.DelayHistory{Time: now, Delay: 0})
+	if slot.Len() != 1 {
+		t.Fatalf("failed slot Len = %d, want 1", slot.Len())
+	}
+	if got := slot.Last(); !got.Time.Equal(now) || got.Delay != 0 {
+		t.Fatalf("failed slot Last = %+v, want Time=%v Delay=0", got, now)
+	}
+	slot.Put(C.DelayHistory{Delay: 64})
+	if got := slot.Last(); !got.Time.IsZero() || got.Delay != 64 {
+		t.Fatalf("zero-time slot Last = %+v, want zero Time Delay=64", got)
 	}
 }
 
@@ -71,6 +104,8 @@ func TestProxyStatesConcurrent(t *testing.T) {
 			url := strconv.Itoa(i % 4)
 			state, _ := states.LoadOrStoreFn(url, newTestState)
 			state.alive.Store(i%2 == 0)
+			state.history.Put(C.DelayHistory{Time: time.Now(), Delay: uint16(i + 1)})
+			_ = state.history.Last()
 			states.Load(url)
 			states.Range(func(string, *internalProxyState) bool {
 				return true

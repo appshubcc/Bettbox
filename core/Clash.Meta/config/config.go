@@ -168,6 +168,7 @@ type DNS struct {
 	FakeIPPool6           *fakeip.Pool
 	FakeIPSkipper         *fakeip.Skipper
 	FakeIPTTL             int
+	FakeIPDisableMapping  bool
 	NameServerPolicy      []dns.Policy
 	ProxyServerNameserver []dns.NameServer
 	ProxyServerPolicy     []dns.Policy
@@ -237,6 +238,7 @@ type RawDNS struct {
 	FakeIPRange6                 string                              `yaml:"fake-ip-range6" json:"fake-ip-range6"`
 	FakeIPFilter                 []string                            `yaml:"fake-ip-filter" json:"fake-ip-filter"`
 	FakeIPFilterMode             C.FilterMode                        `yaml:"fake-ip-filter-mode" json:"fake-ip-filter-mode"`
+	FakeIPDisableMapping         bool                                `yaml:"fake-ip-disable-mapping" json:"fake-ip-disable-mapping"`
 	FakeIPTTL                    int                                 `yaml:"fake-ip-ttl" json:"fake-ip-ttl"`
 	DefaultNameserver            []string                            `yaml:"default-nameserver" json:"default-nameserver"`
 	CacheAlgorithm               string                              `yaml:"cache-algorithm" json:"cache-algorithm"`
@@ -529,8 +531,8 @@ func DefaultRawConfig() *RawConfig {
 				"tls://223.5.5.5:853",
 			},
 			FakeIPFilter: []string{
-				"dns.msftnsci.com",
-				"www.msftnsci.com",
+				"dns.msftncsi.com",
+				"www.msftncsi.com",
 				"www.msftconnecttest.com",
 			},
 			FakeIPFilterMode: C.FilterBlackList,
@@ -1538,6 +1540,7 @@ func parseDNS(rawCfg *RawConfig, ruleProviders map[string]P.RuleProvider) (*DNS,
 
 		dnsCfg.FakeIPSkipper = skipper
 		dnsCfg.FakeIPTTL = cfg.FakeIPTTL
+		dnsCfg.FakeIPDisableMapping = cfg.FakeIPDisableMapping
 
 		if dnsCfg.FakeIPRange.IsValid() {
 			pool, err := fakeip.New(fakeip.Options{

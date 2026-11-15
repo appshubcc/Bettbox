@@ -130,6 +130,27 @@ func closeIdleOutbounds(proxies map[string]cProxy.Proxy, providers map[string]cp
 	}
 }
 
+func closeStaleWireGuards(proxies map[string]cProxy.Proxy, providers map[string]cp.ProxyProvider) {
+	current := tunnel.Proxies()
+	for name, p := range proxies {
+		if current[name] != p {
+			closeStaleWireGuard(p)
+		}
+	}
+	for _, pr := range providers {
+		for _, p := range pr.Proxies() {
+			closeStaleWireGuard(p)
+		}
+	}
+}
+
+func closeStaleWireGuard(p cProxy.Proxy) {
+	if p.Type() != cProxy.WireGuard {
+		return
+	}
+	_ = p.Adapter().Close()
+}
+
 func closeIdleOutbound(p cProxy.Proxy) {
 	if closer, ok := p.Adapter().(outbound.IdleCloser); ok {
 		closer.CloseIdle()

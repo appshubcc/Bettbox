@@ -10,7 +10,6 @@ import (
 	"time"
 
 	"github.com/metacubex/mihomo/common/atomic"
-	"github.com/metacubex/mihomo/common/queue"
 	"github.com/metacubex/mihomo/common/utils"
 	"github.com/metacubex/mihomo/component/ca"
 	C "github.com/metacubex/mihomo/constant"
@@ -27,13 +26,13 @@ const (
 
 type internalProxyState struct {
 	alive   atomic.Bool
-	history *queue.Queue[C.DelayHistory]
+	history delaySlot
 }
 
 type Proxy struct {
 	C.ProxyAdapter
 	alive   atomic.Bool
-	history *queue.Queue[C.DelayHistory]
+	history delaySlot
 	extra   proxyStates
 }
 
@@ -184,8 +183,7 @@ func (p *Proxy) URLTest(ctx context.Context, url string, expectedStatus utils.In
 
 		state, _ := p.extra.LoadOrStoreFn(url, func() *internalProxyState {
 			return &internalProxyState{
-				history: queue.New[C.DelayHistory](defaultHistoriesNum),
-				alive:   atomic.NewBool(true),
+				alive: atomic.NewBool(true),
 			}
 		})
 
@@ -289,7 +287,6 @@ func (p *Proxy) URLTest(ctx context.Context, url string, expectedStatus utils.In
 func NewProxy(adapter C.ProxyAdapter) *Proxy {
 	return &Proxy{
 		ProxyAdapter: adapter,
-		history:      queue.New[C.DelayHistory](defaultHistoriesNum),
 		alive:        atomic.NewBool(true),
 	}
 }

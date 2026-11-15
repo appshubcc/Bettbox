@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"testing"
 
+	"github.com/metacubex/mihomo/adapter/outboundgroup"
 	"github.com/metacubex/mihomo/config"
 	"github.com/metacubex/mihomo/constant"
 	"github.com/metacubex/mihomo/log"
@@ -190,6 +191,59 @@ rules:
 	}
 	if _, exist := rawCfg.Proxy[0]["client-fingerprint"]; !exist {
 		t.Errorf("client-fingerprint should be filled for trojan")
+	}
+}
+
+func TestApplyPatchNodeExcludeIncludeAll(t *testing.T) {
+	rawCfg := parsePatchProfile(t, `
+proxies:
+  - {name: A, type: trojan, server: a.example.com, port: 443, password: p}
+  - {name: B, type: trojan, server: b.example.com, port: 443, password: p}
+proxy-groups:
+  - {name: List, type: select, proxies: [A, B]}
+  - {name: All, type: select, include-all: true}
+  - {name: Mixed, type: select, proxies: [A], include-all-proxies: true, exclude-filter: C}
+  - {name: Providers, type: select, include-all-providers: true}
+rules:
+  - MATCH,List
+`)
+	if _, err := applyPatch(rawCfg, patchParams(t, `{"node-exclude-filter":"^A$"}`)); err != nil {
+		t.Fatal(err)
+	}
+	groups := map[string]map[string]any{}
+	for _, group := range rawCfg.ProxyGroup {
+		name, _ := groupName(group)
+		groups[name] = group
+	}
+	if got := groups["List"]["proxies"]; !reflect.DeepEqual(got, []any{"B"}) {
+		t.Errorf("list proxies = %v", got)
+	}
+	if _, exist := groups["List"]["exclude-filter"]; exist {
+		t.Errorf("list group should not get exclude-filter")
+	}
+	if got := groups["All"]["exclude-filter"]; got != "^A$" {
+		t.Errorf("include-all exclude-filter = %v", got)
+	}
+	if got := groups["Mixed"]["exclude-filter"]; got != "C|^A$" {
+		t.Errorf("include-all-proxies exclude-filter = %v", got)
+	}
+	if got := groups["Mixed"]["proxies"]; !reflect.DeepEqual(got, []any{}) {
+		t.Errorf("mixed proxies = %v", got)
+	}
+	if _, exist := groups["Providers"]["exclude-filter"]; exist {
+		t.Errorf("include-all-providers group should not get exclude-filter")
+	}
+	rawCfg.ProxyGroup = rawCfg.ProxyGroup[:3]
+	cfg, err := config.ParseRawConfig(rawCfg)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var names []string
+	for _, proxy := range cfg.Proxies["All"].Adapter().(outboundgroup.ProxyGroup).Proxies() {
+		names = append(names, proxy.Name())
+	}
+	if !reflect.DeepEqual(names, []string{"B"}) {
+		t.Errorf("include-all members = %v", names)
 	}
 }
 
@@ -630,5 +684,68 @@ func TestEnsureTunInet6(t *testing.T) {
 		if got := len(cfg.General.Tun.Inet6Address); got != item.want {
 			t.Errorf("android=%t global=%t: inet6-address count = %d, want %d", item.android, item.global, got, item.want)
 		}
+	}
+}
+
+func TestApplyPatchSharedRules(t *testing.T) {
+	rawCfg := parsePatchProfile(t, `
+proxies:
+  - {name: Node, type: ss, server: a.com, port: 1, cipher: aes-128-gcm, password: p}
+proxy-groups:
+  - {name: 默认代理, type: select, proxies: [Node]}
+  - {name: 香港, type: select, proxies: [Node]}
+rule-providers:
+  ads: {type: http, behavior: domain, url: "https://example.com/ads.mrs", format: mrs}
+rules:
+  - MATCH,默认代理
+`)
+	params := patchParams(t, `{
+		"general": {"mode": "rule"},
+		"prepend-rules": ["DOMAIN,first.com,DIRECT"],
+		"override-rules": {"rules": ["DOMAIN,own.com,香港"]},
+		"shared-rules": {"fallback": "默认代理", "rules": [
+			"PROCESS-NAME,com.twitter.android,香港",
+			"DOMAIN-SUFFIX,jp.com,日本",
+			"IP-CIDR,1.1.1.1/32,日本,no-resolve",
+			"DOMAIN,direct.com,DIRECT",
+			"RULE-SET,ads,REJECT",
+			"RULE-SET,missing,REJECT",
+			"SUB-RULE,(NETWORK,tcp),missing"
+		]}
+	}`)
+	if _, err := applyPatch(rawCfg, params); err != nil {
+		t.Fatal(err)
+	}
+	want := []string{
+		"DOMAIN,first.com,DIRECT",
+		"DOMAIN,own.com,香港",
+		"PROCESS-NAME,com.twitter.android,香港",
+		"DOMAIN-SUFFIX,jp.com,默认代理",
+		"IP-CIDR,1.1.1.1/32,默认代理,no-resolve",
+		"DOMAIN,direct.com,DIRECT",
+		"RULE-SET,ads,REJECT",
+		"MATCH,默认代理",
+	}
+	if !reflect.DeepEqual(rawCfg.Rule, want) {
+		t.Fatalf("rules = %v", rawCfg.Rule)
+	}
+
+	rawCfg = parsePatchProfile(t, `
+proxies:
+  - {name: Node, type: ss, server: a.com, port: 1, cipher: aes-128-gcm, password: p}
+rules:
+  - MATCH,DIRECT
+`)
+	if _, err := applyPatch(rawCfg, params); err != nil {
+		t.Fatal(err)
+	}
+	want = []string{
+		"DOMAIN,first.com,DIRECT",
+		"DOMAIN,own.com,香港",
+		"DOMAIN,direct.com,DIRECT",
+		"MATCH,DIRECT",
+	}
+	if !reflect.DeepEqual(rawCfg.Rule, want) {
+		t.Fatalf("rules without fallback = %v", rawCfg.Rule)
 	}
 }

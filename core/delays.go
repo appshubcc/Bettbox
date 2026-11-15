@@ -13,7 +13,7 @@ import (
 const (
 	delayFlushInterval  = 300 * time.Millisecond
 	groupRecheckDelay   = 11 * time.Second
-	maxDelayConcurrency = 100
+	maxDelayConcurrency = 128
 )
 
 type delayKey struct {

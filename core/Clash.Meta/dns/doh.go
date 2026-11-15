@@ -11,6 +11,7 @@ import (
 	"runtime"
 	"strconv"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/metacubex/mihomo/component/ca"
@@ -138,8 +139,8 @@ func (doh *dnsOverHTTPS) ExchangeContext(ctx context.Context, m *D.Msg) (msg *D.
 	// is necessary to make HTTP client usable.  We need to make 2 attempts in
 	// the case when the connection was closed (due to inactivity for example)
 	// AND the server refuses to open a 0-RTT connection.
-	for i := 0; isCached && doh.shouldRetry(err) && i < 2; i++ {
-		client, err = doh.resetClient(ctx, err)
+	for i := 0; isCached && doh.shouldRetry(err) && ctx.Err() == nil && i < 2; i++ {
+		client, err = doh.resetClient(ctx, client, err)
 		if err != nil {
 			return nil, fmt.Errorf("failed to reset http client: %w", err)
 		}
@@ -147,9 +148,9 @@ func (doh *dnsOverHTTPS) ExchangeContext(ctx context.Context, m *D.Msg) (msg *D.
 		msg, err = doh.exchangeHTTPS(ctx, client, m)
 	}
 
-	if err != nil && !errors.Is(err, context.Canceled) && !errors.Is(err, context.DeadlineExceeded) {
+	if err != nil && !errors.Is(err, context.Canceled) {
 		// If the request failed anyway, make sure we don't use this client.
-		_, resErr := doh.resetClient(ctx, err)
+		_, resErr := doh.resetClient(ctx, client, err)
 
 		return nil, fmt.Errorf("%w (resErr:%v)", err, resErr)
 	}
@@ -279,7 +280,7 @@ func (doh *dnsOverHTTPS) shouldRetry(err error) (ok bool) {
 		return true
 	}
 
-	if isQUICRetryError(err) {
+	if isQUICRetryError(err) || isDoH3LocalCloseError(err) {
 		return true
 	}
 
@@ -289,9 +290,13 @@ func (doh *dnsOverHTTPS) shouldRetry(err error) (ok bool) {
 // resetClient triggers re-creation of the *http.Client that is used by this
 // upstream.  This method accepts the error that caused resetting client as
 // depending on the error we may also reset the QUIC config.
-func (doh *dnsOverHTTPS) resetClient(ctx context.Context, resetErr error) (client *http.Client, err error) {
+func (doh *dnsOverHTTPS) resetClient(ctx context.Context, failed *http.Client, resetErr error) (client *http.Client, err error) {
 	doh.clientMu.Lock()
 	defer doh.clientMu.Unlock()
+
+	if doh.client != nil && doh.client != failed {
+		return doh.client, nil
+	}
 
 	if errors.Is(resetErr, quic.Err0RTTRejected) {
 		// Reset the TokenStore only if 0-RTT was rejected.
@@ -359,7 +364,9 @@ func (doh *dnsOverHTTPS) getClient(ctx context.Context) (c *http.Client, isCache
 // will depend on whether HTTP3 is allowed and provided by this upstream.  Note,
 // that we'll attempt to establish a QUIC connection when creating the client in
 // order to check whether HTTP3 is supported.
-func (doh *dnsOverHTTPS) createClient(ctx context.Context) (*http.Client, error) {
+func (doh *dnsOverHTTPS) createClient(_ context.Context) (*http.Client, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), DefaultTimeout)
+	defer cancel()
 	transport, err := doh.createTransport(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("[%s] initializing http transport: %w", doh.url.String(), err)
@@ -455,8 +462,7 @@ func (doh *dnsOverHTTPS) createTransport(ctx context.Context) (t http.RoundTripp
 type http3Transport struct {
 	baseTransport *http3.Transport
 
-	closed bool
-	mu     sync.RWMutex
+	closed atomic.Bool
 }
 
 // type check
@@ -464,10 +470,7 @@ var _ http.RoundTripper = (*http3Transport)(nil)
 
 // RoundTrip implements the http.RoundTripper interface for *http3Transport.
 func (h *http3Transport) RoundTrip(req *http.Request) (resp *http.Response, err error) {
-	h.mu.RLock()
-	defer h.mu.RUnlock()
-
-	if h.closed {
+	if h.closed.Load() {
 		return nil, net.ErrClosed
 	}
 
@@ -487,18 +490,12 @@ var _ io.Closer = (*http3Transport)(nil)
 
 // Close implements the io.Closer interface for *http3Transport.
 func (h *http3Transport) Close() (err error) {
-	h.mu.Lock()
-	defer h.mu.Unlock()
-
-	h.closed = true
+	h.closed.Store(true)
 
 	return h.baseTransport.Close()
 }
 
 func (h *http3Transport) CloseIdleConnections() {
-	h.mu.RLock()
-	defer h.mu.RUnlock()
-
 	h.baseTransport.CloseIdleConnections()
 }
 
@@ -530,6 +527,8 @@ func (doh *dnsOverHTTPS) createTransportH3(
 			tlsCfg *tls.Config,
 			cfg *quic.Config,
 		) (c *quic.Conn, err error) {
+			ctx, cancel := context.WithTimeout(context.Background(), dialTimeout)
+			defer cancel()
 			return doh.dialQuic(ctx, addr, tlsCfg, cfg)
 		},
 		DisableCompression: true,

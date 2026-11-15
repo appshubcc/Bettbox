@@ -53,8 +53,7 @@ func SetSiteMatcher(newMatcher string) {
 func Verify(name string) error {
 	switch name {
 	case C.GeositeName:
-		_, err := LoadGeoSiteMatcher("CN")
-		return err
+		return verifyGeoSite()
 	case C.GeoipName:
 		_, err := LoadGeoIPMatcher("CN")
 		return err
@@ -63,7 +62,7 @@ func Verify(name string) error {
 	}
 }
 
-var loadGeoSiteMatcherListSF = singleflight.Group[[]*router.Domain]{StoreResult: true}
+var loadGeoSiteMatcherListSF = singleflight.Group[[]*router.Domain]{}
 var loadGeoSiteMatcherSF = singleflight.Group[router.DomainMatcher]{StoreResult: true}
 
 func LoadGeoSiteMatcher(countryCode string) (router.DomainMatcher, error) {
@@ -96,6 +95,10 @@ func LoadGeoSiteMatcher(countryCode string) (router.DomainMatcher, error) {
 	}
 	matcher, err, shared := loadGeoSiteMatcherSF.Do(matcherName, func() (router.DomainMatcher, error) {
 		log.Infoln("Load GeoSite rule: %s", matcherName)
+		cache := newSiteCache(matcherName)
+		if cached := cache.load(); cached != nil {
+			return cached, nil
+		}
 		domains, err, shared := loadGeoSiteMatcherListSF.Do(listName, func() ([]*router.Domain, error) {
 			geoLoader, err := GetGeoDataLoader(geoLoaderName)
 			if err != nil {
@@ -137,7 +140,7 @@ func LoadGeoSiteMatcher(countryCode string) (router.DomainMatcher, error) {
 		if geoSiteMatcher == "mph" {
 			return router.NewMphMatcherGroup(domains)
 		} else {
-			return router.NewSuccinctMatcherGroup(domains)
+			return cache.build(domains)
 		}
 	})
 	if err != nil {

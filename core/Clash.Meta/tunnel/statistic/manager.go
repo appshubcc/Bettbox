@@ -2,7 +2,7 @@ package statistic
 
 import (
 	"os"
-	"runtime"
+	"runtime/metrics"
 	"time"
 
 	"github.com/metacubex/mihomo/common/atomic"
@@ -106,6 +106,21 @@ func (m *Manager) Memory() uint64 {
 	return m.memory
 }
 
+func (m *Manager) Snapshot() *Snapshot {
+	m.updateMemory()
+	var connections []*TrackerInfo
+	m.Range(func(c Tracker) bool {
+		connections = append(connections, c.Info())
+		return true
+	})
+	return &Snapshot{
+		UploadTotal:   m.uploadTotal.Load(),
+		DownloadTotal: m.downloadTotal.Load(),
+		Connections:   connections,
+		Memory:        m.memory,
+	}
+}
+
 func (m *Manager) ResetStatistic() {
 	m.uploadTemp.Store(0)
 	m.uploadBlip.Store(0)
@@ -123,9 +138,19 @@ func (m *Manager) ResetStatistic() {
 }
 
 func (m *Manager) updateMemory() {
-	var memStats runtime.MemStats
-	runtime.ReadMemStats(&memStats)
-	m.memory = memStats.StackInuse + memStats.HeapInuse
+	samples := []metrics.Sample{
+		{Name: "/memory/classes/heap/objects:bytes"},
+		{Name: "/memory/classes/heap/unused:bytes"},
+		{Name: "/memory/classes/heap/stacks:bytes"},
+	}
+	metrics.Read(samples)
+	var inuse uint64
+	for _, sample := range samples {
+		if sample.Value.Kind() == metrics.KindUint64 {
+			inuse += sample.Value.Uint64()
+		}
+	}
+	m.memory = inuse
 }
 
 func (m *Manager) handle() {
@@ -140,25 +165,8 @@ func (m *Manager) handle() {
 }
 
 type Snapshot struct {
-	DownloadTotal   int64         `json:"downloadTotal"`
-	UploadTotal     int64         `json:"uploadTotal"`
-	Connections     []TrackerInfo `json:"connections"`
-	Memory          uint64        `json:"memory"`
-}
-
-func (m *Manager) Snapshot() *Snapshot {
-	m.updateMemory()
-
-	connections := make([]TrackerInfo, 0)
-	m.connections.Range(func(key string, value Tracker) bool {
-		connections = append(connections, *value.Info())
-		return true
-	})
-
-	return &Snapshot{
-		DownloadTotal:   m.downloadTotal.Load(),
-		UploadTotal:     m.uploadTotal.Load(),
-		Connections:     connections,
-		Memory:          m.memory,
-	}
+	DownloadTotal int64          `json:"downloadTotal"`
+	UploadTotal   int64          `json:"uploadTotal"`
+	Connections   []*TrackerInfo `json:"connections"`
+	Memory        uint64         `json:"memory"`
 }

@@ -139,8 +139,15 @@ func NewRuleSetProvider(name string, behavior P.RuleBehavior, format P.RuleForma
 	if len(payload) > 0 { // using as fallback rules
 		rp.strategy = rulesParseInline(payload, rp.strategy)
 	}
+	source := ""
+	if vehicle != nil {
+		source = vehicle.Url()
+		if source == "" {
+			source = vehicle.Path()
+		}
+	}
 	rp.Fetcher = resource.NewFetcher(name, interval, vehicle, bundleFile, func(bytes []byte) (ruleStrategy, error) {
-		return rulesParse(bytes, newStrategy(behavior, parse), format)
+		return parseStrategy(name, source, behavior, format, parse, bytes)
 	}, onUpdate)
 
 	wrapper := &RuleSetProvider{

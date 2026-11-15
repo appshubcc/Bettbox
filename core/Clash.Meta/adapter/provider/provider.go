@@ -349,7 +349,7 @@ func NewProxiesParser(pdName string, tunnel C.Tunnel, filter string, excludeFilt
 	var excludeFilterRegs []*regexp2.Regexp
 	if excludeFilter != "" {
 		for _, excludeFilter := range strings.Split(excludeFilter, "`") {
-			excludeFilterReg, err := regexp2.Compile(excludeFilter, regexp2.None)
+			excludeFilterReg, err := utils.CompileRegexp(excludeFilter, regexp2.None)
 			if err != nil {
 				return nil, fmt.Errorf("invalid excludeFilter regex: %w", err)
 			}
@@ -359,7 +359,7 @@ func NewProxiesParser(pdName string, tunnel C.Tunnel, filter string, excludeFilt
 
 	var filterRegs []*regexp2.Regexp
 	for _, filter := range strings.Split(filter, "`") {
-		filterReg, err := regexp2.Compile(filter, regexp2.None)
+		filterReg, err := utils.CompileRegexp(filter, regexp2.None)
 		if err != nil {
 			return nil, fmt.Errorf("invalid filter regex: %w", err)
 		}

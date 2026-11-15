@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -12,12 +13,14 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/dlclark/regexp2"
 	"github.com/metacubex/mihomo/adapter/provider"
 	"github.com/metacubex/mihomo/common/convert"
 	"github.com/metacubex/mihomo/common/structure"
+	"github.com/metacubex/mihomo/common/utils"
 	"github.com/metacubex/mihomo/common/yaml"
 	"github.com/metacubex/mihomo/component/age"
 	mihomoHttp "github.com/metacubex/mihomo/component/http"
@@ -138,6 +141,7 @@ func (o *providerOverride) apply(mapping map[string]any) error {
 
 func expandProxyProviders(raw *config.RawConfig, options expandOptions) error {
 	if len(raw.ProxyProvider) == 0 {
+		writeExpandedManifest(options.ProvidersPath, nil)
 		return nil
 	}
 	names := make([]string, 0, len(raw.ProxyProvider))
@@ -157,6 +161,7 @@ func expandProxyProviders(raw *config.RawConfig, options expandOptions) error {
 		}
 	}
 	decoder := structure.NewDecoder(structure.Option{TagName: "provider", WeaklyTypedInput: true})
+	entries := make([]expandedProvider, 0, len(names))
 	for _, name := range names {
 		mapping := raw.ProxyProvider[name]
 		if mapping == nil {
@@ -174,8 +179,10 @@ func expandProxyProviders(raw *config.RawConfig, options expandOptions) error {
 			proxy["name"] = uniqueProxyName(proxy["name"].(string), used)
 			raw.Proxy = append(raw.Proxy, proxy)
 		}
+		entries = append(entries, newExpandedProvider(name, schema, len(proxies), options.ProvidersPath))
 	}
 	raw.ProxyProvider = nil
+	writeExpandedManifest(options.ProvidersPath, entries)
 	return nil
 }
 
@@ -225,15 +232,18 @@ func readProviderContent(schema *expandProviderSchema, options expandOptions) ([
 		return os.ReadFile(path)
 	}
 	cache := providerFilePath(options.ProvidersPath, "proxies", schema.URL)
-	if !options.Refresh && providerCacheFresh(cache, schema.Interval) {
+	if !options.Refresh {
 		if buf, err := os.ReadFile(cache); err == nil && len(buf) > 0 {
+			if options.ProvidersPath != "" && !providerCacheFresh(cache, schema.Interval) {
+				revalidateProviderCache(schema, cache)
+			}
 			return buf, nil
 		}
 	}
-	buf, err := downloadProviderContent(schema)
+	buf, userinfo, err := downloadProviderContent(schema)
 	if err == nil {
 		if options.ProvidersPath != "" {
-			writeProviderCache(cache, buf)
+			writeProviderCache(cache, buf, userinfo)
 		}
 		return buf, nil
 	}
@@ -241,6 +251,20 @@ func readProviderContent(schema *expandProviderSchema, options expandOptions) ([
 		return cached, nil
 	}
 	return nil, err
+}
+
+var providerRevalidations sync.Map
+
+func revalidateProviderCache(schema *expandProviderSchema, cache string) {
+	if _, loaded := providerRevalidations.LoadOrStore(cache, struct{}{}); loaded {
+		return
+	}
+	go func() {
+		defer providerRevalidations.Delete(cache)
+		if buf, userinfo, err := downloadProviderContent(schema); err == nil && len(buf) > 0 {
+			writeProviderCache(cache, buf, userinfo)
+		}
+	}()
 }
 
 func providerCacheFresh(path string, interval int) bool {
@@ -251,35 +275,51 @@ func providerCacheFresh(path string, interval int) bool {
 	return interval <= 0 || time.Since(info.ModTime()) < time.Duration(interval)*time.Second
 }
 
-func writeProviderCache(path string, buf []byte) {
+func writeProviderFile(path string, buf []byte) error {
 	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
-		return
+		return err
 	}
 	temp := path + ".tmp"
 	if err := os.WriteFile(temp, buf, 0o644); err != nil {
-		return
+		return err
 	}
 	if err := os.Rename(temp, path); err != nil {
 		_ = os.Remove(temp)
+		return err
+	}
+	return nil
+}
+
+func writeProviderCache(path string, buf []byte, userinfo string) {
+	if writeProviderFile(path, buf) != nil {
+		return
+	}
+	data, err := json.Marshal(providerMeta{Userinfo: userinfo, UpdateAt: time.Now()})
+	if err == nil {
+		_ = writeProviderFile(providerMetaPath(path), data)
 	}
 }
 
-func downloadProviderContent(schema *expandProviderSchema) ([]byte, error) {
+func downloadProviderContent(schema *expandProviderSchema) ([]byte, string, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), resource.DefaultHttpTimeout)
 	defer cancel()
 	resp, err := mihomoHttp.HttpRequest(ctx, schema.URL, http.MethodGet, schema.Header, nil, mihomoHttp.WithSpecialProxy(schema.Proxy))
 	if err != nil {
-		return nil, err
+		return nil, "", err
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode < 200 || resp.StatusCode > 299 {
-		return nil, errors.New(resp.Status)
+		return nil, "", errors.New(resp.Status)
 	}
 	var reader io.Reader = resp.Body
 	if schema.SizeLimit > 0 {
 		reader = io.LimitReader(reader, schema.SizeLimit)
 	}
-	return io.ReadAll(reader)
+	buf, err := io.ReadAll(reader)
+	if err != nil {
+		return nil, "", err
+	}
+	return buf, resp.Header.Get("subscription-userinfo"), nil
 }
 
 func parseProviderContent(buf []byte, ageSecretKey string) ([]map[string]any, error) {
@@ -317,7 +357,7 @@ func filterProviderProxies(mappings []map[string]any, schema *expandProviderSche
 	var excludeFilters []*regexp2.Regexp
 	if schema.ExcludeFilter != "" {
 		for pattern := range strings.SplitSeq(schema.ExcludeFilter, "`") {
-			reg, err := regexp2.Compile(pattern, regexp2.None)
+			reg, err := utils.CompileRegexp(pattern, regexp2.None)
 			if err != nil {
 				return nil, fmt.Errorf("invalid excludeFilter regex: %w", err)
 			}
@@ -326,7 +366,7 @@ func filterProviderProxies(mappings []map[string]any, schema *expandProviderSche
 	}
 	var filters []*regexp2.Regexp
 	for pattern := range strings.SplitSeq(schema.Filter, "`") {
-		reg, err := regexp2.Compile(pattern, regexp2.None)
+		reg, err := utils.CompileRegexp(pattern, regexp2.None)
 		if err != nil {
 			return nil, fmt.Errorf("invalid filter regex: %w", err)
 		}

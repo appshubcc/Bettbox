@@ -102,4 +102,3 @@ func checksum(sum uint32, b []byte) uint16 {
 	}
 	return ^uint16(sum)
 }
-

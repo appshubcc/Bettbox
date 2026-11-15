@@ -59,13 +59,11 @@ class FairMemoryHelper(private val tag: String) {
             addAction(ACTION_TRIM)
             addAction(ACTION_KILL)
         }
-        context.registerReceiver(
-            receiver,
-            filter,
-            null,
-            handler,
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) Context.RECEIVER_EXPORTED else 0
-        )
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            context.registerReceiver(receiver, filter, null, handler, Context.RECEIVER_EXPORTED)
+        } else {
+            context.registerReceiver(receiver, filter, null, handler)
+        }
     }
 
     fun unregister(context: Context) {

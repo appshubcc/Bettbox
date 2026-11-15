@@ -10,6 +10,8 @@ import android.app.Service
 import android.content.pm.PackageManager
 import android.os.Build
 import androidx.core.app.NotificationCompat
+import androidx.core.content.ContextCompat
+import androidx.core.graphics.drawable.toBitmap
 import com.appshub.bettbox.GlobalState
 import com.appshub.bettbox.R
 import com.appshub.bettbox.models.VpnOptions
@@ -21,7 +23,6 @@ import kotlinx.coroutines.withContext
 import android.content.ComponentName
 import android.content.Intent
 
-import android.graphics.BitmapFactory
 
 interface BaseServiceInterface {
     suspend fun start(options: VpnOptions): Int
@@ -34,18 +35,11 @@ suspend fun Service.createBettboxNotificationBuilder(
     isHighPriority: Boolean = GlobalState.isNotificationHighPriority
 ): NotificationCompat.Builder =
     withContext(Dispatchers.IO) {
-        val defaultComponent = ComponentName(packageName, "com.appshub.bettbox.MainActivity")
-        val lightComponent = ComponentName(packageName, "com.appshub.bettbox.MainActivityLight")
-        val darkComponent = ComponentName(packageName, "com.appshub.bettbox.MainActivityDark")
-
-        val targetComponent = NotificationComponentCache.get(packageManager, defaultComponent, lightComponent, darkComponent)
-
-        android.util.Log.d("Notification", "Using ${targetComponent.className}")
-
-        val intent = Intent().apply {
-            component = targetComponent
+        val intent = (packageManager.getLaunchIntentForPackage(packageName) ?: Intent().apply {
+            component = ComponentName(packageName, "com.appshub.bettbox.MainActivity")
             action = Intent.ACTION_MAIN
             addCategory(Intent.CATEGORY_LAUNCHER)
+        }).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
         }
 
@@ -58,16 +52,13 @@ suspend fun Service.createBettboxNotificationBuilder(
             PendingIntent.getActivity(this@createBettboxNotificationBuilder, 0, intent, flags)
         }
 
-        val isDark = targetComponent == darkComponent
-        val largeIconRes = if (isDark) {
-            R.mipmap.ic_launcher
+        val largeIconBitmap = if (isSuspended) {
+            runCatching {
+                ContextCompat.getDrawable(this@createBettboxNotificationBuilder, R.mipmap.ic_launcher)?.toBitmap()
+            }.getOrNull()
         } else {
-            R.mipmap.ic_launcher_light
+            null
         }
-
-        val largeIconBitmap = runCatching {
-            BitmapFactory.decodeResource(resources, largeIconRes)
-        }.getOrNull()
 
         val channelId = when {
             isSuspended -> GlobalState.NOTIFICATION_CHANNEL_SUSPENDED
@@ -139,7 +130,7 @@ fun Service.startForeground(notification: Notification, useSpecialType: Boolean 
     }
 
     runCatching {
-        if (type != 0) {
+        if (Build.VERSION.SDK_INT >= 34 && type != 0) {
             startForeground(GlobalState.NOTIFICATION_ID, notification, type)
         } else {
             startForeground(GlobalState.NOTIFICATION_ID, notification)

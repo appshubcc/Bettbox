@@ -82,7 +82,11 @@ class BettboxVpnService : VpnService(), BaseServiceInterface {
             addAction(Intent.ACTION_SCREEN_ON)
             addAction(Intent.ACTION_SCREEN_OFF)
         }
-        registerReceiver(unlockReceiver, filter, if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) Context.RECEIVER_NOT_EXPORTED else 0)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            registerReceiver(unlockReceiver, filter, Context.RECEIVER_NOT_EXPORTED)
+        } else {
+            registerReceiver(unlockReceiver, filter)
+        }
 
         fairMemoryHelper.register(
             context = this,
@@ -153,7 +157,7 @@ class BettboxVpnService : VpnService(), BaseServiceInterface {
         if (Build.VERSION.SDK_INT >= 29) setMetered(false)
         if (options.allowBypass) allowBypass()
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && options.systemProxy) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && options.systemProxy && options.port > 0) {
             val exclusionList = options.bypassDomain.filter { proxyExclusionPattern.matches(it) }
             setHttpProxy(ProxyInfo.buildDirectProxy("127.0.0.1", options.port, exclusionList))
         }

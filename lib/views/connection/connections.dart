@@ -328,7 +328,7 @@ class _ConnectionsViewState extends ConsumerState<ConnectionsView>
         IconButton(
           onPressed: _handleClearClosed,
           tooltip: appLocalizations.clear,
-          icon: const Icon(Icons.delete_sweep_outlined),
+          icon: const AppIcon(Icons.delete_sweep_outlined),
         ),
         IconButton(
           style: _autoScrollToEnd
@@ -340,7 +340,7 @@ class _ConnectionsViewState extends ConsumerState<ConnectionsView>
               : null,
           onPressed: _toggleAutoScroll,
           tooltip: appLocalizations.autoScroll,
-          icon: const Icon(Icons.vertical_align_top_outlined),
+          icon: const AppIcon(Icons.vertical_align_top_outlined),
         ),
       ];
     }
@@ -348,12 +348,12 @@ class _ConnectionsViewState extends ConsumerState<ConnectionsView>
       IconButton(
         onPressed: _handleCloseAll,
         tooltip: appLocalizations.closeAll,
-        icon: const Icon(Icons.delete_sweep_outlined),
+        icon: const AppIcon(Icons.delete_sweep_outlined),
       ),
       IconButton(
         tooltip: appLocalizations.connectionsSort,
         onPressed: _handleSort,
-        icon: const Icon(Icons.sort),
+        icon: const AppIcon(Icons.sort),
       ),
     ];
   }
@@ -422,13 +422,16 @@ class _ConnectionsViewState extends ConsumerState<ConnectionsView>
     );
   }
 
-  Widget _buildClosedMark() {
+  Widget _buildClosedMark({bool dimmed = false}) {
+    final baseColor = context.colorScheme.onSurfaceVariant;
     return Padding(
       padding: const EdgeInsets.only(right: 8),
       child: Text(
         appLocalizations.connectionsClosed,
         style: context.textTheme.bodySmall?.copyWith(
-          color: context.colorScheme.onSurfaceVariant,
+          color: dimmed
+              ? baseColor.withValues(alpha: baseColor.a * 0.6)
+              : baseColor,
         ),
       ),
     );
@@ -443,22 +446,22 @@ class _ConnectionsViewState extends ConsumerState<ConnectionsView>
     required bool showSpeed,
     required bool markClosed,
   }) {
-    final item = TrackerInfoItem(
+    final dimmed = markClosed && closed;
+    return TrackerInfoItem(
       key: ValueKey(trackerInfo.id),
       index: index,
       count: count,
       showSpeed: !closed && showSpeed,
+      dimmed: dimmed,
       trackerInfo: trackerInfo,
       onClickKeyword: (value) {
         itemContext.commonScaffoldState?.addKeyword(value);
       },
       trailing: closed
-          ? (markClosed ? _buildClosedMark() : null)
+          ? (markClosed ? _buildClosedMark(dimmed: dimmed) : null)
           : _buildBlockButton(trackerInfo.id),
       detailTitle: appLocalizations.details,
     );
-    if (!markClosed || !closed) return item;
-    return Opacity(key: ValueKey(trackerInfo.id), opacity: 0.6, child: item);
   }
 
   Widget _buildList({
@@ -491,6 +494,7 @@ class _ConnectionsViewState extends ConsumerState<ConnectionsView>
               delegate: SliverChildBuilderDelegate(
                 (context, index) => itemOf(context, index),
                 childCount: count,
+                addAutomaticKeepAlives: false,
                 findChildIndexCallback: (key) {
                   indexById ??= {for (var i = 0; i < count; i++) idOf(i): i};
                   return indexById![(key as ValueKey<String>).value];

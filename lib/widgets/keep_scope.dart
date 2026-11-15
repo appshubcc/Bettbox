@@ -14,7 +14,7 @@ class KeepScope extends StatefulWidget {
 class _KeepContainerState extends State<KeepScope>
     with AutomaticKeepAliveClientMixin {
   @override
-  void didUpdateWidget(covariant KeepScope oldWidget) {
+  void didUpdateWidget(KeepScope oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.keep != widget.keep) {
       updateKeepAlive();

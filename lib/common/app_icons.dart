@@ -36,6 +36,7 @@ final Map<IconData, IconData> _phosphorIconMap = {
   Icons.auto_awesome: PhosphorIconsRegular.sparkle,
   Icons.auto_awesome_outlined: PhosphorIconsRegular.sparkle,
   Icons.auto_awesome_rounded: PhosphorIconsRegular.sparkle,
+  Icons.auto_fix_high_outlined: PhosphorIconsRegular.magicWand,
   Icons.auto_mode: PhosphorIconsRegular.sparkle,
   Icons.block: PhosphorIconsRegular.prohibit,
   Icons.block_outlined: PhosphorIconsRegular.prohibit,
@@ -73,7 +74,7 @@ final Map<IconData, IconData> _phosphorIconMap = {
   Icons.colorize: PhosphorIconsRegular.eyedropper,
   Icons.compress_outlined: PhosphorIconsRegular.arrowsIn,
   Icons.computer_outlined: PhosphorIconsRegular.desktop,
-  Icons.construction: PhosphorIconsRegular.wrench,
+  Icons.construction: PhosphorIconsRegular.gear,
   Icons.content_copy: PhosphorIconsRegular.copy,
   Icons.content_cut: PhosphorIconsRegular.scissors,
   Icons.content_paste: PhosphorIconsRegular.clipboard,
@@ -94,6 +95,7 @@ final Map<IconData, IconData> _phosphorIconMap = {
   Icons.deselect: PhosphorIconsRegular.selectionInverse,
   Icons.developer_board_outlined: PhosphorIconsRegular.circuitry,
   Icons.device_hub: PhosphorIconsRegular.treeStructure,
+  Icons.hive_outlined: PhosphorIconsRegular.graph,
   Icons.devices: PhosphorIconsRegular.devices,
   Icons.devices_rounded: PhosphorIconsRegular.devices,
   Icons.dns_outlined: PhosphorIconsRegular.database,
@@ -377,7 +379,7 @@ Widget? _resolveIconWidget(Widget? widget, {required bool enabled}) {
 }
 
 class AppIcon extends StatelessWidget {
-  final IconData icon;
+  final IconData? icon;
   final double? size;
   final Color? color;
   final double? fill;
@@ -406,8 +408,9 @@ class AppIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final icon = this.icon;
     return Icon(
-      context.resolveIcon(icon),
+      icon == null ? null : context.resolveIcon(icon),
       size: size,
       color: color,
       fill: fill,

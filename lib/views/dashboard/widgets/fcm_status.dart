@@ -60,7 +60,7 @@ class _FcmStatusState extends State<FcmStatus> {
       } else {
         final start = DateTime.fromMillisecondsSinceEpoch(summary.fcmStart);
         final duration = DateTime.now().difference(start);
-        final minutes = duration.inMinutes;
+        final minutes = duration.inMinutes + 1;
         _fcmStatusNotifier.value = FcmStatusData(
           minutes: minutes,
           isConnected: true,
@@ -109,7 +109,7 @@ class _FcmStatusState extends State<FcmStatus> {
               child: Row(
                 mainAxisSize: MainAxisSize.max,
                 children: [
-                  Icon(
+                  AppIcon(
                     Icons.cloud_outlined,
                     color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
@@ -133,7 +133,7 @@ class _FcmStatusState extends State<FcmStatus> {
                     child: IconButton(
                       padding: EdgeInsets.zero,
                       onPressed: () => _showFcmInfoDialog(context),
-                      icon: Icon(
+                      icon: AppIcon(
                         size: 16.ap,
                         Icons.info_outline,
                         color: context.colorScheme.onSurfaceVariant,

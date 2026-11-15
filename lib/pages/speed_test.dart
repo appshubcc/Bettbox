@@ -127,6 +127,7 @@ class _SpeedTestPageState extends ConsumerState<SpeedTestPage>
   late final AnimationController _intro;
   late final Animation<double> _introSweep;
   late final AnimationController _spinner;
+  late final VoidCallback _cancelIntro;
   SpeedTestSettings _settings = const SpeedTestSettings();
   late String _proxy = widget.initialProxy;
   SpeedTestState? _state;
@@ -170,7 +171,9 @@ class _SpeedTestPageState extends ConsumerState<SpeedTestPage>
     _intro.addStatusListener((_) {
       if (mounted) setState(() {});
     });
-    _intro.forward();
+    _cancelIntro = whenRouteEntered(context, () {
+      if (!_testing) _intro.forward();
+    });
     _load();
   }
 
@@ -180,6 +183,7 @@ class _SpeedTestPageState extends ConsumerState<SpeedTestPage>
     if (_testing || _probing) {
       clashCore.cancelSpeedTest();
     }
+    _cancelIntro();
     _intro.dispose();
     _spinner.dispose();
     super.dispose();
@@ -513,12 +517,12 @@ class _SpeedTestPageState extends ConsumerState<SpeedTestPage>
       IconButton(
         tooltip: appLocalizations.speedTestHistory,
         onPressed: _openHistory,
-        icon: const Icon(Icons.history_rounded),
+        icon: const AppIcon(Icons.history_rounded),
       ),
       IconButton(
         tooltip: appLocalizations.speedTestSettings,
         onPressed: _testing ? null : _openSettings,
-        icon: const Icon(Icons.settings_outlined),
+        icon: const AppIcon(Icons.settings_outlined),
       ),
     ];
     final body = LayoutBuilder(
@@ -822,7 +826,7 @@ class _ProviderSelector extends StatelessWidget {
         return IconButton(
           tooltip: _providerName(value),
           onPressed: enabled ? () => open(offset: const Offset(0, 20)) : null,
-          icon: const Icon(Icons.speed_rounded),
+          icon: const AppIcon(Icons.speed_rounded),
         );
       },
       popup: CommonPopupMenu(
@@ -1057,7 +1061,7 @@ class _SpeedGauge extends StatelessWidget {
                                             up: isUpload,
                                           ),
                                         )
-                                      : Icon(
+                                      : AppIcon(
                                           context.resolveIcon(
                                             isUpload
                                                 ? Icons.arrow_circle_up_outlined
@@ -2276,7 +2280,7 @@ class _SettingsDialogState extends State<_SettingsDialog> {
                             showDuration: const Duration(seconds: 5),
                             child: Padding(
                               padding: const EdgeInsets.all(4),
-                              child: Icon(
+                              child: AppIcon(
                                 Icons.info_outline_rounded,
                                 size: 15,
                                 color: context.colorScheme.outline,
@@ -2450,11 +2454,17 @@ class _OutboundPicker extends StatefulWidget {
   final String selected;
   final List<Group> groups;
   final bool batch;
+  final String? title;
+  final bool pickGroup;
+  final Set<String> excluded;
 
   const _OutboundPicker({
     required this.selected,
     required this.groups,
     this.batch = false,
+    this.title,
+    this.pickGroup = false,
+    this.excluded = const {},
   });
 
   @override
@@ -2476,8 +2486,8 @@ class _OutboundPickerState extends State<_OutboundPicker> {
     context,
   ).pop(widget.batch ? (scope: OutboundBatchScope.node, name: value) : value);
 
-  void _pickGroup(String name) =>
-      Navigator.of(context).pop((scope: OutboundBatchScope.group, name: name));
+  void _pickGroup(String name) => Navigator.of(context)
+      .pop(widget.batch ? (scope: OutboundBatchScope.group, name: name) : name);
 
   void _toggleGroup(String name) {
     setState(() {
@@ -2492,10 +2502,14 @@ class _OutboundPickerState extends State<_OutboundPicker> {
   @override
   Widget build(BuildContext context) {
     final batch = widget.batch;
+    final pickGroup = widget.pickGroup;
+    final nodesOnly = batch || pickGroup;
     return CommonDialog(
-      title: batch
-          ? appLocalizations.mediaBatchScope
-          : appLocalizations.speedTestOutbound,
+      title:
+          widget.title ??
+          (batch
+              ? appLocalizations.mediaBatchScope
+              : appLocalizations.speedTestOutbound),
       padding: const EdgeInsets.fromLTRB(12, 10, 12, 12),
       overrideScroll: true,
       child: ListView(
@@ -2512,7 +2526,7 @@ class _OutboundPickerState extends State<_OutboundPicker> {
                   Navigator.of(context)
                       .pop((scope: OutboundBatchScope.all, name: '')),
             )
-          else
+          else if (!pickGroup)
             Row(
               children: [
                 Expanded(
@@ -2536,14 +2550,17 @@ class _OutboundPickerState extends State<_OutboundPicker> {
                 ),
               ],
             ),
-          const SizedBox(height: 12),
+          if (!pickGroup) const SizedBox(height: 12),
           for (final group in widget.groups) ...[
             _OutboundGroupCard(
               group: group,
               isExpanded: _expandedGroups.contains(group.name),
               isSelected: !batch && widget.selected == group.name,
               onToggle: () => _toggleGroup(group.name),
-              onPick: batch ? () => _pickGroup(group.name) : null,
+              onPick: nodesOnly ? () => _pickGroup(group.name) : null,
+              pickLabel: batch
+                  ? appLocalizations.mediaBatchGroup
+                  : appLocalizations.pick,
             ),
             if (_expandedGroups.contains(group.name)) ...[
               const SizedBox(height: 8),
@@ -2553,7 +2570,8 @@ class _OutboundPickerState extends State<_OutboundPicker> {
                     .where(
                       (p) =>
                           !_hiddenProxyTypes.contains(p.type) &&
-                          !(batch &&
+                          !widget.excluded.contains(p.name) &&
+                          !(nodesOnly &&
                               outboundBatchExcludedTypes.contains(p.type)),
                     )
                     .toList(),
@@ -2713,12 +2731,14 @@ class _OutboundGroupCard extends ConsumerWidget {
   final bool isSelected;
   final VoidCallback onToggle;
   final VoidCallback? onPick;
+  final String pickLabel;
 
   const _OutboundGroupCard({
     required this.group,
     required this.isExpanded,
     required this.isSelected,
     required this.onToggle,
+    required this.pickLabel,
     this.onPick,
   });
 
@@ -2759,23 +2779,19 @@ class _OutboundGroupCard extends ConsumerWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 14),
                   child: Row(
                     children: [
-                      Container(
-                        width: 32,
-                        height: 32,
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                          color: colorScheme.surfaceContainerHigh,
-                          borderRadius: BorderRadius.circular(8),
+                      if (icon.isNotEmpty) ...[
+                        Container(
+                          width: 32,
+                          height: 32,
+                          alignment: Alignment.center,
+                          decoration: BoxDecoration(
+                            color: colorScheme.surfaceContainerHigh,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: CommonTargetIcon(src: icon, size: 18),
                         ),
-                        child: icon.isNotEmpty
-                            ? CommonTargetIcon(src: icon, size: 18)
-                            : Icon(
-                                context.resolveIcon(Icons.hub_outlined),
-                                size: 17,
-                                color: colorScheme.primary,
-                              ),
-                      ),
-                      const SizedBox(width: 12),
+                        const SizedBox(width: 12),
+                      ],
                       Expanded(
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -2820,7 +2836,7 @@ class _OutboundGroupCard extends ConsumerWidget {
                               tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                               textStyle: textTheme.labelMedium,
                             ),
-                            child: Text(appLocalizations.mediaBatchGroup),
+                            child: Text(pickLabel),
                           ),
                         ),
                       AnimatedRotation(
@@ -2979,7 +2995,7 @@ class _OutboundProxyCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Padding(
-                        padding: EdgeInsets.only(right: isSelected ? 12 : 0),
+                        padding: EdgeInsets.zero,
                         child: EmojiText(
                           proxy.name,
                           maxLines: 1,
@@ -3022,24 +3038,6 @@ class _OutboundProxyCard extends StatelessWidget {
                 ),
               ),
             ),
-            if (isSelected)
-              Positioned(
-                top: 5,
-                right: 5,
-                child: Container(
-                  width: 16,
-                  height: 16,
-                  decoration: BoxDecoration(
-                    color: colorScheme.primary,
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(
-                    context.resolveIcon(Icons.check_rounded),
-                    size: 11,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
           ],
         );
       },
@@ -3083,7 +3081,7 @@ class _HistorySheetState extends State<_HistorySheet> {
           IconButton(
             tooltip: appLocalizations.clear,
             onPressed: _clear,
-            icon: const Icon(Icons.delete_sweep_outlined),
+            icon: const AppIcon(Icons.delete_sweep_outlined),
           ),
       ],
       body: records.isEmpty
@@ -3327,6 +3325,20 @@ Future<String?> showOutboundPicker({
   required List<Group> groups,
 }) => globalState.showAdaptiveSheet<String>(
   child: _OutboundPicker(selected: selected, groups: groups),
+);
+
+Future<String?> showFrontPicker({
+  required String selected,
+  required List<Group> groups,
+  required Set<String> excluded,
+}) => globalState.showAdaptiveSheet<String>(
+  child: _OutboundPicker(
+    selected: selected,
+    groups: groups,
+    title: appLocalizations.frontProxy,
+    pickGroup: true,
+    excluded: excluded,
+  ),
 );
 
 enum OutboundBatchScope { all, group, node }

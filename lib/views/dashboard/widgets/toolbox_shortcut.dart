@@ -96,7 +96,7 @@ class _ToolEntryState extends State<_ToolEntry> {
       tween: ColorTween(
         end: active ? item.color : colorScheme.onSurfaceVariant,
       ),
-      builder: (_, color, _) => Icon(item.icon, size: 20, color: color),
+      builder: (_, color, _) => AppIcon(item.icon, size: 20, color: color),
     );
     final child = AnimatedContainer(
       duration: _duration,

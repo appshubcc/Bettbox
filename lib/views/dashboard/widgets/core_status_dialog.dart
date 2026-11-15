@@ -305,7 +305,7 @@ class _CoreStatusDialogState extends State<CoreStatusDialog> {
               color: iconColor.withValues(alpha: 0.12),
               shape: BoxShape.circle,
             ),
-            child: Icon(icon, size: 14, color: iconColor),
+            child: AppIcon(icon, size: 14, color: iconColor),
           ),
           const SizedBox(width: 8),
           Expanded(
@@ -384,7 +384,7 @@ class _CoreStatusDialogState extends State<CoreStatusDialog> {
               color: color.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
-            child: Icon(item.icon, size: 14, color: color),
+            child: AppIcon(item.icon, size: 14, color: color),
           ),
           const SizedBox(width: 8),
           Expanded(
@@ -445,54 +445,28 @@ class _CoreStatusDialogState extends State<CoreStatusDialog> {
 
   Widget _buildGeodataChips(String geodataUse) {
     final chips = <Widget>[];
-    final isNone = geodataUse.isEmpty || geodataUse == 'None';
-
-    if (isNone) {
+    final parts = geodataUse
+        .split(',')
+        .map((e) => e.trim())
+        .where((e) => e.isNotEmpty);
+    for (final part in parts) {
       chips.add(
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
           decoration: BoxDecoration(
-            color: context.colorScheme.surfaceContainerHighest.withValues(
-              alpha: 0.5,
-            ),
+            color: context.colorScheme.primaryContainer,
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(
-              color: context.colorScheme.outlineVariant.withValues(alpha: 0.5),
-            ),
           ),
           child: Text(
-            appLocalizations.none,
+            part,
             style: context.textTheme.labelSmall?.copyWith(
-              color: context.colorScheme.onSurfaceVariant,
+              color: context.colorScheme.onPrimaryContainer,
+              fontWeight: FontWeight.w600,
               fontSize: 10,
             ),
           ),
         ),
       );
-    } else {
-      final parts = geodataUse
-          .split(',')
-          .map((e) => e.trim())
-          .where((e) => e.isNotEmpty);
-      for (final part in parts) {
-        chips.add(
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
-            decoration: BoxDecoration(
-              color: context.colorScheme.primaryContainer,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Text(
-              part,
-              style: context.textTheme.labelSmall?.copyWith(
-                color: context.colorScheme.onPrimaryContainer,
-                fontWeight: FontWeight.w600,
-                fontSize: 10,
-              ),
-            ),
-          ),
-        );
-      }
     }
 
     return Wrap(spacing: 3, runSpacing: 3, children: chips);
@@ -517,7 +491,8 @@ class _CoreStatusDialogState extends State<CoreStatusDialog> {
     final proxyProvidersText = status != null
         ? _formatCount(status.proxyProviders)
         : '-';
-    final geodataUseText = status?.geodataUse ?? 'None';
+    final geodataUseText = status?.geodataUse.trim() ?? '';
+    final hasGeodata = geodataUseText.isNotEmpty && geodataUseText != 'None';
 
     final ringItems = [
       (appLocalizations.rulesCount, status?.rules),
@@ -538,69 +513,75 @@ class _CoreStatusDialogState extends State<CoreStatusDialog> {
           label: appLocalizations.proxyProvidersCount,
           value: proxyProvidersText,
         ),
-      _MetricItem(
-        icon: Icons.travel_explore_rounded,
-        color: context.colorScheme.secondary,
-        label: appLocalizations.geodataUse,
-        value: geodataUseText,
-        valueChild: _buildGeodataChips(geodataUseText),
-      ),
+      if (hasGeodata)
+        _MetricItem(
+          icon: Icons.travel_explore_rounded,
+          color: context.colorScheme.secondary,
+          label: appLocalizations.geodataUse,
+          value: geodataUseText,
+          valueChild: _buildGeodataChips(geodataUseText),
+        ),
     ];
 
-    return CommonDialog(
-      title: appLocalizations.coreStatus,
-      titleTrailing: CleanButton(
-        tooltip: appLocalizations.forceGCTitle,
-        onClean: _handleForceGc,
-      ),
-      padding: const EdgeInsets.fromLTRB(16, 14, 16, 8),
-      actions: isInBottomSheet(context)
-          ? null
-          : [
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context, rootNavigator: true).pop();
-                },
-                child: Text(appLocalizations.confirm),
-              ),
-            ],
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildSectionHeader(appLocalizations.memoryAndRuntime),
-          _buildMemoryCard(
-            inUse: inUse,
-            reclaimable: reclaimable,
-            physical: physical,
-          ),
-          const SizedBox(height: 8),
-          Row(
-            children: [
-              Expanded(
-                child: _buildMiniStatCard(
-                  icon: Icons.alt_route_rounded,
-                  iconColor: context.colorScheme.primary,
-                  label: appLocalizations.activeGoroutines,
-                  value: goroutinesText,
+    return ArrivalHold(
+      ready: status != null,
+      child: CommonDialog(
+        title: appLocalizations.coreStatus,
+        titleTrailing: CleanButton(
+          tooltip: appLocalizations.forceGCTitle,
+          onClean: _handleForceGc,
+        ),
+        padding: const EdgeInsets.fromLTRB(16, 14, 16, 8),
+        actions: isInBottomSheet(context)
+            ? null
+            : [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context, rootNavigator: true).pop();
+                  },
+                  child: Text(appLocalizations.confirm),
                 ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: _buildMiniStatCard(
-                  icon: Icons.layers_rounded,
-                  iconColor: context.colorScheme.tertiary,
-                  label: appLocalizations.heapObjects,
-                  value: heapObjectsText,
+              ],
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildSectionHeader(appLocalizations.memoryAndRuntime),
+            _buildMemoryCard(
+              inUse: inUse,
+              reclaimable: reclaimable,
+              physical: physical,
+            ),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                Expanded(
+                  child: _buildMiniStatCard(
+                    icon: Icons.alt_route_rounded,
+                    iconColor: context.colorScheme.primary,
+                    label: appLocalizations.activeGoroutines,
+                    value: goroutinesText,
+                  ),
                 ),
-              ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: _buildMiniStatCard(
+                    icon: Icons.layers_rounded,
+                    iconColor: context.colorScheme.tertiary,
+                    label: appLocalizations.heapObjects,
+                    value: heapObjectsText,
+                  ),
+                ),
+              ],
+            ),
+            _buildSectionHeader(appLocalizations.profileAndRules),
+            _buildRingCard(ringItems),
+            if (metricItems.isNotEmpty) ...[
+              const SizedBox(height: 8),
+              _buildMetricGrid(metricItems),
             ],
-          ),
-          _buildSectionHeader(appLocalizations.profileAndRules),
-          _buildRingCard(ringItems),
-          const SizedBox(height: 8),
-          _buildMetricGrid(metricItems),
-        ],
+          ],
+        ),
       ),
     );
   }

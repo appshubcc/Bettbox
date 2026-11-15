@@ -407,7 +407,7 @@ class EditorSelectionToolbar extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   if (item.icon case final icon?) ...[
-                    Icon(icon, size: 16, color: foregroundColor),
+                    AppIcon(icon, size: 16, color: foregroundColor),
                     const SizedBox(width: 4),
                   ],
                   Text(
@@ -462,7 +462,7 @@ class _EditorZoomMenuItemState extends State<EditorZoomMenuItem> {
       visualDensity: VisualDensity.compact,
       iconSize: 20,
       onPressed: enabled ? () => _stepBy(direction) : null,
-      icon: Icon(icon),
+      icon: AppIcon(icon),
     );
   }
 

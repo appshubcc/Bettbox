@@ -704,7 +704,7 @@ class ToolSegmented<T> extends StatelessWidget {
                               onTap: active ? () => onChanged(item) : null,
                               child: Center(
                                 child: icon != null
-                                    ? Icon(
+                                    ? AppIcon(
                                         context.resolveIcon(icon),
                                         size: 16,
                                         color: color,

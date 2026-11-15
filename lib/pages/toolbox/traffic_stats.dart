@@ -5,6 +5,7 @@ import 'dart:math' as math;
 import 'package:bett_box/clash/clash.dart';
 import 'package:bett_box/common/common.dart';
 import 'package:bett_box/models/models.dart';
+import 'package:bett_box/plugins/app.dart';
 import 'package:bett_box/providers/providers.dart';
 import 'package:bett_box/state.dart';
 import 'package:bett_box/views/connection/item.dart';
@@ -167,7 +168,7 @@ class _TrafficStatsPageState extends ConsumerState<TrafficStatsPage> {
         IconButton(
           tooltip: appLocalizations.settings,
           onPressed: _openSettings,
-          icon: const Icon(Icons.settings_outlined),
+          icon: const AppIcon(Icons.settings_outlined),
         ),
       ],
       body: ToolPageBody(
@@ -188,22 +189,27 @@ class _TrafficStatsPageState extends ConsumerState<TrafficStatsPage> {
             ),
             const SizedBox(height: 12),
           ],
-          ToolSegmented<_Period>(
-            values: _Period.values,
-            value: _period,
-            labelOf: (period) => switch (period) {
-              _Period.day => appLocalizations.today,
-              _Period.week => appLocalizations.thisWeek,
-              _Period.month => appLocalizations.thisMonth,
-            },
-            onChanged: (period) => _select(period, 0),
+          SegmentButtonGroup<_Period>(
+            options: [
+              for (final period in _Period.values)
+                SegmentOption(
+                  value: period,
+                  label: switch (period) {
+                    _Period.day => appLocalizations.today,
+                    _Period.week => appLocalizations.thisWeek,
+                    _Period.month => appLocalizations.thisMonth,
+                  },
+                ),
+            ],
+            selected: _period,
+            onSelected: (period) => _select(period, 0),
           ),
           const SizedBox(height: 4),
           Row(
             children: [
               IconButton(
                 onPressed: canBack ? () => _select(_period, _offset + 1) : null,
-                icon: const Icon(Icons.chevron_left_rounded),
+                icon: const AppIcon(Icons.chevron_left_rounded),
               ),
               Expanded(
                 child: Text(
@@ -219,7 +225,7 @@ class _TrafficStatsPageState extends ConsumerState<TrafficStatsPage> {
                 onPressed: _offset > 0
                     ? () => _select(_period, _offset - 1)
                     : null,
-                icon: const Icon(Icons.chevron_right_rounded),
+                icon: const AppIcon(Icons.chevron_right_rounded),
               ),
             ],
           ),
@@ -266,16 +272,21 @@ class _TrafficStatsPageState extends ConsumerState<TrafficStatsPage> {
         ),
         ToolSectionHeader(appLocalizations.trafficRanking),
         if (ranks.length > 1) ...[
-          ToolSegmented<_Rank>(
-            values: ranks,
-            value: rank,
-            labelOf: (rank) => switch (rank) {
-              _Rank.hosts => appLocalizations.domain,
-              _Rank.processes => appLocalizations.process,
-              _Rank.nodes => appLocalizations.node,
-              _Rank.profiles => appLocalizations.profile,
-            },
-            onChanged: (rank) => setState(() => _rank = rank),
+          SegmentButtonGroup<_Rank>(
+            options: [
+              for (final item in ranks)
+                SegmentOption(
+                  value: item,
+                  label: switch (item) {
+                    _Rank.hosts => appLocalizations.domain,
+                    _Rank.processes => appLocalizations.process,
+                    _Rank.nodes => appLocalizations.node,
+                    _Rank.profiles => appLocalizations.profile,
+                  },
+                ),
+            ],
+            selected: rank,
+            onSelected: (rank) => setState(() => _rank = rank),
           ),
           const SizedBox(height: 10),
         ],
@@ -292,15 +303,19 @@ class _TrafficStatsPageState extends ConsumerState<TrafficStatsPage> {
                         name: item.name,
                         total: item.total,
                         ratio: item.total / math.max(items.first.total, 1),
-                        onTap: rank == _Rank.hosts
-                            ? () => _showHostDetail(
-                                context,
-                                host: item.name,
-                                range: range,
-                                hourly: _period == _Period.day,
-                                siteIcon: siteIcon,
-                              )
-                            : null,
+                        onTap: switch (rank) {
+                          _Rank.hosts => () => _showHostDetail(
+                            context,
+                            host: item.name,
+                            range: range,
+                            hourly: _period == _Period.day,
+                            siteIcon: siteIcon,
+                          ),
+                          _Rank.processes
+                              when system.isAndroid || item.path.isNotEmpty =>
+                            () => _openProcess(item),
+                          _ => null,
+                        },
                       ),
                   ],
                 ),
@@ -321,6 +336,16 @@ class _TrafficStatsPageState extends ConsumerState<TrafficStatsPage> {
       _Rank.profiles => const _TonalIcon(Icons.description_outlined),
     };
   }
+}
+
+Future<void> _openProcess(TrafficStatsItem item) async {
+  if (system.isAndroid) {
+    if (await app.openAppDetails(item.name)) return;
+    globalState.showNotifier(appLocalizations.appNotInstalled);
+    return;
+  }
+  if (await system.revealFile(item.path)) return;
+  globalState.showNotifier(appLocalizations.fileNotFound);
 }
 
 void _showHostDetail(
@@ -791,7 +816,7 @@ class _TonalIcon extends StatelessWidget {
         color: primary.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(9),
       ),
-      child: Icon(icon, size: 18, color: primary),
+      child: AppIcon(icon, size: 18, color: primary),
     );
   }
 }
@@ -931,7 +956,7 @@ class _HostDetailState extends State<_HostDetail> {
     void open(Widget page) => BaseNavigator.push(context, page);
     Widget chip(IconData icon, String label, Widget Function() page) =>
         CommonChip(
-          avatar: Icon(icon, size: 16, color: context.colorScheme.primary),
+          avatar: AppIcon(icon, size: 16, color: context.colorScheme.primary),
           label: label,
           onPressed: () => open(page()),
         );

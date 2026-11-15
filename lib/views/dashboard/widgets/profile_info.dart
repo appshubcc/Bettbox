@@ -73,7 +73,7 @@ void showProfileSwitchSheet(BuildContext context) {
         IconButton(
           tooltip: appLocalizations.profiles,
           onPressed: () => globalState.appController.toProfiles(),
-          icon: const Icon(Icons.open_in_new),
+          icon: const AppIcon(Icons.open_in_new),
         ),
       ],
       body: const _ProfileSwitchList(),
@@ -165,7 +165,7 @@ class ProfileInfo extends ConsumerWidget {
               padding: EdgeInsets.fromLTRB(16.ap, 11.ap, 10.ap, 0),
               child: Row(
                 children: [
-                  Icon(
+                  AppIcon(
                     Icons.description_outlined,
                     color: colorScheme.onSurfaceVariant,
                   ),
@@ -492,10 +492,10 @@ class _ProfileName extends StatelessWidget {
             style: style,
           ),
         ),
-        const SizedBox(width: 2),
-        Icon(
-          Icons.unfold_more,
-          size: 16,
+        const SizedBox(width: 5),
+        AppIcon(
+          Icons.expand_more,
+          size: 18,
           color: context.colorScheme.onSurfaceVariant,
         ),
       ],
@@ -535,7 +535,7 @@ class _RefreshButton extends ConsumerWidget {
               tooltip: appLocalizations.update,
               onPressed: () =>
                   refreshProfileSubscription(context, ref, profile),
-              icon: Icon(
+              icon: AppIcon(
                 Icons.sync,
                 size: 16.ap,
                 color: colorScheme.onSurfaceVariant,
@@ -617,7 +617,7 @@ class _NodeLabel extends StatelessWidget {
               color: colorScheme.onSurfaceVariant,
             ),
           ),
-          Icon(
+          AppIcon(
             Icons.chevron_right,
             size: 14,
             color: colorScheme.onSurfaceVariant,
@@ -813,7 +813,7 @@ class _GroupProxySheet extends ConsumerWidget {
                       testUrl: group.testUrl,
                       groupName: group.name,
                     ),
-              icon: const Icon(Icons.network_ping),
+              icon: const AppIcon(Icons.network_ping),
             ),
           ),
       ],
@@ -923,7 +923,7 @@ class _ProfileSwitchItem extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(12, 10, 14, 10),
             child: Row(
               children: [
-                Icon(
+                AppIcon(
                   selected ? Icons.check_circle_rounded : Icons.circle_outlined,
                   size: 21,
                   color: selected

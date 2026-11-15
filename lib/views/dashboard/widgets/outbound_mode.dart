@@ -69,7 +69,7 @@ class OutboundMode extends StatelessWidget {
                                   ),
                                   child: Row(
                                     children: [
-                                      Icon(
+                                      AppIcon(
                                         item == mode
                                             ? Icons.check_circle_rounded
                                             : Icons.circle_outlined,
@@ -232,7 +232,7 @@ class _OutboundModeButton extends StatelessWidget {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(_icon, size: 17, color: foreground),
+                        AppIcon(_icon, size: 17, color: foreground),
                         const SizedBox(width: 6),
                         Flexible(
                           child: Text(

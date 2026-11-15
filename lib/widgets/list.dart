@@ -39,8 +39,13 @@ class SwitchDelegate<T> extends Delegate {
 class CheckboxDelegate<T> extends Delegate {
   final bool value;
   final ValueChanged<bool?>? onChanged;
+  final VoidCallback? onLongPress;
 
-  const CheckboxDelegate({this.value = false, this.onChanged});
+  const CheckboxDelegate({
+    this.value = false,
+    this.onChanged,
+    this.onLongPress,
+  });
 }
 
 class OpenDelegate extends Delegate {
@@ -288,6 +293,7 @@ class ListItem<T> extends StatelessWidget implements HasLeadingWidget {
   Widget _buildListTile(
     BuildContext context, {
     void Function()? onTap,
+    VoidCallback? onLongPress,
     Widget? trailing,
     Widget? leading,
     bool enabled = true,
@@ -330,6 +336,7 @@ class ListItem<T> extends StatelessWidget implements HasLeadingWidget {
       subtitle: subtitle,
       titleAlignment: tileTitleAlignment,
       onTap: onTap,
+      onLongPress: onLongPress,
       trailing: context.resolveIconWidget(trailing ?? this.trailing),
       contentPadding: padding,
     );
@@ -389,7 +396,7 @@ class ListItem<T> extends StatelessWidget implements HasLeadingWidget {
             context,
             trailing:
                 trailing ??
-                Icon(
+                AppIcon(
                   Icons.chevron_right_rounded,
                   size: 20,
                   color: context.colorScheme.onSurfaceVariant.opacity60,
@@ -420,7 +427,7 @@ class ListItem<T> extends StatelessWidget implements HasLeadingWidget {
         context,
         trailing:
             trailing ??
-            Icon(
+            AppIcon(
               Icons.chevron_right_rounded,
               size: 20,
               color: context.colorScheme.onSurfaceVariant.opacity60,
@@ -499,9 +506,10 @@ class ListItem<T> extends StatelessWidget implements HasLeadingWidget {
             checkboxDelegate.onChanged!(!checkboxDelegate.value);
           }
         },
+        onLongPress: checkboxDelegate.onLongPress,
         trailing: Padding(
           padding: const EdgeInsets.only(right: 8),
-          child: Icon(
+          child: AppIcon(
             checkboxDelegate.value
                 ? Icons.check_circle_rounded
                 : Icons.circle_outlined,
@@ -550,7 +558,7 @@ class ListItem<T> extends StatelessWidget implements HasLeadingWidget {
             radioDelegate.onChanged!(radioDelegate.value);
           }
         },
-        leading: Icon(
+        leading: AppIcon(
           isSelected ? Icons.check_circle_rounded : Icons.circle_outlined,
           size: 21,
           color: isSelected

@@ -89,7 +89,7 @@ class _MrsLookupPageState extends ConsumerState<MrsLookupPage>
           tooltip: appLocalizations.settings,
           onPressed: () =>
               globalState.showAdaptiveSheet(child: const _MrsSettingsDialog()),
-          icon: const Icon(Icons.settings_outlined),
+          icon: const AppIcon(Icons.settings_outlined),
         ),
       ],
       body: ToolPageBody(
@@ -396,7 +396,7 @@ class _MatchList extends ConsumerWidget {
                       ),
                     Padding(
                       padding: const EdgeInsetsDirectional.only(start: 8),
-                      child: Icon(
+                      child: AppIcon(
                         switch (tapAction) {
                           MrsTapAction.viewRules => Icons.chevron_right_rounded,
                           MrsTapAction.copyUrl => Icons.link_rounded,

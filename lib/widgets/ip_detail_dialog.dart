@@ -202,7 +202,7 @@ class _IpDetailDialogState extends ConsumerState<_IpDetailDialog> {
               color: iconColor.withValues(alpha: 0.12),
               shape: BoxShape.circle,
             ),
-            child: Icon(icon, size: 14, color: iconColor),
+            child: AppIcon(icon, size: 14, color: iconColor),
           ),
           const SizedBox(width: 8),
           Expanded(
@@ -254,7 +254,11 @@ class _IpDetailDialogState extends ConsumerState<_IpDetailDialog> {
       visualDensity: VisualDensity.compact,
       padding: EdgeInsets.zero,
       constraints: const BoxConstraints(minWidth: 28, minHeight: 28),
-      icon: Icon(icon, size: 15, color: context.colorScheme.onSurfaceVariant),
+      icon: AppIcon(
+        icon,
+        size: 15,
+        color: context.colorScheme.onSurfaceVariant,
+      ),
       tooltip: tooltip,
       onPressed: onPressed,
     );
@@ -385,7 +389,7 @@ class _IpDetailDialogState extends ConsumerState<_IpDetailDialog> {
                     ),
                   ),
                   const SizedBox(width: 4),
-                  Icon(
+                  AppIcon(
                     Icons.edit_outlined,
                     size: 13,
                     color: context.colorScheme.onSurfaceVariant,
@@ -557,7 +561,10 @@ class _IpDetailDialogState extends ConsumerState<_IpDetailDialog> {
                           ),
                           TextButton.icon(
                             onPressed: () => _loadRisk(ip, force: true),
-                            icon: const Icon(Icons.refresh_rounded, size: 16),
+                            icon: const AppIcon(
+                              Icons.refresh_rounded,
+                              size: 16,
+                            ),
                             label: Text(appLocalizations.retry),
                           ),
                         ],

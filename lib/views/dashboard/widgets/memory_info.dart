@@ -27,6 +27,7 @@ class _MemoryInfoState extends State<MemoryInfo> {
   static final List<double> _history = [];
   static const _averageWindow = Duration(minutes: 10);
   static final List<(DateTime, int)> _samples = [];
+  final ValueNotifier<int> _revision = ValueNotifier<int>(0);
   TrafficValue _memoryValue = _lastMemoryValue;
   Timer? _initTimer;
   bool _isUpdating = false;
@@ -59,6 +60,7 @@ class _MemoryInfoState extends State<MemoryInfo> {
   void dispose() {
     _initTimer?.cancel();
     dashboardRefreshManager.tick2s.removeListener(_tickListener);
+    _revision.dispose();
     super.dispose();
   }
 
@@ -76,10 +78,9 @@ class _MemoryInfoState extends State<MemoryInfo> {
         if (mounted) {
           pushDashboardSample(_history, adjustedValue.toDouble(), max: 30);
           _recordSample(adjustedValue);
-          setState(() {
-            _memoryValue = TrafficValue(value: adjustedValue);
-            _lastMemoryValue = _memoryValue; // Cache latest valid value
-          });
+          _memoryValue = TrafficValue(value: adjustedValue);
+          _lastMemoryValue = _memoryValue;
+          _revision.value++;
         }
       }
       // If 0, keep last valid value
@@ -127,36 +128,6 @@ class _MemoryInfoState extends State<MemoryInfo> {
   Widget _buildTile(BuildContext context, DashboardTileSize size) {
     final isTall = size == DashboardTileSize.tall;
     final colorScheme = context.colorScheme;
-    final value = Row(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.baseline,
-      textBaseline: TextBaseline.alphabetic,
-      children: [
-        Text(
-          _memoryValue.showValue,
-          style: context.textTheme.titleLarge?.copyWith(
-            fontWeight: FontWeight.w600,
-            height: 1,
-            fontFeatures: const [FontFeature.tabularFigures()],
-          ),
-        ),
-        const SizedBox(width: 6),
-        Text(
-          _memoryValue.showUnit,
-          style: context.textTheme.bodySmall?.copyWith(
-            color: colorScheme.onSurfaceVariant,
-          ),
-        ),
-      ],
-    );
-    final peak = Text(
-      appLocalizations.dashboardAverage(TrafficValue(value: _average).show),
-      maxLines: 1,
-      overflow: TextOverflow.ellipsis,
-      style: context.textTheme.labelSmall?.copyWith(
-        color: colorScheme.onSurfaceVariant,
-      ),
-    );
     return DashboardTileCard(
       size: size,
       info: Info(label: appLocalizations.memoryInfo, iconData: Icons.memory),
@@ -169,7 +140,7 @@ class _MemoryInfoState extends State<MemoryInfo> {
           child: IconButton(
             padding: EdgeInsets.zero,
             onPressed: () => _showMemoryInfoDialog(context),
-            icon: Icon(
+            icon: AppIcon(
               size: 16.ap,
               context.resolveIcon(Icons.info_outline),
               color: colorScheme.onSurfaceVariant,
@@ -177,21 +148,58 @@ class _MemoryInfoState extends State<MemoryInfo> {
           ),
         ),
       ],
-      child: isTall
-          ? Padding(
-              padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  value,
-                  const SizedBox(height: 4),
-                  peak,
-                  const SizedBox(height: 12),
-                  Expanded(child: DashboardTrendLine(values: _history)),
-                ],
+      child: RepaintBoundary(
+        child: ValueListenableBuilder<int>(
+          valueListenable: _revision,
+          builder: (_, _, _) {
+            final value = Row(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.baseline,
+              textBaseline: TextBaseline.alphabetic,
+              children: [
+                Text(
+                  _memoryValue.showValue,
+                  style: context.textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.w600,
+                    height: 1,
+                    fontFeatures: const [FontFeature.tabularFigures()],
+                  ),
+                ),
+                const SizedBox(width: 6),
+                Text(
+                  _memoryValue.showUnit,
+                  style: context.textTheme.bodySmall?.copyWith(
+                    color: colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ],
+            );
+            final peak = Text(
+              appLocalizations.dashboardAverage(
+                TrafficValue(value: _average).show,
               ),
-            )
-          : Padding(
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: context.textTheme.labelSmall?.copyWith(
+                color: colorScheme.onSurfaceVariant,
+              ),
+            );
+            if (isTall) {
+              return Padding(
+                padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    value,
+                    const SizedBox(height: 4),
+                    peak,
+                    const SizedBox(height: 12),
+                    Expanded(child: DashboardTrendLine(values: _history)),
+                  ],
+                ),
+              );
+            }
+            return Padding(
               padding: const EdgeInsets.fromLTRB(16, 0, 72, 14),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.end,
@@ -215,7 +223,10 @@ class _MemoryInfoState extends State<MemoryInfo> {
                   ),
                 ],
               ),
-            ),
+            );
+          },
+        ),
+      ),
     );
   }
 
@@ -259,7 +270,7 @@ class _MemoryInfoState extends State<MemoryInfo> {
                     child: IconButton(
                       padding: EdgeInsets.zero,
                       onPressed: () => _showMemoryInfoDialog(context),
-                      icon: Icon(
+                      icon: AppIcon(
                         size: 16.ap,
                         context.resolveIcon(Icons.info_outline),
                         color: context.colorScheme.onSurfaceVariant,
@@ -271,31 +282,36 @@ class _MemoryInfoState extends State<MemoryInfo> {
             ),
             Container(
               padding: baseInfoEdgeInsets.copyWith(top: 0),
-              child: Column(
-                mainAxisSize: MainAxisSize.max,
-                mainAxisAlignment: MainAxisAlignment.end,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SizedBox(
-                    height: globalState.measure.bodyMediumHeight + 2,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        Text(
-                          _memoryValue.showValue,
-                          style: context.textTheme.bodyMedium?.toLight
-                              .adjustSize(1),
+              child: RepaintBoundary(
+                child: ValueListenableBuilder<int>(
+                  valueListenable: _revision,
+                  builder: (_, _, _) => Column(
+                    mainAxisSize: MainAxisSize.max,
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SizedBox(
+                        height: globalState.measure.bodyMediumHeight + 2,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            Text(
+                              _memoryValue.showValue,
+                              style: context.textTheme.bodyMedium?.toLight
+                                  .adjustSize(1),
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              _memoryValue.showUnit,
+                              style: context.textTheme.bodyMedium?.toLight
+                                  .adjustSize(1),
+                            ),
+                          ],
                         ),
-                        const SizedBox(width: 8),
-                        Text(
-                          _memoryValue.showUnit,
-                          style: context.textTheme.bodyMedium?.toLight
-                              .adjustSize(1),
-                        ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
-                ],
+                ),
               ),
             ),
           ],

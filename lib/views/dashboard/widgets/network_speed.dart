@@ -44,7 +44,7 @@ class NetworkSpeed extends ConsumerWidget {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
-        Icon(
+        AppIcon(
           icon,
           size: primary ? 16 : 14,
           color: primary ? colorScheme.primary : colorScheme.onSurfaceVariant,

@@ -227,13 +227,6 @@ class _ProfilesViewState extends ConsumerState<ProfilesView>
     return [
       IconButton(
         onPressed: () {
-          _updateProfiles();
-        },
-        icon: const Icon(Icons.sync),
-        tooltip: appLocalizations.syncAll,
-      ),
-      IconButton(
-        onPressed: () {
           showExtend(
             context,
             builder: (_, type) {
@@ -251,12 +244,19 @@ class _ProfilesViewState extends ConsumerState<ProfilesView>
                     (profile) => profile?.isManaged ?? false,
                   ),
                 );
-            return Icon(
+            return AppIcon(
               Icons.terminal_outlined,
               color: isScriptMode ? context.colorScheme.primary : null,
             );
           },
         ),
+      ),
+      IconButton(
+        onPressed: () {
+          _updateProfiles();
+        },
+        icon: const AppIcon(Icons.sync),
+        tooltip: appLocalizations.syncAll,
       ),
       IconButton(
         onPressed: () {
@@ -269,7 +269,7 @@ class _ProfilesViewState extends ConsumerState<ProfilesView>
           );
         },
         tooltip: appLocalizations.sort,
-        icon: const Icon(Icons.sort),
+        icon: const AppIcon(Icons.sort),
         iconSize: 26,
       ),
     ];
@@ -286,7 +286,7 @@ class _ProfilesViewState extends ConsumerState<ProfilesView>
       child: FloatingActionButton.extended(
         heroTag: null,
         onPressed: _handleShowAddExtendPage,
-        icon: const Icon(Icons.add),
+        icon: const AppIcon(Icons.add),
         label: Text(appLocalizations.addProfile),
       ),
     );
@@ -513,7 +513,7 @@ class ProfileItem extends StatelessWidget {
           type: type,
           actions: [
             IconButton(
-              icon: const Icon(Icons.security),
+              icon: const AppIcon(Icons.security),
               tooltip: appLocalizations.ageKeyGenerateTitle,
               onPressed: () {
                 editKey.currentState?.showAgeKeyGenerator();
@@ -1189,7 +1189,7 @@ class ProfileItem extends StatelessWidget {
         if (onToggleExpanded != null) _buildExpandButton(context, size: 24),
         IconButton(
           onPressed: () => _showTVMenu(context),
-          icon: const Icon(Icons.more_vert),
+          icon: const AppIcon(Icons.more_vert),
         ),
       ],
     );
@@ -1275,7 +1275,7 @@ class _ReorderableProfilesSheetState extends State<ReorderableProfilesSheet> {
             Navigator.of(context).pop();
             globalState.appController.setProfiles(profiles);
           },
-          icon: Icon(Icons.save),
+          icon: AppIcon(Icons.save),
         ),
       ],
       body: ReorderableListView.builder(

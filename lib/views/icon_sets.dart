@@ -149,12 +149,12 @@ class _IconSetsSheetState extends ConsumerState<_IconSetsSheet> {
                     dimension: 20,
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
-                : const Icon(Icons.sync),
+                : const AppIcon(Icons.sync),
           ),
         IconButton(
           tooltip: appLocalizations.delete,
           onPressed: () => _handleDelete(iconSet),
-          icon: const Icon(Icons.delete_outline),
+          icon: const AppIcon(Icons.delete_outline),
         ),
       ],
     );
@@ -172,7 +172,7 @@ class _IconSetsSheetState extends ConsumerState<_IconSetsSheet> {
         IconButton(
           tooltip: appLocalizations.importFile,
           onPressed: importing ? null : _handleImportFile,
-          icon: const Icon(Icons.file_open_outlined),
+          icon: const AppIcon(Icons.file_open_outlined),
         ),
         IconButton(
           tooltip: appLocalizations.importUrl,
@@ -182,7 +182,7 @@ class _IconSetsSheetState extends ConsumerState<_IconSetsSheet> {
                   dimension: 20,
                   child: CircularProgressIndicator(strokeWidth: 2),
                 )
-              : const Icon(Icons.add_link),
+              : const AppIcon(Icons.add_link),
         ),
       ],
       body: ListView(
@@ -195,7 +195,7 @@ class _IconSetsSheetState extends ConsumerState<_IconSetsSheet> {
                   '${appLocalizations.builtIn} · '
                   '${appLocalizations.iconCount(builtIn.icons.length)} · '
                   '@aaANDkk',
-              actions: const [Icon(Icons.open_in_new, size: 18)],
+              actions: const [AppIcon(Icons.open_in_new, size: 18)],
               onTap: () => globalState.openUrl(
                 'https://github.com/appshubcc/Qure_Style_SVG',
               ),
@@ -264,7 +264,7 @@ class IconSetsButton extends StatelessWidget {
     return IconButton(
       tooltip: appLocalizations.iconSets,
       onPressed: () => showIconSets(context),
-      icon: const Icon(Icons.collections_outlined),
+      icon: const AppIcon(Icons.collections_outlined),
     );
   }
 }
@@ -431,7 +431,7 @@ class _IconPickerBodyState extends ConsumerState<IconPickerBody> {
         value: -1,
         icon: custom
             ? CommonTargetIcon(src: current, size: 16)
-            : const Icon(Icons.link, size: 18),
+            : const AppIcon(Icons.link, size: 18),
         label: appLocalizations.customUrl,
       ),
     ];
@@ -456,7 +456,7 @@ class _IconPickerBodyState extends ConsumerState<IconPickerBody> {
             onChanged: (value) => setState(() => _query = value.trim()),
             decoration: InputDecoration(
               hintText: appLocalizations.searchIcons,
-              prefixIcon: const Icon(Icons.search),
+              prefixIcon: const AppIcon(Icons.search),
             ),
           ),
         ),

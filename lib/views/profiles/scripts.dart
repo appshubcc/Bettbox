@@ -228,7 +228,7 @@ class _ScriptsViewState extends ConsumerState<ScriptsView> {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 12, color: context.colorScheme.primary),
+          AppIcon(icon, size: 12, color: context.colorScheme.primary),
           const SizedBox(width: 3),
           Text(
             label,
@@ -390,10 +390,10 @@ class _ScriptsViewState extends ConsumerState<ScriptsView> {
             SizedBox(
               width: 36,
               height: 40,
-              child: Icon(
+              child: AppIcon(
                 Icons.auto_awesome_outlined,
                 size: 28,
-                color: context.colorScheme.primary,
+                color: context.colorScheme.onSurfaceVariant,
               ),
             ),
             const SizedBox(width: 12),
@@ -445,6 +445,7 @@ class _ScriptsViewState extends ConsumerState<ScriptsView> {
                   _managedMenuOpen.value = false;
                 },
                 tooltip: appLocalizations.more,
+                color: context.colorScheme.onSurfaceVariant,
                 icon: ValueListenableBuilder<bool>(
                   valueListenable: _managedMenuOpen,
                   builder: (_, isOpen, _) => MenuDotsIcon(isOpen: isOpen),
@@ -523,10 +524,10 @@ class _ScriptsViewState extends ConsumerState<ScriptsView> {
                         SizedBox(
                           width: 36,
                           height: 40,
-                          child: Icon(
+                          child: AppIcon(
                             Icons.terminal_outlined,
                             size: 28,
-                            color: context.colorScheme.primary,
+                            color: context.colorScheme.onSurfaceVariant,
                           ),
                         ),
                         const SizedBox(width: 12),
@@ -582,7 +583,8 @@ class _ScriptsViewState extends ConsumerState<ScriptsView> {
                                 open();
                               },
                               tooltip: appLocalizations.more,
-                              icon: const Icon(Icons.more_vert, size: 20),
+                              color: context.colorScheme.onSurfaceVariant,
+                              icon: const AppIcon(Icons.more_vert, size: 20),
                             );
                           },
                           popup: CommonPopupMenu(
@@ -848,13 +850,13 @@ class _ScriptsViewState extends ConsumerState<ScriptsView> {
         onPressed: () {
           _handleImport();
         },
-        child: Icon(Icons.add),
+        child: AppIcon(Icons.add),
       ),
       actions: [
         IconButton(
           onPressed: _handleShowScriptSettings,
           tooltip: appLocalizations.settings,
-          icon: Icon(Icons.settings),
+          icon: AppIcon(Icons.settings),
         ),
       ],
       body: _buildContent(),
@@ -940,7 +942,7 @@ class _ScriptSettingsSheet extends ConsumerWidget {
                           : ListItem<String>.options(
                               title: EmojiText(label),
                               subtitle: subtitle,
-                              trailing: const Icon(Icons.expand_more),
+                              trailing: const AppIcon(Icons.expand_more),
                               delegate: OptionsDelegate(
                                 title: label,
                                 options: options,
@@ -974,21 +976,21 @@ class _ScriptImportOptionsDialog extends StatelessWidget {
             onTap: () {
               Navigator.of(context).pop(ImportOption.code);
             },
-            leading: const Icon(Icons.code),
+            leading: const AppIcon(Icons.code),
             title: Text(appLocalizations.importFromCode),
           ),
           ListItem(
             onTap: () {
               Navigator.of(context).pop(ImportOption.url);
             },
-            leading: const Icon(Icons.link),
+            leading: const AppIcon(Icons.link),
             title: Text(appLocalizations.importUrl),
           ),
           ListItem(
             onTap: () {
               Navigator.of(context).pop(ImportOption.file);
             },
-            leading: const Icon(Icons.file_open),
+            leading: const AppIcon(Icons.file_open),
             title: Text(appLocalizations.importFile),
           ),
         ],
@@ -1161,7 +1163,7 @@ class __ScriptCustomOptionsSheetState
           actions: [
             IconButton(
               onPressed: (_dirty && !_isSaving) ? _handleSave : null,
-              icon: const Icon(Icons.save),
+              icon: const AppIcon(Icons.save),
               tooltip: appLocalizations.save,
             ),
           ],
@@ -1289,7 +1291,7 @@ class _ScriptOtherOptionsSheetState extends State<_ScriptOtherOptionsSheet> {
           actions: [
             IconButton(
               onPressed: (_dirty && !_isSaving) ? _handleSave : null,
-              icon: const Icon(Icons.save),
+              icon: const AppIcon(Icons.save),
               tooltip: appLocalizations.save,
             ),
           ],
@@ -1400,7 +1402,7 @@ class _ScriptNavTile extends StatelessWidget {
             ),
           ),
           title: Text(label),
-          trailing: const Icon(Icons.chevron_right),
+          trailing: const AppIcon(Icons.chevron_right),
           onTap: onTap,
         ),
       ),
@@ -1647,7 +1649,7 @@ class _GroupSwitchOptionsSheetState
           actions: [
             IconButton(
               onPressed: (_dirty && !_isSaving) ? _handleSave : null,
-              icon: const Icon(Icons.save),
+              icon: const AppIcon(Icons.save),
               tooltip: appLocalizations.save,
             ),
           ],
@@ -1693,7 +1695,7 @@ class _GroupSwitchOptionsSheetState
                                         left: 16,
                                         right: 16,
                                       ),
-                                      leading: const Icon(Icons.alt_route),
+                                      leading: const AppIcon(Icons.alt_route),
                                       title: EmojiText(key),
                                       trailing: Switch(
                                         value: val,

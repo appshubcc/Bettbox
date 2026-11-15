@@ -298,19 +298,19 @@ class _ToolboxViewState extends ConsumerState<ToolboxView> {
               IconButton(
                 tooltip: appLocalizations.reset,
                 onPressed: _reset,
-                icon: const Icon(Icons.restart_alt_rounded),
+                icon: const AppIcon(Icons.restart_alt_rounded),
               ),
               IconButton(
                 tooltip: appLocalizations.save,
                 onPressed: () => _setEditing(false),
-                icon: const Icon(Icons.check_rounded),
+                icon: const AppIcon(Icons.check_rounded),
               ),
             ]
           : [
               IconButton(
                 tooltip: appLocalizations.edit,
                 onPressed: () => _setEditing(true),
-                icon: const Icon(Icons.dashboard_customize_outlined),
+                icon: const AppIcon(Icons.dashboard_customize_outlined),
               ),
             ],
       body: _editing

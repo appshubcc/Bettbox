@@ -107,11 +107,13 @@ class _RouteTracePageState extends ConsumerState<RouteTracePage>
             child: Row(
               children: [
                 Expanded(
-                  child: ToolSegmented<String>(
-                    values: const ['tcp', 'udp'],
-                    value: _network,
-                    labelOf: (value) => value.toUpperCase(),
-                    onChanged: (value) => setState(() => _network = value),
+                  child: SegmentButtonGroup<String>(
+                    options: [
+                      for (final value in const ['tcp', 'udp'])
+                        SegmentOption(value: value, label: value.toUpperCase()),
+                    ],
+                    selected: _network,
+                    onSelected: (value) => setState(() => _network = value),
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -214,7 +216,7 @@ class _VerdictCard extends StatelessWidget {
                   shape: BoxShape.circle,
                   color: color.withValues(alpha: 0.14),
                 ),
-                child: Icon(
+                child: AppIcon(
                   isReject
                       ? Icons.block_rounded
                       : isDirect
@@ -324,7 +326,7 @@ class _Chip extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 14, color: color),
+          AppIcon(icon, size: 14, color: color),
           const SizedBox(width: 5),
           Flexible(
             child: EmojiText(
@@ -437,7 +439,7 @@ class _TimelineCard extends StatelessWidget {
                       visualDensity: VisualDensity.compact,
                     ),
                     onPressed: () => _showRules(context),
-                    icon: const Icon(Icons.list_alt_rounded, size: 16),
+                    icon: const AppIcon(Icons.list_alt_rounded, size: 16),
                     label: Text(appLocalizations.routeTraceViewRules),
                   ),
                 ),
@@ -478,7 +480,7 @@ class _TimelineCard extends StatelessWidget {
                             color: (entry.color ?? colorScheme.primary)
                                 .withValues(alpha: 0.12),
                           ),
-                          child: Icon(
+                          child: AppIcon(
                             entry.icon,
                             size: 15,
                             color: entry.color ?? colorScheme.primary,

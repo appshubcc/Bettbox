@@ -34,7 +34,7 @@ class TunnelListWidget extends ConsumerWidget {
                 index: index,
               ),
               trailing: IconButton(
-                icon: const Icon(Icons.delete_outline),
+                icon: const AppIcon(Icons.delete_outline),
                 onPressed: () => _deleteTunnel(ref, tunnels, index),
               ),
             ),
@@ -226,7 +226,7 @@ class TunnelListView extends ConsumerWidget {
             ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _showTunnelDialog(context, ref, tunnels),
-        child: const Icon(Icons.add),
+        child: const AppIcon(Icons.add),
       ),
     );
   }

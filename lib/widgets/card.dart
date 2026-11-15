@@ -326,7 +326,7 @@ class SelectIcon extends StatelessWidget {
       shape: const CircleBorder(),
       child: Container(
         padding: const EdgeInsets.all(4),
-        child: const Icon(Icons.check, size: 16),
+        child: const AppIcon(Icons.check, size: 16),
       ),
     );
   }

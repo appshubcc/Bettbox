@@ -74,9 +74,9 @@ class EditorPage extends ConsumerStatefulWidget {
 }
 
 class _EditorPageState extends ConsumerState<EditorPage> {
-  late CodeForgeController _controller;
-  late _EditorFindController _findController;
-  late UndoRedoController _undoController;
+  CodeForgeController? _controller;
+  _EditorFindController? _findController;
+  late final UndoRedoController _undoController;
   late TextEditingController _titleController;
   late final FocusNode _titleFocusNode;
   late final FocusNode _saveButtonFocusNode;
@@ -97,7 +97,7 @@ class _EditorPageState extends ConsumerState<EditorPage> {
 
   bool get _disableSyntaxHighlight => widget.simple;
 
-  bool get _editorHasFocus => _controller.focusNode?.hasFocus ?? false;
+  bool get _editorHasFocus => _controller?.focusNode?.hasFocus ?? false;
 
   late String _original = CodeForgeController.normalizeLineBreaks(
     widget.content,
@@ -110,16 +110,37 @@ class _EditorPageState extends ConsumerState<EditorPage> {
   bool _modified = false;
 
   bool get _isModified {
-    if (_isLoading) return false;
-    final version = _controller.contentVersion;
+    final controller = _controller;
+    if (_isLoading || controller == null) return false;
+    final version = controller.contentVersion;
     if (version != _checkedVersion) {
       _checkedVersion = version;
       _modified =
-          _controller.isComposingActive ||
-          _controller.length != _loadedLength ||
-          _controller.text != _original;
+          controller.isComposingActive ||
+          controller.length != _loadedLength ||
+          controller.text != _original;
     }
     return _modified;
+  }
+
+  CodeForgeController _initEditorControllers() {
+    final controller = CodeForgeController()
+      ..useSpaceAsTab = true
+      ..tabSize = 2
+      ..enableLocalSuggestions = !widget.readOnly && !widget.simple;
+    if (!widget.simple) {
+      final language = widget.languages.firstOrNull;
+      controller
+        ..lineCommentPrefix = switch (language) {
+          Language.yaml => '# ',
+          Language.javaScript => '// ',
+          _ => null,
+        }
+        ..blockComments = language == Language.javaScript;
+    }
+    _controller = controller;
+    _findController = _EditorFindController(controller);
+    return controller;
   }
 
   @override
@@ -160,21 +181,9 @@ class _EditorPageState extends ConsumerState<EditorPage> {
       },
     );
     _lineWrap = !widget.readOnly;
-    _controller = CodeForgeController();
-    _controller.useSpaceAsTab = true;
-    _controller.tabSize = 2;
-    _controller.enableLocalSuggestions = !widget.readOnly && !widget.simple;
-    if (!widget.simple) {
-      final language = widget.languages.firstOrNull;
-      _controller
-        ..lineCommentPrefix = switch (language) {
-          Language.yaml => '# ',
-          Language.javaScript => '// ',
-          _ => null,
-        }
-        ..blockComments = language == Language.javaScript;
+    if (isRustLibInitialized) {
+      _initEditorControllers();
     }
-    _findController = _EditorFindController(_controller);
     _undoController = UndoRedoController();
     _titleController = TextEditingController(text: widget.title);
 
@@ -183,16 +192,17 @@ class _EditorPageState extends ConsumerState<EditorPage> {
     }
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      await _routeSettled();
-      if (!mounted) return;
-      _controller
+      final (_, ready) = await (_routeSettled(), ensureRustLib()).wait;
+      if (!mounted || !ready) return;
+      final controller = _controller ?? _initEditorControllers();
+      controller
         ..text = widget.content
         ..selection = const TextSelection.collapsed(offset: 0);
-      _loadedLength = _controller.length;
-      _checkedVersion = _controller.contentVersion;
+      _loadedLength = controller.length;
+      _checkedVersion = controller.contentVersion;
       setState(() => _isLoading = false);
       if (widget.delayedFocus) {
-        unawaited(_controller.focusNode?.requestFocusWhenIdle());
+        unawaited(controller.focusNode?.requestFocusWhenIdle());
       }
     });
   }
@@ -201,8 +211,9 @@ class _EditorPageState extends ConsumerState<EditorPage> {
   /// editor holds focus. Returns false so other handlers can take over.
   Future<bool> _handleNativePaste() async {
     if (widget.readOnly || widget.simple) return false;
-    if (!_editorHasFocus) return false;
-    await _controller.paste();
+    final controller = _controller;
+    if (controller == null || !_editorHasFocus) return false;
+    await controller.paste();
     return true;
   }
 
@@ -210,10 +221,10 @@ class _EditorPageState extends ConsumerState<EditorPage> {
   void dispose() {
     _hideSelectionToolbar?.call();
     _removePasteHandler?.call();
-    _controller.text = '';
-    _findController.dispose();
+    _controller?.text = '';
+    _findController?.dispose();
     _undoController.dispose();
-    _controller.dispose();
+    _controller?.dispose();
     _titleController.dispose();
     _titleFocusNode.dispose();
     _saveButtonFocusNode.dispose();
@@ -224,45 +235,48 @@ class _EditorPageState extends ConsumerState<EditorPage> {
     return ListenableBuilder(
       listenable: Listenable.merge([
         _titleController,
-        _CodeForgeControllerListenable(_controller),
+        if (_controller case final controller?)
+          _CodeForgeControllerListenable(controller),
       ]),
       builder: (_, _) => builder(),
     );
   }
 
   void _handleSearch() {
-    _findController.show();
+    _findController?.show();
   }
 
   void _handleReplace() {
-    _findController.show(replace: true);
+    _findController?.show(replace: true);
   }
 
   void _handleSave(BuildContext context) {
     if (widget.onSave == null) return;
     if (widget.readOnly || widget.simple) return;
-    if (_isLoading) return;
+    final controller = _controller;
+    if (_isLoading || controller == null) return;
     final isNewScript = widget.title.isEmpty;
     if (!isNewScript && !_isModified && _titleController.text == widget.title) {
       return;
     }
-    widget.onSave!(context, _titleController.text, _controller.text);
+    widget.onSave!(context, _titleController.text, controller.text);
   }
 
   Future<void> _handleReset(BuildContext context) async {
     final defaultContent = _defaultContent;
-    if (defaultContent == null || _isLoading) return;
+    final controller = _controller;
+    if (defaultContent == null || _isLoading || controller == null) return;
     if (widget.onReset != null) {
       final ok = await widget.onReset!(context);
       if (!ok || !mounted) return;
     }
     _undoController.clear();
-    _controller
+    controller
       ..text = defaultContent
       ..selection = const TextSelection.collapsed(offset: 0);
     _original = defaultContent;
-    _loadedLength = _controller.length;
-    _checkedVersion = _controller.contentVersion;
+    _loadedLength = controller.length;
+    _checkedVersion = controller.contentVersion;
     _modified = false;
     setState(() {});
   }
@@ -324,13 +338,14 @@ class _EditorPageState extends ConsumerState<EditorPage> {
 
   TextSpan? _magnifierLineSpan(int line, String text) {
     final highlighter = _highlighterForMagnifier;
-    if (_controller.blockComments) {
-      final version = _controller.contentVersion;
+    final controller = _controller;
+    if (controller != null && controller.blockComments) {
+      final version = controller.contentVersion;
       if (version != _magnifierCommentsVersion) {
         _magnifierCommentsVersion = version;
         _magnifierComments.reset();
       }
-      if (_magnifierComments.startsInside(_controller, line)) {
+      if (_magnifierComments.startsInside(controller, line)) {
         return highlighter.blockCommentSpan(text);
       }
     }
@@ -388,11 +403,11 @@ class _EditorPageState extends ConsumerState<EditorPage> {
         label: appLocalizations.search,
         onPressed: _handleSearch,
       ),
-      if (!request.readOnly && _controller.lineCommentPrefix != null)
+      if (!request.readOnly && _controller?.lineCommentPrefix != null)
         PopupMenuItemData(
           icon: Icons.code,
           label: appLocalizations.blockComment,
-          onPressed: _controller.toggleLineComment,
+          onPressed: _controller?.toggleLineComment,
         ),
       if (!request.isAllSelected)
         PopupMenuItemData(
@@ -474,6 +489,7 @@ class _EditorPageState extends ConsumerState<EditorPage> {
 
   VoidCallback _closeOnceOutdated(VoidCallback close) {
     final controller = _controller;
+    if (controller == null) return () {};
     final selection = controller.selection;
     final version = controller.contentVersion;
     final composition = controller.imeComposition;
@@ -513,7 +529,7 @@ class _EditorPageState extends ConsumerState<EditorPage> {
         return;
       }
       final res = utf8.decode(bytes);
-      _controller.replaceText(res);
+      _controller?.replaceText(res);
       return;
     }
     final url = await globalState.showCommonDialog<String>(
@@ -536,7 +552,7 @@ class _EditorPageState extends ConsumerState<EditorPage> {
       return;
     }
     final res = await request.getTextResponseForUrl(url);
-    _controller.replaceText(res.data as String);
+    _controller?.replaceText(res.data as String);
     widget.onUrlImport?.call(url);
   }
 
@@ -618,7 +634,7 @@ class _EditorPageState extends ConsumerState<EditorPage> {
         final res = await widget.onPop!(
           context,
           _titleController.text,
-          _isLoading ? widget.content : _controller.text,
+          _isLoading ? widget.content : (_controller?.text ?? widget.content),
         );
         if (res && context.mounted) {
           return true;
@@ -703,25 +719,25 @@ class _EditorPageState extends ConsumerState<EditorPage> {
                           : null,
                       onPressed: canSave ? () => _handleSave(context) : null,
                       tooltip: appLocalizations.save,
-                      icon: const Icon(Icons.save_sharp),
+                      icon: const AppIcon(Icons.save_sharp),
                     );
                   }),
                 if (widget.supportRemoteDownload && !readOnly)
                   IconButton(
                     onPressed: _isLoading ? null : _handleImport,
                     tooltip: appLocalizations.download,
-                    icon: const Icon(Icons.arrow_downward),
+                    icon: const AppIcon(Icons.arrow_downward),
                   ),
                 if (_defaultContent != null && !readOnly)
                   _wrapTitleController(() {
                     final canReset =
                         !_isLoading &&
-                        (_controller.text != _defaultContent ||
+                        (_controller?.text != _defaultContent ||
                             _original != _defaultContent);
                     return IconButton(
                       onPressed: canReset ? () => _handleReset(context) : null,
                       tooltip: appLocalizations.restoreBundled,
-                      icon: const Icon(Icons.restore),
+                      icon: const AppIcon(Icons.restore),
                     );
                   }),
                 ListenableBuilder(
@@ -735,7 +751,7 @@ class _EditorPageState extends ConsumerState<EditorPage> {
                                 open(offset: const Offset(-20, 20));
                               },
                         tooltip: appLocalizations.more,
-                        icon: const Icon(Icons.more_vert),
+                        icon: const AppIcon(Icons.more_vert),
                       );
                     },
                     popup: CommonPopupMenu(
@@ -754,71 +770,77 @@ class _EditorPageState extends ConsumerState<EditorPage> {
             body: Stack(
               children: [
                 if (!_isLoading)
-                  CodeForge(
-                    controller: _controller,
-                    findController: _findController,
-                    undoController: _undoController,
-                    readOnly: readOnly,
-                    lineWrap: _lineWrap,
-                    tabSize: 2,
-                    useSpaceAsTab: true,
-                    language: _languageMode(),
-                    editorTheme: _editorTheme,
-                    selectionStyle: _selectionStyle,
-                    textStyle: _textStyle,
-                    lineNumberStyle: _lineNumberStyle,
-                    innerPadding: const EdgeInsets.only(right: 16),
-                    zoom: _zoom,
-                    minZoom: _kMinEditorZoom,
-                    maxZoom: _kMaxEditorZoom,
-                    lineNumberMaxZoom: _kMaxLineNumberZoom,
-                    onZoomEnd: _commitZoom,
-                    onContextMenu: _showContextMenu,
-                    suggestionPopupBuilder: (_, details) =>
-                        CustomSingleChildLayout(
-                          delegate: CaretPopupLayout(
-                            caretRect: details.caretRect,
-                          ),
-                          child: EditorCompletionPopup(
-                            details: details,
-                            textStyle: _textStyle ?? const TextStyle(),
-                          ),
-                        ),
-                    gutterDividerColor:
-                        (_editorTheme['root']?.color ?? Colors.grey).withAlpha(
-                          50,
-                        ),
-                    magnifierBuilder: (context, _, magnifierInfo) =>
-                        EditorMagnifier(
-                          controller: _controller,
-                          magnifierInfo: magnifierInfo,
-                          lineSpan: _magnifierLineSpan,
-                          textStyle: _textStyle ?? const TextStyle(),
-                          backgroundColor:
-                              _editorTheme['root']?.backgroundColor ??
-                              context.colorScheme.surface,
-                          borderColor:
-                              _editorTheme['root']?.color ?? Colors.grey,
-                          caretColor: context.colorScheme.primary,
-                          selectionColor:
-                              _selectionStyle?.selectionColor ??
-                              context.colorScheme.primary.withAlpha(77),
-                        ),
-                    scrollbarBuilder: (context, details, child) => RawScrollbar(
-                      controller: details.controller,
-                      thickness: 8,
-                      minThumbLength: 48,
-                      radius: const Radius.circular(4),
-                      interactive: true,
-                      thumbColor: context.colorScheme.onSurface.withAlpha(100),
-                      child: _NoMouseDragScroll(child: child),
-                    ),
-                    finderBuilder: (context, controller) => FindPanel(
+                  if ((_controller, _findController) case (
+                    final controller?,
+                    final findController?,
+                  ))
+                    CodeForge(
                       controller: controller,
+                      findController: findController,
+                      undoController: _undoController,
                       readOnly: readOnly,
-                      isMobileView: isMobileView,
+                      lineWrap: _lineWrap,
+                      tabSize: 2,
+                      useSpaceAsTab: true,
+                      language: _languageMode(),
+                      editorTheme: _editorTheme,
+                      selectionStyle: _selectionStyle,
+                      textStyle: _textStyle,
+                      lineNumberStyle: _lineNumberStyle,
+                      innerPadding: const EdgeInsets.only(right: 16),
+                      zoom: _zoom,
+                      minZoom: _kMinEditorZoom,
+                      maxZoom: _kMaxEditorZoom,
+                      lineNumberMaxZoom: _kMaxLineNumberZoom,
+                      onZoomEnd: _commitZoom,
+                      onContextMenu: _showContextMenu,
+                      suggestionPopupBuilder: (_, details) =>
+                          CustomSingleChildLayout(
+                            delegate: CaretPopupLayout(
+                              caretRect: details.caretRect,
+                            ),
+                            child: EditorCompletionPopup(
+                              details: details,
+                              textStyle: _textStyle ?? const TextStyle(),
+                            ),
+                          ),
+                      gutterDividerColor:
+                          (_editorTheme['root']?.color ?? Colors.grey)
+                              .withAlpha(50),
+                      magnifierBuilder: (context, _, magnifierInfo) =>
+                          EditorMagnifier(
+                            controller: controller,
+                            magnifierInfo: magnifierInfo,
+                            lineSpan: _magnifierLineSpan,
+                            textStyle: _textStyle ?? const TextStyle(),
+                            backgroundColor:
+                                _editorTheme['root']?.backgroundColor ??
+                                context.colorScheme.surface,
+                            borderColor:
+                                _editorTheme['root']?.color ?? Colors.grey,
+                            caretColor: context.colorScheme.primary,
+                            selectionColor:
+                                _selectionStyle?.selectionColor ??
+                                context.colorScheme.primary.withAlpha(77),
+                          ),
+                      scrollbarBuilder: (context, details, child) =>
+                          RawScrollbar(
+                            controller: details.controller,
+                            thickness: 8,
+                            minThumbLength: 48,
+                            radius: const Radius.circular(4),
+                            interactive: true,
+                            thumbColor: context.colorScheme.onSurface.withAlpha(
+                              100,
+                            ),
+                            child: _NoMouseDragScroll(child: child),
+                          ),
+                      finderBuilder: (context, controller) => FindPanel(
+                        controller: controller,
+                        readOnly: readOnly,
+                        isMobileView: isMobileView,
+                      ),
                     ),
-                  ),
                 if (_isLoading)
                   Positioned.fill(
                     child: Container(
@@ -852,6 +874,12 @@ class _EditorFindController extends FindController {
     if (value == isActive) return;
     super.isActive = value;
     isOpenNotifier.value = value;
+  }
+
+  @override
+  void dispose() {
+    isOpenNotifier.dispose();
+    super.dispose();
   }
 }
 
@@ -1010,7 +1038,7 @@ class FindPanel extends StatelessWidget implements PreferredSizeWidget {
               ),
               padding: const WidgetStatePropertyAll(EdgeInsets.all(0)),
             ),
-            icon: const Icon(Icons.close, size: 16),
+            icon: const AppIcon(Icons.close, size: 16),
           ),
         ],
       ),
@@ -1152,7 +1180,7 @@ class FindPanel extends StatelessWidget implements PreferredSizeWidget {
           filled: true,
           fillColor: colorScheme.surface,
           prefixIcon: prefixIcon != null
-              ? Icon(
+              ? AppIcon(
                   prefixIcon,
                   size: 16,
                   color: colorScheme.onSurfaceVariant.withAlpha(160),
@@ -1248,7 +1276,7 @@ class FindPanel extends StatelessWidget implements PreferredSizeWidget {
         padding: WidgetStatePropertyAll(EdgeInsets.all(6)),
         minimumSize: WidgetStatePropertyAll(Size(28, 28)),
       ),
-      icon: Icon(icon, size: 18),
+      icon: AppIcon(icon, size: 18),
     );
   }
 }

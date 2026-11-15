@@ -368,7 +368,7 @@ class _LogsViewState extends ConsumerState<LogsView>
               : null,
           onPressed: _toggleAutoScroll,
           tooltip: appLocalizations.autoScroll,
-          icon: const Icon(Icons.vertical_align_top_outlined),
+          icon: const AppIcon(Icons.vertical_align_top_outlined),
         ),
         CommonPopupBox(
           targetBuilder: (open) {
@@ -377,7 +377,7 @@ class _LogsViewState extends ConsumerState<LogsView>
                 open(offset: const Offset(0, 20));
               },
               tooltip: appLocalizations.more,
-              icon: const Icon(Icons.more_vert),
+              icon: const AppIcon(Icons.more_vert),
             );
           },
           popup: CommonPopupMenu(

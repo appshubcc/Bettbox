@@ -1,3 +1,4 @@
+import 'package:bett_box/common/common.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:zxing2/qrcode.dart';
 
@@ -23,7 +24,12 @@ class QrCodeWidget extends StatelessWidget {
 
     QRCode? qrCode;
     try {
-      qrCode = Encoder.encode(data, ErrorCorrectionLevel.m);
+      qrCode = Encoder.encode(
+        data,
+        ErrorCorrectionLevel.m,
+        hints: EncodeHints()
+          ..put(EncodeHintType.characterSet, CharacterSetECI.UTF8),
+      );
     } catch (_) {
       qrCode = null;
     }
@@ -33,7 +39,7 @@ class QrCodeWidget extends StatelessWidget {
       return SizedBox(
         width: size,
         height: size,
-        child: const Center(child: Icon(Icons.error_outline)),
+        child: const Center(child: AppIcon(Icons.error_outline)),
       );
     }
 

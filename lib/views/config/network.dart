@@ -561,7 +561,7 @@ class BypassDomainItem extends StatelessWidget {
                   await _handleNetworkConfigChange(ref);
                 },
                 tooltip: appLocalizations.reset,
-                icon: const Icon(Icons.replay),
+                icon: const AppIcon(Icons.replay),
               );
             },
           ),
@@ -623,7 +623,7 @@ class BypassPrivateRouteItem extends ConsumerWidget {
                   await _handleNetworkConfigChange(ref);
                 },
                 tooltip: appLocalizations.reset,
-                icon: const Icon(Icons.replay),
+                icon: const AppIcon(Icons.replay),
               );
             },
           ),
@@ -676,7 +676,7 @@ class BypassPrivateRouteItem extends ConsumerWidget {
                 onTap: () => _showEditPage(context, ref),
                 child: Padding(
                   padding: const EdgeInsets.all(7),
-                  child: Icon(
+                  child: AppIcon(
                     Icons.settings_outlined,
                     size: 18,
                     color: context.colorScheme.onSurfaceVariant,

@@ -120,7 +120,7 @@ class _AccessViewState extends ConsumerState<AccessView>
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
+            AppIcon(
               Icons.apps_outlined,
               size: 72,
               color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -150,7 +150,7 @@ class _AccessViewState extends ConsumerState<AccessView>
                     _requestedPackageListPermission = true;
                     await app.requestPackageListPermission();
                   },
-                  icon: const Icon(Icons.settings),
+                  icon: const AppIcon(Icons.settings),
                   label: Text(appLocalizations.openSettings),
                 ),
               ],
@@ -322,7 +322,7 @@ class _AccessViewState extends ConsumerState<AccessView>
           }
         });
       },
-      icon: const Icon(Icons.search),
+      icon: const AppIcon(Icons.search),
     );
   }
 
@@ -359,39 +359,22 @@ class _AccessViewState extends ConsumerState<AccessView>
           });
         }
       },
-      icon: const Icon(Icons.sync),
+      icon: const AppIcon(Icons.sync),
     );
   }
 
-  Widget _buildSelectedAllButton({
-    required bool isSelectedAll,
-    required List<String> allValueList,
-  }) {
-    final tooltip = isSelectedAll
-        ? appLocalizations.cancelSelectAll
-        : appLocalizations.selectAll;
+  Widget _buildIntelligentButton() {
     return IconButton(
-      tooltip: tooltip,
-      onPressed: () {
-        ref.read(vpnSettingProvider.notifier).updateState((state) {
-          final isAccept =
-              state.accessControl.mode == AccessControlMode.acceptSelected;
-          if (isSelectedAll) {
-            return switch (isAccept) {
-              true => state.copyWith.accessControl(acceptList: []),
-              false => state.copyWith.accessControl(rejectList: []),
-            };
-          } else {
-            return switch (isAccept) {
-              true => state.copyWith.accessControl(acceptList: allValueList),
-              false => state.copyWith.accessControl(rejectList: allValueList),
-            };
-          }
-        });
+      tooltip: appLocalizations.intelligentSelected,
+      onPressed: () async {
+        final res = await globalState.showMessage(
+          title: appLocalizations.tip,
+          message: TextSpan(text: appLocalizations.intelligentSelectedConfirm),
+        );
+        if (res != true) return;
+        await _intelligentSelected();
       },
-      icon: isSelectedAll
-          ? const Icon(Icons.deselect)
-          : const Icon(Icons.select_all),
+      icon: const AppIcon(Icons.auto_awesome),
     );
   }
 
@@ -432,7 +415,7 @@ class _AccessViewState extends ConsumerState<AccessView>
   Widget _buildSettingButton() {
     return IconButton(
       onPressed: () async {
-        final res = await showSheet<int>(
+        await showSheet<int>(
           context: context,
           props: SheetProps(isScrollControlled: true),
           builder: (_, type) {
@@ -443,11 +426,8 @@ class _AccessViewState extends ConsumerState<AccessView>
             );
           },
         );
-        if (res == 1) {
-          unawaited(_intelligentSelected());
-        }
       },
-      icon: const Icon(Icons.tune),
+      icon: const AppIcon(Icons.tune),
     );
   }
 
@@ -605,15 +585,7 @@ class _AccessViewState extends ConsumerState<AccessView>
                               mainAxisAlignment: MainAxisAlignment.end,
                               children: [
                                 Flexible(child: _buildSearchButton()),
-                                Flexible(
-                                  child: _buildSelectedAllButton(
-                                    isSelectedAll:
-                                        selectedSet.length == packages.length,
-                                    allValueList: packages
-                                        .map((e) => e.packageName)
-                                        .toList(),
-                                  ),
-                                ),
+                                Flexible(child: _buildIntelligentButton()),
                                 Flexible(child: _buildSettingButton()),
                               ],
                             ),
@@ -646,6 +618,7 @@ class _AccessViewState extends ConsumerState<AccessView>
                               child: ListView.builder(
                                 controller: _controller,
                                 itemCount: packages.length,
+                                addAutomaticKeepAlives: false,
                                 padding: const EdgeInsets.only(
                                   bottom: 24,
                                   top: 4,
@@ -766,9 +739,18 @@ class PackageListItem extends StatelessWidget {
           style: const TextStyle(overflow: TextOverflow.ellipsis),
           maxLines: 1,
         ),
-        delegate: CheckboxDelegate(value: value, onChanged: onChanged),
+        delegate: CheckboxDelegate(
+          value: value,
+          onChanged: onChanged,
+          onLongPress: _openDetails,
+        ),
       ),
     );
+  }
+
+  Future<void> _openDetails() async {
+    if (await app.openAppDetails(package.packageName)) return;
+    globalState.showNotifier(appLocalizations.appNotInstalled);
   }
 }
 
@@ -910,7 +892,7 @@ class _PackagePickerPanelState extends ConsumerState<PackagePickerPanel> {
                 ),
                 FilledButton.tonalIcon(
                   onPressed: app.requestPackageListPermission,
-                  icon: const Icon(Icons.settings),
+                  icon: const AppIcon(Icons.settings),
                   label: Text(appLocalizations.openSettings),
                 ),
               ],
@@ -1023,7 +1005,7 @@ class _PackagePickerPanelState extends ConsumerState<PackagePickerPanel> {
                             maxLines: 1,
                           ),
                           trailing: inList
-                              ? Icon(
+                              ? AppIcon(
                                   isAccept
                                       ? Icons.adjust_outlined
                                       : Icons.block_outlined,
@@ -1066,7 +1048,7 @@ class AccessControlSearchDelegate extends SearchDelegate<dynamic> {
           }
           query = '';
         },
-        icon: const Icon(Icons.clear),
+        icon: const AppIcon(Icons.clear),
       ),
       const SizedBox(width: 8),
     ];
@@ -1078,7 +1060,7 @@ class AccessControlSearchDelegate extends SearchDelegate<dynamic> {
       onPressed: () {
         close(context, null);
       },
-      icon: const Icon(Icons.arrow_back),
+      icon: const AppIcon(Icons.arrow_back),
     );
   }
 
@@ -1430,19 +1412,12 @@ class _AccessControlPanelState extends ConsumerState<AccessControlPanel> {
             spacing: 16,
             children: [
               CommonChip(
-                avatar: const Icon(Icons.auto_awesome),
-                label: appLocalizations.intelligentSelected,
-                onPressed: () {
-                  Navigator.of(context).pop(1);
-                },
-              ),
-              CommonChip(
-                avatar: const Icon(Icons.paste),
+                avatar: const AppIcon(Icons.paste),
                 label: appLocalizations.clipboardImport,
                 onPressed: _pasteToClipboard,
               ),
               CommonChip(
-                avatar: const Icon(Icons.content_copy),
+                avatar: const AppIcon(Icons.content_copy),
                 label: appLocalizations.clipboardExport,
                 onPressed: _copyToClipboard,
               ),

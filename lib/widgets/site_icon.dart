@@ -306,10 +306,45 @@ class SiteIcon extends StatefulWidget {
   State<SiteIcon> createState() => _SiteIconState();
 }
 
+final _telegramNetworks = [
+  for (final cidr in telegramCidrs) ?_parseNetwork(cidr),
+];
+
+(Uint8List, int)? _parseNetwork(String cidr) {
+  final parts = cidr.split('/');
+  final address = InternetAddress.tryParse(parts.first);
+  final prefix = parts.length == 2 ? int.tryParse(parts.last) : null;
+  if (address == null || prefix == null) return null;
+  return (address.rawAddress, prefix);
+}
+
+bool _inNetwork(Uint8List address, (Uint8List, int) network) {
+  final (base, prefix) = network;
+  if (address.length != base.length || prefix > base.length * 8) return false;
+  final bytes = prefix ~/ 8;
+  for (var i = 0; i < bytes; i++) {
+    if (address[i] != base[i]) return false;
+  }
+  final bits = prefix % 8;
+  if (bits == 0) return true;
+  final mask = (0xFF << (8 - bits)) & 0xFF;
+  return address[bytes] & mask == base[bytes] & mask;
+}
+
+String siteIconDomainOf(String host) {
+  final address = InternetAddress.tryParse(host);
+  if (address == null) return host;
+  final raw = address.rawAddress;
+  return _telegramNetworks.any((network) => _inNetwork(raw, network))
+      ? 'telegram.org'
+      : host;
+}
+
 class _SiteIconState extends State<SiteIcon> {
   File? _icon;
 
-  bool get _isAddress => InternetAddress.tryParse(widget.domain) != null;
+  String _domain = '';
+  bool _isAddress = false;
 
   @override
   void initState() {
@@ -327,12 +362,14 @@ class _SiteIconState extends State<SiteIcon> {
   }
 
   void _resolve() {
-    final domain = widget.domain;
+    final host = widget.domain;
+    final domain = _domain = siteIconDomainOf(host);
+    _isAddress = InternetAddress.tryParse(domain) != null;
     _icon = siteIconCache.peek(domain);
     if (!widget.enabled || _isAddress || domain.isEmpty) return;
     if (siteIconCache.contains(domain)) return;
     siteIconCache.get(domain).then((icon) {
-      if (!mounted || widget.domain != domain) return;
+      if (!mounted || widget.domain != host) return;
       setState(() => _icon = icon);
     });
   }
@@ -352,7 +389,7 @@ class _SiteIconState extends State<SiteIcon> {
         borderRadius: radius,
       ),
       child: _isAddress
-          ? Icon(Icons.public, size: size * 0.56, color: colorScheme.primary)
+          ? AppIcon(Icons.public, size: size * 0.56, color: colorScheme.primary)
           : Text(
               letter,
               style: TextStyle(
@@ -375,7 +412,7 @@ class _SiteIconState extends State<SiteIcon> {
     return ClipRRect(
       borderRadius: radius,
       child: Image(
-        image: siteIconCache.imageOf(widget.domain, icon, size.toInt()),
+        image: siteIconCache.imageOf(_domain, icon, size.toInt()),
         width: size,
         height: size,
         fit: BoxFit.cover,

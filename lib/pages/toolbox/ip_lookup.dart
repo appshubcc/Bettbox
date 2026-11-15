@@ -238,7 +238,7 @@ class _IpLookupPageState extends ConsumerState<IpLookupPage>
         IconButton(
           tooltip: appLocalizations.retry,
           onPressed: _mineLoading ? null : _loadMine,
-          icon: const Icon(Icons.refresh_rounded),
+          icon: const AppIcon(Icons.refresh_rounded),
         ),
       ],
       body: ToolPageBody(
@@ -333,7 +333,7 @@ class ToolKeyValue extends StatelessWidget {
         children: [
           Padding(
             padding: const EdgeInsets.only(top: 1),
-            child: Icon(icon, size: 15, color: colorScheme.onSurfaceVariant),
+            child: AppIcon(icon, size: 15, color: colorScheme.onSurfaceVariant),
           ),
           const SizedBox(width: 8),
           SizedBox(
@@ -578,7 +578,7 @@ class _IpCardState extends State<_IpCard> {
                 IconButton(
                   tooltip: appLocalizations.ipRiskCheck,
                   onPressed: _riskLoading ? null : _toggleRisk,
-                  icon: Icon(
+                  icon: AppIcon(
                     _riskIp != null
                         ? Icons.shield_rounded
                         : Icons.shield_outlined,
@@ -593,13 +593,13 @@ class _IpCardState extends State<_IpCard> {
                     Clipboard.setData(ClipboardData(text: entry.ip));
                     context.showNotifier(appLocalizations.copySuccess);
                   },
-                  icon: const Icon(Icons.copy_rounded, size: 18),
+                  icon: const AppIcon(Icons.copy_rounded, size: 18),
                 )
               else if (entry.failed && onRetry != null)
                 IconButton(
                   tooltip: appLocalizations.retry,
                   onPressed: onRetry,
-                  icon: const Icon(Icons.refresh_rounded, size: 18),
+                  icon: const AppIcon(Icons.refresh_rounded, size: 18),
                 ),
             ],
           ),

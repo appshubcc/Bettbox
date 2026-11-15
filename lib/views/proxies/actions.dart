@@ -4,11 +4,29 @@ import 'package:bett_box/clash/clash.dart';
 import 'package:bett_box/common/common.dart';
 import 'package:bett_box/enum/enum.dart';
 import 'package:bett_box/models/models.dart';
+import 'package:bett_box/pages/editor.dart';
 import 'package:bett_box/pages/media_unlock.dart';
 import 'package:bett_box/pages/speed_test.dart';
 import 'package:bett_box/state.dart';
+import 'package:bett_box/views/profiles/nodes.dart';
 import 'package:bett_box/widgets/widgets.dart';
+import 'package:flutter/services.dart';
 import 'package:material_ui/material_ui.dart';
+
+const _uriShareTypes = {
+  'shadowsocks',
+  'shadowsocksr',
+  'vmess',
+  'vless',
+  'trojan',
+  'hysteria',
+  'hysteria2',
+  'tuic',
+  'anytls',
+  'socks5',
+  'http',
+  'mieru',
+};
 
 Future<void> showProxyActions(
   BuildContext context, {
@@ -22,9 +40,19 @@ Future<void> showProxyActions(
   String proxyGroupSelected = '',
   Offset? position,
 }) async {
+  final anchor = position == null ? _anchorOf(context) : null;
+  if (position == null && anchor == null) return;
+  if (proxyGroup != null) {
+    await showContextMenu(
+      context,
+      position: position,
+      anchor: anchor,
+      items: _groupProxyItems(context, proxyGroup, proxyGroupSelected),
+      header: _ProxyMenuHeader(proxyGroup.name, type: proxyGroup.type.name),
+    );
+    return;
+  }
   final items = [
-    if (proxyGroup != null)
-      _buildGroupItem(context, proxyGroup, proxyGroupSelected),
     PopupMenuItemData(
       icon: Icons.speed_rounded,
       label: appLocalizations.speedTest,
@@ -42,6 +70,7 @@ Future<void> showProxyActions(
         );
       },
     ),
+    _buildConfigItem(context, proxy),
     PopupMenuItemData(
       icon: Icons.travel_explore_rounded,
       label: appLocalizations.mediaUnlock,
@@ -71,24 +100,21 @@ Future<void> showProxyActions(
         },
       ),
   ];
-  final anchor = position == null ? _anchorOf(context) : null;
-  if (position == null && anchor == null) return;
   await showContextMenu(
     context,
     position: position,
     anchor: anchor,
     items: items,
-    header: proxyGroup == null ? _ProxyMenuHeader(proxy.name) : null,
+    header: _ProxyMenuHeader(proxy.name),
   );
 }
 
-PopupMenuItemData _buildGroupItem(
+List<PopupMenuItemData> _groupProxyItems(
   BuildContext context,
   Group group,
   String selectedName,
 ) {
   final textTheme = context.textTheme;
-  final colorScheme = context.colorScheme;
   final appController = globalState.appController;
   final current = group.getCurrentSelectedName(selectedName);
   final selectable =
@@ -101,61 +127,174 @@ PopupMenuItemData _buildGroupItem(
   final delayStyle = textTheme.labelSmall?.copyWith(
     fontFeatures: const [FontFeature.tabularFigures()],
   );
+  return [
+    for (final item in proxies)
+      PopupMenuItemData(
+        icon: item.name == current
+            ? Icons.check_circle_rounded
+            : Icons.circle_outlined,
+        label: item.name,
+        trailing: switch (appController.getTrayProxyDelay(
+          proxyName: item.name,
+          testUrl: group.testUrl,
+        )) {
+          null => null,
+          0 => Text('...', style: delayStyle),
+          final delay => Text(
+            delay < 0 ? '×' : '${delay}ms',
+            style: delayStyle?.copyWith(color: utils.getDelayColor(delay)),
+          ),
+        },
+        onPressed: () {
+          if (!selectable) {
+            globalState.showNotifier(appLocalizations.notSelectedTip);
+            return;
+          }
+          appController.updateCurrentSelectedMap(group.name, item.name);
+          appController.changeProxyDebounce(group.name, item.name);
+        },
+      ),
+  ];
+}
+
+ProxyNode? _libraryNodeOf(String name) {
+  final config = globalState.config;
+  final profileId = config.currentProfileId;
+  final profile = config.currentProfile;
+  if (profileId == null || profile == null) return null;
+  for (final node in config.nodes) {
+    if (node.name == name &&
+        node.activeOf(profileId, managed: profile.isManaged)) {
+      return node;
+    }
+  }
+  return null;
+}
+
+PopupMenuItemData _buildConfigItem(BuildContext context, Proxy proxy) {
+  final node = _libraryNodeOf(proxy.name);
   return PopupMenuItemData(
-    label: group.name,
-    onPressed: null,
-    trailing: current.isEmpty
-        ? null
-        : Row(
+    icon: Icons.description_outlined,
+    label: appLocalizations.configInfo,
+    children: [
+      PopupMenuItemData(
+        icon: Icons.qr_code_2_rounded,
+        label: appLocalizations.generateQrCode,
+        onPressed: () => _showQrCode(proxy.name),
+      ),
+      PopupMenuItemData(
+        icon: Icons.link_rounded,
+        label: appLocalizations.nodeShareUri,
+        onPressed: _uriShareTypes.contains(proxy.type.toLowerCase())
+            ? () => _copyConfig(proxy.name, uri: true)
+            : null,
+      ),
+      if (node != null)
+        PopupMenuItemData(
+          icon: Icons.edit_rounded,
+          label: appLocalizations.configViewEdit,
+          onPressed: () {
+            if (!context.mounted) return;
+            showEditNode(context, node);
+          },
+        )
+      else
+        PopupMenuItemData(
+          icon: Icons.code,
+          label: appLocalizations.configViewReadOnly,
+          onPressed: () => _viewConfig(context, proxy.name),
+        ),
+      PopupMenuItemData(
+        icon: Icons.content_copy,
+        label: appLocalizations.configShareYaml,
+        onPressed: () => _copyConfig(proxy.name, uri: false),
+      ),
+    ],
+  );
+}
+
+Future<({String yaml, String uri})?> _loadConfig(String name) => globalState
+    .appController
+    .safeRun(() => globalState.getProxyConfig(name), needLoading: true);
+
+Future<void> _copyConfig(String name, {required bool uri}) async {
+  final config = await _loadConfig(name);
+  if (config == null) return;
+  final text = uri ? config.uri : config.yaml;
+  if (text.isEmpty) {
+    globalState.showNotifier(appLocalizations.uriShareUnsupported);
+    return;
+  }
+  await Clipboard.setData(ClipboardData(text: text));
+  globalState.showNotifier(appLocalizations.copySuccess);
+}
+
+Future<void> _viewConfig(BuildContext context, String name) async {
+  final config = await _loadConfig(name);
+  if (config == null || !context.mounted) return;
+  await BaseNavigator.push(
+    context,
+    EditorPage(title: name, content: config.yaml, readOnly: true),
+  );
+}
+
+Future<void> _showQrCode(String name) async {
+  final config = await _loadConfig(name);
+  if (config == null) return;
+  final isUri = config.uri.isNotEmpty;
+  final data = isUri ? config.uri : config.yaml;
+  await globalState.showCommonDialog<void>(
+    child: Builder(
+      builder: (context) {
+        final colorScheme = context.colorScheme;
+        return CommonDialog(
+          title: name,
+          actions: [
+            TextButton(
+              onPressed: () async {
+                await Clipboard.setData(ClipboardData(text: data));
+                globalState.showNotifier(appLocalizations.copySuccess);
+              },
+              child: Text(appLocalizations.copy),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text(appLocalizations.close),
+            ),
+          ],
+          child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(
-                Icons.arrow_forward_rounded,
-                size: 14,
-                color: colorScheme.onSurfaceVariant,
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: QrCodeWidget(data: data, size: 220),
               ),
-              const SizedBox(width: 6),
-              Flexible(
-                child: EmojiText(
-                  current,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: textTheme.bodyMedium?.copyWith(
-                    fontSize: 14,
-                    color: colorScheme.onSurfaceVariant,
-                  ),
+              const SizedBox(height: 14),
+              Text(
+                isUri ? 'URI' : 'YAML',
+                style: context.textTheme.labelMedium?.copyWith(
+                  color: colorScheme.primary,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                data,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.center,
+                style: context.textTheme.bodySmall?.copyWith(
+                  color: colorScheme.onSurfaceVariant,
                 ),
               ),
             ],
           ),
-    children: [
-      for (final item in proxies)
-        PopupMenuItemData(
-          icon: item.name == current
-              ? Icons.check_circle_rounded
-              : Icons.circle_outlined,
-          label: item.name,
-          trailing: switch (appController.getTrayProxyDelay(
-            proxyName: item.name,
-            testUrl: group.testUrl,
-          )) {
-            null => null,
-            0 => Text('...', style: delayStyle),
-            final delay => Text(
-              delay < 0 ? '×' : '${delay}ms',
-              style: delayStyle?.copyWith(color: utils.getDelayColor(delay)),
-            ),
-          },
-          onPressed: () {
-            if (!selectable) {
-              globalState.showNotifier(appLocalizations.notSelectedTip);
-              return;
-            }
-            appController.updateCurrentSelectedMap(group.name, item.name);
-            appController.changeProxyDebounce(group.name, item.name);
-          },
-        ),
-    ],
+        );
+      },
+    ),
   );
 }
 
@@ -195,30 +334,35 @@ Future<void> _checkIpRisk(BuildContext context, String proxyName) async {
 
 class _ProxyMenuHeader extends StatelessWidget {
   final String name;
+  final String? type;
 
-  const _ProxyMenuHeader(this.name);
+  const _ProxyMenuHeader(this.name, {this.type});
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = context.colorScheme;
+    final style = context.textTheme.bodyMedium?.copyWith(fontSize: 15);
+    final type = this.type;
     return Padding(
-      padding: const EdgeInsets.fromLTRB(14, 10, 22, 8),
+      padding: const EdgeInsets.fromLTRB(16, 12, 22, 10),
       child: Row(
         children: [
-          Icon(Icons.public_rounded, size: 20, color: colorScheme.primary),
-          const SizedBox(width: 14),
           Flexible(
             child: EmojiText(
               name,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: context.textTheme.bodyMedium?.copyWith(
-                fontSize: 15,
+              style: style?.copyWith(
                 fontWeight: FontWeight.w600,
                 color: colorScheme.onSurface,
               ),
             ),
           ),
+          if (type != null)
+            Text(
+              ' - $type',
+              style: style?.copyWith(color: colorScheme.onSurfaceVariant),
+            ),
         ],
       ),
     );

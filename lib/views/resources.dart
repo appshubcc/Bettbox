@@ -170,7 +170,7 @@ class _ResourcesViewState extends ConsumerState<ResourcesView> {
           IconButton(
             onPressed: () => updateExternalProviders(ref, context),
             tooltip: appLocalizations.update,
-            icon: const Icon(Icons.sync),
+            icon: const AppIcon(Icons.sync),
           ),
         ],
         body: const ProvidersBody(),
@@ -198,7 +198,7 @@ class _ResourcesViewState extends ConsumerState<ResourcesView> {
                               child: CircularProgressIndicator(strokeWidth: 2),
                             ),
                           )
-                        : const Icon(Icons.more_vert),
+                        : const AppIcon(Icons.more_vert),
                   );
                 },
                 popup: CommonPopupMenu(
@@ -219,7 +219,7 @@ class _ResourcesViewState extends ConsumerState<ResourcesView> {
             ]
           : [
               IconButton(
-                icon: const Icon(Icons.replay),
+                icon: const AppIcon(Icons.replay),
                 onPressed: _handleResetAll,
                 tooltip: appLocalizations.reset,
               ),
@@ -233,7 +233,7 @@ class _ResourcesViewState extends ConsumerState<ResourcesView> {
                           child: CircularProgressIndicator(strokeWidth: 2),
                         ),
                       )
-                    : const Icon(Icons.sync),
+                    : const AppIcon(Icons.sync),
                 onPressed: isUpdating ? null : _handleSyncAll,
                 tooltip: appLocalizations.syncAll,
               ),
@@ -424,7 +424,7 @@ class _GeoDataListItemState extends ConsumerState<GeoDataListItem> {
                     runAlignment: WrapAlignment.center,
                     children: [
                       CommonChip(
-                        avatar: const Icon(Icons.edit),
+                        avatar: const AppIcon(Icons.edit),
                         label: appLocalizations.edit,
                         onPressed: isSyncing || url == null
                             ? null
@@ -446,7 +446,7 @@ class _GeoDataListItemState extends ConsumerState<GeoDataListItem> {
                                   ),
                                 )
                               : CommonChip(
-                                  avatar: const Icon(Icons.sync),
+                                  avatar: const AppIcon(Icons.sync),
                                   label: appLocalizations.sync,
                                   onPressed: _handleUpdateGeoDataItem,
                                 ),

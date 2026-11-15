@@ -53,7 +53,7 @@ class _NodeExclusionWithInverseItem extends ConsumerWidget {
     final nodeExcludeFilter = ref.watch(nodeExcludeFilterProvider);
 
     return ListItem(
-      leading: const Icon(Icons.filter_alt_outlined),
+      leading: const AppIcon(Icons.filter_alt_outlined),
       title: Text(appLocalizations.nodeExclusion),
       subtitle: Text(appLocalizations.nodeExclusionDesc),
       onTap: () async {
@@ -161,7 +161,7 @@ class _NodeExclusionDialogState extends ConsumerState<_NodeExclusionDialog>
 class _ConcurrencyLimitItem extends ConsumerWidget {
   const _ConcurrencyLimitItem();
 
-  static const _options = [2, 8, 16, 32, maxDelayTestConcurrency];
+  static const _options = [4, 8, 16, 32, 64, maxDelayTestConcurrency];
 
   String _getDisplayText(int value, BuildContext context) {
     if (value == maxDelayTestConcurrency) {
@@ -177,7 +177,7 @@ class _ConcurrencyLimitItem extends ConsumerWidget {
     );
 
     return ListItem<int>.options(
-      leading: const Icon(Icons.speed),
+      leading: const AppIcon(Icons.speed),
       title: Text(appLocalizations.concurrencyLimit),
       subtitle: Text(appLocalizations.concurrencyLimitDesc),
       delegate: OptionsDelegate(
@@ -213,7 +213,7 @@ class _HealthCheckTimeoutItem extends ConsumerWidget {
     final timeout = ref.watch(healthCheckTimeoutProvider);
 
     return ListItem<int>.options(
-      leading: const Icon(Icons.timer_outlined),
+      leading: const AppIcon(Icons.timer_outlined),
       title: Text(appLocalizations.healthCheckTimeout),
       subtitle: Text(appLocalizations.healthCheckTimeoutDesc),
       delegate: OptionsDelegate(
@@ -246,7 +246,7 @@ class _DelayAnimationItem extends ConsumerWidget {
     );
 
     return ListItem(
-      leading: const Icon(Icons.animation),
+      leading: const AppIcon(Icons.animation),
       title: Text(appLocalizations.delayAnimation),
       subtitle: Text(appLocalizations.delayAnimationDesc),
       onTap: () async {
@@ -290,7 +290,7 @@ class _IconConfigItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListItem(
-      leading: const Icon(Icons.style_outlined),
+      leading: const AppIcon(Icons.style_outlined),
       title: Text(appLocalizations.iconConfiguration),
       disableSplash: true,
       subtitle: Text(appLocalizations.iconConfigurationDesc),
@@ -306,12 +306,12 @@ class _IconConfigItem extends StatelessWidget {
                 IconButton(
                   onPressed: () => showIconSets(context),
                   tooltip: appLocalizations.iconSets,
-                  icon: const Icon(Icons.collections_outlined),
+                  icon: const AppIcon(Icons.collections_outlined),
                 ),
                 IconButton(
                   onPressed: _handleResetIconCache,
                   tooltip: appLocalizations.resetIconCache,
-                  icon: const Icon(Icons.cleaning_services_outlined),
+                  icon: const AppIcon(Icons.cleaning_services_outlined),
                 ),
               ],
             );
@@ -436,7 +436,7 @@ class _IconRuleSheetState extends State<_IconRuleSheet>
           IconButton(
             tooltip: appLocalizations.confirm,
             onPressed: valid ? _handleConfirm : null,
-            icon: const Icon(Icons.check),
+            icon: const AppIcon(Icons.check),
           ),
         ],
         body: Column(
@@ -455,7 +455,7 @@ class _IconRuleSheetState extends State<_IconRuleSheet>
                       borderRadius: BorderRadius.circular(16),
                     ),
                     child: _icon.isEmpty
-                        ? Icon(
+                        ? AppIcon(
                             Icons.image_outlined,
                             color: colorScheme.onSurfaceVariant,
                           )

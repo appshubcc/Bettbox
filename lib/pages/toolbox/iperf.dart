@@ -457,7 +457,7 @@ class _IperfPageState extends ConsumerState<IperfPage>
           IconButton(
             tooltip: appLocalizations.natCopyResult,
             onPressed: () => _copy(iperfReport(report)),
-            icon: const Icon(Icons.copy_rounded),
+            icon: const AppIcon(Icons.copy_rounded),
           ),
       ],
       body: ToolPageBody(
@@ -466,15 +466,20 @@ class _IperfPageState extends ConsumerState<IperfPage>
           child: isServer ? _buildServerButton() : _buildClientButton(),
         ),
         children: [
-          ToolSegmented<_IperfMode>(
-            values: _IperfMode.values,
-            value: _mode,
+          SegmentButtonGroup<_IperfMode>(
+            options: [
+              for (final mode in _IperfMode.values)
+                SegmentOption(
+                  value: mode,
+                  label: switch (mode) {
+                    _IperfMode.server => appLocalizations.iperfServer,
+                    _IperfMode.client => appLocalizations.iperfClient,
+                  },
+                ),
+            ],
+            selected: _mode,
             enabled: !_testing,
-            labelOf: (mode) => switch (mode) {
-              _IperfMode.server => appLocalizations.iperfServer,
-              _IperfMode.client => appLocalizations.iperfClient,
-            },
-            onChanged: (mode) => setState(() {
+            onSelected: (mode) => setState(() {
               _mode = mode;
               _lastMode = mode;
             }),
@@ -665,7 +670,7 @@ class _AddressField extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(14, 4, 6, 4),
       child: Row(
         children: [
-          Icon(
+          AppIcon(
             Icons.dns_rounded,
             size: 20,
             color: colorScheme.onSurfaceVariant,
@@ -700,14 +705,14 @@ class _AddressField extends StatelessWidget {
                 ? const SizedBox.shrink()
                 : IconButton(
                     onPressed: controller.clear,
-                    icon: const Icon(Icons.close_rounded, size: 18),
+                    icon: const AppIcon(Icons.close_rounded, size: 18),
                   ),
           ),
           if (onScan case final onScan?)
             IconButton.filledTonal(
               tooltip: appLocalizations.iperfScan,
               onPressed: onScan,
-              icon: const Icon(Icons.qr_code_scanner_rounded),
+              icon: const AppIcon(Icons.qr_code_scanner_rounded),
             ),
         ],
       ),
@@ -732,7 +737,7 @@ class _ScannedChip extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.qr_code_2_rounded, size: 15, color: primary),
+          AppIcon(Icons.qr_code_2_rounded, size: 15, color: primary),
           const SizedBox(width: 6),
           Flexible(
             child: Text(
@@ -933,7 +938,7 @@ class _ServerCard extends StatelessWidget {
                           color: color,
                         ),
                       )
-                    : Icon(
+                    : AppIcon(
                         running
                             ? Icons.podcasts_rounded
                             : Icons.power_settings_new_rounded,
@@ -967,7 +972,7 @@ class _ServerCard extends StatelessWidget {
               if (onEditPort case final onEditPort?)
                 TextButton.icon(
                   onPressed: onEditPort,
-                  icon: const Icon(Icons.tune_rounded, size: 16),
+                  icon: const AppIcon(Icons.tune_rounded, size: 16),
                   label: Text('${appLocalizations.iperfPort} $port'),
                 ),
             ],
@@ -1125,7 +1130,7 @@ class _CopyGroup extends StatelessWidget {
                       ),
                     ),
                   ),
-                  Icon(
+                  AppIcon(
                     Icons.copy_rounded,
                     size: 15,
                     color: colorScheme.onSurfaceVariant,
@@ -1198,7 +1203,7 @@ class _LiveCard extends StatelessWidget {
                           color: color,
                         ),
                       )
-                    : Icon(
+                    : AppIcon(
                         hasError
                             ? Icons.error_outline_rounded
                             : state == null
@@ -1347,7 +1352,7 @@ class _SpeedValue extends StatelessWidget {
       children: [
         Row(
           children: [
-            Icon(icon, size: 15, color: color),
+            AppIcon(icon, size: 15, color: color),
             const SizedBox(width: 4),
             Text(
               label,

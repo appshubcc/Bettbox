@@ -267,7 +267,7 @@ class _GroupTabBarState extends ConsumerState<GroupTabBar> {
                         duration: const Duration(milliseconds: 320),
                       ),
                     )
-                  : Icon(
+                  : AppIcon(
                       isMobileView ? Icons.expand_more : Icons.chevron_right,
                     ),
             ),

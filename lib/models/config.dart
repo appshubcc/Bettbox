@@ -45,7 +45,7 @@ const defaultNetworkProps = NetworkProps();
 const defaultProxiesStyle = ProxiesStyle();
 const defaultWindowProps = WindowProps();
 const defaultAccessControl = AccessControl();
-const defaultThemeProps = ThemeProps();
+final defaultThemeProps = ThemeProps(usePhosphorIcons: system.isAndroid);
 
 const List<DashboardWidget> defaultDashboardWidgets = [
   DashboardWidget.networkSpeed,
@@ -441,7 +441,10 @@ abstract class ThemeProps with _$ThemeProps {
       return defaultThemeProps;
     }
     try {
-      return ThemeProps.fromJson(json);
+      final props = ThemeProps.fromJson(json);
+      return json.containsKey('usePhosphorIcons')
+          ? props
+          : props.copyWith(usePhosphorIcons: system.isAndroid);
     } catch (_) {
       return defaultThemeProps;
     }

@@ -28,7 +28,7 @@ class SettingInfoCard extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            Flexible(child: Icon(info.iconData)),
+            Flexible(child: AppIcon(info.iconData)),
             const SizedBox(width: 8),
             Flexible(
               child: Text(info.label, style: context.textTheme.bodyMedium),
@@ -88,7 +88,7 @@ class TitleSettingButton extends StatelessWidget {
           onTap: onTap,
           child: Padding(
             padding: const EdgeInsets.all(7),
-            child: Icon(
+            child: AppIcon(
               Icons.settings_outlined,
               size: 18,
               color: context.colorScheme.onSurfaceVariant,

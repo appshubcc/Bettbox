@@ -38,7 +38,7 @@ class AddProfileView extends StatelessWidget {
             type: type,
             actions: [
               IconButton(
-                icon: const Icon(Icons.security),
+                icon: const AppIcon(Icons.security),
                 tooltip: appLocalizations.ageKeyGenerateTitle,
                 onPressed: () {
                   editKey.currentState?.showAgeKeyGenerator();
@@ -140,7 +140,7 @@ class AddProfileView extends StatelessWidget {
         return CommonCard(
           type: CommonCardType.filled,
           child: ListItem(
-            leading: Icon(Icons.merge_type, color: available ? null : muted),
+            leading: AppIcon(Icons.merge_type, color: available ? null : muted),
             title: Text(appLocalizations.mergeProfile, style: style),
             subtitle: Text(
               available
@@ -167,7 +167,7 @@ class AddProfileView extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 ListItem(
-                  leading: const Icon(Icons.qr_code_sharp),
+                  leading: const AppIcon(Icons.qr_code_sharp),
                   title: Text(appLocalizations.qrcode),
                   subtitle: Text(appLocalizations.qrcodeDesc),
                   onTap: _toScan,
@@ -184,7 +184,7 @@ class AddProfileView extends StatelessWidget {
                   endIndent: 16,
                 ),
                 ListItem(
-                  leading: const Icon(Icons.content_paste),
+                  leading: const AppIcon(Icons.content_paste),
                   title: Text(appLocalizations.clipboard),
                   subtitle: Text(appLocalizations.clipboardDesc),
                   onTap: _handleAddProfileFromClipboard,
@@ -201,7 +201,7 @@ class AddProfileView extends StatelessWidget {
                   endIndent: 16,
                 ),
                 ListItem(
-                  leading: const Icon(Icons.upload_file_sharp),
+                  leading: const AppIcon(Icons.upload_file_sharp),
                   title: Text(appLocalizations.file),
                   subtitle: Text(appLocalizations.fileDesc),
                   onTap: _handleAddProfileFormFile,
@@ -218,7 +218,7 @@ class AddProfileView extends StatelessWidget {
                   endIndent: 16,
                 ),
                 ListItem(
-                  leading: const Icon(Icons.cloud_download_sharp),
+                  leading: const AppIcon(Icons.cloud_download_sharp),
                   title: Text(appLocalizations.url),
                   subtitle: Text(appLocalizations.urlDesc),
                   onTap: _toAdd,

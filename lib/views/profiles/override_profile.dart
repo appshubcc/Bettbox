@@ -1020,6 +1020,7 @@ class _AddRuleDialogState extends State<AddRuleDialog> {
   Widget _buildFlag(String label, bool value, ValueChanged<bool> onChanged) {
     return CommonCard(
       radius: 12,
+      elevated: false,
       isSelected: value,
       onPressed: () => onChanged(!value),
       child: Padding(

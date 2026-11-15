@@ -27,7 +27,7 @@ class _IconFileManager {
     final tempDir = await appPath.tempPath;
     final ext = url.isSvg ? '.svg' : '.img';
     final dir = Directory(path.join(tempDir, 'icon_raw_cache'));
-    if (!dir.existsSync()) {
+    if (!await dir.exists()) {
       await dir.create(recursive: true);
     }
     return File(path.join(dir.path, '$hash$ext'));
@@ -62,13 +62,29 @@ class _IconFileManager {
     }
   }
 
+  static String? _fastlyUrl(String url) {
+    final uri = Uri.tryParse(url);
+    if (uri == null || uri.host != 'cdn.jsdelivr.net') return null;
+    if (md5.convert(utf8.encode(uri.path)).bytes.first.isEven) return null;
+    return uri.replace(host: 'fastly.jsdelivr.net').toString();
+  }
+
+  static Future<List<int>?> _fetch(String url) async {
+    if (_fastlyUrl(url) case final fastly?) {
+      try {
+        final data = (await _dio.get<List<int>>(fastly)).data;
+        if (data != null && data.isNotEmpty) return data;
+      } catch (_) {}
+    }
+    return (await _dio.get<List<int>>(url)).data;
+  }
+
   static Future<File?> _downloadInternal(String url) async {
     try {
       final targetFile = await getCacheFile(url);
       final tempFile = File('${targetFile.path}.tmp');
 
-      final response = await _dio.get<List<int>>(url);
-      final data = response.data;
+      final data = await _fetch(url);
       if (data == null || data.isEmpty) {
         return null;
       }
@@ -476,6 +492,7 @@ class MenuDotsIcon extends StatelessWidget {
   Widget build(BuildContext context) {
     final color =
         IconTheme.of(context).color ?? context.colorScheme.onSurfaceVariant;
+    final radius = AppIconScope.of(context) ? 2.1 : 2.3;
     return RepaintBoundary(
       child: AnimatedRotation(
         turns: isOpen ? 0.125 : 0,
@@ -487,7 +504,11 @@ class MenuDotsIcon extends StatelessWidget {
           builder: (_, accent, _) => SizedBox.square(
             dimension: 24,
             child: CustomPaint(
-              painter: _MenuDotsPainter(color: color, accent: accent ?? color),
+              painter: _MenuDotsPainter(
+                color: color,
+                accent: accent ?? color,
+                radius: radius,
+              ),
             ),
           ),
         ),
@@ -501,13 +522,17 @@ class _MenuDotsPainter extends CustomPainter {
 
   final Color color;
   final Color accent;
+  final double radius;
 
-  const _MenuDotsPainter({required this.color, required this.accent});
+  const _MenuDotsPainter({
+    required this.color,
+    required this.accent,
+    required this.radius,
+  });
 
   @override
   void paint(Canvas canvas, Size size) {
-    const radius = 2.6;
-    const distance = 5.2;
+    const distance = 5.0;
     final center = size.center(Offset.zero);
     _paint.color = color;
     canvas.drawCircle(
@@ -535,6 +560,8 @@ class _MenuDotsPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_MenuDotsPainter oldDelegate) {
-    return oldDelegate.color != color || oldDelegate.accent != accent;
+    return oldDelegate.color != color ||
+        oldDelegate.accent != accent ||
+        oldDelegate.radius != radius;
   }
 }

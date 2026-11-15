@@ -27,14 +27,14 @@ void showOutboundModeSheet(BuildContext context) {
                 items: [
                   for (final item in Mode.values)
                     ListItem(
-                      leading: Icon(switch (item) {
+                      leading: AppIcon(switch (item) {
                         Mode.rule => Icons.alt_route_rounded,
                         Mode.global => Icons.language_rounded,
                         Mode.direct => Icons.east_rounded,
                       }),
                       title: Text(Intl.message(item.name)),
                       trailing: item == currentMode
-                          ? Icon(
+                          ? AppIcon(
                               Icons.check_rounded,
                               color: context.colorScheme.primary,
                             )

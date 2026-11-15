@@ -267,7 +267,7 @@ class _EditTile<T extends Object> extends StatelessWidget {
       width: 22,
       height: 22,
       decoration: BoxDecoration(shape: BoxShape.circle, color: color),
-      child: Icon(icon, size: 13, color: fg),
+      child: AppIcon(icon, size: 13, color: fg),
     );
   }
 

@@ -163,7 +163,7 @@ class IpRiskScore extends StatelessWidget {
                       onTap: () => showIpRiskNote(risk),
                       child: Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 4),
-                        child: Icon(
+                        child: AppIcon(
                           Icons.error_outline_rounded,
                           size: 13,
                           color: context.colorScheme.onSurfaceVariant,
@@ -229,8 +229,10 @@ class IpRiskChecks extends StatelessWidget {
   Widget _chip(BuildContext context, IpRiskCheck check) {
     final colorScheme = context.colorScheme;
     final hit = check.hit;
+    final highRisk = risk.displayScore > 10;
+    final hitBaseColor = highRisk ? colorScheme.error : _riskGradient[1];
     final color = switch (hit) {
-      true => colorScheme.error,
+      true => highRisk ? colorScheme.error : _tone(context, hitBaseColor),
       false => colorScheme.onSurfaceVariant,
       null => colorScheme.outline,
     };
@@ -238,14 +240,14 @@ class IpRiskChecks extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(6, 3, 8, 3),
       decoration: BoxDecoration(
         color: hit == true
-            ? colorScheme.error.withValues(alpha: 0.12)
+            ? hitBaseColor.withValues(alpha: highRisk ? 0.12 : 0.14)
             : colorScheme.onSurface.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
+          AppIcon(
             switch (hit) {
               true => Icons.error_rounded,
               false => Icons.circle_outlined,
@@ -278,7 +280,7 @@ class IpRiskChecks extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.check_circle_rounded, size: 12, color: color),
+          AppIcon(Icons.check_circle_rounded, size: 12, color: color),
           const SizedBox(width: 4),
           Text(
             appLocalizations.ipRiskHomeBroadband,
@@ -521,7 +523,7 @@ class IpRiskNoteView extends StatelessWidget {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(
+                AppIcon(
                   Icons.warning_amber_rounded,
                   size: 16,
                   color: colorScheme.error,

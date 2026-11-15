@@ -248,7 +248,7 @@ class _CascadeMenuState extends State<_CascadeMenu> {
         padding: const EdgeInsets.fromLTRB(8, 10, 22, 10),
         child: Row(
           children: [
-            Icon(
+            AppIcon(
               Icons.chevron_left_rounded,
               size: 24,
               color: colorScheme.onSurfaceVariant,
@@ -764,7 +764,7 @@ class CommonPopupMenu extends StatelessWidget {
                   Flexible(child: label),
                 if (submenu) ...[
                   const SizedBox(width: 4),
-                  Icon(
+                  AppIcon(
                     Icons.chevron_right_rounded,
                     size: fontSize + 5,
                     color: colorScheme.onSurfaceVariant,

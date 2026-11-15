@@ -273,7 +273,7 @@ class _StartButtonState extends ConsumerState<StartButton> {
                         onLongPress: onLongPress,
                         child: Padding(
                           padding: const EdgeInsets.all(5),
-                          child: Icon(
+                          child: AppIcon(
                             icon,
                             size: 22,
                             color: colorScheme.primary,

@@ -60,12 +60,12 @@ class _ProxiesViewState extends ConsumerState<ProxiesView> {
             _proxiesTabKey.currentState?.scrollToGroupSelected();
           },
           tooltip: appLocalizations.locate,
-          icon: const Icon(Icons.adjust, weight: 1),
+          icon: const AppIcon(Icons.adjust, weight: 1),
         ),
       if (hasCustom)
         IconButton(
           onPressed: _handleCustomOptions,
-          icon: const Icon(Icons.tune),
+          icon: const AppIcon(Icons.tune),
           tooltip: appLocalizations.custom,
         ),
       CommonPopupBox(
@@ -75,7 +75,7 @@ class _ProxiesViewState extends ConsumerState<ProxiesView> {
               open(offset: const Offset(0, 20));
             },
             tooltip: appLocalizations.more,
-            icon: const Icon(Icons.more_vert),
+            icon: const AppIcon(Icons.more_vert),
           );
         },
         popup: CommonPopupMenu(
@@ -265,6 +265,9 @@ class _ProxiesViewState extends ConsumerState<ProxiesView> {
     final hasGroups = ref.watch(
       groupsProvider.select((state) => state.isNotEmpty),
     );
+    final isDirect = ref.watch(
+      patchClashConfigProvider.select((state) => state.mode == Mode.direct),
+    );
     ref.watch(appSettingProvider.select((state) => state.locale));
     return CommonScaffold(
       floatingActionButton: _buildFAB(),
@@ -282,9 +285,13 @@ class _ProxiesViewState extends ConsumerState<ProxiesView> {
           description: appLocalizations.noProxyDesc,
           action: FilledButton.tonalIcon(
             onPressed: globalState.appController.toProfiles,
-            icon: const Icon(Icons.add, size: 18),
+            icon: const AppIcon(Icons.add, size: 18),
             label: Text(appLocalizations.addProfile),
           ),
+        ),
+        true when isDirect => NullStatus(
+          label: appLocalizations.directModeNoProxy,
+          icon: Icons.cloud_off_outlined,
         ),
         true => switch (proxiesType) {
           ProxiesType.tab => ProxiesTabView(key: _proxiesTabKey),

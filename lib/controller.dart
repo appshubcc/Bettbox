@@ -1058,7 +1058,7 @@ class AppController {
         try {
           await _applyProfile();
         } catch (err) {
-          globalState.showNotifier(err.toString());
+          globalState.showNotifier(err.formatError);
           rethrow;
         }
       } else {
@@ -1091,7 +1091,7 @@ class AppController {
           try {
             await _applyProfile();
           } catch (_) {}
-          globalState.showNotifier(err.toString());
+          globalState.showNotifier(err.formatError);
         }
         await clashCore.closeConnections();
         await clashCore.flushFakeIP();

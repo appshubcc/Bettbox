@@ -189,6 +189,7 @@
   "unableToUpdateCurrentProfileDesc": "現在のプロファイルを更新できません",
   "noMoreInfoDesc": "これ以上の情報はありません",
   "profileParseErrorDesc": "プロファイルの解析エラー",
+  "profileContentNotConfig": "サブスクリプションが設定ファイルではなく Web ページ（ネットワーク認証ページなど）を返しました。認証を完了してから再更新してください。",
   "proxyPort": "プロキシポート",
   "proxyPortDesc": "Clashのリスニングポート設定",
   "port": "ポート",

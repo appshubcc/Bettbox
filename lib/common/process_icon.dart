@@ -68,7 +68,7 @@ class ProcessIcon {
   }
 
   Future<Uint8List?> _getWindows(String path) async {
-    final bitmap = _readWindowsIcon(path);
+    final bitmap = await Isolate.run(() => _readWindowsIcon(path));
     if (bitmap == null) return null;
     final (pixels, width, height) = bitmap;
     final completer = Completer<ui.Image>();
@@ -83,12 +83,15 @@ class ProcessIcon {
       allowUpscaling: false,
     );
     final image = await completer.future;
-    final data = await image.toByteData(format: ui.ImageByteFormat.png);
-    image.dispose();
-    return data?.buffer.asUint8List();
+    try {
+      final data = await image.toByteData(format: ui.ImageByteFormat.png);
+      return data?.buffer.asUint8List();
+    } finally {
+      image.dispose();
+    }
   }
 
-  (Uint8List, int, int)? _readWindowsIcon(String path) {
+  static (Uint8List, int, int)? _readWindowsIcon(String path) {
     return using((arena) {
       final pathPtr = path.toNativeUtf16(allocator: arena);
       final iconPtr = arena<Pointer>();
@@ -106,16 +109,25 @@ class ProcessIcon {
           ? HICON(iconPtr.value)
           : HICON(nullptr);
       if (!hIcon.isValid) {
-        final info = arena<SHFILEINFO>();
-        final res = SHGetFileInfo(
-          PCWSTR(pathPtr),
-          const FILE_FLAGS_AND_ATTRIBUTES(0),
-          info,
-          sizeOf<SHFILEINFO>(),
-          SHGFI_FLAGS(SHGFI_ICON | SHGFI_LARGEICON),
+        final hr = CoInitializeEx(
+          COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE,
         );
-        if (res != 0) {
-          hIcon = info.ref.hIcon;
+        try {
+          final info = arena<SHFILEINFO>();
+          final res = SHGetFileInfo(
+            PCWSTR(pathPtr),
+            const FILE_FLAGS_AND_ATTRIBUTES(0),
+            info,
+            sizeOf<SHFILEINFO>(),
+            SHGFI_FLAGS(SHGFI_ICON | SHGFI_LARGEICON),
+          );
+          if (res != 0) {
+            hIcon = info.ref.hIcon;
+          }
+        } finally {
+          if (hr.isOk) {
+            CoUninitialize();
+          }
         }
       }
       if (!hIcon.isValid) return null;

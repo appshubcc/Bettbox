@@ -101,7 +101,7 @@ void main() {
     expect(find.text('Node 2-B'), findsNothing);
   });
 
-  testWidgets('展开代理组后同步展示代理组选中节点的勾选标记', (tester) async {
+  testWidgets('展开代理组后节点卡片不显示勾选标记', (tester) async {
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
 
@@ -111,7 +111,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Node 1-B'), findsOneWidget);
-    expect(find.byIcon(Icons.check_rounded), findsNWidgets(2));
+    expect(find.byIcon(Icons.check_rounded), findsOneWidget);
   });
 
   testWidgets('手动选择出站节点时对应代理组自动展开且仅选中该节点', (tester) async {
@@ -122,6 +122,6 @@ void main() {
 
     expect(find.text('Node 1-B'), findsOneWidget);
     expect(find.text('Node 2-B'), findsNothing);
-    expect(find.byIcon(Icons.check_rounded), findsOneWidget);
+    expect(find.byIcon(Icons.check_rounded), findsNothing);
   });
 }

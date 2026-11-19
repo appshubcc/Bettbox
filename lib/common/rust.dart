@@ -3,7 +3,14 @@ import 'package:code_forge/script.dart';
 
 Future<bool>? _rustLibReady;
 
-Future<bool> ensureRustLib() => _rustLibReady ??= _initRustLib();
+bool get isRustLibInitialized => isCodeForgeRustInitialized;
+
+Future<bool> ensureRustLib() {
+  if (isRustLibInitialized) {
+    return Future.value(true);
+  }
+  return _rustLibReady ??= _initRustLib();
+}
 
 Future<bool> _initRustLib() async {
   try {

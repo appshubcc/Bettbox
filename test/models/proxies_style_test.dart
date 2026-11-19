@@ -41,15 +41,17 @@ void main() {
     });
   });
 
-  test('并发限制默认 MAX，旧版大于 32 的取值迁移为 MAX', () {
-    expect(const ProxiesStyle().concurrencyLimit, maxDelayTestConcurrency);
+  test('并发限制默认 64，兼容旧版配置迁移', () {
+    expect(const ProxiesStyle().concurrencyLimit, defaultDelayTestConcurrency);
     for (final (saved, expected) in [
       (250, maxDelayTestConcurrency),
-      (64, maxDelayTestConcurrency),
+      (100, maxDelayTestConcurrency),
+      (64, 64),
       (32, 32),
       (8, 8),
-      (2, 2),
-      (0, 1),
+      (4, 4),
+      (2, 4),
+      (0, 4),
     ]) {
       expect(
         ProxiesStyle.fromJson({'concurrencyLimit': saved}).concurrencyLimit,

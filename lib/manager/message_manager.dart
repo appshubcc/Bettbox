@@ -157,73 +157,87 @@ class MessageManagerState extends State<MessageManager> {
                       key: Key(messages.last.id),
                       builder: (_, constraints) {
                         final message = messages.last;
-                        return DecoratedBox(
-                          decoration: ShapeDecoration(
-                            shape: shape,
-                            shadows: isLight ? _lightShadows : _darkShadows,
-                          ),
-                          child: Material(
-                            shape: shape,
-                            clipBehavior: Clip.antiAlias,
-                            color: isLight
-                                ? colorScheme.surfaceBright
-                                : colorScheme.surfaceContainerHighest,
-                            child: Container(
-                              width: isMobile
-                                  ? constraints.maxWidth
-                                  : min(constraints.maxWidth, 500),
-                              constraints: const BoxConstraints(minHeight: 48),
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 8,
+                        return Dismissible(
+                          key: ValueKey(message.id),
+                          direction: DismissDirection.startToEnd,
+                          onDismissed: (_) => _handleRemove(message),
+                          child: GestureDetector(
+                            onTap: () => _handleRemove(message),
+                            child: DecoratedBox(
+                              decoration: ShapeDecoration(
+                                shape: shape,
+                                shadows: isLight ? _lightShadows : _darkShadows,
                               ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  if (message.showCountdown)
-                                    _CountdownWidget(
-                                      duration: message.duration,
-                                    ),
-                                  Expanded(
-                                    child: EmojiText(
-                                      message.text,
-                                      textAlign: TextAlign.center,
-                                      style: context.textTheme.bodyMedium
-                                          ?.copyWith(
-                                            color: colorScheme.onSurface,
-                                            fontWeight: FontWeight.w500,
-                                          ),
-                                    ),
+                              child: Material(
+                                shape: shape,
+                                clipBehavior: Clip.antiAlias,
+                                color: isLight
+                                    ? colorScheme.surfaceBright
+                                    : colorScheme.surfaceContainerHighest,
+                                child: Container(
+                                  width: isMobile
+                                      ? constraints.maxWidth
+                                      : min(constraints.maxWidth, 500),
+                                  constraints: const BoxConstraints(
+                                    minHeight: 48,
                                   ),
-                                  if (message.actionLabel != null &&
-                                      message.onAction != null) ...[
-                                    const SizedBox(width: 8),
-                                    TextButton(
-                                      onPressed: () {
-                                        _handleRemove(message);
-                                        message.onAction?.call();
-                                      },
-                                      style: TextButton.styleFrom(
-                                        minimumSize: const Size(0, 32),
-                                        tapTargetSize:
-                                            MaterialTapTargetSize.shrinkWrap,
-                                        visualDensity: VisualDensity.standard,
-                                        padding: const EdgeInsets.only(
-                                          left: 22,
-                                          right: 20,
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                    vertical: 8,
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      if (message.showCountdown)
+                                        _CountdownWidget(
+                                          duration: message.duration,
                                         ),
-                                        foregroundColor: colorScheme.primary,
-                                        backgroundColor: colorScheme.primary
-                                            .withValues(alpha: 0.12),
-                                        textStyle: context.textTheme.labelLarge
-                                            ?.copyWith(letterSpacing: 2),
-                                        shape: const StadiumBorder(),
+                                      Expanded(
+                                        child: EmojiText(
+                                          message.text,
+                                          textAlign: TextAlign.center,
+                                          style: context.textTheme.bodyMedium
+                                              ?.copyWith(
+                                                color: colorScheme.onSurface,
+                                                fontWeight: FontWeight.w500,
+                                              ),
+                                        ),
                                       ),
-                                      child: Text(message.actionLabel!),
-                                    ),
-                                  ],
-                                ],
+                                      if (message.actionLabel != null &&
+                                          message.onAction != null) ...[
+                                        const SizedBox(width: 8),
+                                        TextButton(
+                                          onPressed: () {
+                                            _handleRemove(message);
+                                            message.onAction?.call();
+                                          },
+                                          style: TextButton.styleFrom(
+                                            minimumSize: const Size(0, 32),
+                                            tapTargetSize: MaterialTapTargetSize
+                                                .shrinkWrap,
+                                            visualDensity:
+                                                VisualDensity.standard,
+                                            padding: const EdgeInsets.only(
+                                              left: 22,
+                                              right: 20,
+                                            ),
+                                            foregroundColor:
+                                                colorScheme.primary,
+                                            backgroundColor: colorScheme.primary
+                                                .withValues(alpha: 0.12),
+                                            textStyle: context
+                                                .textTheme
+                                                .labelLarge
+                                                ?.copyWith(letterSpacing: 2),
+                                            shape: const StadiumBorder(),
+                                          ),
+                                          child: Text(message.actionLabel!),
+                                        ),
+                                      ],
+                                    ],
+                                  ),
+                                ),
                               ),
                             ),
                           ),

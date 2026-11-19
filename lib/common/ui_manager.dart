@@ -9,6 +9,7 @@ import 'package:path/path.dart';
 
 class UiManager {
   static UiManager? _instance;
+  Future<void>? _initFuture;
 
   UiManager._internal();
 
@@ -17,7 +18,14 @@ class UiManager {
     return _instance!;
   }
 
-  Future<void> initializeUI() async {
+  Future<void> initializeUI() {
+    return _initFuture ??= _initializeUI().catchError((Object e) {
+      _initFuture = null;
+      commonPrint.error('Failed to initialize UI: $e');
+    });
+  }
+
+  Future<void> _initializeUI() async {
     try {
       final uiPath = await appPath.uiPath;
       final uiDir = Directory(uiPath);

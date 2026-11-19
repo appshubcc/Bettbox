@@ -14,7 +14,7 @@ class BettboxHttpOverrides extends HttpOverrides {
     }
     final port = globalState.config.patchClashConfig.mixedPort;
     final isStart = globalState.appState.runTime != null;
-    if (!isStart) return 'DIRECT';
+    if (!isStart || port == 0) return 'DIRECT';
     return 'PROXY localhost:$port';
   }
 

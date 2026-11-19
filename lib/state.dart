@@ -426,7 +426,10 @@ class GlobalState {
   Future<void> _checkAndRunBackgroundCoreGc() async {
     if (!backgroundMode.value) return;
     try {
-      await clashCore.requestGc(forceFreeOSMemory: true, purge: false);
+      await clashCore.requestGc(
+        forceFreeOSMemory: true,
+        purge: system.isAndroid,
+      );
     } catch (e) {
       commonPrint.debug('Background requestGc ignored: $e');
     }
@@ -448,6 +451,7 @@ class GlobalState {
     android?.purgeMemory();
     system.purgeMemory();
     windows?.emptyWorkingSet();
+    await system.releaseCodePages();
   }
 
   Future<void> handleStart([

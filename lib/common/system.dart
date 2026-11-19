@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:ffi';
 import 'dart:io';
+import 'dart:isolate';
 
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:ffi/ffi.dart';
@@ -602,6 +603,43 @@ class System {
         >('malloc_zone_pressure_relief')(nullptr, 0);
       }
     } catch (_) {}
+  }
+
+  Future<void> releaseCodePages() async {
+    if (!isAndroid && !isLinux) return;
+    try {
+      await Isolate.run(_releaseCodePages);
+    } catch (_) {}
+  }
+
+  static void _releaseCodePages() {
+    final libc = Platform.isAndroid
+        ? DynamicLibrary.open('libc.so')
+        : DynamicLibrary.process();
+    final madvise = libc
+        .lookupFunction<
+          Int32 Function(Pointer<Void> addr, UintPtr length, Int32 advice),
+          int Function(Pointer<Void> addr, int length, int advice)
+        >('madvise');
+    for (final line in File('/proc/self/maps').readAsLinesSync()) {
+      final fields = line.split(' ');
+      if (fields.length < 2 || fields[1] != 'r-xp') continue;
+      final pathStart = line.indexOf('/');
+      if (pathStart < 0) continue;
+      final path = line.substring(pathStart);
+      if (path.startsWith('/dev/') ||
+          path.startsWith('/memfd:') ||
+          path.endsWith(' (deleted)')) {
+        continue;
+      }
+      final range = fields[0].split('-');
+      final start = int.parse(range.first, radix: 16);
+      madvise(
+        Pointer.fromAddress(start),
+        int.parse(range.last, radix: 16) - start,
+        4,
+      );
+    }
   }
 }
 

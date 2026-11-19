@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:bett_box/common/common.dart';
 import 'package:flutter/foundation.dart';
 import 'package:material_ui/material_ui.dart';
 
@@ -19,7 +20,7 @@ class RingSegment {
   int get hashCode => Object.hash(value, color);
 }
 
-class RingChart extends StatelessWidget {
+class RingChart extends StatefulWidget {
   final List<RingSegment> segments;
   final double? total;
   final Color trackColor;
@@ -38,31 +39,59 @@ class RingChart extends StatelessWidget {
   });
 
   @override
+  State<RingChart> createState() => _RingChartState();
+}
+
+class _RingChartState extends State<RingChart>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+  late final CurvedAnimation _progress;
+  late final VoidCallback _cancelEntrance;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 700),
+    );
+    _progress = CurvedAnimation(
+      parent: _controller,
+      curve: Curves.easeOutCubic,
+    );
+    _cancelEntrance = whenRouteEntered(context, _controller.forward);
+  }
+
+  @override
+  void dispose() {
+    _cancelEntrance();
+    _progress.dispose();
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final size = widget.size;
     return SizedBox(
       width: size,
       height: size,
       child: Stack(
         alignment: Alignment.center,
         children: [
-          TweenAnimationBuilder<double>(
-            tween: Tween(begin: 0.0, end: 1.0),
-            duration: const Duration(milliseconds: 700),
-            curve: Curves.easeOutCubic,
-            builder: (context, progress, _) {
-              return CustomPaint(
-                size: Size(size, size),
-                painter: _RingPainter(
-                  segments: segments,
-                  total: total,
-                  trackColor: trackColor,
-                  strokeWidth: strokeWidth,
-                  progress: progress,
-                ),
-              );
-            },
+          RepaintBoundary(
+            child: CustomPaint(
+              size: Size(size, size),
+              painter: _RingPainter(
+                segments: widget.segments,
+                total: widget.total,
+                trackColor: widget.trackColor,
+                strokeWidth: widget.strokeWidth,
+                progress: _progress,
+              ),
+            ),
           ),
-          ?centerChild,
+          ?widget.centerChild,
         ],
       ),
     );
@@ -74,7 +103,7 @@ class _RingPainter extends CustomPainter {
   final double? total;
   final Color trackColor;
   final double strokeWidth;
-  final double progress;
+  final Animation<double> progress;
 
   _RingPainter({
     required this.segments,
@@ -82,7 +111,7 @@ class _RingPainter extends CustomPainter {
     required this.trackColor,
     required this.strokeWidth,
     required this.progress,
-  });
+  }) : super(repaint: progress);
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -108,6 +137,7 @@ class _RingPainter extends CustomPainter {
     final gap = hasGap ? (strokeWidth + 2.5) / radius : 0.0;
     final availableAngle = 2 * pi - gap * (hasGap ? visible : 0);
 
+    final progress = this.progress.value;
     var startAngle = -pi / 2 + gap / 2;
     for (final segment in segments) {
       if (segment.value <= 0) continue;

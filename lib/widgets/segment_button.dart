@@ -8,6 +8,7 @@ class SegmentOption<T> {
   final Widget? icon;
   final String? tooltip;
   final Color? color;
+  final bool enabled;
 
   const SegmentOption({
     required this.value,
@@ -15,6 +16,7 @@ class SegmentOption<T> {
     this.icon,
     this.tooltip,
     this.color,
+    this.enabled = true,
   });
 }
 
@@ -23,7 +25,7 @@ class SegmentButton extends StatelessWidget {
 
   final String label;
   final bool selected;
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
   final Widget? leading;
   final Widget? trailing;
   final Color? color;
@@ -150,6 +152,7 @@ class SegmentButtonGroup<T> extends StatelessWidget {
   final double? height;
   final double? maxWidth;
   final bool expand;
+  final bool enabled;
   final AlignmentGeometry alignment;
 
   const SegmentButtonGroup({
@@ -160,6 +163,7 @@ class SegmentButtonGroup<T> extends StatelessWidget {
     this.height = 40.0,
     this.maxWidth,
     this.expand = true,
+    this.enabled = true,
     this.alignment = Alignment.centerLeft,
   });
 
@@ -168,11 +172,13 @@ class SegmentButtonGroup<T> extends StatelessWidget {
     if (options.isEmpty) return const SizedBox.shrink();
 
     Widget buildItem(int i, SegmentOption<T> option) {
+      final active = enabled && option.enabled;
       final item = SegmentButton(
         height: height,
         label: option.label,
         selected: option.value == selected,
-        onTap: () => onSelected(option.value),
+        faded: !active,
+        onTap: active ? () => onSelected(option.value) : null,
         leading: option.icon,
         color: option.color,
         tooltip: option.tooltip,

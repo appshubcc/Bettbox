@@ -3,6 +3,7 @@ import 'package:bett_box/models/models.dart';
 import 'package:bett_box/providers/providers.dart';
 import 'package:bett_box/state.dart';
 import 'package:bett_box/widgets/scaffold.dart';
+import 'package:bett_box/widgets/slide_pages.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
@@ -133,6 +134,22 @@ void main() {
     await tester.drag(find.byType(ListView), const Offset(0, -200));
     await tester.pumpAndSettle();
     expect(_overlay(), findsNothing);
+  });
+
+  testWidgets('左右切换页面里的列表照常渐隐', (tester) async {
+    await tester.pumpWidget(
+      _buildApp(
+        body: SlidePages(
+          index: 0,
+          onChanged: (_) {},
+          children: [_list(), const SizedBox()],
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.drag(find.byType(ListView), const Offset(0, -200));
+    await tester.pumpAndSettle();
+    expect(_overlay(), findsOneWidget);
   });
 
   testWidgets('接入上移的列表静止位置不变，渐隐整体上移且高度不变', (tester) async {

@@ -22,6 +22,7 @@ export 'popup.dart';
 export 'scaffold.dart';
 export 'setting.dart';
 export 'sheet.dart';
+export 'slide_pages.dart';
 export 'side_sheet.dart';
 export 'subscription_info_view.dart';
 export 'text.dart';

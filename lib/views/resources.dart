@@ -112,11 +112,7 @@ class _ResourcesViewState extends ConsumerState<ResourcesView> {
       behavior: HitTestBehavior.opaque,
       onTap: isCurrent
           ? null
-          : () {
-              setState(() {
-                _showProviders = showProviders;
-              });
-            },
+          : () => setState(() => _showProviders = showProviders),
       child: Text(
         label,
         maxLines: 1,
@@ -162,25 +158,56 @@ class _ResourcesViewState extends ConsumerState<ResourcesView> {
       providersProvider.select((state) => state.isNotEmpty),
     );
     final showProviders = hasProviders && (_showProviders ??= true);
-
-    if (showProviders) {
-      return CommonScaffold(
-        titleWidget: _buildTitle(),
-        actions: [
-          IconButton(
-            onPressed: () => updateExternalProviders(ref, context),
-            tooltip: appLocalizations.update,
-            icon: const AppIcon(Icons.sync),
+    final resources = ScrollEdgeRise(
+      builder: (context, rise) => ListView(
+        padding: EdgeInsets.only(
+          bottom: 16.0 + MediaQuery.paddingOf(context).bottom,
+          top: 8 + rise,
+        ),
+        children: [
+          ListHeader(
+            title: appLocalizations.geoBuiltInResources,
+            padding: const EdgeInsets.only(
+              left: 16,
+              right: 8,
+              top: 4,
+              bottom: 8,
+            ),
+            actions: [
+              if (Theme.of(context).materialTapTargetSize ==
+                  MaterialTapTargetSize.padded)
+                const SizedBox(height: kMinInteractiveDimension),
+            ],
+          ),
+          ...generateSection(
+            items: geoItems.map((geoItem) => GeoDataListItem(geoItem: geoItem)),
           ),
         ],
-        body: const ProvidersBody(),
-      );
-    }
+      ),
+    );
+    final syncIcon = isUpdating
+        ? const SizedBox(
+            width: 24,
+            height: 24,
+            child: SyncedLoading(
+              size: 24,
+              child: CircularProgressIndicator(strokeWidth: 2),
+            ),
+          )
+        : null;
 
     return CommonScaffold(
       title: hasProviders ? null : appLocalizations.resources,
       titleWidget: hasProviders ? _buildTitle() : null,
-      actions: hasProviders
+      actions: showProviders
+          ? [
+              IconButton(
+                onPressed: () => updateExternalProviders(ref, context),
+                tooltip: appLocalizations.update,
+                icon: const AppIcon(Icons.sync),
+              ),
+            ]
+          : hasProviders
           ? [
               CommonPopupBox(
                 targetBuilder: (open) {
@@ -189,16 +216,7 @@ class _ResourcesViewState extends ConsumerState<ResourcesView> {
                       open(offset: const Offset(0, 20));
                     },
                     tooltip: appLocalizations.more,
-                    icon: isUpdating
-                        ? const SizedBox(
-                            width: 24,
-                            height: 24,
-                            child: SyncedLoading(
-                              size: 24,
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            ),
-                          )
-                        : const AppIcon(Icons.more_vert),
+                    icon: syncIcon ?? const AppIcon(Icons.more_vert),
                   );
                 },
                 popup: CommonPopupMenu(
@@ -224,49 +242,18 @@ class _ResourcesViewState extends ConsumerState<ResourcesView> {
                 tooltip: appLocalizations.reset,
               ),
               IconButton(
-                icon: isUpdating
-                    ? const SizedBox(
-                        width: 24,
-                        height: 24,
-                        child: SyncedLoading(
-                          size: 24,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        ),
-                      )
-                    : const AppIcon(Icons.sync),
+                icon: syncIcon ?? const AppIcon(Icons.sync),
                 onPressed: isUpdating ? null : _handleSyncAll,
                 tooltip: appLocalizations.syncAll,
               ),
             ],
-      body: ScrollEdgeRise(
-        builder: (context, rise) => ListView(
-          padding: EdgeInsets.only(
-            bottom: 16.0 + MediaQuery.paddingOf(context).bottom,
-            top: 8 + rise,
-          ),
-          children: [
-            ListHeader(
-              title: appLocalizations.geoBuiltInResources,
-              padding: const EdgeInsets.only(
-                left: 16,
-                right: 8,
-                top: 4,
-                bottom: 8,
-              ),
-              actions: [
-                if (Theme.of(context).materialTapTargetSize ==
-                    MaterialTapTargetSize.padded)
-                  const SizedBox(height: kMinInteractiveDimension),
-              ],
-            ),
-            ...generateSection(
-              items: geoItems.map(
-                (geoItem) => GeoDataListItem(geoItem: geoItem),
-              ),
-            ),
-          ],
-        ),
-      ),
+      body: hasProviders
+          ? SlidePages(
+              index: showProviders ? 0 : 1,
+              onChanged: (index) => setState(() => _showProviders = index == 0),
+              children: [const ProvidersBody(), resources],
+            )
+          : resources,
     );
   }
 }
@@ -282,6 +269,21 @@ class GeoDataListItem extends ConsumerStatefulWidget {
 
 class _GeoDataListItemState extends ConsumerState<GeoDataListItem> {
   GeoItem get geoItem => widget.geoItem;
+  late Future<FileInfo> _fileInfoFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _fileInfoFuture = _getGeoFileLastModified(geoItem.fileName);
+  }
+
+  @override
+  void didUpdateWidget(covariant GeoDataListItem oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.geoItem.fileName != widget.geoItem.fileName) {
+      _fileInfoFuture = _getGeoFileLastModified(geoItem.fileName);
+    }
+  }
 
   Future<void> _updateUrl(String url) async {
     final defaultValue = switch (geoItem.key) {
@@ -364,7 +366,9 @@ class _GeoDataListItemState extends ConsumerState<GeoDataListItem> {
       next,
     ) {
       if (prev == true && next == false && mounted) {
-        setState(() {});
+        setState(() {
+          _fileInfoFuture = _getGeoFileLastModified(geoItem.fileName);
+        });
       }
     });
 
@@ -393,7 +397,7 @@ class _GeoDataListItemState extends ConsumerState<GeoDataListItem> {
               children: [
                 const SizedBox(height: 6),
                 FutureBuilder<FileInfo>(
-                  future: _getGeoFileLastModified(geoItem.fileName),
+                  future: _fileInfoFuture,
                   builder: (_, snapshot) {
                     final height = globalState.measure.bodyMediumHeight;
                     return SizedBox(

@@ -60,6 +60,7 @@ void main() {
     final mrs = card(appLocalizations.mrsLookup);
     final dns = card(appLocalizations.dnsQuery);
     final nat = card(appLocalizations.natTest);
+    final addRule = card(appLocalizations.addRule);
     expect(speed.width, greaterThan(ip.width * 1.9));
     expect(route.height, greaterThan(ip.height * 1.9));
     expect(route.top, greaterThan(speed.bottom));
@@ -70,6 +71,7 @@ void main() {
     expect(dns.left, route.left);
     expect(dns.top, greaterThan(route.bottom));
     expect(nat.top, dns.top);
+    expect(addRule.size, ip.size);
     expect(find.byIcon(Icons.speed_rounded), findsNWidgets(2));
     expect(find.byIcon(Icons.route_rounded), findsNWidgets(2));
     expect(find.byIcon(Icons.dns_rounded), findsOneWidget);

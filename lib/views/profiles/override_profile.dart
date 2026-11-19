@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:bett_box/common/common.dart';
 import 'package:bett_box/enum/enum.dart';
@@ -11,6 +12,77 @@ import 'package:flutter/gestures.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+/// Opens the native rule editor, optionally prefilled with a connection target.
+Future<void> showQuickAddRule({String? target}) async {
+  final ref = globalState.appController.ref;
+  final profile = ref.read(currentProfileProvider);
+  if (profile == null) {
+    await globalState.showMessage(
+      message: TextSpan(text: appLocalizations.nullProfileDesc),
+    );
+    return;
+  }
+
+  final rawSnippet = await globalState.getProfileSnippet(
+    profile.id,
+    effective: true,
+  );
+  final snippet = ClashConfigSnippet.fromJson(
+    Map<String, Object?>.from(rawSnippet),
+  );
+  final cleanedTarget = target?.trim();
+  final address = cleanedTarget == null || cleanedTarget.isEmpty
+      ? null
+      : InternetAddress.tryParse(cleanedTarget);
+  final initialTarget = address == null
+      ? cleanedTarget
+      : cleanedTarget!.contains('/')
+      ? cleanedTarget
+      : '$cleanedTarget/${address.type == InternetAddressType.IPv6 ? 128 : 32}';
+  final defaultGroup = snippet.proxyGroups
+      .map((item) => item.name)
+      .firstWhere((name) => name != 'GLOBAL', orElse: () => 'DIRECT');
+  final initialRule = ParsedRule(
+    ruleAction: address == null
+        ? RuleAction.DOMAIN
+        : address.type == InternetAddressType.IPv6
+        ? RuleAction.IP_CIDR6
+        : RuleAction.IP_CIDR,
+    content: initialTarget,
+    ruleTarget: defaultGroup,
+  );
+
+  final rule = await globalState.showCommonDialog<Rule>(
+    child: AddRuleDialog(snippet: snippet, initialRule: initialRule),
+  );
+  if (rule == null ||
+      ref.read(profilesProvider).getProfile(profile.id) == null) {
+    return;
+  }
+  final currentProfile = ref.read(profilesProvider).getProfile(profile.id);
+  if (currentProfile == null) return;
+  var enableOverride = currentProfile.overrideData.enable;
+  if (!enableOverride) {
+    final shouldEnable = await globalState.showMessage(
+      title: appLocalizations.enableOverride,
+      message: TextSpan(text: appLocalizations.saveChanges),
+      confirmText: appLocalizations.enableOverride,
+    );
+    if (shouldEnable != true) return;
+    enableOverride = true;
+  }
+  ref.read(profilesProvider.notifier).updateProfile(profile.id, (current) {
+    final overrideData = current.overrideData;
+    return current.copyWith(
+      overrideData: overrideData.copyWith(
+        enable: enableOverride,
+        rule: overrideData.rule.updateRules((rules) => [rule, ...rules]),
+      ),
+    );
+  });
+  globalState.appController.setupClashConfigDebounce();
+}
 
 class OverrideProfileView extends StatefulWidget {
   final String profileId;
@@ -743,8 +815,14 @@ class RuleContent extends ConsumerWidget {
 class AddRuleDialog extends StatefulWidget {
   final ClashConfigSnippet snippet;
   final Rule? rule;
+  final ParsedRule? initialRule;
 
-  const AddRuleDialog({super.key, required this.snippet, this.rule});
+  const AddRuleDialog({
+    super.key,
+    required this.snippet,
+    this.rule,
+    this.initialRule,
+  });
 
   @override
   State<AddRuleDialog> createState() => _AddRuleDialogState();
@@ -798,6 +876,17 @@ class _AddRuleDialogState extends State<AddRuleDialog> {
       _src = parsedRule.src;
       return;
     }
+    final initialRule = widget.initialRule;
+    if (initialRule != null) {
+      _ruleAction = initialRule.ruleAction;
+      _contentController.text = initialRule.content ?? '';
+      _ruleTargetController.text = initialRule.ruleTarget ?? '';
+      _ruleProviderController.text = initialRule.ruleProvider ?? '';
+      _subRuleController.text = initialRule.subRule ?? '';
+      _noResolve = initialRule.noResolve;
+      _src = initialRule.src;
+      return;
+    }
     _ruleAction = _ruleActions.first;
     if (_targetItems.isNotEmpty) {
       _ruleTargetController.text = _targetItems.first;
@@ -813,7 +902,8 @@ class _AddRuleDialogState extends State<AddRuleDialog> {
   @override
   void didUpdateWidget(AddRuleDialog oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.rule != widget.rule) {
+    if (oldWidget.rule != widget.rule ||
+        oldWidget.initialRule != widget.initialRule) {
       _initState();
     }
   }
@@ -986,7 +1076,9 @@ class _AddRuleDialogState extends State<AddRuleDialog> {
                   ),
                   validator: (_) {
                     if (_contentController.text.isEmpty) {
-                      return appLocalizations.emptyTip(appLocalizations.content);
+                      return appLocalizations.emptyTip(
+                        appLocalizations.content,
+                      );
                     }
                     return null;
                   },

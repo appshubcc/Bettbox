@@ -7,6 +7,7 @@ import 'package:bett_box/models/models.dart';
 import 'package:bett_box/pages/pages.dart';
 import 'package:bett_box/plugins/app.dart';
 import 'package:bett_box/state.dart';
+import 'package:bett_box/views/profiles/override_profile.dart';
 import 'package:bett_box/widgets/widgets.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/rendering.dart';
@@ -548,6 +549,15 @@ class TrackerInfoDetailView extends ConsumerWidget {
             Icons.travel_explore_rounded,
             appLocalizations.ipLookup,
             () => IpLookupPage(initialQuery: target),
+          ),
+          CommonChip(
+            avatar: Icon(
+              Icons.rule_rounded,
+              size: 16,
+              color: context.colorScheme.primary,
+            ),
+            label: appLocalizations.addRule,
+            onPressed: () => showQuickAddRule(target: target),
           ),
         ],
       ),

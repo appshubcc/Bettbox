@@ -2408,7 +2408,6 @@ class AppController {
           final config = globalState.config;
           final appSetting = config.appSetting;
           final password = appSetting.backupPassword;
-          final fingerprint = await _webDAVBackupFingerprint(dav, config);
           final shared = await client.readSharedBackup();
           final previous = shared?.data ?? await client.readLatestVersion();
           var snapshot = config;
@@ -2426,7 +2425,10 @@ class AppController {
               );
             }
           }
-          final mergedFingerprint = await _webDAVBackupFingerprint(dav, snapshot);
+          final mergedFingerprint = await _webDAVBackupFingerprint(
+            dav,
+            snapshot,
+          );
           final data = await _backupData(snapshot, password: password);
           if (await client.writeSharedBackup(
             Uint8List.fromList(data),
@@ -2434,13 +2436,23 @@ class AppController {
           )) {
             final saved = await client.readSharedBackup();
             final prefs = await preferences.sharedPreferencesCompleter.future;
-            await prefs?.setString(
-              _autoBackupFingerprintKey,
-              '$mergedFingerprint:${saved?.etag ?? 'missing'}',
-            );
+            if (saved != null && listEquals(saved.data, data)) {
+              await prefs?.setString(
+                _autoBackupFingerprintKey,
+                '$mergedFingerprint:${saved.etag}',
+              );
+            } else {
+              // Another device may have replaced the backup after this upload.
+              // Do not associate our snapshot with that newer version's ETag.
+              await prefs?.remove(_autoBackupFingerprintKey);
+            }
             if (snapshot.appSetting != appSetting) {
-              _ref.read(appSettingProvider.notifier).value =
-                  snapshot.appSetting;
+              final latest = _ref.read(appSettingProvider);
+              _ref.read(appSettingProvider.notifier).value = latest
+                  .mergeDashboardLayouts(
+                    snapshot.appSetting,
+                    mobile: system.isAndroid,
+                  );
             }
             return true;
           }

@@ -471,6 +471,65 @@ class Build {
         print('${item.fileName} is up to date (${ageHours}h < 48h).');
       }
     }
+    await _syncTelegramCidrs(force: force, maxAge: maxAge);
+  }
+
+  static const _telegramCidrsUrl =
+      'https://raw.githubusercontent.com/appshubcc/bett-rules/meta/geo/geoip/telegram.list';
+
+  static Future<void> _syncTelegramCidrs({
+    required bool force,
+    required Duration maxAge,
+  }) async {
+    final file = File(join(current, 'lib', 'common', 'telegram_cidrs.dart'));
+    if (!force && file.existsSync()) {
+      final age = DateTime.now().difference(file.lastModifiedSync());
+      if (age < maxAge) {
+        print('telegram_cidrs.dart is up to date (${age.inHours}h < 48h).');
+        return;
+      }
+    }
+    final client = HttpClient()
+      ..connectionTimeout = const Duration(seconds: 30);
+    try {
+      final request = await client.getUrl(Uri.parse(_telegramCidrsUrl));
+      final response = await request.close();
+      if (response.statusCode != HttpStatus.ok) {
+        throw HttpException('status ${response.statusCode}');
+      }
+      final text = await response.transform(utf8.decoder).join();
+      final cidrs = [
+        for (final line in const LineSplitter().convert(text))
+          if (line.trim() case final cidr when cidr.isNotEmpty) cidr,
+      ];
+      final valid = cidrs.every((cidr) {
+        final parts = cidr.split('/');
+        final prefix = parts.length == 2 ? int.tryParse(parts.last) : null;
+        final address = InternetAddress.tryParse(parts.first);
+        return address != null &&
+            prefix != null &&
+            prefix >= 0 &&
+            prefix <= address.rawAddress.length * 8;
+      });
+      if (cidrs.isEmpty || !valid) throw const FormatException('invalid list');
+      final content = [
+        'const telegramCidrs = [',
+        for (final cidr in cidrs) "  '$cidr',",
+        '];',
+        '',
+      ].join('\n');
+      if (file.existsSync() && file.readAsStringSync() == content) {
+        file.setLastModifiedSync(DateTime.now());
+        print('telegram_cidrs.dart is up to date (${cidrs.length} entries).');
+        return;
+      }
+      file.writeAsStringSync(content);
+      print('telegram_cidrs.dart updated (${cidrs.length} entries).');
+    } catch (e) {
+      print('Skip updating telegram_cidrs.dart: $e');
+    } finally {
+      client.close();
+    }
   }
 
   static Future<void> _downloadAsset(

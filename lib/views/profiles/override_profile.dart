@@ -31,10 +31,14 @@ Future<void> showQuickAddRule({String? target}) async {
   final snippet = ClashConfigSnippet.fromJson(
     Map<String, Object?>.from(rawSnippet),
   );
+  if (ref.read(currentProfileProvider)?.id != profile.id) {
+    return;
+  }
   final cleanedTarget = target?.trim();
+  final addressTarget = cleanedTarget?.split('/').first;
   final address = cleanedTarget == null || cleanedTarget.isEmpty
       ? null
-      : InternetAddress.tryParse(cleanedTarget);
+      : InternetAddress.tryParse(addressTarget!);
   final initialTarget = address == null
       ? cleanedTarget
       : cleanedTarget!.contains('/')
@@ -56,20 +60,24 @@ Future<void> showQuickAddRule({String? target}) async {
   final rule = await globalState.showCommonDialog<Rule>(
     child: AddRuleDialog(snippet: snippet, initialRule: initialRule),
   );
-  if (rule == null ||
-      ref.read(profilesProvider).getProfile(profile.id) == null) {
+  if (rule == null || ref.read(currentProfileProvider)?.id != profile.id) {
     return;
   }
   final currentProfile = ref.read(profilesProvider).getProfile(profile.id);
-  if (currentProfile == null) return;
+  if (currentProfile == null) {
+    return;
+  }
   var enableOverride = currentProfile.overrideData.enable;
   if (!enableOverride) {
     final shouldEnable = await globalState.showMessage(
       title: appLocalizations.enableOverride,
-      message: TextSpan(text: appLocalizations.saveChanges),
+      message: TextSpan(text: appLocalizations.overrideDesc),
       confirmText: appLocalizations.enableOverride,
     );
-    if (shouldEnable != true) return;
+    if (shouldEnable != true ||
+        ref.read(currentProfileProvider)?.id != profile.id) {
+      return;
+    }
     enableOverride = true;
   }
   ref.read(profilesProvider.notifier).updateProfile(profile.id, (current) {

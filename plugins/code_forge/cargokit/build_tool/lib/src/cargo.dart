@@ -1,5 +1,6 @@
 /// This is copied from Cargokit (which is the official way to use it currently)
 /// Details: https://fzyzcjy.github.io/flutter_rust_bridge/manual/integrate/builtin
+library;
 
 import 'dart:io';
 
@@ -27,7 +28,7 @@ class CrateInfo {
 
   final String packageName;
 
-  static CrateInfo parseManifest(String manifest, {final String? fileName}) {
+  static CrateInfo parseManifest(String manifest, {String? fileName}) {
     final toml = TomlDocument.parse(manifest);
     final package = toml.toMap()['package'];
     if (package == null) {

@@ -31,6 +31,7 @@ import 'package:yaml/yaml.dart';
 import 'common/archive.dart'
     show BackupPasswordException, decodeBackupArchive, restoreBackupFiles;
 import 'common/common.dart';
+import 'common/dashboard_backup.dart';
 import 'common/dav_client.dart';
 import 'models/models.dart';
 import 'views/profiles/override_profile.dart';
@@ -64,6 +65,7 @@ class AppController {
   bool _isAutoBackupPending = false;
   bool _isAutoBackupRunning = false;
   bool _isAutoBackupSuppressed = false;
+  final _webDAVBackupLock = Lock();
 
   static const _autoBackupFingerprintKey = 'auto_backup_fingerprint';
 
@@ -2228,20 +2230,22 @@ class AppController {
         null;
   }
 
-  Future<List<int>> backupData({String password = ''}) async {
+  Future<List<int>> backupData({String password = ''}) =>
+      _backupData(globalState.config, password: password);
+
+  Future<List<int>> _backupData(
+    Config config, {
+    required String password,
+  }) async {
     final homeDirPath = await appPath.homeDirPath;
     final profilesPath = await appPath.profilesPath;
     final scripts = await Future.wait(
-      globalState.config.scriptProps.scripts.map(
+      config.scriptProps.scripts.map(
         (script) async => script.copyWith(content: await script.readContent()),
       ),
     );
     final configJson =
-        json.decode(
-              json.encode(
-                globalState.config.copyWith.scriptProps(scripts: scripts),
-              ),
-            )
+        json.decode(json.encode(config.copyWith.scriptProps(scripts: scripts)))
             as Map<String, dynamic>;
     if (configJson['dav'] is Map) {
       final davMap = Map<String, dynamic>.from(configJson['dav'] as Map);
@@ -2258,10 +2262,8 @@ class AppController {
     }
 
     // Get valid profile IDs
-    final validProfileIds = globalState.config.profiles
-        .map((p) => p.id)
-        .toSet();
-    final currentProfileId = globalState.config.currentProfileId;
+    final validProfileIds = config.profiles.map((p) => p.id).toSet();
+    final currentProfileId = config.currentProfileId;
 
     commonPrint.log(
       'Starting backup: ${validProfileIds.length} profiles, current: $currentProfileId',
@@ -2357,7 +2359,7 @@ class AppController {
         }
       }
 
-      encoder.close();
+      await encoder.close();
 
       // Read the zip file and return bytes
       final zipFile = File(tempZipPath);
@@ -2367,12 +2369,20 @@ class AppController {
     });
   }
 
-  Future<String> _webDAVBackupFingerprint(DAV dav) async {
-    final profiles = _ref.read(profilesProvider);
+  Future<String> _webDAVBackupFingerprint(DAV dav, Config config) async {
+    final profiles = config.profiles;
     final profilesPath = await appPath.profilesPath;
     final meta = json.encode([
       dav.uri,
       dav.fileName,
+      config.appSetting.mobileDashboardWidgets
+          .map((item) => item.name)
+          .toList(),
+      config.appSetting.mobileDashboardSizes,
+      config.appSetting.desktopDashboardWidgets
+          .map((item) => item.name)
+          .toList(),
+      config.appSetting.desktopDashboardSizes,
       ...profiles.map(
         (profile) => profile.backupView.copyWith(lastUpdateDate: null),
       ),
@@ -2392,20 +2402,51 @@ class AppController {
     });
   }
 
-  Future<bool> backupToWebDAV(DAVClient client, DAV dav) async {
-    final fingerprint = await _webDAVBackupFingerprint(dav);
-    final data = await backupData(
-      password: _ref.read(
-        appSettingProvider.select((state) => state.backupPassword),
-      ),
-    );
-    final res = await client.backup(Uint8List.fromList(data));
-    if (res) {
-      final prefs = await preferences.sharedPreferencesCompleter.future;
-      await prefs?.setString(_autoBackupFingerprintKey, fingerprint);
-    }
-    return res;
-  }
+  Future<bool> backupToWebDAV(DAVClient client, DAV dav) =>
+      _webDAVBackupLock.synchronized(() async {
+        for (var attempt = 0; attempt < 3; attempt++) {
+          final config = globalState.config;
+          final appSetting = config.appSetting;
+          final password = appSetting.backupPassword;
+          final fingerprint = await _webDAVBackupFingerprint(dav, config);
+          final shared = await client.readSharedBackup();
+          final previous = shared?.data ?? await client.readLatestVersion();
+          var snapshot = config;
+          if (previous != null) {
+            final incoming = await readBackupDashboardSettingsInBackground(
+              previous,
+              password: password,
+            );
+            if (incoming != null) {
+              snapshot = config.copyWith(
+                appSetting: appSetting.mergeDashboardLayouts(
+                  incoming,
+                  mobile: system.isAndroid,
+                ),
+              );
+            }
+          }
+          final mergedFingerprint = await _webDAVBackupFingerprint(dav, snapshot);
+          final data = await _backupData(snapshot, password: password);
+          if (await client.writeSharedBackup(
+            Uint8List.fromList(data),
+            expectedEtag: shared?.etag,
+          )) {
+            final saved = await client.readSharedBackup();
+            final prefs = await preferences.sharedPreferencesCompleter.future;
+            await prefs?.setString(
+              _autoBackupFingerprintKey,
+              '$mergedFingerprint:${saved?.etag ?? 'missing'}',
+            );
+            if (snapshot.appSetting != appSetting) {
+              _ref.read(appSettingProvider.notifier).value =
+                  snapshot.appSetting;
+            }
+            return true;
+          }
+        }
+        throw StateError('The WebDAV backup changed during upload. Try again.');
+      });
 
   void autoBackupDebounce() {
     if (_isAutoBackupSuppressed) return;
@@ -2431,13 +2472,19 @@ class AppController {
     if (dav == null || !dav.autoBackup) return;
     _isAutoBackupRunning = true;
     try {
-      final fingerprint = await _webDAVBackupFingerprint(dav);
+      final client = DAVClient(dav);
+      final shared = await client.readSharedBackup();
+      final fingerprint = await _webDAVBackupFingerprint(
+        dav,
+        globalState.config,
+      );
       final prefs = await preferences.sharedPreferencesCompleter.future;
-      if (prefs?.getString(_autoBackupFingerprintKey) == fingerprint) {
+      if (prefs?.getString(_autoBackupFingerprintKey) ==
+          '$fingerprint:${shared?.etag ?? 'missing'}') {
         commonPrint.log('Auto backup skipped: no changes');
         return;
       }
-      final res = await backupToWebDAV(DAVClient(dav), dav);
+      final res = await backupToWebDAV(client, dav);
       if (res) {
         commonPrint.log('Auto backup finished');
         globalState.showNotifier(appLocalizations.autoBackupSuccess);
@@ -2959,15 +3006,16 @@ class AppController {
       final backupAppSetting = config.appSetting;
       final currentAppSetting = _ref.read(appSettingProvider);
 
-      _ref.read(appSettingProvider.notifier).value = backupAppSetting.copyWith(
-        backupPassword: currentAppSetting.backupPassword,
-        recoveryStrategy: currentAppSetting.recoveryStrategy,
-        mobileDashboardWidgets: backupAppSetting.mobileDashboardWidgets,
-        desktopDashboardWidgets: backupAppSetting.desktopDashboardWidgets,
-        dashboardWidgets: system.isAndroid
-            ? backupAppSetting.mobileDashboardWidgets
-            : backupAppSetting.desktopDashboardWidgets,
-      );
+      _ref.read(appSettingProvider.notifier).value = currentAppSetting
+          .mergeDashboardLayouts(
+            backupAppSetting,
+            mobile: system.isAndroid,
+            restoring: true,
+          )
+          .copyWith(
+            backupPassword: currentAppSetting.backupPassword,
+            recoveryStrategy: currentAppSetting.recoveryStrategy,
+          );
 
       // 3. Restore current profile ID
       _ref.read(currentProfileIdProvider.notifier).value =

@@ -117,6 +117,12 @@ _AppSettingProps _$AppSettingPropsFromJson(
         (k, e) => MapEntry(k, e as String),
       ) ??
       const <String, String>{},
+  mobileDashboardUpdatedAt: json['mobileDashboardUpdatedAt'] == null
+      ? null
+      : DateTime.parse(json['mobileDashboardUpdatedAt'] as String),
+  desktopDashboardUpdatedAt: json['desktopDashboardUpdatedAt'] == null
+      ? null
+      : DateTime.parse(json['desktopDashboardUpdatedAt'] as String),
 );
 
 Map<String, dynamic> _$AppSettingPropsToJson(_AppSettingProps instance) =>
@@ -183,6 +189,10 @@ Map<String, dynamic> _$AppSettingPropsToJson(_AppSettingProps instance) =>
       'localPingOptions': instance.localPingOptions,
       'mobileDashboardSizes': instance.mobileDashboardSizes,
       'desktopDashboardSizes': instance.desktopDashboardSizes,
+      'mobileDashboardUpdatedAt': instance.mobileDashboardUpdatedAt
+          ?.toIso8601String(),
+      'desktopDashboardUpdatedAt': instance.desktopDashboardUpdatedAt
+          ?.toIso8601String(),
     };
 
 const _$StartSwitchStyleEnumMap = {

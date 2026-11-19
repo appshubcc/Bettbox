@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:bett_box/common/common.dart';
+import 'package:bett_box/common/dashboard_backup.dart';
 import 'package:bett_box/enum/enum.dart';
 import 'package:bett_box/models/models.dart';
 import 'package:bett_box/providers/providers.dart';
@@ -89,17 +90,11 @@ class _DashboardViewState extends ConsumerState<DashboardView> {
     ref
         .read(appSettingProvider.notifier)
         .updateState(
-          (state) => system.isAndroid
-              ? state.copyWith(
-                  mobileDashboardWidgets: dashboardWidgets,
-                  dashboardWidgets: dashboardWidgets,
-                  mobileDashboardSizes: sizes ?? state.mobileDashboardSizes,
-                )
-              : state.copyWith(
-                  desktopDashboardWidgets: dashboardWidgets,
-                  dashboardWidgets: dashboardWidgets,
-                  desktopDashboardSizes: sizes ?? state.desktopDashboardSizes,
-                ),
+          (state) => state.updateDashboardLayout(
+            mobile: system.isAndroid,
+            widgets: dashboardWidgets,
+            sizes: sizes,
+          ),
         );
   }
 

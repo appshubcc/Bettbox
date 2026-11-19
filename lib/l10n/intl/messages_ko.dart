@@ -148,42 +148,45 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m58(count) => "제공자 ${count}개";
 
-  static String m59(count) => "${count}개 추가";
+  static String m59(terms) =>
+      "Cloudflare에 새 WARP 기기를 등록합니다. 계속하면 ${terms}에 동의하는 것으로 간주됩니다.";
 
-  static String m60(count) => "${count}개 제거";
+  static String m60(count) => "${count}개 추가";
 
-  static String m61(index, time) => "규칙 #${index}에서 확인 · ${time} ms";
+  static String m61(count) => "${count}개 제거";
 
-  static String m62(ips) => "Hosts 일치: ${ips}";
+  static String m62(index, time) => "규칙 #${index}에서 확인 · ${time} ms";
 
-  static String m63(total, index) => "총 ${total}개 규칙 중 #${index} 일치";
+  static String m63(ips) => "Hosts 일치: ${ips}";
 
-  static String m64(total) => "총 ${total}개 규칙";
+  static String m64(total, index) => "총 ${total}개 규칙 중 #${index} 일치";
 
-  static String m65(count) => "규칙 ${count}개";
+  static String m65(total) => "총 ${total}개 규칙";
 
-  static String m66(count, group) => "규칙 ${count}개, ${group} 그룹에 포함됨";
+  static String m66(count) => "규칙 ${count}개";
 
-  static String m67(count) => "${count}개 선택됨";
+  static String m67(count, group) => "규칙 ${count}개, ${group} 그룹에 포함됨";
 
-  static String m68(count) => "다중은 ${count}개의 병렬 연결로 대역폭을 채웁니다";
+  static String m68(count) => "${count}개 선택됨";
 
-  static String m69(provider) =>
+  static String m69(count) => "다중은 ${count}개의 병렬 연결로 대역폭을 채웁니다";
+
+  static String m70(provider) =>
       "아웃바운드가 ${provider} 속도 테스트를 차단하고 있을 수 있습니다. 측정 소스나 아웃바운드를 바꿔 보세요.";
 
-  static String m70(protocol, fallback) =>
+  static String m71(protocol, fallback) =>
       "${protocol}를 사용할 수 없어 ${fallback}로 전환했습니다";
 
-  static String m71(count) => "${count}개 연결";
+  static String m72(count) => "${count}개 연결";
 
-  static String m72(provider) => "${provider}(으)로 전환";
+  static String m73(provider) => "${provider}(으)로 전환";
 
-  static String m73(appName) =>
+  static String m74(appName) =>
       "새 버전 설치 패키지가 준비되었습니다. 서비스 보호를 위해 업그레이드 전에 실행 중인 ${appName}을(를) 종료합니다. 확인을 누르면 설치를 시작합니다.";
 
-  static String m74(label) => "${label} 항목은 올바른 URL이어야 합니다";
+  static String m75(label) => "${label} 항목은 올바른 URL이어야 합니다";
 
-  static String m75(count) => "${Intl.plural(count, other: '#년')}";
+  static String m76(count) => "${Intl.plural(count, other: '#년')}";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
@@ -463,6 +466,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "clipboardImport": MessageLookupByLibrary.simpleMessage("클립보드에서 가져오기"),
     "close": MessageLookupByLibrary.simpleMessage("닫기"),
     "closeAll": MessageLookupByLibrary.simpleMessage("모두 닫기"),
+    "cloudflareTerms": MessageLookupByLibrary.simpleMessage(
+      "Cloudflare 서비스 약관",
+    ),
     "collapse": MessageLookupByLibrary.simpleMessage("접기"),
     "color": MessageLookupByLibrary.simpleMessage("색상"),
     "colorSchemes": MessageLookupByLibrary.simpleMessage("색상 팔레트"),
@@ -1617,9 +1623,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "WireGuard 랜딩 노드 생성",
     ),
     "registerWarpFailed": MessageLookupByLibrary.simpleMessage("WARP 등록 실패"),
-    "registerWarpTip": MessageLookupByLibrary.simpleMessage(
-      "Cloudflare에 새 WARP 기기를 등록합니다. 계속하면 Cloudflare 서비스 약관에 동의하는 것으로 간주됩니다.",
-    ),
+    "registerWarpTip": m59,
     "regularNode": MessageLookupByLibrary.simpleMessage("일반 노드"),
     "regularNodeDesc": MessageLookupByLibrary.simpleMessage(
       "직접 연결되며 선택한 프록시 그룹에 추가됩니다",
@@ -1660,7 +1664,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "ripple": MessageLookupByLibrary.simpleMessage("물결 리플"),
     "rotatingCircle": MessageLookupByLibrary.simpleMessage("단일 회전"),
     "rotatingPlain": MessageLookupByLibrary.simpleMessage("로테이팅 플레인"),
-    "routeAddCount": m59,
+    "routeAddCount": m60,
     "routeCategoryAi": MessageLookupByLibrary.simpleMessage("AI"),
     "routeCategoryDeveloper": MessageLookupByLibrary.simpleMessage("개발 도구"),
     "routeCategoryFinance": MessageLookupByLibrary.simpleMessage("금융·결제"),
@@ -1671,7 +1675,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "routeNameInvalid": MessageLookupByLibrary.simpleMessage(
       "이름에 쉼표나 줄바꿈을 포함할 수 없습니다",
     ),
-    "routeRemoveCount": m60,
+    "routeRemoveCount": m61,
     "routeTarget": MessageLookupByLibrary.simpleMessage("기본 출구"),
     "routeTrace": MessageLookupByLibrary.simpleMessage("라우트 추적"),
     "routeTraceChain": MessageLookupByLibrary.simpleMessage("프록시 체인"),
@@ -1680,14 +1684,14 @@ class MessageLookup extends MessageLookupByLibrary {
       "도메인/IP의 코어 내 DNS 및 규칙 매칭 확인",
     ),
     "routeTraceDns": MessageLookupByLibrary.simpleMessage("DNS 확인"),
-    "routeTraceDnsBy": m61,
+    "routeTraceDnsBy": m62,
     "routeTraceDnsIp": MessageLookupByLibrary.simpleMessage("대상이 IP이므로 확인 불필요"),
     "routeTraceDnsSkipped": MessageLookupByLibrary.simpleMessage(
       "매칭 중 IP 확인이 필요하지 않았습니다",
     ),
     "routeTraceFinal": MessageLookupByLibrary.simpleMessage("최종 아웃바운드"),
     "routeTraceHint": MessageLookupByLibrary.simpleMessage("도메인, IP 또는 URL"),
-    "routeTraceHostsHit": m62,
+    "routeTraceHostsHit": m63,
     "routeTraceInput": MessageLookupByLibrary.simpleMessage("대상"),
     "routeTraceModeDirect": MessageLookupByLibrary.simpleMessage(
       "다이렉트 모드: 모든 트래픽 직접 연결",
@@ -1699,8 +1703,8 @@ class MessageLookup extends MessageLookupByLibrary {
       "일치하는 규칙이 없어 DIRECT 사용",
     ),
     "routeTraceRules": MessageLookupByLibrary.simpleMessage("규칙 매칭"),
-    "routeTraceRulesSummary": m63,
-    "routeTraceRulesTotal": m64,
+    "routeTraceRulesSummary": m64,
+    "routeTraceRulesTotal": m65,
     "routeTraceSkipMissing": MessageLookupByLibrary.simpleMessage("대상이 없어 건너뜀"),
     "routeTraceSkipPass": MessageLookupByLibrary.simpleMessage("PASS로 건너뜀"),
     "routeTraceSkipUdp": MessageLookupByLibrary.simpleMessage("UDP 미지원으로 건너뜀"),
@@ -1714,8 +1718,8 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "routeTraceViewRules": MessageLookupByLibrary.simpleMessage("확인한 규칙 보기"),
     "rule": MessageLookupByLibrary.simpleMessage("규칙"),
-    "ruleCount": m65,
-    "ruleCountIncluded": m66,
+    "ruleCount": m66,
+    "ruleCountIncluded": m67,
     "ruleHits": MessageLookupByLibrary.simpleMessage("규칙 적중"),
     "ruleName": MessageLookupByLibrary.simpleMessage("규칙 이름"),
     "ruleProviders": MessageLookupByLibrary.simpleMessage("규칙 프로바이더"),
@@ -1745,7 +1749,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "selectBackupVersion": MessageLookupByLibrary.simpleMessage("백업 버전 선택"),
     "selectIcon": MessageLookupByLibrary.simpleMessage("아이콘 선택"),
     "selected": MessageLookupByLibrary.simpleMessage("선택됨"),
-    "selectedCountTitle": m67,
+    "selectedCountTitle": m68,
     "serviceReady": MessageLookupByLibrary.simpleMessage("서비스 준비 완료"),
     "serviceRunning": MessageLookupByLibrary.simpleMessage("서비스 실행 중"),
     "setcapFailedFallback": MessageLookupByLibrary.simpleMessage(
@@ -1821,7 +1825,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "speedTestConnecting": MessageLookupByLibrary.simpleMessage("연결 중"),
     "speedTestConnections": MessageLookupByLibrary.simpleMessage("연결 방식"),
-    "speedTestConnectionsDesc": m68,
+    "speedTestConnectionsDesc": m69,
     "speedTestCoreStopped": MessageLookupByLibrary.simpleMessage(
       "미실행 · 직접 연결 측정",
     ),
@@ -1833,7 +1837,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "speedTestErrorBlocked": MessageLookupByLibrary.simpleMessage(
       "속도 테스트를 사용할 수 없음",
     ),
-    "speedTestErrorBlockedDesc": m69,
+    "speedTestErrorBlockedDesc": m70,
     "speedTestErrorNetworkDesc": MessageLookupByLibrary.simpleMessage(
       "아웃바운드를 사용할 수 있는지 확인한 후 다시 시도하세요.",
     ),
@@ -1872,7 +1876,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "speedTestProtocolDesc": MessageLookupByLibrary.simpleMessage(
       "HTTP/3는 QUIC(UDP)를 사용하며, 사용할 수 없으면 HTTP/2로, HTTP/2도 안 되면 HTTP/1.1로 전환합니다",
     ),
-    "speedTestProtocolFallback": m70,
+    "speedTestProtocolFallback": m71,
     "speedTestQuality": MessageLookupByLibrary.simpleMessage("네트워크 품질"),
     "speedTestReady": MessageLookupByLibrary.simpleMessage("준비 완료"),
     "speedTestRealtime": MessageLookupByLibrary.simpleMessage("실시간 속도"),
@@ -1885,8 +1889,8 @@ class MessageLookup extends MessageLookupByLibrary {
     "speedTestSettings": MessageLookupByLibrary.simpleMessage("측정 설정"),
     "speedTestSingleThread": MessageLookupByLibrary.simpleMessage("단일"),
     "speedTestStart": MessageLookupByLibrary.simpleMessage("측정 시작"),
-    "speedTestStreams": m71,
-    "speedTestSwitchProvider": m72,
+    "speedTestStreams": m72,
+    "speedTestSwitchProvider": m73,
     "speedTestUseSystemDns": MessageLookupByLibrary.simpleMessage(
       "시스템 DNS로 확인",
     ),
@@ -2084,7 +2088,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "업데이트 다운로드 실패",
     ),
     "updateInstallFailed": MessageLookupByLibrary.simpleMessage("업데이트 설치 실패"),
-    "updateReadyAppTip": m73,
+    "updateReadyAppTip": m74,
     "updateReadyVpnTip": MessageLookupByLibrary.simpleMessage(
       "새 버전 설치 패키지가 준비되었습니다. 서비스 보호를 위해 업그레이드 전에 실행 중인 VPN 서비스를 중지합니다. 확인을 누르면 설치를 시작합니다.",
     ),
@@ -2096,7 +2100,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "url": MessageLookupByLibrary.simpleMessage("URL"),
     "urlDesc": MessageLookupByLibrary.simpleMessage("URL 주소로 프로필 가져오기"),
-    "urlTip": m74,
+    "urlTip": m75,
     "usageStyle": MessageLookupByLibrary.simpleMessage("사용량 스타일"),
     "usageStyleBar": MessageLookupByLibrary.simpleMessage("막대"),
     "usageStyleConcentric": MessageLookupByLibrary.simpleMessage("동심원"),
@@ -2139,6 +2143,6 @@ class MessageLookup extends MessageLookupByLibrary {
     "xattrUnsupportedFallback": MessageLookupByLibrary.simpleMessage(
       "파일 시스템이 파일 capability(xattr)를 지원하지 않아 setuid로 대체했습니다",
     ),
-    "years": m75,
+    "years": m76,
   };
 }

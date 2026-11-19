@@ -190,6 +190,42 @@ class ClashCore {
     return res.data?.toString() ?? '';
   }
 
+  Future<({String yaml, String uri})> getProxyConfig(
+    SetupParams setupParams,
+    String name,
+  ) async {
+    final res = await clashInterface.getProxyConfig(setupParams, name);
+    if (res.isError) {
+      throw res.message;
+    }
+    final data = json.decode(res.data as String) as Map<String, Object?>;
+    return (
+      yaml: data['yaml'] as String? ?? '',
+      uri: data['uri'] as String? ?? '',
+    );
+  }
+
+  Future<bool> updateExpandedProvider(
+    Profile profile,
+    String name, {
+    String? content,
+  }) async {
+    final res = await clashInterface.updateExpandedProvider(
+      json.encode({
+        'path': await appPath.getProfilePath(profile.id),
+        'age-secret-key': profile.ageSecretKey ?? '',
+        'providers-path': await appPath.getProvidersDirPath(profile.id),
+        'name': name,
+        'content': ?content,
+      }),
+    );
+    if (res.isError) {
+      throw res.message;
+    }
+    final data = res.data;
+    return data is Map && data['changed'] == true;
+  }
+
   Future<void> exportConfig(
     String id,
     String output, {
@@ -232,6 +268,30 @@ class ClashCore {
     return BundleReport.fromJson(
       json.decode(res.data as String) as Map<String, Object?>,
     );
+  }
+
+  Future<Map<String, List<String>>> downloadProfile({
+    required String url,
+    required String output,
+    required Map<String, String> headers,
+    String? proxy,
+  }) async {
+    final res = await clashInterface.downloadProfile(
+      json.encode({
+        'url': url,
+        'output': output,
+        'headers': headers,
+        'proxy': ?proxy,
+      }),
+    );
+    if (res.isError) {
+      throw res.message;
+    }
+    final decoded = json.decode(res.data as String) as Map<String, Object?>;
+    return {
+      for (final MapEntry(:key, :value) in decoded.entries)
+        key: (value as List).cast<String>(),
+    };
   }
 
   FutureOr<String> decryptAgeConfig(String data, String ageSecretKey) {
@@ -329,6 +389,12 @@ class ClashCore {
   Future<void> closeGroupConnections(String groupName) async {
     await clashInterface.closeGroupConnections(groupName);
   }
+
+  Future<bool> checkDialerUdp(String name) async =>
+      await clashInterface.checkDialerUdp(name);
+
+  Future<List<String>> getDialerDependents(String groupName) async =>
+      await clashInterface.getDialerDependents(groupName);
 
   void resetConnections() {
     _forget(clashInterface.resetConnections(), 'resetConnections');
@@ -698,6 +764,20 @@ class ClashCore {
     final decoded = json.decode(value);
     return decoded is Map ? Map<String, Object?>.from(decoded) : {};
   }
+
+  Future<Map<String, Object?>> parseNodes(String text) =>
+      _toolboxJson(ActionMethod.parseNodes, data: text);
+
+  Future<Map<String, Object?>> testNode(
+    Map<String, dynamic> proxy, {
+    String? dialer,
+  }) => _toolboxJson(
+    ActionMethod.testNode,
+    data: json.encode({'proxy': proxy, 'dialer': ?dialer}),
+  );
+
+  Future<Map<String, Object?>> registerWarp() =>
+      _toolboxJson(ActionMethod.registerWarp);
 
   Future<RouteTraceResult> routeTrace({
     required String target,

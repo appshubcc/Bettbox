@@ -601,6 +601,36 @@ class AppUpdateState extends _$AppUpdateState with NotifierValueMixin {
 }
 
 @Riverpod(keepAlive: true)
+class ProfilesSlide extends _$ProfilesSlide {
+  static const _idleReset = Duration(minutes: 5);
+  DateTime? _leftAt;
+
+  @override
+  ({bool showNodes, bool animate}) build() =>
+      (showNodes: false, animate: false);
+
+  void show(bool showNodes) {
+    if (state.showNodes == showNodes) return;
+    state = (showNodes: showNodes, animate: true);
+  }
+
+  void toggle() => show(!state.showNodes);
+
+  void leave() => _leftAt ??= DateTime.now();
+
+  void enter() {
+    final leftAt = _leftAt;
+    _leftAt = null;
+    if (leftAt == null ||
+        !state.showNodes ||
+        DateTime.now().difference(leftAt) < _idleReset) {
+      return;
+    }
+    state = (showNodes: false, animate: false);
+  }
+}
+
+@Riverpod(keepAlive: true)
 class ForceRefreshIcon extends _$ForceRefreshIcon with NotifierValueMixin {
   @override
   bool build() => false;

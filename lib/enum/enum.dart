@@ -146,7 +146,7 @@ enum AppMessageType {
 
 enum InvokeMessageType { protect, process }
 
-enum FindProcessMode { always, off }
+enum FindProcessMode { always, strict, off }
 
 enum RecoveryOption { all, onlyProfiles }
 
@@ -234,9 +234,12 @@ enum ActionMethod {
   shutdown,
   validateConfig,
   importProfile,
+  downloadProfile,
   updateConfig,
   getConfig,
   getRuntimeConfig,
+  getProxyConfig,
+  updateExpandedProvider,
   exportConfig,
   mergeProfiles,
   getProxies,
@@ -253,6 +256,8 @@ enum ActionMethod {
   resetConnections,
   closeConnection,
   closeGroupConnections,
+  getDialerDependents,
+  checkDialerUdp,
   getExternalProviders,
   getExternalProvider,
   updateGeoData,
@@ -308,6 +313,9 @@ enum ActionMethod {
   cancelIperfClient,
   startLocalPing,
   cancelLocalPing,
+  parseNodes,
+  registerWarp,
+  testNode,
 
   ///Android,
   setState,
@@ -665,6 +673,8 @@ enum SidebarFlyoutDelay {
 enum CacheTag { logs, rules, requests, proxiesList }
 
 enum Language { yaml, javaScript }
+
+enum NodeRole { landing, regular }
 
 enum ImportOption { code, url, file }
 

@@ -147,42 +147,45 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m58(count) => "${count} 件のプロバイダー";
 
-  static String m59(count) => "${count} 件を追加";
+  static String m59(terms) =>
+      "Cloudflare に新しい WARP デバイスを登録します。続行すると${terms}に同意したものとみなされます。";
 
-  static String m60(count) => "${count} 件を削除";
+  static String m60(count) => "${count} 件を追加";
 
-  static String m61(index, time) => "ルール #${index} で解決 · ${time} ms";
+  static String m61(count) => "${count} 件を削除";
 
-  static String m62(ips) => "Hosts に一致: ${ips}";
+  static String m62(index, time) => "ルール #${index} で解決 · ${time} ms";
 
-  static String m63(total, index) => "全 ${total} 件中 #${index} に一致";
+  static String m63(ips) => "Hosts に一致: ${ips}";
 
-  static String m64(total) => "全 ${total} 件のルール";
+  static String m64(total, index) => "全 ${total} 件中 #${index} に一致";
 
-  static String m65(count) => "${count} 件のルール";
+  static String m65(total) => "全 ${total} 件のルール";
 
-  static String m66(count, group) => "${count} 件のルール、${group} グループに含まれています";
+  static String m66(count) => "${count} 件のルール";
 
-  static String m67(count) => "${count} 件選択中";
+  static String m67(count, group) => "${count} 件のルール、${group} グループに含まれています";
 
-  static String m68(count) => "マルチは ${count} 本の並列接続で帯域を使い切ります";
+  static String m68(count) => "${count} 件選択中";
 
-  static String m69(provider) =>
+  static String m69(count) => "マルチは ${count} 本の並列接続で帯域を使い切ります";
+
+  static String m70(provider) =>
       "アウトバウンドが ${provider} の速度テストをブロックしている可能性があります。測定元またはアウトバウンドを変更してください。";
 
-  static String m70(protocol, fallback) =>
+  static String m71(protocol, fallback) =>
       "${protocol} が利用できないため ${fallback} に切り替えました";
 
-  static String m71(count) => "${count} 接続";
+  static String m72(count) => "${count} 接続";
 
-  static String m72(provider) => "${provider} に切り替え";
+  static String m73(provider) => "${provider} に切り替え";
 
-  static String m73(appName) =>
+  static String m74(appName) =>
       "新しいバージョンのパッケージの準備ができました。サービスを保護するため、アップグレード前に実行中の ${appName} を終了します。確認するとインストールを開始します。";
 
-  static String m74(label) => "${label} は有効なURLである必要があります";
+  static String m75(label) => "${label} は有効なURLである必要があります";
 
-  static String m75(count) => "${Intl.plural(count, other: '年')}";
+  static String m76(count) => "${Intl.plural(count, other: '年')}";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
@@ -460,6 +463,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "clipboardImport": MessageLookupByLibrary.simpleMessage("クリップボードから取り込み"),
     "close": MessageLookupByLibrary.simpleMessage("閉じる"),
     "closeAll": MessageLookupByLibrary.simpleMessage("すべて閉じる"),
+    "cloudflareTerms": MessageLookupByLibrary.simpleMessage("Cloudflare の利用規約"),
     "collapse": MessageLookupByLibrary.simpleMessage("折りたたむ"),
     "color": MessageLookupByLibrary.simpleMessage("カラー"),
     "colorSchemes": MessageLookupByLibrary.simpleMessage("カラーパレット"),
@@ -1618,9 +1622,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "registerWarpFailed": MessageLookupByLibrary.simpleMessage(
       "WARP の登録に失敗しました",
     ),
-    "registerWarpTip": MessageLookupByLibrary.simpleMessage(
-      "Cloudflare に新しい WARP デバイスを登録します。続行すると Cloudflare の利用規約に同意したものとみなされます。",
-    ),
+    "registerWarpTip": m59,
     "regularNode": MessageLookupByLibrary.simpleMessage("通常ノード"),
     "regularNodeDesc": MessageLookupByLibrary.simpleMessage(
       "直接接続し、選択したプロキシグループに追加します",
@@ -1661,7 +1663,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "ripple": MessageLookupByLibrary.simpleMessage("リップル"),
     "rotatingCircle": MessageLookupByLibrary.simpleMessage("ローテーション"),
     "rotatingPlain": MessageLookupByLibrary.simpleMessage("プレーンローテーション"),
-    "routeAddCount": m59,
+    "routeAddCount": m60,
     "routeCategoryAi": MessageLookupByLibrary.simpleMessage("AI"),
     "routeCategoryDeveloper": MessageLookupByLibrary.simpleMessage("開発ツール"),
     "routeCategoryFinance": MessageLookupByLibrary.simpleMessage("金融・決済"),
@@ -1672,7 +1674,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "routeNameInvalid": MessageLookupByLibrary.simpleMessage(
       "名前にカンマや改行は使用できません",
     ),
-    "routeRemoveCount": m60,
+    "routeRemoveCount": m61,
     "routeTarget": MessageLookupByLibrary.simpleMessage("デフォルトの出口"),
     "routeTrace": MessageLookupByLibrary.simpleMessage("ルートトレース"),
     "routeTraceChain": MessageLookupByLibrary.simpleMessage("プロキシチェーン"),
@@ -1681,7 +1683,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "ドメインや IP のコア内 DNS・ルール照合を確認",
     ),
     "routeTraceDns": MessageLookupByLibrary.simpleMessage("DNS 解決"),
-    "routeTraceDnsBy": m61,
+    "routeTraceDnsBy": m62,
     "routeTraceDnsIp": MessageLookupByLibrary.simpleMessage(
       "ターゲットは IP のため解決不要",
     ),
@@ -1690,7 +1692,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "routeTraceFinal": MessageLookupByLibrary.simpleMessage("最終アウトバウンド"),
     "routeTraceHint": MessageLookupByLibrary.simpleMessage("ドメイン、IP または URL"),
-    "routeTraceHostsHit": m62,
+    "routeTraceHostsHit": m63,
     "routeTraceInput": MessageLookupByLibrary.simpleMessage("ターゲット"),
     "routeTraceModeDirect": MessageLookupByLibrary.simpleMessage(
       "ダイレクトモード: すべて直接接続",
@@ -1702,8 +1704,8 @@ class MessageLookup extends MessageLookupByLibrary {
       "一致するルールがなく DIRECT を使用",
     ),
     "routeTraceRules": MessageLookupByLibrary.simpleMessage("ルール照合"),
-    "routeTraceRulesSummary": m63,
-    "routeTraceRulesTotal": m64,
+    "routeTraceRulesSummary": m64,
+    "routeTraceRulesTotal": m65,
     "routeTraceSkipMissing": MessageLookupByLibrary.simpleMessage(
       "ターゲットがないためスキップ",
     ),
@@ -1721,8 +1723,8 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "routeTraceViewRules": MessageLookupByLibrary.simpleMessage("確認したルールを表示"),
     "rule": MessageLookupByLibrary.simpleMessage("ルール"),
-    "ruleCount": m65,
-    "ruleCountIncluded": m66,
+    "ruleCount": m66,
+    "ruleCountIncluded": m67,
     "ruleHits": MessageLookupByLibrary.simpleMessage("ルールヒット"),
     "ruleName": MessageLookupByLibrary.simpleMessage("ルール名"),
     "ruleProviders": MessageLookupByLibrary.simpleMessage("ルールプロバイダー"),
@@ -1756,7 +1758,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "selectIcon": MessageLookupByLibrary.simpleMessage("アイコンを選択"),
     "selected": MessageLookupByLibrary.simpleMessage("選択済み"),
-    "selectedCountTitle": m67,
+    "selectedCountTitle": m68,
     "serviceReady": MessageLookupByLibrary.simpleMessage("サービス準備完了"),
     "serviceRunning": MessageLookupByLibrary.simpleMessage("サービス稼働中"),
     "setcapFailedFallback": MessageLookupByLibrary.simpleMessage(
@@ -1836,7 +1838,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "speedTestConnecting": MessageLookupByLibrary.simpleMessage("接続中"),
     "speedTestConnections": MessageLookupByLibrary.simpleMessage("接続方式"),
-    "speedTestConnectionsDesc": m68,
+    "speedTestConnectionsDesc": m69,
     "speedTestCoreStopped": MessageLookupByLibrary.simpleMessage("未起動・直接接続で測定"),
     "speedTestCredit": MessageLookupByLibrary.simpleMessage(
       "速度テストサーバーは公開されている第三者によって提供されています。Apple、Cloudflare、Speedtest by Ookla に感謝します。",
@@ -1846,7 +1848,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "speedTestErrorBlocked": MessageLookupByLibrary.simpleMessage(
       "速度テストを利用できません",
     ),
-    "speedTestErrorBlockedDesc": m69,
+    "speedTestErrorBlockedDesc": m70,
     "speedTestErrorNetworkDesc": MessageLookupByLibrary.simpleMessage(
       "アウトバウンドが利用可能か確認してから再試行してください。",
     ),
@@ -1883,7 +1885,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "speedTestProtocolDesc": MessageLookupByLibrary.simpleMessage(
       "HTTP/3 は QUIC (UDP) を使用し、使えない場合は HTTP/2 に、HTTP/2 も使えない場合は HTTP/1.1 に切り替えます",
     ),
-    "speedTestProtocolFallback": m70,
+    "speedTestProtocolFallback": m71,
     "speedTestQuality": MessageLookupByLibrary.simpleMessage("ネットワーク品質"),
     "speedTestReady": MessageLookupByLibrary.simpleMessage("準備完了"),
     "speedTestRealtime": MessageLookupByLibrary.simpleMessage("リアルタイム速度"),
@@ -1896,8 +1898,8 @@ class MessageLookup extends MessageLookupByLibrary {
     "speedTestSettings": MessageLookupByLibrary.simpleMessage("測定設定"),
     "speedTestSingleThread": MessageLookupByLibrary.simpleMessage("シングル"),
     "speedTestStart": MessageLookupByLibrary.simpleMessage("測定開始"),
-    "speedTestStreams": m71,
-    "speedTestSwitchProvider": m72,
+    "speedTestStreams": m72,
+    "speedTestSwitchProvider": m73,
     "speedTestUseSystemDns": MessageLookupByLibrary.simpleMessage(
       "システム DNS で解決",
     ),
@@ -2097,7 +2099,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "updateInstallFailed": MessageLookupByLibrary.simpleMessage(
       "アップデートのインストールに失敗しました",
     ),
-    "updateReadyAppTip": m73,
+    "updateReadyAppTip": m74,
     "updateReadyVpnTip": MessageLookupByLibrary.simpleMessage(
       "新しいバージョンのパッケージの準備ができました。サービスを保護するため、アップグレード前に実行中の VPN サービスを停止します。確認するとインストールを開始します。",
     ),
@@ -2109,7 +2111,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "url": MessageLookupByLibrary.simpleMessage("URL"),
     "urlDesc": MessageLookupByLibrary.simpleMessage("URLから設定を取得"),
-    "urlTip": m74,
+    "urlTip": m75,
     "usageStyle": MessageLookupByLibrary.simpleMessage("使用量の表示"),
     "usageStyleBar": MessageLookupByLibrary.simpleMessage("バー"),
     "usageStyleConcentric": MessageLookupByLibrary.simpleMessage("同心リング"),
@@ -2152,6 +2154,6 @@ class MessageLookup extends MessageLookupByLibrary {
     "xattrUnsupportedFallback": MessageLookupByLibrary.simpleMessage(
       "ファイルシステムがファイルケーパビリティ（xattr）に対応していないため、setuid にフォールバックしました",
     ),
-    "years": m75,
+    "years": m76,
   };
 }

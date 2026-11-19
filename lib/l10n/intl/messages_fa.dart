@@ -153,44 +153,47 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m58(count) => "${count} ارائه‌دهنده";
 
-  static String m59(count) => "افزودن ${count}";
+  static String m59(terms) =>
+      "یک دستگاه WARP جدید در Cloudflare ثبت می‌شود. با ادامه، ${terms} را می‌پذیرید.";
 
-  static String m60(count) => "حذف ${count}";
+  static String m60(count) => "افزودن ${count}";
 
-  static String m61(index, time) => "تفکیک با قانون #${index} · ${time} ms";
+  static String m61(count) => "حذف ${count}";
 
-  static String m62(ips) => "تطبیق Hosts: ${ips}";
+  static String m62(index, time) => "تفکیک با قانون #${index} · ${time} ms";
 
-  static String m63(total, index) => "${total} قانون، تطبیق با #${index}";
+  static String m63(ips) => "تطبیق Hosts: ${ips}";
 
-  static String m64(total) => "${total} قانون";
+  static String m64(total, index) => "${total} قانون، تطبیق با #${index}";
 
-  static String m65(count) => "${count} قانون";
+  static String m65(total) => "${total} قانون";
 
-  static String m66(count, group) =>
+  static String m66(count) => "${count} قانون";
+
+  static String m67(count, group) =>
       "${count} قانون، در گروه ${group} گنجانده شده";
 
-  static String m67(count) => "${count} مورد انتخاب شده";
+  static String m68(count) => "${count} مورد انتخاب شده";
 
-  static String m68(count) =>
+  static String m69(count) =>
       "حالت چندرشته از ${count} اتصال موازی برای اشباع پهنای باند استفاده می‌کند";
 
-  static String m69(provider) =>
+  static String m70(provider) =>
       "ممکن است خروجی تست سرعت ${provider} را مسدود کند. منبع تست یا خروجی را تغییر دهید.";
 
-  static String m70(protocol, fallback) =>
+  static String m71(protocol, fallback) =>
       "${protocol} در دسترس نیست، به ${fallback} بازگشت";
 
-  static String m71(count) => "${count} اتصال";
+  static String m72(count) => "${count} اتصال";
 
-  static String m72(provider) => "تغییر به ${provider}";
+  static String m73(provider) => "تغییر به ${provider}";
 
-  static String m73(appName) =>
+  static String m74(appName) =>
       "بسته نسخه جدید آماده است. برای حفظ عملکرد سرویس، پیش از ارتقا ${appName} در حال اجرا بسته می‌شود. برای شروع نصب تأیید کنید.";
 
-  static String m74(label) => "${label} باید یک URL معتبر باشد";
+  static String m75(label) => "${label} باید یک URL معتبر باشد";
 
-  static String m75(count) => "${Intl.plural(count, other: '# سال')}";
+  static String m76(count) => "${Intl.plural(count, other: '# سال')}";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
@@ -544,6 +547,9 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "close": MessageLookupByLibrary.simpleMessage("بستن"),
     "closeAll": MessageLookupByLibrary.simpleMessage("بستن همه"),
+    "cloudflareTerms": MessageLookupByLibrary.simpleMessage(
+      "شرایط خدمات Cloudflare",
+    ),
     "collapse": MessageLookupByLibrary.simpleMessage("جمع کردن"),
     "color": MessageLookupByLibrary.simpleMessage("رنگ"),
     "colorSchemes": MessageLookupByLibrary.simpleMessage("پالت‌های رنگی"),
@@ -1962,9 +1968,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "registerWarpFailed": MessageLookupByLibrary.simpleMessage(
       "ثبت WARP ناموفق بود",
     ),
-    "registerWarpTip": MessageLookupByLibrary.simpleMessage(
-      "یک دستگاه WARP جدید در Cloudflare ثبت می‌شود. با ادامه، شرایط خدمات Cloudflare را می‌پذیرید.",
-    ),
+    "registerWarpTip": m59,
     "regularNode": MessageLookupByLibrary.simpleMessage("گره عادی"),
     "regularNodeDesc": MessageLookupByLibrary.simpleMessage(
       "مستقیماً متصل و به گروه‌های پراکسی انتخاب‌شده افزوده می‌شود",
@@ -2023,7 +2027,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "ripple": MessageLookupByLibrary.simpleMessage("موج آب"),
     "rotatingCircle": MessageLookupByLibrary.simpleMessage("چرخش تک‌دایره"),
     "rotatingPlain": MessageLookupByLibrary.simpleMessage("صفحه چرخان"),
-    "routeAddCount": m59,
+    "routeAddCount": m60,
     "routeCategoryAi": MessageLookupByLibrary.simpleMessage("هوش مصنوعی"),
     "routeCategoryDeveloper": MessageLookupByLibrary.simpleMessage(
       "ابزار توسعه",
@@ -2040,7 +2044,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "routeNameInvalid": MessageLookupByLibrary.simpleMessage(
       "نام نمی‌تواند شامل ویرگول یا شکست خط باشد",
     ),
-    "routeRemoveCount": m60,
+    "routeRemoveCount": m61,
     "routeTarget": MessageLookupByLibrary.simpleMessage("خروجی پیش‌فرض"),
     "routeTrace": MessageLookupByLibrary.simpleMessage("ردیابی مسیر"),
     "routeTraceChain": MessageLookupByLibrary.simpleMessage("زنجیره پروکسی"),
@@ -2051,7 +2055,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "روند DNS و تطبیق قوانین دامنه یا IP در هسته",
     ),
     "routeTraceDns": MessageLookupByLibrary.simpleMessage("تفکیک DNS"),
-    "routeTraceDnsBy": m61,
+    "routeTraceDnsBy": m62,
     "routeTraceDnsIp": MessageLookupByLibrary.simpleMessage(
       "هدف IP است و نیازی به تفکیک نیست",
     ),
@@ -2060,7 +2064,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "routeTraceFinal": MessageLookupByLibrary.simpleMessage("خروجی نهایی"),
     "routeTraceHint": MessageLookupByLibrary.simpleMessage("دامنه، IP یا آدرس"),
-    "routeTraceHostsHit": m62,
+    "routeTraceHostsHit": m63,
     "routeTraceInput": MessageLookupByLibrary.simpleMessage("هدف"),
     "routeTraceModeDirect": MessageLookupByLibrary.simpleMessage(
       "حالت مستقیم: همه ترافیک مستقیم",
@@ -2072,8 +2076,8 @@ class MessageLookup extends MessageLookupByLibrary {
       "هیچ قانونی تطبیق نیافت؛ DIRECT استفاده می‌شود",
     ),
     "routeTraceRules": MessageLookupByLibrary.simpleMessage("تطبیق قوانین"),
-    "routeTraceRulesSummary": m63,
-    "routeTraceRulesTotal": m64,
+    "routeTraceRulesSummary": m64,
+    "routeTraceRulesTotal": m65,
     "routeTraceSkipMissing": MessageLookupByLibrary.simpleMessage(
       "رد شد؛ مقصد پیدا نشد",
     ),
@@ -2097,8 +2101,8 @@ class MessageLookup extends MessageLookupByLibrary {
       "نمایش قوانین بررسی‌شده",
     ),
     "rule": MessageLookupByLibrary.simpleMessage("قوانین"),
-    "ruleCount": m65,
-    "ruleCountIncluded": m66,
+    "ruleCount": m66,
+    "ruleCountIncluded": m67,
     "ruleHits": MessageLookupByLibrary.simpleMessage("تطابق قوانین"),
     "ruleName": MessageLookupByLibrary.simpleMessage("نام قانون"),
     "ruleProviders": MessageLookupByLibrary.simpleMessage(
@@ -2140,7 +2144,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "selectIcon": MessageLookupByLibrary.simpleMessage("انتخاب نماد"),
     "selected": MessageLookupByLibrary.simpleMessage("انتخاب شده"),
-    "selectedCountTitle": m67,
+    "selectedCountTitle": m68,
     "serviceReady": MessageLookupByLibrary.simpleMessage("سرویس آماده است"),
     "serviceRunning": MessageLookupByLibrary.simpleMessage(
       "سرویس در حال اجرا است",
@@ -2234,7 +2238,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "speedTestConnecting": MessageLookupByLibrary.simpleMessage("در حال اتصال"),
     "speedTestConnections": MessageLookupByLibrary.simpleMessage("اتصالات"),
-    "speedTestConnectionsDesc": m68,
+    "speedTestConnectionsDesc": m69,
     "speedTestCoreStopped": MessageLookupByLibrary.simpleMessage(
       "فعال نیست · تست مستقیم",
     ),
@@ -2246,7 +2250,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "speedTestErrorBlocked": MessageLookupByLibrary.simpleMessage(
       "تست سرعت در دسترس نیست",
     ),
-    "speedTestErrorBlockedDesc": m69,
+    "speedTestErrorBlockedDesc": m70,
     "speedTestErrorNetworkDesc": MessageLookupByLibrary.simpleMessage(
       "در دسترس بودن خروجی را بررسی و دوباره تلاش کنید.",
     ),
@@ -2289,7 +2293,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "speedTestProtocolDesc": MessageLookupByLibrary.simpleMessage(
       "HTTP/3 روی QUIC (UDP) اجرا می‌شود؛ اگر در دسترس نباشد به HTTP/2 و اگر HTTP/2 هم نباشد به HTTP/1.1 بازمی‌گردد",
     ),
-    "speedTestProtocolFallback": m70,
+    "speedTestProtocolFallback": m71,
     "speedTestQuality": MessageLookupByLibrary.simpleMessage("کیفیت شبکه"),
     "speedTestReady": MessageLookupByLibrary.simpleMessage("آماده"),
     "speedTestRealtime": MessageLookupByLibrary.simpleMessage("سرعت لحظه‌ای"),
@@ -2302,8 +2306,8 @@ class MessageLookup extends MessageLookupByLibrary {
     "speedTestSettings": MessageLookupByLibrary.simpleMessage("تنظیمات تست"),
     "speedTestSingleThread": MessageLookupByLibrary.simpleMessage("تک‌رشته"),
     "speedTestStart": MessageLookupByLibrary.simpleMessage("شروع تست"),
-    "speedTestStreams": m71,
-    "speedTestSwitchProvider": m72,
+    "speedTestStreams": m72,
+    "speedTestSwitchProvider": m73,
     "speedTestUseSystemDns": MessageLookupByLibrary.simpleMessage(
       "تفکیک با DNS سیستم",
     ),
@@ -2537,7 +2541,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "updateInstallFailed": MessageLookupByLibrary.simpleMessage(
       "نصب به‌روزرسانی ناموفق بود",
     ),
-    "updateReadyAppTip": m73,
+    "updateReadyAppTip": m74,
     "updateReadyVpnTip": MessageLookupByLibrary.simpleMessage(
       "بسته نسخه جدید آماده است. برای حفظ عملکرد سرویس، پیش از ارتقا سرویس VPN در حال اجرا متوقف می‌شود. برای شروع نصب تأیید کنید.",
     ),
@@ -2551,7 +2555,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "urlDesc": MessageLookupByLibrary.simpleMessage(
       "دریافت پروفایل از طریق آدرس URL",
     ),
-    "urlTip": m74,
+    "urlTip": m75,
     "usageStyle": MessageLookupByLibrary.simpleMessage("سبک نمایش مصرف"),
     "usageStyleBar": MessageLookupByLibrary.simpleMessage("نواری"),
     "usageStyleConcentric": MessageLookupByLibrary.simpleMessage(
@@ -2604,6 +2608,6 @@ class MessageLookup extends MessageLookupByLibrary {
     "xattrUnsupportedFallback": MessageLookupByLibrary.simpleMessage(
       "سیستم فایل از قابلیت‌های فایل (xattr) پشتیبانی نمی‌کند؛ به setuid بازگشت داده شد",
     ),
-    "years": m75,
+    "years": m76,
   };
 }

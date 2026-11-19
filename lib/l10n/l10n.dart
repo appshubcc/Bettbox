@@ -10869,11 +10869,21 @@ class AppLocalizations {
     );
   }
 
-  /// `A new WARP device will be registered with Cloudflare. By continuing you agree to the Cloudflare Terms of Service.`
-  String get registerWarpTip {
+  /// `A new WARP device will be registered with Cloudflare. By continuing you agree to {terms}.`
+  String registerWarpTip(Object terms) {
     return Intl.message(
-      'A new WARP device will be registered with Cloudflare. By continuing you agree to the Cloudflare Terms of Service.',
+      'A new WARP device will be registered with Cloudflare. By continuing you agree to $terms.',
       name: 'registerWarpTip',
+      desc: '',
+      args: [terms],
+    );
+  }
+
+  /// `the Cloudflare Terms of Service`
+  String get cloudflareTerms {
+    return Intl.message(
+      'the Cloudflare Terms of Service',
+      name: 'cloudflareTerms',
       desc: '',
       args: [],
     );

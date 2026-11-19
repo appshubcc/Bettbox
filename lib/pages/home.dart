@@ -101,6 +101,11 @@ class _HomePageState extends State<HomePage> {
                       navigationItems[index].label,
                     );
                   },
+                  onTabReselect: (index) {
+                    globalState.appController.reselectPage(
+                      navigationItems[index].label,
+                    );
+                  },
                 );
           if (child == null) {
             return const SizedBox();
@@ -271,6 +276,10 @@ class _HomePageState extends State<HomePage> {
                       focusNode: focusNode,
                       borderRadius: BorderRadius.circular(16),
                       onTap: () {
+                        if (isSelected) {
+                          globalState.appController.reselectPage(item.label);
+                          return;
+                        }
                         globalState.appController.toPage(item.label);
                       },
                       child: Container(

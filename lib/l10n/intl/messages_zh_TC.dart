@@ -145,40 +145,42 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m58(count) => "${count} 個提供者";
 
-  static String m59(count) => "新增 ${count} 項";
+  static String m59(terms) => "將向 Cloudflare 註冊一個新的 WARP 裝置，繼續即表示你同意${terms}。";
 
-  static String m60(count) => "移除 ${count} 項";
+  static String m60(count) => "新增 ${count} 項";
 
-  static String m61(index, time) => "第 ${index} 條規則觸發解析 · ${time} ms";
+  static String m61(count) => "移除 ${count} 項";
 
-  static String m62(ips) => "命中 Hosts：${ips}";
+  static String m62(index, time) => "第 ${index} 條規則觸發解析 · ${time} ms";
 
-  static String m63(total, index) => "共 ${total} 條規則，命中第 ${index} 條";
+  static String m63(ips) => "命中 Hosts：${ips}";
 
-  static String m64(total) => "共 ${total} 條規則";
+  static String m64(total, index) => "共 ${total} 條規則，命中第 ${index} 條";
 
-  static String m65(count) => "${count} 條規則";
+  static String m65(total) => "共 ${total} 條規則";
 
-  static String m66(count, group) => "${count} 條規則，已包含在 ${group} 策略組";
+  static String m66(count) => "${count} 條規則";
 
-  static String m67(count) => "已選擇 ${count} 項";
+  static String m67(count, group) => "${count} 條規則，已包含在 ${group} 策略組";
 
-  static String m68(count) => "多執行緒會並行 ${count} 條連線以跑滿頻寬";
+  static String m68(count) => "已選擇 ${count} 項";
 
-  static String m69(provider) => "出站節點可能封鎖了 ${provider} 測速，可切換測速源或更換出站";
+  static String m69(count) => "多執行緒會並行 ${count} 條連線以跑滿頻寬";
 
-  static String m70(protocol, fallback) => "${protocol} 不可用，已回退到 ${fallback}";
+  static String m70(provider) => "出站節點可能封鎖了 ${provider} 測速，可切換測速源或更換出站";
 
-  static String m71(count) => "${count} 條連線";
+  static String m71(protocol, fallback) => "${protocol} 不可用，已回退到 ${fallback}";
 
-  static String m72(provider) => "切換到 ${provider}";
+  static String m72(count) => "${count} 條連線";
 
-  static String m73(appName) =>
+  static String m73(provider) => "切換到 ${provider}";
+
+  static String m74(appName) =>
       "新版本安裝包已下載就緒，為保障服務正常，升級前將會主動關閉正在執行中的 ${appName}，點擊確認後開始安裝";
 
-  static String m74(label) => "${label}必須為 URL";
+  static String m75(label) => "${label}必須為 URL";
 
-  static String m75(count) => "${Intl.plural(count, other: '年')}";
+  static String m76(count) => "${Intl.plural(count, other: '年')}";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
@@ -416,6 +418,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "clipboardImport": MessageLookupByLibrary.simpleMessage("剪貼簿匯入"),
     "close": MessageLookupByLibrary.simpleMessage("關閉"),
     "closeAll": MessageLookupByLibrary.simpleMessage("關閉全部"),
+    "cloudflareTerms": MessageLookupByLibrary.simpleMessage("Cloudflare 的服務條款"),
     "collapse": MessageLookupByLibrary.simpleMessage("收起"),
     "color": MessageLookupByLibrary.simpleMessage("顏色"),
     "colorSchemes": MessageLookupByLibrary.simpleMessage("配色方案"),
@@ -1454,9 +1457,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "產生 WireGuard 落地節點",
     ),
     "registerWarpFailed": MessageLookupByLibrary.simpleMessage("WARP 註冊失敗"),
-    "registerWarpTip": MessageLookupByLibrary.simpleMessage(
-      "將向 Cloudflare 註冊一個新的 WARP 裝置，繼續即表示你同意 Cloudflare 的服務條款。",
-    ),
+    "registerWarpTip": m59,
     "regularNode": MessageLookupByLibrary.simpleMessage("常規節點"),
     "regularNodeDesc": MessageLookupByLibrary.simpleMessage("直接連線，加入所選代理群組即可"),
     "reject": MessageLookupByLibrary.simpleMessage("攔截"),
@@ -1493,7 +1494,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "ripple": MessageLookupByLibrary.simpleMessage("水波蕩漾"),
     "rotatingCircle": MessageLookupByLibrary.simpleMessage("單圓自轉"),
     "rotatingPlain": MessageLookupByLibrary.simpleMessage("靈板翻轉"),
-    "routeAddCount": m59,
+    "routeAddCount": m60,
     "routeCategoryAi": MessageLookupByLibrary.simpleMessage("AI"),
     "routeCategoryDeveloper": MessageLookupByLibrary.simpleMessage("開發工具"),
     "routeCategoryFinance": MessageLookupByLibrary.simpleMessage("金融支付"),
@@ -1502,7 +1503,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "routeCategoryStreaming": MessageLookupByLibrary.simpleMessage("串流媒體"),
     "routeCategoryTech": MessageLookupByLibrary.simpleMessage("科技平台"),
     "routeNameInvalid": MessageLookupByLibrary.simpleMessage("名稱不能包含逗號或換行"),
-    "routeRemoveCount": m60,
+    "routeRemoveCount": m61,
     "routeTarget": MessageLookupByLibrary.simpleMessage("預設出口"),
     "routeTrace": MessageLookupByLibrary.simpleMessage("路由追蹤"),
     "routeTraceChain": MessageLookupByLibrary.simpleMessage("代理鏈"),
@@ -1511,14 +1512,14 @@ class MessageLookup extends MessageLookupByLibrary {
       "檢視網域或 IP 在核心中的 DNS 與規則比對過程",
     ),
     "routeTraceDns": MessageLookupByLibrary.simpleMessage("DNS 解析"),
-    "routeTraceDnsBy": m61,
+    "routeTraceDnsBy": m62,
     "routeTraceDnsIp": MessageLookupByLibrary.simpleMessage("目標本身是 IP，無需解析"),
     "routeTraceDnsSkipped": MessageLookupByLibrary.simpleMessage(
       "比對過程中無需解析 IP",
     ),
     "routeTraceFinal": MessageLookupByLibrary.simpleMessage("最終出站"),
     "routeTraceHint": MessageLookupByLibrary.simpleMessage("輸入網域、IP 或網址"),
-    "routeTraceHostsHit": m62,
+    "routeTraceHostsHit": m63,
     "routeTraceInput": MessageLookupByLibrary.simpleMessage("目標"),
     "routeTraceModeDirect": MessageLookupByLibrary.simpleMessage("直連模式：所有流量直連"),
     "routeTraceModeGlobal": MessageLookupByLibrary.simpleMessage(
@@ -1526,8 +1527,8 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "routeTraceNoMatch": MessageLookupByLibrary.simpleMessage("沒有規則命中，以直連處理"),
     "routeTraceRules": MessageLookupByLibrary.simpleMessage("規則比對"),
-    "routeTraceRulesSummary": m63,
-    "routeTraceRulesTotal": m64,
+    "routeTraceRulesSummary": m64,
+    "routeTraceRulesTotal": m65,
     "routeTraceSkipMissing": MessageLookupByLibrary.simpleMessage("目標不存在，略過"),
     "routeTraceSkipPass": MessageLookupByLibrary.simpleMessage("PASS 略過"),
     "routeTraceSkipUdp": MessageLookupByLibrary.simpleMessage("不支援 UDP，略過"),
@@ -1539,8 +1540,8 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "routeTraceViewRules": MessageLookupByLibrary.simpleMessage("檢視已檢查的規則"),
     "rule": MessageLookupByLibrary.simpleMessage("規則"),
-    "ruleCount": m65,
-    "ruleCountIncluded": m66,
+    "ruleCount": m66,
+    "ruleCountIncluded": m67,
     "ruleHits": MessageLookupByLibrary.simpleMessage("規則命中"),
     "ruleName": MessageLookupByLibrary.simpleMessage("規則名稱"),
     "ruleProviders": MessageLookupByLibrary.simpleMessage("規則提供者"),
@@ -1568,7 +1569,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "selectBackupVersion": MessageLookupByLibrary.simpleMessage("選擇備份版本"),
     "selectIcon": MessageLookupByLibrary.simpleMessage("選擇圖示"),
     "selected": MessageLookupByLibrary.simpleMessage("已選擇"),
-    "selectedCountTitle": m67,
+    "selectedCountTitle": m68,
     "serviceReady": MessageLookupByLibrary.simpleMessage("服務已就緒"),
     "serviceRunning": MessageLookupByLibrary.simpleMessage("服務正在執行中"),
     "setcapFailedFallback": MessageLookupByLibrary.simpleMessage(
@@ -1636,7 +1637,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "speedTestConnecting": MessageLookupByLibrary.simpleMessage("連線中"),
     "speedTestConnections": MessageLookupByLibrary.simpleMessage("連線方式"),
-    "speedTestConnectionsDesc": m68,
+    "speedTestConnectionsDesc": m69,
     "speedTestCoreStopped": MessageLookupByLibrary.simpleMessage("未啟動 · 直連測速"),
     "speedTestCredit": MessageLookupByLibrary.simpleMessage(
       "測速伺服器由網路上公開的第三方提供，特別感謝 Apple、Cloudflare 以及 Speedtest by Ookla。",
@@ -1644,7 +1645,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "speedTestDataUsed": MessageLookupByLibrary.simpleMessage("已用流量"),
     "speedTestDuration": MessageLookupByLibrary.simpleMessage("測試時長"),
     "speedTestErrorBlocked": MessageLookupByLibrary.simpleMessage("測速服務不可用"),
-    "speedTestErrorBlockedDesc": m69,
+    "speedTestErrorBlockedDesc": m70,
     "speedTestErrorNetworkDesc": MessageLookupByLibrary.simpleMessage(
       "請檢查出站是否可用後重試",
     ),
@@ -1677,7 +1678,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "speedTestProtocolDesc": MessageLookupByLibrary.simpleMessage(
       "HTTP/3 基於 QUIC (UDP)，不可用時依次回退到 HTTP/2、（HTTP/2 不可用時）HTTP/1.1",
     ),
-    "speedTestProtocolFallback": m70,
+    "speedTestProtocolFallback": m71,
     "speedTestQuality": MessageLookupByLibrary.simpleMessage("網路品質"),
     "speedTestReady": MessageLookupByLibrary.simpleMessage("準備就緒"),
     "speedTestRealtime": MessageLookupByLibrary.simpleMessage("即時速率"),
@@ -1690,8 +1691,8 @@ class MessageLookup extends MessageLookupByLibrary {
     "speedTestSettings": MessageLookupByLibrary.simpleMessage("測速設定"),
     "speedTestSingleThread": MessageLookupByLibrary.simpleMessage("單執行緒"),
     "speedTestStart": MessageLookupByLibrary.simpleMessage("開始測速"),
-    "speedTestStreams": m71,
-    "speedTestSwitchProvider": m72,
+    "speedTestStreams": m72,
+    "speedTestSwitchProvider": m73,
     "speedTestUseSystemDns": MessageLookupByLibrary.simpleMessage(
       "使用系統 DNS 解析",
     ),
@@ -1857,7 +1858,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "update": MessageLookupByLibrary.simpleMessage("更新"),
     "updateDownloadFailed": MessageLookupByLibrary.simpleMessage("更新下載失敗"),
     "updateInstallFailed": MessageLookupByLibrary.simpleMessage("更新安裝失敗"),
-    "updateReadyAppTip": m73,
+    "updateReadyAppTip": m74,
     "updateReadyVpnTip": MessageLookupByLibrary.simpleMessage(
       "新版本安裝包已下載就緒，為保障服務正常，升級前將會主動關閉正在執行中的 VPN 服務，點擊確認後開始安裝",
     ),
@@ -1869,7 +1870,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "url": MessageLookupByLibrary.simpleMessage("URL"),
     "urlDesc": MessageLookupByLibrary.simpleMessage("透過 URL 獲取設定檔"),
-    "urlTip": m74,
+    "urlTip": m75,
     "usageStyle": MessageLookupByLibrary.simpleMessage("用量樣式"),
     "usageStyleBar": MessageLookupByLibrary.simpleMessage("條形"),
     "usageStyleConcentric": MessageLookupByLibrary.simpleMessage("同心環"),
@@ -1908,6 +1909,6 @@ class MessageLookup extends MessageLookupByLibrary {
     "xattrUnsupportedFallback": MessageLookupByLibrary.simpleMessage(
       "檔案系統不支援檔案能力（xattr），已回退到 setuid",
     ),
-    "years": m75,
+    "years": m76,
   };
 }

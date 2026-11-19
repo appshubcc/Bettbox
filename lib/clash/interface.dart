@@ -28,6 +28,10 @@ mixin ClashInterface {
 
   Future<Result<dynamic>> getRuntimeConfig(SetupParams setupParams);
 
+  Future<Result<dynamic>> getProxyConfig(SetupParams setupParams, String name);
+
+  Future<Result<dynamic>> updateExpandedProvider(String params);
+
   Future<Result<dynamic>> exportConfig(
     String path,
     String output, {
@@ -37,6 +41,8 @@ mixin ClashInterface {
   });
 
   Future<Result<dynamic>> mergeProfiles(String params);
+
+  Future<Result<dynamic>> downloadProfile(String params);
 
   FutureOr<String> decryptAgeConfig(String data, String ageSecretKey);
 
@@ -144,6 +150,10 @@ mixin ClashInterface {
 
   FutureOr<bool> closeGroupConnections(String groupName);
 
+  FutureOr<List<String>> getDialerDependents(String groupName);
+
+  FutureOr<bool> checkDialerUdp(String name);
+
   FutureOr<bool> resetConnections();
 
   FutureOr<void> startTrackRequests();
@@ -218,8 +228,11 @@ abstract class ClashHandlerInterface with ClashInterface {
           return;
         case ActionMethod.getConfig:
         case ActionMethod.getRuntimeConfig:
+        case ActionMethod.getProxyConfig:
+        case ActionMethod.updateExpandedProvider:
         case ActionMethod.exportConfig:
         case ActionMethod.mergeProfiles:
+        case ActionMethod.downloadProfile:
         case ActionMethod.convertAgeSecretKeyToPublicKey:
           completer?.complete(result.toResult);
           return;
@@ -417,6 +430,26 @@ abstract class ClashHandlerInterface with ClashInterface {
   }
 
   @override
+  Future<Result<dynamic>> getProxyConfig(SetupParams setupParams, String name) {
+    return invoke<Result<dynamic>>(
+      method: ActionMethod.getProxyConfig,
+      data: json.encode({'setup': setupParams, 'name': name}),
+      timeout: const Duration(seconds: 60),
+      defaultValue: Result.error('getProxyConfig timeout'),
+    );
+  }
+
+  @override
+  Future<Result<dynamic>> updateExpandedProvider(String params) {
+    return invoke<Result<dynamic>>(
+      method: ActionMethod.updateExpandedProvider,
+      data: params,
+      timeout: const Duration(seconds: 90),
+      defaultValue: Result.error('updateExpandedProvider timeout'),
+    );
+  }
+
+  @override
   Future<Result<dynamic>> exportConfig(
     String path,
     String output, {
@@ -446,6 +479,16 @@ abstract class ClashHandlerInterface with ClashInterface {
       data: params,
       timeout: const Duration(seconds: 120),
       defaultValue: Result.error('mergeProfiles timeout'),
+    );
+  }
+
+  @override
+  Future<Result<dynamic>> downloadProfile(String params) {
+    return invoke<Result<dynamic>>(
+      method: ActionMethod.downloadProfile,
+      data: params,
+      timeout: const Duration(minutes: 3),
+      defaultValue: Result.error('downloadProfile timeout'),
     );
   }
 
@@ -593,6 +636,20 @@ abstract class ClashHandlerInterface with ClashInterface {
       method: ActionMethod.closeGroupConnections,
       data: groupName,
     );
+  }
+
+  @override
+  Future<bool> checkDialerUdp(String name) {
+    return invoke<bool>(method: ActionMethod.checkDialerUdp, data: name);
+  }
+
+  @override
+  Future<List<String>> getDialerDependents(String groupName) async {
+    final res = await invoke<List<dynamic>>(
+      method: ActionMethod.getDialerDependents,
+      data: groupName,
+    );
+    return [for (final item in res) item.toString()];
   }
 
   @override

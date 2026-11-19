@@ -299,7 +299,11 @@ if (typeof Compatible_With_Bettbox !== 'undefined' && Compatible_With_Bettbox &&
     }
   }
 }
-return JSON.stringify({ options: __options, icons: __icons, policyGroupOptions: __groups });
+var __result = { options: __options, icons: __icons, policyGroupOptions: __groups };
+if (typeof Compatible_With_Bettbox !== 'undefined' && Compatible_With_Bettbox && Compatible_With_Bettbox.nodeRegions && typeof Compatible_With_Bettbox.nodeRegions === 'object') {
+  __result.nodeRegions = Compatible_With_Bettbox.nodeRegions;
+}
+return JSON.stringify(__result);
 "#;
 
 pub fn extract_options(script: &str) -> Result<String, Failure> {

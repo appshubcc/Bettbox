@@ -4,7 +4,7 @@
  * 自定义分流远程规则集：@appshubcc https://github.com/appshubcc/bett-rules 
  */
 
-// @version 2026112001
+// @version 2026112003
 const Compatible_With_Bettbox = { ruleOptionsEnable: true };
 
 const ruleOptionsEnable = {
@@ -681,6 +681,20 @@ function getMatchedRegions(proxyName) {
   return regions;
 }
 
+const userNodeNames =
+  typeof bettboxNodeNames !== 'undefined' && Array.isArray(bettboxNodeNames)
+    ? bettboxNodeNames.filter((name) => typeof name === 'string' && name)
+    : [];
+
+Compatible_With_Bettbox.nodeRegions = Object.fromEntries(
+  userNodeNames.map((name) => [
+    name,
+    getMatchedRegions(name)
+      .filter((region) => activeRegionDefinitions.includes(region))
+      .map((region) => region.name),
+  ]),
+);
+
 /**
  * 标准化节点名称：补全地区国旗、折叠多余空格，并预缓存匹配结果
  */
@@ -812,7 +826,7 @@ function filterAndNormalizeProxies(config) {
   let filteredProxies = normalizedProxies
     .map((proxy) => fixDialerProxy(proxy, renameMap, proxyNames, groupMembers))
     .filter(Boolean);
-  for (;;) {
+  for (; ;) {
     const names = new Set(filteredProxies.map((proxy) => proxy.name));
     const next = filteredProxies.filter((proxy) => !proxy['dialer-proxy'] || names.has(proxy['dialer-proxy']));
     if (next.length === filteredProxies.length) break;
@@ -835,9 +849,11 @@ function filterAndNormalizeProxies(config) {
 /**
  * 构建地区策略组，可附带自动选择组
  */
-function createRegionGroup(name, icon, proxies) {
+function createRegionGroup(name, icon, proxies, userNodes) {
   const generateRegionAutoSelectEnabled = ruleOptionsEnable.生成地区自动选择组 || ruleOptionsEnable.隐藏地区手动选择组;
   const hideManualSelectGroupEnabled = ruleOptionsEnable.隐藏地区手动选择组;
+  const region = userNodes ? { 'x-region': name } : {};
+  const regionNodes = userNodes?.length ? { 'x-region-nodes': userNodes } : {};
 
   if (generateRegionAutoSelectEnabled) {
     const urlTestName = `${name}-自动选择`;
@@ -845,12 +861,15 @@ function createRegionGroup(name, icon, proxies) {
       {
         ...urlTestBaseOption,
         name: urlTestName,
+        ...region,
         proxies,
       },
       {
         ...selectBaseOption,
         name,
         icon,
+        ...region,
+        ...regionNodes,
         proxies: [urlTestName, ...proxies],
         hidden: hideManualSelectGroupEnabled,
       },
@@ -861,6 +880,8 @@ function createRegionGroup(name, icon, proxies) {
       ...selectBaseOption,
       name,
       icon,
+      ...region,
+      ...regionNodes,
       proxies,
       hidden: hideManualSelectGroupEnabled,
     },
@@ -891,7 +912,16 @@ function buildRegionGroups(filteredProxies) {
 
   const generatedRegionGroups = sortByGroupOrder(allRegionDefinitions)
     .filter((r) => regionGroups[r.name].length > 0 && (generateRateGroupEnabled || !rateRegionDefinitions.includes(r)))
-    .flatMap((r) => createRegionGroup(r.name, r.icon, regionGroups[r.name]));
+    .flatMap((r) =>
+      createRegionGroup(
+        r.name,
+        r.icon,
+        regionGroups[r.name],
+        activeRegionDefinitions.includes(r)
+          ? userNodeNames.filter((name) => Compatible_With_Bettbox.nodeRegions[name].includes(r.name))
+          : undefined,
+      ),
+    );
 
   if (otherProxies.length > 0) {
     generatedRegionGroups.push(...createRegionGroup('其他节点', `${iconBaseUrl}common/WorldMap.svg`, otherProxies));
@@ -1305,7 +1335,7 @@ function dnsHost(dns) {
 
 const chinaDNS = ['223.6.6.6#DIRECT', '119.29.29.29#DIRECT'];
 const douyinDNS = ['180.184.1.1#DIRECT', '180.184.2.2#DIRECT'];
-const policyDNS = (group) => [`1.1.1.1#${group}`, `tcp://8.8.8.8#${group}`];
+const policyDNS = (group) => [`1.1.1.1#${group}`, `8.8.8.8#${group}`];
 const foreignDNS = policyDNS('默认代理');
 const defaultDNS = ['114.114.114.114#DIRECT', '119.29.29.29#DIRECT'];
 const proxyServerDNS = [

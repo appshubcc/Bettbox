@@ -218,7 +218,7 @@ jobs:
           channel: ${{ contains(matrix.os, 'arm') && 'master' || 'stable' }}
           cache: true
           cache-key: flutter-${{ matrix.platform }}-${{ matrix.arch }}-${{ hashFiles('**/pubspec.lock') }}
-          flutter-version: ${{ contains(matrix.os, 'arm') && '' || '3.50.0' }}
+          flutter-version: ${{ contains(matrix.os, 'arm') && '' || '3.50.1' }}
 
       - name: Clear Pub Cache Credentials
         shell: bash

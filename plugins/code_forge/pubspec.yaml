@@ -12,7 +12,7 @@ dependencies:
     sdk: flutter  
   re_highlight: ^0.0.3
   flutter_rust_bridge: 2.13.0
-  material_ui: ^1.6.0
+  material_ui: ^1.11.1
 
 dev_dependencies:
   flutter_test:

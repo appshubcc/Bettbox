@@ -453,6 +453,15 @@ fn extracts_script_options() {
 }
 
 #[test]
+fn extracts_node_regions() {
+    let script = "const Compatible_With_Bettbox = { nodeRegions: { 'US Home': ['美国'] } };";
+
+    let options: Json = serde_json::from_str(&extract_options(script).unwrap()).unwrap();
+
+    assert_eq!(options["nodeRegions"], json!({ "US Home": ["美国"] }));
+}
+
+#[test]
 fn extracts_empty_options_from_a_plain_script() {
     let options: Json =
         serde_json::from_str(&extract_options("function main(config) { return config }").unwrap())

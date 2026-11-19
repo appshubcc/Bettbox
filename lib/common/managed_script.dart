@@ -428,6 +428,7 @@ class ManagedScript {
     ManagedProps props, {
     String? raw,
     bool bundled = false,
+    List<String> nodeNames = const [],
   }) async {
     final source = raw ?? (bundled ? await readBundled() : await read(props));
     final routes = await _routes(props);
@@ -441,6 +442,8 @@ class ManagedScript {
         ])};',
       if (props.order.isNotEmpty)
         'const bettboxOrder = ${jsonEncode(props.order)};',
+      if (nodeNames.isNotEmpty)
+        'const bettboxNodeNames = ${jsonEncode(nodeNames)};',
     ];
     final content = prelude.isEmpty ? source : '${prelude.join('\n')}\n$source';
     return Script(

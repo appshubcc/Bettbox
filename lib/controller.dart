@@ -2248,7 +2248,22 @@ class AppController {
         navigator.popUntil((route) => route.isFirst);
       }
     }
+    final current = _ref.read(currentPageLabelProvider);
+    if (current != pageLabel) {
+      final profilesSlide = _ref.read(profilesSlideProvider.notifier);
+      if (current == PageLabel.profiles) profilesSlide.leave();
+      if (pageLabel == PageLabel.profiles) profilesSlide.enter();
+    }
     _ref.read(currentPageLabelProvider.notifier).value = pageLabel;
+  }
+
+  void reselectPage(PageLabel pageLabel) {
+    if (pageLabel != PageLabel.profiles) return;
+    if (system.isAndroid &&
+        _ref.read(appSettingProvider).enableNavBarHapticFeedback) {
+      HapticFeedback.selectionClick();
+    }
+    _ref.read(profilesSlideProvider.notifier).toggle();
   }
 
   void toProfiles() {

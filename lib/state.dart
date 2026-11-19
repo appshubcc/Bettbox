@@ -770,7 +770,10 @@ class GlobalState {
     final managed = profile.runsManagedScript;
     try {
       final script = managed
-          ? await ManagedScript.script(config.managedProps)
+          ? await ManagedScript.script(
+              config.managedProps,
+              nodeNames: config.nodes.regionNodeNames,
+            )
           : config.scriptProps.scriptOf(profile);
       if (script == null) return '';
       final refresh = managed && providerRefreshProfileId == profile.id;
@@ -816,6 +819,7 @@ class GlobalState {
       final fallback = await ManagedScript.script(
         config.managedProps,
         bundled: true,
+        nodeNames: config.nodes.regionNodeNames,
       );
       return await writeScriptedConfig(profile, fallback, managed: true);
     } catch (e) {

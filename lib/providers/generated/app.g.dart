@@ -1727,6 +1727,69 @@ abstract class _$AppUpdateState extends $Notifier<AppUpdate?> {
   }
 }
 
+@ProviderFor(ProfilesSlide)
+final profilesSlideProvider = ProfilesSlideProvider._();
+
+final class ProfilesSlideProvider
+    extends $NotifierProvider<ProfilesSlide, ({bool animate, bool showNodes})> {
+  ProfilesSlideProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'profilesSlideProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$profilesSlideHash();
+
+  @$internal
+  @override
+  ProfilesSlide create() => ProfilesSlide();
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(({bool animate, bool showNodes}) value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<({bool animate, bool showNodes})>(
+        value,
+      ),
+    );
+  }
+}
+
+String _$profilesSlideHash() => r'ac6ad968a185ee28f5cd3b67467d73cc8670a406';
+
+abstract class _$ProfilesSlide
+    extends $Notifier<({bool animate, bool showNodes})> {
+  ({bool animate, bool showNodes}) build();
+  @$mustCallSuper
+  @override
+  WhenComplete runBuild() {
+    final ref =
+        this.ref
+            as $Ref<
+              ({bool animate, bool showNodes}),
+              ({bool animate, bool showNodes})
+            >;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<
+                ({bool animate, bool showNodes}),
+                ({bool animate, bool showNodes})
+              >,
+              ({bool animate, bool showNodes}),
+              Object?,
+              Object?
+            >;
+    return element.handleCreate(ref, build);
+  }
+}
+
 @ProviderFor(ForceRefreshIcon)
 final forceRefreshIconProvider = ForceRefreshIconProvider._();
 

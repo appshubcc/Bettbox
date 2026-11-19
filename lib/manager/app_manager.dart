@@ -185,11 +185,14 @@ class _AppStateManagerState extends ConsumerState<AppStateManager>
             state == AppLifecycleState.hidden ||
             (state == AppLifecycleState.inactive && !system.isDesktop));
 
+    final onProfiles = ref.read(currentPageLabelProvider) == PageLabel.profiles;
     if (isBackgroundState) {
+      if (onProfiles) ref.read(profilesSlideProvider.notifier).leave();
       _missedUpdateCheckTimer?.cancel();
       unawaited(globalState.appController.savePreferences());
       await globalState.handleBackground();
     } else if (state == AppLifecycleState.resumed) {
+      if (onProfiles) ref.read(profilesSlideProvider.notifier).enter();
       globalState.handleForeground();
       render?.resume();
       await globalState.resumeForegroundUpdates();
@@ -725,8 +728,13 @@ class AppSidebarContainer extends ConsumerWidget {
         onTap: () {
           if (currentIndex == index) {
             final pageContext = GlobalObjectKey(item.label).currentContext;
-            if (pageContext != null) {
-              Navigator.of(pageContext).popUntil((route) => route.isFirst);
+            final navigator = pageContext != null
+                ? Navigator.of(pageContext)
+                : null;
+            if (navigator != null && navigator.canPop()) {
+              navigator.popUntil((route) => route.isFirst);
+            } else {
+              globalState.appController.reselectPage(item.label);
             }
           }
           globalState.appController.toPage(item.label);

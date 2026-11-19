@@ -124,6 +124,19 @@ func handleAction(action *Action, result ActionResult) {
 		}
 		result.success(handleImportProfile(&params))
 		return
+	case downloadProfileMethod:
+		var params DownloadProfileParams
+		if err := json.Unmarshal([]byte(action.Data.(string)), &params); err != nil {
+			result.error(err)
+			return
+		}
+		headers, err := handleDownloadProfile(&params)
+		if err != nil {
+			result.error(err)
+			return
+		}
+		result.success(headers)
+		return
 	case decryptAgeConfigMethod:
 		paramsString := action.Data.(string)
 		var params DecryptAgeConfigParams
@@ -218,6 +231,15 @@ func handleAction(action *Action, result ActionResult) {
 		return
 	case cancelLocalPingMethod:
 		result.success(toolbox.HandleCancelLocalPing())
+		return
+	case parseNodesMethod:
+		result.success(handleParseNodes(action.Data.(string)))
+		return
+	case registerWarpMethod:
+		result.success(toolbox.HandleRegisterWarp())
+		return
+	case testNodeMethod:
+		result.success(toolbox.HandleTestNode(action.Data.(string)))
 		return
 	case routeTraceMethod:
 		result.success(toolbox.HandleRouteTrace(action.Data.(string)))
@@ -333,6 +355,32 @@ func handleAction(action *Action, result ActionResult) {
 		}
 		result.success(content)
 		return
+	case updateExpandedProviderMethod:
+		var params UpdateExpandedProviderParams
+		if err := json.Unmarshal([]byte(action.Data.(string)), &params); err != nil {
+			result.error(err)
+			return
+		}
+		changed, err := handleUpdateExpandedProvider(&params)
+		if err != nil {
+			result.error(err)
+			return
+		}
+		result.success(map[string]bool{"changed": changed})
+		return
+	case getProxyConfigMethod:
+		params := &ProxyConfigParams{Setup: defaultSetupParams()}
+		if err := UnmarshalJson([]byte(action.Data.(string)), params); err != nil {
+			result.error(err)
+			return
+		}
+		data, err := handleGetProxyConfig(params)
+		if err != nil {
+			result.error(err)
+			return
+		}
+		result.success(data)
+		return
 	case getConfigMethod:
 		paramsString := action.Data.(string)
 		var params GetConfigParams
@@ -354,6 +402,14 @@ func handleAction(action *Action, result ActionResult) {
 	case closeGroupConnectionsMethod:
 		groupName := action.Data.(string)
 		result.success(handleCloseGroupConnections(groupName))
+		return
+	case checkDialerUDPMethod:
+		name := action.Data.(string)
+		result.success(handleCheckDialerUDP(name))
+		return
+	case getDialerDependentsMethod:
+		groupName := action.Data.(string)
+		result.success(handleGetDialerDependents(groupName))
 		return
 	case getExternalProvidersMethod:
 		result.success(handleGetExternalProviders())

@@ -8,10 +8,12 @@ class SlidePages extends ConsumerStatefulWidget {
   final int index;
   final ValueChanged<int> onChanged;
   final List<Widget> children;
+  final bool animate;
 
   const SlidePages({
     super.key,
     required this.index,
+    this.animate = true,
     required this.onChanged,
     required this.children,
   });
@@ -32,7 +34,8 @@ class _SlidePagesState extends ConsumerState<SlidePages> {
         _controller.page?.round() == index) {
       return;
     }
-    if (ref.read(isMobileViewProvider) &&
+    if (widget.animate &&
+        ref.read(isMobileViewProvider) &&
         ref.read(appSettingProvider).enableNavBarHapticFeedback &&
         !MediaQuery.reduceMotionOf(context)) {
       _controller.animateToPage(

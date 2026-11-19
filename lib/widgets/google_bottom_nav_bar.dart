@@ -50,12 +50,14 @@ class GoogleBottomNavBar extends ConsumerStatefulWidget {
   final List<NavigationItem> navigationItems;
   final int selectedIndex;
   final ValueChanged<int> onTabChange;
+  final ValueChanged<int>? onTabReselect;
 
   const GoogleBottomNavBar({
     super.key,
     required this.navigationItems,
     required this.selectedIndex,
     required this.onTabChange,
+    this.onTabReselect,
   });
 
   @override
@@ -335,9 +337,12 @@ class _GoogleBottomNavBarState extends ConsumerState<GoogleBottomNavBar>
             }
 
             _velocityTracker = null;
+            final wasDragging = _isDragging;
             _isDragging = false;
             if (targetIndex != widget.selectedIndex) {
               widget.onTabChange(targetIndex);
+            } else if (!wasDragging) {
+              widget.onTabReselect?.call(targetIndex);
             }
           },
           onPointerCancel: (event) {

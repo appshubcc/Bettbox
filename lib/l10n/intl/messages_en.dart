@@ -157,44 +157,47 @@ class MessageLookup extends MessageLookupByLibrary {
   static String m58(count) =>
       "${Intl.plural(count, one: '${count} provider', other: '${count} providers')}";
 
-  static String m59(count) => "Add ${count}";
+  static String m59(terms) =>
+      "A new WARP device will be registered with Cloudflare. By continuing you agree to ${terms}.";
 
-  static String m60(count) => "Remove ${count}";
+  static String m60(count) => "Add ${count}";
 
-  static String m61(index, time) => "Resolved by rule #${index} · ${time} ms";
+  static String m61(count) => "Remove ${count}";
 
-  static String m62(ips) => "Hosts hit: ${ips}";
+  static String m62(index, time) => "Resolved by rule #${index} · ${time} ms";
 
-  static String m63(total, index) => "${total} rules, matched #${index}";
+  static String m63(ips) => "Hosts hit: ${ips}";
 
-  static String m64(total) => "${total} rules";
+  static String m64(total, index) => "${total} rules, matched #${index}";
 
-  static String m65(count) => "${count} rules";
+  static String m65(total) => "${total} rules";
 
-  static String m66(count, group) =>
+  static String m66(count) => "${count} rules";
+
+  static String m67(count, group) =>
       "${count} rules, included in the ${group} group";
 
-  static String m67(count) => "${count} items selected";
+  static String m68(count) => "${count} items selected";
 
-  static String m68(count) =>
+  static String m69(count) =>
       "Multi uses ${count} parallel connections to saturate bandwidth";
 
-  static String m69(provider) =>
+  static String m70(provider) =>
       "The outbound may be blocking ${provider} speed tests. Switch the test source or the outbound.";
 
-  static String m70(protocol, fallback) =>
+  static String m71(protocol, fallback) =>
       "${protocol} unavailable, fell back to ${fallback}";
 
-  static String m71(count) => "${count} connections";
+  static String m72(count) => "${count} connections";
 
-  static String m72(provider) => "Switch to ${provider}";
+  static String m73(provider) => "Switch to ${provider}";
 
-  static String m73(appName) =>
+  static String m74(appName) =>
       "The new version package is ready. To keep the service safe, the running ${appName} will be closed before upgrading. Confirm to start the installation.";
 
-  static String m74(label) => "${label} must be a URL";
+  static String m75(label) => "${label} must be a URL";
 
-  static String m75(count) =>
+  static String m76(count) =>
       "${Intl.plural(count, one: 'year', other: 'years')}";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
@@ -547,6 +550,9 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "close": MessageLookupByLibrary.simpleMessage("Close"),
     "closeAll": MessageLookupByLibrary.simpleMessage("Close All"),
+    "cloudflareTerms": MessageLookupByLibrary.simpleMessage(
+      "the Cloudflare Terms of Service",
+    ),
     "collapse": MessageLookupByLibrary.simpleMessage("Collapse"),
     "color": MessageLookupByLibrary.simpleMessage("Color"),
     "colorSchemes": MessageLookupByLibrary.simpleMessage("Color Schemes"),
@@ -1937,9 +1943,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "registerWarpFailed": MessageLookupByLibrary.simpleMessage(
       "WARP registration failed",
     ),
-    "registerWarpTip": MessageLookupByLibrary.simpleMessage(
-      "A new WARP device will be registered with Cloudflare. By continuing you agree to the Cloudflare Terms of Service.",
-    ),
+    "registerWarpTip": m59,
     "regularNode": MessageLookupByLibrary.simpleMessage("Regular node"),
     "regularNodeDesc": MessageLookupByLibrary.simpleMessage(
       "Connects directly and joins the selected proxy groups",
@@ -1992,7 +1996,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "ripple": MessageLookupByLibrary.simpleMessage("Ripple"),
     "rotatingCircle": MessageLookupByLibrary.simpleMessage("Rotating Circle"),
     "rotatingPlain": MessageLookupByLibrary.simpleMessage("Rotating Plain"),
-    "routeAddCount": m59,
+    "routeAddCount": m60,
     "routeCategoryAi": MessageLookupByLibrary.simpleMessage("AI"),
     "routeCategoryDeveloper": MessageLookupByLibrary.simpleMessage("Developer"),
     "routeCategoryFinance": MessageLookupByLibrary.simpleMessage("Finance"),
@@ -2003,7 +2007,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "routeNameInvalid": MessageLookupByLibrary.simpleMessage(
       "Name cannot contain commas or line breaks",
     ),
-    "routeRemoveCount": m60,
+    "routeRemoveCount": m61,
     "routeTarget": MessageLookupByLibrary.simpleMessage("Default target"),
     "routeTrace": MessageLookupByLibrary.simpleMessage("Route Trace"),
     "routeTraceChain": MessageLookupByLibrary.simpleMessage("Proxy Chain"),
@@ -2014,7 +2018,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "See how the core resolves and matches a domain or IP",
     ),
     "routeTraceDns": MessageLookupByLibrary.simpleMessage("DNS Resolution"),
-    "routeTraceDnsBy": m61,
+    "routeTraceDnsBy": m62,
     "routeTraceDnsIp": MessageLookupByLibrary.simpleMessage(
       "The target is an IP, no resolution needed",
     ),
@@ -2023,7 +2027,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "routeTraceFinal": MessageLookupByLibrary.simpleMessage("Final Outbound"),
     "routeTraceHint": MessageLookupByLibrary.simpleMessage("Domain, IP or URL"),
-    "routeTraceHostsHit": m62,
+    "routeTraceHostsHit": m63,
     "routeTraceInput": MessageLookupByLibrary.simpleMessage("Target"),
     "routeTraceModeDirect": MessageLookupByLibrary.simpleMessage(
       "Direct mode: all traffic goes direct",
@@ -2035,8 +2039,8 @@ class MessageLookup extends MessageLookupByLibrary {
       "No rule matched, using DIRECT",
     ),
     "routeTraceRules": MessageLookupByLibrary.simpleMessage("Rule Matching"),
-    "routeTraceRulesSummary": m63,
-    "routeTraceRulesTotal": m64,
+    "routeTraceRulesSummary": m64,
+    "routeTraceRulesTotal": m65,
     "routeTraceSkipMissing": MessageLookupByLibrary.simpleMessage(
       "Skipped, target not found",
     ),
@@ -2060,8 +2064,8 @@ class MessageLookup extends MessageLookupByLibrary {
       "View checked rules",
     ),
     "rule": MessageLookupByLibrary.simpleMessage("Rule"),
-    "ruleCount": m65,
-    "ruleCountIncluded": m66,
+    "ruleCount": m66,
+    "ruleCountIncluded": m67,
     "ruleHits": MessageLookupByLibrary.simpleMessage("Rule hits"),
     "ruleName": MessageLookupByLibrary.simpleMessage("Rule Name"),
     "ruleProviders": MessageLookupByLibrary.simpleMessage("Rule Providers"),
@@ -2101,7 +2105,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "selectIcon": MessageLookupByLibrary.simpleMessage("Select icon"),
     "selected": MessageLookupByLibrary.simpleMessage("Selected"),
-    "selectedCountTitle": m67,
+    "selectedCountTitle": m68,
     "serviceReady": MessageLookupByLibrary.simpleMessage("Service Ready"),
     "serviceRunning": MessageLookupByLibrary.simpleMessage("Service Running"),
     "setcapFailedFallback": MessageLookupByLibrary.simpleMessage(
@@ -2195,7 +2199,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "speedTestConnecting": MessageLookupByLibrary.simpleMessage("Connecting"),
     "speedTestConnections": MessageLookupByLibrary.simpleMessage("Connections"),
-    "speedTestConnectionsDesc": m68,
+    "speedTestConnectionsDesc": m69,
     "speedTestCoreStopped": MessageLookupByLibrary.simpleMessage(
       "Not started · Direct test",
     ),
@@ -2207,7 +2211,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "speedTestErrorBlocked": MessageLookupByLibrary.simpleMessage(
       "Speed test unavailable",
     ),
-    "speedTestErrorBlockedDesc": m69,
+    "speedTestErrorBlockedDesc": m70,
     "speedTestErrorNetworkDesc": MessageLookupByLibrary.simpleMessage(
       "Check whether the outbound is available, then retry.",
     ),
@@ -2252,7 +2256,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "speedTestProtocolDesc": MessageLookupByLibrary.simpleMessage(
       "HTTP/3 runs over QUIC (UDP); if unavailable it falls back to HTTP/2, and to HTTP/1.1 if HTTP/2 is unavailable too",
     ),
-    "speedTestProtocolFallback": m70,
+    "speedTestProtocolFallback": m71,
     "speedTestQuality": MessageLookupByLibrary.simpleMessage("Network Quality"),
     "speedTestReady": MessageLookupByLibrary.simpleMessage("Ready"),
     "speedTestRealtime": MessageLookupByLibrary.simpleMessage(
@@ -2271,8 +2275,8 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "speedTestSingleThread": MessageLookupByLibrary.simpleMessage("Single"),
     "speedTestStart": MessageLookupByLibrary.simpleMessage("Start Test"),
-    "speedTestStreams": m71,
-    "speedTestSwitchProvider": m72,
+    "speedTestStreams": m72,
+    "speedTestSwitchProvider": m73,
     "speedTestUseSystemDns": MessageLookupByLibrary.simpleMessage(
       "Resolve with System DNS",
     ),
@@ -2498,7 +2502,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "updateInstallFailed": MessageLookupByLibrary.simpleMessage(
       "Update install failed",
     ),
-    "updateReadyAppTip": m73,
+    "updateReadyAppTip": m74,
     "updateReadyVpnTip": MessageLookupByLibrary.simpleMessage(
       "The new version package is ready. To keep the service safe, the running VPN service will be stopped before upgrading. Confirm to start the installation.",
     ),
@@ -2510,7 +2514,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "url": MessageLookupByLibrary.simpleMessage("URL"),
     "urlDesc": MessageLookupByLibrary.simpleMessage("Get profile via URL"),
-    "urlTip": m74,
+    "urlTip": m75,
     "usageStyle": MessageLookupByLibrary.simpleMessage("Usage Style"),
     "usageStyleBar": MessageLookupByLibrary.simpleMessage("Bars"),
     "usageStyleConcentric": MessageLookupByLibrary.simpleMessage(
@@ -2563,6 +2567,6 @@ class MessageLookup extends MessageLookupByLibrary {
     "xattrUnsupportedFallback": MessageLookupByLibrary.simpleMessage(
       "The filesystem does not support file capabilities, falling back to setuid",
     ),
-    "years": m75,
+    "years": m76,
   };
 }

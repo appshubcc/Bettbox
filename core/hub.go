@@ -494,11 +494,92 @@ func closeConnections() {
 	})
 }
 
+func resolvesThrough(name, target string) bool {
+	seen := map[string]bool{}
+	for name != "" && !seen[name] {
+		if name == target {
+			return true
+		}
+		seen[name] = true
+		proxy, ok := toolbox.FindProxy(name)
+		if !ok {
+			return false
+		}
+		if _, group, ok := proxyGroupOf(proxy); ok {
+			name = group.Now()
+			continue
+		}
+		name = proxy.ProxyInfo().DialerProxy
+	}
+	return false
+}
+
+func dialerSupportsUDP(name string) bool {
+	seen := map[string]bool{}
+	for name != "" && !seen[name] {
+		seen[name] = true
+		proxy, ok := toolbox.FindProxy(name)
+		if !ok {
+			return true
+		}
+		if _, group, ok := proxyGroupOf(proxy); ok {
+			name = group.Now()
+			continue
+		}
+		if !proxy.SupportUDP() {
+			return false
+		}
+		name = proxy.ProxyInfo().DialerProxy
+	}
+	return true
+}
+
+func handleCheckDialerUDP(name string) bool {
+	runLock.Lock()
+	defer runLock.Unlock()
+	return dialerSupportsUDP(name)
+}
+
+func dialerDependents(groupName string) []string {
+	seen := map[string]bool{}
+	names := make([]string, 0)
+	visit := func(proxy constant.Proxy) {
+		name := proxy.Name()
+		if seen[name] {
+			return
+		}
+		seen[name] = true
+		if _, _, ok := proxyGroupOf(proxy); ok {
+			return
+		}
+		if dialer := proxy.ProxyInfo().DialerProxy; dialer != "" && resolvesThrough(dialer, groupName) {
+			names = append(names, name)
+		}
+	}
+	for _, proxy := range tunnel.Proxies() {
+		visit(proxy)
+	}
+	for _, provider := range tunnel.Providers() {
+		for _, proxy := range provider.Proxies() {
+			visit(proxy)
+		}
+	}
+	slices.Sort(names)
+	return names
+}
+
+func handleGetDialerDependents(groupName string) []string {
+	runLock.Lock()
+	defer runLock.Unlock()
+	return dialerDependents(groupName)
+}
+
 func handleCloseGroupConnections(groupName string) bool {
 	runLock.Lock()
 	defer runLock.Unlock()
+	targets := append(dialerDependents(groupName), groupName)
 	statistic.DefaultManager.Range(func(c statistic.Tracker) bool {
-		if slices.Contains(c.Info().Chain, groupName) {
+		if slices.ContainsFunc(c.Info().Chain, func(name string) bool { return slices.Contains(targets, name) }) {
 			_ = c.Close()
 		}
 		return true

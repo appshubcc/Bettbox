@@ -47,42 +47,36 @@ class MainActivity : FlutterActivity() {
             installSplashScreen()
         }
         super.onCreate(savedInstanceState)
+        enableHighRefreshRate()
         HomeWidgets.handleIntent(intent)
+    }
+
+    private fun enableHighRefreshRate() {
+        val currentDisplay = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            display
+        } else {
+            @Suppress("DEPRECATION")
+            windowManager.defaultDisplay
+        } ?: return
+        val currentMode = currentDisplay.mode ?: return
+        val bestMode = currentDisplay.supportedModes
+            .filter {
+                it.physicalWidth == currentMode.physicalWidth &&
+                    it.physicalHeight == currentMode.physicalHeight
+            }
+            .maxByOrNull { it.refreshRate }
+            ?: return
+        if (bestMode.modeId != currentMode.modeId) {
+            window.attributes = window.attributes.apply {
+                preferredDisplayModeId = bestMode.modeId
+            }
+        }
     }
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
         HomeWidgets.handleIntent(intent)
-    }
-
-    override fun onResume() {
-        super.onResume()
-        applyHighRefreshRate()
-    }
-
-    private fun applyHighRefreshRate() {
-        runCatching {
-            val display = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                display
-            } else {
-                @Suppress("DEPRECATION")
-                windowManager.defaultDisplay
-            } ?: return
-            val active = display.mode
-            val target = display.supportedModes
-                .filter {
-                    it.physicalWidth == active.physicalWidth &&
-                        it.physicalHeight == active.physicalHeight
-                }
-                .maxByOrNull { it.refreshRate } ?: return
-            val attributes = window.attributes
-            if (attributes.preferredDisplayModeId == target.modeId) return
-            attributes.preferredDisplayModeId = target.modeId
-            window.attributes = attributes
-        }.onFailure {
-            Log.w("MainActivity", "Failed to apply high refresh rate: ${it.message}")
-        }
     }
 
     override fun provideFlutterEngine(context: Context): FlutterEngine {

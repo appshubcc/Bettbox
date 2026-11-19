@@ -1,3 +1,4 @@
+#include <dlfcn.h>
 #include <jni.h>
 #include <malloc.h>
 
@@ -11,10 +12,15 @@
 extern "C"
 JNIEXPORT void JNICALL
 Java_com_appshub_bettbox_core_Core_purgeMemory(JNIEnv *, jobject, jboolean all) {
-    if (all && mallopt(M_PURGE_ALL, 0) == 1) {
+    using MalloptFn = int (*)(int, int);
+    static const auto mallopt_fn = reinterpret_cast<MalloptFn>(dlsym(RTLD_DEFAULT, "mallopt"));
+    if (!mallopt_fn) {
         return;
     }
-    mallopt(M_PURGE, 0);
+    if (all && mallopt_fn(M_PURGE_ALL, 0) == 1) {
+        return;
+    }
+    mallopt_fn(M_PURGE, 0);
 }
 
 #ifdef LIBCLASH

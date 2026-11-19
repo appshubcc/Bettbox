@@ -81,6 +81,8 @@ class AppPlugin : FlutterPlugin, MethodChannel.MethodCallHandler, ActivityAware 
         private const val ICON_SIZE_DP = 48
         private const val VPN_PERMISSION_REQUEST_CODE = 1001
         private const val NOTIFICATION_PERMISSION_REQUEST_CODE = 1002
+        private const val LOCAL_NETWORK_PERMISSION_REQUEST_CODE = 1003
+        private const val LOCAL_NETWORK_PERMISSION = "android.permission.ACCESS_LOCAL_NETWORK"
         private const val CACHE_MAX_FILES = 500
         private const val PNG_MAGIC_SIZE = 8
 
@@ -135,6 +137,7 @@ class AppPlugin : FlutterPlugin, MethodChannel.MethodCallHandler, ActivityAware 
     }
 
     private var isBlockNotification = false
+    private var isBlockLocalNetwork = false
     private var isActivityAttached = false
 
     override fun onAttachedToEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
@@ -309,6 +312,10 @@ class AppPlugin : FlutterPlugin, MethodChannel.MethodCallHandler, ActivityAware 
             "openAppSettings" -> {
                 openAppSettings()
                 result.success(true)
+            }
+            "openAppDetails" -> {
+                val packageName = call.arguments as? String
+                result.success(!packageName.isNullOrEmpty() && openAppDetails(packageName))
             }
             "installApk" -> scope.launch {
                 val path = call.arguments as? String
@@ -538,12 +545,22 @@ class AppPlugin : FlutterPlugin, MethodChannel.MethodCallHandler, ActivityAware 
     }
 
     fun requestNotificationsPermission() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) return
-        if (isBlockNotification || activityRef?.get() == null) return
-        if (ContextCompat.checkSelfPermission(BettboxApplication.getAppContext(), Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) return
-        activityRef?.get()?.let {
-            ActivityCompat.requestPermissions(it, arrayOf(Manifest.permission.POST_NOTIFICATIONS), NOTIFICATION_PERMISSION_REQUEST_CODE)
+        val activity = activityRef?.get() ?: return
+        val needsNotification = Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+            !isBlockNotification &&
+            ContextCompat.checkSelfPermission(BettboxApplication.getAppContext(), Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED
+        if (needsNotification) {
+            ActivityCompat.requestPermissions(activity, arrayOf(Manifest.permission.POST_NOTIFICATIONS), NOTIFICATION_PERMISSION_REQUEST_CODE)
+            return
         }
+        requestLocalNetworkPermission()
+    }
+
+    private fun requestLocalNetworkPermission() {
+        if (Build.VERSION.SDK_INT < 37 || isBlockLocalNetwork) return
+        val activity = activityRef?.get() ?: return
+        if (ContextCompat.checkSelfPermission(activity, LOCAL_NETWORK_PERMISSION) == PackageManager.PERMISSION_GRANTED) return
+        ActivityCompat.requestPermissions(activity, arrayOf(LOCAL_NETWORK_PERMISSION), LOCAL_NETWORK_PERMISSION_REQUEST_CODE)
     }
 
     suspend fun getText(text: String): String? = withContext(Dispatchers.Default) {
@@ -634,7 +651,13 @@ class AppPlugin : FlutterPlugin, MethodChannel.MethodCallHandler, ActivityAware 
 
     private fun onRequestPermissionsResultListener(requestCode: Int, permissions: Array<String>, grantResults: IntArray): Boolean {
         if (!isActivityAttached) return false
-        if (requestCode == NOTIFICATION_PERMISSION_REQUEST_CODE) isBlockNotification = true
+        when (requestCode) {
+            NOTIFICATION_PERMISSION_REQUEST_CODE -> {
+                isBlockNotification = true
+                requestLocalNetworkPermission()
+            }
+            LOCAL_NETWORK_PERMISSION_REQUEST_CODE -> isBlockLocalNetwork = true
+        }
         return true
     }
 
@@ -684,13 +707,30 @@ class AppPlugin : FlutterPlugin, MethodChannel.MethodCallHandler, ActivityAware 
         ContextCompat.checkSelfPermission(BettboxApplication.getAppContext(), Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED
 
     private fun openAppSettings() {
+        openAppDetails(BettboxApplication.getAppContext().packageName)
+    }
+
+    private fun openAppDetails(packageName: String): Boolean {
+        val context = BettboxApplication.getAppContext()
+        val pm = context.packageManager
+        val installed = runCatching {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                pm.getPackageInfo(packageName, PackageManager.PackageInfoFlags.of(0))
+            } else {
+                pm.getPackageInfo(packageName, 0)
+            }
+            true
+        }.getOrDefault(false)
+        if (!installed && hasPackageListPermission()) return false
         val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
-            data = Uri.parse("package:${BettboxApplication.getAppContext().packageName}")
+            data = Uri.parse("package:$packageName")
         }
-        activityRef?.get()?.startActivity(intent) ?: run {
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            BettboxApplication.getAppContext().startActivity(intent)
-        }
+        return runCatching {
+            activityRef?.get()?.startActivity(intent) ?: run {
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                context.startActivity(intent)
+            }
+        }.isSuccess
     }
 
     private fun getSelfLastUpdateTime(): Long {

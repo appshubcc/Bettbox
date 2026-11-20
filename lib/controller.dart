@@ -32,6 +32,7 @@ import 'common/archive.dart'
     show BackupPasswordException, decodeBackupArchive, restoreBackupFiles;
 import 'common/common.dart';
 import 'common/dav_client.dart';
+import 'common/profile_recovery.dart';
 import 'models/models.dart';
 import 'views/profiles/override_profile.dart';
 import 'views/proxies/common.dart' show cancelDelayTests;
@@ -2631,7 +2632,7 @@ class AppController {
               item.name.endsWith('.json') && item.name != '.bettbox_marker',
         )
         .toList();
-    final profiles = archive.files.where(
+    final profileFiles = archive.files.where(
       (item) => !item.name.endsWith('.json') && item.name != '.bettbox_marker',
     );
 
@@ -2662,11 +2663,26 @@ class AppController {
     final recoveryStrategy = _ref.read(
       appSettingProvider.select((state) => state.recoveryStrategy),
     );
+    ProfileRecovery? recovery;
     if (recoveryStrategy == RecoveryStrategy.override) {
       await _cleanProfilesDirForOverride();
+    } else {
+      recovery = ProfileRecovery.compatible(
+        tempConfig.profiles,
+        _ref.read(profilesProvider),
+      );
+      tempConfig = tempConfig.copyWith(
+        profiles: recovery.profiles,
+        currentProfileId: recovery.targetId(tempConfig.currentProfileId),
+      );
     }
 
-    await _restoreArchiveProfiles(tempConfig.profiles, profiles, homeDirPath);
+    await _restoreArchiveProfiles(
+      tempConfig.profiles,
+      profileFiles,
+      homeDirPath,
+      recovery: recovery,
+    );
 
     if (recoveryOption != RecoveryOption.onlyProfiles) {
       tempConfig = tempConfig.copyWith(
@@ -2684,8 +2700,9 @@ class AppController {
   Future<void> _restoreArchiveProfiles(
     List<Profile> profiles,
     Iterable<ArchiveFile> files,
-    String homeDirPath,
-  ) async {
+    String homeDirPath, {
+    ProfileRecovery? recovery,
+  }) async {
     final fileMap = <String, ArchiveFile>{};
     final otherFiles = <ArchiveFile>[];
     for (final file in files) {
@@ -2693,15 +2710,19 @@ class AppController {
       if (!name.contains('/providers/') &&
           (name.endsWith('.yaml') || name.endsWith('.yml'))) {
         fileMap[basenameWithoutExtension(name)] = file;
-      } else {
+      } else if (recovery == null) {
         otherFiles.add(file);
+      } else if (recovery.providerFile(file, name) case final entry?) {
+        otherFiles.add(entry);
       }
     }
     await restoreBackupFiles(otherFiles, homeDirPath);
     for (final profile in profiles) {
-      final file = fileMap[profile.id];
-      if (file != null) {
+      for (final id in recovery?.sourceIds(profile.id) ?? [profile.id]) {
+        final file = fileMap[id];
+        if (file == null) continue;
         await profile.saveFile(file.content);
+        break;
       }
     }
   }
@@ -2787,7 +2808,16 @@ class AppController {
       }
     }
 
-    await _restoreArchiveProfiles(profiles, profileFiles, homeDirPath);
+    final recovery = recoveryStrategy == RecoveryStrategy.compatible
+        ? ProfileRecovery.compatible(profiles, _ref.read(profilesProvider))
+        : null;
+    profiles = recovery?.profiles ?? profiles;
+    await _restoreArchiveProfiles(
+      profiles,
+      profileFiles,
+      homeDirPath,
+      recovery: recovery,
+    );
 
     Config limitedConfig = globalState.config.copyWith(profiles: profiles);
 

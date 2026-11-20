@@ -4,6 +4,9 @@
 #ifdef GDK_WINDOWING_X11
 #include <gdk/gdkx.h>
 #endif
+#ifdef GDK_WINDOWING_WAYLAND
+#include <gdk/gdkwayland.h>
+#endif
 
 #include <sys/socket.h>
 #include <sys/un.h>
@@ -46,6 +49,19 @@ static void _send_control_command(const char* command) {
 }
 
 static GtkWindow* main_window = nullptr;
+
+#ifdef GDK_WINDOWING_WAYLAND
+static void _queue_allocate_tree(GtkWidget* widget, gpointer) {
+  if (GTK_IS_CONTAINER(widget)) {
+    gtk_container_forall(GTK_CONTAINER(widget), _queue_allocate_tree, nullptr);
+  }
+  gtk_widget_queue_allocate(widget);
+}
+
+static void _on_window_mapped_after(GtkWidget*, gpointer user_data) {
+  _queue_allocate_tree(GTK_WIDGET(user_data), nullptr);
+}
+#endif
 
 struct _MyApplication {
   GtkApplication parent_instance;
@@ -106,6 +122,13 @@ static void my_application_activate(GApplication* application) {
   FlView* view = fl_view_new(project);
   gtk_widget_show(GTK_WIDGET(view));
   gtk_container_add(GTK_CONTAINER(window), GTK_WIDGET(view));
+#ifdef GDK_WINDOWING_WAYLAND
+  if (GDK_IS_WAYLAND_DISPLAY(gtk_widget_get_display(GTK_WIDGET(window)))) {
+    g_signal_connect_object(window, "map",
+                            G_CALLBACK(_on_window_mapped_after), view,
+                            G_CONNECT_AFTER);
+  }
+#endif
 
   fl_register_plugins(FL_PLUGIN_REGISTRY(view));
 

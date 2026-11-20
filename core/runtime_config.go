@@ -50,6 +50,13 @@ func mergeRuntimeNode(origin, before, after *yamlv3.Node) *yamlv3.Node {
 	return after
 }
 
+// Mappings whose key order matters: mihomo uses the first matching
+// nameserver-policy entry, so a patched one keeps the patched order.
+var orderedRuntimeMappings = map[string]bool{
+	"nameserver-policy":              true,
+	"proxy-server-nameserver-policy": true,
+}
+
 func mergeRuntimeMapping(
 	origin, before, after *yamlv3.Node,
 	forced map[string]json.RawMessage,
@@ -65,6 +72,10 @@ func mergeRuntimeMapping(
 			if previous == nil {
 				result.Content = append(result.Content, key, value)
 			}
+			continue
+		}
+		if orderedRuntimeMappings[key.Value] && (previous == nil || !yamlNodeEqual(previous, next)) {
+			result.Content = append(result.Content, key, next)
 			continue
 		}
 		result.Content = append(

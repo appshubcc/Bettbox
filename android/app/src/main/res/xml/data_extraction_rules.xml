@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Tailscale node keys must not be copied to another device. -->
+<data-extraction-rules>
+    <cloud-backup>
+        <exclude domain="file" path="bettbox-tailscale" />
+    </cloud-backup>
+    <device-transfer>
+        <exclude domain="file" path="bettbox-tailscale" />
+    </device-transfer>
+</data-extraction-rules>

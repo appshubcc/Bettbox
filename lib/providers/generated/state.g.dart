@@ -48,7 +48,7 @@ final class ConfigStateProvider
   }
 }
 
-String _$configStateHash() => r'd4e8a017e3065c96b4c309ee3415fb5fd5e3d334';
+String _$configStateHash() => r'526d6c8da9b340b6cafe0dc49c6c8df23195ad96';
 
 @ProviderFor(currentGroupsState)
 final currentGroupsStateProvider = CurrentGroupsStateProvider._();
@@ -269,7 +269,7 @@ final class UpdateParamsProvider
   }
 }
 
-String _$updateParamsHash() => r'b8f29f135c32ce73f1541d8c6b8e94b2c254d666';
+String _$updateParamsHash() => r'0b9229800aa9e7994a02394f599768cf51074a6b';
 
 @ProviderFor(proxyState)
 final proxyStateProvider = ProxyStateProvider._();

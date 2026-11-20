@@ -22,6 +22,13 @@ class ClashMessage {
             listener.onGroupsChanged();
           case AppMessageType.request:
             listener.onRequest(TrackerInfo.fromJson(m.data));
+          case AppMessageType.tailscaleAuth:
+            final data = m.data is Map ? m.data as Map : const {};
+            listener.onTailscaleAuth(
+              dir: data['dir'] as String? ?? '',
+              url: data['url'] as String? ?? '',
+              state: data['state'] as String? ?? '',
+            );
           case AppMessageType.speedTest:
             listener.onSpeedTest(SpeedTestState.fromJson(m.data));
           case AppMessageType.stunTest:

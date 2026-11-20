@@ -179,7 +179,7 @@ func NewTailscale(option TailscaleOption) (*Tailscale, error) {
 	}
 	dnsTransport := tailscaleDNSTransport{tailscale: outbound}
 	outbound.dnsResolver = dns.NewResolverFromClient(dnsTransport)
-	outbound.unregisterDNSResolver = dns.RegisterTailscaleDnsClient(option.Name, dnsTransport)
+	outbound.unregisterDNSResolver = dns.RegisterTailscaleDnsClient(option.Name, dnsTransport, option.ProviderName != "")
 	return outbound, nil
 }
 

@@ -7,6 +7,7 @@ import 'package:bett_box/widgets/widgets.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+/// Android VPN routes only apply when the VPN starts; offers a restart.
 bool showVpnRestartTip(WidgetRef ref) {
   if (!system.isAndroid) return false;
   final isVpnEnabled = ref.read(vpnSettingProvider).enable;

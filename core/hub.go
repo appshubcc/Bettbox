@@ -136,6 +136,8 @@ func handleShutdown() bool {
 	toolbox.FlushTrafficStats()
 	toolbox.FlushKvStore()
 	stopListeners()
+	closeTailscaleProxies()
+	appTailscaleProxy.Store(nil)
 	executor.Shutdown()
 	tryUnloadGeoData()
 	handleClearRequests()
@@ -713,6 +715,7 @@ func ensureLogSubscriber() {
 	logSubscriber = log.Subscribe()
 	go func() {
 		for logData := range logSubscriber {
+			notifyTailscaleAuth(logData.Payload)
 			if logData.LogLevel < log.Level() {
 				continue
 			}

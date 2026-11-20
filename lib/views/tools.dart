@@ -22,6 +22,7 @@ import 'package:bett_box/views/hotkey.dart';
 import 'package:bett_box/views/other_setting.dart';
 import 'package:bett_box/views/profiles/scripts.dart';
 import 'package:bett_box/views/resources.dart';
+import 'package:bett_box/views/tailscale.dart';
 import 'package:bett_box/widgets/widgets.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -394,6 +395,17 @@ class _ToolViewState extends ConsumerState<ToolsView> {
           context,
           appLocalizations.basicConfig,
           const ConfigView(),
+        ),
+      ),
+      _SearchItem(
+        title: appLocalizations.tailscale,
+        subtitle: appLocalizations.tailscaleDesc,
+        category: settingsCategory,
+        leading: const Icon(Icons.hub_outlined),
+        onTap: (context, _) => _pushPage(
+          context,
+          appLocalizations.tailscale,
+          const TailscaleView(),
         ),
       ),
       _SearchItem(
@@ -1371,6 +1383,7 @@ class _ToolViewState extends ConsumerState<ToolsView> {
           if (system.isWindows) _LoopbackItem(),
           if (system.isAndroid) _AccessItem(),
           _ConfigItem(),
+          _TailscaleItem(),
           _OtherSettingItem(),
           _SettingItem(),
         ],
@@ -1596,7 +1609,24 @@ class _ConfigItem extends _ToolsItem {
   }
 }
 
-class _OtherSettingItem extends _ToolsItem {
+class _TailscaleItem extends StatelessWidget {
+  const _TailscaleItem();
+
+  @override
+  Widget build(BuildContext context) {
+    return ListItem.next(
+      leading: const Icon(Icons.hub_outlined),
+      title: Text(appLocalizations.tailscale),
+      subtitle: Text(appLocalizations.tailscaleDesc),
+      delegate: NextDelegate(
+        title: appLocalizations.tailscale,
+        builder: (_) => const TailscaleView(),
+      ),
+    );
+  }
+}
+
+class _OtherSettingItem extends StatelessWidget {
   const _OtherSettingItem();
 
   @override

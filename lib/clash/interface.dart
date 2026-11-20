@@ -96,6 +96,10 @@ mixin ClashInterface {
 
   FutureOr<String> getInterfaces();
 
+  FutureOr<String> getTailscaleStatus();
+
+  FutureOr<bool> startTailscale();
+
   Future<String> startSpeedTest(String params);
 
   FutureOr<bool> cancelSpeedTest();
@@ -721,6 +725,16 @@ abstract class ClashHandlerInterface with ClashInterface {
   @override
   FutureOr<String> getInterfaces() {
     return invoke<String>(method: ActionMethod.getInterfaces);
+  }
+
+  @override
+  FutureOr<String> getTailscaleStatus() {
+    return invoke<String>(method: ActionMethod.getTailscaleStatus);
+  }
+
+  @override
+  FutureOr<bool> startTailscale() {
+    return invoke<bool>(method: ActionMethod.startTailscale);
   }
 
   @override

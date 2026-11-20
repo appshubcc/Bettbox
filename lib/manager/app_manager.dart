@@ -73,6 +73,13 @@ class _AppStateManagerState extends ConsumerState<AppStateManager>
       if (prev != next) {
         globalState.appController.savePreferencesDebounce();
       }
+      if (prev != null &&
+          (prev.appSetting.mobileDashboardUpdatedAt !=
+                  next.appSetting.mobileDashboardUpdatedAt ||
+              prev.appSetting.desktopDashboardUpdatedAt !=
+                  next.appSetting.desktopDashboardUpdatedAt)) {
+        globalState.appController.autoBackupDebounce();
+      }
     });
     ref.listenManual(profilesProvider, (prev, next) {
       if (prev == null) return;

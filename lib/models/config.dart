@@ -235,6 +235,8 @@ abstract class AppSettingProps with _$AppSettingProps {
     @Default(LocalPingOptions()) LocalPingOptions localPingOptions,
     @Default(<String, String>{}) Map<String, String> mobileDashboardSizes,
     @Default(<String, String>{}) Map<String, String> desktopDashboardSizes,
+    DateTime? mobileDashboardUpdatedAt,
+    DateTime? desktopDashboardUpdatedAt,
   }) = _AppSettingProps;
 
   factory AppSettingProps.fromJson(Map<String, Object?> json) =>

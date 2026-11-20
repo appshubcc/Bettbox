@@ -13,9 +13,18 @@ package main
 #define M_PURGE_ALL (-104)
 #endif
 
+#if defined(__ANDROID_API__) && __ANDROID_API__ < 26
+extern int mallopt(int __option, int __value) __attribute__((weak));
+#else
 extern int mallopt(int __option, int __value);
+#endif
 
 static void purge_memory(void) {
+#if defined(__ANDROID_API__) && __ANDROID_API__ < 26
+    if (mallopt == NULL) {
+        return;
+    }
+#endif
     if (mallopt(M_PURGE_ALL, 0) == 1) {
         return;
     }

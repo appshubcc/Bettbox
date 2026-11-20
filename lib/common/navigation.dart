@@ -1,9 +1,12 @@
+import 'package:bett_box/common/app_localizations.dart';
 import 'package:bett_box/enum/enum.dart';
 import 'package:bett_box/models/models.dart';
 import 'package:bett_box/providers/providers.dart';
 import 'package:bett_box/views/views.dart';
-import 'package:material_ui/material_ui.dart';
+import 'package:bett_box/views/profiles/override_profile.dart';
+import 'package:bett_box/widgets/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:material_ui/material_ui.dart';
 
 class Navigation {
   static Navigation? _instance;
@@ -26,6 +29,30 @@ class Navigation {
         builder: (_) => ProviderScope(
           overrides: [queryProvider.overrideWith(() => Query())],
           child: ProxiesView(key: const GlobalObjectKey(PageLabel.proxies)),
+        ),
+        modes: hasProxies
+            ? [NavigationItemMode.mobile, NavigationItemMode.desktop]
+            : [],
+      ),
+      NavigationItem(
+        icon: const Icon(Icons.rule_rounded),
+        label: PageLabel.rules,
+        builder: (_) => Consumer(
+          builder: (context, ref, _) {
+            final profileId = ref.watch(currentProfileIdProvider);
+            if (profileId == null) {
+              return CommonScaffold(
+                title: PageLabel.rules.localizedName,
+                body: Center(child: Text(appLocalizations.checkOrAddProfile)),
+              );
+            }
+            return OverrideProfileView(
+              key: ValueKey('rules-$profileId'),
+              profileId: profileId,
+              title: PageLabel.rules.localizedName,
+              manageOriginRules: true,
+            );
+          },
         ),
         modes: hasProxies
             ? [NavigationItemMode.mobile, NavigationItemMode.desktop]

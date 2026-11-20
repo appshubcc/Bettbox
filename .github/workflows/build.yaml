@@ -588,6 +588,18 @@ jobs:
             sed -e "s|BASE_VERSION|$base_version|g" -e "s|VERSION|$version|g" ./.github/release_template.md >> release.md
           fi
 
+      - name: Detect existing release
+        id: release
+        if: ${{ env.SHOULD_RELEASE == 'true' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh api "repos/${GITHUB_REPOSITORY}/releases/tags/${GITHUB_REF_NAME}" >/dev/null 2>&1; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Release
         if: ${{ env.SHOULD_RELEASE == 'true' }}
         uses: softprops/action-gh-release@v3.0.0
@@ -595,3 +607,19 @@ jobs:
           files: ./dist/*
           body_path: './release.md'
           prerelease: ${{ env.IS_PRERELEASE == 'true' }}
+
+      - name: Dispatch AUR update
+        if: ${{ env.SHOULD_RELEASE == 'true' }}
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ secrets.AUR_UPDATER_TOKEN }}
+          REPO: ${{ vars.AUR_UPDATER_REPO || 'VillagerTom/bettbox-aur-updater' }}
+          FORCE: ${{ steps.release.outputs.exists }}
+        run: |
+          if [ -z "$GH_TOKEN" ]; then
+            echo "::warning::AUR_UPDATER_TOKEN is not set, skipping AUR update"
+            exit 0
+          fi
+          gh api -X POST "repos/$REPO/dispatches" \
+            -f event_type=bettbox-release \
+            -F "client_payload[force]=$FORCE"

@@ -46,9 +46,27 @@ void main() {
       [_profile('existing', url), _profile('other-local', url)],
     );
 
-    expect(restore.profiles, [exact]);
-    expect(restore.targetId('duplicate'), 'existing');
-    expect(restore.sourceIds('existing'), ['existing', 'duplicate']);
+    expect(restore.profiles.map((profile) => profile.id), [
+      'other-local',
+      'existing',
+    ]);
+    expect(restore.profiles.last, exact);
+    expect(restore.targetId('duplicate'), 'other-local');
+    expect(restore.sourceIds('existing'), ['existing']);
+  });
+
+  test('keeps same-URL subscriptions inside one backup separate', () {
+    final incoming = [
+      _profile('first', url, label: 'A'),
+      _profile('second', url, label: 'B'),
+    ];
+    final restore = ProfileRecovery.compatible(incoming, [
+      _profile('local', url, label: 'Local'),
+    ]);
+
+    expect(restore.profiles.map((profile) => profile.id), ['local', 'second']);
+    expect(restore.profiles.map((profile) => profile.label), ['Local', 'B']);
+    expect(ProfileRecovery.compatible(incoming, const []).profiles, incoming);
   });
 
   test('rewrites bundle member IDs and archived provider cache paths', () {

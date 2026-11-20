@@ -12,7 +12,6 @@ String? _subscriptionSource(Profile profile) {
   return uri.removeFragment().toString();
 }
 
-/// Plans a compatible restore without changing the IDs of local subscriptions.
 class ProfileRecovery {
   final List<Profile> profiles;
   final Map<String, String> _targetIds;
@@ -25,20 +24,12 @@ class ProfileRecovery {
     List<Profile> local,
   ) {
     final localById = {for (final profile in local) profile.id: profile};
-    final localBySource = <String, Profile>{};
+    final localBySource = <String, List<Profile>>{};
     final reservedIds = incoming.map((profile) => profile.id).toSet();
     for (final profile in local) {
       final source = _subscriptionSource(profile);
       if (source != null && !reservedIds.contains(profile.id)) {
-        localBySource.putIfAbsent(source, () => profile);
-      }
-    }
-    // An exact ID in the backup takes precedence over a URL-only match.
-    final targetsBySource = <String, String>{};
-    for (final profile in incoming) {
-      final source = _subscriptionSource(profile);
-      if (source != null && localById.containsKey(profile.id)) {
-        targetsBySource.putIfAbsent(source, () => profile.id);
+        localBySource.putIfAbsent(source, () => []).add(profile);
       }
     }
 
@@ -46,29 +37,18 @@ class ProfileRecovery {
     final sourceIds = <String, List<String>>{};
     final restored = <String, Profile>{};
     for (final profile in incoming) {
-      final source = _subscriptionSource(profile);
-      final exactMatch = localById[profile.id];
-      final targetId =
-          exactMatch?.id ??
-          targetsBySource[source] ??
-          localBySource[source]?.id ??
-          profile.id;
-      if (source != null) targetsBySource.putIfAbsent(source, () => targetId);
+      final candidates = localById.containsKey(profile.id)
+          ? null
+          : localBySource[_subscriptionSource(profile)];
+      final match = candidates == null || candidates.isEmpty
+          ? null
+          : candidates.removeAt(0);
+      final targetId = match?.id ?? profile.id;
       targetIds[profile.id] = targetId;
-      final sources = sourceIds.putIfAbsent(targetId, () => []);
-      if (targetId == profile.id) {
-        sources.insert(0, profile.id);
-        restored[targetId] = profile;
-      } else {
-        sources.add(profile.id);
-        restored.putIfAbsent(
-          targetId,
-          () => profile.copyWith(
-            id: targetId,
-            label: localById[targetId]?.label ?? profile.label,
-          ),
-        );
-      }
+      sourceIds[targetId] = [profile.id];
+      restored[targetId] = match == null
+          ? profile
+          : profile.copyWith(id: targetId, label: match.label);
     }
 
     final profiles = restored.values.map((profile) {

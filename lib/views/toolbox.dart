@@ -2,6 +2,7 @@ import 'package:bett_box/common/common.dart';
 import 'package:bett_box/pages/pages.dart';
 import 'package:bett_box/providers/providers.dart';
 import 'package:bett_box/state.dart';
+import 'package:bett_box/views/profiles/override_profile.dart';
 import 'package:bett_box/widgets/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
@@ -184,6 +185,14 @@ List<_ToolItem> _buildTools() {
       title: appLocalizations.trafficUsage,
       description: appLocalizations.trafficStatsDesc,
       open: (context) => push(context, const TrafficStatsPage()),
+    ),
+    _ToolItem(
+      id: 'addRule',
+      icon: Icons.rule_rounded,
+      color: const Color(0xFF558B2F),
+      title: appLocalizations.addRule,
+      description: appLocalizations.rule,
+      open: (_) => showQuickAddRule(),
     ),
   ];
 }

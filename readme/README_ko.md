@@ -151,6 +151,19 @@ const Compatible_With_Bettbox = {
 [Zashboard](https://github.com/Zephyruso/zashboard), [CMFA](https://github.com/MetaCubeX/ClashMetaForAndroid), [Sparkle](https://github.com/xishang0128/sparkle), [SFA](https://github.com/SagerNet/sing-box-for-android), [HUSI](https://github.com/xchacha20-poly1305/husi), [V2rayN](https://github.com/2dust/v2rayN), [Bett-rules](https://github.com/appshubcc/bett-rules)
 
 ---
+## 📈 프로젝트 인기도
+
+<p align="center">
+  <a href="https://www.star-history.com/?repos=appshubcc%2FBettbox&type=timeline&legend=top-left">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=appshubcc/Bettbox&type=date&theme=dark&legend=top-left" />
+      <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=appshubcc/Bettbox&type=date&legend=top-left" />
+      <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=appshubcc/Bettbox&type=date&legend=top-left" />
+    </picture>
+  </a>
+</p>
+
+---
 ## 📄 오픈소스 라이선스
 
 본 프로젝트는 [GPL-3.0 License](../LICENSE) 오픈소스 라이선스를 따릅니다.

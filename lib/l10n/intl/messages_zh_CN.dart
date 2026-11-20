@@ -1293,6 +1293,9 @@ class MessageLookup extends MessageLookupByLibrary {
       "请输入配置名称",
     ),
     "profileParseErrorDesc": MessageLookupByLibrary.simpleMessage("配置文件解析错误"),
+    "profileContentNotConfig": MessageLookupByLibrary.simpleMessage(
+      "订阅返回的内容不是配置文件，可能是网络认证或登录页面；请完成认证后重新更新订阅",
+    ),
     "profileSwitchMode": MessageLookupByLibrary.simpleMessage("网络配置切换"),
     "profileUrlInvalidValidationDesc": MessageLookupByLibrary.simpleMessage(
       "请输入有效配置 URL",

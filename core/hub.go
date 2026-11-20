@@ -992,6 +992,9 @@ func readProfile(path string, ageSecretKey string) (*config.RawConfig, error) {
 }
 
 func parseProfile(bytes []byte, ageSecretKey string) (*config.RawConfig, error) {
+	if isWebPageProfile(bytes) {
+		return nil, errProfileIsWebPage
+	}
 	ageMutex.Lock()
 	defer ageMutex.Unlock()
 

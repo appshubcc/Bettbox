@@ -189,6 +189,7 @@
   "unableToUpdateCurrentProfileDesc": "無法更新目前的設定檔",
   "noMoreInfoDesc": "暫無更多資訊",
   "profileParseErrorDesc": "設定檔解析錯誤",
+  "profileContentNotConfig": "訂閱返回的內容不是設定檔，可能是網路認證或登入頁面；請完成認證後重新更新訂閱",
   "proxyPort": "代理連接埠",
   "proxyPortDesc": "設定 Clash 監聽埠",
   "port": "連接埠",

@@ -4,10 +4,13 @@ import (
 	"encoding/json"
 	"errors"
 	"regexp"
+	"slices"
 	"strings"
 
+	"github.com/dlclark/regexp2"
 	"github.com/metacubex/mihomo/adapter"
 	"github.com/metacubex/mihomo/common/convert"
+	"github.com/metacubex/mihomo/common/utils"
 	"github.com/metacubex/mihomo/common/yaml"
 	"github.com/metacubex/mihomo/config"
 )
@@ -178,6 +181,33 @@ func groupHasMember(group map[string]any, names ...string) bool {
 	return false
 }
 
+func leadingMembersEnd(members []any, groups map[string]map[string]any, isNode map[string]bool) int {
+	for index, member := range members {
+		name, _ := member.(string)
+		if _, ok := groups[name]; !ok && !isNode[name] && !slices.Contains(protectedProxyNames, name) {
+			return index
+		}
+	}
+	return len(members)
+}
+
+func matchesGroupFilter(group map[string]any, name string) bool {
+	filter, _ := group["filter"].(string)
+	if filter == "" {
+		return true
+	}
+	for _, part := range strings.Split(filter, "`") {
+		reg, err := utils.CompileRegexp(part, regexp2.None)
+		if err != nil {
+			continue
+		}
+		if ok, _ := reg.MatchString(name); ok {
+			return true
+		}
+	}
+	return false
+}
+
 func isSelectGroup(group map[string]any) bool {
 	kind, _ := group["type"].(string)
 	return strings.EqualFold(kind, "select")
@@ -326,7 +356,14 @@ func patchNodes(raw *config.RawConfig, nodes []PatchNode) {
 			switch {
 			case targets[current] && !includeAll:
 				members, _ := group["proxies"].([]any)
-				group["proxies"] = append(members, name)
+				index := len(members)
+				if isSelectGroup(group) {
+					index = leadingMembersEnd(members, groups, isNode)
+				}
+				group["proxies"] = slices.Insert(members, index, any(name))
+			case targets[current] && isSelectGroup(group) && matchesGroupFilter(group, name):
+				members, _ := group["proxies"].([]any)
+				group["proxies"] = slices.Insert(members, leadingMembersEnd(members, groups, isNode), any(name))
 			case !targets[current] && includeAll:
 				combineExcludeFilter(group, exclude)
 			}

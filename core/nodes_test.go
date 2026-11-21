@@ -106,7 +106,7 @@ func TestPatchNodesFallbackAndRename(t *testing.T) {
 	if _, exist := node["dialer-proxy"]; exist {
 		t.Errorf("missing front must drop dialer-proxy: %v", node)
 	}
-	if got := groupMembers(patchedGroup(t, raw.ProxyGroup, "手动选择")); !reflect.DeepEqual(got, []string{"hk1", "us1", "hk1 2"}) {
+	if got := groupMembers(patchedGroup(t, raw.ProxyGroup, "手动选择")); !reflect.DeepEqual(got, []string{"hk1 2", "hk1", "us1"}) {
 		t.Errorf("手动选择 = %v", got)
 	}
 	if _, exist := patchedGroup(t, raw.ProxyGroup, "全部")["exclude-filter"]; exist {
@@ -470,9 +470,9 @@ func TestPatchNodesRegions(t *testing.T) {
 		"默认代理":    {"香港", "美国", "手动选择", "HK Home", "HK Land"},
 		"AI":      {"默认代理", "手动选择", "香港", "美国", "HK Home", "HK Land"},
 		"香港-自动选择": {"hk1", "HK Home"},
-		"香港":      {"香港-自动选择", "hk1", "HK Home"},
+		"香港":      {"香港-自动选择", "HK Home", "hk1"},
 		"美国-自动选择": {"us1", "US Manual"},
-		"美国":      {"美国-自动选择", "us1", "US Pick", "US Manual"},
+		"美国":      {"美国-自动选择", "US Pick", "US Manual", "us1"},
 		"其他节点":    {"hk1"},
 	}
 	for name, members := range want {

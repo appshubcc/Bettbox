@@ -91,7 +91,7 @@ func ParseProxyGroup(config map[string]any, proxyMap map[string]C.Proxy, provide
 		groupOption.Use = AllProviders
 	}
 	if groupOption.IncludeAllProxies {
-		matched := filterAllProxies(AllProxies, proxyMap, groupOption.Filter, groupOption.ExcludeFilter, groupOption.ExcludeType)
+		matched := filterAllProxies(AllProxies, groupOption.Proxies, proxyMap, groupOption.Filter, groupOption.ExcludeFilter, groupOption.ExcludeType)
 		groupOption.Proxies = append(groupOption.Proxies, matched...)
 		if len(groupOption.Proxies) == 0 && len(groupOption.Use) == 0 {
 			groupOption.Proxies = []string{groupOption.EmptyFallback}

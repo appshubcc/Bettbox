@@ -8,9 +8,14 @@ import (
 	C "github.com/metacubex/mihomo/constant"
 )
 
-func filterAllProxies(allProxies []string, proxyMap map[string]C.Proxy, filter string, excludeFilter string, excludeType string) []string {
-	if filter == "" && excludeFilter == "" && excludeType == "" {
+func filterAllProxies(allProxies []string, explicit []string, proxyMap map[string]C.Proxy, filter string, excludeFilter string, excludeType string) []string {
+	if len(explicit) == 0 && filter == "" && excludeFilter == "" && excludeType == "" {
 		return allProxies
+	}
+
+	listed := make(map[string]struct{}, len(explicit))
+	for _, name := range explicit {
+		listed[name] = struct{}{}
 	}
 
 	var filterRegs []*regexp2.Regexp
@@ -34,6 +39,9 @@ func filterAllProxies(allProxies []string, proxyMap map[string]C.Proxy, filter s
 
 	var matched []string
 	for _, name := range allProxies {
+		if _, ok := listed[name]; ok {
+			continue
+		}
 		if len(filterRegs) > 0 {
 			hit := false
 			for _, reg := range filterRegs {

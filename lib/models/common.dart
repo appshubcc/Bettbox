@@ -443,7 +443,11 @@ extension GroupExt on Group {
     if (type.isComputedSelected) {
       return realNow.isNotEmpty ? realNow : proxyName;
     }
-    return proxyName.isNotEmpty ? proxyName : realNow;
+    if (proxyName.isEmpty ||
+        (all.isNotEmpty && !all.any((proxy) => proxy.name == proxyName))) {
+      return realNow;
+    }
+    return proxyName;
   }
 }
 

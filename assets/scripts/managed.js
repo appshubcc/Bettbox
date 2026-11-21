@@ -4,7 +4,7 @@
  * 自定义分流远程规则集：@appshubcc https://github.com/appshubcc/bett-rules 
  */
 
-// @version 2026112003
+// @version 2026112201
 const Compatible_With_Bettbox = { ruleOptionsEnable: true };
 
 const ruleOptionsEnable = {
@@ -236,6 +236,12 @@ const baseRuleProviders = {
     url: `${ruleSetBaseUrl}geosite/fakeip-filter.mrs`,
     path: './ruleset/fakeip-filter.mrs',
     'path-in-bundle': 'geo/geosite/fakeip-filter.mrs',
+  },
+  connectcheck: {
+    ...ruleProviderCommonDomain,
+    url: `${ruleSetBaseUrl}geosite/connectivity-check.mrs`,
+    path: './ruleset/connectivity-check.mrs',
+    'path-in-bundle': 'geo/geosite/connectivity-check.mrs',
   },
   cn: {
     ...ruleProviderCommonDomain,
@@ -1603,6 +1609,8 @@ function simplifyDomainPolicy(policy) {
  * 构建 DNS 与 hosts：保留私有 DNS、节点域名 policy/fake-ip-filter 与命中节点域名的订阅 hosts，并按 hosts 改写节点 server。
  */
 function buildDnsAndHostsConfig(config, filteredProxies, dnsPolicyGroups) {
+  const minimalModeEnabled = ruleOptionsEnable.极简国内外分流模式;
+
   const originalDnsConfig = config.dns || {};
 
   const proxyServerNameservers = originalDnsConfig['proxy-server-nameserver'] || [];
@@ -1699,6 +1707,8 @@ function buildDnsAndHostsConfig(config, filteredProxies, dnsPolicyGroups) {
       'rule-set:cn',
       'rule-set:private',
       'rule-set:fakeip_filter',
+      'rule-set:connectcheck',
+      ...(minimalModeEnabled ? [] : ruleOptionsEnable.FCM ? ['rule-set:googlefcm'] : []),
       ...proxyFakeIpFilter,
     ],
     'fake-ip-range': '198.18.0.1/15',

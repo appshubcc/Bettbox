@@ -13,6 +13,7 @@ import (
 	"regexp"
 	"runtime"
 	"runtime/debug"
+	"runtime/metrics"
 	"slices"
 	"sort"
 	"strconv"
@@ -859,13 +860,19 @@ func handleGetCountryCode(ip string, fn func(value string)) {
 
 func handleGetMemory(fn func(value string)) {
 	go func() {
-		var m runtime.MemStats
-		runtime.ReadMemStats(&m)
-		var retainedIdle uint64
-		if m.HeapIdle > m.HeapReleased {
-			retainedIdle = m.HeapIdle - m.HeapReleased
+		samples := []metrics.Sample{
+			{Name: "/memory/classes/heap/objects:bytes"},
+			{Name: "/memory/classes/heap/unused:bytes"},
+			{Name: "/memory/classes/heap/free:bytes"},
+			{Name: "/memory/classes/heap/stacks:bytes"},
 		}
-		mem := m.HeapInuse + retainedIdle + m.StackInuse
+		metrics.Read(samples)
+		var mem uint64
+		for _, sample := range samples {
+			if sample.Value.Kind() == metrics.KindUint64 {
+				mem += sample.Value.Uint64()
+			}
+		}
 		fn(strconv.FormatUint(mem, 10))
 	}()
 }

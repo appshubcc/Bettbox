@@ -1848,6 +1848,7 @@ class AppController {
   }
 
   static const _managedScriptBackupKey = 'managedScript';
+  static const _backupDesktopKey = 'backupDesktop';
 
   bool _resumeAfterInstall = false;
 
@@ -2680,6 +2681,7 @@ class AppController {
     if (configJson['appSetting'] case final Map<String, dynamic> appSetting) {
       appSetting.remove('backupPassword');
     }
+    configJson[_backupDesktopKey] = system.isDesktop;
     final managedProps = globalState.config.managedProps;
     if (ManagedScript.isCustom(managedProps)) {
       configJson[_managedScriptBackupKey] = await ManagedScript.read(
@@ -3126,7 +3128,11 @@ class AppController {
           )
         : null;
 
-    _recovery(tempConfig, recoveryOption);
+    _recovery(
+      tempConfig,
+      recoveryOption,
+      fromDesktop: configJson[_backupDesktopKey] == true,
+    );
     if (managedProps != null) {
       _ref.read(managedSettingProvider.notifier).value = managedProps;
     }
@@ -3415,7 +3421,11 @@ class AppController {
   }
 
   /// Full restore
-  void _recovery(Config config, RecoveryOption recoveryOption) {
+  void _recovery(
+    Config config,
+    RecoveryOption recoveryOption, {
+    bool fromDesktop = false,
+  }) {
     final profiles = config.profiles;
 
     // Restore subscriptions
@@ -3485,7 +3495,13 @@ class AppController {
       } else if (system.isDesktop) {
         // Desktop: restore network settings, preserve TUN state
         final currentVpnProps = _ref.read(vpnSettingProvider);
-        _ref.read(networkSettingProvider.notifier).value = config.networkProps;
+        _ref.read(networkSettingProvider.notifier).value = fromDesktop
+            ? config.networkProps
+            : config.networkProps.copyWith(
+                bypassPrivateRouteAddress: _ref
+                    .read(networkSettingProvider)
+                    .bypassPrivateRouteAddress,
+              );
 
         // Only restore non-platform-specific VPN settings
         _ref.read(vpnSettingProvider.notifier).value = config.vpnProps.copyWith(

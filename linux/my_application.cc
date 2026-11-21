@@ -51,15 +51,41 @@ static void _send_control_command(const char* command) {
 static GtkWindow* main_window = nullptr;
 
 #ifdef GDK_WINDOWING_WAYLAND
-static void _queue_allocate_tree(GtkWidget* widget, gpointer) {
-  if (GTK_IS_CONTAINER(widget)) {
-    gtk_container_forall(GTK_CONTAINER(widget), _queue_allocate_tree, nullptr);
+static void _find_subsurface_renderer(GtkWidget* widget, gpointer user_data) {
+  GtkWidget** renderer = static_cast<GtkWidget**>(user_data);
+  if (*renderer != nullptr) {
+    return;
   }
-  gtk_widget_queue_allocate(widget);
+  if (g_strcmp0(G_OBJECT_TYPE_NAME(widget), "FlViewRendererSubsurface") == 0) {
+    *renderer = widget;
+    return;
+  }
+  if (GTK_IS_CONTAINER(widget)) {
+    gtk_container_forall(GTK_CONTAINER(widget), _find_subsurface_renderer,
+                         renderer);
+  }
+}
+
+static gboolean _reallocate_subsurface_renderer(gpointer user_data) {
+  GtkWidget* view = GTK_WIDGET(user_data);
+  if (!gtk_widget_get_mapped(view)) {
+    return G_SOURCE_REMOVE;
+  }
+  GtkWidget* renderer = nullptr;
+  _find_subsurface_renderer(view, &renderer);
+  if (renderer == nullptr || !gtk_widget_get_mapped(renderer)) {
+    return G_SOURCE_REMOVE;
+  }
+  GtkAllocation allocation;
+  gtk_widget_get_allocation(renderer, &allocation);
+  gtk_widget_queue_allocate(renderer);
+  gtk_widget_size_allocate(renderer, &allocation);
+  return G_SOURCE_REMOVE;
 }
 
 static void _on_window_mapped_after(GtkWidget*, gpointer user_data) {
-  _queue_allocate_tree(GTK_WIDGET(user_data), nullptr);
+  g_idle_add_full(G_PRIORITY_DEFAULT_IDLE, _reallocate_subsurface_renderer,
+                  g_object_ref(user_data), g_object_unref);
 }
 #endif
 

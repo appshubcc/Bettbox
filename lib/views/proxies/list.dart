@@ -25,6 +25,9 @@ class ProxiesListViewState extends State<ProxiesListView> {
 
   void collapseAll() => _groupsListKey.currentState?.collapseAll();
 
+  VoidCallback? groupLocator(String groupName) =>
+      _groupsListKey.currentState?.groupLocator(groupName);
+
   @override
   Widget build(BuildContext context) {
     return ActiveConsumer(
@@ -156,6 +159,26 @@ class _ProxyGroupsListState extends ConsumerState<_ProxyGroupsList>
     globalState.appController.updateCurrentUnfoldSet({});
   }
 
+  VoidCallback? groupLocator(String groupName) {
+    if (!widget.groups.any((group) => group.name == groupName)) return null;
+    return () => _locateGroup(groupName);
+  }
+
+  void _locateGroup(String groupName) {
+    if (!mounted) return;
+    final unfoldSet = widget.currentUnfoldSet;
+    if (!unfoldSet.contains(groupName)) {
+      globalState.appController.updateCurrentUnfoldSet({
+        ...unfoldSet,
+        groupName,
+      });
+    }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      _scrollToSelected(groupName);
+    });
+  }
+
   double _collapsedAnchorOffset(ScrollPosition position) {
     final offset = position.pixels;
     final top = 16.0 + _rise;
@@ -222,7 +245,6 @@ class _ProxyGroupsListState extends ConsumerState<_ProxyGroupsList>
     final selectedName = ref
         .read(getSelectedProxyNameProvider(groupName))
         .getSafeValue('');
-    if (selectedName.isEmpty) return;
 
     final headerHeight = _getHeaderHeight();
     final itemHeight = getItemHeight(widget.cardType);
@@ -246,7 +268,9 @@ class _ProxyGroupsListState extends ConsumerState<_ProxyGroupsList>
     final group = targetGroup;
     if (group == null) return;
 
-    final proxyIndex = group.all.indexWhere((p) => p.name == selectedName);
+    final proxyIndex = selectedName.isEmpty
+        ? -1
+        : group.all.indexWhere((p) => p.name == selectedName);
     if (proxyIndex >= 0) {
       final rowIndex = proxyIndex ~/ widget.columns;
       if (autoStickyHeader) {

@@ -38,6 +38,7 @@ Future<void> showProxyActions(
   required bool coreRunning,
   Group? proxyGroup,
   String proxyGroupSelected = '',
+  VoidCallback? onLocateGroup,
   Offset? position,
 }) async {
   final anchor = position == null ? _anchorOf(context) : null;
@@ -48,7 +49,11 @@ Future<void> showProxyActions(
       position: position,
       anchor: anchor,
       items: _groupProxyItems(context, proxyGroup, proxyGroupSelected),
-      header: _ProxyMenuHeader(proxyGroup.name, type: proxyGroup.type.name),
+      header: _ProxyMenuHeader(
+        proxyGroup.name,
+        type: proxyGroup.type.name,
+        onTap: onLocateGroup,
+      ),
     );
     return;
   }
@@ -335,16 +340,28 @@ Future<void> _checkIpRisk(BuildContext context, String proxyName) async {
 class _ProxyMenuHeader extends StatelessWidget {
   final String name;
   final String? type;
+  final VoidCallback? onTap;
 
-  const _ProxyMenuHeader(this.name, {this.type});
+  const _ProxyMenuHeader(this.name, {this.type, this.onTap});
+
+  void _handleTap(BuildContext context, VoidCallback onTap) {
+    final route = ModalRoute.of(context);
+    Navigator.of(context).pop();
+    if (route == null) {
+      onTap();
+      return;
+    }
+    route.completed.then((_) => onTap());
+  }
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = context.colorScheme;
     final style = context.textTheme.bodyMedium?.copyWith(fontSize: 15);
     final type = this.type;
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 12, 22, 10),
+    final onTap = this.onTap;
+    final content = Padding(
+      padding: EdgeInsets.fromLTRB(16, 12, onTap == null ? 22 : 12, 10),
       child: Row(
         children: [
           Flexible(
@@ -363,8 +380,24 @@ class _ProxyMenuHeader extends StatelessWidget {
               ' - $type',
               style: style?.copyWith(color: colorScheme.onSurfaceVariant),
             ),
+          if (onTap != null) ...[
+            const Spacer(),
+            AppIcon(
+              Icons.chevron_right_rounded,
+              size: 22,
+              color: colorScheme.onSurfaceVariant,
+            ),
+          ],
         ],
       ),
+    );
+    if (onTap == null) return content;
+    return InkWell(
+      customBorder: RoundedSuperellipseBorder(
+        borderRadius: BorderRadius.circular(20),
+      ),
+      onTap: () => _handleTap(context, onTap),
+      child: content,
     );
   }
 }

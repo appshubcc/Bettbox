@@ -5,6 +5,8 @@ import 'package:bett_box/providers/providers.dart';
 import 'package:bett_box/state.dart';
 import 'package:bett_box/views/proxies/actions.dart';
 import 'package:bett_box/views/proxies/common.dart';
+import 'package:bett_box/views/proxies/list.dart';
+import 'package:bett_box/views/proxies/tab.dart';
 import 'package:bett_box/widgets/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
@@ -293,6 +295,14 @@ class ProxyCard extends StatelessWidget {
     };
   }
 
+  VoidCallback? _groupLocatorOf(BuildContext context) {
+    final tabView = context.findAncestorStateOfType<ProxiesTabViewState>();
+    if (tabView != null) return tabView.groupLocator(proxy.name);
+    return context
+        .findAncestorStateOfType<ProxiesListViewState>()
+        ?.groupLocator(proxy.name);
+  }
+
   void _openActions(BuildContext context, WidgetRef ref, {Offset? position}) {
     showProxyActions(
       context,
@@ -306,6 +316,7 @@ class ProxyCard extends StatelessWidget {
       coreRunning: ref.read(runTimeProvider) != null,
       proxyGroup: ref.read(groupsProvider).getGroup(proxy.name),
       proxyGroupSelected: ref.read(selectedMapProvider)[proxy.name] ?? '',
+      onLocateGroup: _groupLocatorOf(context),
       position: position,
     );
   }

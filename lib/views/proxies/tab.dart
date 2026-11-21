@@ -74,6 +74,28 @@ class ProxiesTabViewState extends ConsumerState<ProxiesTabView>
     _keyMap[currentGroupName]?.currentState?.scrollToSelected();
   }
 
+  VoidCallback? groupLocator(String groupName) {
+    final index = ref
+        .read(proxiesTabStateProvider)
+        .groups
+        .indexWhere((group) => group.name == groupName);
+    if (index == -1) return null;
+    return () => _locateGroup(groupName, index);
+  }
+
+  Future<void> _locateGroup(String groupName, int index) async {
+    final controller = _tabController;
+    if (controller == null || index >= controller.length) return;
+    controller.animateTo(index);
+    globalState.appController.updateCurrentGroupName(groupName);
+    await Future<void>.delayed(kTabScrollDuration);
+    if (!mounted) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      _keyMap[groupName]?.currentState?.scrollToSelected();
+    });
+  }
+
   Future<void> delayTestCurrentGroup() async {
     final currentGroupName = globalState.appController.getCurrentGroupName();
     final currentState = _keyMap[currentGroupName]?.currentState;
@@ -441,7 +463,7 @@ class _ProxyGroupViewState extends ConsumerState<ProxyGroupView> {
   }
 
   void scrollToSelected() {
-    if (_controller.position.maxScrollExtent == 0) {
+    if (!_controller.hasClients || _controller.position.maxScrollExtent == 0) {
       return;
     }
     _controller.animateTo(

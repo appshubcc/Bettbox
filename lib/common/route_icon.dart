@@ -3,6 +3,10 @@ final _routeTokenPattern = RegExp(r'[-_.]+');
 final _routeTrailingDigits = RegExp(r'\d+$');
 final routeWordPattern = RegExp(r'[a-z0-9]+|[\p{Script=Han}]+', unicode: true);
 final routeHanPattern = RegExp(r'[\p{Script=Han}]', unicode: true);
+final sensitiveRoutePattern = RegExp(
+  r'porn|hentai|xvideos|xnxx|missav|javdb|jable|mindgeek|onlyfans|category-adult|category-gambling|casino|betting',
+  caseSensitive: false,
+);
 
 const defaultRouteAliases = <String, String>{
   '香港': 'flag/Hong_Kong.svg',

@@ -119,6 +119,35 @@ void main() {
     expect(index.iconOf(route('https://a.com/b.svg')), 'https://a.com/b.svg');
   });
 
+  test(
+    'sensitive remote icons and services remain matchable without local assets',
+    () async {
+      await loadBundledRouteIcons();
+      final index = await ManagedScript.catalog();
+      expect(
+        index.catalog.icons,
+        containsAll(const ['EHentai.svg', 'MissAV.svg', 'Pornhub.svg']),
+      );
+      expect(
+        index.catalog.services.any((service) => service.name == 'MissAV'),
+        isTrue,
+      );
+      for (final (name, setKey, expected) in const [
+        ('MissAV', 'geosite:missav', 'MissAV.svg'),
+        ('E-Hentai', 'geosite:ehentai', 'EHentai.svg'),
+        ('Pornhub', 'geosite:pornhub', 'Pornhub.svg'),
+      ]) {
+        expect(index.autoIcon(name, const []), expected);
+        expect(index.autoIcon('Custom', [setKey]), expected);
+        expect(index.sets[setKey]?.icon, expected);
+        final url = routeIconUrl(expected);
+        expect(url, isNotNull);
+        expect(routeIconAsset(url), isNull);
+        expect(sensitiveRoutePattern.hasMatch(name), isTrue);
+      }
+    },
+  );
+
   test('custom groups sit before AdBlock and follow the saved order', () {
     const presets = ['FCM', 'YouTube', 'Google', 'AdBlock'];
     expect(

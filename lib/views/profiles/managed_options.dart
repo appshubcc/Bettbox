@@ -29,11 +29,6 @@ String _targetLabel(String target) =>
 String _searchKey(String value) =>
     value.toLowerCase().replaceAll(_searchKeyPattern, '');
 
-final _sensitiveTagPattern = RegExp(
-  r'porn|hentai|xvideos|xnxx|missav|javdb|jable|mindgeek|onlyfans|category-adult|category-gambling|casino|betting',
-  caseSensitive: false,
-);
-
 String _iconName(String icon) {
   final name = icon.substring(icon.lastIndexOf('/') + 1);
   return name.endsWith('.svg') ? name.substring(0, name.length - 4) : name;
@@ -1153,7 +1148,18 @@ class _RouteSheetState extends State<_RouteSheet> {
     ],
   );
 
-  List<RouteService> get _services => _serviceIndex.search(_query);
+  List<RouteService> get _services {
+    final searched = _serviceIndex.search(_query);
+    if (_query.trim().isNotEmpty) return searched;
+    return [
+      for (final service in searched)
+        if (_routeOf.containsKey(service.name) ||
+            _added.contains(service) ||
+            (!sensitiveRoutePattern.hasMatch(service.name) &&
+                !service.sets.any(sensitiveRoutePattern.hasMatch)))
+          service,
+    ];
+  }
 
   bool _available(RouteService service) =>
       !widget.reserved.contains(service.name);
@@ -1902,7 +1908,7 @@ class _RuleSetPickerSheetState extends State<_RuleSetPickerSheet> {
         ? [
             for (final set in searched)
               if (_selected.contains(set.key) ||
-                  !_sensitiveTagPattern.hasMatch(set.tag))
+                  !sensitiveRoutePattern.hasMatch(set.tag))
                 set,
           ]
         : searched;

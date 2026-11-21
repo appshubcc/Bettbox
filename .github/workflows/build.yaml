@@ -247,6 +247,8 @@ jobs:
           FILE="${MOD_CACHE}/github.com/metacubex/sing-tun@${SING_TUN_VERSION}/tun_windows.go"
           echo "Patching ${FILE}"
           chmod +w "${FILE}"
+          perl -pi -e 's/inetIf\.ForwardingEnabled = true/inetIf.ForwardingEnabled = false/g' "${FILE}"
+
       - name: Build Bettbox (Non-Windows)
         if: matrix.platform != 'windows'
         shell: bash

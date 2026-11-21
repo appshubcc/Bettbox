@@ -15,6 +15,15 @@ const managedAnchorGroup = 'AdBlock';
 const managedDefaultGroup = '默认代理';
 const managedManualGroup = '手动选择';
 const managedDirectGroup = '直连';
+const managedRateGroupOption = '生成高低倍率组';
+const managedFilterLowRateOption = '过滤低倍率节点';
+const managedFilterHighRateOption = '过滤高倍率节点';
+const managedLowRateGroup = '低倍率节点';
+const managedHighRateGroup = '高倍率节点';
+const managedRateGroupIcons = {
+  managedLowRateGroup: 'common/Available.svg',
+  managedHighRateGroup: 'common/Airport.svg',
+};
 const _managedScriptAsset = 'assets/scripts/managed.js';
 const _routeCatalogAsset = 'assets/scripts/routing.json';
 const _routeIconBaseUrl =
@@ -128,6 +137,14 @@ List<String> managedRegions(
   for (final region in customRegions)
     if (enabled?.contains(region.name) ?? true) region.name,
 ];
+
+List<String> managedRateGroups(Map<String, bool> options) {
+  if (options[managedRateGroupOption] != true) return const [];
+  return [
+    if (options[managedFilterLowRateOption] != true) managedLowRateGroup,
+    if (options[managedFilterHighRateOption] != true) managedHighRateGroup,
+  ];
+}
 
 List<String> orderManagedGroups({
   required List<String> presets,

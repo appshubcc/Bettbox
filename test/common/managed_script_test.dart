@@ -360,6 +360,79 @@ void main() {
     );
   });
 
+  test('rate groups follow options, icons and saved group order', () async {
+    await loadBundledRouteIcons();
+    expect(managedRateGroups(const {}), isEmpty);
+    expect(managedRateGroups(const {managedRateGroupOption: false}), isEmpty);
+    expect(managedRateGroups(const {managedRateGroupOption: true}), const [
+      managedLowRateGroup,
+      managedHighRateGroup,
+    ]);
+    expect(
+      managedRateGroups(const {
+        managedRateGroupOption: true,
+        managedFilterLowRateOption: true,
+      }),
+      const [managedHighRateGroup],
+    );
+    expect(
+      managedRateGroups(const {
+        managedRateGroupOption: true,
+        managedFilterHighRateOption: true,
+      }),
+      const [managedLowRateGroup],
+    );
+    for (final icon in managedRateGroupIcons.values) {
+      expect(routeIconAsset(routeIconUrl(icon)), isNotNull);
+    }
+    expect(
+      orderManagedGroups(
+        presets: const ['AI', 'AdBlock'],
+        customs: const [],
+        saved: const [managedHighRateGroup, '香港', 'AI', 'AdBlock'],
+        regions: [
+          '香港',
+          '日本',
+          ...managedRateGroups(const {managedRateGroupOption: true}),
+        ],
+      ),
+      const [
+        managedHighRateGroup,
+        '香港',
+        '日本',
+        managedLowRateGroup,
+        'AI',
+        'AdBlock',
+      ],
+    );
+    expect(
+      orderManagedGroups(
+        presets: const ['AI', 'AdBlock'],
+        customs: const [],
+        saved: const [
+          managedHighRateGroup,
+          '香港',
+          'AI',
+          managedLowRateGroup,
+          'AdBlock',
+        ],
+        regions: [
+          '香港',
+          '日本',
+          ...managedRateGroups(const {managedRateGroupOption: true}),
+        ],
+      ),
+      const [
+        managedHighRateGroup,
+        '香港',
+        '日本',
+        'AI',
+        managedLowRateGroup,
+        'AdBlock',
+      ],
+    );
+  });
+
   test('remote links go through the jsDelivr mirror', () {
     expect(
       mirrorUrl('https://raw.githubusercontent.com/a/b/main/icons/x.svg'),

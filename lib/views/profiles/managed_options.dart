@@ -318,7 +318,11 @@ class _ManagedOptionsSheetState extends ConsumerState<ManagedOptionsSheet> {
           if (!policyGroupOptions.contains(key)) key,
       ];
       _options = options;
-      _icons = icons;
+      _icons = {
+        for (final MapEntry(:key, :value) in managedRateGroupIcons.entries)
+          key: ?routeIconUrl(value),
+        ...icons,
+      };
       _regions = managedRegions(
         data.catalog.catalog,
         _enabledRegions,
@@ -337,6 +341,8 @@ class _ManagedOptionsSheetState extends ConsumerState<ManagedOptionsSheet> {
     });
   }
 
+  List<String> get _rateGroups => managedRateGroups(_options);
+
   List<String> _arrange(List<String> saved) => orderManagedGroups(
     presets: [
       for (final name in _presets)
@@ -344,7 +350,7 @@ class _ManagedOptionsSheetState extends ConsumerState<ManagedOptionsSheet> {
     ],
     customs: [for (final route in _routes) route.name],
     saved: saved,
-    regions: _regions,
+    regions: [..._regions, ..._rateGroups],
   );
 
   void _change(VoidCallback callback) {
@@ -481,6 +487,7 @@ class _ManagedOptionsSheetState extends ConsumerState<ManagedOptionsSheet> {
             _options['禁用内核QUIC流量'] ??= _options['屏蔽内核QUIC流量']!;
             _options.remove('屏蔽内核QUIC流量');
           }
+          _order = _arrange(_order);
           _persist();
         });
       },
@@ -626,11 +633,12 @@ class _ManagedOptionsSheetState extends ConsumerState<ManagedOptionsSheet> {
       );
     }
     final routes = {for (final route in _routes) route.name: route};
+    final hidden = {..._regions, ..._rateGroups};
     final items = _sorting
         ? _order
         : [
             for (final name in _order)
-              if (!_regions.contains(name)) name,
+              if (!hidden.contains(name)) name,
           ];
     final regions = catalog.catalog.regions;
     return ReorderableListView.builder(

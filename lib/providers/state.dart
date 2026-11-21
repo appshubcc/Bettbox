@@ -172,10 +172,14 @@ UpdateParams updateParams(Ref ref) {
   return ref.watch(
     patchClashConfigProvider.select(
       (state) => UpdateParams(
-        tun: state.tun.getRealTun(
-          bypassPrivateRoute,
-          bypassPrivateRouteAddress: realBypassPrivateRouteAddress,
-        ),
+        tun: state.tun
+            .getRealTun(
+              bypassPrivateRoute,
+              bypassPrivateRouteAddress: realBypassPrivateRouteAddress,
+            )
+            .copyWith(
+              stack: AppIdentity.isStandard ? state.tun.stack : TunStack.mips,
+            ),
         allowLan: state.allowLan,
         findProcessMode: state.findProcessMode,
         mode: state.mode,

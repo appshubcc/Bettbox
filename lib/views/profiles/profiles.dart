@@ -395,6 +395,9 @@ class _ProfilesViewState extends ConsumerState<ProfilesView>
   Widget build(BuildContext context) {
     ref.watch(appSettingProvider.select((state) => state.locale));
     final (:showNodes, :animate) = ref.watch(profilesSlideProvider);
+    final nodesEmpty = ref.watch(
+      nodesProvider.select((nodes) => nodes.isEmpty),
+    );
     ref.listen(profilesSlideProvider, (prev, next) {
       if (prev?.showNodes == next.showNodes || !next.animate) return;
       _flashController.forward(from: 0);
@@ -406,6 +409,7 @@ class _ProfilesViewState extends ConsumerState<ProfilesView>
       body: SlidePages(
         index: showNodes ? 1 : 0,
         animate: animate,
+        scrollable: !(system.isAndroid && nodesEmpty && !showNodes),
         onChanged: _handleSlideChanged,
         children: [_buildProfiles(), const NodesBody()],
       ),

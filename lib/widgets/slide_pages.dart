@@ -9,11 +9,13 @@ class SlidePages extends ConsumerStatefulWidget {
   final ValueChanged<int> onChanged;
   final List<Widget> children;
   final bool animate;
+  final bool scrollable;
 
   const SlidePages({
     super.key,
     required this.index,
     this.animate = true,
+    this.scrollable = true,
     required this.onChanged,
     required this.children,
   });
@@ -24,10 +26,24 @@ class SlidePages extends ConsumerStatefulWidget {
 
 class _SlidePagesState extends ConsumerState<SlidePages> {
   late final _controller = PageController(initialPage: widget.index);
+  late bool _scrollable = widget.scrollable;
+
+  bool get _isScrolling =>
+      _controller.hasClients && _controller.position.isScrollingNotifier.value;
+
+  bool _handleScrollEnd(ScrollEndNotification notification) {
+    if (notification.depth == 0 && _scrollable != widget.scrollable) {
+      setState(() => _scrollable = widget.scrollable);
+    }
+    return false;
+  }
 
   @override
   void didUpdateWidget(SlidePages oldWidget) {
     super.didUpdateWidget(oldWidget);
+    if (!_isScrolling) {
+      _scrollable = widget.scrollable;
+    }
     final index = widget.index;
     if (oldWidget.index == index ||
         !_controller.hasClients ||
@@ -56,19 +72,23 @@ class _SlidePagesState extends ConsumerState<SlidePages> {
 
   @override
   Widget build(BuildContext context) {
-    return PageView(
-      controller: _controller,
-      scrollBehavior: ScrollConfiguration.of(context)
-          .copyWith(scrollbars: false),
-      onPageChanged: widget.onChanged,
-      children: [
-        for (final (index, child) in widget.children.indexed)
-          SlideSnapshot(
-            controller: _controller,
-            position: index,
-            child: ScrollEdgeSource(child: child),
-          ),
-      ],
+    return NotificationListener<ScrollEndNotification>(
+      onNotification: _handleScrollEnd,
+      child: PageView(
+        controller: _controller,
+        physics: _scrollable ? null : const NeverScrollableScrollPhysics(),
+        scrollBehavior: ScrollConfiguration.of(context)
+            .copyWith(scrollbars: false),
+        onPageChanged: widget.onChanged,
+        children: [
+          for (final (index, child) in widget.children.indexed)
+            SlideSnapshot(
+              controller: _controller,
+              position: index,
+              child: ScrollEdgeSource(child: child),
+            ),
+        ],
+      ),
     );
   }
 }

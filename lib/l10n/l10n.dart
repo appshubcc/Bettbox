@@ -1725,6 +1725,16 @@ class AppLocalizations {
     );
   }
 
+  /// `profileContentNotConfig`
+  String get profileContentNotConfig {
+    return Intl.message(
+      'The subscription returned a web page instead of a config file, likely a network sign-in page. Complete the sign-in, then update again.',
+      name: 'profileContentNotConfig',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Proxy Port`
   String get proxyPort {
     return Intl.message('Proxy Port', name: 'proxyPort', desc: '', args: []);

@@ -5,6 +5,7 @@ import (
 	"compress/flate"
 	"compress/gzip"
 	"compress/zlib"
+	"errors"
 	"os"
 	"path/filepath"
 	"testing"
@@ -192,5 +193,55 @@ func TestImportProfileDecryptsAndDecompresses(t *testing.T) {
 	}
 	if data, _ := os.ReadFile(output); string(data) != "mode: global\n" {
 		t.Fatalf("undecryptable content = %q", data)
+	}
+}
+
+func TestIsWebPageProfile(t *testing.T) {
+	cases := []struct {
+		name string
+		data string
+		want bool
+	}{
+		{"config", "port: 7890\nproxies: []\n", false},
+		{"empty", "", false},
+		{"json config", `{"port": 7890, "proxies": []}`, false},
+		{"doctype", "<!doctype html><html><body>Sign in</body></html>", true},
+		{"uppercase with bom", "\xEF\xBB\xBF  <HTML><head></head></HTML>", true},
+		{"closing tag only", "<script>location.reload()</script></body>", true},
+	}
+	for _, c := range cases {
+		if got := isWebPageProfile([]byte(c.data)); got != c.want {
+			t.Errorf("%s: got %v, want %v", c.name, got, c.want)
+		}
+	}
+}
+
+func TestImportProfileRejectsWebPage(t *testing.T) {
+	output := filepath.Join(t.TempDir(), "profiles", "p.yaml")
+	good := []byte("proxies: []\n")
+	if message := importProfileForTest(t, ImportProfileParams{Output: output}, good); message != "" {
+		t.Fatal(message)
+	}
+	page := []byte("<!doctype html><html><body>Sign in to the network</body></html>")
+	for _, params := range []ImportProfileParams{
+		{Output: output},
+		{Output: output, Validate: true},
+		{Output: output, Setup: &SetupParams{ProfilePath: "missing"}},
+	} {
+		if message := importProfileForTest(t, params, page); message != errProfileIsWebPage.Error() {
+			t.Fatalf("message = %q", message)
+		}
+	}
+	if data, err := os.ReadFile(output); err != nil || !bytes.Equal(data, good) {
+		t.Fatalf("stored profile changed: %q, %v", data, err)
+	}
+}
+
+func TestParseProfileRejectsWebPage(t *testing.T) {
+	if _, err := parseProfile([]byte("<!doctype html><html></html>"), ""); !errors.Is(err, errProfileIsWebPage) {
+		t.Fatalf("err = %v", err)
+	}
+	if _, err := parseProfile([]byte("proxies: []\n"), ""); err != nil {
+		t.Fatalf("config rejected: %v", err)
 	}
 }

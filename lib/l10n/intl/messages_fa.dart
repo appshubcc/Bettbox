@@ -1855,6 +1855,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "profileParseErrorDesc": MessageLookupByLibrary.simpleMessage(
       "خطا در پردازش فایل پروفایل",
     ),
+    "profileContentNotConfig": MessageLookupByLibrary.simpleMessage(
+      "اشتراک بهجای فایل پیکربندی یک صفحه وب (احتمالاً صفحه ورود به شبکه) برگرداند. ابتدا ورود را کامل کنید و سپس اشتراک را دوباره بهروزرسانی کنید.",
+    ),
     "profileSwitchMode": MessageLookupByLibrary.simpleMessage(
       "تغییر پیکربندی شبکه",
     ),

@@ -197,6 +197,7 @@
   "unableToUpdateCurrentProfileDesc": "현재 프로필을 업데이트할 수 없습니다",
   "noMoreInfoDesc": "추가 정보가 없습니다",
   "profileParseErrorDesc": "프로필 구문 분석 오류",
+  "profileContentNotConfig": "구독이 구성 파일 대신 웹 페이지(네트워크 인증 페이지 등)를 반환했습니다. 인증을 완료한 후 다시 업데이트하세요.",
   "proxyPort": "프록시 포트",
   "proxyPortDesc": "Clash 수신 포트 설정",
   "port": "포트",

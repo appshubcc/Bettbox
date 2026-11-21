@@ -104,6 +104,12 @@ extension StringExtensionSafe on String? {
   }
 }
 
+/// The core's message for a profile that holds a web page; see
+/// `errProfileIsWebPage` in core/profile_import.go.
+const _profileIsWebPageMessage = 'profile is a web page, not a config';
+
+final _yamlParseErrorRegExp = RegExp(r'yaml: line \d+:');
+
 extension ObjectExtension on Object {
   String get formatError => _format(isLog: false);
 
@@ -111,6 +117,14 @@ extension ObjectExtension on Object {
 
   String _format({required bool isLog}) {
     final errorStr = toString();
+    if (errorStr == _profileIsWebPageMessage) {
+      return isLog ? errorStr : appLocalizations.profileContentNotConfig;
+    }
+    if (_yamlParseErrorRegExp.hasMatch(errorStr)) {
+      return isLog
+          ? errorStr
+          : '${appLocalizations.profileParseErrorDesc}: $errorStr';
+    }
     if (errorStr.contains('DioException [bad response]') ||
         errorStr.contains('status code of')) {
       final match = RegExp(r'status code of (\d+)').firstMatch(errorStr);

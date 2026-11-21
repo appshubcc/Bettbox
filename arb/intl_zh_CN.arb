@@ -197,6 +197,7 @@
   "unableToUpdateCurrentProfileDesc": "无法更新当前配置文件",
   "noMoreInfoDesc": "暂无更多信息",
   "profileParseErrorDesc": "配置文件解析错误",
+  "profileContentNotConfig": "订阅返回的内容不是配置文件，可能是网络认证或登录页面；请完成认证后重新更新订阅",
   "proxyPort": "代理端口",
   "proxyPortDesc": "设置 Clash 监听端口",
   "port": "端口",

@@ -197,6 +197,7 @@
   "unableToUpdateCurrentProfileDesc": "Unable to update current profile",
   "noMoreInfoDesc": "No more info",
   "profileParseErrorDesc": "Profile parse error",
+  "profileContentNotConfig": "The subscription returned a web page instead of a config file, likely a network sign-in page. Complete the sign-in, then update again.",
   "proxyPort": "Proxy Port",
   "proxyPortDesc": "Set the Clash listening port",
   "port": "Port",

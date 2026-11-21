@@ -1539,6 +1539,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "profileParseErrorDesc": MessageLookupByLibrary.simpleMessage(
       "プロファイルの解析エラー",
     ),
+    "profileContentNotConfig": MessageLookupByLibrary.simpleMessage(
+      "サブスクリプションが設定ファイルではなく Web ページ（ネットワーク認証ページなど）を返しました。認証を完了してから再更新してください。",
+    ),
     "profileSwitchMode": MessageLookupByLibrary.simpleMessage("ネットワーク設定の切り替え"),
     "profileUrlInvalidValidationDesc": MessageLookupByLibrary.simpleMessage(
       "有効なURLを入力してください",

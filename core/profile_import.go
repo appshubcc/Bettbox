@@ -32,6 +32,27 @@ const maxDecompressedProfileBytes = 64 << 20
 
 var errInvalidProfileEncoding = errors.New("profile is not valid UTF-8")
 
+// errProfileIsWebPage reports a subscription that answered with an HTML page
+// (a captive portal or sign-in page) instead of a config. The app maps this
+// message to a localized hint in lib/common/string.dart.
+var errProfileIsWebPage = errors.New("profile is a web page, not a config")
+
+// isWebPageProfile reports whether data looks like an HTML document. Updates
+// are stored without validation when validation is skipped, so this is checked
+// on every import and every read of a stored profile.
+func isWebPageProfile(data []byte) bool {
+	const sampleSize = 4096
+	if len(data) > sampleSize {
+		data = data[:sampleSize]
+	}
+	data = bytes.TrimPrefix(data, []byte("\xEF\xBB\xBF"))
+	data = bytes.ToLower(bytes.TrimSpace(data))
+	if bytes.HasPrefix(data, []byte("<!doctype html")) || bytes.HasPrefix(data, []byte("<html")) {
+		return true
+	}
+	return bytes.Contains(data, []byte("</html>")) || bytes.Contains(data, []byte("</body>"))
+}
+
 func readAllAndClose(reader io.ReadCloser) ([]byte, error) {
 	defer reader.Close()
 	data, err := io.ReadAll(io.LimitReader(reader, maxDecompressedProfileBytes+1))
@@ -379,6 +400,9 @@ func handleImportProfile(params *ImportProfileParams) string {
 		}
 	}
 	data = patchYamlTabs(data)
+	if isWebPageProfile(data) {
+		return errProfileIsWebPage.Error()
+	}
 	if existing, err := os.ReadFile(params.Output); err == nil && bytes.Equal(existing, data) {
 		return ""
 	}

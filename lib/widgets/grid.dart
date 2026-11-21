@@ -19,6 +19,8 @@ class Grid extends MultiChildRenderObjectWidget {
 
   final TextDirection textDirection;
 
+  final bool rowAligned;
+
   const Grid({
     super.key,
     this.mainAxisSpacing = 0,
@@ -27,6 +29,7 @@ class Grid extends MultiChildRenderObjectWidget {
     AxisDirection? axisDirection,
     TextDirection? textDirection,
     this.mainAxisExtent,
+    this.rowAligned = false,
     List<Widget>? children,
   }) : crossAxisCount = crossAxisCount ?? 1,
        axisDirection = axisDirection ?? AxisDirection.down,
@@ -62,6 +65,7 @@ class Grid extends MultiChildRenderObjectWidget {
       crossAxisSpacing: crossAxisSpacing,
       axisDirection: axisDirection,
       mainAxisExtent: mainAxisExtent,
+      rowAligned: rowAligned,
     );
   }
 
@@ -73,7 +77,8 @@ class Grid extends MultiChildRenderObjectWidget {
       ..crossAxisSpacing = crossAxisSpacing
       ..textDirection = textDirection
       ..axisDirection = axisDirection
-      ..crossAxisCount = crossAxisCount;
+      ..crossAxisCount = crossAxisCount
+      ..rowAligned = rowAligned;
   }
 }
 
@@ -88,7 +93,19 @@ class RenderGrid extends RenderBox
     required this._axisDirection,
     required this._textDirection,
     this._mainAxisExtent,
+    this._rowAligned = false,
   });
+
+  bool _rowAligned;
+
+  bool get rowAligned => _rowAligned;
+
+  set rowAligned(bool value) {
+    if (_rowAligned != value) {
+      _rowAligned = value;
+      markNeedsLayout();
+    }
+  }
 
   int _crossAxisCount;
 
@@ -216,6 +233,8 @@ class RenderGrid extends RenderBox
         : constraints.maxHeight;
     final stride = (crossAxisExtent + crossAxisSpacing) / crossAxisCount;
     final offsets = List.filled(crossAxisCount, 0.0);
+    var cursor = 0;
+    var rowOffset = 0.0;
     RenderBox? child = firstChild;
     while (child != null) {
       final childParentData = _getParentData(child);
@@ -252,7 +271,14 @@ class RenderGrid extends RenderBox
         final childConstraints = BoxConstraints.tight(childSize);
         _layoutChild(child, childConstraints);
       }
-      final origin = _getOrigin(offsets, crossAxisCellCount);
+      if (rowAligned && cursor + crossAxisCellCount > crossAxisCount) {
+        cursor = 0;
+        rowOffset = offsets.reduce(math.max);
+      }
+      final origin = rowAligned
+          ? _Origin(cursor, rowOffset)
+          : _getOrigin(offsets, crossAxisCellCount);
+      cursor += crossAxisCellCount;
       final mainAxisOffset = origin.mainAxisOffset;
       final crossAxisOffset = origin.crossAxisIndex * stride;
       final offset = mainAxis == Axis.vertical

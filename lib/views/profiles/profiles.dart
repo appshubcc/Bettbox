@@ -473,6 +473,7 @@ class _ProfilesViewState extends ConsumerState<ProfilesView>
                       key: profilesStoreKey,
                       padding: padding,
                       child: Grid(
+                        rowAligned: true,
                         mainAxisSpacing: 14,
                         crossAxisSpacing: 14,
                         crossAxisCount: columns,
@@ -496,6 +497,7 @@ class _ProfileFold extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final grid = Grid(
+      rowAligned: true,
       mainAxisSpacing: 14,
       crossAxisSpacing: 14,
       crossAxisCount: columns,

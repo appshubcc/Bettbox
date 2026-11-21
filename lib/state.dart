@@ -1260,17 +1260,7 @@ class DashboardRefreshManager {
 
   Future<bool> _isActive() async {
     if (system.isDesktop) {
-      final isPinned = globalState.config.windowProps.isPinned;
-      if (isPinned) return true;
-      final visible = await window?.isVisible;
-      if (visible == false) {
-        return false;
-      }
-      final minimized = await window?.isMinimized ?? false;
-      if (minimized) {
-        return false;
-      }
-      return true;
+      return !globalState.backgroundMode.value;
     }
 
     final lifecycleState = WidgetsBinding.instance.lifecycleState;

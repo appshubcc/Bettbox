@@ -129,13 +129,22 @@ int APIENTRY wWinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE prev,
   std::vector<std::string> command_line_arguments =
       GetCommandLineArguments();
 
-  const bool is_control_command =
-      std::find(command_line_arguments.begin(),
-                command_line_arguments.end(), "--exit") !=
-          command_line_arguments.end() ||
-      std::find(command_line_arguments.begin(),
-                command_line_arguments.end(), "--restart") !=
-          command_line_arguments.end();
+  // 有参数 = 控制命令（Bettbox --status、Bettbox profiles --list……）：不显示
+  // 窗口，由 Dart 侧转发给正在运行的实例并打印回执后退出。
+  // GLib 内部开关、桌面文件传来的路径 / URL 仍按正常 GUI 启动处理。
+  const bool is_control_command = std::any_of(
+      command_line_arguments.begin(), command_line_arguments.end(),
+      [](const std::string& argument) {
+        if (argument.empty() ||
+            argument.rfind("--gapplication", 0) == 0) {
+          return false;
+        }
+        if (argument[0] == '/' || argument.rfind("./", 0) == 0 ||
+            argument.find("://") != std::string::npos) {
+          return false;
+        }
+        return true;
+      });
 
   project.set_dart_entrypoint_arguments(std::move(command_line_arguments));
 

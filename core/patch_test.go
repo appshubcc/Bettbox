@@ -2,9 +2,11 @@ package main
 
 import (
 	"encoding/json"
+	"net/netip"
 	"os"
 	"path/filepath"
 	"reflect"
+	"slices"
 	"strconv"
 	"testing"
 
@@ -654,36 +656,134 @@ rules:
 	}
 }
 
-func TestEnsureTunInet6(t *testing.T) {
+func TestIsPublicIPv6(t *testing.T) {
+	cases := []struct {
+		addr string
+		want bool
+	}{
+		{"2408:4001:f00::37", true},
+		{"2001:4860:4860::8888", true},
+		{"fdfe:dcba:9876::1", false},
+		{"fd7a:115c:a1e0::1", false},
+		{"fc00::1", false},
+		{"fe80::1", false},
+		{"::1", false},
+		{"::ffff:1.1.1.1", false},
+		{"192.168.1.7", false},
+	}
+	for _, item := range cases {
+		if got := isPublicIPv6(netip.MustParseAddr(item.addr)); got != item.want {
+			t.Errorf("isPublicIPv6(%s) = %t, want %t", item.addr, got, item.want)
+		}
+	}
+}
+
+func TestPrepareRawTunIPv6(t *testing.T) {
+	previousAndroid, previousCheck := patchForAndroid, hasOutboundIPv6
+	defer func() { patchForAndroid, hasOutboundIPv6 = previousAndroid, previousCheck }()
+
+	cases := []struct {
+		name      string
+		android   bool
+		ipv6      bool
+		outbound  bool
+		wantInet6 int
+		wantFake6 string
+		wantSaved int
+	}{
+		{"desktop ipv6 off with outbound", false, false, true, 0, "", 1},
+		{"desktop ipv6 on without outbound", false, true, false, 0, "", 1},
+		{"desktop ipv6 on with outbound", false, true, true, 1, "2001:2::1/48", 1},
+		{"android skipped", true, true, false, 1, "2001:2::1/48", 0},
+	}
+	for _, item := range cases {
+		t.Run(item.name, func(t *testing.T) {
+			patchForAndroid = item.android
+			var gotIface, gotDevice string
+			hasOutboundIPv6 = func(interfaceName, tunDevice string) bool {
+				gotIface, gotDevice = interfaceName, tunDevice
+				return item.outbound
+			}
+			rawCfg := parsePatchProfile(t, "ipv6: "+strconv.FormatBool(item.ipv6)+"\ninterface-name: Ethernet\ndns:\n  fake-ip-range6: 2001:2::1/48\ntun:\n  device: Bettbox\n")
+			saved := prepareRawTunIPv6(rawCfg)
+			if len(rawCfg.Tun.Inet6Address) != item.wantInet6 {
+				t.Errorf("inet6-address count = %d, want %d", len(rawCfg.Tun.Inet6Address), item.wantInet6)
+			}
+			if rawCfg.DNS.FakeIPRange6 != item.wantFake6 {
+				t.Errorf("fake-ip-range6 = %q, want %q", rawCfg.DNS.FakeIPRange6, item.wantFake6)
+			}
+			if len(saved) != item.wantSaved {
+				t.Errorf("saved count = %d, want %d", len(saved), item.wantSaved)
+			}
+			if !item.android && item.ipv6 && (gotIface != "Ethernet" || gotDevice != "Bettbox") {
+				t.Errorf("hasOutboundIPv6 args = (%q, %q), want (Ethernet, Bettbox)", gotIface, gotDevice)
+			}
+		})
+	}
+}
+
+func TestSyncTunInet6(t *testing.T) {
 	previousHome := constant.Path.HomeDir()
 	constant.SetHomeDir(t.TempDir())
 	defer constant.SetHomeDir(previousHome)
-	previousAndroid, previousCheck := patchForAndroid, hasGlobalIPv6
-	defer func() { patchForAndroid, hasGlobalIPv6 = previousAndroid, previousCheck }()
+	previousAndroid, previousCheck := patchForAndroid, hasOutboundIPv6
+	defer func() { patchForAndroid, hasOutboundIPv6 = previousAndroid, previousCheck }()
 
-	cases := []struct {
-		android bool
-		global  bool
-		want    int
-	}{
-		{false, true, 1},
-		{false, false, 0},
-		{true, true, 0},
+	patchForAndroid = false
+	outbound := false
+	hasOutboundIPv6 = func(string, string) bool { return outbound }
+	desired := cloneSortedPrefixes(config.DefaultRawConfig().Tun.Inet6Address)
+
+	offCfg, err := config.ParseRawConfig(parsePatchProfile(t, "ipv6: false\n"))
+	if err != nil {
+		t.Fatal(err)
 	}
-	for _, item := range cases {
-		patchForAndroid = item.android
-		hasGlobalIPv6 = func() bool { return item.global }
-		cfg, err := config.ParseRawConfig(parsePatchProfile(t, "ipv6: false\n"))
-		if err != nil {
-			t.Fatal(err)
-		}
-		if len(cfg.General.Tun.Inet6Address) != 0 {
-			t.Fatalf("ipv6: false should clear inet6-address")
-		}
-		ensureTunInet6(cfg)
-		if got := len(cfg.General.Tun.Inet6Address); got != item.want {
-			t.Errorf("android=%t global=%t: inet6-address count = %d, want %d", item.android, item.global, got, item.want)
-		}
+	outbound = true
+	if changed := syncTunInet6(offCfg, desired); changed || len(offCfg.General.Tun.Inet6Address) != 0 {
+		t.Fatalf("ipv6=false should keep inet6 empty: changed=%t len=%d", changed, len(offCfg.General.Tun.Inet6Address))
+	}
+	offCfg.General.Tun.Inet6Address = slices.Clone(desired)
+	if changed := syncTunInet6(offCfg, desired); !changed || len(offCfg.General.Tun.Inet6Address) != 0 {
+		t.Fatalf("ipv6=false should clear existing inet6: changed=%t len=%d", changed, len(offCfg.General.Tun.Inet6Address))
+	}
+
+	rawOn := parsePatchProfile(t, "ipv6: true\n")
+	outbound = false
+	saved := prepareRawTunIPv6(rawOn)
+	onCfg, err := config.ParseRawConfig(rawOn)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(onCfg.General.Tun.Inet6Address) != 0 {
+		t.Fatalf("expected empty inet6 when outbound ipv6 is unavailable")
+	}
+	outbound = true
+	if changed := syncTunInet6(onCfg, saved); !changed || len(onCfg.General.Tun.Inet6Address) != 1 {
+		t.Fatalf("expected inet6 enabled when outbound ipv6 becomes available: changed=%t len=%d", changed, len(onCfg.General.Tun.Inet6Address))
+	}
+	if changed := syncTunInet6(onCfg, saved); changed {
+		t.Fatalf("expected second sync with same state to be a no-op")
+	}
+	outbound = false
+	if changed := syncTunInet6(onCfg, saved); !changed || len(onCfg.General.Tun.Inet6Address) != 0 {
+		t.Fatalf("expected inet6 cleared when outbound ipv6 becomes unavailable: changed=%t len=%d", changed, len(onCfg.General.Tun.Inet6Address))
+	}
+	outbound = true
+	if changed := syncTunInet6(onCfg, nil); changed || len(onCfg.General.Tun.Inet6Address) != 0 {
+		t.Fatalf("explicit empty tun inet6 should not be overridden: changed=%t len=%d", changed, len(onCfg.General.Tun.Inet6Address))
+	}
+	multi := []netip.Prefix{
+		netip.MustParsePrefix("fdfe:dcba:9876::5/126"),
+		netip.MustParsePrefix("fdfe:dcba:9876::1/126"),
+	}
+	onCfg.General.Tun.Inet6Address = multi
+	if changed := syncTunInet6(onCfg, cloneSortedPrefixes(multi)); changed {
+		t.Fatalf("unsorted equivalent inet6 slices should not trigger change")
+	}
+	patchForAndroid = true
+	onCfg.General.Tun.Inet6Address = nil
+	if changed := syncTunInet6(onCfg, saved); changed || len(onCfg.General.Tun.Inet6Address) != 0 {
+		t.Fatalf("android should skip syncTunInet6")
 	}
 }
 

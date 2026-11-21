@@ -637,7 +637,7 @@ class System {
       madvise(
         Pointer.fromAddress(start),
         int.parse(range.last, radix: 16) - start,
-        4,
+        Platform.isAndroid ? 4 : 21,
       );
     }
   }

@@ -171,6 +171,7 @@ class _ProfilesViewState extends ConsumerState<ProfilesView>
       items.add(
         GridItem(
           key: ValueKey(profile.id),
+          crossAxisCellCount: columns,
           child: _buildProfileItem(
             profile,
             profiles,
@@ -494,6 +495,13 @@ class _ProfileFold extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final grid = Grid(
+      mainAxisSpacing: 14,
+      crossAxisSpacing: 14,
+      crossAxisCount: columns,
+      children: [for (final child in children) GridItem(child: child)],
+    );
+    if (columns > 1) return grid;
     return Container(
       margin: const EdgeInsets.only(left: 6),
       padding: const EdgeInsets.only(left: 12),
@@ -502,12 +510,7 @@ class _ProfileFold extends StatelessWidget {
           left: BorderSide(color: context.colorScheme.outlineVariant, width: 2),
         ),
       ),
-      child: Grid(
-        mainAxisSpacing: 14,
-        crossAxisSpacing: 14,
-        crossAxisCount: columns,
-        children: [for (final child in children) GridItem(child: child)],
-      ),
+      child: grid,
     );
   }
 }
@@ -749,10 +752,7 @@ class ProfileItem extends StatelessWidget {
     final used = TrafficValue(value: info.upload + info.download);
     if (info.total <= 0) return '${used.shortShow} / ∞';
     final total = TrafficValue(value: info.total);
-    if (used.showUnit != total.showUnit) {
-      return '${used.shortShow} / ${total.shortShow}';
-    }
-    return '${used.trafficValueShow.value.fixed(decimals: 1)} / ${total.shortShow}';
+    return '${used.shortShow} / ${total.shortShow}';
   }
 
   TextStyle? _providerTrafficStyle(
@@ -827,6 +827,40 @@ class ProfileItem extends StatelessWidget {
             style: _providerTrafficStyle(context, info),
           ),
         ),
+      ],
+    );
+  }
+
+  Widget _buildWideBarUsages(
+    BuildContext context,
+    List<MapEntry<String, SubscriptionInfo>> usages,
+  ) {
+    return Row(
+      children: [
+        for (final (index, usage) in usages.indexed) ...[
+          if (index > 0) const SizedBox(width: 24),
+          Expanded(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Row(
+                  children: [
+                    Expanded(child: _buildProviderName(context, usage.key)),
+                    const SizedBox(width: 8),
+                    Text(
+                      _compactTrafficText(usage.value),
+                      maxLines: 1,
+                      style: _providerTrafficStyle(context, usage.value),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 6),
+                _buildUsageBar(context, _usageRatio(usage.value) ?? 0),
+              ],
+            ),
+          ),
+        ],
       ],
     );
   }
@@ -906,12 +940,15 @@ class ProfileItem extends StatelessWidget {
   Widget _buildRingUsages(
     BuildContext context,
     List<MapEntry<String, SubscriptionInfo>> usages,
+    bool wide,
   ) {
     return Row(
       children: [
         for (final (index, usage) in usages.indexed) ...[
           if (index > 0) const SizedBox(width: 10),
-          Expanded(child: _buildRingUsage(context, usage, usages.length > 2)),
+          Expanded(
+            child: _buildRingUsage(context, usage, usages.length > 2 && !wide),
+          ),
         ],
       ],
     );
@@ -920,6 +957,7 @@ class ProfileItem extends StatelessWidget {
   Widget _buildConcentricUsages(
     BuildContext context,
     List<MapEntry<String, SubscriptionInfo>> usages,
+    bool wide,
   ) {
     final primary = context.colorScheme.primary;
     final colors = [
@@ -951,43 +989,83 @@ class ProfileItem extends StatelessWidget {
         ),
         const SizedBox(width: 14),
         Expanded(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              for (final (index, usage) in usages.indexed) ...[
-                if (index > 0) const SizedBox(height: 2),
-                Row(
+          child: wide
+              ? Row(
                   children: [
-                    SizedBox.square(
-                      dimension: 6,
-                      child: DecoratedBox(
-                        decoration: BoxDecoration(
-                          color: colors[index],
-                          shape: BoxShape.circle,
+                    for (final (index, usage) in usages.indexed) ...[
+                      if (index > 0) const SizedBox(width: 24),
+                      Expanded(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                _buildLegendDot(colors[index]),
+                                const SizedBox(width: 6),
+                                Flexible(
+                                  child: _buildProviderName(context, usage.key),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 2),
+                            Padding(
+                              padding: const EdgeInsets.only(left: 12),
+                              child: Text(
+                                _concentricTrafficText(usage.value),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: _providerTrafficStyle(
+                                  context,
+                                  usage.value,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                    ),
-                    const SizedBox(width: 6),
-                    Expanded(child: _buildProviderName(context, usage.key)),
-                    const SizedBox(width: 8),
-                    Text(
-                      [
-                        if (_usageRatio(usage.value) != null)
-                          _usagePercent(usage.value),
-                        _compactTrafficText(usage.value),
-                      ].join(' · '),
-                      maxLines: 1,
-                      style: _providerTrafficStyle(context, usage.value),
-                    ),
+                    ],
+                  ],
+                )
+              : Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    for (final (index, usage) in usages.indexed) ...[
+                      if (index > 0) const SizedBox(height: 2),
+                      Row(
+                        children: [
+                          _buildLegendDot(colors[index]),
+                          const SizedBox(width: 6),
+                          Expanded(
+                            child: _buildProviderName(context, usage.key),
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            _concentricTrafficText(usage.value),
+                            maxLines: 1,
+                            style: _providerTrafficStyle(context, usage.value),
+                          ),
+                        ],
+                      ),
+                    ],
                   ],
                 ),
-              ],
-            ],
-          ),
         ),
       ],
     );
   }
+
+  Widget _buildLegendDot(Color color) => SizedBox.square(
+    dimension: 6,
+    child: DecoratedBox(
+      decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+    ),
+  );
+
+  String _concentricTrafficText(SubscriptionInfo info) => [
+    if (_usageRatio(info) != null) _usagePercent(info),
+    _compactTrafficText(info),
+  ].join(' · ');
 
   Widget _buildProviderUsages(
     BuildContext context,
@@ -1007,14 +1085,28 @@ class ProfileItem extends StatelessWidget {
         const SizedBox(height: 8),
         SizedBox(
           height: 52,
-          child: Center(
-            child: switch (profile.usageStyle) {
-              ProfileUsageStyle.bar => _buildBarUsages(context, shown),
-              ProfileUsageStyle.ring => _buildRingUsages(context, shown),
-              ProfileUsageStyle.concentric => _buildConcentricUsages(
-                context,
-                shown,
-              ),
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final wide = constraints.maxWidth >= 560;
+              return Center(
+                child: switch (profile.usageStyle) {
+                  ProfileUsageStyle.bar when wide => _buildWideBarUsages(
+                    context,
+                    shown,
+                  ),
+                  ProfileUsageStyle.bar => _buildBarUsages(context, shown),
+                  ProfileUsageStyle.ring => _buildRingUsages(
+                    context,
+                    shown,
+                    wide,
+                  ),
+                  ProfileUsageStyle.concentric => _buildConcentricUsages(
+                    context,
+                    shown,
+                    wide,
+                  ),
+                },
+              );
             },
           ),
         ),

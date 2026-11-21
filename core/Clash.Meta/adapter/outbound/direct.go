@@ -42,11 +42,11 @@ func (d *Direct) ListenPacketContext(ctx context.Context, metadata *C.Metadata) 
 	if err := d.ResolveUDP(ctx, metadata); err != nil {
 		return nil, err
 	}
-	pc, err := dialer.NewDialer(d.DialOptions()...).ListenPacket(ctx, "udp", "", metadata.AddrPort())
+	pc, err := d.listenPacket(ctx, metadata)
 	if err != nil {
 		return nil, err
 	}
-	return d.loopBack.NewPacketConn(NewPacketConn(pc, d)), nil
+	return d.loopBack.NewPacketConn(pc), nil
 }
 
 func (d *Direct) ResolveUDP(ctx context.Context, metadata *C.Metadata) error {

@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:bett_box/common/common.dart';
 import 'package:bett_box/enum/enum.dart';
 import 'package:bett_box/models/models.dart';
+import 'package:bett_box/pages/toolbox/common.dart' show ToolNote;
 import 'package:bett_box/providers/providers.dart';
 import 'package:bett_box/state.dart';
 import 'package:bett_box/views/access.dart';
@@ -836,26 +837,27 @@ class AddRuleDialog extends StatefulWidget {
   final ClashConfigSnippet snippet;
   final Rule? rule;
   final bool? shared;
+  final Metadata? metadata;
 
   const AddRuleDialog({
     super.key,
     required this.snippet,
     this.rule,
     this.shared,
+    this.metadata,
   });
 
   @override
   State<AddRuleDialog> createState() => _AddRuleDialogState();
 }
 
-class _AddRuleDialogState extends State<AddRuleDialog> {
+class _AddRuleDialogState extends State<AddRuleDialog>
+    with TickerProviderStateMixin {
   late RuleAction _ruleAction;
-  late final List<RuleAction> _ruleActions = [
-    if (system.isAndroid) RuleAction.PROCESS_NAME,
-    ...RuleAction.values.where(
-      (item) => !system.isAndroid || item != RuleAction.PROCESS_NAME,
-    ),
-  ];
+  List<RuleAction> _actions = [];
+  TabController? _tabController;
+  String _seed = '';
+  double _extraHeight = 0;
   final _ruleTargetController = TextEditingController();
   final _contentController = TextEditingController();
   final _ruleProviderController = TextEditingController();
@@ -870,8 +872,8 @@ class _AddRuleDialogState extends State<AddRuleDialog> {
 
   @override
   void initState() {
-    _initState();
     super.initState();
+    _initState();
   }
 
   void _initState() {
@@ -888,16 +890,26 @@ class _AddRuleDialogState extends State<AddRuleDialog> {
     final currentRule = widget.rule;
     if (currentRule != null) {
       final parsedRule = ParsedRule.parseString(currentRule.value);
-      _ruleAction = parsedRule.ruleAction;
+      _ruleAction = parsedRule.ruleAction == RuleAction.IP_CIDR6
+          ? RuleAction.IP_CIDR
+          : parsedRule.ruleAction;
       _contentController.text = parsedRule.content ?? '';
       _ruleTargetController.text = parsedRule.ruleTarget ?? '';
       _ruleProviderController.text = parsedRule.ruleProvider ?? '';
       _subRuleController.text = parsedRule.subRule ?? '';
       _noResolve = parsedRule.noResolve;
       _src = parsedRule.src;
+      _syncTabs();
       return;
     }
-    _ruleAction = _ruleActions.first;
+    final metadata = widget.metadata;
+    _ruleAction = switch (metadata) {
+      null when system.isAndroid => RuleAction.PROCESS_NAME,
+      Metadata(host: '') => RuleAction.IP_CIDR,
+      _ => RuleAction.DOMAIN_SUFFIX,
+    };
+    _applySeed();
+    _syncTabs();
     if (_targetItems.isNotEmpty) {
       _ruleTargetController.text = _targetItems.first;
     }
@@ -919,11 +931,90 @@ class _AddRuleDialogState extends State<AddRuleDialog> {
 
   @override
   void dispose() {
+    _tabController?.dispose();
     _ruleTargetController.dispose();
     _contentController.dispose();
     _ruleProviderController.dispose();
     _subRuleController.dispose();
     super.dispose();
+  }
+
+  void _syncTabs() {
+    _actions = [
+      for (final action in _ruleAction.category.actions)
+        if (action.isSupported || action == _ruleAction) action,
+    ];
+    _tabController?.dispose();
+    _tabController = TabController(
+      length: _actions.length,
+      initialIndex: _actions.indexOf(_ruleAction),
+      vsync: this,
+    )..addListener(_onTabChanged);
+  }
+
+  void _onTabChanged() {
+    final index = _tabController?.index;
+    if (index == null || _actions[index] == _ruleAction) return;
+    setState(() {
+      _ruleAction = _actions[index];
+      _applySeed();
+    });
+  }
+
+  void _onCategoryChanged(RuleCategory category) {
+    if (category == _ruleAction.category) return;
+    setState(() {
+      _ruleAction = category.actions.firstWhere((item) => item.isSupported);
+      _applySeed();
+      _syncTabs();
+    });
+  }
+
+  void _applySeed() {
+    final seed = _seedOf(_ruleAction);
+    if (_contentController.text == _seed) {
+      _contentController.text = seed;
+    }
+    _seed = seed;
+  }
+
+  String _seedOf(RuleAction action) {
+    final metadata = widget.metadata;
+    if (metadata == null) return '';
+    String cidr(String ip) =>
+        ip.isEmpty ? '' : '$ip/${ip.contains(':') ? 128 : 32}';
+    return switch (action) {
+      RuleAction.DOMAIN ||
+      RuleAction.DOMAIN_SUFFIX ||
+      RuleAction.DOMAIN_KEYWORD ||
+      RuleAction.DOMAIN_WILDCARD ||
+      RuleAction.DOMAIN_REGEX => metadata.host,
+      RuleAction.IP_CIDR ||
+      RuleAction.IP_SUFFIX => cidr(metadata.destinationIP),
+      RuleAction.SRC_IP_CIDR ||
+      RuleAction.SRC_IP_SUFFIX => cidr(metadata.sourceIP),
+      RuleAction.IP_ASN => metadata.destinationIPASN.split(' ').first,
+      RuleAction.SRC_IP_ASN => metadata.sourceIPASN.split(' ').first,
+      RuleAction.GEOIP =>
+        metadata.destinationGeoIP.firstOrNull?.toUpperCase() ?? '',
+      RuleAction.SRC_GEOIP =>
+        metadata.sourceGeoIP.firstOrNull?.toUpperCase() ?? '',
+      RuleAction.PROCESS_NAME ||
+      RuleAction.PROCESS_NAME_WILDCARD ||
+      RuleAction.PROCESS_NAME_REGEX => metadata.process,
+      RuleAction.PROCESS_PATH ||
+      RuleAction.PROCESS_PATH_WILDCARD ||
+      RuleAction.PROCESS_PATH_REGEX => metadata.processPath,
+      RuleAction.UID => metadata.uid == 0 ? '' : '${metadata.uid}',
+      RuleAction.DST_PORT => metadata.destinationPort,
+      RuleAction.SRC_PORT => metadata.sourcePort,
+      RuleAction.NETWORK => metadata.network,
+      RuleAction.IN_PORT => metadata.inboundPort,
+      RuleAction.IN_TYPE => metadata.type,
+      RuleAction.IN_NAME => metadata.inboundName,
+      RuleAction.IN_USER => metadata.inboundUser,
+      _ => '',
+    };
   }
 
   Future<void> _handleSubmit() async {
@@ -978,23 +1069,6 @@ class _AddRuleDialogState extends State<AddRuleDialog> {
     });
   }
 
-  Future<void> _pickRuleAction() async {
-    await context.dismissKeyboard();
-    if (!mounted) return;
-    final selected = await globalState.showAdaptiveSheet<RuleAction>(
-      child: OptionsDialog<RuleAction>(
-        title: appLocalizations.ruleName,
-        options: _ruleActions,
-        textBuilder: (item) => item.value,
-        value: _ruleAction,
-      ),
-    );
-    if (selected == null || !mounted) return;
-    setState(() {
-      _ruleAction = selected;
-    });
-  }
-
   Widget _buildPicker({
     required String label,
     required List<String> options,
@@ -1032,6 +1106,7 @@ class _AddRuleDialogState extends State<AddRuleDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final tabController = _tabController;
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (didPop, _) async {
@@ -1050,88 +1125,132 @@ class _AddRuleDialogState extends State<AddRuleDialog> {
             child: Text(appLocalizations.confirm),
           ),
         ],
-        child: Form(
-          key: _formKey,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            spacing: 16,
-            children: [
-              _PickerField(
-                label: appLocalizations.ruleName,
-                value: _ruleAction.value,
-                onTap: _pickRuleAction,
-              ),
-              if (_ruleAction == RuleAction.RULE_SET)
-                _buildPicker(
-                  label: appLocalizations.ruleProviders,
-                  options: _ruleProviderItems,
-                  controller: _ruleProviderController,
-                )
-              else if (_ruleAction != RuleAction.MATCH)
-                TextFormField(
-                  controller: _contentController,
-                  maxLines: 1,
-                  textInputAction: TextInputAction.next,
-                  decoration: InputDecoration(
-                    labelText: appLocalizations.content,
-                    suffixIcon:
-                        system.isAndroid &&
-                            _ruleAction == RuleAction.PROCESS_NAME
-                        ? IconButton(
-                            icon: const AppIcon(Icons.add),
-                            onPressed: _pickPackage,
-                          )
-                        : null,
-                  ),
-                  validator: (_) {
-                    if (_contentController.text.isEmpty) {
-                      return appLocalizations.emptyTip(
-                        appLocalizations.content,
-                      );
-                    }
-                    return null;
-                  },
-                ),
-              if (_ruleAction == RuleAction.SUB_RULE)
-                _buildPicker(
-                  label: appLocalizations.subRule,
-                  options: _subRuleItems,
-                  controller: _subRuleController,
-                )
-              else
-                _buildPicker(
-                  label: appLocalizations.ruleTarget,
-                  options: _targetItems,
-                  controller: _ruleTargetController,
-                ),
-              if (_ruleAction.hasParams)
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: [
-                    _buildFlag(
-                      appLocalizations.sourceIp,
-                      _src,
-                      (value) => setState(() => _src = value),
-                    ),
-                    _buildFlag(
-                      appLocalizations.noResolve,
-                      _noResolve,
-                      (value) => setState(() => _noResolve = value),
-                    ),
+        child: AnimatedPadding(
+          duration: const Duration(milliseconds: 220),
+          curve: Curves.easeOutCubic,
+          padding: EdgeInsets.only(
+            bottom: isInBottomSheet(context) ? _extraHeight : 0,
+          ),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              spacing: 16,
+              children: [
+                SegmentButtonGroup<RuleCategory>(
+                  options: [
+                    for (final category in RuleCategory.values)
+                      SegmentOption(value: category, label: category.label),
                   ],
+                  selected: _ruleAction.category,
+                  onSelected: _onCategoryChanged,
                 ),
-              if (widget.shared != null)
-                ListItem.switchItem(
-                  padding: EdgeInsets.zero,
-                  title: Text(appLocalizations.applyToAllManaged),
-                  delegate: SwitchDelegate(
-                    value: _shared,
-                    onChanged: (value) => setState(() => _shared = value),
+                if (tabController != null)
+                  GroupTabBar(
+                    controller: tabController,
+                    labels: [for (final action in _actions) action.label],
+                    expandable: true,
+                    onExtraHeight: (value) =>
+                        setState(() => _extraHeight = value),
                   ),
+                ToolNote(
+                  icon: Icons.info_outline_rounded,
+                  text: '${_ruleAction.value} · ${_ruleAction.desc}',
                 ),
-            ],
+                if (_ruleAction == RuleAction.RULE_SET)
+                  _buildPicker(
+                    label: appLocalizations.ruleProviders,
+                    options: _ruleProviderItems,
+                    controller: _ruleProviderController,
+                  )
+                else if (_ruleAction != RuleAction.MATCH)
+                  TextFormField(
+                    controller: _contentController,
+                    maxLines: 1,
+                    textInputAction: TextInputAction.next,
+                    decoration: InputDecoration(
+                      labelText: appLocalizations.content,
+                      suffixIcon:
+                          system.isAndroid &&
+                              _ruleAction == RuleAction.PROCESS_NAME
+                          ? IconButton(
+                              icon: const AppIcon(Icons.add),
+                              onPressed: _pickPackage,
+                            )
+                          : null,
+                    ),
+                    validator: (_) {
+                      if (_contentController.text.isEmpty) {
+                        return appLocalizations.emptyTip(
+                          appLocalizations.content,
+                        );
+                      }
+                      return null;
+                    },
+                  ),
+                if (_ruleAction == RuleAction.SUB_RULE)
+                  _buildPicker(
+                    label: appLocalizations.subRule,
+                    options: _subRuleItems,
+                    controller: _subRuleController,
+                  )
+                else
+                  _buildPicker(
+                    label: appLocalizations.ruleTarget,
+                    options: _targetItems,
+                    controller: _ruleTargetController,
+                  ),
+                if (_ruleAction.hasParams)
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: [
+                      _buildFlag(
+                        appLocalizations.sourceIp,
+                        _src,
+                        (value) => setState(() => _src = value),
+                      ),
+                      _buildFlag(
+                        appLocalizations.noResolve,
+                        _noResolve,
+                        (value) => setState(() => _noResolve = value),
+                      ),
+                    ],
+                  ),
+                if (widget.shared != null)
+                  Material(
+                    type: MaterialType.transparency,
+                    child: ListItem.switchItem(
+                      padding: EdgeInsets.zero,
+                      title: Row(
+                        children: [
+                          Flexible(
+                            child: Text(appLocalizations.applyToAllManaged),
+                          ),
+                          Tooltip(
+                            message: appLocalizations.applyToAllManagedDesc,
+                            triggerMode: TooltipTriggerMode.tap,
+                            showDuration: const Duration(seconds: 5),
+                            child: Padding(
+                              padding: const EdgeInsets.all(4),
+                              child: AppIcon(
+                                Icons.info_outline_rounded,
+                                size: 15,
+                                color: context.colorScheme.outline,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      delegate: SwitchDelegate(
+                        value: _shared,
+                        onChanged: (value) => setState(() => _shared = value),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
           ),
         ),
       ),

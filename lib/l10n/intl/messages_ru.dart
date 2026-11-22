@@ -181,27 +181,33 @@ class MessageLookup extends MessageLookupByLibrary {
   static String m68(count, group) =>
       "Правил: ${count}, входит в группу ${group}";
 
-  static String m69(count) => "Выбрано: ${count}";
+  static String m69(type) =>
+      "${Intl.select(type, {'DOMAIN_SUFFIX': 'Совпадает с доменом и всеми его поддоменами, например google.com совпадает и с www.google.com', 'DOMAIN': 'Совпадает только с точно таким доменом, например google.com не совпадает с www.google.com', 'DOMAIN_KEYWORD': 'Совпадает с любым доменом, содержащим ключевое слово, например google', 'DOMAIN_WILDCARD': 'Совпадение домена по шаблону: * — любые символы, ? — один символ, например *.google.com', 'DOMAIN_REGEX': 'Совпадение домена по регулярному выражению', 'GEOSITE': 'Совпадает с доменами из категории GeoSite, например google или cn', 'IP_CIDR': 'Совпадает с IP назначения из диапазона, например 192.168.1.0/24; один IP — /32, для IPv6 — /128', 'IP_SUFFIX': 'Совпадает с IP, у которых совпадают последние биты, например 8.8.8.8/24 сравнивает последние 24 бита', 'IP_ASN': 'Совпадает с номером автономной системы IP назначения, например 13335', 'GEOIP': 'Совпадает с кодом страны или региона IP назначения, например CN', 'SRC_IP_CIDR': 'Совпадает с IP источника соединения из диапазона, например 192.168.1.0/24', 'SRC_IP_SUFFIX': 'Совпадает с IP источника, у которых совпадают последние биты', 'SRC_IP_ASN': 'Совпадает с номером автономной системы IP источника', 'SRC_GEOIP': 'Совпадает с кодом страны или региона IP источника', 'PROCESS_NAME': 'Совпадение по имени процесса; на Android это имя пакета приложения', 'PROCESS_NAME_WILDCARD': 'Совпадение имени процесса по шаблону: * — любые символы, ? — один символ', 'PROCESS_NAME_REGEX': 'Совпадение имени процесса по регулярному выражению', 'PROCESS_PATH': 'Совпадение по полному пути исполняемого файла процесса', 'PROCESS_PATH_WILDCARD': 'Совпадение пути процесса по шаблону: * — любые символы, ? — один символ', 'PROCESS_PATH_REGEX': 'Совпадение пути процесса по регулярному выражению', 'UID': 'Совпадение по Linux ID пользователя процесса; можно указать диапазон, например 1000-1999', 'DST_PORT': 'Совпадает с портом назначения; несколько — через /, диапазон — через -, например 80/443/8000-9000', 'SRC_PORT': 'Совпадает с портом источника; несколько — через /, диапазон — через -', 'NETWORK': 'Совпадает с транспортным протоколом: tcp или udp', 'IN_PORT': 'Совпадает с локальным портом входящего подключения', 'IN_TYPE': 'Совпадает с типом входящего, например HTTP, SOCKS5 или TUN; несколько — через /', 'IN_NAME': 'Совпадает с именем входящего слушателя; несколько — через /', 'IN_USER': 'Совпадает с именем пользователя аутентификации входящего; несколько — через /', 'DSCP': 'Совпадает с меткой DSCP в заголовке IP, от 0 до 63', 'RULE_SET': 'Совпадает с содержимым провайдера правил', 'AND': 'Совпадает, когда выполнены все подусловия, например ((DOMAIN,baidu.com),(NETWORK,UDP))', 'OR': 'Совпадает, когда выполнено любое подусловие, например ((NETWORK,UDP),(DST-PORT,443))', 'NOT': 'Совпадает, когда подусловие не выполнено, например ((DOMAIN,baidu.com))', 'SUB_RULE': 'При выполнении условия проверка продолжается в выбранном подправиле, например (NETWORK,TCP)', 'MATCH': 'Совпадает со всем трафиком; правила после него не применяются', 'other': '${type}'})}";
 
-  static String m70(count) =>
+  static String m70(type) =>
+      "${Intl.select(type, {'DOMAIN_SUFFIX': 'Суффикс домена', 'DOMAIN': 'Полный домен', 'DOMAIN_KEYWORD': 'Ключевое слово домена', 'DOMAIN_WILDCARD': 'Шаблон домена', 'DOMAIN_REGEX': 'Regex домена', 'GEOSITE': 'GeoSite', 'IP_CIDR': 'Диапазон IP', 'IP_SUFFIX': 'Суффикс IP', 'IP_ASN': 'IP ASN', 'GEOIP': 'GeoIP', 'SRC_IP_CIDR': 'Диапазон IP источника', 'SRC_IP_SUFFIX': 'Суффикс IP источника', 'SRC_IP_ASN': 'ASN источника', 'SRC_GEOIP': 'GeoIP источника', 'PROCESS_NAME': 'Имя процесса', 'PROCESS_NAME_WILDCARD': 'Шаблон имени процесса', 'PROCESS_NAME_REGEX': 'Regex имени процесса', 'PROCESS_PATH': 'Путь процесса', 'PROCESS_PATH_WILDCARD': 'Шаблон пути процесса', 'PROCESS_PATH_REGEX': 'Regex пути процесса', 'UID': 'ID пользователя', 'DST_PORT': 'Порт назначения', 'SRC_PORT': 'Порт источника', 'NETWORK': 'Тип сети', 'IN_PORT': 'Входящий порт', 'IN_TYPE': 'Тип входящего', 'IN_NAME': 'Имя входящего', 'IN_USER': 'Пользователь входящего', 'DSCP': 'DSCP', 'RULE_SET': 'Набор правил', 'AND': 'Логическое И', 'OR': 'Логическое ИЛИ', 'NOT': 'Логическое НЕ', 'SUB_RULE': 'Подправило', 'MATCH': 'Все остальные', 'other': '${type}'})}";
+
+  static String m71(count) => "Выбрано: ${count}";
+
+  static String m72(count) =>
       "Несколько — ${count} параллельных соединений для полной загрузки канала";
 
-  static String m71(provider) =>
+  static String m73(provider) =>
       "Выход может блокировать тесты ${provider}. Смените источник теста или выход.";
 
-  static String m72(protocol, fallback) =>
+  static String m74(protocol, fallback) =>
       "${protocol} недоступен, используется ${fallback}";
 
-  static String m73(count) => "Соединений: ${count}";
+  static String m75(count) => "Соединений: ${count}";
 
-  static String m74(provider) => "Переключить на ${provider}";
+  static String m76(provider) => "Переключить на ${provider}";
 
-  static String m75(appName) =>
+  static String m77(appName) =>
       "Пакет новой версии готов. Для корректной работы перед обновлением запущенный ${appName} будет закрыт. Подтвердите, чтобы начать установку.";
 
-  static String m76(label) => "${label} должен быть URL";
+  static String m78(label) => "${label} должен быть URL";
 
-  static String m77(count) =>
+  static String m79(count) =>
       "${Intl.plural(count, one: 'год', few: 'года', many: 'лет', other: 'лет')}";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
@@ -380,6 +386,9 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "applyToAllManaged": MessageLookupByLibrary.simpleMessage(
       "Применять ко всем управляемым профилям",
+    ),
+    "applyToAllManagedDesc": MessageLookupByLibrary.simpleMessage(
+      "Если включено, правило действует для всех управляемых профилей. Если выключено или профиль не в управляемом режиме, правило действует только для текущего профиля",
     ),
     "authorized": MessageLookupByLibrary.simpleMessage("Авторизован"),
     "auto": MessageLookupByLibrary.simpleMessage("Авто"),
@@ -1087,6 +1096,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "invalidIpFormat": MessageLookupByLibrary.simpleMessage(
       "Неверный формат IP или CIDR",
     ),
+    "ip": MessageLookupByLibrary.simpleMessage("IP"),
     "ipAddress": MessageLookupByLibrary.simpleMessage("IP-адрес"),
     "ipClickBehavior": MessageLookupByLibrary.simpleMessage(
       "Режим отображения",
@@ -1741,6 +1751,9 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "nodeTestFailed": MessageLookupByLibrary.simpleMessage("Недоступен"),
     "nodesSort": MessageLookupByLibrary.simpleMessage("Сортировка узлов"),
+    "nonManagedRuleTip": MessageLookupByLibrary.simpleMessage(
+      "Профиль не в управляемом режиме, правило действует только для текущего профиля",
+    ),
     "none": MessageLookupByLibrary.simpleMessage("Нет"),
     "notRecommended": MessageLookupByLibrary.simpleMessage("Не рекомендуется"),
     "notSelectedTip": MessageLookupByLibrary.simpleMessage(
@@ -2162,12 +2175,13 @@ class MessageLookup extends MessageLookupByLibrary {
     "ruleCount": m67,
     "ruleCountIncluded": m68,
     "ruleHits": MessageLookupByLibrary.simpleMessage("Срабатывания правил"),
-    "ruleName": MessageLookupByLibrary.simpleMessage("Имя правила"),
     "ruleProviders": MessageLookupByLibrary.simpleMessage("Провайдеры правил"),
     "ruleProvidersCount": MessageLookupByLibrary.simpleMessage("Наборы правил"),
     "ruleSets": MessageLookupByLibrary.simpleMessage("Наборы правил"),
     "ruleSort": MessageLookupByLibrary.simpleMessage("Порядок правил"),
     "ruleTarget": MessageLookupByLibrary.simpleMessage("Цель правила"),
+    "ruleTypeDesc": m69,
+    "ruleTypeName": m70,
     "rulesCount": MessageLookupByLibrary.simpleMessage("Правила"),
     "runTime": MessageLookupByLibrary.simpleMessage("Время работы"),
     "runningMode": MessageLookupByLibrary.simpleMessage("Режим работы"),
@@ -2200,7 +2214,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "selectIcon": MessageLookupByLibrary.simpleMessage("Выбрать значок"),
     "selected": MessageLookupByLibrary.simpleMessage("Выбрано"),
-    "selectedCountTitle": m69,
+    "selectedCountTitle": m71,
     "serviceReady": MessageLookupByLibrary.simpleMessage("Служба готова"),
     "serviceRunning": MessageLookupByLibrary.simpleMessage("Служба запущена"),
     "setcapFailedFallback": MessageLookupByLibrary.simpleMessage(
@@ -2305,7 +2319,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "speedTestConnecting": MessageLookupByLibrary.simpleMessage("Подключение"),
     "speedTestConnections": MessageLookupByLibrary.simpleMessage("Соединения"),
-    "speedTestConnectionsDesc": m70,
+    "speedTestConnectionsDesc": m72,
     "speedTestCoreStopped": MessageLookupByLibrary.simpleMessage(
       "Не запущен · Прямой тест",
     ),
@@ -2317,7 +2331,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "speedTestErrorBlocked": MessageLookupByLibrary.simpleMessage(
       "Тест скорости недоступен",
     ),
-    "speedTestErrorBlockedDesc": m71,
+    "speedTestErrorBlockedDesc": m73,
     "speedTestErrorNetworkDesc": MessageLookupByLibrary.simpleMessage(
       "Проверьте доступность выхода и повторите.",
     ),
@@ -2360,7 +2374,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "speedTestProtocolDesc": MessageLookupByLibrary.simpleMessage(
       "HTTP/3 работает поверх QUIC (UDP); если он недоступен — откат на HTTP/2, а если недоступен и HTTP/2 — на HTTP/1.1",
     ),
-    "speedTestProtocolFallback": m72,
+    "speedTestProtocolFallback": m74,
     "speedTestQuality": MessageLookupByLibrary.simpleMessage("Качество сети"),
     "speedTestReady": MessageLookupByLibrary.simpleMessage("Готово"),
     "speedTestRealtime": MessageLookupByLibrary.simpleMessage(
@@ -2379,8 +2393,8 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "speedTestSingleThread": MessageLookupByLibrary.simpleMessage("Одно"),
     "speedTestStart": MessageLookupByLibrary.simpleMessage("Начать тест"),
-    "speedTestStreams": m73,
-    "speedTestSwitchProvider": m74,
+    "speedTestStreams": m75,
+    "speedTestSwitchProvider": m76,
     "speedTestUseSystemDns": MessageLookupByLibrary.simpleMessage(
       "Разрешать через системный DNS",
     ),
@@ -2630,7 +2644,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "updateInstallFailed": MessageLookupByLibrary.simpleMessage(
       "Не удалось установить обновление",
     ),
-    "updateReadyAppTip": m75,
+    "updateReadyAppTip": m77,
     "updateReadyVpnTip": MessageLookupByLibrary.simpleMessage(
       "Пакет новой версии готов. Для корректной работы перед обновлением запущенная служба VPN будет остановлена. Подтвердите, чтобы начать установку.",
     ),
@@ -2642,7 +2656,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "url": MessageLookupByLibrary.simpleMessage("URL"),
     "urlDesc": MessageLookupByLibrary.simpleMessage("Получить профиль по URL"),
-    "urlTip": m76,
+    "urlTip": m78,
     "usageStyle": MessageLookupByLibrary.simpleMessage("Стиль трафика"),
     "usageStyleBar": MessageLookupByLibrary.simpleMessage("Полосы"),
     "usageStyleConcentric": MessageLookupByLibrary.simpleMessage(
@@ -2702,6 +2716,6 @@ class MessageLookup extends MessageLookupByLibrary {
     "xattrUnsupportedFallback": MessageLookupByLibrary.simpleMessage(
       "Файловая система не поддерживает file capabilities (xattr), выполнен откат на setuid",
     ),
-    "years": m77,
+    "years": m79,
   };
 }

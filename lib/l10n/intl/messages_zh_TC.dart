@@ -165,24 +165,30 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m68(count, group) => "${count} 條規則，已包含在 ${group} 策略組";
 
-  static String m69(count) => "已選擇 ${count} 項";
+  static String m69(type) =>
+      "${Intl.select(type, {'DOMAIN_SUFFIX': '比對該網域及其所有子網域，如 google.com 也比對 www.google.com', 'DOMAIN': '僅比對完全相同的網域，如 google.com 不比對 www.google.com', 'DOMAIN_KEYWORD': '網域中包含該關鍵字即比對，如 google', 'DOMAIN_WILDCARD': '用萬用字元比對網域，* 比對任意字元，? 比對單一字元，如 *.google.com', 'DOMAIN_REGEX': '用正規表示式比對網域', 'GEOSITE': '比對 GeoSite 資料庫中的網域分類，如 google、cn', 'IP_CIDR': '比對目標 IP 所在網段，如 192.168.1.0/24；單一 IP 用 /32，IPv6 用 /128', 'IP_SUFFIX': '比對末尾若干位元相同的 IP，如 8.8.8.8/24 比較末尾 24 位元', 'IP_ASN': '比對目標 IP 所屬的自治系統編號，如 13335', 'GEOIP': '比對目標 IP 所屬的國家或地區代碼，如 CN', 'SRC_IP_CIDR': '比對連線來源 IP 所在網段，如 192.168.1.0/24', 'SRC_IP_SUFFIX': '比對末尾若干位元相同的來源 IP', 'SRC_IP_ASN': '比對來源 IP 所屬的自治系統編號', 'SRC_GEOIP': '比對來源 IP 所屬的國家或地區代碼', 'PROCESS_NAME': '依處理程序名稱比對，Android 上為應用程式套件名稱', 'PROCESS_NAME_WILDCARD': '用萬用字元比對處理程序名稱，* 比對任意字元，? 比對單一字元', 'PROCESS_NAME_REGEX': '用正規表示式比對處理程序名稱', 'PROCESS_PATH': '依處理程序執行檔的完整路徑比對', 'PROCESS_PATH_WILDCARD': '用萬用字元比對處理程序路徑，* 比對任意字元，? 比對單一字元', 'PROCESS_PATH_REGEX': '用正規表示式比對處理程序路徑', 'UID': '依處理程序的 Linux 使用者 ID 比對，可填範圍，如 1000-1999', 'DST_PORT': '比對目標連接埠，多個用 / 分隔，範圍用 -，如 80/443/8000-9000', 'SRC_PORT': '比對來源連接埠，多個用 / 分隔，範圍用 -', 'NETWORK': '比對傳輸協定，填 tcp 或 udp', 'IN_PORT': '比對本機入站監聽連接埠', 'IN_TYPE': '比對入站類型，如 HTTP、SOCKS5、TUN，多個用 / 分隔', 'IN_NAME': '比對入站監聽器名稱，多個用 / 分隔', 'IN_USER': '比對入站驗證使用的使用者名稱，多個用 / 分隔', 'DSCP': '比對 IP 封包標頭中的 DSCP 標記，範圍 0 到 63', 'RULE_SET': '比對規則提供者中的內容', 'AND': '所有子規則都符合時比對，如 ((DOMAIN,baidu.com),(NETWORK,UDP))', 'OR': '任一子規則符合時比對，如 ((NETWORK,UDP),(DST-PORT,443))', 'NOT': '子規則不符合時比對，如 ((DOMAIN,baidu.com))', 'SUB_RULE': '條件符合時轉入所選子規則繼續比對，如 (NETWORK,TCP)', 'MATCH': '比對所有流量，其後的規則將不再生效', 'other': '${type}'})}";
 
-  static String m70(count) => "多執行緒會並行 ${count} 條連線以跑滿頻寬";
+  static String m70(type) =>
+      "${Intl.select(type, {'DOMAIN_SUFFIX': '網域後綴', 'DOMAIN': '完整網域', 'DOMAIN_KEYWORD': '網域關鍵字', 'DOMAIN_WILDCARD': '網域萬用字元', 'DOMAIN_REGEX': '網域正規表示式', 'GEOSITE': 'GeoSite', 'IP_CIDR': 'IP 網段', 'IP_SUFFIX': 'IP 後綴', 'IP_ASN': 'IP ASN', 'GEOIP': 'GeoIP', 'SRC_IP_CIDR': '來源 IP 網段', 'SRC_IP_SUFFIX': '來源 IP 後綴', 'SRC_IP_ASN': '來源 IP ASN', 'SRC_GEOIP': '來源 GeoIP', 'PROCESS_NAME': '處理程序名稱', 'PROCESS_NAME_WILDCARD': '處理程序名稱萬用字元', 'PROCESS_NAME_REGEX': '處理程序名稱正規表示式', 'PROCESS_PATH': '處理程序路徑', 'PROCESS_PATH_WILDCARD': '處理程序路徑萬用字元', 'PROCESS_PATH_REGEX': '處理程序路徑正規表示式', 'UID': '使用者 ID', 'DST_PORT': '目標連接埠', 'SRC_PORT': '來源連接埠', 'NETWORK': '網路類型', 'IN_PORT': '入站連接埠', 'IN_TYPE': '入站類型', 'IN_NAME': '入站名稱', 'IN_USER': '入站使用者', 'DSCP': 'DSCP', 'RULE_SET': '規則集', 'AND': '邏輯與', 'OR': '邏輯或', 'NOT': '邏輯非', 'SUB_RULE': '子規則', 'MATCH': '全部比對', 'other': '${type}'})}";
 
-  static String m71(provider) => "出站節點可能封鎖了 ${provider} 測速，可切換測速源或更換出站";
+  static String m71(count) => "已選擇 ${count} 項";
 
-  static String m72(protocol, fallback) => "${protocol} 不可用，已回退到 ${fallback}";
+  static String m72(count) => "多執行緒會並行 ${count} 條連線以跑滿頻寬";
 
-  static String m73(count) => "${count} 條連線";
+  static String m73(provider) => "出站節點可能封鎖了 ${provider} 測速，可切換測速源或更換出站";
 
-  static String m74(provider) => "切換到 ${provider}";
+  static String m74(protocol, fallback) => "${protocol} 不可用，已回退到 ${fallback}";
 
-  static String m75(appName) =>
+  static String m75(count) => "${count} 條連線";
+
+  static String m76(provider) => "切換到 ${provider}";
+
+  static String m77(appName) =>
       "新版本安裝包已下載就緒，為保障服務正常，升級前將會主動關閉正在執行中的 ${appName}，點擊確認後開始安裝";
 
-  static String m76(label) => "${label}必須為 URL";
+  static String m78(label) => "${label}必須為 URL";
 
-  static String m77(count) => "${Intl.plural(count, other: '年')}";
+  static String m79(count) => "${Intl.plural(count, other: '年')}";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
@@ -297,6 +303,9 @@ class MessageLookup extends MessageLookupByLibrary {
       "所有託管模式下的設定將會同時生效",
     ),
     "applyToAllManaged": MessageLookupByLibrary.simpleMessage("套用到全域託管模式"),
+    "applyToAllManagedDesc": MessageLookupByLibrary.simpleMessage(
+      "開啟後，目前規則將可以針對所有託管配置生效，關閉或非託管模式下，則僅對目前配置生效",
+    ),
     "authorized": MessageLookupByLibrary.simpleMessage("已授權"),
     "auto": MessageLookupByLibrary.simpleMessage("自動"),
     "autoBackup": MessageLookupByLibrary.simpleMessage("自動備份"),
@@ -789,6 +798,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "intranetIP": MessageLookupByLibrary.simpleMessage("內網 IP"),
     "invalidIconSet": MessageLookupByLibrary.simpleMessage("不是有效的圖示集"),
     "invalidIpFormat": MessageLookupByLibrary.simpleMessage("無效的 IP 或 CIDR 格式"),
+    "ip": MessageLookupByLibrary.simpleMessage("IP"),
     "ipAddress": MessageLookupByLibrary.simpleMessage("IP 位址"),
     "ipClickBehavior": MessageLookupByLibrary.simpleMessage("顯示切換"),
     "ipLookup": MessageLookupByLibrary.simpleMessage("IP 全能查"),
@@ -1257,6 +1267,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "nodeShareUri": MessageLookupByLibrary.simpleMessage("節點分享(URI)"),
     "nodeTestFailed": MessageLookupByLibrary.simpleMessage("不可用"),
     "nodesSort": MessageLookupByLibrary.simpleMessage("節點排序"),
+    "nonManagedRuleTip": MessageLookupByLibrary.simpleMessage(
+      "非託管模式下，僅針對目前配置生效",
+    ),
     "none": MessageLookupByLibrary.simpleMessage("無"),
     "notRecommended": MessageLookupByLibrary.simpleMessage("不推薦"),
     "notSelectedTip": MessageLookupByLibrary.simpleMessage("目前的代理群組無法選取"),
@@ -1546,12 +1559,13 @@ class MessageLookup extends MessageLookupByLibrary {
     "ruleCount": m67,
     "ruleCountIncluded": m68,
     "ruleHits": MessageLookupByLibrary.simpleMessage("規則命中"),
-    "ruleName": MessageLookupByLibrary.simpleMessage("規則名稱"),
     "ruleProviders": MessageLookupByLibrary.simpleMessage("規則提供者"),
     "ruleProvidersCount": MessageLookupByLibrary.simpleMessage("規則集"),
     "ruleSets": MessageLookupByLibrary.simpleMessage("規則集"),
     "ruleSort": MessageLookupByLibrary.simpleMessage("規則排序"),
     "ruleTarget": MessageLookupByLibrary.simpleMessage("規則目標"),
+    "ruleTypeDesc": m69,
+    "ruleTypeName": m70,
     "rulesCount": MessageLookupByLibrary.simpleMessage("路由規則"),
     "runTime": MessageLookupByLibrary.simpleMessage("啟動時間"),
     "runningMode": MessageLookupByLibrary.simpleMessage("運行模式"),
@@ -1572,7 +1586,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "selectBackupVersion": MessageLookupByLibrary.simpleMessage("選擇備份版本"),
     "selectIcon": MessageLookupByLibrary.simpleMessage("選擇圖示"),
     "selected": MessageLookupByLibrary.simpleMessage("已選擇"),
-    "selectedCountTitle": m69,
+    "selectedCountTitle": m71,
     "serviceReady": MessageLookupByLibrary.simpleMessage("服務已就緒"),
     "serviceRunning": MessageLookupByLibrary.simpleMessage("服務正在執行中"),
     "setcapFailedFallback": MessageLookupByLibrary.simpleMessage(
@@ -1641,7 +1655,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "speedTestConnecting": MessageLookupByLibrary.simpleMessage("連線中"),
     "speedTestConnections": MessageLookupByLibrary.simpleMessage("連線方式"),
-    "speedTestConnectionsDesc": m70,
+    "speedTestConnectionsDesc": m72,
     "speedTestCoreStopped": MessageLookupByLibrary.simpleMessage("未啟動 · 直連測速"),
     "speedTestCredit": MessageLookupByLibrary.simpleMessage(
       "測速伺服器由網路上公開的第三方提供，特別感謝 Apple、Cloudflare 以及 Speedtest by Ookla。",
@@ -1649,7 +1663,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "speedTestDataUsed": MessageLookupByLibrary.simpleMessage("已用流量"),
     "speedTestDuration": MessageLookupByLibrary.simpleMessage("測試時長"),
     "speedTestErrorBlocked": MessageLookupByLibrary.simpleMessage("測速服務不可用"),
-    "speedTestErrorBlockedDesc": m71,
+    "speedTestErrorBlockedDesc": m73,
     "speedTestErrorNetworkDesc": MessageLookupByLibrary.simpleMessage(
       "請檢查出站是否可用後重試",
     ),
@@ -1682,7 +1696,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "speedTestProtocolDesc": MessageLookupByLibrary.simpleMessage(
       "HTTP/3 基於 QUIC (UDP)，不可用時依次回退到 HTTP/2、（HTTP/2 不可用時）HTTP/1.1",
     ),
-    "speedTestProtocolFallback": m72,
+    "speedTestProtocolFallback": m74,
     "speedTestQuality": MessageLookupByLibrary.simpleMessage("網路品質"),
     "speedTestReady": MessageLookupByLibrary.simpleMessage("準備就緒"),
     "speedTestRealtime": MessageLookupByLibrary.simpleMessage("即時速率"),
@@ -1695,8 +1709,8 @@ class MessageLookup extends MessageLookupByLibrary {
     "speedTestSettings": MessageLookupByLibrary.simpleMessage("測速設定"),
     "speedTestSingleThread": MessageLookupByLibrary.simpleMessage("單執行緒"),
     "speedTestStart": MessageLookupByLibrary.simpleMessage("開始測速"),
-    "speedTestStreams": m73,
-    "speedTestSwitchProvider": m74,
+    "speedTestStreams": m75,
+    "speedTestSwitchProvider": m76,
     "speedTestUseSystemDns": MessageLookupByLibrary.simpleMessage(
       "使用系統 DNS 解析",
     ),
@@ -1862,7 +1876,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "update": MessageLookupByLibrary.simpleMessage("更新"),
     "updateDownloadFailed": MessageLookupByLibrary.simpleMessage("更新下載失敗"),
     "updateInstallFailed": MessageLookupByLibrary.simpleMessage("更新安裝失敗"),
-    "updateReadyAppTip": m75,
+    "updateReadyAppTip": m77,
     "updateReadyVpnTip": MessageLookupByLibrary.simpleMessage(
       "新版本安裝包已下載就緒，為保障服務正常，升級前將會主動關閉正在執行中的 VPN 服務，點擊確認後開始安裝",
     ),
@@ -1874,7 +1888,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "url": MessageLookupByLibrary.simpleMessage("URL"),
     "urlDesc": MessageLookupByLibrary.simpleMessage("透過 URL 獲取設定檔"),
-    "urlTip": m76,
+    "urlTip": m78,
     "usageStyle": MessageLookupByLibrary.simpleMessage("用量樣式"),
     "usageStyleBar": MessageLookupByLibrary.simpleMessage("條形"),
     "usageStyleConcentric": MessageLookupByLibrary.simpleMessage("同心環"),
@@ -1914,6 +1928,6 @@ class MessageLookup extends MessageLookupByLibrary {
     "xattrUnsupportedFallback": MessageLookupByLibrary.simpleMessage(
       "檔案系統不支援檔案能力（xattr），已回退到 setuid",
     ),
-    "years": m77,
+    "years": m79,
   };
 }

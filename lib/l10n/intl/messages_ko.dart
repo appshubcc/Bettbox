@@ -169,26 +169,32 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m68(count, group) => "규칙 ${count}개, ${group} 그룹에 포함됨";
 
-  static String m69(count) => "${count}개 선택됨";
+  static String m69(type) =>
+      "${Intl.select(type, {'DOMAIN_SUFFIX': '도메인과 모든 하위 도메인에 일치합니다. 예: google.com은 www.google.com에도 일치', 'DOMAIN': '정확히 같은 도메인에만 일치합니다. 예: google.com은 www.google.com에 일치하지 않음', 'DOMAIN_KEYWORD': '키워드를 포함하는 도메인에 일치합니다. 예: google', 'DOMAIN_WILDCARD': '와일드카드로 도메인에 일치합니다. *는 임의의 문자열, ?는 한 글자. 예: *.google.com', 'DOMAIN_REGEX': '정규식으로 도메인에 일치합니다', 'GEOSITE': 'GeoSite 데이터베이스의 도메인 분류에 일치합니다. 예: google, cn', 'IP_CIDR': '목적지 IP 대역에 일치합니다. 예: 192.168.1.0/24. 단일 IP는 /32, IPv6은 /128', 'IP_SUFFIX': '끝부분 비트가 같은 IP에 일치합니다. 예: 8.8.8.8/24는 끝 24비트를 비교', 'IP_ASN': '목적지 IP의 AS 번호에 일치합니다. 예: 13335', 'GEOIP': '목적지 IP의 국가 또는 지역 코드에 일치합니다. 예: CN', 'SRC_IP_CIDR': '연결 출발지 IP 대역에 일치합니다. 예: 192.168.1.0/24', 'SRC_IP_SUFFIX': '끝부분 비트가 같은 출발지 IP에 일치합니다', 'SRC_IP_ASN': '출발지 IP의 AS 번호에 일치합니다', 'SRC_GEOIP': '출발지 IP의 국가 또는 지역 코드에 일치합니다', 'PROCESS_NAME': '프로세스 이름으로 일치합니다. Android에서는 앱 패키지 이름', 'PROCESS_NAME_WILDCARD': '와일드카드로 프로세스 이름에 일치합니다. *는 임의의 문자열, ?는 한 글자', 'PROCESS_NAME_REGEX': '정규식으로 프로세스 이름에 일치합니다', 'PROCESS_PATH': '프로세스 실행 파일의 전체 경로로 일치합니다', 'PROCESS_PATH_WILDCARD': '와일드카드로 프로세스 경로에 일치합니다. *는 임의의 문자열, ?는 한 글자', 'PROCESS_PATH_REGEX': '정규식으로 프로세스 경로에 일치합니다', 'UID': '프로세스의 Linux 사용자 ID로 일치합니다. 범위 지정 가능. 예: 1000-1999', 'DST_PORT': '목적지 포트에 일치합니다. 여러 개는 /로, 범위는 -로. 예: 80/443/8000-9000', 'SRC_PORT': '출발지 포트에 일치합니다. 여러 개는 /로, 범위는 -로', 'NETWORK': '전송 프로토콜에 일치합니다. tcp 또는 udp', 'IN_PORT': '로컬 인바운드 수신 포트에 일치합니다', 'IN_TYPE': '인바운드 유형에 일치합니다. 예: HTTP, SOCKS5, TUN. 여러 개는 /로 구분', 'IN_NAME': '인바운드 리스너 이름에 일치합니다. 여러 개는 /로 구분', 'IN_USER': '인바운드 인증에 사용한 사용자 이름에 일치합니다. 여러 개는 /로 구분', 'DSCP': 'IP 헤더의 DSCP 표시에 일치합니다. 범위 0~63', 'RULE_SET': '규칙 프로바이더의 내용에 일치합니다', 'AND': '모든 하위 조건을 만족하면 일치합니다. 예: ((DOMAIN,baidu.com),(NETWORK,UDP))', 'OR': '하위 조건 중 하나라도 만족하면 일치합니다. 예: ((NETWORK,UDP),(DST-PORT,443))', 'NOT': '하위 조건을 만족하지 않으면 일치합니다. 예: ((DOMAIN,baidu.com))', 'SUB_RULE': '조건을 만족하면 선택한 하위 규칙으로 계속 일치를 확인합니다. 예: (NETWORK,TCP)', 'MATCH': '모든 트래픽에 일치합니다. 이후 규칙은 적용되지 않습니다', 'other': '${type}'})}";
 
-  static String m70(count) => "다중은 ${count}개의 병렬 연결로 대역폭을 채웁니다";
+  static String m70(type) =>
+      "${Intl.select(type, {'DOMAIN_SUFFIX': '도메인 접미사', 'DOMAIN': '전체 도메인', 'DOMAIN_KEYWORD': '도메인 키워드', 'DOMAIN_WILDCARD': '도메인 와일드카드', 'DOMAIN_REGEX': '도메인 정규식', 'GEOSITE': 'GeoSite', 'IP_CIDR': 'IP 대역', 'IP_SUFFIX': 'IP 접미사', 'IP_ASN': 'IP ASN', 'GEOIP': 'GeoIP', 'SRC_IP_CIDR': '출발지 IP 대역', 'SRC_IP_SUFFIX': '출발지 IP 접미사', 'SRC_IP_ASN': '출발지 IP ASN', 'SRC_GEOIP': '출발지 GeoIP', 'PROCESS_NAME': '프로세스 이름', 'PROCESS_NAME_WILDCARD': '프로세스 이름 와일드카드', 'PROCESS_NAME_REGEX': '프로세스 이름 정규식', 'PROCESS_PATH': '프로세스 경로', 'PROCESS_PATH_WILDCARD': '프로세스 경로 와일드카드', 'PROCESS_PATH_REGEX': '프로세스 경로 정규식', 'UID': '사용자 ID', 'DST_PORT': '목적지 포트', 'SRC_PORT': '출발지 포트', 'NETWORK': '네트워크 유형', 'IN_PORT': '인바운드 포트', 'IN_TYPE': '인바운드 유형', 'IN_NAME': '인바운드 이름', 'IN_USER': '인바운드 사용자', 'DSCP': 'DSCP', 'RULE_SET': '규칙 세트', 'AND': '논리 AND', 'OR': '논리 OR', 'NOT': '논리 NOT', 'SUB_RULE': '하위 규칙', 'MATCH': '모두 일치', 'other': '${type}'})}";
 
-  static String m71(provider) =>
+  static String m71(count) => "${count}개 선택됨";
+
+  static String m72(count) => "다중은 ${count}개의 병렬 연결로 대역폭을 채웁니다";
+
+  static String m73(provider) =>
       "아웃바운드가 ${provider} 속도 테스트를 차단하고 있을 수 있습니다. 측정 소스나 아웃바운드를 바꿔 보세요.";
 
-  static String m72(protocol, fallback) =>
+  static String m74(protocol, fallback) =>
       "${protocol}를 사용할 수 없어 ${fallback}로 전환했습니다";
 
-  static String m73(count) => "${count}개 연결";
+  static String m75(count) => "${count}개 연결";
 
-  static String m74(provider) => "${provider}(으)로 전환";
+  static String m76(provider) => "${provider}(으)로 전환";
 
-  static String m75(appName) =>
+  static String m77(appName) =>
       "새 버전 설치 패키지가 준비되었습니다. 서비스 보호를 위해 업그레이드 전에 실행 중인 ${appName}을(를) 종료합니다. 확인을 누르면 설치를 시작합니다.";
 
-  static String m76(label) => "${label} 항목은 올바른 URL이어야 합니다";
+  static String m78(label) => "${label} 항목은 올바른 URL이어야 합니다";
 
-  static String m77(count) => "${Intl.plural(count, other: '#년')}";
+  static String m79(count) => "${Intl.plural(count, other: '#년')}";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
@@ -319,6 +325,9 @@ class MessageLookup extends MessageLookupByLibrary {
       "관리 모드의 모든 구성에 동시에 적용됩니다",
     ),
     "applyToAllManaged": MessageLookupByLibrary.simpleMessage("모든 관리 모드에 적용"),
+    "applyToAllManagedDesc": MessageLookupByLibrary.simpleMessage(
+      "켜면 모든 관리 프로필에 적용됩니다. 끄거나 관리 모드가 아니면 현재 프로필에만 적용됩니다",
+    ),
     "authorized": MessageLookupByLibrary.simpleMessage("인증됨"),
     "auto": MessageLookupByLibrary.simpleMessage("자동"),
     "autoBackup": MessageLookupByLibrary.simpleMessage("자동 백업"),
@@ -885,6 +894,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "invalidIpFormat": MessageLookupByLibrary.simpleMessage(
       "유효하지 않은 IP 또는 CIDR 형식입니다",
     ),
+    "ip": MessageLookupByLibrary.simpleMessage("IP"),
     "ipAddress": MessageLookupByLibrary.simpleMessage("IP 주소"),
     "ipClickBehavior": MessageLookupByLibrary.simpleMessage("표시 전환"),
     "ipLookup": MessageLookupByLibrary.simpleMessage("IP 조회"),
@@ -1403,6 +1413,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "nodeShareUri": MessageLookupByLibrary.simpleMessage("노드 공유(URI)"),
     "nodeTestFailed": MessageLookupByLibrary.simpleMessage("사용 불가"),
     "nodesSort": MessageLookupByLibrary.simpleMessage("노드 정렬"),
+    "nonManagedRuleTip": MessageLookupByLibrary.simpleMessage(
+      "관리 모드가 아니므로 현재 프로필에만 적용됩니다",
+    ),
     "none": MessageLookupByLibrary.simpleMessage("없음"),
     "notRecommended": MessageLookupByLibrary.simpleMessage("권장하지 않음"),
     "notSelectedTip": MessageLookupByLibrary.simpleMessage(
@@ -1722,12 +1735,13 @@ class MessageLookup extends MessageLookupByLibrary {
     "ruleCount": m67,
     "ruleCountIncluded": m68,
     "ruleHits": MessageLookupByLibrary.simpleMessage("규칙 적중"),
-    "ruleName": MessageLookupByLibrary.simpleMessage("규칙 이름"),
     "ruleProviders": MessageLookupByLibrary.simpleMessage("규칙 프로바이더"),
     "ruleProvidersCount": MessageLookupByLibrary.simpleMessage("규칙 세트"),
     "ruleSets": MessageLookupByLibrary.simpleMessage("규칙 세트"),
     "ruleSort": MessageLookupByLibrary.simpleMessage("규칙 순서"),
     "ruleTarget": MessageLookupByLibrary.simpleMessage("규칙 목적지"),
+    "ruleTypeDesc": m69,
+    "ruleTypeName": m70,
     "rulesCount": MessageLookupByLibrary.simpleMessage("라우팅 규칙"),
     "runTime": MessageLookupByLibrary.simpleMessage("실행 시간"),
     "runningMode": MessageLookupByLibrary.simpleMessage("실행 모드"),
@@ -1750,7 +1764,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "selectBackupVersion": MessageLookupByLibrary.simpleMessage("백업 버전 선택"),
     "selectIcon": MessageLookupByLibrary.simpleMessage("아이콘 선택"),
     "selected": MessageLookupByLibrary.simpleMessage("선택됨"),
-    "selectedCountTitle": m69,
+    "selectedCountTitle": m71,
     "serviceReady": MessageLookupByLibrary.simpleMessage("서비스 준비 완료"),
     "serviceRunning": MessageLookupByLibrary.simpleMessage("서비스 실행 중"),
     "setcapFailedFallback": MessageLookupByLibrary.simpleMessage(
@@ -1827,7 +1841,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "speedTestConnecting": MessageLookupByLibrary.simpleMessage("연결 중"),
     "speedTestConnections": MessageLookupByLibrary.simpleMessage("연결 방식"),
-    "speedTestConnectionsDesc": m70,
+    "speedTestConnectionsDesc": m72,
     "speedTestCoreStopped": MessageLookupByLibrary.simpleMessage(
       "미실행 · 직접 연결 측정",
     ),
@@ -1839,7 +1853,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "speedTestErrorBlocked": MessageLookupByLibrary.simpleMessage(
       "속도 테스트를 사용할 수 없음",
     ),
-    "speedTestErrorBlockedDesc": m71,
+    "speedTestErrorBlockedDesc": m73,
     "speedTestErrorNetworkDesc": MessageLookupByLibrary.simpleMessage(
       "아웃바운드를 사용할 수 있는지 확인한 후 다시 시도하세요.",
     ),
@@ -1878,7 +1892,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "speedTestProtocolDesc": MessageLookupByLibrary.simpleMessage(
       "HTTP/3는 QUIC(UDP)를 사용하며, 사용할 수 없으면 HTTP/2로, HTTP/2도 안 되면 HTTP/1.1로 전환합니다",
     ),
-    "speedTestProtocolFallback": m72,
+    "speedTestProtocolFallback": m74,
     "speedTestQuality": MessageLookupByLibrary.simpleMessage("네트워크 품질"),
     "speedTestReady": MessageLookupByLibrary.simpleMessage("준비 완료"),
     "speedTestRealtime": MessageLookupByLibrary.simpleMessage("실시간 속도"),
@@ -1891,8 +1905,8 @@ class MessageLookup extends MessageLookupByLibrary {
     "speedTestSettings": MessageLookupByLibrary.simpleMessage("측정 설정"),
     "speedTestSingleThread": MessageLookupByLibrary.simpleMessage("단일"),
     "speedTestStart": MessageLookupByLibrary.simpleMessage("측정 시작"),
-    "speedTestStreams": m73,
-    "speedTestSwitchProvider": m74,
+    "speedTestStreams": m75,
+    "speedTestSwitchProvider": m76,
     "speedTestUseSystemDns": MessageLookupByLibrary.simpleMessage(
       "시스템 DNS로 확인",
     ),
@@ -2090,7 +2104,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "업데이트 다운로드 실패",
     ),
     "updateInstallFailed": MessageLookupByLibrary.simpleMessage("업데이트 설치 실패"),
-    "updateReadyAppTip": m75,
+    "updateReadyAppTip": m77,
     "updateReadyVpnTip": MessageLookupByLibrary.simpleMessage(
       "새 버전 설치 패키지가 준비되었습니다. 서비스 보호를 위해 업그레이드 전에 실행 중인 VPN 서비스를 중지합니다. 확인을 누르면 설치를 시작합니다.",
     ),
@@ -2102,7 +2116,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "url": MessageLookupByLibrary.simpleMessage("URL"),
     "urlDesc": MessageLookupByLibrary.simpleMessage("URL 주소로 프로필 가져오기"),
-    "urlTip": m76,
+    "urlTip": m78,
     "usageStyle": MessageLookupByLibrary.simpleMessage("사용량 스타일"),
     "usageStyleBar": MessageLookupByLibrary.simpleMessage("막대"),
     "usageStyleConcentric": MessageLookupByLibrary.simpleMessage("동심원"),
@@ -2146,6 +2160,6 @@ class MessageLookup extends MessageLookupByLibrary {
     "xattrUnsupportedFallback": MessageLookupByLibrary.simpleMessage(
       "파일 시스템이 파일 capability(xattr)를 지원하지 않아 setuid로 대체했습니다",
     ),
-    "years": m77,
+    "years": m79,
   };
 }

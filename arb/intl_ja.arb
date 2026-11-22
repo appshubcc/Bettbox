@@ -580,7 +580,6 @@
   "basicConfigDesc": "カーネル設定をグローバル変更",
   "selectedCountTitle": "{count} 件選択中",
   "addRule": "ルール追加",
-  "ruleName": "ルール名",
   "content": "内容",
   "subRule": "サブルーール",
   "ruleTarget": "ルールターゲット",
@@ -1322,5 +1321,10 @@
   "findProcessOffDesc": "無効にするとプロセスルールは機能しません。より効率的",
   "externalControllerPort": "外部制御ポート",
   "appNotInstalled": "アプリがインストールされていません",
-  "fileNotFound": "ファイルが存在しません"
+  "fileNotFound": "ファイルが存在しません",
+  "ip": "IP",
+  "ruleTypeName": "{type, select, DOMAIN_SUFFIX {ドメインサフィックス} DOMAIN {完全一致ドメイン} DOMAIN_KEYWORD {ドメインキーワード} DOMAIN_WILDCARD {ドメインワイルドカード} DOMAIN_REGEX {ドメイン正規表現} GEOSITE {GeoSite} IP_CIDR {IP 範囲} IP_SUFFIX {IP サフィックス} IP_ASN {IP ASN} GEOIP {GeoIP} SRC_IP_CIDR {送信元 IP 範囲} SRC_IP_SUFFIX {送信元 IP サフィックス} SRC_IP_ASN {送信元 IP ASN} SRC_GEOIP {送信元 GeoIP} PROCESS_NAME {プロセス名} PROCESS_NAME_WILDCARD {プロセス名ワイルドカード} PROCESS_NAME_REGEX {プロセス名正規表現} PROCESS_PATH {プロセスパス} PROCESS_PATH_WILDCARD {プロセスパスワイルドカード} PROCESS_PATH_REGEX {プロセスパス正規表現} UID {ユーザー ID} DST_PORT {宛先ポート} SRC_PORT {送信元ポート} NETWORK {ネットワーク種別} IN_PORT {インバウンドポート} IN_TYPE {インバウンド種別} IN_NAME {インバウンド名} IN_USER {インバウンドユーザー} DSCP {DSCP} RULE_SET {ルールセット} AND {論理 AND} OR {論理 OR} NOT {論理 NOT} SUB_RULE {サブルール} MATCH {すべてに一致} other {{type}}}",
+  "ruleTypeDesc": "{type, select, DOMAIN_SUFFIX {ドメインとそのすべてのサブドメインに一致。例：google.com は www.google.com にも一致} DOMAIN {完全に同じドメインのみ一致。例：google.com は www.google.com に一致しない} DOMAIN_KEYWORD {キーワードを含むドメインに一致。例：google} DOMAIN_WILDCARD {ワイルドカードでドメインに一致。* は任意の文字列、? は 1 文字。例：*.google.com} DOMAIN_REGEX {正規表現でドメインに一致} GEOSITE {GeoSite データベースのドメインカテゴリに一致。例：google、cn} IP_CIDR {宛先 IP の範囲に一致。例：192.168.1.0/24。単一 IP は /32、IPv6 は /128} IP_SUFFIX {末尾のビットが同じ IP に一致。例：8.8.8.8/24 は末尾 24 ビットを比較} IP_ASN {宛先 IP の AS 番号に一致。例：13335} GEOIP {宛先 IP の国・地域コードに一致。例：CN} SRC_IP_CIDR {接続の送信元 IP の範囲に一致。例：192.168.1.0/24} SRC_IP_SUFFIX {末尾のビットが同じ送信元 IP に一致} SRC_IP_ASN {送信元 IP の AS 番号に一致} SRC_GEOIP {送信元 IP の国・地域コードに一致} PROCESS_NAME {プロセス名で一致。Android ではアプリのパッケージ名} PROCESS_NAME_WILDCARD {ワイルドカードでプロセス名に一致。* は任意の文字列、? は 1 文字} PROCESS_NAME_REGEX {正規表現でプロセス名に一致} PROCESS_PATH {プロセス実行ファイルのフルパスで一致} PROCESS_PATH_WILDCARD {ワイルドカードでプロセスパスに一致。* は任意の文字列、? は 1 文字} PROCESS_PATH_REGEX {正規表現でプロセスパスに一致} UID {プロセスの Linux ユーザー ID で一致。範囲指定可。例：1000-1999} DST_PORT {宛先ポートに一致。複数は / で区切り、範囲は -。例：80/443/8000-9000} SRC_PORT {送信元ポートに一致。複数は / で区切り、範囲は -} NETWORK {トランスポートプロトコルに一致。tcp または udp} IN_PORT {ローカルのインバウンド待ち受けポートに一致} IN_TYPE {インバウンド種別に一致。例：HTTP、SOCKS5、TUN。複数は / で区切り} IN_NAME {インバウンドリスナー名に一致。複数は / で区切り} IN_USER {インバウンド認証のユーザー名に一致。複数は / で区切り} DSCP {IP ヘッダーの DSCP マークに一致。範囲は 0〜63} RULE_SET {ルールプロバイダーの内容に一致} AND {すべてのサブ条件を満たすと一致。例：((DOMAIN,baidu.com),(NETWORK,UDP))} OR {いずれかのサブ条件を満たすと一致。例：((NETWORK,UDP),(DST-PORT,443))} NOT {サブ条件を満たさないと一致。例：((DOMAIN,baidu.com))} SUB_RULE {条件を満たすと選択したサブルールで照合を続行。例：(NETWORK,TCP)} MATCH {すべての通信に一致。以降のルールは適用されない} other {{type}}}",
+  "nonManagedRuleTip": "マネージドモードではないため、現在のプロファイルにのみ適用されます",
+  "applyToAllManagedDesc": "オンにすると、すべてのマネージドプロファイルに適用されます。オフ、またはマネージドモード以外では、現在のプロファイルにのみ適用されます"
 }

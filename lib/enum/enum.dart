@@ -564,6 +564,7 @@ enum RuleAction {
   DOMAIN_SUFFIX('DOMAIN-SUFFIX'),
   DOMAIN_KEYWORD('DOMAIN-KEYWORD'),
   DOMAIN_REGEX('DOMAIN-REGEX'),
+  DOMAIN_WILDCARD('DOMAIN-WILDCARD'),
   GEOSITE('GEOSITE'),
   IP_CIDR('IP-CIDR'),
   IP_CIDR6('IP-CIDR6'),
@@ -582,8 +583,10 @@ enum RuleAction {
   IN_NAME('IN-NAME'),
   PROCESS_PATH('PROCESS-PATH'),
   PROCESS_PATH_REGEX('PROCESS-PATH-REGEX'),
+  PROCESS_PATH_WILDCARD('PROCESS-PATH-WILDCARD'),
   PROCESS_NAME('PROCESS-NAME'),
   PROCESS_NAME_REGEX('PROCESS-NAME-REGEX'),
+  PROCESS_NAME_WILDCARD('PROCESS-NAME-WILDCARD'),
   UID('UID'),
   NETWORK('NETWORK'),
   DSCP('DSCP'),
@@ -609,6 +612,80 @@ extension RuleActionExt on RuleAction {
     RuleAction.IP_SUFFIX,
     RuleAction.RULE_SET,
   ].contains(this);
+
+  bool get isSupported => switch (this) {
+    RuleAction.PROCESS_PATH ||
+    RuleAction.PROCESS_PATH_REGEX ||
+    RuleAction.PROCESS_PATH_WILDCARD => !system.isAndroid,
+    RuleAction.UID => system.isLinux,
+    _ => true,
+  };
+
+  RuleCategory get category => RuleCategory.values.firstWhere(
+    (item) => item.actions.contains(this),
+    orElse: () => RuleCategory.other,
+  );
+
+  String get label => appLocalizations.ruleTypeName(name);
+
+  String get desc => appLocalizations.ruleTypeDesc(name);
+}
+
+enum RuleCategory {
+  domain([
+    RuleAction.DOMAIN_SUFFIX,
+    RuleAction.DOMAIN,
+    RuleAction.DOMAIN_KEYWORD,
+    RuleAction.DOMAIN_WILDCARD,
+    RuleAction.DOMAIN_REGEX,
+    RuleAction.GEOSITE,
+  ]),
+  ip([
+    RuleAction.IP_CIDR,
+    RuleAction.IP_SUFFIX,
+    RuleAction.IP_ASN,
+    RuleAction.GEOIP,
+    RuleAction.SRC_IP_CIDR,
+    RuleAction.SRC_IP_SUFFIX,
+    RuleAction.SRC_IP_ASN,
+    RuleAction.SRC_GEOIP,
+  ]),
+  process([
+    RuleAction.PROCESS_NAME,
+    RuleAction.PROCESS_NAME_WILDCARD,
+    RuleAction.PROCESS_NAME_REGEX,
+    RuleAction.PROCESS_PATH,
+    RuleAction.PROCESS_PATH_WILDCARD,
+    RuleAction.PROCESS_PATH_REGEX,
+    RuleAction.UID,
+  ]),
+  other([
+    RuleAction.DST_PORT,
+    RuleAction.SRC_PORT,
+    RuleAction.NETWORK,
+    RuleAction.IN_PORT,
+    RuleAction.IN_TYPE,
+    RuleAction.IN_NAME,
+    RuleAction.IN_USER,
+    RuleAction.DSCP,
+    RuleAction.RULE_SET,
+    RuleAction.AND,
+    RuleAction.OR,
+    RuleAction.NOT,
+    RuleAction.SUB_RULE,
+    RuleAction.MATCH,
+  ]);
+
+  final List<RuleAction> actions;
+
+  const RuleCategory(this.actions);
+
+  String get label => switch (this) {
+    RuleCategory.domain => appLocalizations.domain,
+    RuleCategory.ip => appLocalizations.ip,
+    RuleCategory.process => appLocalizations.process,
+    RuleCategory.other => appLocalizations.other,
+  };
 }
 
 enum RuleTarget { DIRECT, REJECT }

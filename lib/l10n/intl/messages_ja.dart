@@ -168,26 +168,32 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m68(count, group) => "${count} 件のルール、${group} グループに含まれています";
 
-  static String m69(count) => "${count} 件選択中";
+  static String m69(type) =>
+      "${Intl.select(type, {'DOMAIN_SUFFIX': 'ドメインとそのすべてのサブドメインに一致。例：google.com は www.google.com にも一致', 'DOMAIN': '完全に同じドメインのみ一致。例：google.com は www.google.com に一致しない', 'DOMAIN_KEYWORD': 'キーワードを含むドメインに一致。例：google', 'DOMAIN_WILDCARD': 'ワイルドカードでドメインに一致。* は任意の文字列、? は 1 文字。例：*.google.com', 'DOMAIN_REGEX': '正規表現でドメインに一致', 'GEOSITE': 'GeoSite データベースのドメインカテゴリに一致。例：google、cn', 'IP_CIDR': '宛先 IP の範囲に一致。例：192.168.1.0/24。単一 IP は /32、IPv6 は /128', 'IP_SUFFIX': '末尾のビットが同じ IP に一致。例：8.8.8.8/24 は末尾 24 ビットを比較', 'IP_ASN': '宛先 IP の AS 番号に一致。例：13335', 'GEOIP': '宛先 IP の国・地域コードに一致。例：CN', 'SRC_IP_CIDR': '接続の送信元 IP の範囲に一致。例：192.168.1.0/24', 'SRC_IP_SUFFIX': '末尾のビットが同じ送信元 IP に一致', 'SRC_IP_ASN': '送信元 IP の AS 番号に一致', 'SRC_GEOIP': '送信元 IP の国・地域コードに一致', 'PROCESS_NAME': 'プロセス名で一致。Android ではアプリのパッケージ名', 'PROCESS_NAME_WILDCARD': 'ワイルドカードでプロセス名に一致。* は任意の文字列、? は 1 文字', 'PROCESS_NAME_REGEX': '正規表現でプロセス名に一致', 'PROCESS_PATH': 'プロセス実行ファイルのフルパスで一致', 'PROCESS_PATH_WILDCARD': 'ワイルドカードでプロセスパスに一致。* は任意の文字列、? は 1 文字', 'PROCESS_PATH_REGEX': '正規表現でプロセスパスに一致', 'UID': 'プロセスの Linux ユーザー ID で一致。範囲指定可。例：1000-1999', 'DST_PORT': '宛先ポートに一致。複数は / で区切り、範囲は -。例：80/443/8000-9000', 'SRC_PORT': '送信元ポートに一致。複数は / で区切り、範囲は -', 'NETWORK': 'トランスポートプロトコルに一致。tcp または udp', 'IN_PORT': 'ローカルのインバウンド待ち受けポートに一致', 'IN_TYPE': 'インバウンド種別に一致。例：HTTP、SOCKS5、TUN。複数は / で区切り', 'IN_NAME': 'インバウンドリスナー名に一致。複数は / で区切り', 'IN_USER': 'インバウンド認証のユーザー名に一致。複数は / で区切り', 'DSCP': 'IP ヘッダーの DSCP マークに一致。範囲は 0〜63', 'RULE_SET': 'ルールプロバイダーの内容に一致', 'AND': 'すべてのサブ条件を満たすと一致。例：((DOMAIN,baidu.com),(NETWORK,UDP))', 'OR': 'いずれかのサブ条件を満たすと一致。例：((NETWORK,UDP),(DST-PORT,443))', 'NOT': 'サブ条件を満たさないと一致。例：((DOMAIN,baidu.com))', 'SUB_RULE': '条件を満たすと選択したサブルールで照合を続行。例：(NETWORK,TCP)', 'MATCH': 'すべての通信に一致。以降のルールは適用されない', 'other': '${type}'})}";
 
-  static String m70(count) => "マルチは ${count} 本の並列接続で帯域を使い切ります";
+  static String m70(type) =>
+      "${Intl.select(type, {'DOMAIN_SUFFIX': 'ドメインサフィックス', 'DOMAIN': '完全一致ドメイン', 'DOMAIN_KEYWORD': 'ドメインキーワード', 'DOMAIN_WILDCARD': 'ドメインワイルドカード', 'DOMAIN_REGEX': 'ドメイン正規表現', 'GEOSITE': 'GeoSite', 'IP_CIDR': 'IP 範囲', 'IP_SUFFIX': 'IP サフィックス', 'IP_ASN': 'IP ASN', 'GEOIP': 'GeoIP', 'SRC_IP_CIDR': '送信元 IP 範囲', 'SRC_IP_SUFFIX': '送信元 IP サフィックス', 'SRC_IP_ASN': '送信元 IP ASN', 'SRC_GEOIP': '送信元 GeoIP', 'PROCESS_NAME': 'プロセス名', 'PROCESS_NAME_WILDCARD': 'プロセス名ワイルドカード', 'PROCESS_NAME_REGEX': 'プロセス名正規表現', 'PROCESS_PATH': 'プロセスパス', 'PROCESS_PATH_WILDCARD': 'プロセスパスワイルドカード', 'PROCESS_PATH_REGEX': 'プロセスパス正規表現', 'UID': 'ユーザー ID', 'DST_PORT': '宛先ポート', 'SRC_PORT': '送信元ポート', 'NETWORK': 'ネットワーク種別', 'IN_PORT': 'インバウンドポート', 'IN_TYPE': 'インバウンド種別', 'IN_NAME': 'インバウンド名', 'IN_USER': 'インバウンドユーザー', 'DSCP': 'DSCP', 'RULE_SET': 'ルールセット', 'AND': '論理 AND', 'OR': '論理 OR', 'NOT': '論理 NOT', 'SUB_RULE': 'サブルール', 'MATCH': 'すべてに一致', 'other': '${type}'})}";
 
-  static String m71(provider) =>
+  static String m71(count) => "${count} 件選択中";
+
+  static String m72(count) => "マルチは ${count} 本の並列接続で帯域を使い切ります";
+
+  static String m73(provider) =>
       "アウトバウンドが ${provider} の速度テストをブロックしている可能性があります。測定元またはアウトバウンドを変更してください。";
 
-  static String m72(protocol, fallback) =>
+  static String m74(protocol, fallback) =>
       "${protocol} が利用できないため ${fallback} に切り替えました";
 
-  static String m73(count) => "${count} 接続";
+  static String m75(count) => "${count} 接続";
 
-  static String m74(provider) => "${provider} に切り替え";
+  static String m76(provider) => "${provider} に切り替え";
 
-  static String m75(appName) =>
+  static String m77(appName) =>
       "新しいバージョンのパッケージの準備ができました。サービスを保護するため、アップグレード前に実行中の ${appName} を終了します。確認するとインストールを開始します。";
 
-  static String m76(label) => "${label} は有効なURLである必要があります";
+  static String m78(label) => "${label} は有効なURLである必要があります";
 
-  static String m77(count) => "${Intl.plural(count, other: '年')}";
+  static String m79(count) => "${Intl.plural(count, other: '年')}";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
@@ -315,6 +321,9 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "applyToAllManaged": MessageLookupByLibrary.simpleMessage(
       "すべてのマネージドモードに適用",
+    ),
+    "applyToAllManagedDesc": MessageLookupByLibrary.simpleMessage(
+      "オンにすると、すべてのマネージドプロファイルに適用されます。オフ、またはマネージドモード以外では、現在のプロファイルにのみ適用されます",
     ),
     "authorized": MessageLookupByLibrary.simpleMessage("認証済み"),
     "auto": MessageLookupByLibrary.simpleMessage("自動"),
@@ -878,6 +887,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "intranetIP": MessageLookupByLibrary.simpleMessage("ローカル IP"),
     "invalidIconSet": MessageLookupByLibrary.simpleMessage("有効なアイコンセットではありません"),
     "invalidIpFormat": MessageLookupByLibrary.simpleMessage("無効なIPまたはCIDR形式"),
+    "ip": MessageLookupByLibrary.simpleMessage("IP"),
     "ipAddress": MessageLookupByLibrary.simpleMessage("IP アドレス"),
     "ipClickBehavior": MessageLookupByLibrary.simpleMessage("表示切替"),
     "ipLookup": MessageLookupByLibrary.simpleMessage("IP 検索"),
@@ -1400,6 +1410,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "nodeShareUri": MessageLookupByLibrary.simpleMessage("ノードを共有(URI)"),
     "nodeTestFailed": MessageLookupByLibrary.simpleMessage("利用不可"),
     "nodesSort": MessageLookupByLibrary.simpleMessage("ノードの並び替え"),
+    "nonManagedRuleTip": MessageLookupByLibrary.simpleMessage(
+      "マネージドモードではないため、現在のプロファイルにのみ適用されます",
+    ),
     "none": MessageLookupByLibrary.simpleMessage("なし"),
     "notRecommended": MessageLookupByLibrary.simpleMessage("非推奨"),
     "notSelectedTip": MessageLookupByLibrary.simpleMessage("選択できないプロキシグループです"),
@@ -1727,12 +1740,13 @@ class MessageLookup extends MessageLookupByLibrary {
     "ruleCount": m67,
     "ruleCountIncluded": m68,
     "ruleHits": MessageLookupByLibrary.simpleMessage("ルールヒット"),
-    "ruleName": MessageLookupByLibrary.simpleMessage("ルール名"),
     "ruleProviders": MessageLookupByLibrary.simpleMessage("ルールプロバイダー"),
     "ruleProvidersCount": MessageLookupByLibrary.simpleMessage("ルールセット"),
     "ruleSets": MessageLookupByLibrary.simpleMessage("ルールセット"),
     "ruleSort": MessageLookupByLibrary.simpleMessage("ルールの順序"),
     "ruleTarget": MessageLookupByLibrary.simpleMessage("ルールターゲット"),
+    "ruleTypeDesc": m69,
+    "ruleTypeName": m70,
     "rulesCount": MessageLookupByLibrary.simpleMessage("ルーティング規則"),
     "runTime": MessageLookupByLibrary.simpleMessage("稼働時間"),
     "runningMode": MessageLookupByLibrary.simpleMessage("実行モード"),
@@ -1759,7 +1773,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "selectIcon": MessageLookupByLibrary.simpleMessage("アイコンを選択"),
     "selected": MessageLookupByLibrary.simpleMessage("選択済み"),
-    "selectedCountTitle": m69,
+    "selectedCountTitle": m71,
     "serviceReady": MessageLookupByLibrary.simpleMessage("サービス準備完了"),
     "serviceRunning": MessageLookupByLibrary.simpleMessage("サービス稼働中"),
     "setcapFailedFallback": MessageLookupByLibrary.simpleMessage(
@@ -1840,7 +1854,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "speedTestConnecting": MessageLookupByLibrary.simpleMessage("接続中"),
     "speedTestConnections": MessageLookupByLibrary.simpleMessage("接続方式"),
-    "speedTestConnectionsDesc": m70,
+    "speedTestConnectionsDesc": m72,
     "speedTestCoreStopped": MessageLookupByLibrary.simpleMessage("未起動・直接接続で測定"),
     "speedTestCredit": MessageLookupByLibrary.simpleMessage(
       "速度テストサーバーは公開されている第三者によって提供されています。Apple、Cloudflare、Speedtest by Ookla に感謝します。",
@@ -1850,7 +1864,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "speedTestErrorBlocked": MessageLookupByLibrary.simpleMessage(
       "速度テストを利用できません",
     ),
-    "speedTestErrorBlockedDesc": m71,
+    "speedTestErrorBlockedDesc": m73,
     "speedTestErrorNetworkDesc": MessageLookupByLibrary.simpleMessage(
       "アウトバウンドが利用可能か確認してから再試行してください。",
     ),
@@ -1887,7 +1901,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "speedTestProtocolDesc": MessageLookupByLibrary.simpleMessage(
       "HTTP/3 は QUIC (UDP) を使用し、使えない場合は HTTP/2 に、HTTP/2 も使えない場合は HTTP/1.1 に切り替えます",
     ),
-    "speedTestProtocolFallback": m72,
+    "speedTestProtocolFallback": m74,
     "speedTestQuality": MessageLookupByLibrary.simpleMessage("ネットワーク品質"),
     "speedTestReady": MessageLookupByLibrary.simpleMessage("準備完了"),
     "speedTestRealtime": MessageLookupByLibrary.simpleMessage("リアルタイム速度"),
@@ -1900,8 +1914,8 @@ class MessageLookup extends MessageLookupByLibrary {
     "speedTestSettings": MessageLookupByLibrary.simpleMessage("測定設定"),
     "speedTestSingleThread": MessageLookupByLibrary.simpleMessage("シングル"),
     "speedTestStart": MessageLookupByLibrary.simpleMessage("測定開始"),
-    "speedTestStreams": m73,
-    "speedTestSwitchProvider": m74,
+    "speedTestStreams": m75,
+    "speedTestSwitchProvider": m76,
     "speedTestUseSystemDns": MessageLookupByLibrary.simpleMessage(
       "システム DNS で解決",
     ),
@@ -2101,7 +2115,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "updateInstallFailed": MessageLookupByLibrary.simpleMessage(
       "アップデートのインストールに失敗しました",
     ),
-    "updateReadyAppTip": m75,
+    "updateReadyAppTip": m77,
     "updateReadyVpnTip": MessageLookupByLibrary.simpleMessage(
       "新しいバージョンのパッケージの準備ができました。サービスを保護するため、アップグレード前に実行中の VPN サービスを停止します。確認するとインストールを開始します。",
     ),
@@ -2113,7 +2127,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "url": MessageLookupByLibrary.simpleMessage("URL"),
     "urlDesc": MessageLookupByLibrary.simpleMessage("URLから設定を取得"),
-    "urlTip": m76,
+    "urlTip": m78,
     "usageStyle": MessageLookupByLibrary.simpleMessage("使用量の表示"),
     "usageStyleBar": MessageLookupByLibrary.simpleMessage("バー"),
     "usageStyleConcentric": MessageLookupByLibrary.simpleMessage("同心リング"),
@@ -2157,6 +2171,6 @@ class MessageLookup extends MessageLookupByLibrary {
     "xattrUnsupportedFallback": MessageLookupByLibrary.simpleMessage(
       "ファイルシステムがファイルケーパビリティ（xattr）に対応していないため、setuid にフォールバックしました",
     ),
-    "years": m77,
+    "years": m79,
   };
 }

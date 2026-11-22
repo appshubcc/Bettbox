@@ -582,6 +582,16 @@ class TrackerInfoDetailView extends ConsumerWidget {
             padding: const EdgeInsets.only(right: 8),
             child: Text(appLocalizations.toolbox),
           ),
+          CommonChip(
+            avatar: AppIcon(
+              Icons.rule_rounded,
+              size: 16,
+              color: context.colorScheme.primary,
+            ),
+            label: appLocalizations.addRule,
+            onPressed: () =>
+                globalState.appController.handleQuickAddRule(metadata),
+          ),
           chip(
             Icons.route_rounded,
             appLocalizations.routeTrace,
@@ -602,11 +612,12 @@ class TrackerInfoDetailView extends ConsumerWidget {
             appLocalizations.mrsLookup,
             () => MrsLookupPage(initialQuery: target),
           ),
-          chip(
-            Icons.travel_explore_rounded,
-            appLocalizations.ipLookup,
-            () => IpLookupPage(initialQuery: target),
-          ),
+          if (!isDomain)
+            chip(
+              Icons.travel_explore_rounded,
+              appLocalizations.ipLookup,
+              () => IpLookupPage(initialQuery: target),
+            ),
         ],
       ),
     );

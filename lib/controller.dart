@@ -2625,7 +2625,7 @@ class AppController {
       ),
     );
     final result = await globalState
-        .showCommonDialog<({Rule rule, bool shared})>(
+        .showAdaptiveSheet<({Rule rule, bool shared})>(
           child: AddRuleDialog(
             rule: rule,
             shared: managed ? shared : null,
@@ -2657,6 +2657,54 @@ class AppController {
               },
       );
     });
+  }
+
+  Future<void> handleQuickAddRule(Metadata metadata) async {
+    final profile = _ref.read(currentProfileProvider);
+    if (profile == null) {
+      globalState.showNotifier(appLocalizations.nullProfileDesc);
+      return;
+    }
+    final snippet = await safeRun(
+      () async => ClashConfigSnippet.fromJson(
+        await globalState.getProfileSnippet(profile.id, effective: true),
+      ),
+      needLoading: true,
+    );
+    if (snippet == null) return;
+    final managed = profile.isManaged;
+    final result = await globalState
+        .showAdaptiveSheet<({Rule rule, bool shared})>(
+          child: AddRuleDialog(
+            snippet: snippet,
+            metadata: metadata,
+            shared: managed ? true : null,
+          ),
+        );
+    if (result == null) return;
+    if (result.shared) {
+      _ref
+          .read(managedSettingProvider.notifier)
+          .updateState(
+            (state) => state.copyWith(rules: [result.rule, ...state.rules]),
+          );
+    } else {
+      _ref.read(profilesProvider.notifier).updateProfile(profile.id, (state) {
+        final overrideData = state.overrideData;
+        return state.copyWith(
+          overrideData: overrideData.copyWith(
+            enable: true,
+            rule: overrideData.rule.updateRules(
+              (rules) => [result.rule, ...rules],
+            ),
+          ),
+        );
+      });
+    }
+    setupClashConfigDebounce();
+    if (!managed) {
+      globalState.showNotifier(appLocalizations.nonManagedRuleTip);
+    }
   }
 
   Future<bool> exportLogs() async {
@@ -3007,7 +3055,10 @@ class AppController {
     List<int> data,
     RecoveryOption recoveryOption,
   ) async {
-    commonPrint.log('Restoring backup of ${data.length} bytes', module: 'Backup');
+    commonPrint.log(
+      'Restoring backup of ${data.length} bytes',
+      module: 'Backup',
+    );
     return _processRecoveryArchive(
       (password) => Isolate.run(
         () => decodeBackupArchive(InputMemoryStream(data), password),

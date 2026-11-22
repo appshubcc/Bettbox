@@ -179,27 +179,33 @@ class MessageLookup extends MessageLookupByLibrary {
   static String m68(count, group) =>
       "${count} rules, included in the ${group} group";
 
-  static String m69(count) => "${count} items selected";
+  static String m69(type) =>
+      "${Intl.select(type, {'DOMAIN_SUFFIX': 'Matches the domain and all its subdomains, e.g. google.com also matches www.google.com', 'DOMAIN': 'Matches only this exact domain, e.g. google.com does not match www.google.com', 'DOMAIN_KEYWORD': 'Matches any domain that contains the keyword, e.g. google', 'DOMAIN_WILDCARD': 'Matches domains by wildcard: * for any characters, ? for one character, e.g. *.google.com', 'DOMAIN_REGEX': 'Matches domains with a regular expression', 'GEOSITE': 'Matches domains in a GeoSite category, e.g. google or cn', 'IP_CIDR': 'Matches destination IPs in a range, e.g. 192.168.1.0/24; a single IP uses /32, or /128 for IPv6', 'IP_SUFFIX': 'Matches IPs whose last bits are the same, e.g. 8.8.8.8/24 compares the last 24 bits', 'IP_ASN': 'Matches the autonomous system number of the destination IP, e.g. 13335', 'GEOIP': 'Matches the country or region code of the destination IP, e.g. CN', 'SRC_IP_CIDR': 'Matches the source IP of the connection by range, e.g. 192.168.1.0/24', 'SRC_IP_SUFFIX': 'Matches source IPs whose last bits are the same', 'SRC_IP_ASN': 'Matches the autonomous system number of the source IP', 'SRC_GEOIP': 'Matches the country or region code of the source IP', 'PROCESS_NAME': 'Matches the process name; on Android this is the app package name', 'PROCESS_NAME_WILDCARD': 'Matches process names by wildcard: * for any characters, ? for one character', 'PROCESS_NAME_REGEX': 'Matches process names with a regular expression', 'PROCESS_PATH': 'Matches the full path of the process executable', 'PROCESS_PATH_WILDCARD': 'Matches process paths by wildcard: * for any characters, ? for one character', 'PROCESS_PATH_REGEX': 'Matches process paths with a regular expression', 'UID': 'Matches the Linux user ID of the process; ranges allowed, e.g. 1000-1999', 'DST_PORT': 'Matches the destination port; separate with / and use - for ranges, e.g. 80/443/8000-9000', 'SRC_PORT': 'Matches the source port; separate with / and use - for ranges', 'NETWORK': 'Matches the transport protocol: tcp or udp', 'IN_PORT': 'Matches the local inbound listening port', 'IN_TYPE': 'Matches the inbound type, e.g. HTTP, SOCKS5 or TUN; separate multiple with /', 'IN_NAME': 'Matches the inbound listener name; separate multiple with /', 'IN_USER': 'Matches the username used to sign in to the inbound; separate multiple with /', 'DSCP': 'Matches the DSCP mark in the IP header, from 0 to 63', 'RULE_SET': 'Matches the content of a rule provider', 'AND': 'Matches when every sub-rule matches, e.g. ((DOMAIN,baidu.com),(NETWORK,UDP))', 'OR': 'Matches when any sub-rule matches, e.g. ((NETWORK,UDP),(DST-PORT,443))', 'NOT': 'Matches when the sub-rule does not match, e.g. ((DOMAIN,baidu.com))', 'SUB_RULE': 'When the condition matches, continues with the chosen sub rule set, e.g. (NETWORK,TCP)', 'MATCH': 'Matches all traffic; rules after it never take effect', 'other': '${type}'})}";
 
-  static String m70(count) =>
+  static String m70(type) =>
+      "${Intl.select(type, {'DOMAIN_SUFFIX': 'Domain suffix', 'DOMAIN': 'Full domain', 'DOMAIN_KEYWORD': 'Domain keyword', 'DOMAIN_WILDCARD': 'Domain wildcard', 'DOMAIN_REGEX': 'Domain regex', 'GEOSITE': 'GeoSite', 'IP_CIDR': 'IP range', 'IP_SUFFIX': 'IP suffix', 'IP_ASN': 'IP ASN', 'GEOIP': 'GeoIP', 'SRC_IP_CIDR': 'Source IP range', 'SRC_IP_SUFFIX': 'Source IP suffix', 'SRC_IP_ASN': 'Source IP ASN', 'SRC_GEOIP': 'Source GeoIP', 'PROCESS_NAME': 'Process name', 'PROCESS_NAME_WILDCARD': 'Process name wildcard', 'PROCESS_NAME_REGEX': 'Process name regex', 'PROCESS_PATH': 'Process path', 'PROCESS_PATH_WILDCARD': 'Process path wildcard', 'PROCESS_PATH_REGEX': 'Process path regex', 'UID': 'User ID', 'DST_PORT': 'Destination port', 'SRC_PORT': 'Source port', 'NETWORK': 'Network type', 'IN_PORT': 'Inbound port', 'IN_TYPE': 'Inbound type', 'IN_NAME': 'Inbound name', 'IN_USER': 'Inbound user', 'DSCP': 'DSCP', 'RULE_SET': 'Rule set', 'AND': 'Logical AND', 'OR': 'Logical OR', 'NOT': 'Logical NOT', 'SUB_RULE': 'Sub rule', 'MATCH': 'Match all', 'other': '${type}'})}";
+
+  static String m71(count) => "${count} items selected";
+
+  static String m72(count) =>
       "Multi uses ${count} parallel connections to saturate bandwidth";
 
-  static String m71(provider) =>
+  static String m73(provider) =>
       "The outbound may be blocking ${provider} speed tests. Switch the test source or the outbound.";
 
-  static String m72(protocol, fallback) =>
+  static String m74(protocol, fallback) =>
       "${protocol} unavailable, fell back to ${fallback}";
 
-  static String m73(count) => "${count} connections";
+  static String m75(count) => "${count} connections";
 
-  static String m74(provider) => "Switch to ${provider}";
+  static String m76(provider) => "Switch to ${provider}";
 
-  static String m75(appName) =>
+  static String m77(appName) =>
       "The new version package is ready. To keep the service safe, the running ${appName} will be closed before upgrading. Confirm to start the installation.";
 
-  static String m76(label) => "${label} must be a URL";
+  static String m78(label) => "${label} must be a URL";
 
-  static String m77(count) =>
+  static String m79(count) =>
       "${Intl.plural(count, one: 'year', other: 'years')}";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
@@ -364,6 +370,9 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "applyToAllManaged": MessageLookupByLibrary.simpleMessage(
       "Apply to all managed profiles",
+    ),
+    "applyToAllManagedDesc": MessageLookupByLibrary.simpleMessage(
+      "When on, the rule applies to all managed profiles. When off, or in non-managed mode, it only applies to the current profile",
     ),
     "authorized": MessageLookupByLibrary.simpleMessage("Authorized"),
     "auto": MessageLookupByLibrary.simpleMessage("Auto"),
@@ -1047,6 +1056,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "invalidIpFormat": MessageLookupByLibrary.simpleMessage(
       "Invalid IP or CIDR format",
     ),
+    "ip": MessageLookupByLibrary.simpleMessage("IP"),
     "ipAddress": MessageLookupByLibrary.simpleMessage("IP Address"),
     "ipClickBehavior": MessageLookupByLibrary.simpleMessage("Toggle Display"),
     "ipLookup": MessageLookupByLibrary.simpleMessage("IP Lookup"),
@@ -1663,6 +1673,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "nodeShareUri": MessageLookupByLibrary.simpleMessage("Share node (URI)"),
     "nodeTestFailed": MessageLookupByLibrary.simpleMessage("Unreachable"),
     "nodesSort": MessageLookupByLibrary.simpleMessage("Node Sorting"),
+    "nonManagedRuleTip": MessageLookupByLibrary.simpleMessage(
+      "Not in managed mode, so this rule only applies to the current profile",
+    ),
     "none": MessageLookupByLibrary.simpleMessage("None"),
     "notRecommended": MessageLookupByLibrary.simpleMessage("Not Recommended"),
     "notSelectedTip": MessageLookupByLibrary.simpleMessage(
@@ -2068,7 +2081,6 @@ class MessageLookup extends MessageLookupByLibrary {
     "ruleCount": m67,
     "ruleCountIncluded": m68,
     "ruleHits": MessageLookupByLibrary.simpleMessage("Rule hits"),
-    "ruleName": MessageLookupByLibrary.simpleMessage("Rule Name"),
     "ruleProviders": MessageLookupByLibrary.simpleMessage("Rule Providers"),
     "ruleProvidersCount": MessageLookupByLibrary.simpleMessage(
       "Rule Providers",
@@ -2076,6 +2088,8 @@ class MessageLookup extends MessageLookupByLibrary {
     "ruleSets": MessageLookupByLibrary.simpleMessage("Rule sets"),
     "ruleSort": MessageLookupByLibrary.simpleMessage("Rule Order"),
     "ruleTarget": MessageLookupByLibrary.simpleMessage("Rule Target"),
+    "ruleTypeDesc": m69,
+    "ruleTypeName": m70,
     "rulesCount": MessageLookupByLibrary.simpleMessage("Rules"),
     "runTime": MessageLookupByLibrary.simpleMessage("Uptime"),
     "runningMode": MessageLookupByLibrary.simpleMessage("Running Mode"),
@@ -2106,7 +2120,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "selectIcon": MessageLookupByLibrary.simpleMessage("Select icon"),
     "selected": MessageLookupByLibrary.simpleMessage("Selected"),
-    "selectedCountTitle": m69,
+    "selectedCountTitle": m71,
     "serviceReady": MessageLookupByLibrary.simpleMessage("Service Ready"),
     "serviceRunning": MessageLookupByLibrary.simpleMessage("Service Running"),
     "setcapFailedFallback": MessageLookupByLibrary.simpleMessage(
@@ -2203,7 +2217,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "speedTestConnecting": MessageLookupByLibrary.simpleMessage("Connecting"),
     "speedTestConnections": MessageLookupByLibrary.simpleMessage("Connections"),
-    "speedTestConnectionsDesc": m70,
+    "speedTestConnectionsDesc": m72,
     "speedTestCoreStopped": MessageLookupByLibrary.simpleMessage(
       "Not started · Direct test",
     ),
@@ -2215,7 +2229,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "speedTestErrorBlocked": MessageLookupByLibrary.simpleMessage(
       "Speed test unavailable",
     ),
-    "speedTestErrorBlockedDesc": m71,
+    "speedTestErrorBlockedDesc": m73,
     "speedTestErrorNetworkDesc": MessageLookupByLibrary.simpleMessage(
       "Check whether the outbound is available, then retry.",
     ),
@@ -2260,7 +2274,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "speedTestProtocolDesc": MessageLookupByLibrary.simpleMessage(
       "HTTP/3 runs over QUIC (UDP); if unavailable it falls back to HTTP/2, and to HTTP/1.1 if HTTP/2 is unavailable too",
     ),
-    "speedTestProtocolFallback": m72,
+    "speedTestProtocolFallback": m74,
     "speedTestQuality": MessageLookupByLibrary.simpleMessage("Network Quality"),
     "speedTestReady": MessageLookupByLibrary.simpleMessage("Ready"),
     "speedTestRealtime": MessageLookupByLibrary.simpleMessage(
@@ -2279,8 +2293,8 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "speedTestSingleThread": MessageLookupByLibrary.simpleMessage("Single"),
     "speedTestStart": MessageLookupByLibrary.simpleMessage("Start Test"),
-    "speedTestStreams": m73,
-    "speedTestSwitchProvider": m74,
+    "speedTestStreams": m75,
+    "speedTestSwitchProvider": m76,
     "speedTestUseSystemDns": MessageLookupByLibrary.simpleMessage(
       "Resolve with System DNS",
     ),
@@ -2506,7 +2520,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "updateInstallFailed": MessageLookupByLibrary.simpleMessage(
       "Update install failed",
     ),
-    "updateReadyAppTip": m75,
+    "updateReadyAppTip": m77,
     "updateReadyVpnTip": MessageLookupByLibrary.simpleMessage(
       "The new version package is ready. To keep the service safe, the running VPN service will be stopped before upgrading. Confirm to start the installation.",
     ),
@@ -2518,7 +2532,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "url": MessageLookupByLibrary.simpleMessage("URL"),
     "urlDesc": MessageLookupByLibrary.simpleMessage("Get profile via URL"),
-    "urlTip": m76,
+    "urlTip": m78,
     "usageStyle": MessageLookupByLibrary.simpleMessage("Usage Style"),
     "usageStyleBar": MessageLookupByLibrary.simpleMessage("Bars"),
     "usageStyleConcentric": MessageLookupByLibrary.simpleMessage(
@@ -2572,6 +2586,6 @@ class MessageLookup extends MessageLookupByLibrary {
     "xattrUnsupportedFallback": MessageLookupByLibrary.simpleMessage(
       "The filesystem does not support file capabilities, falling back to setuid",
     ),
-    "years": m77,
+    "years": m79,
   };
 }

@@ -295,7 +295,7 @@ as int,
 /// @nodoc
 mixin _$Profile {
 
- String get id; String? get label; String? get currentGroupName; String get url; DateTime? get lastUpdateDate; Duration get autoUpdateDuration; SubscriptionInfo? get subscriptionInfo; Map<String, SubscriptionInfo> get providerSubscriptions; bool get autoUpdate; SelectedMap get selectedMap; Set<String> get unfoldSet; OverrideData get overrideData;@JsonKey(includeToJson: false, includeFromJson: false) bool get isUpdating; String? get scriptId; bool get managed; bool get managedStyleApplied; String? get ageSecretKey;@JsonKey(name: 'group-switches') Map<String, bool> get groupSwitches; ProfileUsageStyle get usageStyle; ProfileBundle? get bundle;
+ String get id; String? get label; String? get currentGroupName; String get url; DateTime? get lastUpdateDate; Duration get autoUpdateDuration; SubscriptionInfo? get subscriptionInfo; Map<String, SubscriptionInfo> get providerSubscriptions; bool get autoUpdate; SelectedMap get selectedMap; Set<String> get unfoldSet; OverrideData get overrideData;@JsonKey(includeToJson: false, includeFromJson: false) bool get isUpdating; String? get scriptId; bool get managed; bool get managedStyleApplied; String? get ageSecretKey; bool get skipCertVerify; bool get directUpdate; String? get userAgent;@JsonKey(name: 'group-switches') Map<String, bool> get groupSwitches; ProfileUsageStyle get usageStyle; ProfileBundle? get bundle;
 /// Create a copy of Profile
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -309,20 +309,20 @@ $ProfileCopyWith<Profile> get copyWith => _$ProfileCopyWithImpl<Profile>(this as
 @override
 bool operator ==(Object other) {
   final _this = this as Profile;
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Profile&&(identical(other.id, _this.id) || other.id == _this.id)&&(identical(other.label, _this.label) || other.label == _this.label)&&(identical(other.currentGroupName, _this.currentGroupName) || other.currentGroupName == _this.currentGroupName)&&(identical(other.url, _this.url) || other.url == _this.url)&&(identical(other.lastUpdateDate, _this.lastUpdateDate) || other.lastUpdateDate == _this.lastUpdateDate)&&(identical(other.autoUpdateDuration, _this.autoUpdateDuration) || other.autoUpdateDuration == _this.autoUpdateDuration)&&(identical(other.subscriptionInfo, _this.subscriptionInfo) || other.subscriptionInfo == _this.subscriptionInfo)&&const DeepCollectionEquality().equals(other.providerSubscriptions, _this.providerSubscriptions)&&(identical(other.autoUpdate, _this.autoUpdate) || other.autoUpdate == _this.autoUpdate)&&const DeepCollectionEquality().equals(other.selectedMap, _this.selectedMap)&&const DeepCollectionEquality().equals(other.unfoldSet, _this.unfoldSet)&&(identical(other.overrideData, _this.overrideData) || other.overrideData == _this.overrideData)&&(identical(other.isUpdating, _this.isUpdating) || other.isUpdating == _this.isUpdating)&&(identical(other.scriptId, _this.scriptId) || other.scriptId == _this.scriptId)&&(identical(other.managed, _this.managed) || other.managed == _this.managed)&&(identical(other.managedStyleApplied, _this.managedStyleApplied) || other.managedStyleApplied == _this.managedStyleApplied)&&(identical(other.ageSecretKey, _this.ageSecretKey) || other.ageSecretKey == _this.ageSecretKey)&&const DeepCollectionEquality().equals(other.groupSwitches, _this.groupSwitches)&&(identical(other.usageStyle, _this.usageStyle) || other.usageStyle == _this.usageStyle)&&(identical(other.bundle, _this.bundle) || other.bundle == _this.bundle));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Profile&&(identical(other.id, _this.id) || other.id == _this.id)&&(identical(other.label, _this.label) || other.label == _this.label)&&(identical(other.currentGroupName, _this.currentGroupName) || other.currentGroupName == _this.currentGroupName)&&(identical(other.url, _this.url) || other.url == _this.url)&&(identical(other.lastUpdateDate, _this.lastUpdateDate) || other.lastUpdateDate == _this.lastUpdateDate)&&(identical(other.autoUpdateDuration, _this.autoUpdateDuration) || other.autoUpdateDuration == _this.autoUpdateDuration)&&(identical(other.subscriptionInfo, _this.subscriptionInfo) || other.subscriptionInfo == _this.subscriptionInfo)&&const DeepCollectionEquality().equals(other.providerSubscriptions, _this.providerSubscriptions)&&(identical(other.autoUpdate, _this.autoUpdate) || other.autoUpdate == _this.autoUpdate)&&const DeepCollectionEquality().equals(other.selectedMap, _this.selectedMap)&&const DeepCollectionEquality().equals(other.unfoldSet, _this.unfoldSet)&&(identical(other.overrideData, _this.overrideData) || other.overrideData == _this.overrideData)&&(identical(other.isUpdating, _this.isUpdating) || other.isUpdating == _this.isUpdating)&&(identical(other.scriptId, _this.scriptId) || other.scriptId == _this.scriptId)&&(identical(other.managed, _this.managed) || other.managed == _this.managed)&&(identical(other.managedStyleApplied, _this.managedStyleApplied) || other.managedStyleApplied == _this.managedStyleApplied)&&(identical(other.ageSecretKey, _this.ageSecretKey) || other.ageSecretKey == _this.ageSecretKey)&&(identical(other.skipCertVerify, _this.skipCertVerify) || other.skipCertVerify == _this.skipCertVerify)&&(identical(other.directUpdate, _this.directUpdate) || other.directUpdate == _this.directUpdate)&&(identical(other.userAgent, _this.userAgent) || other.userAgent == _this.userAgent)&&const DeepCollectionEquality().equals(other.groupSwitches, _this.groupSwitches)&&(identical(other.usageStyle, _this.usageStyle) || other.usageStyle == _this.usageStyle)&&(identical(other.bundle, _this.bundle) || other.bundle == _this.bundle));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
 int get hashCode {
   final _this = this as Profile;
-  return Object.hashAll([runtimeType,_this.id,_this.label,_this.currentGroupName,_this.url,_this.lastUpdateDate,_this.autoUpdateDuration,_this.subscriptionInfo,const DeepCollectionEquality().hash(_this.providerSubscriptions),_this.autoUpdate,const DeepCollectionEquality().hash(_this.selectedMap),const DeepCollectionEquality().hash(_this.unfoldSet),_this.overrideData,_this.isUpdating,_this.scriptId,_this.managed,_this.managedStyleApplied,_this.ageSecretKey,const DeepCollectionEquality().hash(_this.groupSwitches),_this.usageStyle,_this.bundle]);
+  return Object.hashAll([runtimeType,_this.id,_this.label,_this.currentGroupName,_this.url,_this.lastUpdateDate,_this.autoUpdateDuration,_this.subscriptionInfo,const DeepCollectionEquality().hash(_this.providerSubscriptions),_this.autoUpdate,const DeepCollectionEquality().hash(_this.selectedMap),const DeepCollectionEquality().hash(_this.unfoldSet),_this.overrideData,_this.isUpdating,_this.scriptId,_this.managed,_this.managedStyleApplied,_this.ageSecretKey,_this.skipCertVerify,_this.directUpdate,_this.userAgent,const DeepCollectionEquality().hash(_this.groupSwitches),_this.usageStyle,_this.bundle]);
 }
 
 @override
 String toString() {
   final _this = this as Profile;
-  return 'Profile(id: ${_this.id}, label: ${_this.label}, currentGroupName: ${_this.currentGroupName}, url: ${_this.url}, lastUpdateDate: ${_this.lastUpdateDate}, autoUpdateDuration: ${_this.autoUpdateDuration}, subscriptionInfo: ${_this.subscriptionInfo}, providerSubscriptions: ${_this.providerSubscriptions}, autoUpdate: ${_this.autoUpdate}, selectedMap: ${_this.selectedMap}, unfoldSet: ${_this.unfoldSet}, overrideData: ${_this.overrideData}, isUpdating: ${_this.isUpdating}, scriptId: ${_this.scriptId}, managed: ${_this.managed}, managedStyleApplied: ${_this.managedStyleApplied}, ageSecretKey: ${_this.ageSecretKey}, groupSwitches: ${_this.groupSwitches}, usageStyle: ${_this.usageStyle}, bundle: ${_this.bundle})';
+  return 'Profile(id: ${_this.id}, label: ${_this.label}, currentGroupName: ${_this.currentGroupName}, url: ${_this.url}, lastUpdateDate: ${_this.lastUpdateDate}, autoUpdateDuration: ${_this.autoUpdateDuration}, subscriptionInfo: ${_this.subscriptionInfo}, providerSubscriptions: ${_this.providerSubscriptions}, autoUpdate: ${_this.autoUpdate}, selectedMap: ${_this.selectedMap}, unfoldSet: ${_this.unfoldSet}, overrideData: ${_this.overrideData}, isUpdating: ${_this.isUpdating}, scriptId: ${_this.scriptId}, managed: ${_this.managed}, managedStyleApplied: ${_this.managedStyleApplied}, ageSecretKey: ${_this.ageSecretKey}, skipCertVerify: ${_this.skipCertVerify}, directUpdate: ${_this.directUpdate}, userAgent: ${_this.userAgent}, groupSwitches: ${_this.groupSwitches}, usageStyle: ${_this.usageStyle}, bundle: ${_this.bundle})';
 }
 
 
@@ -333,7 +333,7 @@ abstract mixin class $ProfileCopyWith<$Res>  {
   factory $ProfileCopyWith(Profile value, $Res Function(Profile) _then) = _$ProfileCopyWithImpl;
 @useResult
 $Res call({
- String id, String? label, String? currentGroupName, String url, DateTime? lastUpdateDate, Duration autoUpdateDuration, SubscriptionInfo? subscriptionInfo, Map<String, SubscriptionInfo> providerSubscriptions, bool autoUpdate, SelectedMap selectedMap, Set<String> unfoldSet, OverrideData overrideData,@JsonKey(includeToJson: false, includeFromJson: false) bool isUpdating, String? scriptId, bool managed, bool managedStyleApplied, String? ageSecretKey,@JsonKey(name: 'group-switches') Map<String, bool> groupSwitches, ProfileUsageStyle usageStyle, ProfileBundle? bundle
+ String id, String? label, String? currentGroupName, String url, DateTime? lastUpdateDate, Duration autoUpdateDuration, SubscriptionInfo? subscriptionInfo, Map<String, SubscriptionInfo> providerSubscriptions, bool autoUpdate, SelectedMap selectedMap, Set<String> unfoldSet, OverrideData overrideData,@JsonKey(includeToJson: false, includeFromJson: false) bool isUpdating, String? scriptId, bool managed, bool managedStyleApplied, String? ageSecretKey, bool skipCertVerify, bool directUpdate, String? userAgent,@JsonKey(name: 'group-switches') Map<String, bool> groupSwitches, ProfileUsageStyle usageStyle, ProfileBundle? bundle
 });
 
 
@@ -350,7 +350,7 @@ class _$ProfileCopyWithImpl<$Res>
 
 /// Create a copy of Profile
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? label = freezed,Object? currentGroupName = freezed,Object? url = null,Object? lastUpdateDate = freezed,Object? autoUpdateDuration = null,Object? subscriptionInfo = freezed,Object? providerSubscriptions = null,Object? autoUpdate = null,Object? selectedMap = null,Object? unfoldSet = null,Object? overrideData = null,Object? isUpdating = null,Object? scriptId = freezed,Object? managed = null,Object? managedStyleApplied = null,Object? ageSecretKey = freezed,Object? groupSwitches = null,Object? usageStyle = null,Object? bundle = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? label = freezed,Object? currentGroupName = freezed,Object? url = null,Object? lastUpdateDate = freezed,Object? autoUpdateDuration = null,Object? subscriptionInfo = freezed,Object? providerSubscriptions = null,Object? autoUpdate = null,Object? selectedMap = null,Object? unfoldSet = null,Object? overrideData = null,Object? isUpdating = null,Object? scriptId = freezed,Object? managed = null,Object? managedStyleApplied = null,Object? ageSecretKey = freezed,Object? skipCertVerify = null,Object? directUpdate = null,Object? userAgent = freezed,Object? groupSwitches = null,Object? usageStyle = null,Object? bundle = freezed,}) {
   return _then(Profile(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,label: freezed == label ? _self.label : label // ignore: cast_nullable_to_non_nullable
@@ -369,6 +369,9 @@ as bool,scriptId: freezed == scriptId ? _self.scriptId : scriptId // ignore: cas
 as String?,managed: null == managed ? _self.managed : managed // ignore: cast_nullable_to_non_nullable
 as bool,managedStyleApplied: null == managedStyleApplied ? _self.managedStyleApplied : managedStyleApplied // ignore: cast_nullable_to_non_nullable
 as bool,ageSecretKey: freezed == ageSecretKey ? _self.ageSecretKey : ageSecretKey // ignore: cast_nullable_to_non_nullable
+as String?,skipCertVerify: null == skipCertVerify ? _self.skipCertVerify : skipCertVerify // ignore: cast_nullable_to_non_nullable
+as bool,directUpdate: null == directUpdate ? _self.directUpdate : directUpdate // ignore: cast_nullable_to_non_nullable
+as bool,userAgent: freezed == userAgent ? _self.userAgent : userAgent // ignore: cast_nullable_to_non_nullable
 as String?,groupSwitches: null == groupSwitches ? _self.groupSwitches : groupSwitches // ignore: cast_nullable_to_non_nullable
 as Map<String, bool>,usageStyle: null == usageStyle ? _self.usageStyle : usageStyle // ignore: cast_nullable_to_non_nullable
 as ProfileUsageStyle,bundle: freezed == bundle ? _self.bundle : bundle // ignore: cast_nullable_to_non_nullable
@@ -490,10 +493,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String? label,  String? currentGroupName,  String url,  DateTime? lastUpdateDate,  Duration autoUpdateDuration,  SubscriptionInfo? subscriptionInfo,  Map<String, SubscriptionInfo> providerSubscriptions,  bool autoUpdate,  SelectedMap selectedMap,  Set<String> unfoldSet,  OverrideData overrideData, @JsonKey(includeToJson: false, includeFromJson: false)  bool isUpdating,  String? scriptId,  bool managed,  bool managedStyleApplied,  String? ageSecretKey, @JsonKey(name: 'group-switches')  Map<String, bool> groupSwitches,  ProfileUsageStyle usageStyle,  ProfileBundle? bundle)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String? label,  String? currentGroupName,  String url,  DateTime? lastUpdateDate,  Duration autoUpdateDuration,  SubscriptionInfo? subscriptionInfo,  Map<String, SubscriptionInfo> providerSubscriptions,  bool autoUpdate,  SelectedMap selectedMap,  Set<String> unfoldSet,  OverrideData overrideData, @JsonKey(includeToJson: false, includeFromJson: false)  bool isUpdating,  String? scriptId,  bool managed,  bool managedStyleApplied,  String? ageSecretKey,  bool skipCertVerify,  bool directUpdate,  String? userAgent, @JsonKey(name: 'group-switches')  Map<String, bool> groupSwitches,  ProfileUsageStyle usageStyle,  ProfileBundle? bundle)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Profile() when $default != null:
-return $default(_that.id,_that.label,_that.currentGroupName,_that.url,_that.lastUpdateDate,_that.autoUpdateDuration,_that.subscriptionInfo,_that.providerSubscriptions,_that.autoUpdate,_that.selectedMap,_that.unfoldSet,_that.overrideData,_that.isUpdating,_that.scriptId,_that.managed,_that.managedStyleApplied,_that.ageSecretKey,_that.groupSwitches,_that.usageStyle,_that.bundle);case _:
+return $default(_that.id,_that.label,_that.currentGroupName,_that.url,_that.lastUpdateDate,_that.autoUpdateDuration,_that.subscriptionInfo,_that.providerSubscriptions,_that.autoUpdate,_that.selectedMap,_that.unfoldSet,_that.overrideData,_that.isUpdating,_that.scriptId,_that.managed,_that.managedStyleApplied,_that.ageSecretKey,_that.skipCertVerify,_that.directUpdate,_that.userAgent,_that.groupSwitches,_that.usageStyle,_that.bundle);case _:
   return orElse();
 
 }
@@ -511,10 +514,10 @@ return $default(_that.id,_that.label,_that.currentGroupName,_that.url,_that.last
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String? label,  String? currentGroupName,  String url,  DateTime? lastUpdateDate,  Duration autoUpdateDuration,  SubscriptionInfo? subscriptionInfo,  Map<String, SubscriptionInfo> providerSubscriptions,  bool autoUpdate,  SelectedMap selectedMap,  Set<String> unfoldSet,  OverrideData overrideData, @JsonKey(includeToJson: false, includeFromJson: false)  bool isUpdating,  String? scriptId,  bool managed,  bool managedStyleApplied,  String? ageSecretKey, @JsonKey(name: 'group-switches')  Map<String, bool> groupSwitches,  ProfileUsageStyle usageStyle,  ProfileBundle? bundle)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String? label,  String? currentGroupName,  String url,  DateTime? lastUpdateDate,  Duration autoUpdateDuration,  SubscriptionInfo? subscriptionInfo,  Map<String, SubscriptionInfo> providerSubscriptions,  bool autoUpdate,  SelectedMap selectedMap,  Set<String> unfoldSet,  OverrideData overrideData, @JsonKey(includeToJson: false, includeFromJson: false)  bool isUpdating,  String? scriptId,  bool managed,  bool managedStyleApplied,  String? ageSecretKey,  bool skipCertVerify,  bool directUpdate,  String? userAgent, @JsonKey(name: 'group-switches')  Map<String, bool> groupSwitches,  ProfileUsageStyle usageStyle,  ProfileBundle? bundle)  $default,) {final _that = this;
 switch (_that) {
 case _Profile():
-return $default(_that.id,_that.label,_that.currentGroupName,_that.url,_that.lastUpdateDate,_that.autoUpdateDuration,_that.subscriptionInfo,_that.providerSubscriptions,_that.autoUpdate,_that.selectedMap,_that.unfoldSet,_that.overrideData,_that.isUpdating,_that.scriptId,_that.managed,_that.managedStyleApplied,_that.ageSecretKey,_that.groupSwitches,_that.usageStyle,_that.bundle);case _:
+return $default(_that.id,_that.label,_that.currentGroupName,_that.url,_that.lastUpdateDate,_that.autoUpdateDuration,_that.subscriptionInfo,_that.providerSubscriptions,_that.autoUpdate,_that.selectedMap,_that.unfoldSet,_that.overrideData,_that.isUpdating,_that.scriptId,_that.managed,_that.managedStyleApplied,_that.ageSecretKey,_that.skipCertVerify,_that.directUpdate,_that.userAgent,_that.groupSwitches,_that.usageStyle,_that.bundle);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -531,10 +534,10 @@ return $default(_that.id,_that.label,_that.currentGroupName,_that.url,_that.last
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String? label,  String? currentGroupName,  String url,  DateTime? lastUpdateDate,  Duration autoUpdateDuration,  SubscriptionInfo? subscriptionInfo,  Map<String, SubscriptionInfo> providerSubscriptions,  bool autoUpdate,  SelectedMap selectedMap,  Set<String> unfoldSet,  OverrideData overrideData, @JsonKey(includeToJson: false, includeFromJson: false)  bool isUpdating,  String? scriptId,  bool managed,  bool managedStyleApplied,  String? ageSecretKey, @JsonKey(name: 'group-switches')  Map<String, bool> groupSwitches,  ProfileUsageStyle usageStyle,  ProfileBundle? bundle)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String? label,  String? currentGroupName,  String url,  DateTime? lastUpdateDate,  Duration autoUpdateDuration,  SubscriptionInfo? subscriptionInfo,  Map<String, SubscriptionInfo> providerSubscriptions,  bool autoUpdate,  SelectedMap selectedMap,  Set<String> unfoldSet,  OverrideData overrideData, @JsonKey(includeToJson: false, includeFromJson: false)  bool isUpdating,  String? scriptId,  bool managed,  bool managedStyleApplied,  String? ageSecretKey,  bool skipCertVerify,  bool directUpdate,  String? userAgent, @JsonKey(name: 'group-switches')  Map<String, bool> groupSwitches,  ProfileUsageStyle usageStyle,  ProfileBundle? bundle)?  $default,) {final _that = this;
 switch (_that) {
 case _Profile() when $default != null:
-return $default(_that.id,_that.label,_that.currentGroupName,_that.url,_that.lastUpdateDate,_that.autoUpdateDuration,_that.subscriptionInfo,_that.providerSubscriptions,_that.autoUpdate,_that.selectedMap,_that.unfoldSet,_that.overrideData,_that.isUpdating,_that.scriptId,_that.managed,_that.managedStyleApplied,_that.ageSecretKey,_that.groupSwitches,_that.usageStyle,_that.bundle);case _:
+return $default(_that.id,_that.label,_that.currentGroupName,_that.url,_that.lastUpdateDate,_that.autoUpdateDuration,_that.subscriptionInfo,_that.providerSubscriptions,_that.autoUpdate,_that.selectedMap,_that.unfoldSet,_that.overrideData,_that.isUpdating,_that.scriptId,_that.managed,_that.managedStyleApplied,_that.ageSecretKey,_that.skipCertVerify,_that.directUpdate,_that.userAgent,_that.groupSwitches,_that.usageStyle,_that.bundle);case _:
   return null;
 
 }
@@ -546,7 +549,7 @@ return $default(_that.id,_that.label,_that.currentGroupName,_that.url,_that.last
 @JsonSerializable()
 
 class _Profile implements Profile {
-  const _Profile({required this.id, this.label, this.currentGroupName, this.url = '', this.lastUpdateDate, required this.autoUpdateDuration, this.subscriptionInfo,  Map<String, SubscriptionInfo> providerSubscriptions = const {}, this.autoUpdate = true,  SelectedMap selectedMap = const {},  Set<String> unfoldSet = const {}, this.overrideData = const OverrideData(), @JsonKey(includeToJson: false, includeFromJson: false) this.isUpdating = false, this.scriptId, this.managed = false, this.managedStyleApplied = false, this.ageSecretKey, @JsonKey(name: 'group-switches')  Map<String, bool> groupSwitches = const {}, this.usageStyle = ProfileUsageStyle.bar, this.bundle}): _providerSubscriptions = providerSubscriptions,_selectedMap = selectedMap,_unfoldSet = unfoldSet,_groupSwitches = groupSwitches;
+  const _Profile({required this.id, this.label, this.currentGroupName, this.url = '', this.lastUpdateDate, required this.autoUpdateDuration, this.subscriptionInfo,  Map<String, SubscriptionInfo> providerSubscriptions = const {}, this.autoUpdate = true,  SelectedMap selectedMap = const {},  Set<String> unfoldSet = const {}, this.overrideData = const OverrideData(), @JsonKey(includeToJson: false, includeFromJson: false) this.isUpdating = false, this.scriptId, this.managed = false, this.managedStyleApplied = false, this.ageSecretKey, this.skipCertVerify = false, this.directUpdate = false, this.userAgent, @JsonKey(name: 'group-switches')  Map<String, bool> groupSwitches = const {}, this.usageStyle = ProfileUsageStyle.bar, this.bundle}): _providerSubscriptions = providerSubscriptions,_selectedMap = selectedMap,_unfoldSet = unfoldSet,_groupSwitches = groupSwitches;
   factory _Profile.fromJson(Map<String, dynamic> json) => _$ProfileFromJson(json);
 
 @override final  String id;
@@ -584,6 +587,9 @@ class _Profile implements Profile {
 @override@JsonKey() final  bool managed;
 @override@JsonKey() final  bool managedStyleApplied;
 @override final  String? ageSecretKey;
+@override@JsonKey() final  bool skipCertVerify;
+@override@JsonKey() final  bool directUpdate;
+@override final  String? userAgent;
  final  Map<String, bool> _groupSwitches;
 @override@JsonKey(name: 'group-switches') Map<String, bool> get groupSwitches {
   if (_groupSwitches is EqualUnmodifiableMapView) return _groupSwitches;
@@ -607,18 +613,18 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _Profile&&(identical(other.id, id) || other.id == id)&&(identical(other.label, label) || other.label == label)&&(identical(other.currentGroupName, currentGroupName) || other.currentGroupName == currentGroupName)&&(identical(other.url, url) || other.url == url)&&(identical(other.lastUpdateDate, lastUpdateDate) || other.lastUpdateDate == lastUpdateDate)&&(identical(other.autoUpdateDuration, autoUpdateDuration) || other.autoUpdateDuration == autoUpdateDuration)&&(identical(other.subscriptionInfo, subscriptionInfo) || other.subscriptionInfo == subscriptionInfo)&&const DeepCollectionEquality().equals(other.providerSubscriptions, _providerSubscriptions)&&(identical(other.autoUpdate, autoUpdate) || other.autoUpdate == autoUpdate)&&const DeepCollectionEquality().equals(other.selectedMap, _selectedMap)&&const DeepCollectionEquality().equals(other.unfoldSet, _unfoldSet)&&(identical(other.overrideData, overrideData) || other.overrideData == overrideData)&&(identical(other.isUpdating, isUpdating) || other.isUpdating == isUpdating)&&(identical(other.scriptId, scriptId) || other.scriptId == scriptId)&&(identical(other.managed, managed) || other.managed == managed)&&(identical(other.managedStyleApplied, managedStyleApplied) || other.managedStyleApplied == managedStyleApplied)&&(identical(other.ageSecretKey, ageSecretKey) || other.ageSecretKey == ageSecretKey)&&const DeepCollectionEquality().equals(other.groupSwitches, _groupSwitches)&&(identical(other.usageStyle, usageStyle) || other.usageStyle == usageStyle)&&(identical(other.bundle, bundle) || other.bundle == bundle));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _Profile&&(identical(other.id, id) || other.id == id)&&(identical(other.label, label) || other.label == label)&&(identical(other.currentGroupName, currentGroupName) || other.currentGroupName == currentGroupName)&&(identical(other.url, url) || other.url == url)&&(identical(other.lastUpdateDate, lastUpdateDate) || other.lastUpdateDate == lastUpdateDate)&&(identical(other.autoUpdateDuration, autoUpdateDuration) || other.autoUpdateDuration == autoUpdateDuration)&&(identical(other.subscriptionInfo, subscriptionInfo) || other.subscriptionInfo == subscriptionInfo)&&const DeepCollectionEquality().equals(other.providerSubscriptions, _providerSubscriptions)&&(identical(other.autoUpdate, autoUpdate) || other.autoUpdate == autoUpdate)&&const DeepCollectionEquality().equals(other.selectedMap, _selectedMap)&&const DeepCollectionEquality().equals(other.unfoldSet, _unfoldSet)&&(identical(other.overrideData, overrideData) || other.overrideData == overrideData)&&(identical(other.isUpdating, isUpdating) || other.isUpdating == isUpdating)&&(identical(other.scriptId, scriptId) || other.scriptId == scriptId)&&(identical(other.managed, managed) || other.managed == managed)&&(identical(other.managedStyleApplied, managedStyleApplied) || other.managedStyleApplied == managedStyleApplied)&&(identical(other.ageSecretKey, ageSecretKey) || other.ageSecretKey == ageSecretKey)&&(identical(other.skipCertVerify, skipCertVerify) || other.skipCertVerify == skipCertVerify)&&(identical(other.directUpdate, directUpdate) || other.directUpdate == directUpdate)&&(identical(other.userAgent, userAgent) || other.userAgent == userAgent)&&const DeepCollectionEquality().equals(other.groupSwitches, _groupSwitches)&&(identical(other.usageStyle, usageStyle) || other.usageStyle == usageStyle)&&(identical(other.bundle, bundle) || other.bundle == bundle));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
 int get hashCode {
-    return Object.hashAll([runtimeType,id,label,currentGroupName,url,lastUpdateDate,autoUpdateDuration,subscriptionInfo,const DeepCollectionEquality().hash(_providerSubscriptions),autoUpdate,const DeepCollectionEquality().hash(_selectedMap),const DeepCollectionEquality().hash(_unfoldSet),overrideData,isUpdating,scriptId,managed,managedStyleApplied,ageSecretKey,const DeepCollectionEquality().hash(_groupSwitches),usageStyle,bundle]);
+    return Object.hashAll([runtimeType,id,label,currentGroupName,url,lastUpdateDate,autoUpdateDuration,subscriptionInfo,const DeepCollectionEquality().hash(_providerSubscriptions),autoUpdate,const DeepCollectionEquality().hash(_selectedMap),const DeepCollectionEquality().hash(_unfoldSet),overrideData,isUpdating,scriptId,managed,managedStyleApplied,ageSecretKey,skipCertVerify,directUpdate,userAgent,const DeepCollectionEquality().hash(_groupSwitches),usageStyle,bundle]);
 }
 
 @override
 String toString() {
-    return 'Profile(id: $id, label: $label, currentGroupName: $currentGroupName, url: $url, lastUpdateDate: $lastUpdateDate, autoUpdateDuration: $autoUpdateDuration, subscriptionInfo: $subscriptionInfo, providerSubscriptions: $providerSubscriptions, autoUpdate: $autoUpdate, selectedMap: $selectedMap, unfoldSet: $unfoldSet, overrideData: $overrideData, isUpdating: $isUpdating, scriptId: $scriptId, managed: $managed, managedStyleApplied: $managedStyleApplied, ageSecretKey: $ageSecretKey, groupSwitches: $groupSwitches, usageStyle: $usageStyle, bundle: $bundle)';
+    return 'Profile(id: $id, label: $label, currentGroupName: $currentGroupName, url: $url, lastUpdateDate: $lastUpdateDate, autoUpdateDuration: $autoUpdateDuration, subscriptionInfo: $subscriptionInfo, providerSubscriptions: $providerSubscriptions, autoUpdate: $autoUpdate, selectedMap: $selectedMap, unfoldSet: $unfoldSet, overrideData: $overrideData, isUpdating: $isUpdating, scriptId: $scriptId, managed: $managed, managedStyleApplied: $managedStyleApplied, ageSecretKey: $ageSecretKey, skipCertVerify: $skipCertVerify, directUpdate: $directUpdate, userAgent: $userAgent, groupSwitches: $groupSwitches, usageStyle: $usageStyle, bundle: $bundle)';
 }
 
 
@@ -629,7 +635,7 @@ abstract mixin class _$ProfileCopyWith<$Res> implements $ProfileCopyWith<$Res> {
   factory _$ProfileCopyWith(_Profile value, $Res Function(_Profile) _then) = __$ProfileCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String? label, String? currentGroupName, String url, DateTime? lastUpdateDate, Duration autoUpdateDuration, SubscriptionInfo? subscriptionInfo, Map<String, SubscriptionInfo> providerSubscriptions, bool autoUpdate, SelectedMap selectedMap, Set<String> unfoldSet, OverrideData overrideData,@JsonKey(includeToJson: false, includeFromJson: false) bool isUpdating, String? scriptId, bool managed, bool managedStyleApplied, String? ageSecretKey,@JsonKey(name: 'group-switches') Map<String, bool> groupSwitches, ProfileUsageStyle usageStyle, ProfileBundle? bundle
+ String id, String? label, String? currentGroupName, String url, DateTime? lastUpdateDate, Duration autoUpdateDuration, SubscriptionInfo? subscriptionInfo, Map<String, SubscriptionInfo> providerSubscriptions, bool autoUpdate, SelectedMap selectedMap, Set<String> unfoldSet, OverrideData overrideData,@JsonKey(includeToJson: false, includeFromJson: false) bool isUpdating, String? scriptId, bool managed, bool managedStyleApplied, String? ageSecretKey, bool skipCertVerify, bool directUpdate, String? userAgent,@JsonKey(name: 'group-switches') Map<String, bool> groupSwitches, ProfileUsageStyle usageStyle, ProfileBundle? bundle
 });
 
 
@@ -646,7 +652,7 @@ class __$ProfileCopyWithImpl<$Res>
 
 /// Create a copy of Profile
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? label = freezed,Object? currentGroupName = freezed,Object? url = null,Object? lastUpdateDate = freezed,Object? autoUpdateDuration = null,Object? subscriptionInfo = freezed,Object? providerSubscriptions = null,Object? autoUpdate = null,Object? selectedMap = null,Object? unfoldSet = null,Object? overrideData = null,Object? isUpdating = null,Object? scriptId = freezed,Object? managed = null,Object? managedStyleApplied = null,Object? ageSecretKey = freezed,Object? groupSwitches = null,Object? usageStyle = null,Object? bundle = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? label = freezed,Object? currentGroupName = freezed,Object? url = null,Object? lastUpdateDate = freezed,Object? autoUpdateDuration = null,Object? subscriptionInfo = freezed,Object? providerSubscriptions = null,Object? autoUpdate = null,Object? selectedMap = null,Object? unfoldSet = null,Object? overrideData = null,Object? isUpdating = null,Object? scriptId = freezed,Object? managed = null,Object? managedStyleApplied = null,Object? ageSecretKey = freezed,Object? skipCertVerify = null,Object? directUpdate = null,Object? userAgent = freezed,Object? groupSwitches = null,Object? usageStyle = null,Object? bundle = freezed,}) {
   return _then(_Profile(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,label: freezed == label ? _self.label : label // ignore: cast_nullable_to_non_nullable
@@ -665,6 +671,9 @@ as bool,scriptId: freezed == scriptId ? _self.scriptId : scriptId // ignore: cas
 as String?,managed: null == managed ? _self.managed : managed // ignore: cast_nullable_to_non_nullable
 as bool,managedStyleApplied: null == managedStyleApplied ? _self.managedStyleApplied : managedStyleApplied // ignore: cast_nullable_to_non_nullable
 as bool,ageSecretKey: freezed == ageSecretKey ? _self.ageSecretKey : ageSecretKey // ignore: cast_nullable_to_non_nullable
+as String?,skipCertVerify: null == skipCertVerify ? _self.skipCertVerify : skipCertVerify // ignore: cast_nullable_to_non_nullable
+as bool,directUpdate: null == directUpdate ? _self.directUpdate : directUpdate // ignore: cast_nullable_to_non_nullable
+as bool,userAgent: freezed == userAgent ? _self.userAgent : userAgent // ignore: cast_nullable_to_non_nullable
 as String?,groupSwitches: null == groupSwitches ? _self._groupSwitches : groupSwitches // ignore: cast_nullable_to_non_nullable
 as Map<String, bool>,usageStyle: null == usageStyle ? _self.usageStyle : usageStyle // ignore: cast_nullable_to_non_nullable
 as ProfileUsageStyle,bundle: freezed == bundle ? _self.bundle : bundle // ignore: cast_nullable_to_non_nullable

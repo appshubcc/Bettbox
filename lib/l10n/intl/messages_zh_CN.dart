@@ -231,7 +231,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "ageFileTooLarge": MessageLookupByLibrary.simpleMessage("文件过大（上限 8 MB）"),
     "ageGenerateKeyPair": MessageLookupByLibrary.simpleMessage("生成新密钥对"),
     "ageInputRequired": MessageLookupByLibrary.simpleMessage("请输入内容或选择文件"),
-    "ageKeyGenerateTitle": MessageLookupByLibrary.simpleMessage("Age Key 生成"),
+    "ageKeyGenerateTitle": MessageLookupByLibrary.simpleMessage("Age Key 工具"),
     "ageKeyHybridTip": MessageLookupByLibrary.simpleMessage(
       "后量子混合密钥，安全性更强，但公钥较长，需要 age v1.3 及以上版本支持。",
     ),
@@ -516,6 +516,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "direct": MessageLookupByLibrary.simpleMessage("直连"),
     "directModeNoProxy": MessageLookupByLibrary.simpleMessage("直连模式，暂无代理"),
+    "directUpdate": MessageLookupByLibrary.simpleMessage("通过直连更新"),
     "disableQuic": MessageLookupByLibrary.simpleMessage("禁用QUIC"),
     "disableQuicDesc": MessageLookupByLibrary.simpleMessage(
       "禁用 QUIC 以缓解特定网络问题",
@@ -1591,6 +1592,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "silentLaunch": MessageLookupByLibrary.simpleMessage("静默启动"),
     "silentLaunchDesc": MessageLookupByLibrary.simpleMessage("不打开软件直接在后台启动"),
     "size": MessageLookupByLibrary.simpleMessage("尺寸"),
+    "skipCertVerify": MessageLookupByLibrary.simpleMessage("跳过证书验证"),
     "skipDomain": MessageLookupByLibrary.simpleMessage("跳过域名"),
     "skipDstAddress": MessageLookupByLibrary.simpleMessage("跳过目标 IP"),
     "skipLocalAuth": MessageLookupByLibrary.simpleMessage("跳过本机验证"),
@@ -1867,6 +1869,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "usageStyleBar": MessageLookupByLibrary.simpleMessage("条形"),
     "usageStyleConcentric": MessageLookupByLibrary.simpleMessage("同心环"),
     "usageStyleRing": MessageLookupByLibrary.simpleMessage("圆环"),
+    "useCustomUa": MessageLookupByLibrary.simpleMessage("使用指定 UA"),
     "useGlobalScriptOverride": MessageLookupByLibrary.simpleMessage("按配置指定脚本"),
     "userAuth": MessageLookupByLibrary.simpleMessage("用户验证"),
     "userAuthEmpty": MessageLookupByLibrary.simpleMessage("未配置验证用户，局域网连接无需凭据"),

@@ -30,12 +30,37 @@ class EditProfileView extends StatefulWidget {
   State<EditProfileView> createState() => EditProfileViewState();
 }
 
+class EditProfileMenu extends StatelessWidget {
+  final GlobalKey<EditProfileViewState> editKey;
+
+  const EditProfileMenu({super.key, required this.editKey});
+
+  @override
+  Widget build(BuildContext context) {
+    return CommonPopupBox(
+      targetBuilder: (open) => IconButton(
+        onPressed: () => open(offset: const Offset(0, 20)),
+        tooltip: appLocalizations.more,
+        icon: const AppIcon(Icons.more_vert),
+      ),
+      popup: Builder(
+        builder: (_) => CommonPopupMenu(
+          items: editKey.currentState?._menuItems ?? const [],
+        ),
+      ),
+    );
+  }
+}
+
 class EditProfileViewState extends State<EditProfileView> {
   late TextEditingController labelController;
   late TextEditingController urlController;
   late TextEditingController autoUpdateDurationController;
   late bool autoUpdate;
   late bool managed = widget.profile.managed;
+  late bool skipCertVerify = widget.profile.skipCertVerify;
+  late bool directUpdate = widget.profile.directUpdate;
+  late String? userAgent = widget.profile.userAgent;
   late TextEditingController ageSecretKeyController;
   FocusNode? urlFocusNode;
   bool _obscureAgeSecretKey = true;
@@ -93,6 +118,9 @@ class EditProfileViewState extends State<EditProfileView> {
           : ageSecretKeyController.text.trim(),
       autoUpdate: autoUpdate,
       managed: managed,
+      skipCertVerify: skipCertVerify,
+      directUpdate: directUpdate,
+      userAgent: userAgent,
       autoUpdateDuration: Duration(
         minutes: int.parse(autoUpdateDurationController.text),
       ),
@@ -310,6 +338,45 @@ class EditProfileViewState extends State<EditProfileView> {
 
   void showAgeKeyGenerator() {
     globalState.showCommonDialog(child: const _AgeKeyGeneratorDialog());
+  }
+
+  Future<void> _pickUserAgent() async {
+    final result = await pickUserAgent(current: userAgent);
+    if (result == null) return;
+    userAgent = result.value;
+  }
+
+  List<PopupMenuItemData> get _menuItems {
+    final isUrl = widget.isNew || profile.type == ProfileType.url;
+    return [
+      if (isUrl) ...[
+        PopupMenuItemData(
+          icon: skipCertVerify
+              ? Icons.check_circle_rounded
+              : Icons.circle_outlined,
+          label: appLocalizations.skipCertVerify,
+          onPressed: () => skipCertVerify = !skipCertVerify,
+        ),
+        PopupMenuItemData(
+          icon: directUpdate
+              ? Icons.check_circle_rounded
+              : Icons.circle_outlined,
+          label: appLocalizations.directUpdate,
+          onPressed: () => directUpdate = !directUpdate,
+        ),
+      ],
+      PopupMenuItemData(
+        icon: Icons.security,
+        label: appLocalizations.ageKeyGenerateTitle,
+        onPressed: showAgeKeyGenerator,
+      ),
+      if (isUrl)
+        PopupMenuItemData(
+          icon: Icons.computer_outlined,
+          label: appLocalizations.useCustomUa,
+          onPressed: _pickUserAgent,
+        ),
+    ];
   }
 
   @override

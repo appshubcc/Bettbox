@@ -631,15 +631,7 @@ class ProfileItem extends StatelessWidget {
       builder: (_, type) {
         return AdaptiveSheetScaffold(
           type: type,
-          actions: [
-            IconButton(
-              icon: const AppIcon(Icons.security),
-              tooltip: appLocalizations.ageKeyGenerateTitle,
-              onPressed: () {
-                editKey.currentState?.showAgeKeyGenerator();
-              },
-            ),
-          ],
+          actions: [EditProfileMenu(editKey: editKey)],
           body: EditProfileView(
             key: editKey,
             profile: profile,

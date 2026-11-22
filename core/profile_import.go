@@ -5,6 +5,7 @@ import (
 	"compress/flate"
 	"compress/gzip"
 	"compress/zlib"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -124,6 +125,29 @@ func decryptProfile(data []byte, ageSecretKey string) []byte {
 		return nil
 	}
 	return replaceInvalidUTF8(decrypted)
+}
+
+func patchJsonSlashEscapes(data []byte) []byte {
+	if !bytes.Contains(data, []byte(`\/`)) || !json.Valid(bytes.TrimPrefix(data, []byte("\xef\xbb\xbf"))) {
+		return data
+	}
+	result := make([]byte, 0, len(data))
+	inString := false
+	for i := 0; i < len(data); i++ {
+		c := data[i]
+		switch {
+		case c == '"':
+			inString = !inString
+		case c == '\\' && inString:
+			i++
+			if data[i] != '/' {
+				result = append(result, c)
+			}
+			c = data[i]
+		}
+		result = append(result, c)
+	}
+	return result
 }
 
 func lineTerminatorSize(data []byte, i int) int {
@@ -324,7 +348,7 @@ func validateProfileContent(data []byte, ageSecretKey string) string {
 		age.SetGlobalSecretKeys(ageSecretKey)
 		defer age.SetGlobalSecretKeys()
 	}
-	if _, err := config.Parse(patchYamlShortID(data)); err != nil {
+	if _, err := config.Parse(patchYamlShortID(patchJsonSlashEscapes(data))); err != nil {
 		return err.Error()
 	}
 	return ""
@@ -378,7 +402,7 @@ func handleImportProfile(params *ImportProfileParams) string {
 			data = decrypted
 		}
 	}
-	data = patchYamlTabs(data)
+	data = patchYamlTabs(patchJsonSlashEscapes(data))
 	if existing, err := os.ReadFile(params.Output); err == nil && bytes.Equal(existing, data) {
 		return ""
 	}

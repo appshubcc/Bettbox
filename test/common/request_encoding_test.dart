@@ -11,7 +11,6 @@ const _content = 'mixed-port: 7890\nmode: rule\n';
 
 void main() {
   late ServerSocket server;
-  late Directory home;
   late String url;
   final acceptEncodings = <String>[];
   var duplicateEncoding = true;
@@ -67,7 +66,6 @@ void main() {
       version: '1.0.0',
       buildNumber: '1',
     );
-    home = await Directory.systemTemp.createTemp('bettbox_request_');
     server = await ServerSocket.bind(InternetAddress.loopbackIPv4, 0);
     server.listen(serve);
     url = 'http://127.0.0.1:${server.port}/clash.yaml';
@@ -75,21 +73,11 @@ void main() {
 
   tearDownAll(() async {
     await server.close();
-    await home.delete(recursive: true);
   });
 
   setUp(() {
     acceptEncodings.clear();
     duplicateEncoding = true;
-  });
-
-  test('content-encoding 多值时下载订阅改用 identity 重试', () async {
-    final path = '${home.path}/profile.download';
-    final source = await request.fetchProfileSource(url, path);
-
-    expect(acceptEncodings, ['gzip', 'identity']);
-    expect(source.headers?['content-encoding'], ['identity']);
-    expect(await File(path).readAsString(), _content);
   });
 
   test('content-encoding 多值时文本请求改用 identity 重试', () async {

@@ -271,9 +271,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "ageInputRequired": MessageLookupByLibrary.simpleMessage(
       "Enter content or choose a file",
     ),
-    "ageKeyGenerateTitle": MessageLookupByLibrary.simpleMessage(
-      "Age Key Generation",
-    ),
+    "ageKeyGenerateTitle": MessageLookupByLibrary.simpleMessage("Age Key Tool"),
     "ageKeyHybridTip": MessageLookupByLibrary.simpleMessage(
       "Post-quantum hybrid key. Stronger, but the public key is much longer and requires age v1.3 or later.",
     ),
@@ -689,6 +687,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "direct": MessageLookupByLibrary.simpleMessage("Direct"),
     "directModeNoProxy": MessageLookupByLibrary.simpleMessage(
       "Direct mode, no proxies",
+    ),
+    "directUpdate": MessageLookupByLibrary.simpleMessage(
+      "Update via direct connection",
     ),
     "disableQuic": MessageLookupByLibrary.simpleMessage("Disable QUIC"),
     "disableQuicDesc": MessageLookupByLibrary.simpleMessage(
@@ -2141,6 +2142,9 @@ class MessageLookup extends MessageLookupByLibrary {
       "Start in the background",
     ),
     "size": MessageLookupByLibrary.simpleMessage("Size"),
+    "skipCertVerify": MessageLookupByLibrary.simpleMessage(
+      "Skip certificate verification",
+    ),
     "skipDomain": MessageLookupByLibrary.simpleMessage("Skip Domain"),
     "skipDstAddress": MessageLookupByLibrary.simpleMessage(
       "Skip Destination IP",
@@ -2521,6 +2525,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "Concentric Rings",
     ),
     "usageStyleRing": MessageLookupByLibrary.simpleMessage("Rings"),
+    "useCustomUa": MessageLookupByLibrary.simpleMessage("Use specified UA"),
     "useGlobalScriptOverride": MessageLookupByLibrary.simpleMessage(
       "Script per Profile",
     ),

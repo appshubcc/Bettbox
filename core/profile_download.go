@@ -1,23 +1,32 @@
 package main
 
 import (
+	"context"
 	"crypto/tls"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
+	"net"
 	"net/http"
-	"net/url"
 	"os"
 	"strings"
 	"time"
+
+	"github.com/metacubex/mihomo/component/ca"
+	"github.com/metacubex/mihomo/component/dialer"
+	"github.com/metacubex/mihomo/component/resolver"
+	"github.com/metacubex/mihomo/listener/inner"
+	"github.com/metacubex/mihomo/ntp"
+	"github.com/metacubex/mihomo/tunnel"
 )
 
 type DownloadProfileParams struct {
-	URL     string            `json:"url"`
-	Output  string            `json:"output"`
-	Headers map[string]string `json:"headers"`
-	Proxy   string            `json:"proxy"`
+	URL            string            `json:"url"`
+	Output         string            `json:"output"`
+	Headers        map[string]string `json:"headers"`
+	Direct         bool              `json:"direct"`
+	SkipCertVerify bool              `json:"skip-cert-verify"`
 }
 
 func handleDownloadProfile(params *DownloadProfileParams) (string, error) {
@@ -31,14 +40,21 @@ func handleDownloadProfile(params *DownloadProfileParams) (string, error) {
 		}
 		req.Header.Set(key, value)
 	}
-	req.Close = true
+	direct := params.Direct || tunnel.Status() != tunnel.Running
 	transport := &http.Transport{
 		ForceAttemptHTTP2:   true,
 		TLSHandshakeTimeout: 30 * time.Second,
-		TLSClientConfig:     &tls.Config{InsecureSkipVerify: true},
-	}
-	if params.Proxy != "" {
-		transport.Proxy = http.ProxyURL(&url.URL{Scheme: "http", Host: params.Proxy})
+		TLSClientConfig: &tls.Config{
+			RootCAs:            ca.GetCertPool(),
+			Time:               ntp.Now,
+			InsecureSkipVerify: params.SkipCertVerify,
+		},
+		DialContext: func(ctx context.Context, network, address string) (net.Conn, error) {
+			if direct {
+				return dialer.DialContext(ctx, network, address, dialer.WithResolver(resolver.DirectHostResolver))
+			}
+			return inner.HandleTcp(inner.GetTunnel(), address, "")
+		},
 	}
 	defer transport.CloseIdleConnections()
 	client := &http.Client{Transport: transport, Timeout: 2 * time.Minute}

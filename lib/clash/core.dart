@@ -274,14 +274,16 @@ class ClashCore {
     required String url,
     required String output,
     required Map<String, String> headers,
-    String? proxy,
+    required bool direct,
+    required bool skipCertVerify,
   }) async {
     final res = await clashInterface.downloadProfile(
       json.encode({
         'url': url,
         'output': output,
         'headers': headers,
-        'proxy': ?proxy,
+        'direct': direct,
+        'skip-cert-verify': skipCertVerify,
       }),
     );
     if (res.isError) {

@@ -280,7 +280,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "Введите текст или выберите файл",
     ),
     "ageKeyGenerateTitle": MessageLookupByLibrary.simpleMessage(
-      "Генерация ключа Age",
+      "Инструмент ключей Age",
     ),
     "ageKeyHybridTip": MessageLookupByLibrary.simpleMessage(
       "Постквантовый гибридный ключ. Надёжнее, но открытый ключ намного длиннее и требует age v1.3 или новее.",
@@ -711,6 +711,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "direct": MessageLookupByLibrary.simpleMessage("Напрямую"),
     "directModeNoProxy": MessageLookupByLibrary.simpleMessage(
       "Режим прямого подключения, прокси нет",
+    ),
+    "directUpdate": MessageLookupByLibrary.simpleMessage(
+      "Обновлять через прямое подключение",
     ),
     "disableQuic": MessageLookupByLibrary.simpleMessage("Отключить QUIC"),
     "disableQuicDesc": MessageLookupByLibrary.simpleMessage(
@@ -2239,6 +2242,9 @@ class MessageLookup extends MessageLookupByLibrary {
       "Запуск в фоне без открытия окна",
     ),
     "size": MessageLookupByLibrary.simpleMessage("Высота"),
+    "skipCertVerify": MessageLookupByLibrary.simpleMessage(
+      "Пропустить проверку сертификата",
+    ),
     "skipDomain": MessageLookupByLibrary.simpleMessage("Пропустить домены"),
     "skipDstAddress": MessageLookupByLibrary.simpleMessage(
       "Пропустить IP назначения",
@@ -2643,6 +2649,9 @@ class MessageLookup extends MessageLookupByLibrary {
       "Концентрические кольца",
     ),
     "usageStyleRing": MessageLookupByLibrary.simpleMessage("Кольца"),
+    "useCustomUa": MessageLookupByLibrary.simpleMessage(
+      "Использовать указанный UA",
+    ),
     "useGlobalScriptOverride": MessageLookupByLibrary.simpleMessage(
       "Скрипт для профилей",
     ),

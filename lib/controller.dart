@@ -2392,20 +2392,20 @@ class AppController {
 
   Future<void> addProfileFormFile() async {
     final platformFiles = await safeRun(
-      () => picker.pickerFiles(
-        allowMultiple: true,
-        allowedExtensions: ['yaml', 'yml'],
-      ),
+      () => picker.pickerFiles(allowMultiple: true),
     );
     if (platformFiles == null || platformFiles.isEmpty) {
       return;
     }
     if (!context.mounted) return;
 
-    final validFiles = platformFiles.where((file) {
-      final name = file.name.toLowerCase();
-      return name.endsWith('.yaml') || name.endsWith('.yml');
-    }).toList();
+    const allowedExtensions = {'.yaml', '.yml', '.json', ''};
+    final validFiles = platformFiles
+        .where(
+          (file) =>
+              allowedExtensions.contains(extension(file.name).toLowerCase()),
+        )
+        .toList();
 
     if (validFiles.isEmpty) {
       return;

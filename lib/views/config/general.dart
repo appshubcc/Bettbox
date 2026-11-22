@@ -69,84 +69,15 @@ class _UaItemState extends ConsumerState<UaItem> {
         isCustom ? appLocalizations.custom : appLocalizations.defaultText,
       ),
       onTap: () async {
-        final notifier = ref.read(patchClashConfigProvider.notifier);
-        final result = await globalState.showAdaptiveSheet<_UaOption>(
-          child: _UaDialog(isCustom: isCustom),
+        final result = await pickUserAgent(
+          current: globalUa,
+          customValue: _lastCustomUa,
         );
-
-        if (result == null) return;
-
-        switch (result.type) {
-          case _UaOptionType.default_:
-            notifier.updateState((state) => state.copyWith(globalUa: null));
-          case _UaOptionType.custom:
-            final customUa = await globalState.showCommonDialog<String>(
-              child: InputDialog(
-                title: appLocalizations.custom,
-                value: _lastCustomUa,
-                hintText: 'Clash.Meta',
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return appLocalizations.emptyTip('UA');
-                  }
-                  return null;
-                },
-              ),
-            );
-            if (customUa != null && customUa.trim().isNotEmpty) {
-              notifier.updateState(
-                (state) => state.copyWith(globalUa: customUa.trim()),
-              );
-            }
-        }
+        if (result == null || !mounted) return;
+        ref
+            .read(patchClashConfigProvider.notifier)
+            .updateState((state) => state.copyWith(globalUa: result.value));
       },
-    );
-  }
-}
-
-enum _UaOptionType { default_, custom }
-
-class _UaOption {
-  final _UaOptionType type;
-
-  const _UaOption(this.type);
-}
-
-class _UaDialog extends StatelessWidget {
-  final bool isCustom;
-
-  const _UaDialog({required this.isCustom});
-
-  @override
-  Widget build(BuildContext context) {
-    return CommonDialog(
-      title: 'UA',
-      padding: const EdgeInsets.fromLTRB(10, 12, 10, 14),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          OptionItem(
-            text: appLocalizations.defaultText,
-            selected: !isCustom,
-            onTap: () {
-              Navigator.of(
-                context,
-                rootNavigator: true,
-              ).pop(const _UaOption(_UaOptionType.default_));
-            },
-          ),
-          OptionItem(
-            text: appLocalizations.custom,
-            selected: isCustom,
-            onTap: () {
-              Navigator.of(
-                context,
-                rootNavigator: true,
-              ).pop(const _UaOption(_UaOptionType.custom));
-            },
-          ),
-        ],
-      ),
     );
   }
 }

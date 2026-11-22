@@ -244,7 +244,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "ageInputRequired": MessageLookupByLibrary.simpleMessage(
       "内容を入力するかファイルを選択してください",
     ),
-    "ageKeyGenerateTitle": MessageLookupByLibrary.simpleMessage("Age Key 生成"),
+    "ageKeyGenerateTitle": MessageLookupByLibrary.simpleMessage("Age Key ツール"),
     "ageKeyHybridTip": MessageLookupByLibrary.simpleMessage(
       "耐量子ハイブリッド鍵です。より安全ですが、公開鍵が長く、age v1.3 以降が必要です。",
     ),
@@ -577,6 +577,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "directModeNoProxy": MessageLookupByLibrary.simpleMessage(
       "ダイレクトモード、プロキシなし",
     ),
+    "directUpdate": MessageLookupByLibrary.simpleMessage("直接接続で更新"),
     "disableQuic": MessageLookupByLibrary.simpleMessage("QUIC無効化"),
     "disableQuicDesc": MessageLookupByLibrary.simpleMessage(
       "特定の通信問題を緩和するためQUICを無効化",
@@ -1792,6 +1793,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "画面を表示せずバックグラウンドで起動",
     ),
     "size": MessageLookupByLibrary.simpleMessage("サイズ"),
+    "skipCertVerify": MessageLookupByLibrary.simpleMessage("証明書の検証をスキップ"),
     "skipDomain": MessageLookupByLibrary.simpleMessage("除外ドメイン"),
     "skipDstAddress": MessageLookupByLibrary.simpleMessage("除外宛先IP"),
     "skipLocalAuth": MessageLookupByLibrary.simpleMessage("ローカル認証をスキップ"),
@@ -2116,6 +2118,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "usageStyleBar": MessageLookupByLibrary.simpleMessage("バー"),
     "usageStyleConcentric": MessageLookupByLibrary.simpleMessage("同心リング"),
     "usageStyleRing": MessageLookupByLibrary.simpleMessage("リング"),
+    "useCustomUa": MessageLookupByLibrary.simpleMessage("指定した UA を使用"),
     "useGlobalScriptOverride": MessageLookupByLibrary.simpleMessage(
       "プロファイルごとのスクリプト",
     ),

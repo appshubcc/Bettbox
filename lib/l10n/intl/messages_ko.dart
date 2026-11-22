@@ -243,7 +243,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "ageInputRequired": MessageLookupByLibrary.simpleMessage(
       "내용을 입력하거나 파일을 선택하세요",
     ),
-    "ageKeyGenerateTitle": MessageLookupByLibrary.simpleMessage("Age Key 생성"),
+    "ageKeyGenerateTitle": MessageLookupByLibrary.simpleMessage("Age Key 도구"),
     "ageKeyHybridTip": MessageLookupByLibrary.simpleMessage(
       "양자 내성 하이브리드 키입니다. 더 안전하지만 공개 키가 길고 age v1.3 이상이 필요합니다.",
     ),
@@ -578,6 +578,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "directModeNoProxy": MessageLookupByLibrary.simpleMessage(
       "직접 연결 모드, 프록시 없음",
     ),
+    "directUpdate": MessageLookupByLibrary.simpleMessage("직접 연결로 업데이트"),
     "disableQuic": MessageLookupByLibrary.simpleMessage("QUIC 비활성화"),
     "disableQuicDesc": MessageLookupByLibrary.simpleMessage(
       "특정 네트워크 문제를 완화하기 위해 QUIC 비활성화",
@@ -1781,6 +1782,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "화면을 열지 않고 백그라운드에서 실행",
     ),
     "size": MessageLookupByLibrary.simpleMessage("크기"),
+    "skipCertVerify": MessageLookupByLibrary.simpleMessage("인증서 검증 건너뛰기"),
     "skipDomain": MessageLookupByLibrary.simpleMessage("제외 도메인"),
     "skipDstAddress": MessageLookupByLibrary.simpleMessage("제외 목적지 IP"),
     "skipLocalAuth": MessageLookupByLibrary.simpleMessage("로컬 인증 건너뛰기"),
@@ -2105,6 +2107,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "usageStyleBar": MessageLookupByLibrary.simpleMessage("막대"),
     "usageStyleConcentric": MessageLookupByLibrary.simpleMessage("동심원"),
     "usageStyleRing": MessageLookupByLibrary.simpleMessage("링"),
+    "useCustomUa": MessageLookupByLibrary.simpleMessage("지정된 UA 사용"),
     "useGlobalScriptOverride": MessageLookupByLibrary.simpleMessage(
       "프로필별 스크립트",
     ),

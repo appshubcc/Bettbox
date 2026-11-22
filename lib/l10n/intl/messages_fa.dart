@@ -263,7 +263,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "محتوا وارد کنید یا فایلی انتخاب کنید",
     ),
     "ageKeyGenerateTitle": MessageLookupByLibrary.simpleMessage(
-      "تولید کلید Age",
+      "ابزار کلید Age",
     ),
     "ageKeyHybridTip": MessageLookupByLibrary.simpleMessage(
       "کلید ترکیبی پساکوانتومی؛ امن‌تر است، اما کلید عمومی بسیار طولانی‌تر است و به age نسخهٔ ۱٫۳ یا بالاتر نیاز دارد.",
@@ -682,6 +682,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "direct": MessageLookupByLibrary.simpleMessage("مستقیم"),
     "directModeNoProxy": MessageLookupByLibrary.simpleMessage(
       "حالت مستقیم، پروکسی وجود ندارد",
+    ),
+    "directUpdate": MessageLookupByLibrary.simpleMessage(
+      "به‌روزرسانی با اتصال مستقیم",
     ),
     "disableQuic": MessageLookupByLibrary.simpleMessage("غیرفعال‌سازی QUIC"),
     "disableQuicDesc": MessageLookupByLibrary.simpleMessage(
@@ -2182,6 +2185,9 @@ class MessageLookup extends MessageLookupByLibrary {
       "اجرا در پس‌زمینه بدون باز کردن پنجره",
     ),
     "size": MessageLookupByLibrary.simpleMessage("اندازه"),
+    "skipCertVerify": MessageLookupByLibrary.simpleMessage(
+      "نادیده گرفتن تأیید گواهی",
+    ),
     "skipDomain": MessageLookupByLibrary.simpleMessage("دامنه‌های مستثنی"),
     "skipDstAddress": MessageLookupByLibrary.simpleMessage("IP مقصد مستثنی"),
     "skipLocalAuth": MessageLookupByLibrary.simpleMessage(
@@ -2562,6 +2568,9 @@ class MessageLookup extends MessageLookupByLibrary {
       "حلقه‌های هم‌مرکز",
     ),
     "usageStyleRing": MessageLookupByLibrary.simpleMessage("حلقه‌ای"),
+    "useCustomUa": MessageLookupByLibrary.simpleMessage(
+      "استفاده از UA مشخص‌شده",
+    ),
     "useGlobalScriptOverride": MessageLookupByLibrary.simpleMessage(
       "اسکریپت هر پروفایل",
     ),

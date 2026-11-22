@@ -40,13 +40,16 @@ func TestDownloadProfileWritesBodyAndHeaders(t *testing.T) {
 	}
 }
 
-func TestDownloadProfileAcceptsSelfSignedCertificate(t *testing.T) {
+func TestDownloadProfileSkipCertVerify(t *testing.T) {
 	server := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		_, _ = w.Write([]byte("proxies: []\n"))
 	}))
 	defer server.Close()
 	output := filepath.Join(t.TempDir(), "profile")
-	if _, err := handleDownloadProfile(&DownloadProfileParams{URL: server.URL, Output: output}); err != nil {
+	if _, err := handleDownloadProfile(&DownloadProfileParams{URL: server.URL, Output: output}); err == nil {
+		t.Fatal("expected certificate error")
+	}
+	if _, err := handleDownloadProfile(&DownloadProfileParams{URL: server.URL, Output: output, SkipCertVerify: true}); err != nil {
 		t.Fatal(err)
 	}
 	if data, _ := os.ReadFile(output); string(data) != "proxies: []\n" {

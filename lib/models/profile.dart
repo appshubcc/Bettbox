@@ -88,6 +88,9 @@ abstract class Profile with _$Profile {
     @Default(false) bool managed,
     @Default(false) bool managedStyleApplied,
     String? ageSecretKey,
+    @Default(false) bool skipCertVerify,
+    @Default(false) bool directUpdate,
+    String? userAgent,
     @JsonKey(name: 'group-switches')
     @Default({})
     Map<String, bool> groupSwitches,
@@ -339,7 +342,13 @@ extension ProfileExtension on Profile {
     );
     try {
       await File(downloadPath).parent.create(recursive: true);
-      final source = await request.fetchProfileSource(url, downloadPath);
+      final source = await request.fetchProfileSource(
+        url,
+        downloadPath,
+        direct: directUpdate,
+        skipCertVerify: skipCertVerify,
+        userAgent: userAgent,
+      );
       final headers = source.headers;
       final disposition = headers?['content-disposition']?.firstOrNull;
       final userinfo = headers?['subscription-userinfo']?.firstOrNull;

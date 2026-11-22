@@ -5740,11 +5740,41 @@ class AppLocalizations {
     );
   }
 
-  /// `Age Key Generation`
+  /// `Age Key Tool`
   String get ageKeyGenerateTitle {
     return Intl.message(
-      'Age Key Generation',
+      'Age Key Tool',
       name: 'ageKeyGenerateTitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Skip certificate verification`
+  String get skipCertVerify {
+    return Intl.message(
+      'Skip certificate verification',
+      name: 'skipCertVerify',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Update via direct connection`
+  String get directUpdate {
+    return Intl.message(
+      'Update via direct connection',
+      name: 'directUpdate',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Use specified UA`
+  String get useCustomUa {
+    return Intl.message(
+      'Use specified UA',
+      name: 'useCustomUa',
       desc: '',
       args: [],
     );

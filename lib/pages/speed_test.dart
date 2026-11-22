@@ -220,7 +220,8 @@ class _SpeedTestPageState extends ConsumerState<SpeedTestPage>
 
   Future<String?> _resolveSystemDnsFallback() async {
     try {
-      final addresses = await InternetAddress.lookup('mensura.cdn-apple.com');
+      final addresses = await InternetAddress.lookup('mensura.cdn-apple.com')
+          .timeout(const Duration(seconds: 3));
       for (final addr in addresses) {
         if (utils.classifyIp(addr.address) == IpCategory.public) {
           return addr.address;
@@ -228,9 +229,11 @@ class _SpeedTestPageState extends ConsumerState<SpeedTestPage>
       }
     } catch (_) {}
     try {
-      final response = await request.getTextResponseForUrl(
-        'https://223.5.5.5/resolve?name=mensura.cdn-apple.com&type=A',
-      );
+      final response = await request
+          .getTextResponseForUrl(
+            'https://223.5.5.5/resolve?name=mensura.cdn-apple.com&type=A',
+          )
+          .timeout(const Duration(seconds: 5));
       final body = response.data;
       final json = body is Map
           ? body as Map<String, dynamic>
@@ -298,12 +301,20 @@ class _SpeedTestPageState extends ConsumerState<SpeedTestPage>
       _probing = true;
       _probe = null;
     });
-    final result = await clashCore.probeSpeedTest(
-      settings: _settings,
-      proxy: _requestProxy(),
-    );
-    if (!mounted || serial != _probeSerial) return;
-    final refined = await _refineAppleServer(result);
+    SpeedTestState? refined;
+    try {
+      final result = await clashCore.probeSpeedTest(
+        settings: _settings,
+        proxy: _requestProxy(),
+      );
+      if (!mounted || serial != _probeSerial) return;
+      refined = await _refineAppleServer(result);
+    } catch (_) {
+      refined = SpeedTestState(
+        provider: _settings.provider,
+        error: 'unavailable',
+      );
+    }
     if (!mounted || serial != _probeSerial) return;
     setState(() {
       _probing = false;

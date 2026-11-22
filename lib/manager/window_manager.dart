@@ -209,7 +209,7 @@ class _WindowContainerState extends ConsumerState<WindowManager>
     try {
       await windowExtManager.setDockIconVisible(visible);
     } catch (e) {
-      commonPrint.warn('Update dock icon visibility failed: $e');
+      commonPrint.warn('Update dock icon failed: $e', module: 'System');
     }
   }
 

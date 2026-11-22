@@ -151,7 +151,7 @@ class AppPath {
       Process.runSync('chmod', ['0755', external.path]);
       stampFile.writeAsStringSync(currentStamp);
     } catch (e) {
-      commonPrint.warn('Failed to sync AppImage core: $e');
+      commonPrint.warn('Sync AppImage core failed: $e', module: 'System');
     }
   }
 

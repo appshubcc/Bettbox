@@ -216,11 +216,12 @@ class System {
           appPath.corePath,
         ]);
         if (removeResult.exitCode == 0) {
-          commonPrint.log('Cleared quarantine attribute from BettboxCore');
+          commonPrint.log('Core quarantine cleared', module: 'System');
         } else {
           quarantineCleared = false;
           commonPrint.warn(
-            'Failed to clear quarantine attribute: ${removeResult.stderr}',
+            'Clear core quarantine failed: ${removeResult.stderr.toString().trim()}',
+            module: 'System',
           );
         }
       }
@@ -277,7 +278,10 @@ class System {
 
     if (!needCapabilities) {
       if (result?.exitCode != 0) {
-        commonPrint.log('Privileged repair failed: ${result?.stderr.trim()}');
+        commonPrint.warn(
+          'Privileged repair failed: ${result?.stderr.trim()}',
+          module: 'System',
+        );
       }
       return AuthorizeCode.none;
     }
@@ -289,7 +293,10 @@ class System {
       _ => null,
     };
     if (fallback != null) {
-      commonPrint.log('Falling back to setuid: ${result?.stderr.trim()}');
+      commonPrint.warn(
+        'Setcap failed, using setuid: ${result?.stderr.trim()}',
+        module: 'System',
+      );
       globalState.showNotifier(fallback);
       return AuthorizeCode.success;
     }
@@ -366,7 +373,7 @@ class System {
         stdout.contains(_polkitRuleEtcMarker) ||
         stdout.contains(_polkitRuleFailedMarker);
     if (!settled) return;
-    commonPrint.log('Polkit rule outcome: ${stdout.trim()}');
+    commonPrint.log('Polkit rule ${stdout.trim()}', module: 'System');
     final prefs = await preferences.sharedPreferencesCompleter.future;
     await prefs?.setBool(_polkitRuleSettledKey, true);
   }
@@ -421,10 +428,10 @@ class System {
         if (effectiveUid == '0' || capEff & capNetAdmin != 0) return;
         await Future.delayed(const Duration(milliseconds: 100));
       }
-      commonPrint.log('Core process lacks CAP_NET_ADMIN');
+      commonPrint.warn('Core lacks CAP_NET_ADMIN', module: 'System');
       globalState.showNotifier(appLocalizations.coreCapabilityNotEffective);
     } catch (e) {
-      commonPrint.log('Core privilege check skipped: $e');
+      commonPrint.debug('Core privilege check skipped: $e', module: 'System');
     }
   }
 
@@ -482,7 +489,7 @@ class System {
         );
       }
     } catch (e) {
-      commonPrint.warn('pkexec failed: $e');
+      commonPrint.warn('pkexec failed: $e', module: 'System');
     }
 
     unawaited(window?.show());
@@ -506,7 +513,7 @@ class System {
         script,
       ]);
     } catch (e) {
-      commonPrint.warn('sudo failed: $e');
+      commonPrint.warn('sudo failed: $e', module: 'System');
       return null;
     }
     final stdout = process.stdout.transform(utf8.decoder).join();
@@ -569,7 +576,7 @@ class System {
         windows?.setCurrentProcessPriority(enable);
         return;
       } catch (e) {
-        commonPrint.warn('Failed to set current process priority: $e');
+        commonPrint.warn('Set process priority failed: $e', module: 'System');
       }
     }
 
@@ -695,8 +702,9 @@ class Windows {
       throw Exception('SetPriorityClass failed');
     }
 
-    commonPrint.log(
-      'Set current process priority to ${enable ? "above normal" : "normal"}',
+    commonPrint.debug(
+      'Process priority ${enable ? 'above normal' : 'normal'}',
+      module: 'System',
     );
 
     if (enable) {
@@ -710,9 +718,9 @@ class Windows {
           sizeOf<Uint32>(),
         );
         if (memoryResult == 0) {
-          commonPrint.warn('Set current process memory priority failed');
+          commonPrint.warn('Set memory priority failed', module: 'System');
         } else {
-          commonPrint.log('Set current process memory priority to normal');
+          commonPrint.debug('Memory priority normal', module: 'System');
         }
       } finally {
         calloc.free(memoryPriorityInfo);
@@ -820,7 +828,9 @@ class Windows {
     calloc.free(argumentsPtr);
     calloc.free(operationPtr);
 
-    commonPrint.log('windows runas: [command masked] resultCode:$result');
+    if (result <= 32) {
+      commonPrint.warn('Run as admin failed, code $result', module: 'System');
+    }
 
     return result > 32;
   }
@@ -925,7 +935,7 @@ class Windows {
         final check = await Process.run('sc', ['query', appHelperService]);
         final output = check.stdout.toString();
         if (output.contains('STOPPED')) {
-          commonPrint.warn('Helper service stopped/failed, skipping wait');
+          commonPrint.warn('Helper service stopped', module: 'Helper');
           break;
         }
       }
@@ -1072,7 +1082,8 @@ class MacOS {
     ]);
     if (result.exitCode != 0) {
       commonPrint.warn(
-        'Failed to get macOS system DNS: ${result.stderr.toString().trim()}',
+        'Read system DNS failed: ${result.stderr.toString().trim()}',
+        module: 'System',
       );
       return null;
     }
@@ -1113,15 +1124,15 @@ class MacOS {
       ]);
       if (result.exitCode != 0) {
         commonPrint.warn(
-          'Failed to restore macOS system DNS: '
-          '${result.stderr.toString().trim()}',
+          'Restore system DNS failed: ${result.stderr.toString().trim()}',
+          module: 'System',
         );
         return false;
       }
       await backupFile.delete();
       return true;
     } catch (e) {
-      commonPrint.warn('Failed to read macOS system DNS backup: $e');
+      commonPrint.warn('Read system DNS backup failed: $e', module: 'System');
       return false;
     }
   }
@@ -1154,7 +1165,10 @@ class Linux {
     try {
       return await Process.run(executable, arguments);
     } on ProcessException catch (e) {
-      commonPrint.warn('Failed to run $executable: ${e.message}');
+      commonPrint.warn(
+        'Run $executable failed: ${e.message}',
+        module: 'System',
+      );
       return null;
     }
   }
@@ -1175,7 +1189,7 @@ class Linux {
         multiLine: true,
       ).hasMatch(content);
     } catch (e) {
-      commonPrint.warn('Failed to read /etc/resolv.conf: $e');
+      commonPrint.warn('Read resolv.conf failed: $e', module: 'System');
       return false;
     }
   }
@@ -1194,7 +1208,7 @@ class Linux {
       );
       await temporaryFile.rename(backupFile.path);
     } catch (e) {
-      commonPrint.warn('Failed to persist the Linux system DNS device: $e');
+      commonPrint.warn('Save DNS device failed: $e', module: 'System');
       return;
     }
     final result = await _run('nmcli', [
@@ -1206,7 +1220,8 @@ class Linux {
     ]);
     if (result == null || result.exitCode != 0) {
       commonPrint.warn(
-        'Failed to set Linux system DNS: ${result?.stderr.toString().trim()}',
+        'Set system DNS failed: ${result?.stderr.toString().trim()}',
+        module: 'System',
       );
       await _deleteBackup();
     }
@@ -1222,13 +1237,13 @@ class Linux {
         final result = await _run('nmcli', ['device', 'reapply', device]);
         if (result != null && result.exitCode != 0) {
           commonPrint.warn(
-            'Failed to restore Linux system DNS: '
-            '${result.stderr.toString().trim()}',
+            'Restore system DNS failed: ${result.stderr.toString().trim()}',
+            module: 'System',
           );
         }
       }
     } catch (e) {
-      commonPrint.warn('Failed to read Linux system DNS backup: $e');
+      commonPrint.warn('Read system DNS backup failed: $e', module: 'System');
     }
     await _deleteBackup();
   }

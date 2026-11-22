@@ -588,7 +588,7 @@ class HomeBackScope extends ConsumerWidget {
         onPopInvokedWithResult: (didPop, _) async {
           if (didPop || backBlock) return;
           if (!routeIdleObserver.isSettled) {
-            commonPrint.log('Back ignored: route transition not settled');
+            commonPrint.debug('Back ignored during transition');
             return;
           }
           final navigatorState = globalState.navigatorKey.currentState;

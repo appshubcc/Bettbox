@@ -31,6 +31,16 @@ class ServicePlugin : FlutterPlugin, MethodChannel.MethodCallHandler {
             }
         }
 
+        fun appWarn(tag: String, message: String) {
+            Log.w(tag, message)
+            notify("log", mapOf("level" to "warn", "message" to message))
+        }
+
+        fun appError(tag: String, message: String) {
+            Log.e(tag, message)
+            notify("log", mapOf("level" to "error", "message" to message))
+        }
+
         fun notifyNetworkChanged() = notify("networkChanged")
         fun notifyVpnStartFailed() = notify("vpnStartFailed")
         fun notifyScreenStateChanged(isOn: Boolean) = notify("screenStateChanged", isOn)

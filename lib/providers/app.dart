@@ -55,6 +55,13 @@ class Logs extends _$Logs with AutoDisposeNotifierMixin {
     globalState.appState = globalState.appState.copyWith(logs: value);
   }
 
+  void clearCoreLogs() {
+    state = FixedList(
+      maxLogLength,
+      list: state.list.where((log) => log.source == LogSource.app).toList(),
+    );
+  }
+
   void clearLogs() {
     state = FixedList(maxLogLength);
   }

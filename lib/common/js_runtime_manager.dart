@@ -62,7 +62,16 @@ class JavaScriptRuntimeManager {
 
   static void _printScriptLogs(List<rust.ScriptLog> logs) {
     for (final log in logs) {
-      commonPrint.log('[Script] ${log.level}: ${log.text}');
+      switch (log.level) {
+        case 'error':
+          commonPrint.error(log.text, module: 'Script');
+        case 'warn':
+          commonPrint.warn(log.text, module: 'Script');
+        case 'debug':
+          commonPrint.debug(log.text, module: 'Script');
+        default:
+          commonPrint.log(log.text, module: 'Script');
+      }
     }
   }
 
@@ -81,10 +90,10 @@ class JavaScriptRuntimeManager {
         result.addAll(_deepCastMap(decoded));
       }
     } on rust.ScriptError catch (e) {
-      commonPrint.warn('extractScriptOptions error: ${e.message}');
+      commonPrint.warn('Read options failed: ${e.message}', module: 'Script');
       return <String, dynamic>{};
     } catch (e) {
-      commonPrint.warn('extractScriptOptions error: $e');
+      commonPrint.warn('Read options failed: $e', module: 'Script');
       return <String, dynamic>{};
     }
     _ScriptOptionsCache.put(_cacheKey(script), result);

@@ -65,7 +65,7 @@ class ClashLib extends ClashHandlerInterface with AndroidClashInterface {
       );
       if (connected && sendPort != null) return;
       if (attempt <= 3) {
-        commonPrint.warn('ClashLib: IPC attempt $attempt failed, retrying...');
+        commonPrint.warn('Connect attempt $attempt failed', module: 'IPC');
       }
       if (_canSendCompleter.isCompleted) {
         _canSendCompleter = Completer();
@@ -109,13 +109,13 @@ class ClashLib extends ClashHandlerInterface with AndroidClashInterface {
       onTimeout: () => false,
     );
     if (!canSend || sendPort == null) {
-      commonPrint.error('ClashLib: IPC not ready after 5s');
+      commonPrint.error('Not ready after 5s', module: 'IPC');
       throw TimeoutException('Android IPC SendPort unavailable');
     }
     try {
       sendPort?.send(message);
     } catch (e) {
-      commonPrint.warn('ClashLib: sendMessage failed: $e, reconnecting IPC');
+      commonPrint.warn('Send failed, reconnecting: $e', module: 'IPC');
       sendPort = null;
       _canSendCompleter = Completer();
       await service?.reconnectIpc();

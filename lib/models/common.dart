@@ -148,12 +148,17 @@ abstract class Log with _$Log {
     return log.copyWith(payload: payload, module: module);
   }
 
-  factory Log.app(String payload, {LogLevel level = LogLevel.info}) {
+  factory Log.app(
+    String payload, {
+    LogLevel level = LogLevel.info,
+    String? module,
+  }) {
     return Log(
       logLevel: level,
       payload: payload.trimRight(),
       time: DateTime.now(),
       source: LogSource.app,
+      module: module,
     );
   }
 

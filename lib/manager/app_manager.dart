@@ -208,7 +208,7 @@ class _AppStateManagerState extends ConsumerState<AppStateManager>
           await globalState.appController.updateGroups();
         }
       } catch (e) {
-        commonPrint.debug('foreground core refresh skipped: $e');
+        commonPrint.debug('Foreground refresh skipped: $e');
       }
 
       detectionState.checkOnForegroundResume();

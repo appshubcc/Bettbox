@@ -246,7 +246,7 @@ class ApplicationState extends ConsumerState<Application>
       try {
         await ExternalControl.start();
       } catch (e) {
-        commonPrint.warn('ExternalControl start failed: $e');
+        commonPrint.warn('External control start failed: $e');
       }
     }
     globalState.appController.initLink();

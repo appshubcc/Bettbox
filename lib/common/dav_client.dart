@@ -46,10 +46,10 @@ class DAVClient {
   Future<bool> _ping() async {
     try {
       await client.ping();
-      commonPrint.log('WebDAV ping successful');
+      commonPrint.debug('WebDAV ping ok', module: 'Backup');
       return true;
     } catch (e) {
-      commonPrint.warn('WebDAV ping failed: $e');
+      commonPrint.warn('WebDAV ping failed: $e', module: 'Backup');
       return false;
     }
   }
@@ -136,7 +136,7 @@ class DAVClient {
           try {
             await client.remove('$root/$name');
           } catch (e) {
-            commonPrint.warn('Prune backup failed: $e');
+            commonPrint.warn('Prune backups failed: $e', module: 'Backup');
           }
         }
       }
@@ -148,17 +148,13 @@ class DAVClient {
       try {
         await client.mkdir(root);
       } catch (e) {
-        commonPrint.warn('WebDAV mkdir warning (may already exist): $e');
+        commonPrint.debug('Create dir skipped: $e', module: 'Backup');
       }
 
       final targetName = await getNextBackupFileName();
       final targetPath = '$root/$targetName';
-      commonPrint.log(
-        'WebDAV backup: uploading ${data.length} bytes to $targetPath',
-      );
-
       await client.write(targetPath, data);
-      commonPrint.log('WebDAV backup successful');
+      commonPrint.log('Uploaded $targetName', module: 'Backup');
 
       try {
         await _pruneOldBackups();
@@ -172,16 +168,14 @@ class DAVClient {
     return await _retryOperation(() async {
       final target = targetFileName ?? backupFile;
       final targetPath = target.startsWith('/') ? target : '$root/$target';
-      commonPrint.log('WebDAV recovery: downloading from $targetPath');
-
       try {
         await client.mkdir(root);
       } catch (e) {
-        commonPrint.warn('WebDAV mkdir warning: $e');
+        commonPrint.debug('Create dir skipped: $e', module: 'Backup');
       }
 
       final data = await client.read(targetPath);
-      commonPrint.log('WebDAV recovery successful: ${data.length} bytes');
+      commonPrint.log('Downloaded $target', module: 'Backup');
       return data;
     }, operationName: 'recovery');
   }
@@ -209,14 +203,12 @@ class DAVClient {
         final isLastAttempt = attempt >= maxAttempts;
 
         if (isLastAttempt) {
-          commonPrint.error(
-            'WebDAV $operationName failed after $maxAttempts attempts: $e',
-          );
           throw 'WebDAV $operationName failed: ${_formatError(e)}';
         }
 
         commonPrint.warn(
-          'WebDAV $operationName attempt $attempt failed: $e, retrying in ${delay.inSeconds}s...',
+          'WebDAV $operationName attempt $attempt failed: $e',
+          module: 'Backup',
         );
         await Future.delayed(delay);
 

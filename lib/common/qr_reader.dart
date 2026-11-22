@@ -15,7 +15,7 @@ class QrReader {
     try {
       return decodeBytes(File(path).readAsBytesSync());
     } catch (e) {
-      commonPrint.warn('Failed to read qr image file: $e');
+      commonPrint.warn('Read QR image failed: $e');
       return null;
     }
   }
@@ -37,7 +37,7 @@ class QrReader {
       if (result != null || identical(scaled, decoded)) return result;
       return _decode(decoded);
     } catch (e) {
-      commonPrint.warn('Failed to decode qr code: $e');
+      commonPrint.warn('Decode QR failed: $e');
       return null;
     }
   }

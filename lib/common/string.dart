@@ -4,7 +4,6 @@ import 'dart:typed_data';
 import 'package:crypto/crypto.dart';
 
 import 'app_localizations.dart';
-import 'print.dart';
 
 extension StringExtension on String {
   bool get isHttpUrl {
@@ -86,8 +85,7 @@ extension StringExtension on String {
     try {
       RegExp(this);
       return true;
-    } catch (e) {
-      commonPrint.debug(e.toString());
+    } catch (_) {
       return false;
     }
   }
@@ -117,7 +115,7 @@ extension ObjectExtension on Object {
       final statusCode = match?.group(1);
       if (statusCode != null) {
         return isLog
-            ? 'Failed to import profile. Please check your network status or try resetting the subscription link ( HTTP error code: $statusCode )'
+            ? 'HTTP $statusCode'
             : appLocalizations.profileImportFailed(statusCode);
       }
     }

@@ -249,7 +249,7 @@ class NetworkFixItem extends ConsumerWidget {
         }
       }
     } catch (e) {
-      commonPrint.warn('Network fix error: $e');
+      commonPrint.warn('Network fix failed: $e', module: 'System');
       rethrow;
     }
   }
@@ -307,7 +307,10 @@ class HighPriorityItem extends ConsumerWidget {
             try {
               await globalState.appController.setProcessPriority(value);
             } catch (e) {
-              commonPrint.warn('Set process priority error: $e');
+              commonPrint.warn(
+                'Set process priority failed: $e',
+                module: 'System',
+              );
               if (context.mounted) {
                 context.showSnackBar('Failed to set process priority: $e');
               }
@@ -731,7 +734,7 @@ class _OtherSettingViewState extends State<OtherSettingView>
         if (isIgnoring || attempt >= maxRetries - 1) return;
         await Future.delayed(const Duration(milliseconds: 666));
       } catch (e) {
-        commonPrint.warn('Battery optimization check error: $e');
+        commonPrint.warn('Check battery optimization failed: $e');
         return;
       }
     }
@@ -742,7 +745,7 @@ class _OtherSettingViewState extends State<OtherSettingView>
     try {
       await app.requestIgnoreBatteryOptimizations();
     } catch (e) {
-      commonPrint.warn('Battery optimization error: $e');
+      commonPrint.warn('Request battery optimization failed: $e');
       _isWaitingForSettings = false;
     }
   }

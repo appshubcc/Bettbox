@@ -21,7 +21,7 @@ class UiManager {
   Future<void> initializeUI() {
     return _initFuture ??= _initializeUI().catchError((Object e) {
       _initFuture = null;
-      commonPrint.error('Failed to initialize UI: $e');
+      commonPrint.error('Init failed: $e', module: 'WebUI');
     });
   }
 
@@ -40,21 +40,20 @@ class UiManager {
             ? (await appVersionFile.readAsString()).trim()
             : null;
         if (deployedVersion == currentVersion) {
-          commonPrint.log('UI already up to date (v$currentVersion)');
+          commonPrint.debug('Up to date v$currentVersion', module: 'WebUI');
           return;
         }
         if (!await versionFile.exists()) {
-          commonPrint.log('UI managed by user, skip restore');
+          commonPrint.log('Managed by user, restore skipped', module: 'WebUI');
           await appVersionFile.writeAsString(currentVersion);
           return;
         }
         commonPrint.log(
-          'UI version mismatch: $deployedVersion -> $currentVersion',
+          'Upgrading v$deployedVersion to v$currentVersion',
+          module: 'WebUI',
         );
         await clearUI();
       }
-
-      commonPrint.log('Extracting UI from assets...');
 
       await uiDir.create(recursive: true);
 
@@ -108,11 +107,9 @@ class UiManager {
 
       await appVersionFile.writeAsString(currentVersion);
 
-      commonPrint.log(
-        'UI extracted successfully to: $uiPath (v$currentVersion)',
-      );
+      commonPrint.log('Extracted v$currentVersion', module: 'WebUI');
     } catch (e) {
-      commonPrint.error('Error extracting UI: $e');
+      commonPrint.error('Extract failed: $e', module: 'WebUI');
       rethrow;
     }
   }
@@ -142,10 +139,10 @@ class UiManager {
 
       if (await uiDir.exists()) {
         await uiDir.delete(recursive: true);
-        commonPrint.log('UI cleared successfully');
+        commonPrint.debug('Cleared', module: 'WebUI');
       }
     } catch (e) {
-      commonPrint.warn('Error clearing UI: $e');
+      commonPrint.warn('Clear failed: $e', module: 'WebUI');
     }
   }
 }

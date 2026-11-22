@@ -40,9 +40,7 @@ Future<void> main(List<String> args) async {
   if (system.isMacOS || appPath.isPortable) {
     final acquire = await singleInstanceLock.acquire();
     if (!acquire) {
-      commonPrint.warn(
-        'SingleInstanceLock: another instance detected or lock failed, exiting',
-      );
+      commonPrint.warn('Another instance is running, exiting');
       if (!appPath.isPortable) {
         await _sendControlCommand('show');
         await Future.delayed(const Duration(milliseconds: 100));
@@ -67,11 +65,11 @@ Future<void> _sendControlCommand(String command) async {
   for (int i = 0; i < 5; i++) {
     try {
       await ExternalControl.sendCommand(command);
-      commonPrint.log('Sent $command command to running instance');
+      commonPrint.log('Sent $command to running instance');
       return;
     } catch (e) {
       if (i == 4) {
-        commonPrint.warn('Failed to send $command command: $e');
+        commonPrint.warn('Send $command to running instance failed: $e');
         return;
       }
       await Future.delayed(const Duration(milliseconds: 200));
@@ -117,7 +115,7 @@ Future<void> _service(List<String> flags) async {
           vpnProps: latestConfig.vpnProps,
         );
       } catch (e) {
-        commonPrint.warn('Refresh vpn props failed: $e');
+        commonPrint.warn('Refresh VPN props failed: $e', module: 'Service');
       }
     }
 
@@ -172,7 +170,7 @@ Future<void> _service(List<String> flags) async {
           }
         });
       } catch (e) {
-        commonPrint.warn('Smart auto stop check failed: $e');
+        commonPrint.warn('Check failed: $e', module: 'AutoStop');
       }
     }
 
@@ -201,9 +199,11 @@ Future<void> _service(List<String> flags) async {
               globalState.getCoreState(),
             );
             final message = res.message;
-            debugPrint(message);
             if (message.isNotEmpty) {
-              commonPrint.error('QuickStart failed with error: $message');
+              commonPrint.error(
+                'Quick start failed: $message',
+                module: 'Service',
+              );
               await vpn?.stop();
               return;
             }
@@ -220,9 +220,7 @@ Future<void> _service(List<String> flags) async {
 
             unawaited(clashLibHandler.startListener());
           } catch (e) {
-            commonPrint.error(
-              'Fatal error during service background start: $e',
-            );
+            commonPrint.error('Background start failed: $e', module: 'Service');
             await vpn?.stop();
           }
         }),
@@ -238,9 +236,7 @@ Future<void> _service(List<String> flags) async {
           await vpn?.stop();
         },
         onReconnectIpc: () {
-          commonPrint.log(
-            'Service: reconnectIpc requested, re-establishing IPC',
-          );
+          commonPrint.log('Reconnecting IPC', module: 'Service');
           _handleMainIpc(clashLibHandler);
         },
       ),
@@ -261,14 +257,15 @@ Future<void> _service(List<String> flags) async {
     }
 
     if (bootStart && !globalState.config.appSetting.autoRun) {
-      commonPrint.log(
-        'Silent boot detected, but autoRun is disabled. Staying idle.',
-      );
+      commonPrint.log('Boot start skipped, auto run is off', module: 'Service');
       _handleMainIpc(clashLibHandler);
       return;
     }
 
-    commonPrint.log('Executing ${bootStart ? "boot" : "quick"} start sequence');
+    commonPrint.log(
+      '${bootStart ? 'Boot' : 'Quick'} start triggered',
+      module: 'Service',
+    );
     await startCore();
   }
 }
@@ -276,9 +273,7 @@ Future<void> _service(List<String> flags) async {
 void _handleMainIpc(ClashLibHandler clashLibHandler) {
   final sendPort = IsolateNameServer.lookupPortByName(mainIsolate);
   if (sendPort == null) {
-    commonPrint.warn(
-      'Service: mainIsolate sendPort not found, IPC unavailable',
-    );
+    commonPrint.warn('Main isolate port not found', module: 'Service');
     return;
   }
 
@@ -307,7 +302,7 @@ void _safeSend(SendPort sendPort, dynamic message) {
   try {
     sendPort.send(message);
   } catch (e) {
-    commonPrint.warn('Service: IPC send failed: $e');
+    commonPrint.warn('IPC send failed: $e', module: 'Service');
     final retryPort = IsolateNameServer.lookupPortByName(mainIsolate);
     if (retryPort != null) {
       try {

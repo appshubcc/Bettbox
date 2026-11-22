@@ -774,7 +774,7 @@ func marshalInlineProviderContent(rawConfig *config.RawConfig, providerName stri
 	return yaml.Marshal(map[string]any{"proxies": payload})
 }
 
-const maxLogHistory = 512
+const maxLogHistory = 1024
 
 type logEntry struct {
 	log.Event

@@ -494,7 +494,7 @@ extension ScriptPropsExt on ScriptProps {
       try {
         next.add(await script.writeContent(script.content));
       } catch (e) {
-        commonPrint.error('Failed to store script ${script.label}: $e');
+        commonPrint.error('Save ${script.label} failed: $e', module: 'Script');
         next.add(script);
       }
     }

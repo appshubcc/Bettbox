@@ -21,6 +21,7 @@ import com.appshub.bettbox.extensions.getIpv6RouteAddress
 import com.appshub.bettbox.extensions.toCIDR
 import com.appshub.bettbox.models.AccessControlMode
 import com.appshub.bettbox.models.VpnOptions
+import com.appshub.bettbox.plugins.ServicePlugin
 import com.appshub.bettbox.plugins.VpnPlugin
 import com.appshub.bettbox.R
 import kotlinx.coroutines.CoroutineScope
@@ -163,7 +164,7 @@ class BettboxVpnService : VpnService(), BaseServiceInterface {
         }
 
         val fd = runCatching { establish()?.detachFd() }.getOrElse { e ->
-            Log.e(TAG, "Establish VPN exception: ${e.message}")
+            ServicePlugin.appWarn(TAG, "Establish VPN failed: ${e.message}")
             null
         }
         if (fd != null && fd > 0) {
@@ -345,6 +346,7 @@ class BettboxVpnService : VpnService(), BaseServiceInterface {
     }
 
     override fun onRevoke() {
+        ServicePlugin.appWarn(TAG, "VPN revoked by system")
         runCatching {
             VpnPlugin.handleStop()
             getSystemService(android.app.NotificationManager::class.java)

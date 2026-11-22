@@ -144,7 +144,7 @@ class HelperClient {
       );
       return true;
     } catch (e) {
-      commonPrint.error('[HelperClient] startCore failed: $e');
+      commonPrint.warn('Start core failed: $e', module: 'Helper');
       return false;
     }
   }
@@ -154,7 +154,7 @@ class HelperClient {
       await _request('core.stop', timeout: const Duration(milliseconds: 2000));
       return true;
     } catch (e) {
-      commonPrint.warn('[HelperClient] stopCore failed: $e');
+      commonPrint.warn('Stop core failed: $e', module: 'Helper');
       return false;
     }
   }
@@ -167,7 +167,7 @@ class HelperClient {
       );
       return true;
     } catch (e) {
-      commonPrint.warn('[HelperClient] stopHelperService failed: $e');
+      commonPrint.warn('Stop service failed: $e', module: 'Helper');
       return false;
     }
   }
@@ -181,7 +181,7 @@ class HelperClient {
       );
       return true;
     } catch (e) {
-      commonPrint.warn('[HelperClient] setProcessPriority failed: $e');
+      commonPrint.warn('Set priority failed: $e', module: 'Helper');
       return false;
     }
   }

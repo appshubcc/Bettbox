@@ -5,6 +5,9 @@ import 'package:cupertino_ui/cupertino_ui.dart';
 
 class CommonPrint {
   static CommonPrint? _instance;
+  static const _maxPending = 64;
+
+  final List<Log> _pending = [];
 
   CommonPrint._internal();
 
@@ -13,20 +16,44 @@ class CommonPrint {
     return _instance!;
   }
 
-  void log(String? text) => _dispatch(text, LogLevel.info);
+  void log(String? text, {String? module}) =>
+      _dispatch(text, LogLevel.info, module);
 
-  void debug(String? text) => _dispatch(text, LogLevel.debug);
+  void debug(String? text, {String? module}) =>
+      _dispatch(text, LogLevel.debug, module);
 
-  void warn(String? text) => _dispatch(text, LogLevel.warning);
+  void warn(String? text, {String? module}) =>
+      _dispatch(text, LogLevel.warning, module);
 
-  void error(String? text) => _dispatch(text, LogLevel.error);
+  void error(String? text, {String? module}) =>
+      _dispatch(text, LogLevel.error, module);
 
-  void _dispatch(String? text, LogLevel level) {
-    debugPrint('[APP] $text');
+  void flush() {
+    if (_pending.isEmpty) return;
+    final logs = List.of(_pending);
+    _pending.clear();
+    logs.forEach(_emit);
+  }
+
+  void _dispatch(String? text, LogLevel level, String? module) {
+    final log = Log.app('$text', level: level, module: module);
+    debugPrint('[APP] ${log.raw}');
     if (!globalState.isInit) {
+      if (globalState.isService) return;
+      if (_pending.length >= _maxPending) _pending.removeAt(0);
+      _pending.add(log);
       return;
     }
-    globalState.appController.addLog(Log.app('$text', level: level));
+    _emit(log);
+  }
+
+  void _emit(Log log) {
+    final config = globalState.config;
+    if (!config.appSetting.openLogs) return;
+    final level = config.patchClashConfig.logLevel;
+    if (level == LogLevel.silent) return;
+    if (log.logLevel == LogLevel.debug && level != LogLevel.debug) return;
+    globalState.appController.addLog(log);
   }
 }
 

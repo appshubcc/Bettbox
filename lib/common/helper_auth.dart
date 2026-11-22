@@ -31,9 +31,7 @@ class HelperAuthManager {
 
   static Future<bool> _loadAuthKey() async {
     if (Platform.isWindows) {
-      commonPrint.log(
-        '[HelperAuth] Trying to sync auth key from registry for service: $appHelperService',
-      );
+      commonPrint.log('Syncing auth key from registry', module: 'Helper');
       RegistryKey? key;
       try {
         final keyPath =
@@ -52,7 +50,8 @@ class HelperAuthManager {
                 final file = File(await appPath.helperAuthKeyPath);
                 await _persistAuthKey(file, _authKey!);
                 commonPrint.log(
-                  '[HelperAuth] Successfully synced auth key from registry.',
+                  'Auth key synced from registry',
+                  module: 'Helper',
                 );
                 return false;
               }
@@ -60,7 +59,7 @@ class HelperAuthManager {
           }
         }
       } catch (e) {
-        commonPrint.warn('[HelperAuth] Failed to read registry: $e');
+        commonPrint.warn('Read registry failed: $e', module: 'Helper');
       } finally {
         key?.close();
       }
@@ -70,13 +69,13 @@ class HelperAuthManager {
     final existingKey = await _readPersistedAuthKey(file);
     if (existingKey != null) {
       _authKey = existingKey;
-      commonPrint.log('[HelperAuth] Loaded auth key from file.');
+      commonPrint.debug('Auth key loaded', module: 'Helper');
       return false;
     }
 
     _authKey = _generateRandomKey();
     await _persistAuthKey(file, _authKey!);
-    commonPrint.log('[HelperAuth] Generated new random auth key.');
+    commonPrint.log('Auth key generated', module: 'Helper');
     return true;
   }
 

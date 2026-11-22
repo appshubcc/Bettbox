@@ -170,7 +170,7 @@ class AppController {
     bool setupConfig = true,
     bool refreshData = true,
   }) async {
-    commonPrint.log('restart core');
+    commonPrint.log('Restarting core');
     _invalidateCoreReads();
     _cancelDelayTests();
 
@@ -215,12 +215,17 @@ class AppController {
   Future<void> _updateStatus(bool isStart) async {
     if (isStart) {
       await _fastStart();
+      if (globalState.isStart) {
+        final mode = _ref.read(patchClashConfigProvider).mode;
+        commonPrint.log('Proxy started in ${mode.name} mode');
+      }
       if (globalState.isStart && !_ref.read(runTimeProvider.notifier).isStart) {
         _ref.read(runTimeProvider.notifier).value = 0;
       }
       unawaited(_autoDownloadAppUpdate());
     } else {
       await globalState.handleStop();
+      commonPrint.log('Proxy stopped');
       clashCore.resetTraffic();
       _ref.read(trafficsProvider.notifier).clear();
       _ref.read(totalTrafficProvider.notifier).value = Traffic();
@@ -232,7 +237,7 @@ class AppController {
   Future<void> _fastStart() async {
     final currentProfile = _ref.read(currentProfileProvider);
     if (currentProfile == null) {
-      commonPrint.warn('Fast start aborted: No active profile configured.');
+      commonPrint.warn('Start skipped, no profile selected');
       return;
     }
 
@@ -256,7 +261,7 @@ class AppController {
             _backgroundLoad();
           }
         } catch (e) {
-          commonPrint.warn('FastStart desktop auth error: $e');
+          commonPrint.warn('TUN authorization failed: $e');
           await globalState.handleStart([updateRunTime, updateTraffic]);
           _backgroundLoad();
         }
@@ -284,10 +289,7 @@ class AppController {
     final needReapply = await _needsSetupConfig();
     if (needReapply) {
       final setupResult = await _quickSetupConfig();
-      if (setupResult != true) {
-        commonPrint.error('Fast start aborted: setupConfig failed');
-        return;
-      }
+      if (setupResult != true) return;
     }
 
     await globalState.handleStart([updateRunTime, updateTraffic]);
@@ -305,7 +307,7 @@ class AppController {
           try {
             await action();
           } catch (e) {
-            commonPrint.warn('FastStart TUN update failed: $e');
+            commonPrint.warn('TUN update failed: $e');
           }
           _backgroundLoad();
         }),
@@ -350,7 +352,7 @@ class AppController {
         if (version != _backgroundLoadVersion) return;
         await clashCore.requestGc(forceFreeOSMemory: true);
       } catch (e) {
-        commonPrint.warn('Background load error: $e');
+        commonPrint.warn('Background load failed: $e');
       }
     });
   }
@@ -398,7 +400,7 @@ class AppController {
     var result = await clashCore.setupConfig(params);
     var message = result.message;
     if (message.isNotEmpty && params.scriptedConfig.isNotEmpty) {
-      commonPrint.error('[Core] Scripted setup config failed: $message');
+      commonPrint.warn('Script config rejected: $message', module: 'Script');
       globalState.showNotifier(
         '${appLocalizations.profileParseErrorDesc}: $message',
       );
@@ -416,10 +418,7 @@ class AppController {
         message = result.message;
       }
     }
-    if (message.isNotEmpty) {
-      commonPrint.error('[Core] Setup config failed: $message');
-      throw message;
-    }
+    if (message.isNotEmpty) throw message;
     _applyGlobalSelection(result.global);
     _loadedProfileId = currentProfile.id;
     if (system.isDesktop) {
@@ -587,7 +586,7 @@ class AppController {
       return [...providers, ...expanded]
         ..sort((a, b) => a.name.compareTo(b.name));
     } catch (e) {
-      commonPrint.warn('Failed to read expanded providers: $e');
+      commonPrint.warn('Read expanded providers failed: $e', module: 'Profile');
       return providers;
     }
   }
@@ -663,7 +662,10 @@ class AppController {
     }
     final message = await updateExpandedProviders(names);
     if (message.isEmpty) return;
-    commonPrint.warn('[ExpandedProvider] $message');
+    commonPrint.warn(
+      'Update expanded providers failed: $message',
+      module: 'Profile',
+    );
     _expandedUpdateTimer?.cancel();
     _expandedUpdateTimer = Timer(
       const Duration(minutes: 10),
@@ -710,7 +712,18 @@ class AppController {
       final modified = applyUnchanged
           ? null
           : await profile.profileLastModified;
-      final newProfile = await profile.update(validate: validate);
+      final name = profile.label ?? profile.id;
+      final Profile newProfile;
+      try {
+        newProfile = await profile.update(validate: validate);
+      } catch (e) {
+        commonPrint.error(
+          'Update $name failed: ${e.formatErrorLog}',
+          module: 'Profile',
+        );
+        rethrow;
+      }
+      commonPrint.log('Updated $name', module: 'Profile');
       _ref
           .read(profilesProvider.notifier)
           .setProfile(newProfile.copyWith(isUpdating: false));
@@ -932,7 +945,8 @@ class AppController {
       } catch (e) {
         final label = _ref.read(profilesProvider).getProfile(id)?.label ?? id;
         commonPrint.error(
-          '[Bundle] Failed to generate $label: ${e.formatErrorLog}',
+          'Generate $label failed: ${e.formatErrorLog}',
+          module: 'Profile',
         );
         globalState.showNotifier('$label: ${e.formatError}');
       }
@@ -1022,11 +1036,7 @@ class AppController {
         if (target == null || target.type != ProfileType.url) continue;
         try {
           await updateProfile(target);
-        } catch (e) {
-          commonPrint.error(
-            '[Bundle] Failed to update ${target.label ?? target.id}: ${e.formatErrorLog}',
-          );
-        }
+        } catch (_) {}
       }
     }
     final profiles = _ref.read(profilesProvider);
@@ -1219,6 +1229,7 @@ class AppController {
         case AuthorizeCode.none:
           break;
         case AuthorizeCode.error:
+          commonPrint.warn('TUN disabled, authorization failed');
           globalState.showNotifier(
             appLocalizations.tunEnableRequireAdmin,
             actionLabel: appPath.isPortable ? appLocalizations.restart : null,
@@ -1265,6 +1276,7 @@ class AppController {
         try {
           await _applyProfile();
         } catch (err) {
+          commonPrint.error('Apply profile failed: ${err.formatErrorLog}');
           globalState.showNotifier(err.toString());
           rethrow;
         }
@@ -1294,6 +1306,7 @@ class AppController {
         try {
           await _applyProfile();
         } catch (err) {
+          commonPrint.error('Switch profile failed: ${err.formatErrorLog}');
           _ref.read(currentProfileIdProvider.notifier).value = prevProfileId;
           try {
             await _applyProfile();
@@ -1304,7 +1317,7 @@ class AppController {
         await clashCore.flushFakeIP();
         await clashCore.flushDnsCache();
       }
-      _ref.read(logsProvider.notifier).value = FixedList(maxLogLength);
+      _ref.read(logsProvider.notifier).clearCoreLogs();
       _ref.read(requestsProvider.notifier).value = FixedList(maxLength);
       globalState.computeHeightMapCache = {};
       addCheckIpNumDebounce();
@@ -1313,7 +1326,7 @@ class AppController {
 
   void _reportCoreRestartFailure(Object error) {
     final message = error.formatError;
-    commonPrint.error('[Core] Restart failed: ${error.formatErrorLog}');
+    commonPrint.error('Restart core failed: ${error.formatErrorLog}');
     globalState.showNotifier('${appLocalizations.restartCoreTitle}: $message');
   }
 
@@ -1338,11 +1351,7 @@ class AppController {
       if (!_isProfileUpdateNeeded(profile)) continue;
       try {
         await updateProfile(profile, validate: false, applyUnchanged: false);
-      } catch (e) {
-        commonPrint.error(
-          '[AutoUpdate] Failed to update ${profile.label ?? profile.id}: ${e.formatErrorLog}',
-        );
-      }
+      } catch (_) {}
     }
   }
 
@@ -1353,22 +1362,13 @@ class AppController {
       profilesToUpdate.add(profile);
     }
     if (profilesToUpdate.isNotEmpty) {
-      var updated = false;
       for (final profile in profilesToUpdate) {
         try {
           await updateProfile(profile, validate: false, applyUnchanged: false);
-          updated = true;
-        } catch (e) {
-          commonPrint.error(
-            '[MissedUpdate] Failed to update ${profile.label ?? profile.id}: ${e.formatErrorLog}',
-          );
-        }
+        } catch (_) {}
         if (profilesToUpdate.length > 1) {
           await Future.delayed(const Duration(seconds: 2));
         }
-      }
-      if (updated) {
-        commonPrint.log('Updating external providers');
       }
     }
 
@@ -1381,7 +1381,7 @@ class AppController {
       if (providers.isEmpty) return;
       _setProviders(providers);
     } catch (e) {
-      commonPrint.warn('[Sync] Failed to sync external providers: $e');
+      commonPrint.warn('Sync providers failed: $e', module: 'Profile');
     }
   }
 
@@ -1418,7 +1418,7 @@ class AppController {
         ? const Duration(seconds: 2)
         : const Duration(seconds: 3);
     if (currentGroups.isNotEmpty) {
-      commonPrint.warn('updateGroups error: $e');
+      commonPrint.warn('Update groups failed: $e');
       return;
     }
 
@@ -1438,7 +1438,7 @@ class AppController {
 
   Future<void> _updateGroups() async {
     if (_isUpdatingGroups) {
-      commonPrint.debug('updateGroups already in progress, skipping');
+      commonPrint.debug('Update groups busy, skipped');
       return;
     }
     _isUpdatingGroups = true;
@@ -1473,7 +1473,7 @@ class AppController {
           }
         }
       } catch (e) {
-        commonPrint.warn('Failed to sync active mode: $e');
+        commonPrint.warn('Sync mode failed: $e');
       }
 
       final currentProfile = _ref.read(currentProfileProvider);
@@ -1577,11 +1577,7 @@ class AppController {
       }
       try {
         await updateProfile(profile);
-      } catch (e) {
-        commonPrint.error(
-          '[UpdateProfiles] Failed to update ${profile.label ?? profile.id}: ${e.formatErrorLog}',
-        );
-      }
+      } catch (_) {}
     }
   }
 
@@ -1655,7 +1651,7 @@ class AppController {
         enable,
       );
     } catch (e) {
-      commonPrint.warn('Set process priority error: $e');
+      commonPrint.warn('Set process priority failed: $e', module: 'System');
       rethrow;
     }
   }
@@ -1674,7 +1670,7 @@ class AppController {
         try {
           await trayManager.destroy();
         } catch (e) {
-          commonPrint.warn('Failed to destroy tray icon on exit: $e');
+          commonPrint.warn('Destroy tray failed: $e', module: 'System');
         }
       }
       stopWakelockAutoRecovery();
@@ -1692,12 +1688,12 @@ class AppController {
         await clashService!.destroy();
       }
     } catch (e) {
-      commonPrint.warn('handleExit error: $e');
+      commonPrint.warn('Exit cleanup failed: $e');
     } finally {
       try {
         await system.updateDns(true);
       } catch (e) {
-        commonPrint.warn('Failed to restore system DNS on exit: $e');
+        commonPrint.warn('Restore system DNS failed: $e', module: 'System');
       }
       if (!exitLock.isCompleted) {
         exitLock.complete();
@@ -1708,7 +1704,7 @@ class AppController {
 
   Future<void> handleClear() async {
     await preferences.clearPreferences();
-    commonPrint.log('clear preferences');
+    commonPrint.log('Preferences cleared');
     globalState.config = Config(
       themeProps: defaultThemeProps,
       networkProps: defaultNetworkProps,
@@ -1809,7 +1805,10 @@ class AppController {
         ),
       );
     } catch (e) {
-      commonPrint.warn('Download update failed: ${e.formatErrorLog}');
+      commonPrint.warn(
+        'Download failed: ${e.formatErrorLog}',
+        module: 'Update',
+      );
       _setAppUpdate(AppUpdate(tagName: tagName));
       if (!silent) {
         globalState.showNotifier(appLocalizations.updateDownloadFailed);
@@ -1845,7 +1844,7 @@ class AppController {
     try {
       installed = await appUpdater.install(file);
     } catch (e) {
-      commonPrint.warn('Install update failed: ${e.formatErrorLog}');
+      commonPrint.warn('Install failed: ${e.formatErrorLog}', module: 'Update');
     }
     if (!installed) {
       globalState.showNotifier(appLocalizations.updateInstallFailed);
@@ -1953,7 +1952,7 @@ class AppController {
     return _initCoreFuture ??= () async {
       try {
         if (!await _waitForCoreConnection()) {
-          commonPrint.debug('core not connected yet, skipping init');
+          commonPrint.debug('Core not connected, init skipped');
           return;
         }
         final isInit = await clashCore.isInit;
@@ -2009,7 +2008,7 @@ class AppController {
         await WakelockPlus.disable();
       }
     } catch (e) {
-      commonPrint.warn('Failed to update wake lock: $e');
+      commonPrint.warn('Update wake lock failed: $e');
     }
   }
 
@@ -2030,11 +2029,21 @@ class AppController {
     FlutterError.onError = (details) {
       if (kDebugMode) {
         FlutterError.dumpErrorToConsole(details);
+        return;
       }
+      commonPrint.error(details.exceptionAsString(), module: 'UI');
     };
 
     vpn_service.service?.addNativeEventCallback((method, arguments) async {
-      if (method == 'vpnStartFailed') {
+      if (method == 'log') {
+        final data = arguments as Map? ?? const {};
+        final message = '${data['message'] ?? ''}';
+        if (data['level'] == 'error') {
+          commonPrint.error(message, module: 'VPN');
+        } else {
+          commonPrint.warn(message, module: 'VPN');
+        }
+      } else if (method == 'vpnStartFailed') {
         globalState.showNotifier('Failed, Please try again later');
         await updateStatus(false);
       } else if (method == 'runStateChanged') {
@@ -2055,7 +2064,7 @@ class AppController {
         startWakelockAutoRecovery();
       }
     } catch (e) {
-      commonPrint.warn('Failed to check wake lock status: $e');
+      commonPrint.warn('Check wake lock failed: $e');
     }
 
     await updateTray(true);
@@ -2064,12 +2073,10 @@ class AppController {
     try {
       await _initStatus();
     } catch (e) {
-      commonPrint.warn('_initStatus failed, falling back to basic startup: $e');
+      commonPrint.warn('Init status failed, applying profile: $e');
       try {
         await applyProfile(silence: true);
-      } catch (e2) {
-        commonPrint.error('Fallback applyProfile also failed: $e2');
-      }
+      } catch (_) {}
     }
 
     await updateGroups();
@@ -2100,10 +2107,11 @@ class AppController {
     await _handlerDisclaimer();
     if (system.isWindows) {
       unawaited(
-        setProcessPriority(_ref.read(appSettingProvider).enableHighPriority)
-            .catchError((e) {
-              commonPrint.warn('Failed to set initial process priority: $e');
-            }),
+        setProcessPriority(
+          _ref.read(appSettingProvider).enableHighPriority,
+        ).catchError((e) {
+          commonPrint.warn('Set process priority failed: $e', module: 'System');
+        }),
       );
     }
     _ref.read(initProvider.notifier).value = true;
@@ -2704,7 +2712,8 @@ class AppController {
     final currentProfileId = globalState.config.currentProfileId;
 
     commonPrint.log(
-      'Starting backup: ${validProfileIds.length} profiles, current: $currentProfileId',
+      'Backing up ${validProfileIds.length} profiles',
+      module: 'Backup',
     );
 
     return Isolate.run<List<int>>(() async {
@@ -2874,16 +2883,18 @@ class AppController {
       final fingerprint = await _webDAVBackupFingerprint(dav);
       final prefs = await preferences.sharedPreferencesCompleter.future;
       if (prefs?.getString(_autoBackupFingerprintKey) == fingerprint) {
-        commonPrint.log('Auto backup skipped: no changes');
+        commonPrint.debug('Auto backup skipped, no changes', module: 'Backup');
         return;
       }
       final res = await backupToWebDAV(DAVClient(dav), dav);
       if (res) {
-        commonPrint.log('Auto backup finished');
         globalState.showNotifier(appLocalizations.autoBackupSuccess);
       }
     } catch (e) {
-      commonPrint.error('Auto backup failed: ${e.formatErrorLog}');
+      commonPrint.error(
+        'Auto backup failed: ${e.formatErrorLog}',
+        module: 'Backup',
+      );
       globalState.showNotifier(
         appLocalizations.autoBackupFailed(e.formatError),
       );
@@ -2962,7 +2973,10 @@ class AppController {
       while (true) {
         try {
           final (:archive, :encrypted) = await getArchive(password);
-          commonPrint.log('Archive decoded: ${archive.files.length} files');
+          commonPrint.debug(
+            'Archive has ${archive.files.length} files',
+            module: 'Backup',
+          );
           await _recoveryFromArchive(archive, recoveryOption);
           if (userInput && password != null && savedPassword.isEmpty) {
             final value = password;
@@ -2979,7 +2993,7 @@ class AppController {
         }
       }
     } catch (e) {
-      commonPrint.error('Recovery failed: $e');
+      commonPrint.error('Restore failed: $e', module: 'Backup');
       throw 'Backup file is corrupted or invalid: $e';
     } finally {
       debouncer.cancel(FunctionTag.autoBackup);
@@ -2993,7 +3007,7 @@ class AppController {
     List<int> data,
     RecoveryOption recoveryOption,
   ) async {
-    commonPrint.log('Starting recovery from bytes: ${data.length} bytes');
+    commonPrint.log('Restoring backup of ${data.length} bytes', module: 'Backup');
     return _processRecoveryArchive(
       (password) => Isolate.run(
         () => decodeBackupArchive(InputMemoryStream(data), password),
@@ -3007,7 +3021,7 @@ class AppController {
     String path,
     RecoveryOption recoveryOption,
   ) async {
-    commonPrint.log('Starting recovery from file: $path');
+    commonPrint.log('Restoring from $path', module: 'Backup');
     return _processRecoveryArchive(
       (password) => Isolate.run(() {
         try {
@@ -3023,7 +3037,7 @@ class AppController {
         } on BackupPasswordException {
           rethrow;
         } catch (e) {
-          commonPrint.warn('Stream decoding failed: $e');
+          commonPrint.warn('Decode stream failed: $e', module: 'Backup');
         }
 
         final bytes = File(path).readAsBytesSync();
@@ -3202,12 +3216,15 @@ class AppController {
           try {
             await entity.delete(recursive: true);
           } catch (e) {
-            commonPrint.warn('Delete profile entity failed: $e');
+            commonPrint.warn(
+              'Delete profile file failed: $e',
+              module: 'Backup',
+            );
           }
         }
       }
     } catch (e) {
-      commonPrint.warn('Clean profiles dir for override failed: $e');
+      commonPrint.warn('Clean profiles dir failed: $e', module: 'Backup');
     }
   }
 
@@ -3358,7 +3375,7 @@ class AppController {
         }
       }
     } catch (e) {
-      commonPrint.warn('Failed to extract label from YAML: $e');
+      commonPrint.warn('Read profile label failed: $e', module: 'Profile');
     }
     return null;
   }

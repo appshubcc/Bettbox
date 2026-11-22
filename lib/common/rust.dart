@@ -17,7 +17,7 @@ Future<bool> _initRustLib() async {
     await RustLib.init();
     return true;
   } catch (e) {
-    commonPrint.error('Failed to initialize RustLib: $e');
+    commonPrint.error('Init Rust library failed: $e');
     _rustLibReady = null;
     return false;
   }

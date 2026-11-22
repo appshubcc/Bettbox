@@ -17,18 +17,13 @@ class SingleInstanceLock {
     for (int i = 0; i < 15; i++) {
       try {
         final lockFilePath = await appPath.lockFilePath;
-        commonPrint.log(
-          'SingleInstanceLock acquire: dev=${AppIdentity.isDev}, lock=$lockFilePath',
-        );
         final lockFile = File(lockFilePath);
         await lockFile.create(recursive: true);
         _accessFile = await lockFile.open(mode: FileMode.write);
         await _accessFile?.lock();
         return true;
       } catch (e) {
-        commonPrint.warn(
-          'SingleInstanceLock acquire attempt ${i + 1} failed: $e',
-        );
+        commonPrint.debug('Lock attempt ${i + 1} failed: $e', module: 'System');
         if (i < 14) {
           await Future.delayed(const Duration(milliseconds: 1000));
         }

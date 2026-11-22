@@ -15,6 +15,7 @@ import androidx.core.graphics.drawable.toBitmap
 import com.appshub.bettbox.GlobalState
 import com.appshub.bettbox.R
 import com.appshub.bettbox.models.VpnOptions
+import com.appshub.bettbox.plugins.ServicePlugin
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
@@ -140,7 +141,7 @@ fun Service.startForeground(notification: Notification, useSpecialType: Boolean 
         runCatching {
             startForeground(GlobalState.NOTIFICATION_ID, notification)
         }.onFailure { fallbackErr ->
-            android.util.Log.e("BaseServiceInterface", "startForeground fallback failed: ${fallbackErr.message}")
+            ServicePlugin.appError("BaseServiceInterface", "Start foreground failed: ${fallbackErr.message}")
         }
     }
 }

@@ -45,9 +45,8 @@ class Preferences {
       final clashConfigMap = json.decode(clashConfigString);
       return ClashConfig.fromJson(clashConfigMap as Map<String, Object?>);
     } catch (e, stackTrace) {
-      commonPrint.error(
-        'Failed to parse clash config from preferences: $e\n$stackTrace',
-      );
+      commonPrint.error('Parse clash config failed: $e');
+      commonPrint.debug('$stackTrace');
       return null;
     }
   }
@@ -78,7 +77,8 @@ class Preferences {
         json.decode(content) as Map<String, Object?>,
       );
     } catch (e, stackTrace) {
-      commonPrint.error('Failed to parse config from $source: $e\n$stackTrace');
+      commonPrint.error('Parse config from $source failed: $e');
+      commonPrint.debug('$stackTrace');
       return null;
     }
   }
@@ -109,7 +109,7 @@ class Preferences {
       if (await _readText(backupPath) == content) return;
       await _writeAtomic(backupPath, content);
     } catch (e) {
-      commonPrint.warn('Failed to back up config: $e');
+      commonPrint.warn('Back up config failed: $e');
     }
   }
 
@@ -231,7 +231,8 @@ class Preferences {
       _lastSaved = jsonStr;
       _lastConfig = config;
     } catch (e, stackTrace) {
-      commonPrint.error('Failed to save config to file: $e\n$stackTrace');
+      commonPrint.error('Save config failed: $e');
+      commonPrint.debug('$stackTrace');
       return false;
     }
 
@@ -239,7 +240,7 @@ class Preferences {
       try {
         await preferences?.remove(configKey);
       } catch (e) {
-        commonPrint.warn('Failed to remove legacy config mirror: $e');
+        commonPrint.warn('Remove legacy config failed: $e');
       }
     }
     return true;
@@ -344,7 +345,7 @@ class _FilePreferencesStore extends SharedPreferencesStorePlatform {
       }
       return true;
     } catch (e) {
-      commonPrint.warn('Failed to write preferences: $e');
+      commonPrint.warn('Write preferences failed: $e');
       return false;
     }
   }

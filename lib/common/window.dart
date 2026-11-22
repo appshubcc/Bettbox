@@ -23,7 +23,7 @@ class Window {
       try {
         await windowExtManager.setDockIconVisible(false);
       } catch (e) {
-        commonPrint.warn('Apply dock icon visibility failed: $e');
+        commonPrint.warn('Apply dock icon failed: $e', module: 'System');
       }
     }
     const minimumSize = Size(372, 492);
@@ -101,7 +101,7 @@ class Window {
     try {
       await windowExtManager.setDockIconVisible(visible);
     } catch (e) {
-      commonPrint.warn('Sync dock icon visibility failed: $e');
+      commonPrint.warn('Sync dock icon failed: $e', module: 'System');
     }
   }
 
@@ -116,9 +116,9 @@ class Window {
   Future<void> close() async {
     try {
       await trayManager.destroy();
-      commonPrint.log('The tray icon has been destroyed.');
+      commonPrint.debug('Tray destroyed', module: 'System');
     } catch (e) {
-      commonPrint.warn('Failed to destroy the tray icon: $e');
+      commonPrint.warn('Destroy tray failed: $e', module: 'System');
     }
 
     exit(0);

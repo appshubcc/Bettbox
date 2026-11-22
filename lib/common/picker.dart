@@ -106,7 +106,7 @@ class Picker {
           return result;
         }
       } catch (e) {
-        commonPrint.warn('Native qr decode failed: $e');
+        commonPrint.warn('Native QR decode failed: $e');
       }
     }
     return Isolate.run(() => qrReader.decodeFile(path));

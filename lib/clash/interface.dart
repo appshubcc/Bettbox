@@ -249,7 +249,7 @@ abstract class ClashHandlerInterface with ClashInterface {
           return;
       }
     } catch (e) {
-      commonPrint.warn('${result.id} error $e');
+      commonPrint.warn('Handle ${result.method.name} result failed: $e');
     }
   }
 
@@ -257,7 +257,7 @@ abstract class ClashHandlerInterface with ClashInterface {
     try {
       final parts = _splitActionResult(message);
       if (parts == null) {
-        commonPrint.warn('Ignored malformed core result');
+        commonPrint.warn('Malformed core result ignored', module: 'IPC');
         return;
       }
       final (:header, :payload) = parts;
@@ -269,7 +269,7 @@ abstract class ClashHandlerInterface with ClashInterface {
           : json.decode(payload);
       await handleResult(_toActionResult(header, data));
     } catch (e) {
-      commonPrint.warn('Failed to decode core result: $e');
+      commonPrint.warn('Decode core result failed: $e', module: 'IPC');
     }
   }
 

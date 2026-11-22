@@ -126,7 +126,7 @@ class _SmartAutoStopManagerState extends ConsumerState<SmartAutoStopManager> {
       await globalState.appController.savePreferences();
       await service?.requestSmartAutoStopCheck();
     } catch (e) {
-      commonPrint.warn('Smart Auto Stop: Request check error: $e');
+      commonPrint.warn('Request check failed: $e', module: 'AutoStop');
     }
   }
 
@@ -142,7 +142,7 @@ class _SmartAutoStopManagerState extends ConsumerState<SmartAutoStopManager> {
 
     Future.delayed(const Duration(milliseconds: 1000), () async {
       if (currentSequence != _checkSequence) {
-        commonPrint.debug('Smart Auto Stop: Skipping outdated network check');
+        commonPrint.debug('Outdated check skipped', module: 'AutoStop');
         return;
       }
       await _checkCurrentNetwork();
@@ -173,7 +173,7 @@ class _SmartAutoStopManagerState extends ConsumerState<SmartAutoStopManager> {
           _overrideNetwork = null;
         }
         if (ips.isEmpty && gateways.isEmpty) {
-          commonPrint.debug('Smart Auto Stop: No IP/Gateway found. Skipping.');
+          commonPrint.debug('No IP or gateway, skipped', module: 'AutoStop');
           return;
         }
         shouldStop =
@@ -184,7 +184,8 @@ class _SmartAutoStopManagerState extends ConsumerState<SmartAutoStopManager> {
               rules: networks,
             );
         commonPrint.debug(
-          'SmartAutoStop: IPs=${ips.join(",")}, Gateways=${gateways.join(",")}, RuleMatch=$shouldStop, SmartStopped=$isSmartStopped',
+          'IP ${ips.join(',')} gateway ${gateways.join(',')} match $shouldStop',
+          module: 'AutoStop',
         );
       }
 
@@ -193,12 +194,12 @@ class _SmartAutoStopManagerState extends ConsumerState<SmartAutoStopManager> {
             ref.read(runTimeProvider) != null || globalState.isStart;
         if (isRunning) {
           ref.read(isSmartStoppedProvider.notifier).set(true);
-          commonPrint.log('Smart Auto Stop: Stopping ...');
+          commonPrint.log('Network matched, stopping', module: 'AutoStop');
           await _stopVpn();
         }
       } else if (!shouldStop && isSmartStopped) {
         ref.read(isSmartStoppedProvider.notifier).set(false);
-        commonPrint.log('Smart Auto Stop: Restarting ...');
+        commonPrint.log('Network unmatched, restarting', module: 'AutoStop');
         await _restartVpn();
       }
     });
@@ -213,7 +214,7 @@ class _SmartAutoStopManagerState extends ConsumerState<SmartAutoStopManager> {
     try {
       return await utils.getInterfaceIPv4Addresses();
     } catch (e) {
-      commonPrint.warn('Smart Auto Stop: Desktop IP error: $e');
+      commonPrint.warn('Read IP failed: $e', module: 'AutoStop');
       return [];
     }
   }
@@ -222,7 +223,7 @@ class _SmartAutoStopManagerState extends ConsumerState<SmartAutoStopManager> {
     try {
       return await utils.getLocalGateways();
     } catch (e) {
-      commonPrint.warn('Smart Auto Stop: Desktop gateway error: $e');
+      commonPrint.warn('Read gateway failed: $e', module: 'AutoStop');
       return [];
     }
   }

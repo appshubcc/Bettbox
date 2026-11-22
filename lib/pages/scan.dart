@@ -100,7 +100,7 @@ class _ScanPageState extends State<ScanPage> with WidgetsBindingObserver {
         });
       }
     } catch (e) {
-      commonPrint.log('Camera start error: $e');
+      commonPrint.warn('Start camera failed: $e');
     } finally {
       _starting = false;
     }

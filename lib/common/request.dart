@@ -393,7 +393,7 @@ class Request {
         }
       }
     } catch (e) {
-      commonPrint.warn('Check update failed: ${e.formatErrorLog}');
+      commonPrint.warn('Check failed: ${e.formatErrorLog}', module: 'Update');
     }
     return null;
   }

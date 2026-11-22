@@ -145,14 +145,6 @@ class ScriptsView extends ConsumerStatefulWidget {
 }
 
 class _ScriptsViewState extends ConsumerState<ScriptsView> {
-  final _managedMenuOpen = ValueNotifier(false);
-
-  @override
-  void dispose() {
-    _managedMenuOpen.dispose();
-    super.dispose();
-  }
-
   Future<void> _handleDelScript(String label) async {
     final res = await globalState.showMessage(
       message: TextSpan(
@@ -238,40 +230,6 @@ class _ScriptsViewState extends ConsumerState<ScriptsView> {
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Future<Script?> _loadManaged() {
-    final props = ref.read(managedSettingProvider);
-    return globalState.appController.safeRun(
-      () => ManagedScript.script(props),
-      needLoading: true,
-      title: appLocalizations.tip,
-    );
-  }
-
-  Future<void> _handleExportManaged() async {
-    final script = await _loadManaged();
-    if (script == null || !mounted) return;
-    await _handleExportFile(
-      script.copyWith(label: appLocalizations.managedMode),
-    );
-  }
-
-  Future<void> _handleViewManaged() async {
-    final script = await _loadManaged();
-    if (script == null || !mounted) return;
-    unawaited(
-      BaseNavigator.push(
-        context,
-        EditorPage(
-          title: appLocalizations.managedMode,
-          content: script.content,
-          languages: const [Language.javaScript],
-          readOnly: true,
-        ),
-        maintainState: false,
       ),
     );
   }
@@ -433,42 +391,11 @@ class _ScriptsViewState extends ConsumerState<ScriptsView> {
                 ],
               ),
             ),
-            CommonPopupBox(
-              targetBuilder: (open) => IconButton(
-                visualDensity: VisualDensity.compact,
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
-                onPressed: () async {
-                  _managedMenuOpen.value = true;
-                  await open();
-                  if (!mounted) return;
-                  _managedMenuOpen.value = false;
-                },
-                tooltip: appLocalizations.more,
+            Padding(
+              padding: const EdgeInsets.only(right: 6),
+              child: AppIcon(
+                Icons.chevron_right,
                 color: context.colorScheme.onSurfaceVariant,
-                icon: ValueListenableBuilder<bool>(
-                  valueListenable: _managedMenuOpen,
-                  builder: (_, isOpen, _) => MenuDotsIcon(isOpen: isOpen),
-                ),
-              ),
-              popup: CommonPopupMenu(
-                items: [
-                  PopupMenuItemData(
-                    icon: Icons.visibility_outlined,
-                    label: appLocalizations.view,
-                    onPressed: _handleViewManaged,
-                  ),
-                  PopupMenuItemData(
-                    icon: Icons.tune,
-                    label: appLocalizations.custom,
-                    onPressed: () => showManagedOptions(context),
-                  ),
-                  PopupMenuItemData(
-                    icon: Icons.file_copy_outlined,
-                    label: appLocalizations.exportFile,
-                    onPressed: _handleExportManaged,
-                  ),
-                ],
               ),
             ),
           ],

@@ -66,6 +66,7 @@ class _MemoryInfoState extends State<MemoryInfo> {
 
   Future<void> _updateMemory() async {
     if (!mounted) return;
+    if (!TickerMode.getValuesNotifier(context).value.enabled) return;
     if (_isUpdating) return;
     _isUpdating = true;
 

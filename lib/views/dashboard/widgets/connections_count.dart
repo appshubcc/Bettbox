@@ -46,6 +46,7 @@ class _ConnectionsCountState extends State<ConnectionsCount> {
 
   Future<void> _updateConnections() async {
     if (!mounted) return;
+    if (!TickerMode.getValuesNotifier(context).value.enabled) return;
     if (_isUpdating) return;
     _isUpdating = true;
 

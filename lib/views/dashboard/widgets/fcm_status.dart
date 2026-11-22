@@ -47,6 +47,7 @@ class _FcmStatusState extends State<FcmStatus> {
 
   Future<void> _updateFcmStatus() async {
     if (!mounted) return;
+    if (!TickerMode.getValuesNotifier(context).value.enabled) return;
     if (_isUpdating) return;
     _isUpdating = true;
 

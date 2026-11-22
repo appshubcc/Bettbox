@@ -1292,7 +1292,7 @@
   "cloudflareTerms": "Условия использования Cloudflare",
   "registerWarpFailed": "Не удалось зарегистрировать WARP",
   "nodeImportEmpty": "Действительные узлы не найдены",
-  "nodeImportSingle": "За раз можно добавить только один узел",
+  "nodeImportSkipped": "Пропущено недействительных узлов: {count}",
   "addNodeDesc": "Добавьте из буфера обмена, QR-кода, файла или вручную либо зарегистрируйте WARP",
   "frontProxy": "Предшествующий прокси",
   "frontUdpUnsupported": "Текущий предшествующий узел не поддерживает UDP. Проверьте настройки",

@@ -1287,7 +1287,7 @@
   "cloudflareTerms": "the Cloudflare Terms of Service",
   "registerWarpFailed": "WARP registration failed",
   "nodeImportEmpty": "No valid nodes found",
-  "nodeImportSingle": "Only one node can be added at a time",
+  "nodeImportSkipped": "Skipped {count} invalid nodes",
   "addNodeDesc": "Add from the clipboard, a QR code, a file or manual input, or register WARP",
   "frontProxy": "Front proxy",
   "frontUdpUnsupported": "The current front node does not support UDP. Please check the configuration.",

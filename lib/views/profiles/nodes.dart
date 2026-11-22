@@ -84,8 +84,8 @@ void showEditNode(BuildContext context, [ProxyNode? node]) {
   );
 }
 
-Future<ProxyNode?> showAddNodeSheet(BuildContext context) {
-  return showSheet<ProxyNode>(
+Future<List<ProxyNode>?> showAddNodeSheet(BuildContext context) {
+  return showSheet<List<ProxyNode>>(
     context: context,
     builder: (_, type) => AdaptiveSheetScaffold(
       type: type,
@@ -98,19 +98,24 @@ Future<ProxyNode?> showAddNodeSheet(BuildContext context) {
 class AddNodeView extends StatelessWidget {
   const AddNodeView({super.key});
 
-  Future<ProxyNode?> _parse(String text) {
-    return globalState.appController.safeRun(
-      () => globalState.appController.parseNode(text),
+  Future<List<ProxyNode>?> _parse(String text) async {
+    final res = await globalState.appController.safeRun(
+      () => globalState.appController.parseNodes(text),
       needLoading: true,
       silence: false,
       title: appLocalizations.addNode,
     );
+    if (res == null) return null;
+    if (res.invalid > 0) {
+      globalState.showNotifier(appLocalizations.nodeImportSkipped(res.invalid));
+    }
+    return res.nodes;
   }
 
   Future<void> _import(BuildContext context, String text) async {
-    final node = await _parse(text);
-    if (node == null || !context.mounted) return;
-    Navigator.of(context).pop(node);
+    final nodes = await _parse(text);
+    if (nodes == null || !context.mounted) return;
+    Navigator.of(context).pop(nodes);
   }
 
   Future<void> _handleClipboard(BuildContext context) async {
@@ -151,10 +156,10 @@ class AddNodeView extends StatelessWidget {
         content: '',
         languages: const [],
         onSave: (editorContext, _, content) async {
-          final node = await _parse(content);
-          if (node == null) return;
+          final nodes = await _parse(content);
+          if (nodes == null) return;
           if (editorContext.mounted) Navigator.of(editorContext).pop();
-          if (context.mounted) Navigator.of(context).pop(node);
+          if (context.mounted) Navigator.of(context).pop(nodes);
         },
       ),
       maintainState: false,
@@ -196,7 +201,7 @@ class AddNodeView extends StatelessWidget {
       title: title,
     );
     if (node == null || !context.mounted) return;
-    Navigator.of(context).pop(node);
+    Navigator.of(context).pop([node]);
   }
 
   Widget _buildDivider(BuildContext context) {

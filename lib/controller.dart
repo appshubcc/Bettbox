@@ -823,28 +823,36 @@ class AppController {
     );
   }
 
-  Future<List<Map<String, dynamic>>> _parseNodes(String text) async {
+  Future<({List<Map<String, dynamic>> proxies, int invalid})> _parseNodes(
+    String text,
+  ) async {
     final res = await clashCore.parseNodes(text);
     final proxies = res['proxies'];
     if (proxies is! List || proxies.isEmpty) {
       final error = res['error']?.toString() ?? '';
       throw error.isEmpty ? appLocalizations.nodeImportEmpty : error;
     }
-    return [
-      for (final item in proxies)
-        if (item is Map) Map<String, dynamic>.from(item),
-    ];
+    final invalid = res['invalid'];
+    return (
+      proxies: [
+        for (final item in proxies)
+          if (item is Map) Map<String, dynamic>.from(item),
+      ],
+      invalid: invalid is num ? invalid.toInt() : 0,
+    );
   }
 
-  Future<ProxyNode> parseNode(String text) async {
-    final proxies = await _parseNodes(text);
-    if (proxies.length != 1) throw appLocalizations.nodeImportSingle;
+  Future<({List<ProxyNode> nodes, int invalid})> parseNodes(String text) async {
+    final (:proxies, :invalid) = await _parseNodes(text);
     final names = {for (final node in _ref.read(nodesProvider)) node.name};
-    return _createNode(proxies.first, names);
+    return (
+      nodes: [for (final proxy in proxies) _createNode(proxy, names)],
+      invalid: invalid,
+    );
   }
 
   Future<ProxyNode> updateNodeProxy(ProxyNode node, String text) async {
-    final proxies = await _parseNodes(text);
+    final (:proxies, invalid: _) = await _parseNodes(text);
     final names = {
       for (final item in _ref.read(nodesProvider))
         if (item.id != node.id) item.name,

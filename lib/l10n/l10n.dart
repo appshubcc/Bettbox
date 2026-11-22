@@ -10909,13 +10909,13 @@ class AppLocalizations {
     );
   }
 
-  /// `Only one node can be added at a time`
-  String get nodeImportSingle {
+  /// `Skipped {count} invalid nodes`
+  String nodeImportSkipped(Object count) {
     return Intl.message(
-      'Only one node can be added at a time',
-      name: 'nodeImportSingle',
+      'Skipped $count invalid nodes',
+      name: 'nodeImportSkipped',
       desc: '',
-      args: [],
+      args: [count],
     );
   }
 

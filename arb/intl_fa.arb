@@ -1288,7 +1288,7 @@
   "cloudflareTerms": "شرایط خدمات Cloudflare",
   "registerWarpFailed": "ثبت WARP ناموفق بود",
   "nodeImportEmpty": "گره معتبری یافت نشد",
-  "nodeImportSingle": "هر بار فقط یک گره قابل افزودن است",
+  "nodeImportSkipped": "{count} گره نامعتبر نادیده گرفته شد",
   "addNodeDesc": "از کلیپ‌بورد، کد QR، فایل یا ورود دستی بیفزایید، یا WARP را ثبت کنید",
   "frontProxy": "پراکسی پیشین",
   "frontUdpUnsupported": "گره پیشین فعلی از UDP پشتیبانی نمی‌کند، لطفاً پیکربندی را بررسی کنید",

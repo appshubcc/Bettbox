@@ -1288,7 +1288,7 @@
   "cloudflareTerms": "Cloudflare の利用規約",
   "registerWarpFailed": "WARP の登録に失敗しました",
   "nodeImportEmpty": "有効なノードが見つかりません",
-  "nodeImportSingle": "一度に追加できるノードは 1 つだけです",
+  "nodeImportSkipped": "無効なノード {count} 個をスキップしました",
   "addNodeDesc": "クリップボード、QR コード、ファイル、手動入力から追加するか、WARP を登録します",
   "frontProxy": "前置プロキシ",
   "frontUdpUnsupported": "現在の前置ノードは UDP に対応していません。設定を確認してください",

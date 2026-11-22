@@ -1288,7 +1288,7 @@
   "cloudflareTerms": "Cloudflare 서비스 약관",
   "registerWarpFailed": "WARP 등록 실패",
   "nodeImportEmpty": "유효한 노드를 찾을 수 없습니다",
-  "nodeImportSingle": "한 번에 하나의 노드만 추가할 수 있습니다",
+  "nodeImportSkipped": "유효하지 않은 노드 {count}개를 건너뛰었습니다",
   "addNodeDesc": "클립보드, QR 코드, 파일 또는 직접 입력으로 추가하거나 WARP를 등록합니다",
   "frontProxy": "전치 프록시",
   "frontUdpUnsupported": "현재 전치 노드가 UDP를 지원하지 않습니다. 설정을 확인하세요",

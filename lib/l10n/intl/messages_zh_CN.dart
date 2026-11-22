@@ -128,59 +128,61 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m50(count) => "${count} 条新日志";
 
-  static String m51(prefix) => "节点前缀：${prefix}";
+  static String m51(count) => "已跳过 ${count} 个无效节点";
 
-  static String m52(label) => "暂无${label}";
+  static String m52(prefix) => "节点前缀：${prefix}";
 
-  static String m53(min, max) => "请输入 ${min}–${max} 之间的整数";
+  static String m53(label) => "暂无${label}";
 
-  static String m54(label) => "${label}必须为数字";
+  static String m54(min, max) => "请输入 ${min}–${max} 之间的整数";
 
-  static String m55(label) => "只看 ${label}";
+  static String m55(label) => "${label}必须为数字";
 
-  static String m56(label) => "${label} 必须在 1024 到 49151 之间，0 为关闭";
+  static String m56(label) => "只看 ${label}";
 
-  static String m57(statusCode) =>
+  static String m57(label) => "${label} 必须在 1024 到 49151 之间，0 为关闭";
+
+  static String m58(statusCode) =>
       "配置导入失败，请检查网络状况或尝试重置订阅链接( HTTP错误代码: ${statusCode} )";
 
-  static String m58(count) => "${count} 个提供者";
+  static String m59(count) => "${count} 个提供者";
 
-  static String m59(terms) => "将向 Cloudflare 注册一个新的 WARP 设备，继续即表示你同意${terms}。";
+  static String m60(terms) => "将向 Cloudflare 注册一个新的 WARP 设备，继续即表示你同意${terms}。";
 
-  static String m60(count) => "添加 ${count} 项";
+  static String m61(count) => "添加 ${count} 项";
 
-  static String m61(count) => "移除 ${count} 项";
+  static String m62(count) => "移除 ${count} 项";
 
-  static String m62(index, time) => "第 ${index} 条规则触发解析 · ${time} ms";
+  static String m63(index, time) => "第 ${index} 条规则触发解析 · ${time} ms";
 
-  static String m63(ips) => "命中 Hosts：${ips}";
+  static String m64(ips) => "命中 Hosts：${ips}";
 
-  static String m64(total, index) => "共 ${total} 条规则，命中第 ${index} 条";
+  static String m65(total, index) => "共 ${total} 条规则，命中第 ${index} 条";
 
-  static String m65(total) => "共 ${total} 条规则";
+  static String m66(total) => "共 ${total} 条规则";
 
-  static String m66(count) => "${count} 条规则";
+  static String m67(count) => "${count} 条规则";
 
-  static String m67(count, group) => "${count} 条规则，已包含在 ${group} 策略组";
+  static String m68(count, group) => "${count} 条规则，已包含在 ${group} 策略组";
 
-  static String m68(count) => "已选择 ${count} 项";
+  static String m69(count) => "已选择 ${count} 项";
 
-  static String m69(count) => "多线程会并发 ${count} 条连接以跑满带宽";
+  static String m70(count) => "多线程会并发 ${count} 条连接以跑满带宽";
 
-  static String m70(provider) => "出站节点可能屏蔽了 ${provider} 测速，可切换测速源或更换出站";
+  static String m71(provider) => "出站节点可能屏蔽了 ${provider} 测速，可切换测速源或更换出站";
 
-  static String m71(protocol, fallback) => "${protocol} 不可用，已回退到 ${fallback}";
+  static String m72(protocol, fallback) => "${protocol} 不可用，已回退到 ${fallback}";
 
-  static String m72(count) => "${count} 条连接";
+  static String m73(count) => "${count} 条连接";
 
-  static String m73(provider) => "切换到 ${provider}";
+  static String m74(provider) => "切换到 ${provider}";
 
-  static String m74(appName) =>
+  static String m75(appName) =>
       "新版本安装包已下载就绪，为保障服务正常，升级前将会主动关闭正在运行中的 ${appName}，点击确认后开始安装";
 
-  static String m75(label) => "${label}必须为URL";
+  static String m76(label) => "${label}必须为URL";
 
-  static String m76(count) => "${Intl.plural(count, other: '年')}";
+  static String m77(count) => "${Intl.plural(count, other: '年')}";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
@@ -1237,12 +1239,12 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "nodeFileDesc": MessageLookupByLibrary.simpleMessage("读取文件中的节点"),
     "nodeImportEmpty": MessageLookupByLibrary.simpleMessage("未找到有效节点"),
-    "nodeImportSingle": MessageLookupByLibrary.simpleMessage("一次只能添加一个节点"),
+    "nodeImportSkipped": m51,
     "nodeManualDesc": MessageLookupByLibrary.simpleMessage(
       "支持分享链接、Base64 与 YAML",
     ),
     "nodePrefix": MessageLookupByLibrary.simpleMessage("节点前缀"),
-    "nodePrefixValue": m51,
+    "nodePrefixValue": m52,
     "nodeQrcodeDesc": MessageLookupByLibrary.simpleMessage("扫描节点分享二维码"),
     "nodeRole": MessageLookupByLibrary.simpleMessage("节点用途"),
     "nodeShareUri": MessageLookupByLibrary.simpleMessage("节点分享(URI)"),
@@ -1268,15 +1270,15 @@ class MessageLookup extends MessageLookupByLibrary {
     "ntpStatusDesc": MessageLookupByLibrary.simpleMessage("开启 NTP 时间服务"),
     "nullNodeDesc": MessageLookupByLibrary.simpleMessage("没有节点，请先添加节点"),
     "nullProfileDesc": MessageLookupByLibrary.simpleMessage("没有配置文件,请先添加配置文件"),
-    "nullTip": m52,
+    "nullTip": m53,
     "nullUdpConnections": MessageLookupByLibrary.simpleMessage("暂无 UDP 连接"),
-    "numberRangeInvalid": m53,
-    "numberTip": m54,
+    "numberRangeInvalid": m54,
+    "numberTip": m55,
     "oneColumn": MessageLookupByLibrary.simpleMessage("一列"),
     "onlinePanel": MessageLookupByLibrary.simpleMessage("在线面板"),
     "onlyIcon": MessageLookupByLibrary.simpleMessage("仅图标"),
     "onlyOtherApps": MessageLookupByLibrary.simpleMessage("仅第三方应用"),
-    "onlyShow": m55,
+    "onlyShow": m56,
     "onlyStatisticsProxy": MessageLookupByLibrary.simpleMessage("代理流量统计"),
     "onlyStatisticsProxyDesc": MessageLookupByLibrary.simpleMessage(
       "开启后将只统计代理流量",
@@ -1349,7 +1351,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "port": MessageLookupByLibrary.simpleMessage("端口"),
     "portConflictTip": MessageLookupByLibrary.simpleMessage("请输入不同的端口"),
-    "portTip": m56,
+    "portTip": m57,
     "pouringHourGlass": MessageLookupByLibrary.simpleMessage("流沙倾注"),
     "pouringHourGlassRefined": MessageLookupByLibrary.simpleMessage("玉漏凝光"),
     "powerSwitch": MessageLookupByLibrary.simpleMessage("启动开关"),
@@ -1367,7 +1369,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "profileHasUpdate": MessageLookupByLibrary.simpleMessage(
       "配置文件已经修改，是否关闭自动更新？",
     ),
-    "profileImportFailed": m57,
+    "profileImportFailed": m58,
     "profileNameNullValidationDesc": MessageLookupByLibrary.simpleMessage(
       "请输入配置名称",
     ),
@@ -1384,7 +1386,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "progress": MessageLookupByLibrary.simpleMessage("进程"),
     "project": MessageLookupByLibrary.simpleMessage("项目"),
     "providers": MessageLookupByLibrary.simpleMessage("提供者"),
-    "providersCount": m58,
+    "providersCount": m59,
     "provinceAndCity": MessageLookupByLibrary.simpleMessage("省份 / 城市"),
     "proxies": MessageLookupByLibrary.simpleMessage("代理"),
     "proxiesCount": MessageLookupByLibrary.simpleMessage("代理节点"),
@@ -1449,7 +1451,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "生成 WireGuard 落地节点",
     ),
     "registerWarpFailed": MessageLookupByLibrary.simpleMessage("WARP 注册失败"),
-    "registerWarpTip": m59,
+    "registerWarpTip": m60,
     "regularNode": MessageLookupByLibrary.simpleMessage("常规节点"),
     "regularNodeDesc": MessageLookupByLibrary.simpleMessage("直接连接，加入所选代理组即可"),
     "reject": MessageLookupByLibrary.simpleMessage("拦截"),
@@ -1486,7 +1488,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "ripple": MessageLookupByLibrary.simpleMessage("水波荡漾"),
     "rotatingCircle": MessageLookupByLibrary.simpleMessage("单圆自转"),
     "rotatingPlain": MessageLookupByLibrary.simpleMessage("灵板翻转"),
-    "routeAddCount": m60,
+    "routeAddCount": m61,
     "routeCategoryAi": MessageLookupByLibrary.simpleMessage("AI"),
     "routeCategoryDeveloper": MessageLookupByLibrary.simpleMessage("开发工具"),
     "routeCategoryFinance": MessageLookupByLibrary.simpleMessage("金融支付"),
@@ -1495,7 +1497,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "routeCategoryStreaming": MessageLookupByLibrary.simpleMessage("流媒体"),
     "routeCategoryTech": MessageLookupByLibrary.simpleMessage("科技平台"),
     "routeNameInvalid": MessageLookupByLibrary.simpleMessage("名称不能包含逗号或换行"),
-    "routeRemoveCount": m61,
+    "routeRemoveCount": m62,
     "routeTarget": MessageLookupByLibrary.simpleMessage("默认出口"),
     "routeTrace": MessageLookupByLibrary.simpleMessage("路由追踪"),
     "routeTraceChain": MessageLookupByLibrary.simpleMessage("代理链"),
@@ -1504,14 +1506,14 @@ class MessageLookup extends MessageLookupByLibrary {
       "查看域名或 IP 在内核中的 DNS 与规则匹配过程",
     ),
     "routeTraceDns": MessageLookupByLibrary.simpleMessage("DNS 解析"),
-    "routeTraceDnsBy": m62,
+    "routeTraceDnsBy": m63,
     "routeTraceDnsIp": MessageLookupByLibrary.simpleMessage("目标本身是 IP，无需解析"),
     "routeTraceDnsSkipped": MessageLookupByLibrary.simpleMessage(
       "匹配过程中无需解析 IP",
     ),
     "routeTraceFinal": MessageLookupByLibrary.simpleMessage("最终出站"),
     "routeTraceHint": MessageLookupByLibrary.simpleMessage("输入域名、IP 或网址"),
-    "routeTraceHostsHit": m63,
+    "routeTraceHostsHit": m64,
     "routeTraceInput": MessageLookupByLibrary.simpleMessage("目标"),
     "routeTraceModeDirect": MessageLookupByLibrary.simpleMessage("直连模式：所有流量直连"),
     "routeTraceModeGlobal": MessageLookupByLibrary.simpleMessage(
@@ -1519,8 +1521,8 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "routeTraceNoMatch": MessageLookupByLibrary.simpleMessage("没有规则命中，按直连处理"),
     "routeTraceRules": MessageLookupByLibrary.simpleMessage("规则匹配"),
-    "routeTraceRulesSummary": m64,
-    "routeTraceRulesTotal": m65,
+    "routeTraceRulesSummary": m65,
+    "routeTraceRulesTotal": m66,
     "routeTraceSkipMissing": MessageLookupByLibrary.simpleMessage("目标不存在，跳过"),
     "routeTraceSkipPass": MessageLookupByLibrary.simpleMessage("PASS 跳过"),
     "routeTraceSkipUdp": MessageLookupByLibrary.simpleMessage("不支持 UDP，跳过"),
@@ -1532,8 +1534,8 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "routeTraceViewRules": MessageLookupByLibrary.simpleMessage("查看已检查的规则"),
     "rule": MessageLookupByLibrary.simpleMessage("规则"),
-    "ruleCount": m66,
-    "ruleCountIncluded": m67,
+    "ruleCount": m67,
+    "ruleCountIncluded": m68,
     "ruleHits": MessageLookupByLibrary.simpleMessage("规则命中"),
     "ruleName": MessageLookupByLibrary.simpleMessage("规则名称"),
     "ruleProviders": MessageLookupByLibrary.simpleMessage("规则提供者"),
@@ -1561,7 +1563,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "selectBackupVersion": MessageLookupByLibrary.simpleMessage("选择备份版本"),
     "selectIcon": MessageLookupByLibrary.simpleMessage("选择图标"),
     "selected": MessageLookupByLibrary.simpleMessage("已选择"),
-    "selectedCountTitle": m68,
+    "selectedCountTitle": m69,
     "serviceReady": MessageLookupByLibrary.simpleMessage("服务已就绪"),
     "serviceRunning": MessageLookupByLibrary.simpleMessage("服务正在运行中"),
     "setcapFailedFallback": MessageLookupByLibrary.simpleMessage(
@@ -1629,7 +1631,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "speedTestConnecting": MessageLookupByLibrary.simpleMessage("连接中"),
     "speedTestConnections": MessageLookupByLibrary.simpleMessage("连接方式"),
-    "speedTestConnectionsDesc": m69,
+    "speedTestConnectionsDesc": m70,
     "speedTestCoreStopped": MessageLookupByLibrary.simpleMessage("未启动 · 直连测速"),
     "speedTestCredit": MessageLookupByLibrary.simpleMessage(
       "测速服务器由网络上公开的第三方提供，特别感谢 Apple、Cloudflare 以及 Speedtest by Ookla。",
@@ -1637,7 +1639,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "speedTestDataUsed": MessageLookupByLibrary.simpleMessage("已用流量"),
     "speedTestDuration": MessageLookupByLibrary.simpleMessage("测试时长"),
     "speedTestErrorBlocked": MessageLookupByLibrary.simpleMessage("测速服务不可用"),
-    "speedTestErrorBlockedDesc": m70,
+    "speedTestErrorBlockedDesc": m71,
     "speedTestErrorNetworkDesc": MessageLookupByLibrary.simpleMessage(
       "请检查出站是否可用后重试",
     ),
@@ -1670,7 +1672,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "speedTestProtocolDesc": MessageLookupByLibrary.simpleMessage(
       "HTTP/3 基于 QUIC (UDP)，不可用时依次回退到 HTTP/2、（HTTP/2 不可用时）HTTP/1.1",
     ),
-    "speedTestProtocolFallback": m71,
+    "speedTestProtocolFallback": m72,
     "speedTestQuality": MessageLookupByLibrary.simpleMessage("网络质量"),
     "speedTestReady": MessageLookupByLibrary.simpleMessage("准备就绪"),
     "speedTestRealtime": MessageLookupByLibrary.simpleMessage("实时速率"),
@@ -1683,8 +1685,8 @@ class MessageLookup extends MessageLookupByLibrary {
     "speedTestSettings": MessageLookupByLibrary.simpleMessage("测速设置"),
     "speedTestSingleThread": MessageLookupByLibrary.simpleMessage("单线程"),
     "speedTestStart": MessageLookupByLibrary.simpleMessage("开始测速"),
-    "speedTestStreams": m72,
-    "speedTestSwitchProvider": m73,
+    "speedTestStreams": m73,
+    "speedTestSwitchProvider": m74,
     "speedTestUseSystemDns": MessageLookupByLibrary.simpleMessage(
       "使用系统 DNS 解析",
     ),
@@ -1848,7 +1850,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "update": MessageLookupByLibrary.simpleMessage("更新"),
     "updateDownloadFailed": MessageLookupByLibrary.simpleMessage("更新下载失败"),
     "updateInstallFailed": MessageLookupByLibrary.simpleMessage("更新安装失败"),
-    "updateReadyAppTip": m74,
+    "updateReadyAppTip": m75,
     "updateReadyVpnTip": MessageLookupByLibrary.simpleMessage(
       "新版本安装包已下载就绪，为保障服务正常，升级前将会主动关闭正在运行中的 VPN 服务，点击确认后开始安装",
     ),
@@ -1860,7 +1862,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "url": MessageLookupByLibrary.simpleMessage("URL"),
     "urlDesc": MessageLookupByLibrary.simpleMessage("通过 URL 获取配置文件"),
-    "urlTip": m75,
+    "urlTip": m76,
     "usageStyle": MessageLookupByLibrary.simpleMessage("用量样式"),
     "usageStyleBar": MessageLookupByLibrary.simpleMessage("条形"),
     "usageStyleConcentric": MessageLookupByLibrary.simpleMessage("同心环"),
@@ -1899,6 +1901,6 @@ class MessageLookup extends MessageLookupByLibrary {
     "xattrUnsupportedFallback": MessageLookupByLibrary.simpleMessage(
       "文件系统不支持文件能力（xattr），已回退到 setuid",
     ),
-    "years": m76,
+    "years": m77,
   };
 }

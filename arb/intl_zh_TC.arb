@@ -1288,7 +1288,7 @@
   "cloudflareTerms": "Cloudflare 的服務條款",
   "registerWarpFailed": "WARP 註冊失敗",
   "nodeImportEmpty": "未找到有效節點",
-  "nodeImportSingle": "一次只能新增一個節點",
+  "nodeImportSkipped": "已略過 {count} 個無效節點",
   "addNodeDesc": "從剪貼簿、QR 碼、檔案或手動輸入新增，也可註冊 WARP",
   "frontProxy": "前置代理",
   "frontUdpUnsupported": "目前前置節點不支援UDP，請檢查設定",

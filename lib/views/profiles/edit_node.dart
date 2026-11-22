@@ -209,7 +209,7 @@ class EditNodeView extends ConsumerStatefulWidget {
 }
 
 class EditNodeViewState extends ConsumerState<EditNodeView> {
-  late ProxyNode? _node = widget.node;
+  late List<ProxyNode> _nodes = [?widget.node];
   late final ProxyNode _initial =
       widget.node ?? const ProxyNode(id: '', proxy: {});
   late NodeRole _role = _initial.role;
@@ -252,11 +252,13 @@ class EditNodeViewState extends ConsumerState<EditNodeView> {
     return profile == null || profile.isManaged ? _managed : _binding;
   }
 
+  ProxyNode? get _node => _nodes.length == 1 ? _nodes.first : null;
+
   String? get _udpCheckFront {
-    final node = _node;
-    if (node == null ||
-        _role != NodeRole.landing ||
-        !_udpTransportTypes.contains(node.type.toLowerCase())) {
+    if (_role != NodeRole.landing ||
+        !_nodes.any(
+          (node) => _udpTransportTypes.contains(node.type.toLowerCase()),
+        )) {
       return null;
     }
     return _currentBinding?.front;
@@ -332,43 +334,46 @@ class EditNodeViewState extends ConsumerState<EditNodeView> {
   }
 
   void handleSave() {
-    final node = _node;
-    if (node == null) return;
+    if (_nodes.isEmpty) return;
     final profile = ref.read(currentProfileProvider);
     final nodes = ref.read(nodesProvider);
-    final saved = nodes.any((item) => item.id == node.id);
-    final latest = nodes.firstWhere(
-      (item) => item.id == node.id,
-      orElse: () => node,
-    );
-    final bindings = {...latest.bindings};
-    if (profile != null && !profile.isManaged) {
-      if (_binding case final binding?) {
-        bindings[profile.id] = binding;
+    final notifier = ref.read(nodesProvider.notifier);
+    final added = <ProxyNode>[];
+    for (final node in _nodes) {
+      final saved = nodes.any((item) => item.id == node.id);
+      final latest = nodes.firstWhere(
+        (item) => item.id == node.id,
+        orElse: () => node,
+      );
+      final bindings = {...latest.bindings};
+      if (profile != null && !profile.isManaged) {
+        if (_binding case final binding?) {
+          bindings[profile.id] = binding;
+        } else {
+          bindings.remove(profile.id);
+        }
+      }
+      final updated = latest.copyWith(
+        role: _role,
+        managedEnable: _managedEnable,
+        managed: _managed,
+        bindings: bindings,
+      );
+      if (saved) {
+        notifier.setNode(updated);
       } else {
-        bindings.remove(profile.id);
+        added.add(updated);
       }
     }
-    final updated = latest.copyWith(
-      role: _role,
-      managedEnable: _managedEnable,
-      managed: _managed,
-      bindings: bindings,
-    );
-    final notifier = ref.read(nodesProvider.notifier);
-    if (saved) {
-      notifier.setNode(updated);
-    } else {
-      notifier.add([updated]);
-    }
+    if (added.isNotEmpty) notifier.add(added);
     Navigator.of(context).pop();
   }
 
   Future<void> _handleAdd() async {
-    final node = await showAddNodeSheet(context);
-    if (node == null || !mounted) return;
+    final nodes = await showAddNodeSheet(context);
+    if (nodes == null || nodes.isEmpty || !mounted) return;
     setState(() {
-      _node = node;
+      _nodes = nodes;
       _tested = false;
       _delay = null;
     });
@@ -391,7 +396,7 @@ class EditNodeViewState extends ConsumerState<EditNodeView> {
           );
           if (node == null) return;
           if (mounted) {
-            setState(() => _node = node);
+            setState(() => _nodes = [node]);
             unawaited(_loadManaged());
           }
           if (editorContext.mounted) Navigator.of(editorContext).pop();
@@ -431,7 +436,7 @@ class EditNodeViewState extends ConsumerState<EditNodeView> {
     final front = await showFrontPicker(
       selected: _binding?.front ?? '',
       groups: ref.read(currentGroupsStateProvider).value,
-      excluded: {?_node?.name},
+      excluded: {for (final node in _nodes) node.name},
     );
     final binding = _binding;
     if (front == null || binding == null || !mounted) return;
@@ -521,8 +526,7 @@ class EditNodeViewState extends ConsumerState<EditNodeView> {
   }
 
   Widget _buildNode() {
-    final node = _node;
-    if (node == null) {
+    if (_nodes.isEmpty) {
       return CommonCard(
         type: CommonCardType.filled,
         child: ListItem(
@@ -530,6 +534,22 @@ class EditNodeViewState extends ConsumerState<EditNodeView> {
           title: Text(appLocalizations.addNode),
           subtitle: Text(appLocalizations.addNodeDesc),
           trailing: const AppIcon(Icons.chevron_right),
+          onTap: _handleAdd,
+        ),
+      );
+    }
+    final node = _node;
+    if (node == null) {
+      return CommonCard(
+        type: CommonCardType.filled,
+        child: ListItem(
+          title: Text(appLocalizations.bundleProxies(_nodes.length)),
+          subtitle: EmojiText(
+            _nodes.map((item) => item.name).join(', '),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
+          trailing: const AppIcon(Icons.edit_outlined),
           onTap: _handleAdd,
         ),
       );

@@ -275,6 +275,7 @@ func updateConfig(params *UpdateParams) {
 		general.Tun.DNSHijack = *params.Tun.DNSHijack
 		general.Tun.Stack = *params.Tun.Stack
 		general.Tun.DisableICMPForwarding = *params.Tun.DisableICMPForwarding
+		routeFakeIP(currentConfig)
 	}
 
 	updateListeners()
@@ -500,6 +501,7 @@ func prepareSetup(params *SetupParams) (*preparedSetup, error) {
 	if err != nil {
 		return nil, err
 	}
+	routeFakeIP(cfg)
 	return &preparedSetup{key: key, rawCfg: rawCfg, cfg: cfg, global: global, tunInet6: tunInet6}, nil
 }
 

@@ -990,7 +990,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "go": MessageLookupByLibrary.simpleMessage("Перейти"),
     "goDownload": MessageLookupByLibrary.simpleMessage("Перейти к загрузке"),
     "groupOrderTip": MessageLookupByLibrary.simpleMessage(
-      "Проверяются сверху вниз, перетащите для изменения порядка",
+      "Перетащите для порядка отображения; пользовательские маршруты в приоритете",
     ),
     "harmonyFont": MessageLookupByLibrary.simpleMessage("Исправление шрифта"),
     "harmonyFontDesc": MessageLookupByLibrary.simpleMessage(

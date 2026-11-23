@@ -1244,7 +1244,7 @@
   "iconUrl": "图标 URL",
   "checkUrlTip": "请检查 URL 是否正确",
   "routeNameInvalid": "名称不能包含逗号或换行",
-  "groupOrderTip": "自上而下依次匹配，拖动调整顺序",
+  "groupOrderTip": "拖动调整显示顺序，自定义分流优先匹配",
   "regionGroups": "地区分组",
   "regionGroupsTip": "没有匹配节点的地区不会生成策略组，未匹配任何地区的节点归入「其他节点」",
   "searchServices": "搜索服务名称",

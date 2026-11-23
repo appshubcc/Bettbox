@@ -10534,10 +10534,10 @@ class AppLocalizations {
     );
   }
 
-  /// `Matched from top to bottom, drag to reorder`
+  /// `Drag to reorder display; custom routes match first`
   String get groupOrderTip {
     return Intl.message(
-      'Matched from top to bottom, drag to reorder',
+      'Drag to reorder display; custom routes match first',
       name: 'groupOrderTip',
       desc: '',
       args: [],

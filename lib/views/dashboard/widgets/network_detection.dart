@@ -82,7 +82,11 @@ class _NetworkDetectionState extends ConsumerState<NetworkDetection> {
       valueListenable: detectionState.riskyIp,
       builder: (_, ip, child) {
         final ipText = child ?? const SizedBox();
-        if (ip == null || ip != detectionState.rawIpInfo?.ip) return ipText;
+        if (detectionState.isIpMasked ||
+            ip == null ||
+            ip != detectionState.rawIpInfo?.ip) {
+          return ipText;
+        }
         return Row(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -181,7 +185,6 @@ class _NetworkDetectionState extends ConsumerState<NetworkDetection> {
         valueListenable: detectionState.state,
         builder: (_, state, _) {
           final ipInfo = state.ipInfo;
-          final masked = detectionState.isIpMasked;
           final location = ipInfo == null
               ? ''
               : [
@@ -253,13 +256,13 @@ class _NetworkDetectionState extends ConsumerState<NetworkDetection> {
                               child: ipText,
                             ),
                           ),
-                          if (!masked && location.isNotEmpty)
+                          if (location.isNotEmpty)
                             _buildDetail(
                               context,
                               appLocalizations.countryOrRegion,
                               location,
                             ),
-                          if (!masked && operator.isNotEmpty)
+                          if (operator.isNotEmpty)
                             _buildDetail(
                               context,
                               appLocalizations.operatorOrAsn,
@@ -278,7 +281,7 @@ class _NetworkDetectionState extends ConsumerState<NetworkDetection> {
                           textBaseline: TextBaseline.alphabetic,
                           children: [
                             Flexible(child: ipText),
-                            if (!masked && ipInfo != null) ...[
+                            if (ipInfo != null) ...[
                               const SizedBox(width: 12),
                               Expanded(
                                 child: Text(

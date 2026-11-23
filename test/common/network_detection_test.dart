@@ -94,6 +94,9 @@ void main() {
 
   tearDown(() async {
     release();
+    if (detectionState.isIpMasked) {
+      detectionState.toggleIpPrivacy();
+    }
     await _waitFor(() => !detectionState.state.value.isLoading);
   });
 
@@ -135,6 +138,35 @@ void main() {
     detectionState.startCheck(immediate: true);
     await _waitFor(() => requestCount == 2);
 
+    release();
+    await _waitFor(() => detectionState.state.value.ipInfo?.ip == '1.2.3.4');
+  });
+
+  test('开启保护IP显示后强制替换为固定字段，关闭后恢复真实数据', () async {
+    detectionState.startCheck(immediate: true);
+    await _waitFor(() => requestCount == 1);
+    release();
+    await _waitFor(() => detectionState.state.value.ipInfo?.ip == '1.2.3.4');
+
+    detectionState.toggleIpPrivacy();
+    final protected = detectionState.state.value.ipInfo;
+    expect(protected?.ip, '168.168.6.8');
+    expect(protected?.countryCode, 'TW');
+    expect(protected?.country, 'Taiwan(China)');
+    expect(protected?.city, isNull);
+    expect(protected?.asn, 'AS 166188');
+    expect(protected?.asName, isNull);
+    expect(protected?.isp, isNull);
+
+    detectionState.toggleIpPrivacy();
+    expect(detectionState.state.value.ipInfo?.ip, '1.2.3.4');
+
+    detectionState.toggleIpPrivacy();
+    expect(detectionState.state.value.ipInfo?.ip, '168.168.6.8');
+
+    detectionState.manualRefresh();
+    expect(detectionState.isIpMasked, isFalse);
+    await _waitFor(() => requestCount == 2);
     release();
     await _waitFor(() => detectionState.state.value.ipInfo?.ip == '1.2.3.4');
   });

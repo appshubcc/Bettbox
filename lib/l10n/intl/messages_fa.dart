@@ -1093,7 +1093,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "ipLookupResult": MessageLookupByLibrary.simpleMessage("نتایج"),
     "ipPrivacyProtection": MessageLookupByLibrary.simpleMessage(
-      "پنهان‌سازی IP",
+      "محافظت از نمایش IP",
     ),
     "ipRiskAlert": MessageLookupByLibrary.simpleMessage("هشدار ریسک IP"),
     "ipRiskAmountHigh": MessageLookupByLibrary.simpleMessage("زیاد"),

@@ -571,7 +571,7 @@
   "cacheCorrupt": "キャッシュが破損しています。クリアしますか？",
   "detectionTip": "サードパーティAPIを使用しているため、参考値です",
   "ipClickBehavior": "表示切替",
-  "ipPrivacyProtection": "IP表示を隠す",
+  "ipPrivacyProtection": "IP表示を保護",
   "manualRefreshIp": "IPを再取得",
   "tryManualRefresh": "手動で再読み込みをお試しください",
   "refreshAppList": "アプリ一覧を更新",

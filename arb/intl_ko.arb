@@ -571,7 +571,7 @@
   "cacheCorrupt": "캐시가 손상되었습니다. 초기화하시겠습니까?",
   "detectionTip": "타사 API를 사용하므로 참고용으로만 확인하세요",
   "ipClickBehavior": "표시 전환",
-  "ipPrivacyProtection": "IP 표시 숨기기",
+  "ipPrivacyProtection": "IP 표시 보호",
   "manualRefreshIp": "IP 다시 가져오기",
   "tryManualRefresh": "수동 새로고침을 시도해 보세요",
   "refreshAppList": "앱 목록 새로고침",

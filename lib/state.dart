@@ -1376,12 +1376,19 @@ class DetectionState {
     return _instance!;
   }
 
+  static final _protectedIpInfo = IpInfo(
+    ip: '168.168.6.8',
+    countryCode: 'TW',
+    country: 'Taiwan(China)',
+    asn: 'AS 166188',
+  );
+
   bool get isIpMasked => _isIpMasked;
   IpInfo? get rawIpInfo => _rawIpInfo;
 
   IpInfo? _maskIpInfo(IpInfo? ipInfo) {
     if (ipInfo == null) return null;
-    return _isIpMasked ? ipInfo.copyWith(ip: '*** *** *** ***') : ipInfo;
+    return _isIpMasked ? _protectedIpInfo : ipInfo;
   }
 
   void toggleIpPrivacy() {

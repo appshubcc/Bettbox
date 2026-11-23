@@ -819,7 +819,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "ipLookupProxyExit": MessageLookupByLibrary.simpleMessage("預設節點 IP"),
     "ipLookupResolveFailed": MessageLookupByLibrary.simpleMessage("無法解析該網域"),
     "ipLookupResult": MessageLookupByLibrary.simpleMessage("查詢結果"),
-    "ipPrivacyProtection": MessageLookupByLibrary.simpleMessage("隱藏 IP 顯示"),
+    "ipPrivacyProtection": MessageLookupByLibrary.simpleMessage("保護 IP 顯示"),
     "ipRiskAlert": MessageLookupByLibrary.simpleMessage("IP 風險提示"),
     "ipRiskAmountHigh": MessageLookupByLibrary.simpleMessage("較多"),
     "ipRiskAmountLow": MessageLookupByLibrary.simpleMessage("較少"),

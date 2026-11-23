@@ -81,6 +81,7 @@ class GlobalState {
   Timer? _backgroundCoreGcTimer;
   Timer? _backgroundCleanupTimer;
   final Lock _scriptEvaluateLock = Lock();
+  int _relayStamp = 0;
   bool isInit = false;
 
   bool get hasMediaUnlockWidget {
@@ -808,9 +809,7 @@ class GlobalState {
       '$relayPath${separator}cache-${profile.id}-managed.json',
     );
     if (!await cacheFile.exists()) return '';
-    final file = File(
-      '$relayPath${separator}scripted-${DateTime.now().microsecondsSinceEpoch}.json',
-    );
+    final file = File('$relayPath${separator}scripted-$_nextRelayStamp.json');
     await cacheFile.copy(file.path);
     return file.path;
   }
@@ -831,7 +830,9 @@ class GlobalState {
 
   Future<void> validateScript(Script script, {required bool managed}) async {
     Profile? profile = config.currentProfile;
-    if (profile == null || profile.bundle != null || !await profile.check()) {
+    if (profile == null ||
+        (profile.bundle != null && (managed || profile.isManaged)) ||
+        !await profile.check()) {
       profile = null;
       for (final item in config.profiles) {
         if (item.bundle == null && await item.check()) {
@@ -841,7 +842,7 @@ class GlobalState {
       }
     }
     if (profile == null) {
-      final stamp = DateTime.now().microsecondsSinceEpoch;
+      final stamp = _nextRelayStamp;
       final relayPath = await appPath.relayPath;
       final separator = Platform.pathSeparator;
       final input = File('$relayPath${separator}validate-in-$stamp.json');
@@ -912,7 +913,7 @@ class GlobalState {
     bool refresh = false,
     bool cache = true,
   }) async {
-    final stamp = DateTime.now().microsecondsSinceEpoch;
+    final stamp = _nextRelayStamp;
     final relayPath = await appPath.relayPath;
     final separator = Platform.pathSeparator;
     final file = File('$relayPath${separator}scripted-$stamp.json');
@@ -973,6 +974,31 @@ class GlobalState {
         }
       }
     });
+  }
+
+  Future<String> writeExpandedConfig(
+    Profile profile, {
+    bool refresh = false,
+  }) async {
+    final relayPath = await appPath.relayPath;
+    final file = File(
+      '$relayPath${Platform.pathSeparator}profile-$_nextRelayStamp.json',
+    );
+    await _scriptEvaluateLock.synchronized(
+      () => _exportProfileConfig(
+        profile,
+        file.path,
+        managed: true,
+        refresh: refresh,
+      ),
+    );
+    return file.path;
+  }
+
+  int get _nextRelayStamp {
+    final now = DateTime.now().microsecondsSinceEpoch;
+    _relayStamp = now > _relayStamp ? now : _relayStamp + 1;
+    return _relayStamp;
   }
 
   Future<void> _sweepRelay(String relayPath) async {

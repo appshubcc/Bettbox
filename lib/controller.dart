@@ -760,32 +760,43 @@ class AppController {
     required List<BundleMember> members,
     bool collapsed = false,
     ProfileUsageStyle usageStyle = ProfileUsageStyle.bar,
+    String? scriptId,
   }) {
     return _bundleLock.synchronized(() async {
       final profile = Profile.normal(label: label).copyWith(
         autoUpdate: false,
         usageStyle: usageStyle,
+        scriptId: scriptId,
         bundle: ProfileBundle(members: members, collapsed: collapsed),
       );
       await addProfile(await _generateBundle(profile, refresh: false));
     });
   }
 
-  Future<void> generateBundle(String id, {bool refresh = false}) {
+  Future<void> generateBundle(
+    String id, {
+    bool refresh = false,
+    Profile Function(Profile profile)? update,
+  }) {
     return _bundleLock.synchronized(() async {
-      final profile = _ref.read(profilesProvider).getProfile(id);
-      if (profile == null || profile.bundle == null) return;
+      final current = _ref.read(profilesProvider).getProfile(id);
+      if (current == null || current.bundle == null) return;
+      final profile = update?.call(current) ?? current;
       if (refresh) _refreshingBundleIds.add(id);
-      setProfile(profile.copyWith(isUpdating: true));
+      setProfile(current.copyWith(isUpdating: true));
       try {
         final file = File(await appPath.getProfilePath(id));
         final modified = await file.exists()
             ? (await file.stat()).modified
             : null;
         final generated = await _generateBundle(profile, refresh: refresh);
-        final latest = _ref.read(profilesProvider).getProfile(id);
+        final previous = _ref.read(profilesProvider).getProfile(id);
+        final latest = previous == null
+            ? null
+            : update?.call(previous) ?? previous;
         final latestBundle = latest?.bundle;
         if (latest == null || latestBundle == null) return;
+        final setup = _ref.read(needSetupProvider);
         setProfile(
           latest.copyWith(
             isUpdating: false,
@@ -798,6 +809,7 @@ class AppController {
           ),
         );
         if (id != _ref.read(currentProfileIdProvider)) return;
+        if (_ref.read(needSetupProvider) != setup) return;
         if (modified != null && modified == (await file.stat()).modified) {
           return;
         }
@@ -810,6 +822,60 @@ class AppController {
         }
       }
     });
+  }
+
+  Future<void> updateBundleScript(
+    String id,
+    String? scriptId, {
+    bool regenerate = false,
+  }) async {
+    final profile = _ref.read(profilesProvider).getProfile(id);
+    if (profile == null || profile.bundle == null) return;
+    if ((scriptId == null) != profile.isManaged) {
+      await generateBundle(
+        id,
+        update: (profile) => profile.copyWith(scriptId: scriptId),
+      );
+      return;
+    }
+    setProfile(profile.copyWith(scriptId: scriptId));
+    if (regenerate) await generateBundle(id);
+  }
+
+  Future<void> deleteScript(String label) async {
+    final id = _ref
+        .read(scriptStateProvider)
+        .scripts
+        .where((script) => script.label == label)
+        .firstOrNull
+        ?.id;
+    if (id == null) return;
+    try {
+      for (final profile in _ref.read(profilesProvider)) {
+        if (profile.bundle == null || profile.scriptId != id) continue;
+        await updateBundleScript(profile.id, null);
+      }
+    } finally {
+      _ref.read(scriptStateProvider.notifier).del(label);
+      final pending = <String>[];
+      for (final profile in _ref.read(profilesProvider)) {
+        if (profile.scriptId != id) continue;
+        _ref
+            .read(profilesProvider.notifier)
+            .updateProfile(profile.id, (p) => p.copyWith(scriptId: null));
+        if (profile.bundle != null) pending.add(profile.id);
+      }
+      scheduleBundles(pending);
+    }
+  }
+
+  void _repairBundleScripts() {
+    final scripts = _ref.read(scriptStateProvider);
+    for (final profile in _ref.read(profilesProvider)) {
+      if (profile.bundle == null || profile.scriptId == null) continue;
+      if (scripts.findScript(profile.scriptId) != null) continue;
+      unawaited(safeRun(() => updateBundleScript(profile.id, null)));
+    }
   }
 
   void updateManagedSetting(ManagedProps Function(ManagedProps state) builder) {
@@ -903,7 +969,7 @@ class AppController {
   void generateAllBundles() {
     scheduleBundles([
       for (final profile in _ref.read(profilesProvider))
-        if (profile.bundle != null) profile.id,
+        if (profile.bundle != null && profile.isManaged) profile.id,
     ]);
   }
 
@@ -1040,9 +1106,12 @@ class AppController {
       }
     }
     final profiles = _ref.read(profilesProvider);
-    final script = await ManagedScript.script(
-      _ref.read(managedSettingProvider),
-    );
+    final script = profile.isManaged
+        ? await ManagedScript.script(
+            _ref.read(managedSettingProvider),
+            nodeNames: _ref.read(nodesProvider).regionNodeNames,
+          )
+        : null;
     final inputs = <({String prefix, String path})>[];
     final failures = <String, String>{};
     final files = <File>[];
@@ -1051,12 +1120,14 @@ class AppController {
         final target = profiles.getProfile(member.id);
         if (target == null) continue;
         try {
-          final path = await globalState.writeScriptedConfig(
-            target,
-            script,
-            managed: true,
-            refresh: refresh,
-          );
+          final path = script == null
+              ? await globalState.writeExpandedConfig(target, refresh: refresh)
+              : await globalState.writeScriptedConfig(
+                  target,
+                  script,
+                  managed: true,
+                  refresh: refresh,
+                );
           files.add(File(path));
           inputs.add((
             prefix: member.prefix ?? bundlePrefixOf(target.label ?? target.id),
@@ -1077,6 +1148,7 @@ class AppController {
         output: await appPath.getProfilePath(profile.id),
         members: inputs,
         setup: await globalState.buildValidateParams(profile),
+        nodesOnly: script == null,
       );
       return profile.copyWith(
         lastUpdateDate: DateTime.now(),
@@ -3526,6 +3598,7 @@ class AppController {
 
     // Ensure current profile exists
     _ensureCurrentProfile(profiles);
+    _repairBundleScripts();
   }
 
   /// Full restore
@@ -3552,6 +3625,7 @@ class AppController {
     }
 
     _ensureCurrentProfile(profiles);
+    _repairBundleScripts();
   }
 
   void _restoreScripts(ScriptProps scriptProps, bool override) {

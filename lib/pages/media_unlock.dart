@@ -1048,6 +1048,9 @@ class _MediaBatchSheetState extends ConsumerState<_MediaBatchSheet> {
           );
         }
         _checkers.remove(checker);
+        if (mounted && serial == _serial) {
+          unawaited(mediaUnlockStore.update(name, result));
+        }
         _update(
           serial,
           index,

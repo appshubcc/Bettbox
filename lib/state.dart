@@ -1672,8 +1672,31 @@ class MediaUnlockStateNotifier {
     state.value = state.value.copyWith(isLoading: false);
   }
 
+  // In rule mode the destination may use a different rule and outbound for
+  // each platform, so only attribute checks to a node in global mode.
+  String? _mediaOutboundNode() {
+    if (globalState.config.patchClashConfig.mode != Mode.global) return null;
+    var name = UsedProxy.GLOBAL.name;
+    final visited = <String>{};
+    final groups = globalState.appState.groups;
+    final selected = globalState.config.currentProfile?.selectedMap ?? const <String, String>{};
+    while (visited.add(name)) {
+      final next = groups.getGroup(name)?.now ?? selected[name];
+      if (next == null || next.isEmpty) break;
+      name = next;
+    }
+    if (name == UsedProxy.GLOBAL.name || groups.getGroup(name) != null) return null;
+    return name;
+  }
+
+  void _saveMediaResult(String? node, MediaUnlockResult result) {
+    if (node == null || node != _mediaOutboundNode()) return;
+    unawaited(mediaUnlockStore.update(node, result));
+  }
+
   void checkSingle(MediaPlatform platform) async {
     final epoch = _epoch;
+    final mediaNode = _mediaOutboundNode();
     _batchTestingPlatforms.remove(platform);
     if (state.value.testingPlatforms.contains(platform)) return;
     final currentTesting = Set<MediaPlatform>.from(state.value.testingPlatforms)
@@ -1691,6 +1714,7 @@ class MediaUnlockStateNotifier {
             ),
           );
       if (epoch != _epoch) return;
+      _saveMediaResult(mediaNode, res);
       final finalMap = Map<MediaPlatform, MediaUnlockResult>.from(
         state.value.results,
       );
@@ -1701,6 +1725,7 @@ class MediaUnlockStateNotifier {
       );
     } catch (_) {
       if (epoch != _epoch) return;
+      _saveMediaResult(mediaNode, MediaUnlockResult(platform: platform, status: MediaUnlockStatus.failed));
       final finalMap = Map<MediaPlatform, MediaUnlockResult>.from(
         state.value.results,
       );
@@ -1743,6 +1768,7 @@ class MediaUnlockStateNotifier {
     if (targetPlatforms.isEmpty) return;
 
     final requestId = ++_requestId;
+    final mediaNode = _mediaOutboundNode();
     if (isBatchCheck) {
       _batchTestingPlatforms.addAll(targetPlatforms);
     }
@@ -1756,6 +1782,7 @@ class MediaUnlockStateNotifier {
 
     Timer? throttleTimer;
     final bufferResults = <MediaPlatform, MediaUnlockResult>{};
+    final receivedPlatforms = <MediaPlatform>{};
 
     void flushUpdates() {
       throttleTimer?.cancel();
@@ -1780,6 +1807,8 @@ class MediaUnlockStateNotifier {
             platforms: targetPlatforms,
             onProgress: (res) {
               if (requestId != _requestId) return;
+              receivedPlatforms.add(res.platform);
+              _saveMediaResult(mediaNode, res);
               bufferResults[res.platform] = res;
               throttleTimer ??= Timer(
                 const Duration(milliseconds: 100),
@@ -1791,6 +1820,13 @@ class MediaUnlockStateNotifier {
             Duration(seconds: (targetPlatforms.length / 8).ceil() * 8 + 5),
             onTimeout: () {
               _checker.cancel();
+              if (requestId == _requestId) {
+                for (final platform in targetPlatforms.where((p) => !receivedPlatforms.contains(p))) {
+                  _saveMediaResult(mediaNode, MediaUnlockResult(
+                    platform: platform, status: MediaUnlockStatus.failed,
+                  ));
+                }
+              }
               final timeoutMap = <MediaPlatform, MediaUnlockResult>{};
               for (final p in targetPlatforms) {
                 timeoutMap[p] =
@@ -1825,6 +1861,11 @@ class MediaUnlockStateNotifier {
     } catch (_) {
       throttleTimer?.cancel();
       if (requestId != _requestId) return;
+      for (final platform in targetPlatforms.where((p) => !receivedPlatforms.contains(p))) {
+        _saveMediaResult(mediaNode, MediaUnlockResult(
+          platform: platform, status: MediaUnlockStatus.failed,
+        ));
+      }
       flushUpdates();
       final fallbackResults = Map<MediaPlatform, MediaUnlockResult>.from(
         state.value.results,

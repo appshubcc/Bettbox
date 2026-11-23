@@ -9,6 +9,7 @@ import 'package:bett_box/views/proxies/list.dart';
 import 'package:bett_box/views/proxies/tab.dart';
 import 'package:bett_box/widgets/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:material_ui/material_ui.dart';
 
 final _proxyIconMatchersProvider = Provider.autoDispose<List<(RegExp, String)>>(
@@ -238,6 +239,7 @@ class ProxyCard extends StatelessWidget {
                       child: _ProxyMetaTag(proxy.type),
                     ),
                   ),
+                  Flexible(child: _MediaUnlockBadges(proxyName: proxy.name)),
                   delayText,
                 ],
               ),
@@ -265,6 +267,7 @@ class ProxyCard extends StatelessWidget {
               ),
             ),
           ),
+          Flexible(child: _MediaUnlockBadges(proxyName: proxy.name)),
           delayText,
         ],
       ),
@@ -438,6 +441,66 @@ class _ProxyComputedMarkIcon extends StatelessWidget {
           color: colorScheme.onSecondaryContainer,
         ),
       ),
+    );
+  }
+}
+
+class _MediaUnlockBadges extends StatelessWidget {
+  final String proxyName;
+  const _MediaUnlockBadges({required this.proxyName});
+
+  @override
+  Widget build(BuildContext context) {
+    return ValueListenableBuilder<Map<String, Map<String, String>>>(
+      valueListenable: mediaUnlockStore.status,
+      builder: (context, statuses, _) {
+        final unlocked = statuses[proxyName];
+        if (unlocked == null || unlocked.isEmpty) return const SizedBox.shrink();
+        final platforms = MediaPlatform.values.where((p) => unlocked.containsKey(p.name));
+        return SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              for (final platform in platforms)
+                _MediaUnlockBadge(platform: platform, region: unlocked[platform.name]!),
+            ],
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _MediaUnlockBadge extends StatelessWidget {
+  final MediaPlatform platform;
+  final String region;
+  const _MediaUnlockBadge({required this.platform, required this.region});
+
+  @override
+  Widget build(BuildContext context) {
+    const red = Color(0xFFFF0000);
+    final isYouTube = platform == MediaPlatform.youtube;
+    final label = isYouTube
+        ? (region.isEmpty ? 'YTM' : 'YT·$region')
+        : '${platform.defaultName}${region.isEmpty ? '' : '·$region'}';
+    return Container(
+      margin: const EdgeInsets.only(right: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 3),
+      decoration: BoxDecoration(
+        color: red.withValues(alpha: 0.12),
+        border: Border.all(color: red.withValues(alpha: 0.3), width: 0.5),
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: Row(mainAxisSize: MainAxisSize.min, children: [
+        if (isYouTube)
+          const Icon(Icons.play_arrow_rounded, size: 12, color: red)
+        else
+          SvgPicture.asset('assets/svg/${platform.icon}', width: 12, height: 12),
+        const SizedBox(width: 2),
+        Text(label, style: const TextStyle(fontSize: 10, color: red,
+          fontWeight: FontWeight.w600, height: 1)),
+      ]),
     );
   }
 }

@@ -55,3 +55,4 @@ export 'window.dart';
 export 'media_unlock_checker.dart';
 export 'speed_test_store.dart';
 export 'tool_history_store.dart';
+export 'media_unlock_store.dart';

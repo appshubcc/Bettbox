@@ -83,6 +83,18 @@ class _AppStateManagerState extends ConsumerState<AppStateManager>
       if (!next.hasAddedOrChanged(prev)) return;
       globalState.appController.autoBackupDebounce();
     });
+    ref.listenManual(
+      nodesProvider,
+      (_, _) => globalState.appController.autoBackupDebounce(),
+    );
+    ref.listenManual(
+      scriptStateProvider,
+      (_, _) => globalState.appController.autoBackupDebounce(),
+    );
+    ref.listenManual(
+      managedSettingProvider,
+      (_, _) => globalState.appController.autoBackupDebounce(),
+    );
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _updateDashboardRefreshState();
       detectionState.tryStartCheck();

@@ -148,7 +148,7 @@ enum InvokeMessageType { protect, process }
 
 enum FindProcessMode { always, strict, off }
 
-enum RecoveryOption { all, onlyProfiles }
+enum BackupScope { all, onlyProfiles }
 
 enum ChipType { action, delete }
 

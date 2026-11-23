@@ -251,6 +251,7 @@ class ClashCore {
     required String output,
     required List<({String prefix, String path})> members,
     SetupParams? setup,
+    bool nodesOnly = false,
   }) async {
     final res = await clashInterface.mergeProfiles(
       json.encode({
@@ -260,6 +261,7 @@ class ClashCore {
             {'prefix': member.prefix, 'path': member.path},
         ],
         'setup': ?setup,
+        'nodes-only': nodesOnly,
       }),
     );
     if (res.isError) {

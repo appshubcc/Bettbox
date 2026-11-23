@@ -81,7 +81,7 @@ func handleDownloadProfile(params *DownloadProfileParams) (string, error) {
 }
 
 func writeDownloadedProfile(output string, body io.Reader) error {
-	file, err := os.Create(output)
+	file, err := openOutputFile(output)
 	if err != nil {
 		return err
 	}

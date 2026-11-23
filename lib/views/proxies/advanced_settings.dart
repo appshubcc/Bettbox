@@ -139,16 +139,21 @@ class _NodeExclusionDialogState extends ConsumerState<_NodeExclusionDialog>
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              TextFormField(
+              TvTextField(
                 focusNode: autofocusNode,
-                controller: _controller,
-                decoration: InputDecoration(
-                  border: const OutlineInputBorder(),
-                  labelText: appLocalizations.nodeExclusion,
-                  hintText: appLocalizations.nodeExclusionPlaceholder,
+                builder: (tv) => TextFormField(
+                  focusNode: tv.focusNode,
+                  readOnly: tv.readOnly,
+                  showCursor: tv.showCursor,
+                  controller: _controller,
+                  decoration: InputDecoration(
+                    border: const OutlineInputBorder(),
+                    labelText: appLocalizations.nodeExclusion,
+                    hintText: appLocalizations.nodeExclusionPlaceholder,
+                  ),
+                  validator: widget.validator,
+                  onFieldSubmitted: (_) => _handleSubmit(),
                 ),
-                validator: widget.validator,
-                onFieldSubmitted: (_) => _handleSubmit(),
               ),
             ],
           ),
@@ -467,15 +472,20 @@ class _IconRuleSheetState extends State<_IconRuleSheet>
                   ),
                   const SizedBox(width: 12),
                   Expanded(
-                    child: TextField(
+                    child: TvTextField(
                       focusNode: autofocusNode,
-                      controller: _controller,
-                      onChanged: (_) => setState(() {}),
-                      decoration: InputDecoration(
-                        border: const OutlineInputBorder(),
-                        labelText: appLocalizations.regExp,
-                        hintText: 'YouTube|Netflix',
-                        errorText: error,
+                      builder: (tv) => TextField(
+                        focusNode: tv.focusNode,
+                        readOnly: tv.readOnly,
+                        showCursor: tv.showCursor,
+                        controller: _controller,
+                        onChanged: (_) => setState(() {}),
+                        decoration: InputDecoration(
+                          border: const OutlineInputBorder(),
+                          labelText: appLocalizations.regExp,
+                          hintText: 'YouTube|Netflix',
+                          errorText: error,
+                        ),
                       ),
                     ),
                   ),

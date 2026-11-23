@@ -677,9 +677,11 @@ class _AddressField extends StatelessWidget {
           ),
           const SizedBox(width: 10),
           Expanded(
-            child: ToolTvField(
-              controller: controller,
-              child: TextField(
+            child: TvTextField(
+              builder: (tv) => TextField(
+                focusNode: tv.focusNode,
+                readOnly: tv.readOnly,
+                showCursor: tv.showCursor,
                 controller: controller,
                 enabled: enabled,
                 autocorrect: false,

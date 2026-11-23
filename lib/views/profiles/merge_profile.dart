@@ -584,10 +584,15 @@ class _MergeProfileViewState extends ConsumerState<MergeProfileView> {
     final items = [
       Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16),
-        child: TextFormField(
-          controller: _labelController,
-          textInputAction: TextInputAction.done,
-          decoration: InputDecoration(labelText: appLocalizations.name),
+        child: TvTextField(
+          builder: (tv) => TextFormField(
+            focusNode: tv.focusNode,
+            readOnly: tv.readOnly,
+            showCursor: tv.showCursor,
+            controller: _labelController,
+            textInputAction: TextInputAction.done,
+            decoration: InputDecoration(labelText: appLocalizations.name),
+          ),
         ),
       ),
       if (current != null) _buildReport(context, current),

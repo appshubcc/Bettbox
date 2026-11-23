@@ -13,6 +13,7 @@ import 'effect.dart';
 import 'float_layout.dart';
 import 'list.dart';
 import 'scaffold.dart';
+import 'tv_text_field.dart';
 
 class OptionsDialog<T> extends StatelessWidget {
   final String title;
@@ -281,44 +282,50 @@ class _InputDialogState extends State<InputDialog> with IdleAutofocusMixin {
           child: Wrap(
             runSpacing: 16,
             children: [
-              TextFormField(
+              TvTextField(
                 focusNode: autofocusNode,
-                obscureText: _obscure,
-                keyboardType:
-                    widget.keyboardType ??
-                    (widget.obscureText == true
-                        ? TextInputType.visiblePassword
-                        : TextInputType.text),
-                textInputAction: widget.textInputAction ?? TextInputAction.done,
-                maxLines: widget.obscureText == true ? 1 : widget.maxLines,
-                minLines: 1,
-                controller: textController,
-                onFieldSubmitted: (_) {
-                  _handleUpdate();
-                },
-                decoration: InputDecoration(
-                  border: const OutlineInputBorder(),
-                  suffixText: suffixText,
-                  hintText: widget.hintText,
-                  labelText: widget.labelText,
-                  suffixIcon: widget.obscureText == true
-                      ? IconButton(
-                          icon: Icon(
-                            context.resolveIcon(
-                              _obscure
-                                  ? Icons.visibility
-                                  : Icons.visibility_off,
+                builder: (tv) => TextFormField(
+                  focusNode: tv.focusNode,
+                  readOnly: tv.readOnly,
+                  showCursor: tv.showCursor,
+                  obscureText: _obscure,
+                  keyboardType:
+                      widget.keyboardType ??
+                      (widget.obscureText == true
+                          ? TextInputType.visiblePassword
+                          : TextInputType.text),
+                  textInputAction:
+                      widget.textInputAction ?? TextInputAction.done,
+                  maxLines: widget.obscureText == true ? 1 : widget.maxLines,
+                  minLines: 1,
+                  controller: textController,
+                  onFieldSubmitted: (_) {
+                    _handleUpdate();
+                  },
+                  decoration: InputDecoration(
+                    border: const OutlineInputBorder(),
+                    suffixText: suffixText,
+                    hintText: widget.hintText,
+                    labelText: widget.labelText,
+                    suffixIcon: widget.obscureText == true
+                        ? IconButton(
+                            icon: Icon(
+                              context.resolveIcon(
+                                _obscure
+                                    ? Icons.visibility
+                                    : Icons.visibility_off,
+                              ),
                             ),
-                          ),
-                          onPressed: () {
-                            setState(() {
-                              _obscure = !_obscure;
-                            });
-                          },
-                        )
-                      : null,
+                            onPressed: () {
+                              setState(() {
+                                _obscure = !_obscure;
+                              });
+                            },
+                          )
+                        : null,
+                  ),
+                  validator: widget.validator,
                 ),
-                validator: widget.validator,
               ),
             ],
           ),
@@ -710,51 +717,61 @@ class _AddDialogState extends State<AddDialog> with IdleAutofocusMixin {
             runSpacing: 16,
             children: [
               if (keyField != null)
-                TextFormField(
+                TvTextField(
                   focusNode: autofocusNode,
-                  maxLines: 2,
+                  builder: (tv) => TextFormField(
+                    focusNode: tv.focusNode,
+                    readOnly: tv.readOnly,
+                    showCursor: tv.showCursor,
+                    maxLines: 2,
+                    minLines: 1,
+                    controller: keyController,
+                    decoration: InputDecoration(
+                      border: const OutlineInputBorder(),
+                      labelText: keyField!.label,
+                    ),
+                    validator: (String? value) {
+                      String? res;
+                      if (keyField!.validator != null) {
+                        res = keyField!.validator!(value);
+                      }
+                      if (res != null) {
+                        return res;
+                      }
+                      if (value == null || value.isEmpty) {
+                        return appLocalizations.emptyTip(appLocalizations.key);
+                      }
+                      return null;
+                    },
+                  ),
+                ),
+              TvTextField(
+                focusNode: keyField == null ? autofocusNode : null,
+                builder: (tv) => TextFormField(
+                  focusNode: tv.focusNode,
+                  readOnly: tv.readOnly,
+                  showCursor: tv.showCursor,
+                  maxLines: 3,
                   minLines: 1,
-                  controller: keyController,
+                  controller: valueController,
                   decoration: InputDecoration(
                     border: const OutlineInputBorder(),
-                    labelText: keyField!.label,
+                    labelText: valueField.label,
                   ),
                   validator: (String? value) {
                     String? res;
-                    if (keyField!.validator != null) {
-                      res = keyField!.validator!(value);
+                    if (valueField.validator != null) {
+                      res = valueField.validator!(value);
                     }
                     if (res != null) {
                       return res;
                     }
                     if (value == null || value.isEmpty) {
-                      return appLocalizations.emptyTip(appLocalizations.key);
+                      return appLocalizations.emptyTip(appLocalizations.value);
                     }
                     return null;
                   },
                 ),
-              TextFormField(
-                focusNode: keyField == null ? autofocusNode : null,
-                maxLines: 3,
-                minLines: 1,
-                controller: valueController,
-                decoration: InputDecoration(
-                  border: const OutlineInputBorder(),
-                  labelText: valueField.label,
-                ),
-                validator: (String? value) {
-                  String? res;
-                  if (valueField.validator != null) {
-                    res = valueField.validator!(value);
-                  }
-                  if (res != null) {
-                    return res;
-                  }
-                  if (value == null || value.isEmpty) {
-                    return appLocalizations.emptyTip(appLocalizations.value);
-                  }
-                  return null;
-                },
               ),
             ],
           ),

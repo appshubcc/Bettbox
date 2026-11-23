@@ -661,27 +661,32 @@ class _EditorPageState extends ConsumerState<EditorPage> {
           child: CommonScaffold(
             scrollEdgeFade: false,
             appBar: AppBar(
-              title: TextField(
+              title: TvTextField(
                 focusNode: _titleFocusNode,
-                enabled: widget.titleEditable && !readOnly,
-                controller: _titleController,
-                textInputAction: TextInputAction.next,
-                onSubmitted: (_) {
-                  _saveButtonFocusNode.requestFocus();
-                },
-                decoration: InputDecoration(
-                  filled: false,
-                  border: InputBorder.none,
-                  enabledBorder: InputBorder.none,
-                  focusedBorder: InputBorder.none,
-                  disabledBorder: InputBorder.none,
-                  errorBorder: InputBorder.none,
-                  focusedErrorBorder: InputBorder.none,
-                  contentPadding: EdgeInsets.zero,
-                  hintText: appLocalizations.unnamed,
+                builder: (tv) => TextField(
+                  focusNode: tv.focusNode,
+                  readOnly: tv.readOnly,
+                  showCursor: tv.showCursor,
+                  enabled: widget.titleEditable && !readOnly,
+                  controller: _titleController,
+                  textInputAction: TextInputAction.next,
+                  onSubmitted: (_) {
+                    _saveButtonFocusNode.requestFocus();
+                  },
+                  decoration: InputDecoration(
+                    filled: false,
+                    border: InputBorder.none,
+                    enabledBorder: InputBorder.none,
+                    focusedBorder: InputBorder.none,
+                    disabledBorder: InputBorder.none,
+                    errorBorder: InputBorder.none,
+                    focusedErrorBorder: InputBorder.none,
+                    contentPadding: EdgeInsets.zero,
+                    hintText: appLocalizations.unnamed,
+                  ),
+                  style: context.textTheme.titleLarge,
+                  autofocus: false,
                 ),
-                style: context.textTheme.titleLarge,
-                autofocus: false,
               ),
               actions: genActions(context, [
                 if (widget.onSave != null && !readOnly)
@@ -1171,54 +1176,59 @@ class FindPanel extends StatelessWidget implements PreferredSizeWidget {
     final colorScheme = theme.colorScheme;
     return SizedBox(
       height: 36,
-      child: TextField(
-        maxLines: 1,
+      child: TvTextField(
         focusNode: focusNode,
-        style: context.textTheme.bodyMedium,
-        decoration: InputDecoration(
-          isDense: true,
-          filled: true,
-          fillColor: colorScheme.surface,
-          prefixIcon: prefixIcon != null
-              ? AppIcon(
-                  prefixIcon,
-                  size: 16,
-                  color: colorScheme.onSurfaceVariant.withAlpha(160),
-                )
-              : null,
-          prefixIconConstraints: const BoxConstraints(
-            minWidth: 32,
-            minHeight: 36,
-          ),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8),
-            borderSide: BorderSide(
-              color: colorScheme.outlineVariant.withAlpha(100),
+        builder: (tv) => TextField(
+          focusNode: tv.focusNode,
+          readOnly: tv.readOnly,
+          showCursor: tv.showCursor,
+          maxLines: 1,
+          style: context.textTheme.bodyMedium,
+          decoration: InputDecoration(
+            isDense: true,
+            filled: true,
+            fillColor: colorScheme.surface,
+            prefixIcon: prefixIcon != null
+                ? AppIcon(
+                    prefixIcon,
+                    size: 16,
+                    color: colorScheme.onSurfaceVariant.withAlpha(160),
+                  )
+                : null,
+            prefixIconConstraints: const BoxConstraints(
+              minWidth: 32,
+              minHeight: 36,
+            ),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: BorderSide(
+                color: colorScheme.outlineVariant.withAlpha(100),
+              ),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: BorderSide(
+                color: colorScheme.outlineVariant.withAlpha(100),
+              ),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: BorderSide(color: colorScheme.primary, width: 1.5),
+            ),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 10,
+              vertical: 8,
+            ),
+            hintText: hintText,
+            hintStyle: context.textTheme.bodyMedium?.copyWith(
+              color: colorScheme.onSurfaceVariant.withAlpha(120),
             ),
           ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8),
-            borderSide: BorderSide(
-              color: colorScheme.outlineVariant.withAlpha(100),
-            ),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8),
-            borderSide: BorderSide(color: colorScheme.primary, width: 1.5),
-          ),
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: 10,
-            vertical: 8,
-          ),
-          hintText: hintText,
-          hintStyle: context.textTheme.bodyMedium?.copyWith(
-            color: colorScheme.onSurfaceVariant.withAlpha(120),
-          ),
+          onSubmitted: (_) {
+            onSubmitted();
+          },
+          controller: controller,
         ),
-        onSubmitted: (_) {
-          onSubmitted();
-        },
-        controller: controller,
       ),
     );
   }

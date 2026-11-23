@@ -4,7 +4,6 @@ import 'package:bett_box/common/common.dart';
 import 'package:bett_box/models/models.dart';
 import 'package:bett_box/state.dart';
 import 'package:bett_box/widgets/widgets.dart';
-import 'package:flutter/services.dart';
 import 'package:material_ui/material_ui.dart';
 
 String toolEffectiveProxy(List<Group> groups, String proxy) {
@@ -71,55 +70,6 @@ WidgetStateBorderSide toolChipSide(
           )
         : idle,
   );
-}
-
-class ToolTvField extends StatelessWidget {
-  final TextEditingController controller;
-  final Widget child;
-
-  const ToolTvField({super.key, required this.controller, required this.child});
-
-  KeyEventResult _onKeyEvent(FocusNode node, KeyEvent event) {
-    if (!globalState.isAndroidTV || event is KeyUpEvent) {
-      return KeyEventResult.ignored;
-    }
-    final value = controller.value;
-    final text = value.text;
-    final selection = value.selection;
-    final offset = selection.isValid
-        ? selection.extentOffset.clamp(0, text.length)
-        : text.length;
-    final collapsed = !selection.isValid || selection.isCollapsed;
-    final direction = switch (event.logicalKey) {
-      LogicalKeyboardKey.arrowUp
-          when !text.substring(0, offset).contains('\n') =>
-        TraversalDirection.up,
-      LogicalKeyboardKey.arrowDown
-          when !text.substring(offset).contains('\n') =>
-        TraversalDirection.down,
-      LogicalKeyboardKey.arrowLeft when collapsed && offset == 0 =>
-        TraversalDirection.left,
-      LogicalKeyboardKey.arrowRight when collapsed && offset >= text.length =>
-        TraversalDirection.right,
-      _ => null,
-    };
-    if (direction == null) return KeyEventResult.ignored;
-    final focused = FocusManager.instance.primaryFocus;
-    if (focused == null || !focused.focusInDirection(direction)) {
-      return KeyEventResult.ignored;
-    }
-    return KeyEventResult.handled;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Focus(
-      canRequestFocus: false,
-      skipTraversal: true,
-      onKeyEvent: _onKeyEvent,
-      child: child,
-    );
-  }
 }
 
 class ToolOutboundRow {
@@ -263,9 +213,11 @@ class ToolSearchField extends StatelessWidget {
           ),
           const SizedBox(width: 10),
           Expanded(
-            child: ToolTvField(
-              controller: controller,
-              child: TextField(
+            child: TvTextField(
+              builder: (tv) => TextField(
+                focusNode: tv.focusNode,
+                readOnly: tv.readOnly,
+                showCursor: tv.showCursor,
                 controller: controller,
                 autocorrect: false,
                 enableSuggestions: false,

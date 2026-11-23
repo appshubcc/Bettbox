@@ -236,7 +236,7 @@ extension ProfileExtension on Profile {
 
   bool get realAutoUpdate => url.isEmpty == true ? false : autoUpdate;
 
-  bool get isManaged => bundle != null || managed;
+  bool get isManaged => bundle != null ? scriptId == null : managed;
 
   bool get runsManagedScript => bundle == null && managed;
 

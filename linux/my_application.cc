@@ -4,9 +4,6 @@
 #ifdef GDK_WINDOWING_X11
 #include <gdk/gdkx.h>
 #endif
-#ifdef GDK_WINDOWING_WAYLAND
-#include <gdk/gdkwayland.h>
-#endif
 
 #include <sys/socket.h>
 #include <sys/un.h>
@@ -49,45 +46,6 @@ static void _send_control_command(const char* command) {
 }
 
 static GtkWindow* main_window = nullptr;
-
-#ifdef GDK_WINDOWING_WAYLAND
-static void _find_subsurface_renderer(GtkWidget* widget, gpointer user_data) {
-  GtkWidget** renderer = static_cast<GtkWidget**>(user_data);
-  if (*renderer != nullptr) {
-    return;
-  }
-  if (g_strcmp0(G_OBJECT_TYPE_NAME(widget), "FlViewRendererSubsurface") == 0) {
-    *renderer = widget;
-    return;
-  }
-  if (GTK_IS_CONTAINER(widget)) {
-    gtk_container_forall(GTK_CONTAINER(widget), _find_subsurface_renderer,
-                         renderer);
-  }
-}
-
-static gboolean _reallocate_subsurface_renderer(gpointer user_data) {
-  GtkWidget* view = GTK_WIDGET(user_data);
-  if (!gtk_widget_get_mapped(view)) {
-    return G_SOURCE_REMOVE;
-  }
-  GtkWidget* renderer = nullptr;
-  _find_subsurface_renderer(view, &renderer);
-  if (renderer == nullptr || !gtk_widget_get_mapped(renderer)) {
-    return G_SOURCE_REMOVE;
-  }
-  GtkAllocation allocation;
-  gtk_widget_get_allocation(renderer, &allocation);
-  gtk_widget_queue_allocate(renderer);
-  gtk_widget_size_allocate(renderer, &allocation);
-  return G_SOURCE_REMOVE;
-}
-
-static void _on_window_mapped_after(GtkWidget*, gpointer user_data) {
-  g_idle_add_full(G_PRIORITY_DEFAULT_IDLE, _reallocate_subsurface_renderer,
-                  g_object_ref(user_data), g_object_unref);
-}
-#endif
 
 struct _MyApplication {
   GtkApplication parent_instance;
@@ -148,13 +106,6 @@ static void my_application_activate(GApplication* application) {
   FlView* view = fl_view_new(project);
   gtk_widget_show(GTK_WIDGET(view));
   gtk_container_add(GTK_CONTAINER(window), GTK_WIDGET(view));
-#ifdef GDK_WINDOWING_WAYLAND
-  if (GDK_IS_WAYLAND_DISPLAY(gtk_widget_get_display(GTK_WIDGET(window)))) {
-    g_signal_connect_object(window, "map",
-                            G_CALLBACK(_on_window_mapped_after), view,
-                            G_CONNECT_AFTER);
-  }
-#endif
 
   fl_register_plugins(FL_PLUGIN_REGISTRY(view));
 

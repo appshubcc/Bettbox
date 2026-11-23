@@ -13,6 +13,7 @@ import 'package:bett_box/widgets/fade_box.dart';
 import 'package:bett_box/widgets/input.dart';
 import 'package:bett_box/widgets/list.dart';
 import 'package:bett_box/widgets/text.dart';
+import 'package:bett_box/widgets/tv_text_field.dart';
 import 'package:bett_box/widgets/delay_animation_dialog.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -604,64 +605,79 @@ class _WebDAVFormDialogState extends ConsumerState<WebDAVFormDialog> {
         child: Wrap(
           runSpacing: 16,
           children: [
-            TextFormField(
-              controller: uriController,
-              maxLines: 5,
-              minLines: 1,
-              decoration: InputDecoration(
-                prefixIcon: const AppIcon(Icons.link),
-                border: const OutlineInputBorder(),
-                labelText: appLocalizations.address,
-                helperText: appLocalizations.addressHelp,
+            TvTextField(
+              builder: (tv) => TextFormField(
+                focusNode: tv.focusNode,
+                readOnly: tv.readOnly,
+                showCursor: tv.showCursor,
+                controller: uriController,
+                maxLines: 5,
+                minLines: 1,
+                decoration: InputDecoration(
+                  prefixIcon: const AppIcon(Icons.link),
+                  border: const OutlineInputBorder(),
+                  labelText: appLocalizations.address,
+                  helperText: appLocalizations.addressHelp,
+                ),
+                validator: (String? value) {
+                  if (value == null || value.isEmpty || !value.isHttpUrl) {
+                    return appLocalizations.addressTip;
+                  }
+                  return null;
+                },
               ),
-              validator: (String? value) {
-                if (value == null || value.isEmpty || !value.isHttpUrl) {
-                  return appLocalizations.addressTip;
-                }
-                return null;
-              },
             ),
-            TextFormField(
-              controller: userController,
-              decoration: InputDecoration(
-                prefixIcon: const AppIcon(Icons.account_circle),
-                border: const OutlineInputBorder(),
-                labelText: appLocalizations.account,
+            TvTextField(
+              builder: (tv) => TextFormField(
+                focusNode: tv.focusNode,
+                readOnly: tv.readOnly,
+                showCursor: tv.showCursor,
+                controller: userController,
+                decoration: InputDecoration(
+                  prefixIcon: const AppIcon(Icons.account_circle),
+                  border: const OutlineInputBorder(),
+                  labelText: appLocalizations.account,
+                ),
+                validator: (String? value) {
+                  if (value == null || value.isEmpty) {
+                    return appLocalizations.emptyTip(appLocalizations.account);
+                  }
+                  return null;
+                },
               ),
-              validator: (String? value) {
-                if (value == null || value.isEmpty) {
-                  return appLocalizations.emptyTip(appLocalizations.account);
-                }
-                return null;
-              },
             ),
             ValueListenableBuilder(
               valueListenable: _obscureController,
               builder: (_, obscure, _) {
-                return TextFormField(
-                  controller: passwordController,
-                  obscureText: obscure,
-                  decoration: InputDecoration(
-                    prefixIcon: const AppIcon(Icons.password),
-                    border: const OutlineInputBorder(),
-                    suffixIcon: IconButton(
-                      icon: AppIcon(
-                        obscure ? Icons.visibility : Icons.visibility_off,
+                return TvTextField(
+                  builder: (tv) => TextFormField(
+                    focusNode: tv.focusNode,
+                    readOnly: tv.readOnly,
+                    showCursor: tv.showCursor,
+                    controller: passwordController,
+                    obscureText: obscure,
+                    decoration: InputDecoration(
+                      prefixIcon: const AppIcon(Icons.password),
+                      border: const OutlineInputBorder(),
+                      suffixIcon: IconButton(
+                        icon: AppIcon(
+                          obscure ? Icons.visibility : Icons.visibility_off,
+                        ),
+                        onPressed: () {
+                          _obscureController.value = !obscure;
+                        },
                       ),
-                      onPressed: () {
-                        _obscureController.value = !obscure;
-                      },
+                      labelText: appLocalizations.password,
                     ),
-                    labelText: appLocalizations.password,
+                    validator: (String? value) {
+                      if (value == null || value.isEmpty) {
+                        return appLocalizations.emptyTip(
+                          appLocalizations.password,
+                        );
+                      }
+                      return null;
+                    },
                   ),
-                  validator: (String? value) {
-                    if (value == null || value.isEmpty) {
-                      return appLocalizations.emptyTip(
-                        appLocalizations.password,
-                      );
-                    }
-                    return null;
-                  },
                 );
               },
             ),

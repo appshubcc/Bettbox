@@ -351,26 +351,31 @@ class _IpDetailDialogState extends ConsumerState<_IpDetailDialog> {
       label: appLocalizations.ipAddress,
       value: ip,
       customValue: _editing
-          ? TextField(
-              controller: _ipController,
-              autofocus: true,
-              style: valueStyle,
-              keyboardType: TextInputType.url,
-              textInputAction: TextInputAction.search,
-              decoration: InputDecoration(
-                hintText: appLocalizations.ipRiskHint,
-                hintStyle: valueStyle?.copyWith(
-                  fontWeight: FontWeight.normal,
-                  color: context.colorScheme.onSurfaceVariant,
+          ? TvTextField(
+              builder: (tv) => TextField(
+                focusNode: tv.focusNode,
+                readOnly: tv.readOnly,
+                showCursor: tv.showCursor,
+                controller: _ipController,
+                autofocus: true,
+                style: valueStyle,
+                keyboardType: TextInputType.url,
+                textInputAction: TextInputAction.search,
+                decoration: InputDecoration(
+                  hintText: appLocalizations.ipRiskHint,
+                  hintStyle: valueStyle?.copyWith(
+                    fontWeight: FontWeight.normal,
+                    color: context.colorScheme.onSurfaceVariant,
+                  ),
+                  border: InputBorder.none,
+                  enabledBorder: InputBorder.none,
+                  focusedBorder: InputBorder.none,
+                  filled: false,
+                  isCollapsed: true,
+                  contentPadding: EdgeInsets.zero,
                 ),
-                border: InputBorder.none,
-                enabledBorder: InputBorder.none,
-                focusedBorder: InputBorder.none,
-                filled: false,
-                isCollapsed: true,
-                contentPadding: EdgeInsets.zero,
+                onSubmitted: _submitIp,
               ),
-              onSubmitted: _submitIp,
             )
           : GestureDetector(
               behavior: HitTestBehavior.opaque,

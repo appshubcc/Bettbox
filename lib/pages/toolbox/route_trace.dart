@@ -119,9 +119,11 @@ class _RouteTracePageState extends ConsumerState<RouteTracePage>
                 const SizedBox(width: 12),
                 SizedBox(
                   width: 96,
-                  child: ToolTvField(
-                    controller: _portController,
-                    child: TextField(
+                  child: TvTextField(
+                    builder: (tv) => TextField(
+                      focusNode: tv.focusNode,
+                      readOnly: tv.readOnly,
+                      showCursor: tv.showCursor,
                       controller: _portController,
                       keyboardType: TextInputType.number,
                       decoration: InputDecoration(

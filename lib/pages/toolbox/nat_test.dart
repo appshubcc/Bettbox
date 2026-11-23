@@ -684,9 +684,11 @@ class _ServerDialogState extends State<_ServerDialog> {
               onTap: () => Navigator.of(context).pop(server),
             ),
           const SizedBox(height: 8),
-          ToolTvField(
-            controller: _controller,
-            child: TextField(
+          TvTextField(
+            builder: (tv) => TextField(
+              focusNode: tv.focusNode,
+              readOnly: tv.readOnly,
+              showCursor: tv.showCursor,
               controller: _controller,
               autocorrect: false,
               keyboardType: TextInputType.url,

@@ -571,7 +571,7 @@
   "cacheCorrupt": "Cache corrupted. Clear it?",
   "detectionTip": "Third-party API result (for reference only)",
   "ipClickBehavior": "Toggle Display",
-  "ipPrivacyProtection": "Hide IP Display",
+  "ipPrivacyProtection": "Protect IP Display",
   "manualRefreshIp": "Refresh IP",
   "tryManualRefresh": "Please try manual refresh",
   "refreshAppList": "Refresh App List",

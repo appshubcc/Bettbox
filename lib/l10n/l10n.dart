@@ -4745,10 +4745,10 @@ class AppLocalizations {
     );
   }
 
-  /// `Hide IP Display`
+  /// `Protect IP Display`
   String get ipPrivacyProtection {
     return Intl.message(
-      'Hide IP Display',
+      'Protect IP Display',
       name: 'ipPrivacyProtection',
       desc: '',
       args: [],

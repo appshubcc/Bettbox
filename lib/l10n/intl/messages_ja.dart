@@ -914,7 +914,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "このドメインを解決できません",
     ),
     "ipLookupResult": MessageLookupByLibrary.simpleMessage("検索結果"),
-    "ipPrivacyProtection": MessageLookupByLibrary.simpleMessage("IP表示を隠す"),
+    "ipPrivacyProtection": MessageLookupByLibrary.simpleMessage("IP表示を保護"),
     "ipRiskAlert": MessageLookupByLibrary.simpleMessage("IP リスク警告"),
     "ipRiskAmountHigh": MessageLookupByLibrary.simpleMessage("多い"),
     "ipRiskAmountLow": MessageLookupByLibrary.simpleMessage("少ない"),

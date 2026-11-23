@@ -1090,7 +1090,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "ipLookupResult": MessageLookupByLibrary.simpleMessage("Results"),
     "ipPrivacyProtection": MessageLookupByLibrary.simpleMessage(
-      "Hide IP Display",
+      "Protect IP Display",
     ),
     "ipRiskAlert": MessageLookupByLibrary.simpleMessage("IP Risk Alert"),
     "ipRiskAmountHigh": MessageLookupByLibrary.simpleMessage("High"),

@@ -571,7 +571,7 @@
   "cacheCorrupt": "حافظه پنهان آسیب دیده است. آیا پاکسازی شود؟",
   "detectionTip": "استفاده از API جانبی (صرفاً جهت اطلاع)",
   "ipClickBehavior": "تغییر نمایش",
-  "ipPrivacyProtection": "پنهان‌سازی IP",
+  "ipPrivacyProtection": "محافظت از نمایش IP",
   "manualRefreshIp": "دریافت مجدد IP",
   "tryManualRefresh": "لطفاً به صورت دستی بروزرسانی کنید",
   "refreshAppList": "بروزرسانی لیست برنامه‌ها",

@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'dart:ui';
 
 import 'package:bett_box/common/common.dart';
 import 'package:bett_box/enum/enum.dart';
@@ -24,12 +25,13 @@ void main() {
   final pending = <Completer<void>>[];
   var requestCount = 0;
 
-  void setConfig({Mode mode = Mode.rule}) {
+  void setConfig({Mode mode = Mode.rule, String? locale}) {
     globalState.config = Config(
       themeProps: defaultThemeProps,
-      appSetting: const AppSettingProps(
-        mobileDashboardWidgets: [],
-        desktopDashboardWidgets: [],
+      appSetting: AppSettingProps(
+        locale: locale,
+        mobileDashboardWidgets: const [],
+        desktopDashboardWidgets: const [],
       ),
       patchClashConfig: ClashConfig(mixedPort: server.port, mode: mode),
     );
@@ -94,6 +96,9 @@ void main() {
 
   tearDown(() async {
     release();
+    if (detectionState.isIpMasked) {
+      detectionState.toggleIpPrivacy();
+    }
     await _waitFor(() => !detectionState.state.value.isLoading);
   });
 
@@ -135,6 +140,44 @@ void main() {
     detectionState.startCheck(immediate: true);
     await _waitFor(() => requestCount == 2);
 
+    release();
+    await _waitFor(() => detectionState.state.value.ipInfo?.ip == '1.2.3.4');
+  });
+
+  test('开启保护IP显示后强制替换为固定字段，关闭后恢复真实数据', () async {
+    setConfig(locale: 'en');
+    detectionState.startCheck(immediate: true);
+    await _waitFor(() => requestCount == 1);
+    release();
+    await _waitFor(() => detectionState.state.value.ipInfo?.ip == '1.2.3.4');
+
+    detectionState.toggleIpPrivacy();
+    final protected = detectionState.state.value.ipInfo;
+    expect(protected?.ip, '10.0.0.108');
+    expect(protected?.countryCode, 'CN');
+    expect(protected?.country, 'Protected Mode');
+    expect(protected?.city, isNull);
+    expect(protected?.asn, 'AS 166188');
+    expect(protected?.asName, isNull);
+    expect(protected?.isp, isNull);
+
+    expect(DetectionState.protectedCountryCode(const Locale('zh', 'CN')), 'CN');
+    expect(DetectionState.protectedCountryCode(const Locale('zh', 'TC')), 'CN');
+    expect(DetectionState.protectedCountryCode(const Locale('en')), 'CN');
+    expect(DetectionState.protectedCountryCode(const Locale('ja')), 'JP');
+    expect(DetectionState.protectedCountryCode(const Locale('ko')), 'KR');
+    expect(DetectionState.protectedCountryCode(const Locale('ru')), 'RU');
+    expect(DetectionState.protectedCountryCode(const Locale('fa')), 'IR');
+
+    detectionState.toggleIpPrivacy();
+    expect(detectionState.state.value.ipInfo?.ip, '1.2.3.4');
+
+    detectionState.toggleIpPrivacy();
+    expect(detectionState.state.value.ipInfo?.ip, '10.0.0.108');
+
+    detectionState.manualRefresh();
+    expect(detectionState.isIpMasked, isFalse);
+    await _waitFor(() => requestCount == 2);
     release();
     await _waitFor(() => detectionState.state.value.ipInfo?.ip == '1.2.3.4');
   });

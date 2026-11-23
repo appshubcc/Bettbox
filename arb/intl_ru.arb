@@ -571,7 +571,7 @@
   "cacheCorrupt": "Кэш повреждён. Очистить?",
   "detectionTip": "Зависит от сторонних API, только для справки",
   "ipClickBehavior": "Режим отображения",
-  "ipPrivacyProtection": "Скрыть IP",
+  "ipPrivacyProtection": "Защита показа IP",
   "manualRefreshIp": "Обновить IP",
   "tryManualRefresh": "Обновите вручную",
   "refreshAppList": "Обновить список приложений",

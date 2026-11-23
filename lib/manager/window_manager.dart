@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:ui' show ClipOp;
 
 import 'package:bett_box/common/common.dart';
 import 'package:bett_box/enum/enum.dart';
@@ -322,6 +323,80 @@ class _WindowHeaderState extends ConsumerState<WindowHeader> {
         .updateState((state) => state.copyWith(isPinned: newIsPinned));
   }
 
+  Widget _buildPinButton(bool isPinned) {
+    final size = system.isWindows ? kHeaderHeight : 28.0;
+    final button = IconButton(
+      onPressed: _updatePin,
+      style: IconButton.styleFrom(
+        fixedSize: Size.square(size),
+        minimumSize: Size.zero,
+        padding: EdgeInsets.zero,
+        iconSize: 16,
+        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+      ),
+      icon: AppIcon(isPinned ? Icons.push_pin : Icons.push_pin_outlined),
+    );
+    if (system.isWindows) return button;
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 3),
+      child: button,
+    );
+  }
+
+  Widget _buildCaptionButton({
+    required _CaptionGlyph glyph,
+    required VoidCallback onPressed,
+  }) {
+    if (!system.isWindows) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 3),
+        child: IconButton(
+          onPressed: onPressed,
+          style: IconButton.styleFrom(
+            fixedSize: const Size.square(28),
+            minimumSize: Size.zero,
+            padding: EdgeInsets.zero,
+            iconSize: 16,
+            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          ),
+          icon: AppIcon(switch (glyph) {
+            _CaptionGlyph.minimize => Icons.remove,
+            _CaptionGlyph.maximize => Icons.crop_square,
+            _CaptionGlyph.restore => Icons.filter_none,
+            _CaptionGlyph.close => Icons.close,
+          }, size: glyph == _CaptionGlyph.restore ? 14 : null),
+        ),
+      );
+    }
+    final colorScheme = context.colorScheme;
+    final isClose = glyph == _CaptionGlyph.close;
+    bool isActive(Set<WidgetState> states) =>
+        isClose &&
+        (states.contains(WidgetState.hovered) ||
+            states.contains(WidgetState.pressed));
+    return IconButton(
+      onPressed: onPressed,
+      style: ButtonStyle(
+        fixedSize: WidgetStatePropertyAll(Size(46, kHeaderHeight)),
+        minimumSize: const WidgetStatePropertyAll(Size.zero),
+        padding: const WidgetStatePropertyAll(EdgeInsets.zero),
+        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+        shape: const WidgetStatePropertyAll(RoundedRectangleBorder()),
+        backgroundColor: WidgetStateProperty.resolveWith(
+          (states) => isActive(states) ? colorScheme.error : null,
+        ),
+        foregroundColor: WidgetStateProperty.resolveWith(
+          (states) =>
+              isActive(states) ? colorScheme.onError : colorScheme.onSurface,
+        ),
+        overlayColor: isClose
+            ? const WidgetStatePropertyAll(Colors.transparent)
+            : null,
+      ),
+      icon: _CaptionIcon(glyph),
+    );
+  }
+
   Widget _buildActions() {
     if (system.isMacOS) {
       return const SizedBox.shrink();
@@ -358,43 +433,37 @@ class _WindowHeaderState extends ConsumerState<WindowHeader> {
                   ValueListenableBuilder(
                     valueListenable: isPinNotifier,
                     builder: (_, value, _) {
-                      return IconButton(
-                        onPressed: _updatePin,
-                        icon: value
-                            ? const AppIcon(Icons.push_pin)
-                            : const AppIcon(Icons.push_pin_outlined),
+                      return _buildPinButton(value);
+                    },
+                  ),
+                  _buildCaptionButton(
+                    glyph: _CaptionGlyph.minimize,
+                    onPressed: () {
+                      windowManager.minimize();
+                    },
+                  ),
+                  ValueListenableBuilder(
+                    valueListenable: isMaximizedNotifier,
+                    builder: (_, value, _) {
+                      return _buildCaptionButton(
+                        glyph: value
+                            ? _CaptionGlyph.restore
+                            : _CaptionGlyph.maximize,
+                        onPressed: () async {
+                          unawaited(_updateMaximized());
+                        },
                       );
                     },
                   ),
-                  if (!system.isMacOS) ...[
-                    IconButton(
-                      onPressed: () {
-                        windowManager.minimize();
-                      },
-                      icon: const AppIcon(Icons.remove),
-                    ),
-                    ValueListenableBuilder(
-                      valueListenable: isMaximizedNotifier,
-                      builder: (_, value, _) {
-                        return IconButton(
-                          onPressed: () async {
-                            unawaited(_updateMaximized());
-                          },
-                          icon: value
-                              ? const AppIcon(Icons.filter_none, size: 20)
-                              : const AppIcon(Icons.crop_square),
-                        );
-                      },
-                    ),
-                    IconButton(
-                      onPressed: () {
-                        FocusManager.instance.primaryFocus?.unfocus();
-                        globalState.appController.unBackBlock();
-                        globalState.appController.handleBackOrExit();
-                      },
-                      icon: const AppIcon(Icons.close),
-                    ),
-                  ],
+                  _buildCaptionButton(
+                    glyph: _CaptionGlyph.close,
+                    onPressed: () {
+                      FocusManager.instance.primaryFocus?.unfocus();
+                      globalState.appController.unBackBlock();
+                      globalState.appController.handleBackOrExit();
+                    },
+                  ),
+                  if (!system.isWindows) const SizedBox(width: 6),
                 ],
               ),
             ),
@@ -435,4 +504,70 @@ class _WindowHeaderState extends ConsumerState<WindowHeader> {
       ),
     );
   }
+}
+
+enum _CaptionGlyph { minimize, maximize, restore, close }
+
+class _CaptionIcon extends StatelessWidget {
+  final _CaptionGlyph glyph;
+
+  const _CaptionIcon(this.glyph);
+
+  @override
+  Widget build(BuildContext context) {
+    return CustomPaint(
+      size: const Size.square(10),
+      painter: _CaptionGlyphPainter(
+        glyph: glyph,
+        color: IconTheme.of(context).color ?? context.colorScheme.onSurface,
+      ),
+    );
+  }
+}
+
+class _CaptionGlyphPainter extends CustomPainter {
+  final _CaptionGlyph glyph;
+  final Color color;
+
+  const _CaptionGlyphPainter({required this.glyph, required this.color});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1
+      ..strokeJoin = StrokeJoin.round;
+    const corner = Radius.circular(1);
+    final box = (Offset.zero & size).deflate(0.5);
+    switch (glyph) {
+      case _CaptionGlyph.minimize:
+        final y = (size.height / 2).floorToDouble() + 0.5;
+        canvas.drawLine(Offset(0, y), Offset(size.width, y), paint);
+      case _CaptionGlyph.maximize:
+        canvas.drawRRect(RRect.fromRectAndRadius(box, corner), paint);
+      case _CaptionGlyph.restore:
+        const offset = 2.0;
+        final front = Rect.fromLTRB(
+          box.left,
+          box.top + offset,
+          box.right - offset,
+          box.bottom,
+        );
+        final back = front.shift(const Offset(offset, -offset));
+        canvas.drawRRect(RRect.fromRectAndRadius(front, corner), paint);
+        canvas.save();
+        canvas.clipRect(front.inflate(0.5), clipOp: ClipOp.difference);
+        canvas.drawRRect(RRect.fromRectAndRadius(back, corner), paint);
+        canvas.restore();
+      case _CaptionGlyph.close:
+        paint.strokeCap = StrokeCap.round;
+        canvas.drawLine(box.topLeft, box.bottomRight, paint);
+        canvas.drawLine(box.topRight, box.bottomLeft, paint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(_CaptionGlyphPainter oldDelegate) =>
+      glyph != oldDelegate.glyph || color != oldDelegate.color;
 }

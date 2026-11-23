@@ -1283,6 +1283,7 @@
   "nodeFileDesc": "Read nodes from a file",
   "manualInput": "Manual input",
   "nodeManualDesc": "Share links, Base64 and YAML are supported",
+  "meshNodeDesc": "Mesh node from an editable template",
   "registerWarp": "Register Cloudflare WARP",
   "registerWarpDesc": "Create a WireGuard landing node",
   "registerWarpTip": "A new WARP device will be registered with Cloudflare. By continuing you agree to {terms}.",

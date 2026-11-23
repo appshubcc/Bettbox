@@ -1284,6 +1284,7 @@
   "nodeFileDesc": "ファイルからノードを読み込む",
   "manualInput": "手動入力",
   "nodeManualDesc": "共有リンク、Base64、YAML に対応",
+  "meshNodeDesc": "編集可能なテンプレートからメッシュノードを追加",
   "registerWarp": "Cloudflare WARP を登録",
   "registerWarpDesc": "WireGuard ランディングノードを作成",
   "registerWarpTip": "Cloudflare に新しい WARP デバイスを登録します。続行すると{terms}に同意したものとみなされます。",

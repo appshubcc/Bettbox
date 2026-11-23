@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"errors"
+	"path/filepath"
 	"regexp"
 	"slices"
 	"strings"
@@ -13,9 +14,11 @@ import (
 	"github.com/metacubex/mihomo/common/utils"
 	"github.com/metacubex/mihomo/common/yaml"
 	"github.com/metacubex/mihomo/config"
+	C "github.com/metacubex/mihomo/constant"
 )
 
 type PatchNode struct {
+	ID      string         `json:"id"`
 	Proxy   map[string]any `json:"proxy"`
 	Dialer  string         `json:"dialer"`
 	Groups  []string       `json:"groups"`
@@ -71,6 +74,43 @@ func nodeMappings(value any) []map[string]any {
 	return nil
 }
 
+// meshTypes are outbounds that keep a node identity on disk and register a
+// process-wide DNS client under their name when constructed.
+var meshTypes = map[string]string{
+	"easytier":  "easytier",
+	"tailscale": "tailscale",
+	"zerotier":  "zerotier",
+}
+
+func isMeshType(proxy map[string]any) bool {
+	kind, _ := proxy["type"].(string)
+	_, ok := meshTypes[strings.ToLower(kind)]
+	return ok
+}
+
+// parseNodeProxy validates a node mapping without disturbing live outbounds.
+// Mesh outbounds register DNS clients by name, so a same-named validation
+// instance would replace the running node's client and remove it on Close.
+func parseNodeProxy(mapping map[string]any) (C.Proxy, error) {
+	if !isMeshType(mapping) {
+		return adapter.ParseProxy(mapping)
+	}
+	probe := cloneMapping(mapping)
+	probe["name"] = "validate-" + utils.NewUUIDV4().String()
+	return adapter.ParseProxy(probe)
+}
+
+// meshStateDir keeps a mesh node's identity stable across renames and
+// subscription refreshes, and keeps nodes of the same type apart.
+func meshStateDir(proxy map[string]any, id string) string {
+	kind, _ := proxy["type"].(string)
+	dir, ok := meshTypes[strings.ToLower(kind)]
+	if !ok || id == "" {
+		return ""
+	}
+	return filepath.Join("nodes", dir, id)
+}
+
 func parseNodes(text string) ([]map[string]any, int, error) {
 	text = strings.TrimSpace(text)
 	if text == "" {
@@ -97,7 +137,7 @@ func parseNodes(text string) ([]map[string]any, int, error) {
 			continue
 		}
 		delete(mapping, "dialer-proxy")
-		proxy, err := adapter.ParseProxy(mapping)
+		proxy, err := parseNodeProxy(mapping)
 		if err != nil {
 			lastErr = err
 			continue
@@ -288,6 +328,11 @@ func patchNodes(raw *config.RawConfig, nodes []PatchNode) {
 		proxy := cloneMapping(node.Proxy)
 		proxy["name"] = name
 		delete(proxy, "dialer-proxy")
+		if _, set := proxy["state-dir"]; !set {
+			if dir := meshStateDir(proxy, node.ID); dir != "" {
+				proxy["state-dir"] = dir
+			}
+		}
 		dialer := ""
 		if node.Dialer != "" {
 			_, isGroup := groups[node.Dialer]

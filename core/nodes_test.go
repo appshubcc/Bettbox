@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"net/netip"
+	"path/filepath"
 	"reflect"
 	"strconv"
 	"strings"
@@ -21,7 +22,10 @@ import (
 	"github.com/metacubex/mihomo/config"
 	"github.com/metacubex/mihomo/constant"
 	"github.com/metacubex/mihomo/constant/provider"
+	"github.com/metacubex/mihomo/dns"
 	"github.com/metacubex/mihomo/tunnel"
+
+	D "github.com/miekg/dns"
 )
 
 const nodesProfile = `
@@ -499,5 +503,107 @@ func TestPatchNodesStripsRegionMarkersWithoutNodes(t *testing.T) {
 		if _, exist := group[regionMarker]; exist {
 			t.Errorf("%v keeps %s", group["name"], regionMarker)
 		}
+	}
+}
+
+func meshProxy(kind, name string) map[string]any {
+	switch kind {
+	case "easytier":
+		return map[string]any{
+			"name": name, "type": kind, "network-name": "net", "network-secret": "s",
+			"peers": []any{"tcp://192.0.2.1:11010"},
+		}
+	case "zerotier":
+		return map[string]any{"name": name, "type": kind, "network": "0123456789abcdef"}
+	default:
+		return map[string]any{"name": name, "type": kind}
+	}
+}
+
+func TestPatchNodesMeshStateDir(t *testing.T) {
+	for _, kind := range []string{"easytier", "tailscale", "zerotier"} {
+		raw := parsePatchProfile(t, nodesProfile)
+		source := meshProxy(kind, "home")
+		patchNodes(raw, []PatchNode{
+			{ID: "id-1", Proxy: source, Groups: []string{"手动选择"}},
+			{ID: "id-2", Proxy: meshProxy(kind, "office"), Groups: []string{"手动选择"}},
+		})
+		got := []any{raw.Proxy[len(raw.Proxy)-2]["state-dir"], raw.Proxy[len(raw.Proxy)-1]["state-dir"]}
+		want := []any{filepath.Join("nodes", kind, "id-1"), filepath.Join("nodes", kind, "id-2")}
+		if !reflect.DeepEqual(got, want) {
+			t.Errorf("%s: state-dir = %v, want %v", kind, got, want)
+		}
+		if _, exist := source["state-dir"]; exist {
+			t.Errorf("%s: source proxy mutated", kind)
+		}
+	}
+}
+
+func TestPatchNodesKeepsExplicitStateDir(t *testing.T) {
+	raw := parsePatchProfile(t, nodesProfile)
+	proxy := meshProxy("tailscale", "ts")
+	proxy["state-dir"] = "user-chosen"
+	patchNodes(raw, []PatchNode{{ID: "id-1", Proxy: proxy, Groups: []string{"手动选择"}}})
+	if got := raw.Proxy[len(raw.Proxy)-1]["state-dir"]; got != "user-chosen" {
+		t.Errorf("explicit state-dir = %v, want it preserved", got)
+	}
+}
+
+func TestPatchNodesStateDirIdentityFollowsID(t *testing.T) {
+	dirs := make([]any, 0, 2)
+	for _, name := range []string{"before", "after rename"} {
+		raw := parsePatchProfile(t, nodesProfile)
+		patchNodes(raw, []PatchNode{{ID: "stable", Proxy: meshProxy("easytier", name), Groups: []string{"手动选择"}}})
+		dirs = append(dirs, raw.Proxy[len(raw.Proxy)-1]["state-dir"])
+	}
+	if dirs[0] != dirs[1] {
+		t.Errorf("state-dir must survive a rename: %v", dirs)
+	}
+}
+
+func TestPatchNodesLeavesOtherTypesAlone(t *testing.T) {
+	raw := parsePatchProfile(t, nodesProfile)
+	patchNodes(raw, []PatchNode{
+		{ID: "id-1", Proxy: nodeProxy("plain"), Groups: []string{"手动选择"}},
+		{Proxy: meshProxy("easytier", "no-id"), Groups: []string{"手动选择"}},
+	})
+	for _, proxy := range raw.Proxy[len(raw.Proxy)-2:] {
+		if _, exist := proxy["state-dir"]; exist {
+			t.Errorf("%v: state-dir must only be set for mesh nodes with an id", proxy["name"])
+		}
+	}
+}
+
+func TestParseNodesMeshKeepsName(t *testing.T) {
+	text := "name: mesh\ntype: easytier\nnetwork-name: net\nnetwork-secret: s\npeers:\n  - tcp://192.0.2.1:11010"
+	proxies, _, err := parseNodes(text)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(proxies) != 1 || proxies[0]["name"] != "mesh" {
+		t.Errorf("validation must keep the saved name: %v", proxies)
+	}
+}
+
+func TestParseNodeProxyDoesNotReplaceLiveDNSClient(t *testing.T) {
+	live, err := adapter.ParseProxy(meshProxy("easytier", "live"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer func() { _ = live.Close() }()
+	probe, err := parseNodeProxy(meshProxy("easytier", "live"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	_ = probe.Close()
+
+	resolvers := dns.NewResolver(dns.Config{
+		Main: []dns.NameServer{{Net: "easytier", Addr: "live"}},
+	})
+	query := new(D.Msg)
+	query.SetQuestion("host.example.", D.TypeA)
+	_, err = resolvers.ExchangeContext(context.Background(), query)
+	if err != nil && strings.Contains(err.Error(), "does not provide EasyTier DNS") {
+		t.Errorf("closing a validation instance removed the live node's DNS client: %v", err)
 	}
 }

@@ -1284,6 +1284,7 @@
   "nodeFileDesc": "파일에서 노드 읽기",
   "manualInput": "수동 입력",
   "nodeManualDesc": "공유 링크, Base64, YAML 지원",
+  "meshNodeDesc": "편집 가능한 템플릿으로 메시 노드 추가",
   "registerWarp": "Cloudflare WARP 등록",
   "registerWarpDesc": "WireGuard 랜딩 노드 생성",
   "registerWarpTip": "Cloudflare에 새 WARP 기기를 등록합니다. 계속하면 {terms}에 동의하는 것으로 간주됩니다.",

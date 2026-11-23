@@ -1288,6 +1288,7 @@
   "nodeFileDesc": "Прочитать узлы из файла",
   "manualInput": "Ручной ввод",
   "nodeManualDesc": "Поддерживаются ссылки, Base64 и YAML",
+  "meshNodeDesc": "Узел сети из редактируемого шаблона",
   "registerWarp": "Зарегистрировать Cloudflare WARP",
   "registerWarpDesc": "Создать выходной узел WireGuard",
   "registerWarpTip": "В Cloudflare будет зарегистрировано новое устройство WARP. Продолжая, вы принимаете {terms}.",

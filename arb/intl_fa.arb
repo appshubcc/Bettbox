@@ -1284,6 +1284,7 @@
   "nodeFileDesc": "خواندن گره‌ها از فایل",
   "manualInput": "ورود دستی",
   "nodeManualDesc": "پیوندهای اشتراک‌گذاری، Base64 و YAML پشتیبانی می‌شوند",
+  "meshNodeDesc": "افزودن گره شبکه از یک الگوی قابل ویرایش",
   "registerWarp": "ثبت Cloudflare WARP",
   "registerWarpDesc": "ایجاد گره خروجی WireGuard",
   "registerWarpTip": "یک دستگاه WARP جدید در Cloudflare ثبت می‌شود. با ادامه، {terms} را می‌پذیرید.",

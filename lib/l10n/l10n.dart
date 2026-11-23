@@ -10874,6 +10874,16 @@ class AppLocalizations {
     );
   }
 
+  /// `Mesh node from an editable template`
+  String get meshNodeDesc {
+    return Intl.message(
+      'Mesh node from an editable template',
+      name: 'meshNodeDesc',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Register Cloudflare WARP`
   String get registerWarp {
     return Intl.message(

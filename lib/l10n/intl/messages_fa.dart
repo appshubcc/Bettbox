@@ -1466,6 +1466,9 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "merged": MessageLookupByLibrary.simpleMessage("ادغام‌شده"),
     "mergedSubscriptionName": m45,
+    "meshNodeDesc": MessageLookupByLibrary.simpleMessage(
+      "افزودن گره شبکه از یک الگوی قابل ویرایش",
+    ),
     "messageTest": MessageLookupByLibrary.simpleMessage("تست پیام"),
     "messageTestTip": MessageLookupByLibrary.simpleMessage(
       "این یک پیام تستی است.",

@@ -39,6 +39,8 @@ abstract class ProxyNode with _$ProxyNode {
       _$ProxyNodeFromJson(json);
 }
 
+const meshNodeTypes = {'easytier', 'tailscale', 'zerotier'};
+
 extension ProxyNodeExt on ProxyNode {
   String get name => this.proxy['name']?.toString() ?? id;
 
@@ -47,6 +49,8 @@ extension ProxyNodeExt on ProxyNode {
   String get typeLabel => type.toUpperCase();
 
   bool get isLanding => role == NodeRole.landing;
+
+  bool get isMesh => meshNodeTypes.contains(type.toLowerCase());
 
   NodeBinding? bindingOf(String profileId, {required bool managed}) {
     if (!managed) return bindings[profileId];
@@ -61,6 +65,7 @@ extension ProxyNodeExt on ProxyNode {
     if (!enable || binding == null) return null;
     final all = managed && binding.all;
     return {
+      'id': id,
       'proxy': this.proxy,
       'dialer': isLanding ? binding.front ?? '' : '',
       'groups': all

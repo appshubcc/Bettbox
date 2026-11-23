@@ -1517,6 +1517,9 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "merged": MessageLookupByLibrary.simpleMessage("Объединён"),
     "mergedSubscriptionName": m45,
+    "meshNodeDesc": MessageLookupByLibrary.simpleMessage(
+      "Узел сети из редактируемого шаблона",
+    ),
     "messageTest": MessageLookupByLibrary.simpleMessage("Тест сообщения"),
     "messageTestTip": MessageLookupByLibrary.simpleMessage(
       "Это тестовое сообщение.",

@@ -166,6 +166,24 @@ class AddNodeView extends StatelessWidget {
     );
   }
 
+  void _handleTemplate(BuildContext context, MeshTemplate template) {
+    BaseNavigator.push(
+      context,
+      EditorPage(
+        title: template.title,
+        content: template.content,
+        languages: const [],
+        onSave: (editorContext, _, content) async {
+          final nodes = await _parse(content);
+          if (nodes == null) return;
+          if (editorContext.mounted) Navigator.of(editorContext).pop();
+          if (context.mounted) Navigator.of(context).pop(nodes);
+        },
+      ),
+      maintainState: false,
+    );
+  }
+
   Future<void> _handleWarp(BuildContext context) async {
     final title = appLocalizations.registerWarp;
     final terms = appLocalizations.cloudflareTerms;
@@ -271,6 +289,26 @@ class AddNodeView extends StatelessWidget {
             onTap: () => _handleWarp(context),
           ),
         ),
+        if (AppIdentity.isStandard) ...[
+          const SizedBox(height: 12),
+          CommonCard(
+            type: CommonCardType.filled,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                for (final (index, template) in meshTemplates.indexed) ...[
+                  if (index > 0) divider,
+                  ListItem(
+                    leading: const AppIcon(Icons.hub_outlined),
+                    title: Text(template.title),
+                    subtitle: Text(appLocalizations.meshNodeDesc),
+                    onTap: () => _handleTemplate(context, template),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ],
       ],
     );
   }

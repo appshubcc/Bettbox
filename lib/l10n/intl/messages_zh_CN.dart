@@ -1093,6 +1093,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "merged": MessageLookupByLibrary.simpleMessage("已合并"),
     "mergedSubscriptionName": m45,
+    "meshNodeDesc": MessageLookupByLibrary.simpleMessage("通过可编辑模板添加组网节点"),
     "messageTest": MessageLookupByLibrary.simpleMessage("消息测试"),
     "messageTestTip": MessageLookupByLibrary.simpleMessage("这是一条消息。"),
     "min": MessageLookupByLibrary.simpleMessage("最小"),

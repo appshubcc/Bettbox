@@ -1222,6 +1222,9 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "merged": MessageLookupByLibrary.simpleMessage("統合済み"),
     "mergedSubscriptionName": m45,
+    "meshNodeDesc": MessageLookupByLibrary.simpleMessage(
+      "編集可能なテンプレートからメッシュノードを追加",
+    ),
     "messageTest": MessageLookupByLibrary.simpleMessage("メッセージテスト"),
     "messageTestTip": MessageLookupByLibrary.simpleMessage("テストメッセージです。"),
     "min": MessageLookupByLibrary.simpleMessage("最小"),

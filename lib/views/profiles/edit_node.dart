@@ -565,13 +565,15 @@ class EditNodeViewState extends ConsumerState<EditNodeView> {
             trailing: const AppIcon(Icons.edit_outlined),
             onTap: () => _handleEdit(node),
           ),
-          _buildDivider(),
-          ListItem(
-            title: Text(appLocalizations.connectivityTest),
-            subtitle: Text(appLocalizations.connectivityTestDesc),
-            trailing: _buildTestResult(),
-            onTap: () => _handleTest(node),
-          ),
+          if (!node.isMesh) ...[
+            _buildDivider(),
+            ListItem(
+              title: Text(appLocalizations.connectivityTest),
+              subtitle: Text(appLocalizations.connectivityTestDesc),
+              trailing: _buildTestResult(),
+              onTap: () => _handleTest(node),
+            ),
+          ],
         ],
       ),
     );

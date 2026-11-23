@@ -1284,6 +1284,7 @@
   "nodeFileDesc": "讀取檔案中的節點",
   "manualInput": "手動輸入",
   "nodeManualDesc": "支援分享連結、Base64 與 YAML",
+  "meshNodeDesc": "透過可編輯範本新增組網節點",
   "registerWarp": "註冊 Cloudflare WARP",
   "registerWarpDesc": "產生 WireGuard 落地節點",
   "registerWarpTip": "將向 Cloudflare 註冊一個新的 WARP 裝置，繼續即表示你同意{terms}。",

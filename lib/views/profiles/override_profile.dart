@@ -1165,29 +1165,34 @@ class _AddRuleDialogState extends State<AddRuleDialog>
                     controller: _ruleProviderController,
                   )
                 else if (_ruleAction != RuleAction.MATCH)
-                  TextFormField(
-                    controller: _contentController,
-                    maxLines: 1,
-                    textInputAction: TextInputAction.next,
-                    decoration: InputDecoration(
-                      labelText: appLocalizations.content,
-                      suffixIcon:
-                          system.isAndroid &&
-                              _ruleAction == RuleAction.PROCESS_NAME
-                          ? IconButton(
-                              icon: const AppIcon(Icons.add),
-                              onPressed: _pickPackage,
-                            )
-                          : null,
+                  TvTextField(
+                    builder: (tv) => TextFormField(
+                      focusNode: tv.focusNode,
+                      readOnly: tv.readOnly,
+                      showCursor: tv.showCursor,
+                      controller: _contentController,
+                      maxLines: 1,
+                      textInputAction: TextInputAction.next,
+                      decoration: InputDecoration(
+                        labelText: appLocalizations.content,
+                        suffixIcon:
+                            system.isAndroid &&
+                                _ruleAction == RuleAction.PROCESS_NAME
+                            ? IconButton(
+                                icon: const AppIcon(Icons.add),
+                                onPressed: _pickPackage,
+                              )
+                            : null,
+                      ),
+                      validator: (_) {
+                        if (_contentController.text.isEmpty) {
+                          return appLocalizations.emptyTip(
+                            appLocalizations.content,
+                          );
+                        }
+                        return null;
+                      },
                     ),
-                    validator: (_) {
-                      if (_contentController.text.isEmpty) {
-                        return appLocalizations.emptyTip(
-                          appLocalizations.content,
-                        );
-                      }
-                      return null;
-                    },
                   ),
                 if (_ruleAction == RuleAction.SUB_RULE)
                   _buildPicker(

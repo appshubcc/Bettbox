@@ -242,28 +242,38 @@ class _StartSwitchDialogState extends State<_StartSwitchDialog> {
             style: context.textTheme.titleSmall,
           ),
           const SizedBox(height: 14),
-          TextField(
-            controller: _onController,
-            decoration: InputDecoration(
-              labelText: appLocalizations.startSwitchOnLabel,
-              hintText: appLocalizations.enabled,
-              hintStyle: hintStyle,
-              errorText: onErrorText,
-              floatingLabelBehavior: FloatingLabelBehavior.always,
+          TvTextField(
+            builder: (tv) => TextField(
+              focusNode: tv.focusNode,
+              readOnly: tv.readOnly,
+              showCursor: tv.showCursor,
+              controller: _onController,
+              decoration: InputDecoration(
+                labelText: appLocalizations.startSwitchOnLabel,
+                hintText: appLocalizations.enabled,
+                hintStyle: hintStyle,
+                errorText: onErrorText,
+                floatingLabelBehavior: FloatingLabelBehavior.always,
+              ),
+              onChanged: (_) => setState(() {}),
             ),
-            onChanged: (_) => setState(() {}),
           ),
           const SizedBox(height: 16),
-          TextField(
-            controller: _offController,
-            decoration: InputDecoration(
-              labelText: appLocalizations.startSwitchOffLabel,
-              hintText: appLocalizations.disabled,
-              hintStyle: hintStyle,
-              errorText: offErrorText,
-              floatingLabelBehavior: FloatingLabelBehavior.always,
+          TvTextField(
+            builder: (tv) => TextField(
+              focusNode: tv.focusNode,
+              readOnly: tv.readOnly,
+              showCursor: tv.showCursor,
+              controller: _offController,
+              decoration: InputDecoration(
+                labelText: appLocalizations.startSwitchOffLabel,
+                hintText: appLocalizations.disabled,
+                hintStyle: hintStyle,
+                errorText: offErrorText,
+                floatingLabelBehavior: FloatingLabelBehavior.always,
+              ),
+              onChanged: (_) => setState(() {}),
             ),
-            onChanged: (_) => setState(() {}),
           ),
         ],
       ),

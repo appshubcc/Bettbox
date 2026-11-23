@@ -206,9 +206,11 @@ class _DnsQueryPageState extends ConsumerState<DnsQueryPage>
                 ),
                 if (showServer) ...[
                   const SizedBox(height: 12),
-                  ToolTvField(
-                    controller: _serverController,
-                    child: TextField(
+                  TvTextField(
+                    builder: (tv) => TextField(
+                      focusNode: tv.focusNode,
+                      readOnly: tv.readOnly,
+                      showCursor: tv.showCursor,
                       controller: _serverController,
                       autocorrect: false,
                       keyboardType: TextInputType.url,

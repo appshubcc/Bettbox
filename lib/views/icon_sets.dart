@@ -460,12 +460,17 @@ class _IconPickerBodyState extends ConsumerState<IconPickerBody> {
       children: [
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
-          child: TextField(
-            textInputAction: TextInputAction.search,
-            onChanged: (value) => setState(() => _query = value.trim()),
-            decoration: InputDecoration(
-              hintText: appLocalizations.searchIcons,
-              prefixIcon: const AppIcon(Icons.search),
+          child: TvTextField(
+            builder: (tv) => TextField(
+              focusNode: tv.focusNode,
+              readOnly: tv.readOnly,
+              showCursor: tv.showCursor,
+              textInputAction: TextInputAction.search,
+              onChanged: (value) => setState(() => _query = value.trim()),
+              decoration: InputDecoration(
+                hintText: appLocalizations.searchIcons,
+                prefixIcon: const AppIcon(Icons.search),
+              ),
             ),
           ),
         ),

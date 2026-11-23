@@ -2035,6 +2035,46 @@ class AppLocalizations {
     );
   }
 
+  /// `Back Up Profiles Only`
+  String get backupProfiles {
+    return Intl.message(
+      'Back Up Profiles Only',
+      name: 'backupProfiles',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Back Up All Data`
+  String get backupAll {
+    return Intl.message(
+      'Back Up All Data',
+      name: 'backupAll',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Subscriptions, override scripts, nodes and managed mode`
+  String get backupScopeProfilesDesc {
+    return Intl.message(
+      'Subscriptions, override scripts, nodes and managed mode',
+      name: 'backupScopeProfilesDesc',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Profiles and all app settings`
+  String get backupScopeAllDesc {
+    return Intl.message(
+      'Profiles and all app settings',
+      name: 'backupScopeAllDesc',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Select Backup Version`
   String get selectBackupVersion {
     return Intl.message(

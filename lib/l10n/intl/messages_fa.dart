@@ -418,6 +418,9 @@ class MessageLookup extends MessageLookupByLibrary {
       "نشان پس‌زمینه",
     ),
     "backup": MessageLookupByLibrary.simpleMessage("پشتیبان‌گیری"),
+    "backupAll": MessageLookupByLibrary.simpleMessage(
+      "پشتیبان‌گیری از تمام داده‌ها",
+    ),
     "backupAndRecovery": MessageLookupByLibrary.simpleMessage(
       "پشتیبان‌گیری و بازیابی",
     ),
@@ -439,6 +442,15 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "backupPasswordWrong": MessageLookupByLibrary.simpleMessage(
       "رمز عبور پشتیبان نادرست است",
+    ),
+    "backupProfiles": MessageLookupByLibrary.simpleMessage(
+      "فقط پشتیبان‌گیری از پروفایل‌ها",
+    ),
+    "backupScopeAllDesc": MessageLookupByLibrary.simpleMessage(
+      "پروفایل‌ها و همه تنظیمات برنامه",
+    ),
+    "backupScopeProfilesDesc": MessageLookupByLibrary.simpleMessage(
+      "اشتراک‌ها، اسکریپت‌های اورراید، گره‌ها و حالت مدیریت‌شده",
     ),
     "backupSuccess": MessageLookupByLibrary.simpleMessage(
       "پشتیبان‌گیری با موفقیت انجام شد",

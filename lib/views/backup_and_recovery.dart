@@ -77,11 +77,15 @@ class _BackupAndRecoveryState extends ConsumerState<BackupAndRecovery> {
   }
 
   Future<void> _backupOnWebDAV(DAVClient client, DAV dav) async {
+    final scope = await globalState.showCommonDialog<BackupScope>(
+      child: const BackupScopeDialog(),
+    );
+    if (scope == null || !mounted) return;
     final encrypted = ref
         .read(appSettingProvider.select((state) => state.backupPassword))
         .isNotEmpty;
     final res = await globalState.appController.safeRun<bool>(
-      () => globalState.appController.backupToWebDAV(client, dav),
+      () => globalState.appController.backupToWebDAV(client, dav, scope: scope),
       needLoading: true,
       title: appLocalizations.backup,
     );
@@ -93,7 +97,7 @@ class _BackupAndRecoveryState extends ConsumerState<BackupAndRecovery> {
     BuildContext context,
     DAVClient client,
     String targetFileName,
-    RecoveryOption recoveryOption,
+    BackupScope recoveryOption,
   ) async {
     final res = await globalState.appController.safeRun(
       () async {
@@ -130,8 +134,8 @@ class _BackupAndRecoveryState extends ConsumerState<BackupAndRecovery> {
     );
     if (selectedFile == null || !context.mounted) return;
 
-    final recoveryOption = await globalState.showCommonDialog<RecoveryOption>(
-      child: const RecoveryOptionsDialog(),
+    final recoveryOption = await globalState.showCommonDialog<BackupScope>(
+      child: const BackupScopeDialog(recovery: true),
     );
     if (recoveryOption == null || !context.mounted) return;
 
@@ -140,6 +144,10 @@ class _BackupAndRecoveryState extends ConsumerState<BackupAndRecovery> {
   }
 
   Future<void> _backupOnLocal(BuildContext context) async {
+    final scope = await globalState.showCommonDialog<BackupScope>(
+      child: const BackupScopeDialog(),
+    );
+    if (scope == null || !context.mounted) return;
     final password = await globalState.showCommonDialog<String>(
       child: InputDialog(
         title: appLocalizations.backupPassword,
@@ -155,6 +163,7 @@ class _BackupAndRecoveryState extends ConsumerState<BackupAndRecovery> {
     final res = await globalState.appController.safeRun<bool>(() async {
       final backupData = await globalState.appController.backupData(
         password: password,
+        scope: scope,
       );
       final value = await picker.saveFile(
         utils.getBackupFileName(),
@@ -167,7 +176,7 @@ class _BackupAndRecoveryState extends ConsumerState<BackupAndRecovery> {
     _showBackupSuccess(password.isNotEmpty);
   }
 
-  Future<void> _recoveryOnLocal(RecoveryOption recoveryOption) async {
+  Future<void> _recoveryOnLocal(BackupScope recoveryOption) async {
     final file = await picker.pickerFile();
     final path = file?.path;
     final res = await globalState.appController.safeRun(
@@ -193,8 +202,8 @@ class _BackupAndRecoveryState extends ConsumerState<BackupAndRecovery> {
   }
 
   Future<void> _handleRecoveryOnLocal(BuildContext context) async {
-    final recoveryOption = await globalState.showCommonDialog<RecoveryOption>(
-      child: const RecoveryOptionsDialog(),
+    final recoveryOption = await globalState.showCommonDialog<BackupScope>(
+      child: const BackupScopeDialog(recovery: true),
     );
     if (recoveryOption == null || !context.mounted) return;
     unawaited(_recoveryOnLocal(recoveryOption));
@@ -504,37 +513,39 @@ class _BackupVersionsDialogState extends State<BackupVersionsDialog> {
   }
 }
 
-class RecoveryOptionsDialog extends StatefulWidget {
-  const RecoveryOptionsDialog({super.key});
+class BackupScopeDialog extends StatelessWidget {
+  final bool recovery;
 
-  @override
-  State<RecoveryOptionsDialog> createState() => _RecoveryOptionsDialogState();
-}
-
-class _RecoveryOptionsDialogState extends State<RecoveryOptionsDialog> {
-  void _handleOnTab(RecoveryOption? value) {
-    if (value == null) return;
-    Navigator.of(context).pop(value);
-  }
+  const BackupScopeDialog({super.key, this.recovery = false});
 
   @override
   Widget build(BuildContext context) {
     return CommonDialog(
-      title: appLocalizations.recovery,
+      title: recovery ? appLocalizations.recovery : appLocalizations.backup,
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
       child: Wrap(
         children: [
           ListItem(
             onTap: () {
-              _handleOnTab(RecoveryOption.onlyProfiles);
+              Navigator.of(context).pop(BackupScope.onlyProfiles);
             },
-            title: Text(appLocalizations.recoveryProfiles),
+            title: Text(
+              recovery
+                  ? appLocalizations.recoveryProfiles
+                  : appLocalizations.backupProfiles,
+            ),
+            subtitle: Text(appLocalizations.backupScopeProfilesDesc),
           ),
           ListItem(
             onTap: () {
-              _handleOnTab(RecoveryOption.all);
+              Navigator.of(context).pop(BackupScope.all);
             },
-            title: Text(appLocalizations.recoveryAll),
+            title: Text(
+              recovery
+                  ? appLocalizations.recoveryAll
+                  : appLocalizations.backupAll,
+            ),
+            subtitle: Text(appLocalizations.backupScopeAllDesc),
           ),
         ],
       ),

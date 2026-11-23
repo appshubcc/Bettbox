@@ -421,6 +421,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "Background Watermark",
     ),
     "backup": MessageLookupByLibrary.simpleMessage("Backup"),
+    "backupAll": MessageLookupByLibrary.simpleMessage("Back Up All Data"),
     "backupAndRecovery": MessageLookupByLibrary.simpleMessage(
       "Backup & Restore",
     ),
@@ -442,6 +443,15 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "backupPasswordWrong": MessageLookupByLibrary.simpleMessage(
       "Incorrect backup password",
+    ),
+    "backupProfiles": MessageLookupByLibrary.simpleMessage(
+      "Back Up Profiles Only",
+    ),
+    "backupScopeAllDesc": MessageLookupByLibrary.simpleMessage(
+      "Profiles and all app settings",
+    ),
+    "backupScopeProfilesDesc": MessageLookupByLibrary.simpleMessage(
+      "Subscriptions, override scripts, nodes and managed mode",
     ),
     "backupSuccess": MessageLookupByLibrary.simpleMessage("Backup Successful"),
     "basicConfig": MessageLookupByLibrary.simpleMessage("Core Configuration"),

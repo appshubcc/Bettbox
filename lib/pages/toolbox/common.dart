@@ -220,7 +220,6 @@ class ToolSearchField extends StatelessWidget {
                 showCursor: tv.showCursor,
                 controller: controller,
                 autocorrect: false,
-                enableSuggestions: false,
                 keyboardType: TextInputType.url,
                 textInputAction: TextInputAction.search,
                 onSubmitted: (value) => onSubmitted(value.trim()),

@@ -1856,6 +1856,16 @@ class AppController {
 
   static const _managedScriptBackupKey = 'managedScript';
   static const _backupDesktopKey = 'backupDesktop';
+  static const _configBackupName = 'config.json';
+  static const _profilesBackupName = 'profiles.json';
+  static const _profileBackupKeys = {
+    'profiles',
+    'currentProfileId',
+    'scriptProps',
+    'managedProps',
+    'nodes',
+    _managedScriptBackupKey,
+  };
 
   bool _resumeAfterInstall = false;
 
@@ -2721,7 +2731,10 @@ class AppController {
         null;
   }
 
-  Future<List<int>> backupData({String password = ''}) async {
+  Future<List<int>> backupData({
+    String password = '',
+    BackupScope scope = BackupScope.all,
+  }) async {
     final homeDirPath = await appPath.homeDirPath;
     final profilesPath = await appPath.profilesPath;
     final scripts = await Future.wait(
@@ -2752,6 +2765,11 @@ class AppController {
         managedProps,
       );
     }
+    final onlyProfiles = scope == BackupScope.onlyProfiles;
+    if (onlyProfiles) {
+      configJson.removeWhere((key, _) => !_profileBackupKeys.contains(key));
+    }
+    final configName = onlyProfiles ? _profilesBackupName : _configBackupName;
 
     // Get valid profile IDs
     final validProfileIds = globalState.config.profiles
@@ -2802,7 +2820,7 @@ class AppController {
         ),
       );
       await tempConfigFile.writeAsString(configStr);
-      await encoder.addFile(tempConfigFile, 'config.json');
+      await encoder.addFile(tempConfigFile, configName);
       await tempConfigFile.delete();
 
       // Add profiles dir (valid subscriptions only)
@@ -2873,6 +2891,9 @@ class AppController {
       ...profiles.map(
         (profile) => profile.backupView.copyWith(lastUpdateDate: null),
       ),
+      _ref.read(nodesProvider),
+      _ref.read(scriptStateProvider),
+      _ref.read(managedSettingProvider),
     ]);
     final ids = profiles.map((profile) => profile.id).toList();
     return Isolate.run(() {
@@ -2889,15 +2910,20 @@ class AppController {
     });
   }
 
-  Future<bool> backupToWebDAV(DAVClient client, DAV dav) async {
+  Future<bool> backupToWebDAV(
+    DAVClient client,
+    DAV dav, {
+    BackupScope scope = BackupScope.all,
+  }) async {
     final fingerprint = await _webDAVBackupFingerprint(dav);
     final data = await backupData(
       password: _ref.read(
         appSettingProvider.select((state) => state.backupPassword),
       ),
+      scope: scope,
     );
     final res = await client.backup(Uint8List.fromList(data));
-    if (res) {
+    if (res && scope == BackupScope.all) {
       final prefs = await preferences.sharedPreferencesCompleter.future;
       await prefs?.setString(_autoBackupFingerprintKey, fingerprint);
     }
@@ -3009,7 +3035,7 @@ class AppController {
   Future<({bool decrypted})?> _processRecoveryArchive(
     Future<({Archive archive, bool encrypted})> Function(String? password)
     getArchive,
-    RecoveryOption recoveryOption,
+    BackupScope recoveryOption,
   ) async {
     final savedPassword = _ref.read(
       appSettingProvider.select((state) => state.backupPassword),
@@ -3053,7 +3079,7 @@ class AppController {
   /// Restore data from bytes
   Future<({bool decrypted})?> recoveryData(
     List<int> data,
-    RecoveryOption recoveryOption,
+    BackupScope recoveryOption,
   ) async {
     commonPrint.log(
       'Restoring backup of ${data.length} bytes',
@@ -3070,7 +3096,7 @@ class AppController {
   /// Restore data from file path
   Future<({bool decrypted})?> recoveryDataFromFile(
     String path,
-    RecoveryOption recoveryOption,
+    BackupScope recoveryOption,
   ) async {
     commonPrint.log('Restoring from $path', module: 'Backup');
     return _processRecoveryArchive(
@@ -3101,7 +3127,7 @@ class AppController {
   /// Unified recovery entry: check marker and dispatch to recovery logic
   Future<void> _recoveryFromArchive(
     Archive archive,
-    RecoveryOption recoveryOption,
+    BackupScope recoveryOption,
   ) async {
     if (archive.files.isEmpty) {
       throw 'Backup file is empty or corrupted';
@@ -3126,7 +3152,7 @@ class AppController {
   /// Restore Bettbox
   Future<void> _recoveryBettboxBackup(
     Archive archive,
-    RecoveryOption recoveryOption,
+    BackupScope recoveryOption,
     String homeDirPath,
   ) async {
     // Separate config and profile files
@@ -3142,12 +3168,17 @@ class AppController {
 
     // Find config.json
     final configIndex = configs.indexWhere(
-      (config) => config.name == 'config.json',
+      (config) =>
+          config.name == _configBackupName ||
+          config.name == _profilesBackupName,
     );
     if (configIndex == -1) throw 'invalid backup file';
 
     // Parse config
     final configFile = configs[configIndex];
+    final scope = configFile.name == _profilesBackupName
+        ? BackupScope.onlyProfiles
+        : recoveryOption;
     final configContent = configFile.content;
     if (configContent.isEmpty) {
       throw 'Config file is empty or corrupted';
@@ -3188,13 +3219,10 @@ class AppController {
       recovery: recovery,
     );
 
-    final restoreSettings = recoveryOption != RecoveryOption.onlyProfiles;
-    if (restoreSettings) {
-      tempConfig = tempConfig.copyWith(
-        scriptProps: await tempConfig.scriptProps.externalize(),
-      );
-    }
-    final managedProps = restoreSettings && configJson['managedProps'] is Map
+    tempConfig = tempConfig.copyWith(
+      scriptProps: await tempConfig.scriptProps.externalize(),
+    );
+    final managedProps = configJson['managedProps'] is Map
         ? await _restoreManagedProps(
             tempConfig.managedProps,
             configJson[_managedScriptBackupKey],
@@ -3203,8 +3231,12 @@ class AppController {
 
     _recovery(
       tempConfig,
-      recoveryOption,
-      fromDesktop: configJson[_backupDesktopKey] == true,
+      scope,
+      recovery: recovery,
+      fromDesktop: switch (configJson[_backupDesktopKey]) {
+        final bool value => value,
+        _ => null,
+      },
     );
     if (managedProps != null) {
       _ref.read(managedSettingProvider.notifier).value = managedProps;
@@ -3282,7 +3314,7 @@ class AppController {
   /// Restore legacy
   Future<void> _recoveryLegacyBackup(
     Archive archive,
-    RecoveryOption recoveryOption,
+    BackupScope recoveryOption,
     String homeDirPath,
   ) async {
     // Separate config and profile files
@@ -3476,7 +3508,7 @@ class AppController {
   }
 
   /// Partial restore
-  void _recoveryLimited(Config config, RecoveryOption recoveryOption) {
+  void _recoveryLimited(Config config, BackupScope recoveryOption) {
     final profiles = config.profiles;
 
     // Restore subscriptions
@@ -3499,123 +3531,190 @@ class AppController {
   /// Full restore
   void _recovery(
     Config config,
-    RecoveryOption recoveryOption, {
-    bool fromDesktop = false,
+    BackupScope recoveryOption, {
+    ProfileRecovery? recovery,
+    bool? fromDesktop,
   }) {
     final profiles = config.profiles;
+    final override =
+        _ref.read(appSettingProvider).recoveryStrategy ==
+        RecoveryStrategy.override;
 
-    // Restore subscriptions
     _restoreProfiles(profiles);
+    if (config.currentProfileId case final id?) {
+      _ref.read(currentProfileIdProvider.notifier).value = id;
+    }
+    _restoreScripts(config.scriptProps, override);
+    _restoreNodes(config.nodes, recovery, override);
 
-    final onlyProfiles = recoveryOption == RecoveryOption.onlyProfiles;
-    if (!onlyProfiles) {
-      // Restore settings
-
-      // 1. Clash config
-      if (system.isDesktop) {
-        // Desktop: preserve current TUN state, avoid mobile backup override
-        final currentTunEnable = _ref.read(patchClashConfigProvider).tun.enable;
-        _ref.read(patchClashConfigProvider.notifier).value = config
-            .patchClashConfig
-            .copyWith
-            .tun(enable: currentTunEnable);
-      } else {
-        // Mobile: restore directly
-        _ref.read(patchClashConfigProvider.notifier).value =
-            config.patchClashConfig;
-      }
-
-      // 2. App settings
-      final backupAppSetting = config.appSetting;
-      final currentAppSetting = _ref.read(appSettingProvider);
-
-      _ref.read(appSettingProvider.notifier).value = backupAppSetting.copyWith(
-        backupPassword: currentAppSetting.backupPassword,
-        recoveryStrategy: currentAppSetting.recoveryStrategy,
-        mobileDashboardWidgets: backupAppSetting.mobileDashboardWidgets,
-        desktopDashboardWidgets: backupAppSetting.desktopDashboardWidgets,
-        dashboardWidgets: system.isAndroid
-            ? backupAppSetting.mobileDashboardWidgets
-            : backupAppSetting.desktopDashboardWidgets,
-      );
-
-      // 3. Restore current profile ID
-      _ref.read(currentProfileIdProvider.notifier).value =
-          config.currentProfileId;
-
-      // 4. Restore WebDAV settings
-      if (config.dav case final dav?) {
-        _ref.read(appDAVSettingProvider.notifier).value = dav;
-      }
-
-      // 5. Restore theme settings
-      _ref.read(themeSettingProvider.notifier).value = config.themeProps;
-
-      // 6. Restore window settings (desktop only)
-      if (system.isDesktop) {
-        _ref.read(windowSettingProvider.notifier).value = config.windowProps;
-      }
-
-      // 7. VPN settings
-      if (system.isAndroid) {
-        final currentVpnProps = _ref.read(vpnSettingProvider);
-        final hasBackupAccessControl =
-            config.vpnProps.accessControl.enable ||
-            config.vpnProps.accessControl.acceptList.isNotEmpty ||
-            config.vpnProps.accessControl.rejectList.isNotEmpty;
-        _ref.read(vpnSettingProvider.notifier).value = config.vpnProps.copyWith(
-          accessControl: hasBackupAccessControl
-              ? config.vpnProps.accessControl
-              : currentVpnProps.accessControl,
-        );
-      } else if (system.isDesktop) {
-        // Desktop: restore network settings, preserve TUN state
-        final currentVpnProps = _ref.read(vpnSettingProvider);
-        _ref.read(networkSettingProvider.notifier).value = fromDesktop
-            ? config.networkProps
-            : config.networkProps.copyWith(
-                bypassPrivateRouteAddress: _ref
-                    .read(networkSettingProvider)
-                    .bypassPrivateRouteAddress,
-              );
-
-        // Only restore non-platform-specific VPN settings
-        _ref.read(vpnSettingProvider.notifier).value = config.vpnProps.copyWith(
-          enable: currentVpnProps.enable, // Preserve current TUN state
-        );
-      }
-
-      // 8. Restore proxy style
-      _ref.read(proxiesStyleSettingProvider.notifier).value =
-          config.proxiesStyle;
-
-      // 9. Restore hotkey settings (desktop only)
-      if (system.isDesktop) {
-        _ref.read(hotKeyActionsProvider.notifier).value = config.hotKeyActions;
-      }
-
-      // 10. Restore script settings
-      final scriptIds = config.scriptProps.scripts.map((e) => e.id).toSet();
-      final currentScriptProps = _ref.read(scriptStateProvider);
-      final localScripts = currentScriptProps.scripts.where(
-        (script) => !scriptIds.contains(script.id),
-      );
-      if (_ref.read(appSettingProvider).recoveryStrategy ==
-          RecoveryStrategy.override) {
-        for (final script in localScripts) {
-          unawaited(script.deleteContent());
-        }
-        _ref.read(scriptStateProvider.notifier).value = config.scriptProps;
-      } else {
-        _ref.read(scriptStateProvider.notifier).value = config.scriptProps
-            .copyWith(
-              scripts: [...config.scriptProps.scripts, ...localScripts],
-            );
-      }
+    if (recoveryOption == BackupScope.all) {
+      _restoreSettings(config, fromDesktop);
     }
 
-    // Ensure current profile exists
     _ensureCurrentProfile(profiles);
+  }
+
+  void _restoreScripts(ScriptProps scriptProps, bool override) {
+    final scriptIds = scriptProps.scripts.map((e) => e.id).toSet();
+    final localScripts = _ref
+        .read(scriptStateProvider)
+        .scripts
+        .where((script) => !scriptIds.contains(script.id));
+    if (override) {
+      for (final script in localScripts) {
+        unawaited(script.deleteContent());
+      }
+      _ref.read(scriptStateProvider.notifier).value = scriptProps;
+    } else {
+      _ref.read(scriptStateProvider.notifier).value = scriptProps.copyWith(
+        scripts: [...scriptProps.scripts, ...localScripts],
+      );
+    }
+  }
+
+  void _restoreNodes(
+    List<ProxyNode> nodes,
+    ProfileRecovery? recovery,
+    bool override,
+  ) {
+    final restored = [
+      for (final node in nodes)
+        recovery == null
+            ? node
+            : node.copyWith(
+                bindings: {
+                  for (final entry in node.bindings.entries)
+                    recovery.targetId(entry.key) ?? entry.key: entry.value,
+                },
+              ),
+    ];
+    if (override) {
+      _ref.read(nodesProvider.notifier).value = restored;
+      return;
+    }
+    final ids = {for (final node in restored) node.id};
+    final names = {for (final node in restored) node.name};
+    _ref.read(nodesProvider.notifier).value = [
+      ...restored,
+      for (final node in _ref.read(nodesProvider))
+        if (!ids.contains(node.id) && !names.contains(node.name)) node,
+    ];
+  }
+
+  void _restoreSettings(Config config, bool? fromDesktop) {
+    final sameOrigin = fromDesktop == system.isDesktop;
+    final foreign = fromDesktop != null && !sameOrigin;
+    final localAppSetting = _ref.read(appSettingProvider);
+    final localVpnProps = _ref.read(vpnSettingProvider);
+    final localNetworkProps = _ref.read(networkSettingProvider);
+
+    var appSetting = config.appSetting.copyWith(
+      backupPassword: localAppSetting.backupPassword,
+      recoveryStrategy: localAppSetting.recoveryStrategy,
+    );
+    var vpnProps = config.vpnProps;
+    var networkProps = sameOrigin
+        ? config.networkProps
+        : config.networkProps.copyWith(
+            bypassPrivateRouteAddress:
+                localNetworkProps.bypassPrivateRouteAddress,
+          );
+
+    if (system.isDesktop) {
+      vpnProps = vpnProps.copyWith(enable: localVpnProps.enable);
+      if (foreign) {
+        appSetting = appSetting.copyWith(
+          silentLaunch: localAppSetting.silentLaunch,
+          minimizeOnExit: localAppSetting.minimizeOnExit,
+          closeConnections: localAppSetting.closeConnections,
+          keepDockIcon: localAppSetting.keepDockIcon,
+          enableHighPriority: localAppSetting.enableHighPriority,
+          sidebarCollapsed: localAppSetting.sidebarCollapsed,
+          sidebarFlyout: localAppSetting.sidebarFlyout,
+          sidebarFlyoutOutsideTools: localAppSetting.sidebarFlyoutOutsideTools,
+          sidebarFlyoutDelay: localAppSetting.sidebarFlyoutDelay,
+          sidebarFlyoutEntries: localAppSetting.sidebarFlyoutEntries,
+          desktopDashboardWidgets: localAppSetting.desktopDashboardWidgets,
+          desktopDashboardSizes: localAppSetting.desktopDashboardSizes,
+        );
+        vpnProps = vpnProps.copyWith(
+          networkFix: localVpnProps.networkFix,
+          trayEnhancement: localVpnProps.trayEnhancement,
+          trayLeftClickBehavior: localVpnProps.trayLeftClickBehavior,
+          trayRightClickBehavior: localVpnProps.trayRightClickBehavior,
+          enableTraySpeed: localVpnProps.enableTraySpeed,
+          alwaysShowTitleBar: localVpnProps.alwaysShowTitleBar,
+        );
+        networkProps = networkProps.copyWith(
+          systemProxy: localNetworkProps.systemProxy,
+          profileSwitchMode: localNetworkProps.profileSwitchMode,
+        );
+      }
+      _ref.read(patchClashConfigProvider.notifier).value = config
+          .patchClashConfig
+          .copyWith
+          .tun(enable: _ref.read(patchClashConfigProvider).tun.enable);
+      if (!foreign) {
+        _ref.read(windowSettingProvider.notifier).value = config.windowProps;
+        _ref.read(hotKeyActionsProvider.notifier).value = config.hotKeyActions;
+      }
+    } else {
+      final accessControl = vpnProps.accessControl;
+      final hasBackupAccessControl =
+          accessControl.enable ||
+          accessControl.acceptList.isNotEmpty ||
+          accessControl.rejectList.isNotEmpty;
+      if (!hasBackupAccessControl) {
+        vpnProps = vpnProps.copyWith(
+          accessControl: localVpnProps.accessControl,
+        );
+      }
+      if (foreign) {
+        appSetting = appSetting.copyWith(
+          hidden: localAppSetting.hidden,
+          enableNavBarHapticFeedback:
+              localAppSetting.enableNavBarHapticFeedback,
+          mobileDashboardWidgets: localAppSetting.mobileDashboardWidgets,
+          mobileDashboardSizes: localAppSetting.mobileDashboardSizes,
+        );
+        vpnProps = vpnProps.copyWith(
+          enable: localVpnProps.enable,
+          systemProxy: localVpnProps.systemProxy,
+          allowBypass: localVpnProps.allowBypass,
+          dozeSuspend: localVpnProps.dozeSuspend,
+          quickResponse: localVpnProps.quickResponse,
+          storeFix: localVpnProps.storeFix,
+          highPriorityNotification: localVpnProps.highPriorityNotification,
+          networkSpeedNotification: localVpnProps.networkSpeedNotification,
+        );
+      }
+      _ref.read(patchClashConfigProvider.notifier).value =
+          config.patchClashConfig;
+    }
+
+    _ref.read(appSettingProvider.notifier).value = appSetting.copyWith(
+      dashboardWidgets: system.isAndroid
+          ? appSetting.mobileDashboardWidgets
+          : appSetting.desktopDashboardWidgets,
+    );
+    _ref.read(vpnSettingProvider.notifier).value = vpnProps;
+    _ref.read(networkSettingProvider.notifier).value = networkProps;
+    if (config.dav case final dav?) {
+      _ref.read(appDAVSettingProvider.notifier).value = dav;
+    }
+    _ref.read(themeSettingProvider.notifier).value = config.themeProps;
+    _ref.read(proxiesStyleSettingProvider.notifier).value = config.proxiesStyle;
+    _ref.read(trafficStatsSettingProvider.notifier).value =
+        config.trafficStatsProps;
+    _ref.read(overrideNtpProvider.notifier).value = config.overrideNtp;
+    _ref.read(overrideSnifferProvider.notifier).value = config.overrideSniffer;
+    _ref.read(overrideTunnelProvider.notifier).value = config.overrideTunnel;
+    _ref.read(overrideExperimentalProvider.notifier).value =
+        config.overrideExperimental;
+    _ref.read(nodeExcludeFilterProvider.notifier).value =
+        config.nodeExcludeFilter;
+    _ref.read(healthCheckTimeoutProvider.notifier).value =
+        config.healthCheckTimeout;
   }
 
   Future<T?> safeRun<T>(

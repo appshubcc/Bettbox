@@ -361,6 +361,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "back": MessageLookupByLibrary.simpleMessage("뒤로"),
     "backgroundWatermark": MessageLookupByLibrary.simpleMessage("배경 워터마크"),
     "backup": MessageLookupByLibrary.simpleMessage("백업"),
+    "backupAll": MessageLookupByLibrary.simpleMessage("모든 데이터 백업"),
     "backupAndRecovery": MessageLookupByLibrary.simpleMessage("백업 및 복구"),
     "backupAndRecoveryDesc": MessageLookupByLibrary.simpleMessage(
       "WebDAV 또는 로컬로 데이터 동기화",
@@ -380,6 +381,11 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "backupPasswordWrong": MessageLookupByLibrary.simpleMessage(
       "백업 비밀번호가 올바르지 않습니다",
+    ),
+    "backupProfiles": MessageLookupByLibrary.simpleMessage("프로필만 백업"),
+    "backupScopeAllDesc": MessageLookupByLibrary.simpleMessage("프로필 및 모든 앱 설정"),
+    "backupScopeProfilesDesc": MessageLookupByLibrary.simpleMessage(
+      "구독, 오버라이드 스크립트, 노드, 관리 모드",
     ),
     "backupSuccess": MessageLookupByLibrary.simpleMessage("백업 성공"),
     "basicConfig": MessageLookupByLibrary.simpleMessage("코어 설정"),

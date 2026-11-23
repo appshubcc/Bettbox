@@ -685,7 +685,6 @@ class _AddressField extends StatelessWidget {
                 controller: controller,
                 enabled: enabled,
                 autocorrect: false,
-                enableSuggestions: false,
                 keyboardType: TextInputType.url,
                 textInputAction: TextInputAction.go,
                 onSubmitted: (_) => onSubmitted(),

@@ -808,7 +808,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "go": MessageLookupByLibrary.simpleMessage("이동"),
     "goDownload": MessageLookupByLibrary.simpleMessage("다운로드 이동"),
     "groupOrderTip": MessageLookupByLibrary.simpleMessage(
-      "위에서부터 순서대로 매칭되며, 드래그하여 순서 변경",
+      "드래그하여 표시 순서 변경 (사용자 지정 분기 우선 매칭)",
     ),
     "harmonyFont": MessageLookupByLibrary.simpleMessage("글꼴 복구"),
     "harmonyFontDesc": MessageLookupByLibrary.simpleMessage(

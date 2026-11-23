@@ -1243,7 +1243,7 @@
   "iconUrl": "Icon URL",
   "checkUrlTip": "Please check that the URL is correct",
   "routeNameInvalid": "Name cannot contain commas or line breaks",
-  "groupOrderTip": "Matched from top to bottom, drag to reorder",
+  "groupOrderTip": "Drag to reorder display; custom routes match first",
   "regionGroups": "Region groups",
   "regionGroupsTip": "Regions without matching nodes are skipped; nodes that match no region go to 其他节点 (other nodes)",
   "searchServices": "Search services",

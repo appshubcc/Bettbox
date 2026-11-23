@@ -4,7 +4,7 @@
  * 自定义分流远程规则集：@appshubcc https://github.com/appshubcc/bett-rules 
  */
 
-// @version 2026112301
+// @version 2026112401
 const Compatible_With_Bettbox = { ruleOptionsEnable: true };
 
 const ruleOptionsEnable = {
@@ -49,14 +49,35 @@ const prefixRules = [
 const directRules = [
   'RULE-SET,geolocation-cn,直连',
   'RULE-SET,category-ai-cn,直连',
-  'RULE-SET,apple_cn,直连',
   'RULE-SET,microsoft_cn,直连',
+  'RULE-SET,games_cn,直连',
+  'RULE-SET,games_download_cn,直连',
+  'RULE-SET,apple_cn,直连',
+  // 'RULE-SET,google_cn,直连',
 ];
 
 const excludeFilter =
   /群|返利|循环|官网|客服|网站|网址|获取|订阅|流量|到期|机场|下次|版本|官址|备用|过期|已用|联系|邮箱|工单|贩卖|通知|倒卖|防止|国内|地址|频道|电报|无法|说明|提示|访问|支持|教程|关注|更新|作者|加入|超时|收藏|优惠|福利|邀请|好友|失联|选择|剩余|公益|发布|DIZTNA|通路|登录|禁止|定时|渠道|牢记|永久|余额|阁下|本站|刷新|导航|建议|重置|以下|过滤|⚠️|@|t\.me\/\+|\bexpire\b|\bhttps?:\/\/|\.com|\btraffic\b/iu;
 
 const blockQuicRules = ['AND,((NETWORK,UDP),(DST-PORT,443)),REJECT'];
+
+const udpOptionalProxyTypes = new Set([
+  'ss',
+  'ssr',
+  'socks5',
+  'vmess',
+  'vless',
+  'trojan',
+  'wireguard',
+  'gost-relay',
+  'mieru',
+  'anytls',
+  'masque',
+  'trusttunnel',
+  'tailscale',
+  'zerotier',
+  'easytier',
+]);
 
 const directProxies = [
   {
@@ -195,12 +216,32 @@ const baseRuleProviders = {
     path: './ruleset/private_ip.mrs',
     'path-in-bundle': 'geo/geoip/private.mrs',
   },
+  games_cn: {
+    ...ruleProviderCommonDomain,
+    url: `${ruleSetBaseUrl}geosite/category-games@cn.mrs`,
+    path: './ruleset/category-games@cn.mrs',
+    'path-in-bundle': 'geo/geosite/category-games@cn.mrs',
+  },
+  games_download_cn: {
+    ...ruleProviderCommonDomain,
+    url: `${ruleSetBaseUrl}geosite/category-game-platforms-download@cn.mrs`,
+    path: './ruleset/category-game-platforms-download@cn.mrs',
+    'path-in-bundle': 'geo/geosite/category-game-platforms-download@cn.mrs',
+  },
   apple_cn: {
     ...ruleProviderCommonDomain,
     url: `${ruleSetBaseUrl}geosite/apple@cn.mrs`,
     path: './ruleset/apple@cn.mrs',
     'path-in-bundle': 'geo/geosite/apple@cn.mrs',
   },
+  ...(directRules.some((r) => r.includes(',google_cn,')) && {
+    google_cn: {
+      ...ruleProviderCommonDomain,
+      url: `${ruleSetBaseUrl}geosite/google@cn.mrs`,
+      path: './ruleset/google@cn.mrs',
+      'path-in-bundle': 'geo/geosite/google@cn.mrs',
+    },
+  }),
   microsoft_cn: {
     ...ruleProviderCommonDomain,
     url: `${ruleSetBaseUrl}geosite/microsoft@cn.mrs`,
@@ -295,13 +336,14 @@ const baseGroups = [
 ];
 
 const rejectGroupProxies = ['REJECT', 'PASS', '直连', '默认代理'];
+const nonHkRegionPriority = ['台湾', '新加坡', '日本', '美国'];
 
 const serviceConfigs = [
   ...baseGroups,
   {
     name: 'AI',
     baseOption: selectBaseOption,
-    defaultSelected: '美国',
+    defaultSelected: nonHkRegionPriority,
     providers: {
       ai: {
         ...ruleProviderCommonDomain,
@@ -353,6 +395,7 @@ const serviceConfigs = [
   {
     name: 'Google',
     baseOption: selectBaseOption,
+    defaultSelected: nonHkRegionPriority,
     providers: {
       google: {
         ...ruleProviderCommonDomain,
@@ -843,13 +886,20 @@ function filterAndNormalizeProxies(config) {
     throw new Error('配置文件中未找到任何代理节点');
   }
 
-  if (ruleOptionsEnable.优先连接IPv6节点) {
-    return filteredProxies.map((proxy) =>
-      proxy['ip-version'] === 'ipv6-prefer' ? proxy : { ...proxy, 'ip-version': 'ipv6-prefer' },
-    );
-  }
-
-  return filteredProxies;
+  const preferIpv6 = ruleOptionsEnable.优先连接IPv6节点;
+  return filteredProxies.map((proxy) => {
+    const type = String(proxy.type ?? '').toLowerCase();
+    const needsUdp =
+      proxy.udp == null &&
+      (udpOptionalProxyTypes.has(type) || (type === 'snell' && Number(proxy.version) >= 3));
+    const needsIpv6 = preferIpv6 && proxy['ip-version'] !== 'ipv6-prefer';
+    if (!needsUdp && !needsIpv6) return proxy;
+    return {
+      ...proxy,
+      ...(needsUdp && { udp: true }),
+      ...(needsIpv6 && { 'ip-version': 'ipv6-prefer' }),
+    };
+  });
 }
 
 /**
@@ -1114,17 +1164,29 @@ function buildFunctionalGroups(filteredProxies, generatedRegionGroups) {
     ...builtInReservedNames,
     ...allProxiesNames,
   ]);
-  const services = [...serviceConfigs];
-  const anchorIndex = services.findIndex((svc) => svc.name === 'AdBlock');
-  services.splice(anchorIndex < 0 ? services.length : anchorIndex, 0, ...buildCustomServices(reservedNames));
+  const customServices = sortByGroupOrder(buildCustomServices(reservedNames));
+  const builtinServices = serviceConfigs.filter((svc) => ruleOptionsEnable[svc.name]);
+  const ruleServices = [
+    ...customServices.filter((svc) => svc.reject),
+    ...builtinServices.filter((svc) => svc.priority),
+    ...customServices.filter((svc) => !svc.reject),
+    ...builtinServices.filter((svc) => !svc.priority),
+  ];
 
-  for (const svc of sortByGroupOrder(services)) {
-    if (!svc.custom && !ruleOptionsEnable[svc.name]) continue;
-
-    (svc.priority ? priorityRules : functionalRules).push(...(svc.rules || []));
+  for (const svc of ruleServices) {
+    (svc.priority || svc.reject ? priorityRules : functionalRules).push(...(svc.rules || []));
     functionalIpRules.push(...(svc.ipRules || []));
     Object.assign(finalRuleProviders, svc.providers || {});
+    if (!svc.reject && !svc.direct) {
+      for (const rule of svc.rules || []) dnsPolicyGroups.push([rule.split(',')[1], svc.name]);
+    }
+  }
 
+  const displayServices = [...builtinServices];
+  const anchorIndex = displayServices.findIndex((svc) => svc.name === 'AdBlock');
+  displayServices.splice(anchorIndex < 0 ? displayServices.length : anchorIndex, 0, ...customServices);
+
+  for (const svc of displayServices) {
     let groupProxies = [];
     if (svc.includeAll) {
       groupProxies = [...allProxiesNames];
@@ -1142,13 +1204,12 @@ function buildFunctionalGroups(filteredProxies, generatedRegionGroups) {
         ];
     }
 
-    const selected =
-      svc.defaultSelected !== undefined && (!svc.custom || groupProxies.includes(svc.defaultSelected))
-        ? svc.defaultSelected
-        : undefined;
-    if (!svc.reject && !svc.direct) {
-      for (const rule of svc.rules || []) dnsPolicyGroups.push([rule.split(',')[1], svc.name]);
-    }
+    const defaultCandidates = Array.isArray(svc.defaultSelected)
+      ? svc.defaultSelected
+      : svc.defaultSelected !== undefined
+        ? [svc.defaultSelected]
+        : [];
+    const selected = defaultCandidates.find((name) => groupProxies.includes(name));
     functionalGroups.push({
       ...svc.baseOption,
       name: svc.name,
@@ -1812,6 +1873,7 @@ function main(config) {
     'RULE-SET,private_ip,DIRECT',
     ...functionalIpRules,
     'MATCH,默认代理',
+    'NETWORK,UDP,REJECT',
   ];
 
   return newConfig;

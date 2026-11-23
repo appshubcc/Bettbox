@@ -960,7 +960,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "go": MessageLookupByLibrary.simpleMessage("Go"),
     "goDownload": MessageLookupByLibrary.simpleMessage("Download Now"),
     "groupOrderTip": MessageLookupByLibrary.simpleMessage(
-      "Matched from top to bottom, drag to reorder",
+      "Drag to reorder display; custom routes match first",
     ),
     "harmonyFont": MessageLookupByLibrary.simpleMessage("Font Fix"),
     "harmonyFontDesc": MessageLookupByLibrary.simpleMessage(

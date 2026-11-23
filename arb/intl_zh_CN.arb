@@ -571,7 +571,7 @@
   "cacheCorrupt": "缓存已损坏，是否清空？",
   "detectionTip": "依赖第三方 API，仅供参考",
   "ipClickBehavior": "显示切换",
-  "ipPrivacyProtection": "隐藏 IP 显示",
+  "ipPrivacyProtection": "保护 IP 显示",
   "manualRefreshIp": "重新获取 IP",
   "tryManualRefresh": "请尝试手动刷新",
   "refreshAppList": "刷新应用列表",

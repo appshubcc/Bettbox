@@ -82,7 +82,11 @@ class _NetworkDetectionState extends ConsumerState<NetworkDetection> {
       valueListenable: detectionState.riskyIp,
       builder: (_, ip, child) {
         final ipText = child ?? const SizedBox();
-        if (ip == null || ip != detectionState.rawIpInfo?.ip) return ipText;
+        if (detectionState.isIpMasked ||
+            ip == null ||
+            ip != detectionState.rawIpInfo?.ip) {
+          return ipText;
+        }
         return Row(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -175,13 +179,15 @@ class _NetworkDetectionState extends ConsumerState<NetworkDetection> {
 
   Widget _buildTile(BuildContext context, DashboardTileSize size) {
     final isTall = size == DashboardTileSize.tall;
+    final locale = Localizations.maybeLocaleOf(context);
     return SizedBox(
       height: getWidgetHeight(context, size.rows),
       child: ValueListenableBuilder<NetworkDetectionState>(
         valueListenable: detectionState.state,
         builder: (_, state, _) {
-          final ipInfo = state.ipInfo;
-          final masked = detectionState.isIpMasked;
+          final ipInfo = state.ipInfo != null && detectionState.isIpMasked
+              ? DetectionState.protectedIpInfo(locale)
+              : state.ipInfo;
           final location = ipInfo == null
               ? ''
               : [
@@ -253,13 +259,13 @@ class _NetworkDetectionState extends ConsumerState<NetworkDetection> {
                               child: ipText,
                             ),
                           ),
-                          if (!masked && location.isNotEmpty)
+                          if (location.isNotEmpty)
                             _buildDetail(
                               context,
                               appLocalizations.countryOrRegion,
                               location,
                             ),
-                          if (!masked && operator.isNotEmpty)
+                          if (operator.isNotEmpty)
                             _buildDetail(
                               context,
                               appLocalizations.operatorOrAsn,
@@ -278,7 +284,7 @@ class _NetworkDetectionState extends ConsumerState<NetworkDetection> {
                           textBaseline: TextBaseline.alphabetic,
                           children: [
                             Flexible(child: ipText),
-                            if (!masked && ipInfo != null) ...[
+                            if (ipInfo != null) ...[
                               const SizedBox(width: 12),
                               Expanded(
                                 child: Text(
@@ -309,12 +315,15 @@ class _NetworkDetectionState extends ConsumerState<NetworkDetection> {
   @override
   Widget build(BuildContext context) {
     if (widget.size case final size?) return _buildTile(context, size);
+    final locale = Localizations.maybeLocaleOf(context);
     return SizedBox(
       height: getWidgetHeight(context, 1),
       child: ValueListenableBuilder<NetworkDetectionState>(
         valueListenable: detectionState.state,
         builder: (_, state, _) {
-          final ipInfo = state.ipInfo;
+          final ipInfo = state.ipInfo != null && detectionState.isIpMasked
+              ? DetectionState.protectedIpInfo(locale)
+              : state.ipInfo;
           final isLoading = state.isLoading;
           return CommonCard(
             onPressed: ipInfo != null ? _showMoreIpInfoDialog : null,

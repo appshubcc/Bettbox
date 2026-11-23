@@ -1129,7 +1129,9 @@ class MessageLookup extends MessageLookupByLibrary {
       "Не удалось разрешить домен",
     ),
     "ipLookupResult": MessageLookupByLibrary.simpleMessage("Результаты"),
-    "ipPrivacyProtection": MessageLookupByLibrary.simpleMessage("Скрыть IP"),
+    "ipPrivacyProtection": MessageLookupByLibrary.simpleMessage(
+      "Защита показа IP",
+    ),
     "ipRiskAlert": MessageLookupByLibrary.simpleMessage(
       "Предупреждение о риске IP",
     ),

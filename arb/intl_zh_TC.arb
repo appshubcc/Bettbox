@@ -571,7 +571,7 @@
   "cacheCorrupt": "快取已損壞，是否清空？",
   "detectionTip": "依賴第三方 API，僅供參考",
   "ipClickBehavior": "顯示切換",
-  "ipPrivacyProtection": "隱藏 IP 顯示",
+  "ipPrivacyProtection": "保護 IP 顯示",
   "manualRefreshIp": "重新取得 IP",
   "tryManualRefresh": "請嘗試手動重新整理",
   "refreshAppList": "重新整理應用程式清單",

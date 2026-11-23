@@ -919,7 +919,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "이 도메인을 확인할 수 없습니다",
     ),
     "ipLookupResult": MessageLookupByLibrary.simpleMessage("조회 결과"),
-    "ipPrivacyProtection": MessageLookupByLibrary.simpleMessage("IP 표시 숨기기"),
+    "ipPrivacyProtection": MessageLookupByLibrary.simpleMessage("IP 표시 보호"),
     "ipRiskAlert": MessageLookupByLibrary.simpleMessage("IP 위험 알림"),
     "ipRiskAmountHigh": MessageLookupByLibrary.simpleMessage("많음"),
     "ipRiskAmountLow": MessageLookupByLibrary.simpleMessage("적음"),

@@ -813,7 +813,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "ipLookupProxyExit": MessageLookupByLibrary.simpleMessage("默认节点 IP"),
     "ipLookupResolveFailed": MessageLookupByLibrary.simpleMessage("无法解析该域名"),
     "ipLookupResult": MessageLookupByLibrary.simpleMessage("查询结果"),
-    "ipPrivacyProtection": MessageLookupByLibrary.simpleMessage("隐藏 IP 显示"),
+    "ipPrivacyProtection": MessageLookupByLibrary.simpleMessage("保护 IP 显示"),
     "ipRiskAlert": MessageLookupByLibrary.simpleMessage("IP 风险提示"),
     "ipRiskAmountHigh": MessageLookupByLibrary.simpleMessage("较多"),
     "ipRiskAmountLow": MessageLookupByLibrary.simpleMessage("较少"),

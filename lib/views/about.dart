@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 import 'dart:ui';
 
 import 'package:bett_box/common/common.dart';
@@ -186,7 +187,7 @@ class AboutView extends StatelessWidget {
     return generateSection(
       separated: false,
       title: appLocalizations.otherContributors,
-      items: [ListItem(title: _ContributorsRow(contributors: contributors))],
+      items: [ListItem(title: _ContributorsWall(contributors: contributors))],
     );
   }
 
@@ -259,27 +260,6 @@ class AboutView extends StatelessWidget {
   }
 }
 
-class Avatar extends StatelessWidget {
-  final Contributor contributor;
-
-  const Avatar({super.key, required this.contributor});
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        SizedBox(
-          width: 36,
-          height: 36,
-          child: CircleAvatar(foregroundImage: AssetImage(contributor.avatar)),
-        ),
-        const SizedBox(height: 4),
-        Text(contributor.name, style: context.textTheme.bodySmall),
-      ],
-    );
-  }
-}
-
 class _DeveloperModeDetector extends StatefulWidget {
   final Widget child;
   final VoidCallback onEnterDeveloperMode;
@@ -326,17 +306,23 @@ class _DeveloperModeDetectorState extends State<_DeveloperModeDetector> {
   }
 }
 
-class _ContributorsRow extends StatefulWidget {
+class _ContributorsWall extends StatefulWidget {
   final List<Contributor> contributors;
 
-  const _ContributorsRow({required this.contributors});
+  const _ContributorsWall({required this.contributors});
 
   @override
-  State<_ContributorsRow> createState() => _ContributorsRowState();
+  State<_ContributorsWall> createState() => _ContributorsWallState();
 }
 
-class _ContributorsRowState extends State<_ContributorsRow> {
+class _ContributorsWallState extends State<_ContributorsWall> {
+  static const _rows = 4;
+  static const _spacing = 54.0;
+  static const _base = 56.0;
+
   final _controller = ScrollController();
+  Contributor? _selected;
+  bool _centered = false;
 
   @override
   void dispose() {
@@ -344,57 +330,149 @@ class _ContributorsRowState extends State<_ContributorsRow> {
     super.dispose();
   }
 
-  Shader _createEdgeShader(Rect rect) {
-    final position = _controller.hasClients ? _controller.position : null;
-    final hasBefore = position != null && position.extentBefore > 0;
-    final hasAfter = position == null || position.extentAfter > 0;
-    return LinearGradient(
-      colors: [
-        hasBefore ? Colors.transparent : Colors.white,
-        Colors.white,
-        Colors.white,
-        hasAfter ? Colors.transparent : Colors.white,
-      ],
-      stops: const [0, 0.1, 0.9, 1],
-    ).createShader(rect);
+  void _center() {
+    if (_centered || !_controller.hasClients) return;
+    _centered = true;
+    _controller.jumpTo(_controller.position.maxScrollExtent / 2);
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return ScrollConfiguration(
-      behavior: ScrollConfiguration.of(context).copyWith(
-        scrollbars: false,
-        dragDevices: PointerDeviceKind.values.toSet(),
-      ),
-      child: MediaQuery.removePadding(
-        context: context,
-        removeLeft: true,
-        removeTop: true,
-        removeRight: true,
-        removeBottom: true,
-        child: Scrollbar(
-          controller: _controller,
-          thumbVisibility: true,
-          thickness: 4,
-          radius: const Radius.circular(2),
-          child: ShaderMask(
-            shaderCallback: _createEdgeShader,
-            blendMode: BlendMode.dstIn,
-            child: SingleChildScrollView(
-              controller: _controller,
-              scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.only(bottom: 12),
-              child: Wrap(
-                spacing: 24,
-                children: [
-                  for (final contributor in widget.contributors)
-                    Avatar(contributor: contributor),
-                ],
+  Widget _buildBubble(Contributor contributor, double opacity) {
+    final colorScheme = context.colorScheme;
+    final selected = identical(contributor, _selected);
+    return Opacity(
+      opacity: opacity,
+      child: MouseRegion(
+        cursor: SystemMouseCursors.click,
+        child: GestureDetector(
+          onTap: () => setState(() {
+            _selected = selected ? null : contributor;
+          }),
+          child: DecoratedBox(
+            position: DecorationPosition.foreground,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: selected
+                    ? colorScheme.primary
+                    : colorScheme.outlineVariant.withValues(alpha: 0.6),
+                width: selected ? 2 : 0.5,
+              ),
+            ),
+            child: ClipOval(
+              child: Image.asset(
+                contributor.avatar,
+                fit: BoxFit.cover,
+                cacheWidth: _base.ceil(),
+                useLogicalCacheSize: true,
               ),
             ),
           ),
         ),
       ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = context.colorScheme;
+    final contributors = widget.contributors;
+    final columns = (contributors.length / _rows).ceil();
+    final rowHeight = _spacing * sqrt(3) / 2;
+    final height = rowHeight * (_rows - 1) + _base + 8;
+    final selected = _selected;
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final viewport = constraints.maxWidth;
+        final padding = max(_base, viewport / 2 - _spacing);
+        final width = (columns - 0.5) * _spacing + padding * 2;
+        final reachX = viewport / 2;
+        final reachY = height / 2;
+        WidgetsBinding.instance.addPostFrameCallback((_) => _center());
+        return Column(
+          children: [
+            ScrollConfiguration(
+              behavior: ScrollConfiguration.of(context).copyWith(
+                scrollbars: false,
+                dragDevices: PointerDeviceKind.values.toSet(),
+              ),
+              child: SingleChildScrollView(
+                controller: _controller,
+                scrollDirection: Axis.horizontal,
+                child: SizedBox(
+                  width: width,
+                  height: height,
+                  child: ListenableBuilder(
+                    listenable: _controller,
+                    builder: (context, _) {
+                      final scroll = _controller.hasClients
+                          ? _controller.offset
+                          : (width - viewport) / 2;
+                      final focus = scroll + viewport / 2;
+                      final bubbles = <(double, Widget)>[];
+                      for (var i = 0; i < contributors.length; i++) {
+                        final column = i ~/ _rows;
+                        final row = i % _rows;
+                        final x =
+                            padding +
+                            column * _spacing +
+                            (row.isOdd ? _spacing / 2 : 0);
+                        final y = _base / 2 + 4 + row * rowHeight;
+                        final dx = (x - focus) / reachX;
+                        final dy = (y - height / 2) / reachY;
+                        final t = sqrt(dx * dx + dy * dy * 0.5).clamp(0.0, 1.4);
+                        final scale = (1 - 0.7 * pow(t, 1.4)).clamp(0.22, 1.0);
+                        final size = _base * scale;
+                        bubbles.add((
+                          scale,
+                          Positioned(
+                            left: x - size / 2,
+                            top: y - size / 2,
+                            width: size,
+                            height: size,
+                            child: _buildBubble(
+                              contributors[i],
+                              (1.25 - t * 0.9).clamp(0.0, 1.0),
+                            ),
+                          ),
+                        ));
+                      }
+                      bubbles.sort((a, b) => a.$1.compareTo(b.$1));
+                      return Stack(
+                        children: [for (final bubble in bubbles) bubble.$2],
+                      );
+                    },
+                  ),
+                ),
+              ),
+            ),
+            SizedBox(
+              height: 32,
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 200),
+                child: selected == null
+                    ? const SizedBox.shrink()
+                    : Container(
+                        key: ValueKey(selected),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: colorScheme.secondaryContainer,
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                        child: Text(
+                          '❤️ ${selected.name}',
+                          style: context.textTheme.bodySmall?.copyWith(
+                            color: colorScheme.onSecondaryContainer,
+                          ),
+                        ),
+                      ),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }

@@ -1,6 +1,7 @@
 import 'package:bett_box/common/common.dart';
 import 'package:bett_box/models/models.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:yaml/yaml.dart';
 
 ProxyNode _node(String type) =>
     ProxyNode(id: 'node-1', proxy: {'name': 'n', 'type': type});
@@ -76,7 +77,9 @@ void main() {
     },
   );
 
-  test('mesh templates cover each supported type with its own name', () {
+  testWidgets('localized mesh templates keep optional fields commented', (
+    _,
+  ) async {
     expect(meshTemplates.map((item) => item.title), [
       'EasyTier',
       'ZeroTier',
@@ -85,8 +88,21 @@ void main() {
     for (final template in meshTemplates) {
       final type = template.title.toLowerCase();
       expect(meshNodeTypes, contains(type));
-      expect(template.content, contains('type: $type'));
-      expect(template.content, isNot(contains('state-dir')));
+      final english = await template.load('en');
+      final chinese = await template.load('zh');
+      expect(chinese, isNot(english));
+      expect(await template.load('fr'), english);
+      final defaults = loadYaml(english) as YamlMap;
+      expect(loadYaml(chinese), equals(defaults));
+      expect(defaults['type'], type);
+      expect(defaults['name'], isNotEmpty);
+      expect(defaults.containsKey('state-dir'), isFalse);
+      // Translators may change prose, but the editable YAML keys must agree.
+      final fields = RegExp(r'^#? *([a-z][a-z0-9-]*):', multiLine: true);
+      List<String> keys(String text) =>
+          fields.allMatches(text).map((match) => match[1]!).toList();
+      expect(keys(chinese), unorderedEquals(keys(english)));
+      expect(keys(english), containsAll(['state-dir', 'dialer-proxy', 'udp']));
     }
   });
 }

@@ -1,0 +1,27 @@
+# Bettbox 落地节点：保存后选「落地节点」，为目标配置选择「前置代理」和要加入的代理组。
+# 导入器会移除 YAML 中的 dialer-proxy，再按界面绑定生成。下面仅供识别 Mihomo 字段。
+# dialer-proxy: MyFrontProxy
+
+# Mihomo 底层拨号选项。网卡名称和路由标记取决于系统；使用前置代理时由前置负责拨号。
+# interface-name: wlan0
+# routing-mark: 6666
+# ip-version: dual  # 可选 dual、ipv4、ipv6、ipv4-prefer、ipv6-prefer。
+# 以下两个字段能被解码，但当前三个 mesh 适配器都未传入底层拨号器。
+# tfo: true
+# mptcp: true
+
+# 高级：Mihomo 通用 sing-mux 封装。普通 mesh 对端不能处理这种复用协议。
+# 仅在另一端专门部署了兼容服务时启用。展开子项时请保留缩进。
+# smux:
+#   enabled: false
+#   protocol: smux
+#   max-connections: 4
+#   min-streams: 4
+#   max-streams: 0  # 正数上限与 max-connections/min-streams 二选一。
+#   padding: false
+#   statistic: false
+#   only-tcp: true
+#   brutal-opts:
+#     enabled: false
+#     up: 20 Mbps
+#     down: 100 Mbps

@@ -166,12 +166,19 @@ class AddNodeView extends StatelessWidget {
     );
   }
 
-  void _handleTemplate(BuildContext context, MeshTemplate template) {
-    BaseNavigator.push(
+  Future<void> _handleTemplate(
+    BuildContext context,
+    MeshTemplate template,
+  ) async {
+    final content = await template.load(
+      Localizations.localeOf(context).languageCode,
+    );
+    if (!context.mounted) return;
+    await BaseNavigator.push(
       context,
       EditorPage(
         title: template.title,
-        content: template.content,
+        content: content,
         allowUnchangedSave: true,
         languages: const [],
         onSave: (editorContext, _, content) async {

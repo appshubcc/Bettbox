@@ -1,0 +1,18 @@
+name: Tailscale
+type: tailscale
+# 请使用 Standard（标准版）。保存节点，让一个连接经过它，
+# 然后打开核心日志中的首次登录链接，加入自己的 Tailscale 网络（tailnet）。
+# 可先访问网络中一台你有权连接的设备上的服务。
+
+# hostname: bettbox-laptop  # 在 Tailscale 管理后台显示的设备名。
+# auth-key: "REPLACE_WITH_YOUR_AUTH_KEY"  # 如需无人值守登录，请替换为自己的认证密钥。
+# control-url: "https://headscale.example.invalid"  # 自建 Headscale 时填写服务器地址；使用 Tailscale 托管服务时留作注释。
+# state-dir: ./nodes/tailscale/my-laptop  # 保存设备身份。应用在导入时自动分配目录；手动设置时每个节点应使用独立目录。
+# ephemeral: true  # 注册临时设备，离线一段时间后会自动过期。默认为 false。
+# udp: true  # 允许应用通过此节点发送 UDP 流量。默认设置即可使用 TCP。
+
+# accept-routes: true  # 访问子网路由器发布且管理员已批准的网段。
+# exit-node: "auto:any"  # 自动选择可用的出口节点访问互联网，也可改为已获批准的出口节点的 Tailscale IP。
+# exit-node-allow-lan-access: true  # 使用出口节点时仍可访问自己所在的局域网。
+# 落地节点的前置代理承载 Tailscale 自身的连接，包括控制和中继流量。
+# 访问公网仍需出口节点或覆盖目标地址的子网路由。没有匹配路由时连接会失败。

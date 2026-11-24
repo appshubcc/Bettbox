@@ -1,0 +1,18 @@
+name: Tailscale
+type: tailscale
+# Use the Standard build. Save the node, route a connection through it,
+# then open the first-login link in the core log to join your tailnet.
+# Try a service on a tailnet device you have permission to reach.
+
+# hostname: bettbox-laptop  # Device name shown in the Tailscale admin console.
+# auth-key: "REPLACE_WITH_YOUR_AUTH_KEY"  # Use your own key for unattended sign-in.
+# control-url: "https://headscale.example.invalid"  # For Headscale, enter your server URL. Omit for hosted Tailscale.
+# state-dir: ./nodes/tailscale/my-laptop  # Saves the device identity. The app assigns a directory on import. Keep it unique per node.
+# ephemeral: true  # Register a temporary device that expires after it goes offline. Default is false.
+# udp: true  # Enable UDP for apps using this node. TCP works with the default settings.
+
+# accept-routes: true  # Reach subnets advertised by subnet routers and approved by your admin.
+# exit-node: "auto:any"  # Use an available exit node for internet access, or replace with an approved exit node’s Tailscale IP.
+# exit-node-allow-lan-access: true  # Keep access to your own local network while using an exit node.
+# A landing node’s front proxy carries Tailscale’s own connections, including control and relay traffic.
+# Internet destinations still need an exit node or a subnet route covering the address. Unrouted connections fail.

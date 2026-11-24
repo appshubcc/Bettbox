@@ -53,18 +53,19 @@ void main() {
     final template = meshTemplates.singleWhere(
       (item) => item.title == 'Tailscale',
     );
+    final initialContent = await template.load('en');
     final saved = <(String, String)>[];
     await pumpPage(
       tester,
       EditorPage(
         title: template.title,
-        content: template.content,
+        content: initialContent,
         allowUnchangedSave: true,
         onSave: (_, title, content) => saved.add((title, content)),
       ),
     );
     await tester.tap(saveButton);
-    expect(saved, [(template.title, template.content)]);
+    expect(saved, [(template.title, initialContent)]);
   });
 
   testWidgets('ordinary editors require changes for both Save and Ctrl+S', (

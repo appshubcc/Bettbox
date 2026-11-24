@@ -1,0 +1,57 @@
+# Use the Standard build. Ask your mesh administrator for the network name, shared secret and a reachable peer URI.
+# Replace the example name and peer below. If your mesh uses a secret, uncomment network-secret and fill it in.
+# Save, send traffic to this node, then try a service at a peer’s virtual IPv4 address. The mesh starts on first use.
+name: EasyTier  # Enter the label you want to see in Bettbox proxy groups.
+type: easytier
+network-name: my-mesh
+# network-secret: "<shared-network-secret>"
+peers:
+  - "tcp://peer.example.invalid:11010"
+  # - "udp://peer.example.invalid:11010"  # Use this form for a peer listening on UDP.
+  # To pin a peer, append ?peer-public-key=<peer-base64-public-key> to its URI (peer_public_key also works).
+
+# Local identity and addressing
+# hostname: mesh-laptop            # Name other peers can look up.
+# instance-name: laptop-mesh       # Local instance label. Defaults to name.
+# state-dir: nodes/easytier/laptop # Stores the instance ID. The app assigns a directory per node if omitted.
+# Keep a custom path inside the core data directory and unique to this node.
+# ipv4: 10.144.0.20/24            # For a static address, use a free mesh IPv4 and leave DHCP off.
+# dhcp: true                      # Automatic when ipv4 is omitted, even if dhcp is false.
+# udp: true                       # Allow apps to send UDP through this outbound. Independent of peer URI scheme.
+
+# Reaching peers
+# Use tcp:// or udp:// peer URIs. No public peer or listener is added by default. FakeTCP is unsupported.
+# listeners: ["tcp://0.0.0.0:11010"]  # Accept inbound peers. A listener-only node may omit peers.
+# no-listener: true                  # Requires peers and conflicts with listeners. False alone opens TCP port 11010 on all IPv4 interfaces.
+# mapped-listeners: ["tcp://gateway.example.invalid:21110"]  # Advertise an external address that already forwards to your listener.
+# In landing mode, choose the front proxy in the app to reach peers. A TCP peer is simplest.
+# A UDP peer needs a UDP-capable front. External TCP listeners require a direct dialer.
+
+# Routing through the mesh
+# exit-nodes: ["10.144.0.1"]       # Remote exit peers’ virtual IPv4 addresses. Use a reachable peer configured to offer exit service.
+# enable-exit-node: true          # Offer this node as an exit to other peers.
+# proxy-networks: ["192.168.50.0/24"]  # Advertise a subnet reachable from this node, such as its LAN.
+# Application destinations must resolve to IPv4 and have a mesh route. Internet access needs an appropriate route or exit.
+# latency-first: true             # Prefer lower-latency routes.
+# disable-p2p: true               # Disable automatic direct peer links and rely on configured connections or relays.
+# mtu: 1380                       # Virtual packet size in bytes. Use the value recommended for your mesh.
+
+# Mesh DNS
+# accept-dns: true                # Enable EasyTier’s MagicDNS option. Mihomo also provides its own mesh DNS lookup.
+# tld-dns-zone: "et.net."         # Mesh suffix, e.g. mesh-laptop.et.net.
+# To query mesh A/PTR records from Mihomo DNS, use easytier://EasyTier as a resolver for the mesh zone (match the node name).
+
+# Security
+# enable-encryption: true         # Encrypt traffic exchanged between peers.
+# encryption-algorithm: aes-gcm   # Use the cipher agreed on by your mesh.
+# private-mode: true              # Reject connections from foreign networks with a different secret.
+# secure-mode: true               # Enable secure handshakes. Supply the mesh’s nonempty network-secret.
+# local-private-key: "<local-base64-x25519-private-key>"  # Supply your own key for a stable secure identity.
+# local-public-key: "<local-base64-x25519-public-key>"    # Optional matching public key. Requires local-private-key.
+# A local key or pinned peer key enables secure mode implicitly and conflicts with secure-mode: false.
+
+# Advanced TCP stream options forwarded to the embedded EasyTier core. Availability depends on its compiled features.
+# enable-kcp-proxy: true          # Request KCP for outgoing TCP streams.
+# disable-kcp-input: true         # Refuse incoming KCP proxy streams.
+# enable-quic-proxy: true         # Request QUIC for outgoing TCP streams.
+# disable-quic-input: true        # Refuse incoming QUIC proxy streams.

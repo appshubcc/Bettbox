@@ -90,6 +90,7 @@ func handleMergeProfiles(params *MergeProfilesParams) (string, error) {
 		}
 		if params.NodesOnly {
 			cfg = pickKeys(cfg, mergeNodesKeys)
+			dropUnresolvedDialers(cfg)
 		}
 		inputs = append(inputs, mergeInput{config: cfg, prefix: member.Prefix})
 	}
@@ -371,6 +372,30 @@ func pickKeys(value map[string]any, keys []string) map[string]any {
 		}
 	}
 	return result
+}
+
+func dropUnresolvedDialers(cfg map[string]any) {
+	proxies := mapItems(cfg["proxies"])
+	total := len(proxies)
+	for count := -1; count != len(proxies); {
+		count = len(proxies)
+		names := make(map[string]bool, count)
+		for _, proxy := range proxies {
+			names[strings.TrimSpace(stringValue(proxy["name"]))] = true
+		}
+		proxies = slices.DeleteFunc(proxies, func(proxy map[string]any) bool {
+			dialer := stringValue(proxy["dialer-proxy"])
+			return dialer != "" && !names[dialer] && !reservedProxyNames[dialer]
+		})
+	}
+	if len(proxies) == total {
+		return
+	}
+	kept := make([]any, 0, len(proxies))
+	for _, proxy := range proxies {
+		kept = append(kept, proxy)
+	}
+	cfg["proxies"] = kept
 }
 
 func addNodesGroup(merged map[string]any) {

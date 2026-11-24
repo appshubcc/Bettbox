@@ -1,13 +1,11 @@
 import 'dart:async';
 import 'dart:io';
-import 'dart:isolate';
 import 'dart:math' as math;
 import 'dart:typed_data';
-import 'dart:ui' show PlatformDispatcher;
+import 'dart:ui' as ui;
 
 import 'package:bett_box/common/common.dart';
 import 'package:dio/dio.dart';
-import 'package:image/image.dart' as img;
 import 'package:material_ui/material_ui.dart';
 import 'package:path/path.dart' as path;
 
@@ -35,7 +33,7 @@ class SiteIconCache {
 
   static int get targetSize {
     final ratio =
-        PlatformDispatcher.instance.views.firstOrNull?.devicePixelRatio ?? 2;
+        ui.PlatformDispatcher.instance.views.firstOrNull?.devicePixelRatio ?? 2;
     return (_listSize * ratio).ceil().clamp(_minSize, _maxSize);
   }
 
@@ -89,7 +87,8 @@ class SiteIconCache {
     final sizes = _decodedSizes.remove(domain);
     if (file == null || sizes == null) return;
     final ratio =
-        PlatformDispatcher.instance.views.firstOrNull?.devicePixelRatio ?? 1.0;
+        ui.PlatformDispatcher.instance.views.firstOrNull?.devicePixelRatio ??
+        1.0;
     final configuration = ImageConfiguration(devicePixelRatio: ratio);
     for (final size in sizes) {
       ResizeImage(
@@ -230,7 +229,7 @@ class SiteIconCache {
     try {
       final bytes = await request.getBytes(url, cancelToken: cancelToken);
       if (bytes == null || bytes.isEmpty) return null;
-      return await Isolate.run(() => normalizeSiteIcon(bytes, size));
+      return await normalizeSiteIcon(bytes, size);
     } catch (_) {
       return null;
     } finally {
@@ -256,35 +255,158 @@ class SiteIconCache {
     _waiting.removeAt(0).complete();
   }
 
-  static img.Image? _decodeLargest(Uint8List bytes) {
-    final decoder = img.findDecoderForData(bytes);
-    if (decoder is img.IcoDecoder) return decoder.decodeImageLargest(bytes);
-    return decoder?.decode(bytes, frame: 0);
+  static bool _hasPngSignature(Uint8List bytes, int offset) {
+    return offset + 8 <= bytes.length &&
+        bytes[offset] == 0x89 &&
+        bytes[offset + 1] == 0x50 &&
+        bytes[offset + 2] == 0x4E &&
+        bytes[offset + 3] == 0x47 &&
+        bytes[offset + 4] == 0x0D &&
+        bytes[offset + 5] == 0x0A &&
+        bytes[offset + 6] == 0x1A &&
+        bytes[offset + 7] == 0x0A;
   }
 
-  static SiteIconImage? normalizeSiteIcon(Uint8List bytes, int size) {
-    final image = _decodeLargest(bytes);
-    if (image == null || image.width < 8 || image.height < 8) return null;
-    final source = math.max(image.width, image.height);
-    final side = math.min(source, size);
-    final width = math.max((image.width * side / source).round(), 1);
-    final height = math.max((image.height * side / source).round(), 1);
-    final resized = width == image.width && height == image.height
-        ? image
-        : img.copyResize(
-            image,
-            width: width,
-            height: height,
-            interpolation: img.Interpolation.average,
-          );
-    final square = width == height
-        ? resized
-        : img.compositeImage(
-            img.Image(width: side, height: side, numChannels: 4),
-            resized,
-            center: true,
-          );
-    return (bytes: img.encodePng(square, singleFrame: true), source: source);
+  static Uint8List? _extractIcoPayload(Uint8List bytes) {
+    if (bytes.length < 6) return null;
+    final data = ByteData.sublistView(bytes);
+    final reserved = data.getUint16(0, Endian.little);
+    final type = data.getUint16(2, Endian.little);
+    if (reserved != 0 || type != 1) return bytes;
+    final count = data.getUint16(4, Endian.little);
+    final headerEnd = 6 + count * 16;
+    if (count == 0 || headerEnd > bytes.length) return null;
+
+    var bestIndex = -1;
+    var bestOffset = 0;
+    var bestLength = 0;
+    var bestArea = -1;
+    var bestBits = -1;
+    var bestIsPng = false;
+
+    for (var i = 0; i < count; i++) {
+      final entry = 6 + i * 16;
+      final length = data.getUint32(entry + 8, Endian.little);
+      final offset = data.getUint32(entry + 12, Endian.little);
+      if (length == 0 || offset < headerEnd || offset + length > bytes.length) {
+        continue;
+      }
+      final isPng = length >= 24 && _hasPngSignature(bytes, offset);
+      final int width;
+      final int height;
+      if (isPng) {
+        width = data.getUint32(offset + 16, Endian.big);
+        height = data.getUint32(offset + 20, Endian.big);
+      } else {
+        final rawW = bytes[entry];
+        final rawH = bytes[entry + 1];
+        width = rawW == 0 ? 256 : rawW;
+        height = rawH == 0 ? 256 : rawH;
+      }
+      if (width <= 0 || height <= 0) continue;
+      final bits = isPng
+          ? math.max(data.getUint16(entry + 6, Endian.little), 32)
+          : data.getUint16(entry + 6, Endian.little);
+      final area = width * height;
+      if (area > bestArea ||
+          (area == bestArea &&
+              (bits > bestBits || (bits == bestBits && length > bestLength)))) {
+        bestIndex = i;
+        bestOffset = offset;
+        bestLength = length;
+        bestArea = area;
+        bestBits = bits;
+        bestIsPng = isPng;
+      }
+    }
+
+    if (bestIndex < 0) return null;
+    if (bestIsPng) {
+      return Uint8List.sublistView(bytes, bestOffset, bestOffset + bestLength);
+    }
+    if (count == 1 && bestOffset == 22 && bestLength == bytes.length - 22) {
+      return bytes;
+    }
+    final single = Uint8List(22 + bestLength);
+    single[2] = 1;
+    single[4] = 1;
+    final bestEntry = 6 + bestIndex * 16;
+    single.setRange(6, 18, bytes, bestEntry);
+    single[18] = 22;
+    single.setRange(22, 22 + bestLength, bytes, bestOffset);
+    return single;
+  }
+
+  static Future<SiteIconImage?> normalizeSiteIcon(
+    Uint8List bytes,
+    int size,
+  ) async {
+    if (bytes.length < 8 || size <= 0) return null;
+    final payload = _extractIcoPayload(bytes);
+    if (payload == null) return null;
+    ui.ImmutableBuffer? buffer;
+    ui.ImageDescriptor? descriptor;
+    ui.Codec? codec;
+    ui.Image? frameImage;
+    ui.Picture? picture;
+    ui.Image? squareImage;
+    try {
+      buffer = await ui.ImmutableBuffer.fromUint8List(payload);
+      descriptor = await ui.ImageDescriptor.encoded(buffer);
+      final srcW = descriptor.width;
+      final srcH = descriptor.height;
+      if (srcW < 8 || srcH < 8) return null;
+      final source = math.max(srcW, srcH);
+      final side = math.min(source, size);
+      final width = math.max((srcW * side / source).round(), 1);
+      final height = math.max((srcH * side / source).round(), 1);
+      codec = await descriptor.instantiateCodec(
+        targetWidth: width,
+        targetHeight: height,
+      );
+      final frame = await codec.getNextFrame();
+      frameImage = frame.image;
+      final ui.Image output;
+      if (frameImage.width == side &&
+          frameImage.height == side &&
+          width == side &&
+          height == side) {
+        output = frameImage;
+      } else {
+        final recorder = ui.PictureRecorder();
+        final canvas = ui.Canvas(recorder);
+        final dx = ((side - width) ~/ 2).toDouble();
+        final dy = ((side - height) ~/ 2).toDouble();
+        canvas.drawImageRect(
+          frameImage,
+          ui.Rect.fromLTWH(
+            0,
+            0,
+            frameImage.width.toDouble(),
+            frameImage.height.toDouble(),
+          ),
+          ui.Rect.fromLTWH(dx, dy, width.toDouble(), height.toDouble()),
+          ui.Paint()
+            ..isAntiAlias = true
+            ..filterQuality = ui.FilterQuality.medium,
+        );
+        picture = recorder.endRecording();
+        squareImage = await picture.toImage(side, side);
+        output = squareImage;
+      }
+      final encoded = await output.toByteData(format: ui.ImageByteFormat.png);
+      if (encoded == null) return null;
+      return (bytes: Uint8List.sublistView(encoded), source: source);
+    } catch (_) {
+      return null;
+    } finally {
+      squareImage?.dispose();
+      picture?.dispose();
+      frameImage?.dispose();
+      codec?.dispose();
+      descriptor?.dispose();
+      buffer?.dispose();
+    }
   }
 }
 

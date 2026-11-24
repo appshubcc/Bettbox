@@ -40,7 +40,7 @@ func handleDownloadProfile(params *DownloadProfileParams) (string, error) {
 		}
 		req.Header.Set(key, value)
 	}
-	direct := params.Direct || tunnel.Status() != tunnel.Running
+	running := tunnel.Status() == tunnel.Running
 	transport := &http.Transport{
 		ForceAttemptHTTP2:   true,
 		TLSHandshakeTimeout: 30 * time.Second,
@@ -50,7 +50,10 @@ func handleDownloadProfile(params *DownloadProfileParams) (string, error) {
 			InsecureSkipVerify: params.SkipCertVerify,
 		},
 		DialContext: func(ctx context.Context, network, address string) (net.Conn, error) {
-			if direct {
+			if !running {
+				return (&net.Dialer{}).DialContext(ctx, network, address)
+			}
+			if params.Direct {
 				return dialer.DialContext(ctx, network, address, dialer.WithResolver(resolver.DirectHostResolver))
 			}
 			return inner.HandleTcp(inner.GetTunnel(), address, "")

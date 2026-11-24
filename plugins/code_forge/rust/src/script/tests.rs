@@ -75,6 +75,7 @@ fn keeps_the_normalized_profile_when_main_returns_no_object() {
         "function main(config) { return 1 }",
         "function main(config) { return [config] }",
         "function main(config) { return null }",
+        "function main(config) { config.mutated = true; return () => 1 }",
     ] {
         let result = run(script, json!({ "mode": "rule", "rule": [] })).unwrap();
 
@@ -198,6 +199,31 @@ fn rejects_a_profile_that_is_not_an_object() {
     let failure = run("function main(config) { return config }", json!([1])).unwrap_err();
 
     assert_eq!(failure.kind, ErrorKind::InvalidInput);
+}
+
+#[test]
+fn rejects_malformed_json_inputs() {
+    let bad_profile = evaluate(
+        "function main(config) { return config }",
+        b"{invalid",
+        None,
+        EVALUATE_LIMITS,
+        token(),
+    )
+    .err()
+    .unwrap();
+    let bad_custom = evaluate(
+        "function main(config) { return config }",
+        b"{}",
+        Some("{invalid"),
+        EVALUATE_LIMITS,
+        token(),
+    )
+    .err()
+    .unwrap();
+
+    assert_eq!(bad_profile.kind, ErrorKind::InvalidInput);
+    assert_eq!(bad_custom.kind, ErrorKind::InvalidInput);
 }
 
 #[test]
@@ -477,4 +503,80 @@ fn extracts_empty_options_from_a_plain_script() {
 fn reports_a_script_whose_options_cannot_be_read() {
     assert!(extract_options("function main( {").is_err());
     assert!(extract_options("while (true) {}").is_err());
+}
+
+#[test]
+fn evaluates_bundled_managed_script() {
+    let script = include_str!("../../../../../assets/scripts/managed.js");
+    let config = json!({
+        "proxies": [
+            { "name": "HK 01", "type": "ss", "server": "hk.example.com", "port": 443, "cipher": "aes-128-gcm", "password": "pw" }
+        ],
+        "rule": ["MATCH,DIRECT"]
+    });
+
+    let result = run_with(script, config, Some(r#"{"AI":false}"#)).unwrap();
+
+    assert_eq!(result["proxies"][0]["name"], json!("🇭🇰 HK 01"));
+    assert!(result["proxy-groups"].is_array());
+    assert!(result["rules"].is_array());
+}
+
+#[test]
+#[ignore]
+fn bench_managed_script() {
+    let script = include_str!("../../../../../assets/scripts/managed.js");
+    let regions = [
+        "🇭🇰 香港",
+        "🇯🇵 日本",
+        "🇺🇸 美国",
+        "🇸🇬 新加坡",
+        "🇹🇼 台湾",
+        "🇰🇷 韩国",
+    ];
+    let custom = Some(r#"{"AI":true,"Google":true,"生成地区自动选择组":true}"#);
+    for count in [100usize, 500, 1500] {
+        let proxies: Vec<Json> = (0..count)
+            .map(|i| {
+                let name = format!("{} 专线节点 {:03} x1.5", regions[i % regions.len()], i + 1);
+                json!({
+                    "name": name,
+                    "type": "vless",
+                    "server": format!("node-{i}.airport-sub.example.com"),
+                    "port": 443,
+                    "uuid": "11111111-2222-3333-4444-555555555555",
+                    "tls": true,
+                    "udp": true,
+                    "network": "ws",
+                    "servername": format!("sni-{i}.cdn.example.com"),
+                    "ws-opts": { "path": "/api/v1/stream", "headers": { "Host": format!("sni-{i}.cdn.example.com") } }
+                })
+            })
+            .collect();
+        let config = serde_json::to_vec(&json!({
+            "proxies": proxies,
+            "rule": ["MATCH,DIRECT"],
+            "dns": { "enable": true, "nameserver": ["223.5.5.5"] }
+        }))
+        .unwrap();
+        for _ in 0..3 {
+            let _ = evaluate(script, &config, custom, EVALUATE_LIMITS, token()).unwrap();
+        }
+        let rounds = 15;
+        let mut samples = Vec::with_capacity(rounds);
+        let mut out_len = 0;
+        for _ in 0..rounds {
+            let started = Instant::now();
+            let res = evaluate(script, &config, custom, EVALUATE_LIMITS, token()).unwrap();
+            out_len = res.config.len();
+            samples.push(started.elapsed());
+        }
+        samples.sort();
+        println!(
+            "managed.js @ {count} nodes (in {:.1} KB, out {:.1} KB): median {:.2} ms",
+            config.len() as f64 / 1024.0,
+            out_len as f64 / 1024.0,
+            samples[rounds / 2].as_secs_f64() * 1000.0,
+        );
+    }
 }

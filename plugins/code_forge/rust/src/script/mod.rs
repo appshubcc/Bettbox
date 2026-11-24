@@ -1,11 +1,9 @@
 mod console;
-mod convert;
 
 pub use console::LogLine;
 
 use console::{LogBuffer, SharedLogs};
-use rquickjs::{CatchResultExt, CaughtError, Context, Function, Runtime, Value};
-use serde_json::{Map, Value as Json};
+use rquickjs::{CatchResultExt, CaughtError, Context, Ctx, Function, Object, Runtime, Value};
 use std::cell::RefCell;
 use std::collections::HashMap;
 use std::rc::Rc;
@@ -14,6 +12,7 @@ use std::sync::{Arc, Mutex, OnceLock};
 use std::time::{Duration, Instant};
 
 const ENTRY: &str = "main";
+const BIGINT_TO_JSON: &str = "var __bigint = Object.getPrototypeOf(0n); if (!Object.prototype.hasOwnProperty.call(__bigint, 'toJSON')) Object.defineProperty(__bigint, 'toJSON', { value: function () { return null; }, configurable: true, writable: true });";
 
 #[derive(Clone, Copy)]
 pub struct Limits {
@@ -173,28 +172,26 @@ fn internal(error: rquickjs::Error) -> Failure {
     Failure::new(ErrorKind::Runtime, error.to_string())
 }
 
-fn normalize(input: Json) -> Result<Map<String, Json>, Failure> {
-    let Json::Object(source) = input else {
-        return Err(Failure::new(
-            ErrorKind::InvalidInput,
-            "profile is not a JSON object",
-        ));
+fn parse_profile<'js>(ctx: &Ctx<'js>, config: &[u8]) -> rquickjs::Result<Option<Value<'js>>> {
+    let value = ctx.json_parse(config)?;
+    let Some(object) = value.as_object() else {
+        return Ok(None);
     };
-    let mut config = Map::with_capacity(source.len() + 1);
-    for (key, value) in source {
-        if key == "rule" {
-            config.insert("rules".to_owned(), value);
-        } else {
-            config.insert(key, value);
+    if value.is_array() || value.is_function() {
+        return Ok(None);
+    }
+    if object.contains_key("rule")? {
+        let rule: Value = object.get("rule")?;
+        if !object.contains_key("rules")? {
+            object.set("rules", rule)?;
         }
+        object.remove("rule")?;
     }
-    let providers = config
-        .entry("proxy-providers")
-        .or_insert_with(|| Json::Object(Map::new()));
-    if providers.is_null() {
-        *providers = Json::Object(Map::new());
+    let providers: Value = object.get("proxy-providers")?;
+    if providers.is_undefined() || providers.is_null() {
+        object.set("proxy-providers", Object::new(ctx.clone())?)?;
     }
-    Ok(config)
+    Ok(Some(value))
 }
 
 pub fn evaluate(
@@ -204,17 +201,6 @@ pub fn evaluate(
     limits: Limits,
     token: u32,
 ) -> Result<Evaluation, Failure> {
-    let input: Json = serde_json::from_slice(config)
-        .map_err(|error| Failure::new(ErrorKind::InvalidInput, error.to_string()))?;
-    let input = Json::Object(normalize(input)?);
-    let custom: Option<Json> = match custom_options {
-        Some(text) => Some(
-            serde_json::from_str(text)
-                .map_err(|error| Failure::new(ErrorKind::InvalidInput, error.to_string()))?,
-        ),
-        None => None,
-    };
-
     let registration = Registration::new(token);
     let sandbox = Sandbox::new(limits, registration.flag.clone())?;
     let logs: SharedLogs = Rc::new(RefCell::new(LogBuffer::default()));
@@ -222,6 +208,17 @@ pub fn evaluate(
         console::install(&ctx, Some(logs.clone()))
             .catch(&ctx)
             .map_err(|error| sandbox.classify(error, ErrorKind::Runtime))?;
+        let config_value = parse_profile(&ctx, config)
+            .catch(&ctx)
+            .map_err(|error| sandbox.classify(error, ErrorKind::InvalidInput))?
+            .ok_or_else(|| Failure::new(ErrorKind::InvalidInput, "profile is not a JSON object"))?;
+        let custom_value = match custom_options {
+            Some(text) => ctx
+                .json_parse(text)
+                .catch(&ctx)
+                .map_err(|error| sandbox.classify(error, ErrorKind::InvalidInput))?,
+            None => Value::new_null(ctx.clone()),
+        };
         let source = format!(
             "(function(__config, __custom) {{ {script}\n;if (__custom && typeof ruleOptionsEnable !== 'undefined') Object.assign(ruleOptionsEnable, __custom);\nreturn {ENTRY}(__config); }})"
         );
@@ -229,15 +226,6 @@ pub fn evaluate(
             .eval(source)
             .catch(&ctx)
             .map_err(|error| sandbox.classify(error, ErrorKind::Syntax))?;
-        let config_value = convert::to_js(&ctx, &input, 0)
-            .catch(&ctx)
-            .map_err(|error| sandbox.classify(error, ErrorKind::InvalidInput))?;
-        let custom_value = match &custom {
-            Some(json) => convert::to_js(&ctx, json, 0)
-                .catch(&ctx)
-                .map_err(|error| sandbox.classify(error, ErrorKind::InvalidInput))?,
-            None => Value::new_null(ctx.clone()),
-        };
         let result: Value = entry
             .call((config_value, custom_value))
             .catch(&ctx)
@@ -257,21 +245,34 @@ pub fn evaluate(
             })?,
             None => result,
         };
-        if !result.is_object() || result.is_array() {
-            return Ok(None);
-        }
-        convert::from_js(&result, 0)
+        let target = if result.is_object() && !result.is_array() && !result.is_function() {
+            result
+        } else {
+            parse_profile(&ctx, config)
+                .catch(&ctx)
+                .map_err(|error| sandbox.classify(error, ErrorKind::InvalidInput))?
+                .ok_or_else(|| {
+                    Failure::new(ErrorKind::InvalidInput, "profile is not a JSON object")
+                })?
+        };
+        ctx.eval::<(), _>(BIGINT_TO_JSON)
             .catch(&ctx)
-            .map(Some)
-            .map_err(|error| sandbox.classify(error, ErrorKind::InvalidOutput))
+            .map_err(|error| sandbox.classify(error, ErrorKind::InvalidOutput))?;
+        let output = ctx
+            .json_stringify(target)
+            .catch(&ctx)
+            .map_err(|error| sandbox.classify(error, ErrorKind::InvalidOutput))?
+            .ok_or_else(|| {
+                Failure::new(ErrorKind::InvalidOutput, "script output could not be serialized")
+            })?;
+        output
+            .to_string()
+            .map(String::into_bytes)
+            .map_err(|error| Failure::new(ErrorKind::InvalidOutput, error.to_string()))
     });
     let logs = logs.borrow_mut().take();
     match result {
-        Ok(output) => {
-            let config = serde_json::to_vec(output.as_ref().unwrap_or(&input))
-                .map_err(|error| Failure::new(ErrorKind::InvalidOutput, error.to_string()))?;
-            Ok(Evaluation { config, logs })
-        }
+        Ok(config) => Ok(Evaluation { config, logs }),
         Err(mut failure) => {
             failure.logs = logs;
             Err(failure)

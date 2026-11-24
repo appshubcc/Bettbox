@@ -83,6 +83,8 @@ pub fn evaluate_script_file(
         EVALUATE_LIMITS,
         token,
     )?;
+    drop(config);
+    drop(script);
     std::fs::write(&output_path, evaluation.config).map_err(io_failure)?;
     Ok(ScriptOutput {
         logs: to_logs(evaluation.logs),

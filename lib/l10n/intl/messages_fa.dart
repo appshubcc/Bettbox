@@ -1051,6 +1051,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "inputCorrectHotkey": MessageLookupByLibrary.simpleMessage(
       "لطفاً کلید میانبر معتبری وارد کنید",
     ),
+    "install": MessageLookupByLibrary.simpleMessage("نصب"),
     "installTime": MessageLookupByLibrary.simpleMessage("زمان نصب"),
     "intelligentSelected": MessageLookupByLibrary.simpleMessage(
       "انتخاب هوشمند",
@@ -2570,13 +2571,19 @@ class MessageLookup extends MessageLookupByLibrary {
     "updateDownloadFailed": MessageLookupByLibrary.simpleMessage(
       "دانلود به‌روزرسانی ناموفق بود",
     ),
+    "updateDownloadStarted": MessageLookupByLibrary.simpleMessage(
+      "دانلود نسخه جدید آغاز شد",
+    ),
+    "updateDownloaded": MessageLookupByLibrary.simpleMessage(
+      "نسخه جدید دانلود شد",
+    ),
+    "updateDownloading": MessageLookupByLibrary.simpleMessage(
+      "نسخه جدید در حال دانلود است",
+    ),
     "updateInstallFailed": MessageLookupByLibrary.simpleMessage(
       "نصب به‌روزرسانی ناموفق بود",
     ),
     "updateReadyAppTip": m77,
-    "updateReadyVpnTip": MessageLookupByLibrary.simpleMessage(
-      "بسته نسخه جدید آماده است. برای حفظ عملکرد سرویس، پیش از ارتقا سرویس VPN در حال اجرا متوقف می‌شود. برای شروع نصب تأیید کنید.",
-    ),
     "updateTime": MessageLookupByLibrary.simpleMessage("زمان به‌روزرسانی"),
     "updateTip": MessageLookupByLibrary.simpleMessage("اعلان ارتقا"),
     "upload": MessageLookupByLibrary.simpleMessage("آپلود"),

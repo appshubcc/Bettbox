@@ -792,6 +792,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "injectNodeDesc": MessageLookupByLibrary.simpleMessage("非託管模式下僅對目前設定生效"),
     "injectNodeEmpty": MessageLookupByLibrary.simpleMessage("目前設定載入後可選擇代理群組"),
     "inputCorrectHotkey": MessageLookupByLibrary.simpleMessage("請輸入正確的快捷鍵"),
+    "install": MessageLookupByLibrary.simpleMessage("安裝"),
     "installTime": MessageLookupByLibrary.simpleMessage("安裝時間"),
     "intelligentSelected": MessageLookupByLibrary.simpleMessage("智慧選擇"),
     "intelligentSelectedConfirm": MessageLookupByLibrary.simpleMessage(
@@ -1881,11 +1882,11 @@ class MessageLookup extends MessageLookupByLibrary {
     "unpin": MessageLookupByLibrary.simpleMessage("取消置頂"),
     "update": MessageLookupByLibrary.simpleMessage("更新"),
     "updateDownloadFailed": MessageLookupByLibrary.simpleMessage("更新下載失敗"),
+    "updateDownloadStarted": MessageLookupByLibrary.simpleMessage("開始下載新版本"),
+    "updateDownloaded": MessageLookupByLibrary.simpleMessage("新版本已下載完成"),
+    "updateDownloading": MessageLookupByLibrary.simpleMessage("新版本正在下載中"),
     "updateInstallFailed": MessageLookupByLibrary.simpleMessage("更新安裝失敗"),
     "updateReadyAppTip": m77,
-    "updateReadyVpnTip": MessageLookupByLibrary.simpleMessage(
-      "新版本安裝包已下載就緒，為保障服務正常，升級前將會主動關閉正在執行中的 VPN 服務，點擊確認後開始安裝",
-    ),
     "updateTime": MessageLookupByLibrary.simpleMessage("更新時間"),
     "updateTip": MessageLookupByLibrary.simpleMessage("升級提示"),
     "upload": MessageLookupByLibrary.simpleMessage("上傳"),

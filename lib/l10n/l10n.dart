@@ -1050,21 +1050,46 @@ class AppLocalizations {
     );
   }
 
-  /// `Upgrade Notice`
-  String get updateTip {
+  /// `Install`
+  String get install {
+    return Intl.message('Install', name: 'install', desc: '', args: []);
+  }
+
+  /// `Update download started`
+  String get updateDownloadStarted {
     return Intl.message(
-      'Upgrade Notice',
-      name: 'updateTip',
+      'Update download started',
+      name: 'updateDownloadStarted',
       desc: '',
       args: [],
     );
   }
 
-  /// `The new version package is ready. To keep the service safe, the running VPN service will be stopped before upgrading. Confirm to start the installation.`
-  String get updateReadyVpnTip {
+  /// `Update is downloading`
+  String get updateDownloading {
     return Intl.message(
-      'The new version package is ready. To keep the service safe, the running VPN service will be stopped before upgrading. Confirm to start the installation.',
-      name: 'updateReadyVpnTip',
+      'Update is downloading',
+      name: 'updateDownloading',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Update downloaded`
+  String get updateDownloaded {
+    return Intl.message(
+      'Update downloaded',
+      name: 'updateDownloaded',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Upgrade Notice`
+  String get updateTip {
+    return Intl.message(
+      'Upgrade Notice',
+      name: 'updateTip',
       desc: '',
       args: [],
     );

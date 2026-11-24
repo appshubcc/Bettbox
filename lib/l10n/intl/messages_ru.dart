@@ -1086,6 +1086,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "inputCorrectHotkey": MessageLookupByLibrary.simpleMessage(
       "Введите корректное сочетание клавиш",
     ),
+    "install": MessageLookupByLibrary.simpleMessage("Установить"),
     "installTime": MessageLookupByLibrary.simpleMessage("Время установки"),
     "intelligentSelected": MessageLookupByLibrary.simpleMessage("Умный выбор"),
     "intelligentSelectedConfirm": MessageLookupByLibrary.simpleMessage(
@@ -2651,13 +2652,19 @@ class MessageLookup extends MessageLookupByLibrary {
     "updateDownloadFailed": MessageLookupByLibrary.simpleMessage(
       "Не удалось загрузить обновление",
     ),
+    "updateDownloadStarted": MessageLookupByLibrary.simpleMessage(
+      "Загрузка обновления началась",
+    ),
+    "updateDownloaded": MessageLookupByLibrary.simpleMessage(
+      "Обновление загружено",
+    ),
+    "updateDownloading": MessageLookupByLibrary.simpleMessage(
+      "Обновление загружается",
+    ),
     "updateInstallFailed": MessageLookupByLibrary.simpleMessage(
       "Не удалось установить обновление",
     ),
     "updateReadyAppTip": m77,
-    "updateReadyVpnTip": MessageLookupByLibrary.simpleMessage(
-      "Пакет новой версии готов. Для корректной работы перед обновлением запущенная служба VPN будет остановлена. Подтвердите, чтобы начать установку.",
-    ),
     "updateTime": MessageLookupByLibrary.simpleMessage("Время обновления"),
     "updateTip": MessageLookupByLibrary.simpleMessage("Обновление"),
     "upload": MessageLookupByLibrary.simpleMessage("Отправка"),

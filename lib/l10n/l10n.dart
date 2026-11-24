@@ -11410,6 +11410,11 @@ class AppLocalizations {
     );
   }
 
+  /// `Rule added`
+  String get ruleAdded {
+    return Intl.message('Rule added', name: 'ruleAdded', desc: '', args: []);
+  }
+
   /// `When on, the rule applies to all managed profiles. When off, or in non-managed mode, it only applies to the current profile`
   String get applyToAllManagedDesc {
     return Intl.message(

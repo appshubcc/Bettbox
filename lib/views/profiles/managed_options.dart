@@ -592,6 +592,19 @@ class _ManagedOptionsSheetState extends ConsumerState<ManagedOptionsSheet> {
             : catalog.iconUrlOf(route),
       ),
       title: Text(name, maxLines: 1, overflow: TextOverflow.ellipsis),
+      subtitle: route == null || route.sets.isEmpty
+          ? null
+          : Text(
+              [
+                for (final key in route.sets)
+                  catalog.sets[key]?.label ??
+                      CustomRuleSet.parse(key)?.name ??
+                      key.split(':').last,
+              ].join('、'),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: context.textTheme.bodySmall?.toLight,
+            ),
       trailing: _sorting
           ? ReorderableDragStartListener(
               index: index,

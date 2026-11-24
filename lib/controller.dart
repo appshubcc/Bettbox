@@ -2812,9 +2812,14 @@ class AppController {
       });
     }
     setupClashConfigDebounce();
-    if (!managed) {
-      globalState.showNotifier(appLocalizations.nonManagedRuleTip);
-    }
+    globalState.showNotifier(
+      managed ? appLocalizations.ruleAdded : appLocalizations.nonManagedRuleTip,
+      actionLabel: appLocalizations.view,
+      onAction: () {
+        if (!context.mounted) return;
+        BaseNavigator.push(context, OverrideProfileView(profileId: profile.id));
+      },
+    );
   }
 
   Future<bool> exportLogs() async {

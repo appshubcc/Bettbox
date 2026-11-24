@@ -279,10 +279,10 @@ class _ManagedOptionsSheetState extends ConsumerState<ManagedOptionsSheet> {
     final data = await globalState.appController.safeRun(
       silence: false,
       () async {
-        final script = await ManagedScript.script(
-          props.copyWith(routes: const [], order: const []),
-        );
-        final catalog = await ManagedScript.catalog();
+        final (catalog, script) = await (
+          ManagedScript.catalog(),
+          ManagedScript.optionsScript(props),
+        ).wait;
         final options = await JavaScriptRuntimeManager.extractScriptOptions(
           script,
         );

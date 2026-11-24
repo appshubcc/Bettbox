@@ -410,8 +410,11 @@ class ManagedScript {
   static const _customVersionPrefix = 'custom:';
 
   static String _bundledVersion = '';
+  static String _bundledDigest = '';
 
   static String get bundledVersion => _bundledVersion;
+
+  static String get bundledDigest => _bundledDigest;
 
   static String? parseVersion(String content) =>
       _versionPattern.firstMatch(content)?.group(1);
@@ -422,6 +425,7 @@ class ManagedScript {
   static Future<void> loadBundledVersion() async {
     final content = await readBundled();
     _bundledVersion = parseVersion(content) ?? '';
+    _bundledDigest = content.toMd5();
   }
 
   static bool isCustom(ManagedProps props) =>
@@ -439,6 +443,38 @@ class ManagedScript {
       if (await file.exists()) return file.readAsString();
     }
     return readBundled();
+  }
+
+  static Script? cachedOptionsScript(ManagedProps props) {
+    if (isCustom(props) || _bundledDigest.isEmpty) return null;
+    return Script(
+      id: managedScriptId,
+      label: managedScriptId,
+      customOptions: props.options,
+      digest: _bundledDigest,
+    );
+  }
+
+  static Future<Script> optionsScript(ManagedProps props) async {
+    if (!isCustom(props)) {
+      final content = await readBundled();
+      if (_bundledDigest.isEmpty) _bundledDigest = content.toMd5();
+      return Script(
+        id: managedScriptId,
+        label: managedScriptId,
+        content: content,
+        customOptions: props.options,
+        digest: _bundledDigest,
+      );
+    }
+    final content = await read(props);
+    return Script(
+      id: managedScriptId,
+      label: managedScriptId,
+      content: content,
+      customOptions: props.options,
+      digest: content.toMd5(),
+    );
   }
 
   static Future<Script> script(

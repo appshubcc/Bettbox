@@ -236,6 +236,7 @@ class ApplicationState extends ConsumerState<Application>
   Future<void> _initApp() async {
     unawaited(uiManager.initializeUI());
     unawaited(ensureRustLib());
+    unawaited(JavaScriptRuntimeManager.preloadOptionsCache());
     unawaited(preferences.flushStartupBackup());
     final currentContext = globalState.navigatorKey.currentContext;
     if (currentContext != null && currentContext != context) {

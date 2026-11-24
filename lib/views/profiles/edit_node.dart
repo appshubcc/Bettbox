@@ -283,11 +283,11 @@ class EditNodeViewState extends ConsumerState<EditNodeView> {
   Future<void> _loadManaged() async {
     final name = _node?.name;
     final props = ref.read(managedSettingProvider);
-    final catalog = (await ManagedScript.catalog()).catalog;
-    final script = await ManagedScript.script(
-      props.copyWith(routes: const [], order: const []),
-      nodeNames: [?name],
-    );
+    final (catalogIndex, script) = await (
+      ManagedScript.catalog(),
+      ManagedScript.optionsScript(props),
+    ).wait;
+    final catalog = catalogIndex.catalog;
     final data = await JavaScriptRuntimeManager.extractScriptOptions(script);
     final (:options, icons: _, :policyGroupOptions) = processScriptOptions(
       data,
@@ -298,10 +298,22 @@ class EditNodeViewState extends ConsumerState<EditNodeView> {
     final regions = minimal
         ? const <String>[]
         : managedRegions(catalog, props.regions, props.customRegions);
-    final nodeRegions = data['nodeRegions'];
-    final matched = nodeRegions is Map && nodeRegions[name] is List
-        ? (nodeRegions[name] as List).whereType<String>().toSet()
-        : const <String>{};
+    var matched = const <String>{};
+    if (!minimal && regions.isNotEmpty && name != null && name.isNotEmpty) {
+      final nodeScript = await ManagedScript.script(
+        props.copyWith(routes: const [], order: const []),
+        nodeNames: [name],
+      );
+      final nodeData = await JavaScriptRuntimeManager.extractScriptOptions(
+        nodeScript,
+        cache: false,
+      );
+      if (!mounted || _node?.name != name) return;
+      final nodeRegions = nodeData['nodeRegions'];
+      if (nodeRegions is Map && nodeRegions[name] is List) {
+        matched = (nodeRegions[name] as List).whereType<String>().toSet();
+      }
+    }
     final services = minimal
         ? const <String>{}
         : {

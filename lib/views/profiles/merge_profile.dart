@@ -48,10 +48,19 @@ class _MergeProfileViewState extends ConsumerState<MergeProfileView> {
         if (profiles.getProfile(member.id) != null) member,
     ];
     _labelController.text = widget.profile?.label ?? _defaultLabel(profiles);
+    final cachedScript = ManagedScript.cachedOptionsScript(
+      ref.read(managedSettingProvider),
+    );
+    final cachedOptions = cachedScript == null
+        ? null
+        : JavaScriptRuntimeManager.getCachedOptions(cachedScript);
+    if (cachedOptions != null) {
+      _defaults = _parseDefaults(cachedOptions['options']);
+    }
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       context.afterRouteTransition(() {
-        _loadOptions();
+        if (_defaults == null) _loadOptions();
         _loadScriptOptions();
       });
     });
@@ -63,23 +72,22 @@ class _MergeProfileViewState extends ConsumerState<MergeProfileView> {
     super.dispose();
   }
 
+  Map<String, bool> _parseDefaults(Object? options) => {
+    if (options is Map)
+      for (final MapEntry(:key, :value) in options.entries)
+        key.toString(): value is bool ? value : true,
+  };
+
   Future<void> _loadOptions() async {
     if (!mounted) return;
     final props = ref.read(managedSettingProvider);
     final data = await globalState.appController.safeRun(() async {
-      final script = await ManagedScript.script(
-        props.copyWith(routes: const [], order: const []),
-      );
+      final script = await ManagedScript.optionsScript(props);
       return JavaScriptRuntimeManager.extractScriptOptions(script);
     });
-    final options = data?['options'];
     if (!mounted) return;
     setState(() {
-      _defaults = {
-        if (options is Map)
-          for (final MapEntry(:key, :value) in options.entries)
-            key.toString(): value is bool ? value : true,
-      };
+      _defaults = _parseDefaults(data?['options']);
     });
   }
 

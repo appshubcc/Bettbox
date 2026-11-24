@@ -25,8 +25,7 @@ void main(List<String> arguments) async {
   final standard = args['standard'] as bool;
   final isDev = args['dev'] as bool;
   final makePortable =
-      (args['portable'] as bool?) ??
-      (compatible && arch == 'amd64' && !standard);
+      (args['portable'] as bool?) ?? (arch == 'amd64' && !standard);
   final makeInstaller = args['installer'] as bool;
 
   final desc = [

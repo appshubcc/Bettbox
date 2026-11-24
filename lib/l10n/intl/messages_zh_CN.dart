@@ -961,6 +961,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "keepDockIcon": MessageLookupByLibrary.simpleMessage("常驻DOCK"),
     "keepDockIconDesc": MessageLookupByLibrary.simpleMessage("在 Dock 栏保留应用图标"),
     "key": MessageLookupByLibrary.simpleMessage("键"),
+    "lanFirewallTip": MessageLookupByLibrary.simpleMessage(
+      "系统防火墙放行后，局域网设备才能连接 Bettbox 内核。是否添加仅允许本地子网设备访问的防火墙规则？需要管理员授权。",
+    ),
     "lanSharing": MessageLookupByLibrary.simpleMessage("局域网共享"),
     "landingNode": MessageLookupByLibrary.simpleMessage("落地节点"),
     "landingNodeDesc": MessageLookupByLibrary.simpleMessage(
@@ -979,6 +982,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "local": MessageLookupByLibrary.simpleMessage("本地"),
     "localBackupDesc": MessageLookupByLibrary.simpleMessage("备份数据到本地"),
     "localFile": MessageLookupByLibrary.simpleMessage("本地文件"),
+    "localNetworkPermissionTip": MessageLookupByLibrary.simpleMessage(
+      "局域网代理需要「本地网络」权限，请在系统设置中为 Bettbox 开启。",
+    ),
     "localPing": MessageLookupByLibrary.simpleMessage("本地 Ping"),
     "localPingAverage": MessageLookupByLibrary.simpleMessage("平均延迟"),
     "localPingBytes": m35,

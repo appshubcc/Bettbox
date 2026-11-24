@@ -1081,6 +1081,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "keepDockIcon": MessageLookupByLibrary.simpleMessage("Dock에 고정"),
     "keepDockIconDesc": MessageLookupByLibrary.simpleMessage("Dock에 앱 아이콘 유지"),
     "key": MessageLookupByLibrary.simpleMessage("키"),
+    "lanFirewallTip": MessageLookupByLibrary.simpleMessage(
+      "시스템 방화벽에서 허용하기 전에는 LAN 기기가 Bettbox 코어에 연결할 수 없습니다. 로컬 서브넷 기기만 허용하는 방화벽 규칙을 추가할까요? 관리자 승인이 필요합니다.",
+    ),
     "lanSharing": MessageLookupByLibrary.simpleMessage("LAN 공유"),
     "landingNode": MessageLookupByLibrary.simpleMessage("랜딩 노드"),
     "landingNodeDesc": MessageLookupByLibrary.simpleMessage(
@@ -1101,6 +1104,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "local": MessageLookupByLibrary.simpleMessage("로컬"),
     "localBackupDesc": MessageLookupByLibrary.simpleMessage("로컬 파일로 데이터 백업"),
     "localFile": MessageLookupByLibrary.simpleMessage("로컬 파일"),
+    "localNetworkPermissionTip": MessageLookupByLibrary.simpleMessage(
+      "LAN 허용에는 \'로컬 네트워크\' 권한이 필요합니다. 시스템 설정에서 Bettbox에 허용해 주세요.",
+    ),
     "localPing": MessageLookupByLibrary.simpleMessage("로컬 Ping"),
     "localPingAverage": MessageLookupByLibrary.simpleMessage("평균 지연"),
     "localPingBytes": m35,

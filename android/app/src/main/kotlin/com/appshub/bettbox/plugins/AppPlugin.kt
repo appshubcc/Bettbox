@@ -138,6 +138,7 @@ class AppPlugin : FlutterPlugin, MethodChannel.MethodCallHandler, ActivityAware 
 
     private var isBlockNotification = false
     private var isBlockLocalNetwork = false
+    private var localNetworkResult: MethodChannel.Result? = null
     private var isActivityAttached = false
 
     override fun onAttachedToEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
@@ -308,6 +309,9 @@ class AppPlugin : FlutterPlugin, MethodChannel.MethodCallHandler, ActivityAware 
             }
             "hasCameraPermission" -> {
                 result.success(hasCameraPermission())
+            }
+            "requestLocalNetworkPermission" -> {
+                requestLocalNetworkPermission(result)
             }
             "openAppSettings" -> {
                 openAppSettings()
@@ -563,6 +567,19 @@ class AppPlugin : FlutterPlugin, MethodChannel.MethodCallHandler, ActivityAware 
         ActivityCompat.requestPermissions(activity, arrayOf(LOCAL_NETWORK_PERMISSION), LOCAL_NETWORK_PERMISSION_REQUEST_CODE)
     }
 
+    private fun requestLocalNetworkPermission(result: MethodChannel.Result) {
+        val activity = activityRef?.get()
+        if (Build.VERSION.SDK_INT < 37 || activity == null ||
+            ContextCompat.checkSelfPermission(activity, LOCAL_NETWORK_PERMISSION) == PackageManager.PERMISSION_GRANTED
+        ) {
+            result.success(true)
+            return
+        }
+        localNetworkResult?.success(false)
+        localNetworkResult = result
+        ActivityCompat.requestPermissions(activity, arrayOf(LOCAL_NETWORK_PERMISSION), LOCAL_NETWORK_PERMISSION_REQUEST_CODE)
+    }
+
     suspend fun getText(text: String): String? = withContext(Dispatchers.Default) {
         channel.awaitResult<String>("getText", text)
     }
@@ -636,6 +653,8 @@ class AppPlugin : FlutterPlugin, MethodChannel.MethodCallHandler, ActivityAware 
         activityRef = null
         cachedTaskId = null
         isActivityAttached = false
+        localNetworkResult?.success(false)
+        localNetworkResult = null
     }
 
     private fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?): Boolean {
@@ -656,7 +675,11 @@ class AppPlugin : FlutterPlugin, MethodChannel.MethodCallHandler, ActivityAware 
                 isBlockNotification = true
                 requestLocalNetworkPermission()
             }
-            LOCAL_NETWORK_PERMISSION_REQUEST_CODE -> isBlockLocalNetwork = true
+            LOCAL_NETWORK_PERMISSION_REQUEST_CODE -> {
+                isBlockLocalNetwork = true
+                localNetworkResult?.success(grantResults.firstOrNull() == PackageManager.PERMISSION_GRANTED)
+                localNetworkResult = null
+            }
         }
         return true
     }

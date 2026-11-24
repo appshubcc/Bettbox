@@ -1339,6 +1339,9 @@ class MessageLookup extends MessageLookupByLibrary {
       "Сохранять иконку приложения в Dock",
     ),
     "key": MessageLookupByLibrary.simpleMessage("Ключ"),
+    "lanFirewallTip": MessageLookupByLibrary.simpleMessage(
+      "Устройства в локальной сети не смогут подключиться к ядру Bettbox, пока это не разрешит брандмауэр. Добавить правило, разрешающее доступ только устройствам локальной подсети? Потребуются права администратора.",
+    ),
     "lanSharing": MessageLookupByLibrary.simpleMessage("Общий доступ в LAN"),
     "landingNode": MessageLookupByLibrary.simpleMessage("Выходной узел"),
     "landingNodeDesc": MessageLookupByLibrary.simpleMessage(
@@ -1365,6 +1368,9 @@ class MessageLookup extends MessageLookupByLibrary {
       "Резервное копирование данных в файл",
     ),
     "localFile": MessageLookupByLibrary.simpleMessage("Локальный файл"),
+    "localNetworkPermissionTip": MessageLookupByLibrary.simpleMessage(
+      "Для доступа из LAN нужно разрешение «Локальная сеть». Включите его для Bettbox в настройках системы.",
+    ),
     "localPing": MessageLookupByLibrary.simpleMessage("Локальный Ping"),
     "localPingAverage": MessageLookupByLibrary.simpleMessage("Средняя"),
     "localPingBytes": m35,

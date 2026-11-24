@@ -967,6 +967,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "keepDockIcon": MessageLookupByLibrary.simpleMessage("常駐DOCK"),
     "keepDockIconDesc": MessageLookupByLibrary.simpleMessage("在 Dock 欄保留應用圖標"),
     "key": MessageLookupByLibrary.simpleMessage("鍵"),
+    "lanFirewallTip": MessageLookupByLibrary.simpleMessage(
+      "系統防火牆放行後，區域網路裝置才能連線 Bettbox 核心。是否新增僅允許本機子網路裝置存取的防火牆規則？需要系統管理員授權。",
+    ),
     "lanSharing": MessageLookupByLibrary.simpleMessage("區域網路共享"),
     "landingNode": MessageLookupByLibrary.simpleMessage("落地節點"),
     "landingNodeDesc": MessageLookupByLibrary.simpleMessage(
@@ -985,6 +988,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "local": MessageLookupByLibrary.simpleMessage("本機"),
     "localBackupDesc": MessageLookupByLibrary.simpleMessage("備份資料到本機"),
     "localFile": MessageLookupByLibrary.simpleMessage("本地檔案"),
+    "localNetworkPermissionTip": MessageLookupByLibrary.simpleMessage(
+      "區域網路代理需要「本機網路」權限，請在系統設定中為 Bettbox 開啟。",
+    ),
     "localPing": MessageLookupByLibrary.simpleMessage("本機 Ping"),
     "localPingAverage": MessageLookupByLibrary.simpleMessage("平均延遲"),
     "localPingBytes": m35,

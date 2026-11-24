@@ -21,7 +21,7 @@ import 'package:flutter/foundation.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:path/path.dart';
+import 'package:path/path.dart' hide windows;
 import 'package:restart_app/restart_app.dart';
 import 'package:synchronized/synchronized.dart';
 import 'package:tray_manager/tray_manager.dart';
@@ -2642,6 +2642,33 @@ class AppController {
     } else {
       updateClashConfigDebounce();
     }
+  }
+
+  void updateAllowLan(bool value) {
+    _ref
+        .read(patchClashConfigProvider.notifier)
+        .updateState((state) => state.copyWith(allowLan: value));
+    if (value) unawaited(_ensureLanAccess());
+  }
+
+  Future<void> _ensureLanAccess() async {
+    if (system.isAndroid) {
+      if (await app.requestLocalNetworkPermission()) return;
+      final confirmed = await globalState.showMessage(
+        message: TextSpan(text: appLocalizations.localNetworkPermissionTip),
+        confirmText: appLocalizations.openSettings,
+      );
+      if (confirmed == true) await app.openAppSettings();
+      return;
+    }
+    final helperWindows = windows;
+    if (helperWindows == null || !helperWindows.usesHelper) return;
+    if (await helperWindows.hasCoreFirewallRule()) return;
+    final confirmed = await globalState.showMessage(
+      message: TextSpan(text: appLocalizations.lanFirewallTip),
+      confirmText: appLocalizations.add,
+    );
+    if (confirmed == true) helperWindows.addCoreFirewallRule();
   }
 
   void updateSystemProxy() {

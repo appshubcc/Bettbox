@@ -835,6 +835,26 @@ class Windows {
     return result > 32;
   }
 
+  String get _coreFirewallRuleName => '${AppIdentity.displayName} Core';
+
+  Future<bool> hasCoreFirewallRule() async {
+    final result = await Process.run('netsh', [
+      'advfirewall',
+      'firewall',
+      'show',
+      'rule',
+      'name=$_coreFirewallRuleName',
+    ]);
+    return result.exitCode == 0;
+  }
+
+  bool addCoreFirewallRule() {
+    return runas(
+      'netsh',
+      'advfirewall firewall add rule name="$_coreFirewallRuleName" dir=in action=allow program="${appPath.corePath}" enable=yes profile=any remoteip=localsubnet',
+    );
+  }
+
   Future<WindowsHelperServiceStatus> checkService() async {
     await HelperAuthManager.ensureAuthKey();
     final result = await Process.run('sc', ['query', appHelperService]);

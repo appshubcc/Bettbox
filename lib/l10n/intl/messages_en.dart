@@ -1283,6 +1283,9 @@ class MessageLookup extends MessageLookupByLibrary {
       "Keep the app icon in the Dock",
     ),
     "key": MessageLookupByLibrary.simpleMessage("Key"),
+    "lanFirewallTip": MessageLookupByLibrary.simpleMessage(
+      "LAN devices can\'t reach the Bettbox core until the system firewall allows it. Add a firewall rule that only allows devices on the local subnet? Administrator approval is required.",
+    ),
     "lanSharing": MessageLookupByLibrary.simpleMessage("LAN Sharing"),
     "landingNode": MessageLookupByLibrary.simpleMessage("Landing node"),
     "landingNodeDesc": MessageLookupByLibrary.simpleMessage(
@@ -1305,6 +1308,9 @@ class MessageLookup extends MessageLookupByLibrary {
       "Backup data locally",
     ),
     "localFile": MessageLookupByLibrary.simpleMessage("Local File"),
+    "localNetworkPermissionTip": MessageLookupByLibrary.simpleMessage(
+      "LAN proxy requires the Local network permission. Allow it for Bettbox in system settings.",
+    ),
     "localPing": MessageLookupByLibrary.simpleMessage("Local Ping"),
     "localPingAverage": MessageLookupByLibrary.simpleMessage("Average"),
     "localPingBytes": m35,

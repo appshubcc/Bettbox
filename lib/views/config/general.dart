@@ -307,11 +307,7 @@ class AllowLanItem extends ConsumerWidget {
       subtitle: Text(appLocalizations.allowLanDesc),
       delegate: SwitchDelegate(
         value: allowLan,
-        onChanged: (bool value) async {
-          ref
-              .read(patchClashConfigProvider.notifier)
-              .updateState((state) => state.copyWith(allowLan: value));
-        },
+        onChanged: globalState.appController.updateAllowLan,
       ),
     );
   }

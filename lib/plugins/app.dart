@@ -81,6 +81,13 @@ class App {
     await methodChannel.invokeMethod<void>('requestPackageListPermission');
   }
 
+  Future<bool> requestLocalNetworkPermission() async {
+    final result = await methodChannel.invokeMethod<bool>(
+      'requestLocalNetworkPermission',
+    );
+    return result ?? true;
+  }
+
   Future<void> openAppSettings() async {
     await methodChannel.invokeMethod<void>('openAppSettings');
   }

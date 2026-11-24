@@ -11414,6 +11414,26 @@ class AppLocalizations {
       args: [],
     );
   }
+
+  /// `LAN devices can't reach the Bettbox core until the system firewall allows it. Add a firewall rule that only allows devices on the local subnet? Administrator approval is required.`
+  String get lanFirewallTip {
+    return Intl.message(
+      'LAN devices can\'t reach the Bettbox core until the system firewall allows it. Add a firewall rule that only allows devices on the local subnet? Administrator approval is required.',
+      name: 'lanFirewallTip',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `LAN proxy requires the Local network permission. Allow it for Bettbox in system settings.`
+  String get localNetworkPermissionTip {
+    return Intl.message(
+      'LAN proxy requires the Local network permission. Allow it for Bettbox in system settings.',
+      name: 'localNetworkPermissionTip',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<AppLocalizations> {

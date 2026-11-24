@@ -336,9 +336,7 @@ class _IntranetIpInfoDialogState extends ConsumerState<_IntranetIpInfoDialog> {
           Switch(
             materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
             value: allowLan,
-            onChanged: (value) => ref
-                .read(patchClashConfigProvider.notifier)
-                .updateState((state) => state.copyWith(allowLan: value)),
+            onChanged: globalState.appController.updateAllowLan,
           ),
         ],
       ),

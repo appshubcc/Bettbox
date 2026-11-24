@@ -1082,6 +1082,9 @@ class MessageLookup extends MessageLookupByLibrary {
       "Dock にアプリアイコンを表示",
     ),
     "key": MessageLookupByLibrary.simpleMessage("キー"),
+    "lanFirewallTip": MessageLookupByLibrary.simpleMessage(
+      "システムのファイアウォールで許可されるまで、LAN 上のデバイスは Bettbox コアに接続できません。ローカルサブネットのデバイスのみを許可するファイアウォール規則を追加しますか？管理者の承認が必要です。",
+    ),
     "lanSharing": MessageLookupByLibrary.simpleMessage("LAN共有"),
     "landingNode": MessageLookupByLibrary.simpleMessage("ランディングノード"),
     "landingNodeDesc": MessageLookupByLibrary.simpleMessage(
@@ -1102,6 +1105,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "local": MessageLookupByLibrary.simpleMessage("ローカル"),
     "localBackupDesc": MessageLookupByLibrary.simpleMessage("ローカルにデータをバックアップ"),
     "localFile": MessageLookupByLibrary.simpleMessage("ローカルファイル"),
+    "localNetworkPermissionTip": MessageLookupByLibrary.simpleMessage(
+      "LAN 共有には「ローカルネットワーク」権限が必要です。システム設定で Bettbox に許可してください。",
+    ),
     "localPing": MessageLookupByLibrary.simpleMessage("ローカル Ping"),
     "localPingAverage": MessageLookupByLibrary.simpleMessage("平均遅延"),
     "localPingBytes": m35,

@@ -1290,6 +1290,9 @@ class MessageLookup extends MessageLookupByLibrary {
       "نمایش آیکون برنامه در Dock",
     ),
     "key": MessageLookupByLibrary.simpleMessage("کلید"),
+    "lanFirewallTip": MessageLookupByLibrary.simpleMessage(
+      "تا زمانی که دیوارهٔ آتش سیستم اجازه ندهد، دستگاه‌های شبکهٔ محلی نمی‌توانند به هستهٔ Bettbox وصل شوند. قانونی اضافه شود که فقط به دستگاه‌های زیرشبکهٔ محلی اجازه دهد؟ تأیید مدیر لازم است.",
+    ),
     "lanSharing": MessageLookupByLibrary.simpleMessage(
       "اشتراک‌گذاری در شبکه محلی",
     ),
@@ -1314,6 +1317,9 @@ class MessageLookup extends MessageLookupByLibrary {
       "پشتیبان‌گیری داده‌ها در فایل محلی",
     ),
     "localFile": MessageLookupByLibrary.simpleMessage("فایل محلی"),
+    "localNetworkPermissionTip": MessageLookupByLibrary.simpleMessage(
+      "دسترسی شبکهٔ محلی به مجوز «شبکهٔ محلی» نیاز دارد. آن را در تنظیمات سیستم برای Bettbox فعال کنید.",
+    ),
     "localPing": MessageLookupByLibrary.simpleMessage("Ping محلی"),
     "localPingAverage": MessageLookupByLibrary.simpleMessage("میانگین"),
     "localPingBytes": m35,

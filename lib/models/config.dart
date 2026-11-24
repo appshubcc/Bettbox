@@ -140,6 +140,13 @@ const List<MediaPlatform> defaultPinnedMediaPlatforms = [
   MediaPlatform.cloudflare,
 ];
 
+List<MediaPlatform> proxyUnlockPlatformsFromJson(List<dynamic>? values) {
+  final names = values?.whereType<String>().toSet() ?? const <String>{};
+  return MediaPlatform.values
+      .where((platform) => names.contains(platform.name))
+      .toList();
+}
+
 List<MediaPlatform> pinnedMediaPlatformsSafeFromJson(
   List<dynamic>? pinnedMediaPlatforms,
 ) {
@@ -193,6 +200,10 @@ abstract class AppSettingProps with _$AppSettingProps {
     @Default(false) bool mediaUnlockExtraDetails,
     @Default(true) bool mediaUnlockRefreshOnNodeChange,
     @Default(true) bool mediaUnlockColorfulIcons,
+    @Default(false) bool showProxyUnlockTags,
+    @Default(<MediaPlatform>[])
+    @JsonKey(fromJson: proxyUnlockPlatformsFromJson)
+    List<MediaPlatform> proxyUnlockPlatforms,
     @Default(true) bool mediaUnlockRefreshByCategory,
     @Default(true) bool onlyStatisticsProxy,
     @Default(false) bool autoLaunch,

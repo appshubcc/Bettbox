@@ -7,9 +7,9 @@ import 'package:bett_box/views/proxies/actions.dart';
 import 'package:bett_box/views/proxies/common.dart';
 import 'package:bett_box/views/proxies/list.dart';
 import 'package:bett_box/views/proxies/tab.dart';
+import 'package:bett_box/views/proxies/unlock_tags.dart';
 import 'package:bett_box/widgets/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:material_ui/material_ui.dart';
 
 final _proxyIconMatchersProvider = Provider.autoDispose<List<(RegExp, String)>>(
@@ -214,6 +214,26 @@ class ProxyCard extends StatelessWidget {
   }
 
   Widget _buildFooter(BuildContext context, Widget delayText) {
+    final bodySmallStyle = context.textTheme.bodySmall;
+    final protocol = type == ProxyCardType.expand
+        ? _ProxyMetaTag(proxy.type)
+        : TooltipText(
+            text: Text(
+              proxy.type,
+              maxLines: 1,
+              style: bodySmallStyle?.copyWith(
+                overflow: TextOverflow.ellipsis,
+                color: bodySmallStyle.color?.opacity80,
+              ),
+            ),
+          );
+    final footerRow = Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Flexible(child: protocol),
+        delayText,
+      ],
+    );
     if (type == ProxyCardType.expand) {
       final labelSmallHeight = measure.labelSmallHeight;
       return SizedBox(
@@ -227,51 +247,12 @@ class ProxyCard extends StatelessWidget {
               height: labelSmallHeight,
               child: _ProxyDesc(proxy: proxy),
             ),
-            SizedBox(
-              height: labelSmallHeight,
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                spacing: 4,
-                children: [
-                  Expanded(
-                    child: Align(
-                      alignment: Alignment.centerLeft,
-                      child: _ProxyMetaTag(proxy.type),
-                    ),
-                  ),
-                  Flexible(child: _MediaUnlockBadges(proxyName: proxy.name)),
-                  delayText,
-                ],
-              ),
-            ),
+            SizedBox(height: labelSmallHeight, child: footerRow),
           ],
         ),
       );
     }
-    final bodySmallStyle = context.textTheme.bodySmall;
-    return SizedBox(
-      height: measure.bodySmallHeight,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Flexible(
-            flex: 1,
-            child: TooltipText(
-              text: Text(
-                proxy.type,
-                style: bodySmallStyle?.copyWith(
-                  overflow: TextOverflow.ellipsis,
-                  color: bodySmallStyle.color?.opacity80,
-                ),
-              ),
-            ),
-          ),
-          Flexible(child: _MediaUnlockBadges(proxyName: proxy.name)),
-          delayText,
-        ],
-      ),
-    );
+    return SizedBox(height: measure.bodySmallHeight, child: footerRow);
   }
 
   Future<void> _changeProxy(WidgetRef ref) async {
@@ -351,13 +332,26 @@ class ProxyCard extends StatelessWidget {
               onLongPress: hasActions ? () => _openActions(context, ref) : null,
               isSelected: isSelected,
               child: Container(
+                height: getItemHeight(type),
                 alignment: Alignment.centerLeft,
-                padding: const EdgeInsets.symmetric(horizontal: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
                 child: Column(
-                  mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  spacing: 8,
-                  children: [proxyNameWidget, footerWidget],
+                  children: [
+                    proxyNameWidget,
+                    Expanded(
+                      child: Align(
+                        alignment: AlignmentDirectional.centerStart,
+                        child: hasActions
+                            ? ProxyUnlockTags(proxyName: proxy.name)
+                            : null,
+                      ),
+                    ),
+                    footerWidget,
+                  ],
                 ),
               ),
             ),
@@ -441,66 +435,6 @@ class _ProxyComputedMarkIcon extends StatelessWidget {
           color: colorScheme.onSecondaryContainer,
         ),
       ),
-    );
-  }
-}
-
-class _MediaUnlockBadges extends StatelessWidget {
-  final String proxyName;
-  const _MediaUnlockBadges({required this.proxyName});
-
-  @override
-  Widget build(BuildContext context) {
-    return ValueListenableBuilder<Map<String, Map<String, String>>>(
-      valueListenable: mediaUnlockStore.status,
-      builder: (context, statuses, _) {
-        final unlocked = statuses[proxyName];
-        if (unlocked == null || unlocked.isEmpty) return const SizedBox.shrink();
-        final platforms = MediaPlatform.values.where((p) => unlocked.containsKey(p.name));
-        return SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              for (final platform in platforms)
-                _MediaUnlockBadge(platform: platform, region: unlocked[platform.name]!),
-            ],
-          ),
-        );
-      },
-    );
-  }
-}
-
-class _MediaUnlockBadge extends StatelessWidget {
-  final MediaPlatform platform;
-  final String region;
-  const _MediaUnlockBadge({required this.platform, required this.region});
-
-  @override
-  Widget build(BuildContext context) {
-    const red = Color(0xFFFF0000);
-    final isYouTube = platform == MediaPlatform.youtube;
-    final label = isYouTube
-        ? (region.isEmpty ? 'YTM' : 'YT·$region')
-        : '${platform.defaultName}${region.isEmpty ? '' : '·$region'}';
-    return Container(
-      margin: const EdgeInsets.only(right: 4),
-      padding: const EdgeInsets.symmetric(horizontal: 3),
-      decoration: BoxDecoration(
-        color: red.withValues(alpha: 0.12),
-        border: Border.all(color: red.withValues(alpha: 0.3), width: 0.5),
-        borderRadius: BorderRadius.circular(4),
-      ),
-      child: Row(mainAxisSize: MainAxisSize.min, children: [
-        if (isYouTube)
-          const Icon(Icons.play_arrow_rounded, size: 12, color: red)
-        else
-          SvgPicture.asset('assets/svg/${platform.icon}', width: 12, height: 12),
-        const SizedBox(width: 2),
-        Text(label, style: const TextStyle(fontSize: 10, color: red,
-          fontWeight: FontWeight.w600, height: 1)),
-      ]),
     );
   }
 }

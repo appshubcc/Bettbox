@@ -1279,6 +1279,7 @@ Widget mediaPlatformIcon(
   BuildContext context,
   MediaPlatform platform, {
   MediaUnlockStatus? status,
+  bool? colorful,
   double size = 20,
 }) {
   final assetPath = 'assets/svg/${platform.icon}';
@@ -1304,7 +1305,11 @@ Widget mediaPlatformIcon(
       height: iconHeight,
       fit: BoxFit.contain,
       colorFilter: ColorFilter.mode(
-        isUnlocked
+        colorful != null
+            ? (colorful
+                  ? context.colorScheme.primary
+                  : context.colorScheme.onSurfaceVariant)
+            : isUnlocked
             ? context.colorScheme.onSurface
             : (isTestingOrUnknown
                   ? context.colorScheme.onSurfaceVariant
@@ -1312,7 +1317,7 @@ Widget mediaPlatformIcon(
         BlendMode.srcIn,
       ),
     );
-  } else if (isUnlocked) {
+  } else if (colorful ?? isUnlocked) {
     icon = SvgPicture.asset(
       assetPath,
       width: iconWidth,

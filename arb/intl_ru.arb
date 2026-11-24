@@ -756,6 +756,8 @@
   "itemsCount": "{count}",
   "mediaUnlock": "Проверка доступности",
   "mediaUnlockDetails": "Детали проверки доступности",
+  "proxyUnlockTags": "Значки разблокировки",
+  "proxyUnlockNotTested": "Ещё не проверено",
   "mediaUnlockDisplaySettings": "Настройки отображения",
   "mediaUnlockMiscSettings": "Прочие настройки",
   "mediaUnlockMoreStreamingPlatforms": "Больше платформ стриминга",

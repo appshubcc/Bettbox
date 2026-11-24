@@ -752,6 +752,8 @@
   "itemsCount": "{count}",
   "mediaUnlock": "连通性测试",
   "mediaUnlockDetails": "连通性测试详情",
+  "proxyUnlockTags": "解锁标签",
+  "proxyUnlockNotTested": "尚未检测",
   "mediaUnlockDisplaySettings": "显示设置",
   "mediaUnlockMiscSettings": "杂项设置",
   "mediaUnlockMoreStreamingPlatforms": "更多流媒体解锁项目",

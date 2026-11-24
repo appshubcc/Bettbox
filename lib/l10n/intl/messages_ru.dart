@@ -1946,6 +1946,12 @@ class MessageLookup extends MessageLookupByLibrary {
     "proxyProvidersCount": MessageLookupByLibrary.simpleMessage(
       "Наборы прокси",
     ),
+    "proxyUnlockNotTested": MessageLookupByLibrary.simpleMessage(
+      "Ещё не проверено",
+    ),
+    "proxyUnlockTags": MessageLookupByLibrary.simpleMessage(
+      "Значки разблокировки",
+    ),
     "pulse": MessageLookupByLibrary.simpleMessage("Пульсация"),
     "pulsingGrid": MessageLookupByLibrary.simpleMessage("Пульсирующая сетка"),
     "pumpingHeart": MessageLookupByLibrary.simpleMessage("Бьющееся сердце"),

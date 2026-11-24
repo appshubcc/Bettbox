@@ -752,6 +752,8 @@
   "itemsCount": "{count}",
   "mediaUnlock": "تست اتصال",
   "mediaUnlockDetails": "جزئیات تست اتصال",
+  "proxyUnlockTags": "نشان‌های رفع محدودیت",
+  "proxyUnlockNotTested": "هنوز آزمایش نشده",
   "mediaUnlockDisplaySettings": "تنظیمات نمایش",
   "mediaUnlockMiscSettings": "تنظیمات متفرقه",
   "mediaUnlockMoreStreamingPlatforms": "موارد بیشتر آنلاک استریم",

@@ -1889,6 +1889,12 @@ class MessageLookup extends MessageLookupByLibrary {
     "proxyProvidersCount": MessageLookupByLibrary.simpleMessage(
       "مجموعه پروکسی",
     ),
+    "proxyUnlockNotTested": MessageLookupByLibrary.simpleMessage(
+      "هنوز آزمایش نشده",
+    ),
+    "proxyUnlockTags": MessageLookupByLibrary.simpleMessage(
+      "نشان‌های رفع محدودیت",
+    ),
     "pulse": MessageLookupByLibrary.simpleMessage("پالس"),
     "pulsingGrid": MessageLookupByLibrary.simpleMessage("شبکه تپنده"),
     "pumpingHeart": MessageLookupByLibrary.simpleMessage("قلب تپنده"),

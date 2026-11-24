@@ -752,6 +752,8 @@
   "itemsCount": "{count}",
   "mediaUnlock": "接続性テスト",
   "mediaUnlockDetails": "接続性テスト詳細",
+  "proxyUnlockTags": "アンロックバッジ",
+  "proxyUnlockNotTested": "未テスト",
   "mediaUnlockDisplaySettings": "表示設定",
   "mediaUnlockMiscSettings": "その他の設定",
   "mediaUnlockMoreStreamingPlatforms": "その他のストリーミング解除項目",

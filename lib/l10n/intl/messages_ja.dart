@@ -1563,6 +1563,8 @@ class MessageLookup extends MessageLookupByLibrary {
     "proxyPortDesc": MessageLookupByLibrary.simpleMessage("Clashのリスニングポート設定"),
     "proxyProviders": MessageLookupByLibrary.simpleMessage("プロキシプロバイダー"),
     "proxyProvidersCount": MessageLookupByLibrary.simpleMessage("プロキシセット"),
+    "proxyUnlockNotTested": MessageLookupByLibrary.simpleMessage("未テスト"),
+    "proxyUnlockTags": MessageLookupByLibrary.simpleMessage("アンロックバッジ"),
     "pulse": MessageLookupByLibrary.simpleMessage("パルス"),
     "pulsingGrid": MessageLookupByLibrary.simpleMessage("パルスグリッド"),
     "pumpingHeart": MessageLookupByLibrary.simpleMessage("ハートビート"),

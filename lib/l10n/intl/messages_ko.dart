@@ -1566,6 +1566,8 @@ class MessageLookup extends MessageLookupByLibrary {
     "proxyPortDesc": MessageLookupByLibrary.simpleMessage("Clash 수신 포트 설정"),
     "proxyProviders": MessageLookupByLibrary.simpleMessage("프록시 프로바이더"),
     "proxyProvidersCount": MessageLookupByLibrary.simpleMessage("프록시 세트"),
+    "proxyUnlockNotTested": MessageLookupByLibrary.simpleMessage("아직 테스트하지 않음"),
+    "proxyUnlockTags": MessageLookupByLibrary.simpleMessage("잠금 해제 배지"),
     "pulse": MessageLookupByLibrary.simpleMessage("펄스"),
     "pulsingGrid": MessageLookupByLibrary.simpleMessage("펄싱 그리드"),
     "pumpingHeart": MessageLookupByLibrary.simpleMessage("펌핑 하트"),

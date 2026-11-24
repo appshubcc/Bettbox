@@ -1396,6 +1396,8 @@ class MessageLookup extends MessageLookupByLibrary {
     "proxyPortDesc": MessageLookupByLibrary.simpleMessage("设置 Clash 监听端口"),
     "proxyProviders": MessageLookupByLibrary.simpleMessage("代理提供者"),
     "proxyProvidersCount": MessageLookupByLibrary.simpleMessage("代理集"),
+    "proxyUnlockNotTested": MessageLookupByLibrary.simpleMessage("尚未检测"),
+    "proxyUnlockTags": MessageLookupByLibrary.simpleMessage("解锁标签"),
     "pulse": MessageLookupByLibrary.simpleMessage("脉冲律动"),
     "pulsingGrid": MessageLookupByLibrary.simpleMessage("矩阵脉动"),
     "pumpingHeart": MessageLookupByLibrary.simpleMessage("怦然心动"),

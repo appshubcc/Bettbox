@@ -752,6 +752,8 @@
   "itemsCount": "{count}",
   "mediaUnlock": "連通性測試",
   "mediaUnlockDetails": "連通性測試詳情",
+  "proxyUnlockTags": "解鎖標籤",
+  "proxyUnlockNotTested": "尚未檢測",
   "mediaUnlockDisplaySettings": "顯示設定",
   "mediaUnlockMiscSettings": "雜項設定",
   "mediaUnlockMoreStreamingPlatforms": "更多串流媒體解鎖項目",

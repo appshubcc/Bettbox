@@ -752,6 +752,8 @@
   "itemsCount": "{count}",
   "mediaUnlock": "연결성 테스트",
   "mediaUnlockDetails": "연결성 테스트 상세",
+  "proxyUnlockTags": "잠금 해제 배지",
+  "proxyUnlockNotTested": "아직 테스트하지 않음",
   "mediaUnlockDisplaySettings": "표시 설정",
   "mediaUnlockMiscSettings": "기타 설정",
   "mediaUnlockMoreStreamingPlatforms": "더 많은 스트리밍 잠금 해제 항목",

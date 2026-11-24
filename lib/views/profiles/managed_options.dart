@@ -7,6 +7,7 @@ import 'package:bett_box/providers/providers.dart';
 import 'package:bett_box/state.dart';
 import 'package:bett_box/views/icon_sets.dart';
 import 'package:bett_box/views/profiles/scripts.dart';
+import 'package:bett_box/views/proxies/unlock_tags.dart';
 import 'package:bett_box/widgets/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
@@ -646,7 +647,7 @@ class _ManagedOptionsSheetState extends ConsumerState<ManagedOptionsSheet> {
               ),
             )
           : null,
-      footer: _sorting || (_others.isEmpty && regions.isEmpty)
+      footer: _sorting
           ? null
           : Column(
               children: [
@@ -699,6 +700,10 @@ class _ManagedOptionsSheetState extends ConsumerState<ManagedOptionsSheet> {
                       ),
                     ),
                   ),
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 4),
+                  child: ProxyUnlockTagsSetting(),
+                ),
               ],
             ),
       itemCount: items.length,

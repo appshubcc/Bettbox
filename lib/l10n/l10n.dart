@@ -6185,6 +6185,26 @@ class AppLocalizations {
     );
   }
 
+  /// `Unlock badges`
+  String get proxyUnlockTags {
+    return Intl.message(
+      'Unlock badges',
+      name: 'proxyUnlockTags',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Not tested yet`
+  String get proxyUnlockNotTested {
+    return Intl.message(
+      'Not tested yet',
+      name: 'proxyUnlockNotTested',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Display Settings`
   String get mediaUnlockDisplaySettings {
     return Intl.message(

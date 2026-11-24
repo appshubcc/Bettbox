@@ -751,6 +751,8 @@
   "itemsCount": "{count}",
   "mediaUnlock": "Connectivity Test",
   "mediaUnlockDetails": "Connectivity Test Details",
+  "proxyUnlockTags": "Unlock badges",
+  "proxyUnlockNotTested": "Not tested yet",
   "mediaUnlockDisplaySettings": "Display Settings",
   "mediaUnlockMiscSettings": "Misc Settings",
   "mediaUnlockMoreStreamingPlatforms": "More Streaming Unlock Items",

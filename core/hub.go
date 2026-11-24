@@ -795,7 +795,14 @@ func ensureLogSubscriber() {
 		return
 	}
 	logSubscriber = log.Subscribe()
+	pending := make(chan logEntry, 256)
 	go func() {
+		for entry := range pending {
+			sendMessage(Message{Type: LogMessage, Data: entry})
+		}
+	}()
+	go func() {
+		defer close(pending)
 		for logData := range logSubscriber {
 			if logData.LogLevel < log.Level() {
 				continue
@@ -807,11 +814,10 @@ func ensureLogSubscriber() {
 					continue
 				}
 			}
-			message := &Message{
-				Type: LogMessage,
-				Data: entry,
+			select {
+			case pending <- entry:
+			default:
 			}
-			sendMessage(*message)
 		}
 	}()
 }

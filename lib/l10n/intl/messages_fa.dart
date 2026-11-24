@@ -704,9 +704,6 @@ class MessageLookup extends MessageLookupByLibrary {
     "directModeNoProxy": MessageLookupByLibrary.simpleMessage(
       "حالت مستقیم، پروکسی وجود ندارد",
     ),
-    "directUpdate": MessageLookupByLibrary.simpleMessage(
-      "به‌روزرسانی با اتصال مستقیم",
-    ),
     "disableQuic": MessageLookupByLibrary.simpleMessage("غیرفعال‌سازی QUIC"),
     "disableQuicDesc": MessageLookupByLibrary.simpleMessage(
       "غیرفعال‌سازی QUIC برای کاهش مشکلات شبکه",

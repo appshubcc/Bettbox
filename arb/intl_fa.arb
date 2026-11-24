@@ -704,7 +704,6 @@
   "ageSecretKeyInvalidValidationDesc": "لطفاً کلید خصوصی معتبری وارد کنید (باید با -AGE-SECRET-KEY شروع شود)",
   "ageKeyGenerateTitle": "ابزار کلید Age",
   "skipCertVerify": "نادیده گرفتن تأیید گواهی",
-  "directUpdate": "به‌روزرسانی با اتصال مستقیم",
   "useCustomUa": "استفاده از UA مشخص‌شده",
   "agePrivateKeyLabel": "کلید خصوصی Age",
   "agePublicKeyLabel": "کلید عمومی Age",

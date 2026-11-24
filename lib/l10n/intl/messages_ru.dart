@@ -729,9 +729,6 @@ class MessageLookup extends MessageLookupByLibrary {
     "directModeNoProxy": MessageLookupByLibrary.simpleMessage(
       "Режим прямого подключения, прокси нет",
     ),
-    "directUpdate": MessageLookupByLibrary.simpleMessage(
-      "Обновлять через прямое подключение",
-    ),
     "disableQuic": MessageLookupByLibrary.simpleMessage("Отключить QUIC"),
     "disableQuicDesc": MessageLookupByLibrary.simpleMessage(
       "Отключить QUIC для смягчения сетевых проблем",

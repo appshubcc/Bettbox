@@ -593,7 +593,6 @@ class MessageLookup extends MessageLookupByLibrary {
     "directModeNoProxy": MessageLookupByLibrary.simpleMessage(
       "직접 연결 모드, 프록시 없음",
     ),
-    "directUpdate": MessageLookupByLibrary.simpleMessage("직접 연결로 업데이트"),
     "disableQuic": MessageLookupByLibrary.simpleMessage("QUIC 비활성화"),
     "disableQuicDesc": MessageLookupByLibrary.simpleMessage(
       "특정 네트워크 문제를 완화하기 위해 QUIC 비활성화",

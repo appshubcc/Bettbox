@@ -42,8 +42,6 @@ mixin ClashInterface {
 
   Future<Result<dynamic>> mergeProfiles(String params);
 
-  Future<Result<dynamic>> downloadProfile(String params);
-
   FutureOr<String> decryptAgeConfig(String data, String ageSecretKey);
 
   FutureOr<Result<dynamic>> getConfig(
@@ -232,7 +230,6 @@ abstract class ClashHandlerInterface with ClashInterface {
         case ActionMethod.updateExpandedProvider:
         case ActionMethod.exportConfig:
         case ActionMethod.mergeProfiles:
-        case ActionMethod.downloadProfile:
         case ActionMethod.convertAgeSecretKeyToPublicKey:
           completer?.complete(result.toResult);
           return;
@@ -479,16 +476,6 @@ abstract class ClashHandlerInterface with ClashInterface {
       data: params,
       timeout: const Duration(seconds: 120),
       defaultValue: Result.error('mergeProfiles timeout'),
-    );
-  }
-
-  @override
-  Future<Result<dynamic>> downloadProfile(String params) {
-    return invoke<Result<dynamic>>(
-      method: ActionMethod.downloadProfile,
-      data: params,
-      timeout: const Duration(minutes: 3),
-      defaultValue: Result.error('downloadProfile timeout'),
     );
   }
 

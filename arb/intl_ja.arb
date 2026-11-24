@@ -704,7 +704,6 @@
   "ageSecretKeyInvalidValidationDesc": "有効な Age 秘密鍵を入力してください (AGE-SECRET-KEY- で始まる必要があります)",
   "ageKeyGenerateTitle": "Age Key ツール",
   "skipCertVerify": "証明書の検証をスキップ",
-  "directUpdate": "直接接続で更新",
   "useCustomUa": "指定した UA を使用",
   "agePrivateKeyLabel": "Age 秘密鍵",
   "agePublicKeyLabel": "Age 公開鍵",

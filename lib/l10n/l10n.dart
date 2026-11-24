@@ -5820,16 +5820,6 @@ class AppLocalizations {
     );
   }
 
-  /// `Update via direct connection`
-  String get directUpdate {
-    return Intl.message(
-      'Update via direct connection',
-      name: 'directUpdate',
-      desc: '',
-      args: [],
-    );
-  }
-
   /// `Use specified UA`
   String get useCustomUa {
     return Intl.message(

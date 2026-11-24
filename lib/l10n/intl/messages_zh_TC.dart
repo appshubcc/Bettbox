@@ -533,7 +533,6 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "direct": MessageLookupByLibrary.simpleMessage("直連"),
     "directModeNoProxy": MessageLookupByLibrary.simpleMessage("直連模式，暫無代理"),
-    "directUpdate": MessageLookupByLibrary.simpleMessage("透過直連更新"),
     "disableQuic": MessageLookupByLibrary.simpleMessage("禁用QUIC"),
     "disableQuicDesc": MessageLookupByLibrary.simpleMessage(
       "停用 QUIC 以緩解特定網路問題",

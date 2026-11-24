@@ -704,7 +704,6 @@
   "ageSecretKeyInvalidValidationDesc": "请输入有效的 Age 私钥（必须以 AGE-SECRET-KEY- 开头）",
   "ageKeyGenerateTitle": "Age Key 工具",
   "skipCertVerify": "跳过证书验证",
-  "directUpdate": "通过直连更新",
   "useCustomUa": "使用指定 UA",
   "agePrivateKeyLabel": "Age 私钥",
   "agePublicKeyLabel": "Age 公钥",

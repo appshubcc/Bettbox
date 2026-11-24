@@ -116,7 +116,6 @@ const (
 	shutdownMethod                       Method = "shutdown"
 	validateConfigMethod                 Method = "validateConfig"
 	importProfileMethod                  Method = "importProfile"
-	downloadProfileMethod                Method = "downloadProfile"
 	decryptAgeConfigMethod               Method = "decryptAgeConfig"
 	updateConfigMethod                   Method = "updateConfig"
 	getProxiesMethod                     Method = "getProxies"

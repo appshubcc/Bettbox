@@ -703,7 +703,6 @@
   "ageSecretKeyInvalidValidationDesc": "Please enter a valid Age secret key (must start with AGE-SECRET-KEY-)",
   "ageKeyGenerateTitle": "Age Key Tool",
   "skipCertVerify": "Skip certificate verification",
-  "directUpdate": "Update via direct connection",
   "useCustomUa": "Use specified UA",
   "agePrivateKeyLabel": "Age Private Key",
   "agePublicKeyLabel": "Age Public Key",

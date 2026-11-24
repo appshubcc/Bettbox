@@ -594,7 +594,6 @@ class MessageLookup extends MessageLookupByLibrary {
     "directModeNoProxy": MessageLookupByLibrary.simpleMessage(
       "ダイレクトモード、プロキシなし",
     ),
-    "directUpdate": MessageLookupByLibrary.simpleMessage("直接接続で更新"),
     "disableQuic": MessageLookupByLibrary.simpleMessage("QUIC無効化"),
     "disableQuicDesc": MessageLookupByLibrary.simpleMessage(
       "特定の通信問題を緩和するためQUICを無効化",

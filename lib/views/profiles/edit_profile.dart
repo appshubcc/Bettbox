@@ -59,7 +59,6 @@ class EditProfileViewState extends State<EditProfileView> {
   late bool autoUpdate;
   late bool managed = widget.profile.managed;
   late bool skipCertVerify = widget.profile.skipCertVerify;
-  late bool directUpdate = widget.profile.directUpdate;
   late String? userAgent = widget.profile.userAgent;
   late TextEditingController ageSecretKeyController;
   FocusNode? urlFocusNode;
@@ -119,7 +118,6 @@ class EditProfileViewState extends State<EditProfileView> {
       autoUpdate: autoUpdate,
       managed: managed,
       skipCertVerify: skipCertVerify,
-      directUpdate: directUpdate,
       userAgent: userAgent,
       autoUpdateDuration: Duration(
         minutes: int.parse(autoUpdateDurationController.text),
@@ -349,7 +347,7 @@ class EditProfileViewState extends State<EditProfileView> {
   List<PopupMenuItemData> get _menuItems {
     final isUrl = widget.isNew || profile.type == ProfileType.url;
     return [
-      if (isUrl) ...[
+      if (isUrl)
         PopupMenuItemData(
           icon: skipCertVerify
               ? Icons.check_circle_rounded
@@ -357,14 +355,6 @@ class EditProfileViewState extends State<EditProfileView> {
           label: appLocalizations.skipCertVerify,
           onPressed: () => skipCertVerify = !skipCertVerify,
         ),
-        PopupMenuItemData(
-          icon: directUpdate
-              ? Icons.check_circle_rounded
-              : Icons.circle_outlined,
-          label: appLocalizations.directUpdate,
-          onPressed: () => directUpdate = !directUpdate,
-        ),
-      ],
       PopupMenuItemData(
         icon: Icons.security,
         label: appLocalizations.ageKeyGenerateTitle,

@@ -39,6 +39,7 @@ class Request {
 
   late final Dio _dio;
   late final Dio _clashDio;
+  late final Dio _insecureClashDio;
   String? userAgent;
 
   Request() {
@@ -59,6 +60,16 @@ class Request {
           client.userAgent = globalState.ua;
           return BettboxHttpOverrides.handleFindProxy(uri);
         };
+        return client;
+      },
+    );
+    _insecureClashDio = Dio();
+    _insecureClashDio.httpClientAdapter = IOHttpClientAdapter(
+      createHttpClient: () {
+        final client = HttpClient();
+        client.autoUncompress = false;
+        client.findProxy = BettboxHttpOverrides.handleFindProxy;
+        client.badCertificateCallback = (_, _, _) => true;
         return client;
       },
     );
@@ -255,7 +266,6 @@ class Request {
   Future<({String path, Headers? headers, bool remote})> fetchProfileSource(
     String url,
     String downloadPath, {
-    bool direct = false,
     bool skipCertVerify = false,
     String? userAgent,
   }) async {
@@ -268,23 +278,20 @@ class Request {
         remote: false,
       );
     }
-    final (requestUrl, headers) = _authorizedRequest(url);
-    final responseHeaders = await clashCore.downloadProfile(
-      url: requestUrl,
-      output: downloadPath,
-      headers: {
-        for (final MapEntry(:key, :value) in headers.entries)
-          key: value.toString(),
+    final (requestUrl, authHeaders) = _authorizedRequest(url);
+    final dio = skipCertVerify ? _insecureClashDio : _clashDio;
+    final response = await _withPlainEncodingRetry(
+      {
+        ...authHeaders,
         HttpHeaders.userAgentHeader: userAgent ?? globalState.ua,
       },
-      direct: direct || globalState.appState.runTime == null,
-      skipCertVerify: skipCertVerify,
+      (requestHeaders) => dio.download(
+        requestUrl,
+        downloadPath,
+        options: Options(headers: requestHeaders),
+      ),
     );
-    return (
-      path: downloadPath,
-      headers: Headers.fromMap(responseHeaders),
-      remote: true,
-    );
+    return (path: downloadPath, headers: response.headers, remote: true);
   }
 
   Future<Response<dynamic>> _getResponseForUrl(

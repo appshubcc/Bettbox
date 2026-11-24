@@ -272,32 +272,6 @@ class ClashCore {
     );
   }
 
-  Future<Map<String, List<String>>> downloadProfile({
-    required String url,
-    required String output,
-    required Map<String, String> headers,
-    required bool direct,
-    required bool skipCertVerify,
-  }) async {
-    final res = await clashInterface.downloadProfile(
-      json.encode({
-        'url': url,
-        'output': output,
-        'headers': headers,
-        'direct': direct,
-        'skip-cert-verify': skipCertVerify,
-      }),
-    );
-    if (res.isError) {
-      throw res.message;
-    }
-    final decoded = json.decode(res.data as String) as Map<String, Object?>;
-    return {
-      for (final MapEntry(:key, :value) in decoded.entries)
-        key: (value as List).cast<String>(),
-    };
-  }
-
   FutureOr<String> decryptAgeConfig(String data, String ageSecretKey) {
     return clashInterface.decryptAgeConfig(data, ageSecretKey);
   }

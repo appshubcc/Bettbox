@@ -61,7 +61,6 @@ _Profile _$ProfileFromJson(Map<String, dynamic> json) => _Profile(
   managedStyleApplied: json['managedStyleApplied'] as bool? ?? false,
   ageSecretKey: json['ageSecretKey'] as String?,
   skipCertVerify: json['skipCertVerify'] as bool? ?? false,
-  directUpdate: json['directUpdate'] as bool? ?? false,
   userAgent: json['userAgent'] as String?,
   groupSwitches:
       (json['group-switches'] as Map<String, dynamic>?)?.map(
@@ -94,7 +93,6 @@ Map<String, dynamic> _$ProfileToJson(_Profile instance) => <String, dynamic>{
   'managedStyleApplied': instance.managedStyleApplied,
   'ageSecretKey': instance.ageSecretKey,
   'skipCertVerify': instance.skipCertVerify,
-  'directUpdate': instance.directUpdate,
   'userAgent': instance.userAgent,
   'group-switches': instance.groupSwitches,
   'usageStyle': _$ProfileUsageStyleEnumMap[instance.usageStyle]!,

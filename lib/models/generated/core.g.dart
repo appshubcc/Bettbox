@@ -314,7 +314,6 @@ const _$ActionMethodEnumMap = {
   ActionMethod.shutdown: 'shutdown',
   ActionMethod.validateConfig: 'validateConfig',
   ActionMethod.importProfile: 'importProfile',
-  ActionMethod.downloadProfile: 'downloadProfile',
   ActionMethod.updateConfig: 'updateConfig',
   ActionMethod.getConfig: 'getConfig',
   ActionMethod.getRuntimeConfig: 'getRuntimeConfig',

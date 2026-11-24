@@ -89,7 +89,6 @@ abstract class Profile with _$Profile {
     @Default(false) bool managedStyleApplied,
     String? ageSecretKey,
     @Default(false) bool skipCertVerify,
-    @Default(false) bool directUpdate,
     String? userAgent,
     @JsonKey(name: 'group-switches')
     @Default({})
@@ -345,7 +344,6 @@ extension ProfileExtension on Profile {
       final source = await request.fetchProfileSource(
         url,
         downloadPath,
-        direct: directUpdate,
         skipCertVerify: skipCertVerify,
         userAgent: userAgent,
       );

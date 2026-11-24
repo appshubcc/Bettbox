@@ -950,9 +950,11 @@ class _UpdateMark extends ConsumerWidget {
           ),
         ),
         child: Text(
-          status == AppUpdateStatus.downloading
-              ? '${(progress * 100).floor()}%'
-              : 'NEW',
+          switch (status) {
+            AppUpdateStatus.downloading => '${(progress * 100).floor()}%',
+            AppUpdateStatus.ready => 'UPDATE',
+            AppUpdateStatus.available => 'NEW',
+          },
           style: context.textTheme.labelSmall?.copyWith(
             fontSize: 9.5,
             height: 1.3,

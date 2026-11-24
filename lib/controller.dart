@@ -1810,32 +1810,36 @@ class AppController {
     _ref.read(appUpdateStateProvider.notifier).value = update;
   }
 
-  void _markAppUpdate(String tagName) {
-    if (_ref.read(appUpdateStateProvider)?.tagName == tagName) return;
-    _setAppUpdate(AppUpdate(tagName: tagName));
+  Future<void> _markAppUpdate(String tagName) async {
+    final current = _ref.read(appUpdateStateProvider);
+    if (current?.tagName == tagName) {
+      final path = current?.filePath;
+      if (current?.status != AppUpdateStatus.ready ||
+          (path != null && File(path).existsSync())) {
+        return;
+      }
+    }
+    final downloaded = appUpdater.isSupported
+        ? await appUpdater.findDownloaded(tagName)
+        : null;
+    final latest = _ref.read(appUpdateStateProvider);
+    if (latest?.tagName == tagName &&
+        latest?.status == AppUpdateStatus.downloading) {
+      return;
+    }
+    _setAppUpdate(
+      downloaded == null
+          ? AppUpdate(tagName: tagName)
+          : AppUpdate(
+              tagName: tagName,
+              status: AppUpdateStatus.ready,
+              filePath: downloaded.path,
+            ),
+    );
   }
 
   Future<void> _handleNewVersion(Map<String, dynamic> data) async {
-    final tagName = data['tag_name'] as String;
-    if (!appUpdater.isSupported) {
-      _markAppUpdate(tagName);
-      return checkUpdateResultHandle(data: data);
-    }
-    final downloaded = await appUpdater.findDownloaded(tagName);
-    if (downloaded != null) {
-      _setAppUpdate(
-        AppUpdate(
-          tagName: tagName,
-          status: AppUpdateStatus.ready,
-          filePath: downloaded.path,
-        ),
-      );
-      return;
-    }
-    _markAppUpdate(tagName);
-    if (!_isAutoDownloadUpdate) {
-      return checkUpdateResultHandle(data: data);
-    }
+    await _markAppUpdate(data['tag_name'] as String);
     await _autoDownloadAppUpdate();
   }
 
@@ -1850,16 +1854,30 @@ class AppController {
     await downloadAppUpdate(silent: true);
   }
 
+  bool _downloadWatched = false;
+
+  bool _isUpdateTag(String tagName) =>
+      _ref.read(appUpdateStateProvider)?.tagName == tagName;
+
+  void _notifyDownloading() {
+    _downloadWatched = true;
+    globalState.showNotifier(appLocalizations.updateDownloading);
+  }
+
   Future<void> downloadAppUpdate({bool silent = false}) async {
     final update = _ref.read(appUpdateStateProvider);
     if (update == null || update.status != AppUpdateStatus.available) return;
     final tagName = update.tagName;
+    _downloadWatched = !silent;
     _setAppUpdate(update.copyWith(status: AppUpdateStatus.downloading));
+    if (!silent) {
+      globalState.showNotifier(appLocalizations.updateDownloadStarted);
+    }
     try {
       var percent = 0;
       final file = await appUpdater.download(tagName, (progress) {
         final next = (progress * 100).floor();
-        if (next == percent) return;
+        if (next == percent || !_isUpdateTag(tagName)) return;
         percent = next;
         _setAppUpdate(
           AppUpdate(
@@ -1869,6 +1887,7 @@ class AppController {
           ),
         );
       });
+      if (!_isUpdateTag(tagName)) return;
       _setAppUpdate(
         AppUpdate(
           tagName: tagName,
@@ -1876,13 +1895,22 @@ class AppController {
           filePath: file.path,
         ),
       );
+      if (_downloadWatched) {
+        globalState.showNotifier(
+          appLocalizations.updateDownloaded,
+          onAction: () => unawaited(installAppUpdate()),
+          actionLabel: appLocalizations.install,
+          showCountdown: true,
+        );
+      }
     } catch (e) {
+      if (!_isUpdateTag(tagName)) return;
       commonPrint.warn(
         'Download failed: ${e.formatErrorLog}',
         module: 'Update',
       );
       _setAppUpdate(AppUpdate(tagName: tagName));
-      if (!silent) {
+      if (_downloadWatched) {
         globalState.showNotifier(appLocalizations.updateDownloadFailed);
       }
     }
@@ -1901,9 +1929,7 @@ class AppController {
       final res = await globalState.showMessage(
         title: appLocalizations.updateTip,
         message: TextSpan(
-          text: system.isAndroid
-              ? appLocalizations.updateReadyVpnTip
-              : appLocalizations.updateReadyAppTip(AppIdentity.displayName),
+          text: appLocalizations.updateReadyAppTip(AppIdentity.displayName),
         ),
       );
       if (res != true) return;
@@ -1950,20 +1976,13 @@ class AppController {
   Future<void> handleAppUpdate() async {
     final update = _ref.read(appUpdateStateProvider);
     if (update == null) return;
-    if (!appUpdater.isSupported) {
-      return globalState.openUrl(appUpdater.releaseUrl);
-    }
+    final data = {'tag_name': update.tagName};
+    if (!appUpdater.isSupported) return checkUpdateResultHandle(data: data);
     switch (update.status) {
       case AppUpdateStatus.available:
-        if (_isAutoDownloadUpdate) {
-          return downloadAppUpdate();
-        }
-        return checkUpdateResultHandle(
-          data: {'tag_name': update.tagName},
-          handleError: true,
-        );
+        return checkUpdateResultHandle(data: data);
       case AppUpdateStatus.downloading:
-        return;
+        _notifyDownloading();
       case AppUpdateStatus.ready:
         return installAppUpdate();
     }
@@ -1973,38 +1992,43 @@ class AppController {
     Map<String, dynamic>? data,
     bool handleError = false,
   }) async {
-    if (data != null) {
-      final tagName = data['tag_name'] as String;
-      _markAppUpdate(tagName);
-      final update = _ref.read(appUpdateStateProvider);
-      final direct =
-          appUpdater.isSupported &&
-          (_isAutoDownloadUpdate || update?.status == AppUpdateStatus.ready);
-      final res = await globalState.showMessage(
-        title: appLocalizations.discoverNewVersion,
-        message: TextSpan(
-          text: tagName,
-          style: context.textTheme.headlineSmall,
-        ),
-        confirmText: appLocalizations.goDownload,
-        cancelText: direct ? null : appLocalizations.viewChangelog,
-      );
-      if (res == null || (direct && res == false)) {
-        return;
+    if (data == null) {
+      if (handleError) {
+        unawaited(
+          globalState.showMessage(
+            title: appLocalizations.checkUpdate,
+            message: TextSpan(text: appLocalizations.checkUpdateError),
+            cancelable: false,
+          ),
+        );
       }
-      if (direct) {
-        return handleAppUpdate();
-      }
-      unawaited(globalState.openUrl(appUpdater.releaseTagUrl(tagName)));
-    } else if (handleError) {
-      unawaited(
-        globalState.showMessage(
-          title: appLocalizations.checkUpdate,
-          message: TextSpan(text: appLocalizations.checkUpdateError),
-          cancelable: false,
-        ),
-      );
+      return;
     }
+    final tagName = data['tag_name'] as String;
+    final tagStyle = context.textTheme.headlineSmall;
+    await _markAppUpdate(tagName);
+    final status = _ref.read(appUpdateStateProvider)?.status;
+    final supported = appUpdater.isSupported;
+    if (supported && status == AppUpdateStatus.downloading) {
+      return _notifyDownloading();
+    }
+    final res = await globalState.showMessage(
+      title: appLocalizations.discoverNewVersion,
+      message: TextSpan(text: tagName, style: tagStyle),
+      confirmText: !supported
+          ? appLocalizations.goDownload
+          : status == AppUpdateStatus.ready
+          ? appLocalizations.install
+          : appLocalizations.download,
+      cancelText: supported ? appLocalizations.viewChangelog : null,
+    );
+    if (res == null || (!supported && !res)) return;
+    if (!supported || !res) {
+      return globalState.openUrl(appUpdater.releaseTagUrl(tagName));
+    }
+    return status == AppUpdateStatus.ready
+        ? installAppUpdate()
+        : downloadAppUpdate();
   }
 
   Future<void> _handlePreference() async {

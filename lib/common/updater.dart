@@ -54,8 +54,6 @@ open "\$3"
 
   bool get isSupported => _assetSuffix.isNotEmpty && !appPath.isPortable;
 
-  String get releaseUrl => 'https://github.com/$repository/releases/latest';
-
   String releaseTagUrl(String tagName) =>
       'https://github.com/$repository/releases/tag/$tagName';
 
@@ -98,10 +96,14 @@ open "\$3"
     }
   }
 
+  CancelToken? _cancelToken;
+
   Future<File> download(
     String tagName,
     void Function(double progress) onProgress,
   ) async {
+    _cancelToken?.cancel();
+    final cancelToken = _cancelToken = CancelToken();
     final name = assetName(tagName);
     final dir = await _dir;
     await dir.create(recursive: true);
@@ -114,6 +116,7 @@ open "\$3"
     final offset = part.existsSync() ? part.lengthSync() : 0;
     final response = await _dio.get<ResponseBody>(
       _url(tagName, name),
+      cancelToken: cancelToken,
       options: Options(
         responseType: ResponseType.stream,
         headers: {if (offset > 0) 'Range': 'bytes=$offset-'},

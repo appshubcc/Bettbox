@@ -886,6 +886,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "inputCorrectHotkey": MessageLookupByLibrary.simpleMessage(
       "올바른 단축키를 입력하세요",
     ),
+    "install": MessageLookupByLibrary.simpleMessage("설치"),
     "installTime": MessageLookupByLibrary.simpleMessage("설치 시간"),
     "intelligentSelected": MessageLookupByLibrary.simpleMessage("스마트 선택"),
     "intelligentSelectedConfirm": MessageLookupByLibrary.simpleMessage(
@@ -2109,11 +2110,17 @@ class MessageLookup extends MessageLookupByLibrary {
     "updateDownloadFailed": MessageLookupByLibrary.simpleMessage(
       "업데이트 다운로드 실패",
     ),
+    "updateDownloadStarted": MessageLookupByLibrary.simpleMessage(
+      "새 버전 다운로드를 시작했습니다",
+    ),
+    "updateDownloaded": MessageLookupByLibrary.simpleMessage(
+      "새 버전 다운로드가 완료되었습니다",
+    ),
+    "updateDownloading": MessageLookupByLibrary.simpleMessage(
+      "새 버전을 다운로드하는 중입니다",
+    ),
     "updateInstallFailed": MessageLookupByLibrary.simpleMessage("업데이트 설치 실패"),
     "updateReadyAppTip": m77,
-    "updateReadyVpnTip": MessageLookupByLibrary.simpleMessage(
-      "새 버전 설치 패키지가 준비되었습니다. 서비스 보호를 위해 업그레이드 전에 실행 중인 VPN 서비스를 중지합니다. 확인을 누르면 설치를 시작합니다.",
-    ),
     "updateTime": MessageLookupByLibrary.simpleMessage("업데이트 시간"),
     "updateTip": MessageLookupByLibrary.simpleMessage("업그레이드 안내"),
     "upload": MessageLookupByLibrary.simpleMessage("업로드"),

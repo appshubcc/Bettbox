@@ -172,6 +172,7 @@ class AddNodeView extends StatelessWidget {
       EditorPage(
         title: template.title,
         content: template.content,
+        allowUnchangedSave: true,
         languages: const [],
         onSave: (editorContext, _, content) async {
           final nodes = await _parse(content);

@@ -817,25 +817,6 @@ class AppController {
     generateAllBundles();
   }
 
-  ProxyNode _createNode(
-    Map<String, dynamic> proxy,
-    Set<String> names, {
-    String? warpId,
-    String? warpToken,
-  }) {
-    final base = proxy['name']?.toString() ?? '';
-    var name = base;
-    for (var index = 2; !names.add(name); index++) {
-      name = '$base $index';
-    }
-    return ProxyNode(
-      id: utils.uuidV4,
-      proxy: {...proxy, 'name': name},
-      warpId: warpId,
-      warpToken: warpToken,
-    );
-  }
-
   Future<({List<Map<String, dynamic>> proxies, int invalid})> _parseNodes(
     String text,
   ) async {
@@ -859,7 +840,7 @@ class AppController {
     final (:proxies, :invalid) = await _parseNodes(text);
     final names = {for (final node in _ref.read(nodesProvider)) node.name};
     return (
-      nodes: [for (final proxy in proxies) _createNode(proxy, names)],
+      nodes: [for (final proxy in proxies) ProxyNode.fromImport(proxy, names)],
       invalid: invalid,
     );
   }
@@ -870,9 +851,7 @@ class AppController {
       for (final item in _ref.read(nodesProvider))
         if (item.id != node.id) item.name,
     };
-    final updated = node.copyWith(
-      proxy: _createNode(proxies.first, names).proxy,
-    );
+    final updated = node.withUpdatedProxy(proxies.first, names);
     _ref.read(nodesProvider.notifier).setNode(updated);
     return updated;
   }
@@ -885,9 +864,10 @@ class AppController {
       throw error.isEmpty ? appLocalizations.registerWarpFailed : error;
     }
     final names = {for (final node in _ref.read(nodesProvider)) node.name};
-    return _createNode(
+    return ProxyNode.fromImport(
       Map<String, dynamic>.from(proxy),
       names,
+    ).copyWith(
       warpId: res['id']?.toString(),
       warpToken: res['token']?.toString(),
     );

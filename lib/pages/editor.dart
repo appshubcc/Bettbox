@@ -42,6 +42,7 @@ class EditorPage extends ConsumerStatefulWidget {
   final bool readOnly;
   final bool delayedFocus;
   final bool simple;
+  final bool allowUnchangedSave;
   final Function(BuildContext context, String title, String content)? onSave;
   final Future<bool> Function(BuildContext context)? onReset;
   final Future<bool> Function(
@@ -61,6 +62,7 @@ class EditorPage extends ConsumerStatefulWidget {
     this.readOnly = false,
     this.delayedFocus = false,
     this.simple = false,
+    this.allowUnchangedSave = false,
     this.onSave,
     this.onReset,
     this.onPop,
@@ -250,16 +252,21 @@ class _EditorPageState extends ConsumerState<EditorPage> {
     _findController?.show(replace: true);
   }
 
+  bool get _canSave =>
+      widget.onSave != null &&
+      !widget.readOnly &&
+      !widget.simple &&
+      !_isLoading &&
+      _controller != null &&
+      (widget.allowUnchangedSave ||
+          widget.title.isEmpty ||
+          _isModified ||
+          _titleController.text != widget.title);
+
   void _handleSave(BuildContext context) {
-    if (widget.onSave == null) return;
-    if (widget.readOnly || widget.simple) return;
-    final controller = _controller;
-    if (_isLoading || controller == null) return;
-    final isNewScript = widget.title.isEmpty;
-    if (!isNewScript && !_isModified && _titleController.text == widget.title) {
-      return;
+    if (_canSave) {
+      widget.onSave!(context, _titleController.text, _controller!.text);
     }
-    widget.onSave!(context, _titleController.text, controller.text);
   }
 
   Future<void> _handleReset(BuildContext context) async {
@@ -612,21 +619,10 @@ class _EditorPageState extends ConsumerState<EditorPage> {
     return CommonPopScope(
       onPop: () async {
         if (globalState.isAndroidTV &&
-            (_editorHasFocus || _titleFocusNode.hasFocus)) {
-          final isNewScript = widget.title.isEmpty;
-          final hasChanges =
-              isNewScript ||
-              _isModified ||
-              _titleController.text != widget.title;
-          final canSave =
-              hasChanges &&
-              widget.onSave != null &&
-              !widget.simple &&
-              !widget.readOnly;
-          if (canSave) {
-            _saveButtonFocusNode.requestFocus();
-            return false;
-          }
+            (_editorHasFocus || _titleFocusNode.hasFocus) &&
+            _canSave) {
+          _saveButtonFocusNode.requestFocus();
+          return false;
         }
         if (widget.onPop == null) {
           return true;
@@ -686,12 +682,6 @@ class _EditorPageState extends ConsumerState<EditorPage> {
               actions: genActions(context, [
                 if (widget.onSave != null && !readOnly)
                   _wrapTitleController(() {
-                    final isNewScript = widget.title.isEmpty;
-                    final canSave =
-                        !_isLoading &&
-                        (isNewScript ||
-                            _isModified ||
-                            _titleController.text != widget.title);
                     return IconButton(
                       focusNode: _saveButtonFocusNode,
                       style: globalState.isAndroidTV
@@ -717,7 +707,7 @@ class _EditorPageState extends ConsumerState<EditorPage> {
                               }),
                             )
                           : null,
-                      onPressed: canSave ? () => _handleSave(context) : null,
+                      onPressed: _canSave ? () => _handleSave(context) : null,
                       tooltip: appLocalizations.save,
                       icon: const AppIcon(Icons.save_sharp),
                     );

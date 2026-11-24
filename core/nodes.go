@@ -3,7 +3,6 @@ package main
 import (
 	"encoding/json"
 	"errors"
-	"path/filepath"
 	"regexp"
 	"slices"
 	"strings"
@@ -18,7 +17,6 @@ import (
 )
 
 type PatchNode struct {
-	ID      string         `json:"id"`
 	Proxy   map[string]any `json:"proxy"`
 	Dialer  string         `json:"dialer"`
 	Groups  []string       `json:"groups"`
@@ -74,18 +72,14 @@ func nodeMappings(value any) []map[string]any {
 	return nil
 }
 
-// meshTypes are outbounds that keep a node identity on disk and register a
-// process-wide DNS client under their name when constructed.
-var meshTypes = map[string]string{
-	"easytier":  "easytier",
-	"tailscale": "tailscale",
-	"zerotier":  "zerotier",
-}
-
 func isMeshType(proxy map[string]any) bool {
 	kind, _ := proxy["type"].(string)
-	_, ok := meshTypes[strings.ToLower(kind)]
-	return ok
+	switch strings.ToLower(kind) {
+	case "easytier", "tailscale", "zerotier":
+		return true
+	default:
+		return false
+	}
 }
 
 // parseNodeProxy validates a node mapping without disturbing live outbounds.
@@ -98,17 +92,6 @@ func parseNodeProxy(mapping map[string]any) (C.Proxy, error) {
 	probe := cloneMapping(mapping)
 	probe["name"] = "validate-" + utils.NewUUIDV4().String()
 	return adapter.ParseProxy(probe)
-}
-
-// meshStateDir keeps a mesh node's identity stable across renames and
-// subscription refreshes, and keeps nodes of the same type apart.
-func meshStateDir(proxy map[string]any, id string) string {
-	kind, _ := proxy["type"].(string)
-	dir, ok := meshTypes[strings.ToLower(kind)]
-	if !ok || id == "" {
-		return ""
-	}
-	return filepath.Join("nodes", dir, id)
 }
 
 func parseNodes(text string) ([]map[string]any, int, error) {
@@ -328,11 +311,6 @@ func patchNodes(raw *config.RawConfig, nodes []PatchNode) {
 		proxy := cloneMapping(node.Proxy)
 		proxy["name"] = name
 		delete(proxy, "dialer-proxy")
-		if _, set := proxy["state-dir"]; !set {
-			if dir := meshStateDir(proxy, node.ID); dir != "" {
-				proxy["state-dir"] = dir
-			}
-		}
 		dialer := ""
 		if node.Dialer != "" {
 			_, isGroup := groups[node.Dialer]

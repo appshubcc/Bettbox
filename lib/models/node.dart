@@ -35,13 +35,38 @@ abstract class ProxyNode with _$ProxyNode {
     String? warpToken,
   }) = _ProxyNode;
 
+  static ProxyNode fromImport(Map<String, dynamic> proxy, Set<String> names) {
+    final id = utils.uuidV4;
+    final imported = _withUniqueName(proxy, names);
+    final type = imported['type']?.toString().toLowerCase();
+    if (meshNodeTypes.contains(type)) {
+      imported.putIfAbsent('state-dir', () => 'nodes/$type/$id');
+    }
+    return ProxyNode(id: id, proxy: imported);
+  }
+
   factory ProxyNode.fromJson(Map<String, Object?> json) =>
       _$ProxyNodeFromJson(json);
 }
 
 const meshNodeTypes = {'easytier', 'tailscale', 'zerotier'};
 
+Map<String, dynamic> _withUniqueName(
+  Map<String, dynamic> proxy,
+  Set<String> names,
+) {
+  final base = proxy['name']?.toString() ?? '';
+  var name = base;
+  for (var index = 2; !names.add(name); index++) {
+    name = '$base $index';
+  }
+  return {...proxy, 'name': name};
+}
+
 extension ProxyNodeExt on ProxyNode {
+  ProxyNode withUpdatedProxy(Map<String, dynamic> proxy, Set<String> names) =>
+      copyWith(proxy: _withUniqueName(proxy, names));
+
   String get name => this.proxy['name']?.toString() ?? id;
 
   String get type => this.proxy['type']?.toString() ?? '';
@@ -65,7 +90,6 @@ extension ProxyNodeExt on ProxyNode {
     if (!enable || binding == null) return null;
     final all = managed && binding.all;
     return {
-      'id': id,
       'proxy': this.proxy,
       'dialer': isLanding ? binding.front ?? '' : '',
       'groups': all

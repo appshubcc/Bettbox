@@ -90,7 +90,7 @@ class _CleanCupertinoPageRoute<T> extends CupertinoPageRoute<T> {
   Duration get transitionDuration => const Duration(milliseconds: 450);
 
   @override
-  Duration get reverseTransitionDuration => const Duration(milliseconds: 360);
+  Duration get reverseTransitionDuration => const Duration(milliseconds: 450);
 
   @override
   Color? get barrierColor => null;

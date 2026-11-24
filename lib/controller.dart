@@ -38,6 +38,12 @@ import 'models/models.dart';
 import 'views/profiles/override_profile.dart';
 import 'views/proxies/common.dart' show cancelDelayTests, delayTest;
 
+class _RecoveryApplyException implements Exception {
+  const _RecoveryApplyException(this.error);
+
+  final Object error;
+}
+
 class AppController {
   int? lastProfileModified;
 
@@ -3171,6 +3177,12 @@ class AppController {
           userInput = true;
         }
       }
+    } on _RecoveryApplyException catch (e) {
+      commonPrint.error(
+        'Apply after restore failed: ${e.error}',
+        module: 'Backup',
+      );
+      throw e.error;
     } catch (e) {
       commonPrint.error('Restore failed: $e', module: 'Backup');
       throw 'Backup file is corrupted or invalid: $e';
@@ -3347,8 +3359,15 @@ class AppController {
       _ref.read(managedSettingProvider.notifier).value = managedProps;
     }
     await savePreferences();
-    if (globalState.isStart) {
+    await _applyRecoveredProfile();
+  }
+
+  Future<void> _applyRecoveredProfile() async {
+    if (!globalState.isStart) return;
+    try {
       await applyProfile(silence: true);
+    } catch (e) {
+      throw _RecoveryApplyException(e);
     }
   }
 
@@ -3525,9 +3544,7 @@ class AppController {
 
     _recoveryLimited(limitedConfig, recoveryOption);
     await savePreferences();
-    if (globalState.isStart) {
-      await applyProfile(silence: true);
-    }
+    await _applyRecoveredProfile();
 
     _showRecoveryResultMessage(profiles);
   }

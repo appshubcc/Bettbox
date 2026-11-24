@@ -38,9 +38,13 @@ abstract class ProxyNode with _$ProxyNode {
   static ProxyNode fromImport(Map<String, dynamic> proxy, Set<String> names) {
     final id = utils.uuidV4;
     final imported = _withUniqueName(proxy, names);
-    final type = imported['type']?.toString().toLowerCase();
+    final type = imported['type']?.toString().toLowerCase() ?? '';
     if (meshNodeTypes.contains(type)) {
-      imported.putIfAbsent('state-dir', () => 'nodes/$type/$id');
+      final dir = _stateDir(imported);
+      imported.removeWhere((key, _) => _stateDirKey.hasMatch(key));
+      imported['state-dir'] = dir == null || dir == ''
+          ? _defaultStateDir(type, id)
+          : dir;
     }
     return ProxyNode(id: id, proxy: imported);
   }
@@ -50,6 +54,25 @@ abstract class ProxyNode with _$ProxyNode {
 }
 
 const meshNodeTypes = {'easytier', 'tailscale', 'zerotier'};
+
+final _stateDirKey = RegExp(
+  r'^state[-_]dir$',
+  caseSensitive: false,
+  unicode: true,
+);
+
+String _defaultStateDir(String type, String id) => 'nodes/$type/$id';
+
+Object? _stateDir(Map<String, dynamic> proxy) {
+  // Mihomo checks the exact tag before folding case and replacing underscores.
+  if (proxy.containsKey('state-dir')) return proxy['state-dir'];
+  for (final MapEntry(:key, :value) in proxy.entries) {
+    if (_stateDirKey.hasMatch(key) && value != null && value != '') {
+      return value;
+    }
+  }
+  return null;
+}
 
 Map<String, dynamic> _withUniqueName(
   Map<String, dynamic> proxy,
@@ -85,12 +108,25 @@ extension ProxyNodeExt on ProxyNode {
   bool activeOf(String profileId, {required bool managed}) =>
       enable && bindingOf(profileId, managed: managed) != null;
 
-  Map<String, dynamic>? patchOf(String profileId, {required bool managed}) {
+  Map<String, dynamic> get _proxyForSharing {
+    final mapping = this.proxy;
+    if (!isMesh ||
+        _stateDir(mapping) != _defaultStateDir(type.toLowerCase(), id)) {
+      return mapping;
+    }
+    return {...mapping}..removeWhere((key, _) => _stateDirKey.hasMatch(key));
+  }
+
+  Map<String, dynamic>? patchOf(
+    String profileId, {
+    required bool managed,
+    bool forSharing = false,
+  }) {
     final binding = bindingOf(profileId, managed: managed);
     if (!enable || binding == null) return null;
     final all = managed && binding.all;
     return {
-      'proxy': this.proxy,
+      'proxy': forSharing ? _proxyForSharing : this.proxy,
       'dialer': isLanding ? binding.front ?? '' : '',
       'groups': all
           ? [managedDefaultGroup, managedManualGroup]
@@ -106,7 +142,11 @@ extension ProxyNodesExt on List<ProxyNode> {
   List<Map<String, dynamic>> patchOf(
     String profileId, {
     required bool managed,
-  }) => [for (final node in this) ?node.patchOf(profileId, managed: managed)];
+    bool forSharing = false,
+  }) => [
+    for (final node in this)
+      ?node.patchOf(profileId, managed: managed, forSharing: forSharing),
+  ];
 
   List<String> get regionNodeNames => [
     for (final node in this)

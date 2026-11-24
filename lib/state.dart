@@ -702,6 +702,7 @@ class GlobalState {
   Future<SetupParams> buildSetupParams({
     required ClashConfig patchConfig,
     Profile? profile,
+    bool forSharing = false,
   }) async {
     final targetProfile = profile ?? config.currentProfile;
     final params = SetupParams(
@@ -718,6 +719,7 @@ class GlobalState {
       patch: await buildPatchParams(
         patchConfig: patchConfig,
         profile: targetProfile,
+        forSharing: forSharing,
       ),
     );
   }
@@ -750,9 +752,15 @@ class GlobalState {
     );
   }
 
-  Future<({String yaml, String uri})> getProxyConfig(String name) async {
+  Future<({String yaml, String uri})> getProxyConfig(
+    String name, {
+    bool forSharing = false,
+  }) async {
     return clashCore.getProxyConfig(
-      await buildSetupParams(patchConfig: config.patchClashConfig),
+      await buildSetupParams(
+        patchConfig: config.patchClashConfig,
+        forSharing: forSharing,
+      ),
       name,
     );
   }
@@ -1052,6 +1060,7 @@ class GlobalState {
   Future<Map<String, dynamic>> buildPatchParams({
     required ClashConfig patchConfig,
     required Profile profile,
+    bool forSharing = false,
   }) async {
     if (!isService) {
       await uiManager.initializeUI();
@@ -1145,7 +1154,11 @@ class GlobalState {
           ? null
           : patchConfig.tunnels.map((item) => item.toClashJson()).toList(),
       'providers-path': await appPath.getProvidersDirPath(profile.id),
-      'nodes': config.nodes.patchOf(profile.id, managed: profile.isManaged),
+      'nodes': config.nodes.patchOf(
+        profile.id,
+        managed: profile.isManaged,
+        forSharing: forSharing,
+      ),
       'node-exclude-filter': config.nodeExcludeFilter,
       'health-check-timeout': config.healthCheckTimeout,
       'override-rules': overrideData.enable

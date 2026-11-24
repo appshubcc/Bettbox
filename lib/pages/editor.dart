@@ -43,7 +43,12 @@ class EditorPage extends ConsumerStatefulWidget {
   final bool delayedFocus;
   final bool simple;
   final bool allowUnchangedSave;
-  final Function(BuildContext context, String title, String content)? onSave;
+  final FutureOr<void> Function(
+    BuildContext context,
+    String title,
+    String content,
+  )?
+  onSave;
   final Future<bool> Function(BuildContext context)? onReset;
   final Future<bool> Function(
     BuildContext context,
@@ -86,6 +91,7 @@ class _EditorPageState extends ConsumerState<EditorPage> {
   VoidCallback? _hideSelectionToolbar;
   bool _lineWrap = false;
   bool _isLoading = true;
+  bool _isSaving = false;
   Brightness? _brightness;
   Map<String, TextStyle> _editorTheme = const {};
   SyntaxHighlighter? _magnifierHighlighter;
@@ -257,15 +263,22 @@ class _EditorPageState extends ConsumerState<EditorPage> {
       !widget.readOnly &&
       !widget.simple &&
       !_isLoading &&
+      !_isSaving &&
       _controller != null &&
       (widget.allowUnchangedSave ||
           widget.title.isEmpty ||
           _isModified ||
           _titleController.text != widget.title);
 
-  void _handleSave(BuildContext context) {
-    if (_canSave) {
-      widget.onSave!(context, _titleController.text, _controller!.text);
+  Future<void> _handleSave(BuildContext context) async {
+    if (!mounted || !_canSave || ModalRoute.of(context)?.isCurrent != true) {
+      return;
+    }
+    setState(() => _isSaving = true);
+    try {
+      await widget.onSave!(context, _titleController.text, _controller!.text);
+    } finally {
+      if (mounted) setState(() => _isSaving = false);
     }
   }
 

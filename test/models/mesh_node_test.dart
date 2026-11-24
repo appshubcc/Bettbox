@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:bett_box/common/common.dart';
 import 'package:bett_box/models/models.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -56,6 +58,79 @@ void main() {
       expect(ProxyNode.fromImport(ordinary, {}).proxy, ordinary);
     },
   );
+
+  test('import follows Mihomo state-dir key matching and precedence', () {
+    final base = {'name': 'mesh', 'type': 'tailscale'};
+    for (final key in ['state-dir', 'state_dir', 'STATE-DIR', 'StAtE_DiR']) {
+      final custom = {...base, key: 'my state/path '};
+      expect(ProxyNode.fromImport(custom, {}).proxy, {
+        ...base,
+        'state-dir': 'my state/path ',
+      });
+      for (final value in [null, '']) {
+        final source = {...base, key: value};
+        final node = ProxyNode.fromImport(source, {});
+        expect(node.proxy, {
+          ...base,
+          'state-dir': 'nodes/tailscale/${node.id}',
+        });
+        expect(source[key], value);
+      }
+    }
+    final exact = ProxyNode.fromImport({
+      ...base,
+      'state_dir': 'ignored',
+      'state-dir': 'canonical',
+    }, {});
+    expect(exact.proxy, {...base, 'state-dir': 'canonical'});
+    final empty = ProxyNode.fromImport({
+      ...base,
+      'state_dir': 'ignored',
+      'state-dir': null,
+    }, {});
+    expect(empty.proxy['state-dir'], 'nodes/tailscale/${empty.id}');
+    final unknown = ProxyNode.fromImport({
+      ...base,
+      'stateDir': 'unrelated',
+    }, {});
+    expect(unknown.proxy['stateDir'], 'unrelated');
+    expect(unknown.proxy['state-dir'], 'nodes/tailscale/${unknown.id}');
+  });
+
+  test('only a shared node’s own default is regenerated on reimport', () {
+    for (final type in meshNodeTypes) {
+      final base = {'name': 'mesh', 'type': type, 'udp': true};
+      final owner = ProxyNode.fromImport(base, {});
+      final path = owner.proxy['state-dir'];
+      // Even an identical UUID-shaped path is an explicit choice on another row.
+      final custom = ProxyNode.fromImport({...base, 'state-dir': path}, {});
+      final shared = [
+        owner,
+        custom,
+      ].patchOf('p', managed: true, forSharing: true);
+      final ownerProxy = shared.first['proxy'] as Map<String, dynamic>;
+      expect(ownerProxy, base);
+      expect(shared.last['proxy'], custom.proxy);
+      final copy = ProxyNode.fromImport(ownerProxy, {owner.name});
+      expect(copy.id, isNot(owner.id));
+      expect(copy.proxy['state-dir'], 'nodes/$type/${copy.id}');
+      expect(owner.patchOf('p', managed: true)!['proxy'], {
+        ...base,
+        'state-dir': path,
+      });
+
+      final saved = jsonDecode(jsonEncode(owner)) as Map<String, dynamic>;
+      final restored = ProxyNode.fromJson(saved);
+      expect(restored.id, owner.id);
+      expect(restored.proxy['state-dir'], path);
+      final edited = restored.withUpdatedProxy({
+        ...restored.proxy,
+        'name': 'edited',
+      }, {});
+      expect(edited.id, owner.id);
+      expect(edited.proxy['state-dir'], path);
+    }
+  });
 
   test(
     'loading and editing an old mesh node keeps its implicit state directory',

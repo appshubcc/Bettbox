@@ -95,8 +95,15 @@ Future<List<ProxyNode>?> showAddNodeSheet(BuildContext context) {
   );
 }
 
-class AddNodeView extends StatelessWidget {
+class AddNodeView extends StatefulWidget {
   const AddNodeView({super.key});
+
+  @override
+  State<AddNodeView> createState() => _AddNodeViewState();
+}
+
+class _AddNodeViewState extends State<AddNodeView> {
+  bool _openingEditor = false;
 
   Future<List<ProxyNode>?> _parse(String text) async {
     final res = await globalState.appController.safeRun(
@@ -113,9 +120,12 @@ class AddNodeView extends StatelessWidget {
   }
 
   Future<void> _import(BuildContext context, String text) async {
+    final route = ModalRoute.of(context);
+    if (route == null || !route.isCurrent) return;
     final nodes = await _parse(text);
-    if (nodes == null || !context.mounted) return;
-    Navigator.of(context).pop(nodes);
+    if (nodes != null && context.mounted && route.isCurrent) {
+      route.navigator!.pop(nodes);
+    }
   }
 
   Future<void> _handleClipboard(BuildContext context) async {
@@ -148,48 +158,32 @@ class AddNodeView extends StatelessWidget {
     await _import(context, utf8.decode(bytes, allowMalformed: true));
   }
 
-  void _handleManual(BuildContext context) {
-    BaseNavigator.push(
-      context,
-      EditorPage(
-        title: appLocalizations.addNode,
-        content: '',
-        languages: const [],
-        onSave: (editorContext, _, content) async {
-          final nodes = await _parse(content);
-          if (nodes == null) return;
-          if (editorContext.mounted) Navigator.of(editorContext).pop();
-          if (context.mounted) Navigator.of(context).pop(nodes);
-        },
-      ),
-      maintainState: false,
-    );
-  }
-
-  Future<void> _handleTemplate(
-    BuildContext context,
-    MeshTemplate template,
-  ) async {
-    final content = await template.load(
-      Localizations.localeOf(context).languageCode,
-    );
-    if (!context.mounted) return;
-    await BaseNavigator.push(
-      context,
-      EditorPage(
-        title: template.title,
-        content: content,
-        allowUnchangedSave: true,
-        languages: const [],
-        onSave: (editorContext, _, content) async {
-          final nodes = await _parse(content);
-          if (nodes == null) return;
-          if (editorContext.mounted) Navigator.of(editorContext).pop();
-          if (context.mounted) Navigator.of(context).pop(nodes);
-        },
-      ),
-      maintainState: false,
-    );
+  Future<void> _openEditor([MeshTemplate? template]) async {
+    final sheet = ModalRoute.of(context);
+    if (_openingEditor || sheet == null || !sheet.isCurrent) return;
+    _openingEditor = true;
+    try {
+      final content = template == null
+          ? ''
+          : await template.load(Localizations.localeOf(context).languageCode);
+      if (!mounted || !sheet.isCurrent) return;
+      final nodes = await BaseNavigator.push<List<ProxyNode>>(
+        context,
+        EditorPage(
+          title: template?.title ?? appLocalizations.addNode,
+          content: content,
+          allowUnchangedSave: template != null,
+          languages: const [],
+          onSave: (editorContext, _, text) => _import(editorContext, text),
+        ),
+        maintainState: false,
+      );
+      if (nodes != null && mounted && sheet.isCurrent) {
+        sheet.navigator!.pop(nodes);
+      }
+    } finally {
+      _openingEditor = false;
+    }
   }
 
   Future<void> _handleWarp(BuildContext context) async {
@@ -282,7 +276,7 @@ class AddNodeView extends StatelessWidget {
                 leading: const AppIcon(Icons.edit_outlined),
                 title: Text(appLocalizations.manualInput),
                 subtitle: Text(appLocalizations.nodeManualDesc),
-                onTap: () => _handleManual(context),
+                onTap: _openEditor,
               ),
             ],
           ),
@@ -310,7 +304,7 @@ class AddNodeView extends StatelessWidget {
                     leading: const AppIcon(Icons.hub_outlined),
                     title: Text(template.title),
                     subtitle: Text(appLocalizations.meshNodeDesc),
-                    onTap: () => _handleTemplate(context, template),
+                    onTap: () => _openEditor(template),
                   ),
                 ],
               ],

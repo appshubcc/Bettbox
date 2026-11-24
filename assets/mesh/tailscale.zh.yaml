@@ -13,6 +13,6 @@ type: tailscale
 
 # accept-routes: true  # 访问子网路由器发布且管理员已批准的网段。
 # exit-node: "auto:any"  # 自动选择可用的出口节点访问互联网，也可改为已获批准的出口节点的 Tailscale IP。
-# exit-node-allow-lan-access: true  # 使用出口节点时仍可访问自己所在的局域网。
+# exit-node-allow-lan-access: true  # 设置 Tailscale 的本地局域网访问偏好。要访问手机所在的局域网，请在 Mihomo 规则中将对应网段指向 DIRECT。
 # 落地节点的前置代理承载 Tailscale 自身的连接，包括控制和中继流量。
 # 访问公网仍需出口节点或覆盖目标地址的子网路由。没有匹配路由时连接会失败。

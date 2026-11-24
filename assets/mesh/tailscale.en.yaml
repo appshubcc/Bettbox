@@ -13,6 +13,6 @@ type: tailscale
 
 # accept-routes: true  # Reach subnets advertised by subnet routers and approved by your admin.
 # exit-node: "auto:any"  # Use an available exit node for internet access, or replace with an approved exit node’s Tailscale IP.
-# exit-node-allow-lan-access: true  # Keep access to your own local network while using an exit node.
+# exit-node-allow-lan-access: true  # Sets the Tailscale LAN-access preference. To reach your local LAN, route its CIDRs to DIRECT in Mihomo.
 # A landing node’s front proxy carries Tailscale’s own connections, including control and relay traffic.
 # Internet destinations still need an exit node or a subnet route covering the address. Unrouted connections fail.

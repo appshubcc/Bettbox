@@ -2162,6 +2162,10 @@ class AppController {
       }
     });
 
+    if (system.isAndroid) {
+      unawaited(app.isIgnoringBatteryOptimizations().catchError((_) => false));
+    }
+
     try {
       final wakelockEnabled = await WakelockPlus.enabled;
       _ref.read(wakelockStateProvider.notifier).value = wakelockEnabled;

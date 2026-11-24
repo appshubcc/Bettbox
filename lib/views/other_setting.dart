@@ -698,7 +698,8 @@ class OtherSettingView extends StatefulWidget {
 
 class _OtherSettingViewState extends State<OtherSettingView>
     with WidgetsBindingObserver {
-  bool _showBatteryOptimization = false;
+  bool _showBatteryOptimization =
+      system.isAndroid && app.ignoringBatteryOptimizations == false;
   bool _isWaitingForSettings = false;
 
   @override

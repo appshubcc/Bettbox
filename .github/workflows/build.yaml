@@ -518,7 +518,7 @@ jobs:
           overwrite: true
 
       - name: Upload Windows Portable Artifact
-        if: matrix.platform == 'windows' && matrix.compatible == true && matrix.arch == 'amd64' && matrix.standard != true
+        if: matrix.platform == 'windows' && matrix.arch == 'amd64' && matrix.standard != true
         uses: actions/upload-artifact@v7
         with:
           name: Bettbox-${{ matrix.platform }}-${{ matrix.arch }}${{ matrix.compatible == true && '-compatible' || '' }}-portable

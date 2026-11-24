@@ -127,7 +127,9 @@ pub fn compute_viewport(
                 b'[' => ('[', ']'),
                 _ => ('(', ')'),
             };
-            if let Some(match_pos) = find_matching_bracket_forward(rope, meta.bracket_pos, open, close, limit_char) {
+            if let Some(match_pos) =
+                find_matching_bracket_forward(rope, meta.bracket_pos, open, close, limit_char)
+            {
                 end_line = rope.char_to_line(match_pos) + 1;
             }
         }

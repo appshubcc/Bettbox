@@ -198,7 +198,10 @@ impl FirstParser {
             }
             let (item, single) = if ch == '\\' {
                 let escaped = *self.chars.get(self.at)?;
-                (self.escape()?, (!escaped.is_ascii_alphanumeric()).then_some(escaped))
+                (
+                    self.escape()?,
+                    (!escaped.is_ascii_alphanumeric()).then_some(escaped),
+                )
             } else {
                 (First::of(|other| other == ch, !ch.is_ascii()), Some(ch))
             };
@@ -219,7 +222,10 @@ impl FirstParser {
                     return None;
                 }
             }
-            first.add(&First::of(|other| low <= other && other <= high, !high.is_ascii()));
+            first.add(&First::of(
+                |other| low <= other && other <= high,
+                !high.is_ascii(),
+            ));
         }
         Some(if negated { first.inverted() } else { first })
     }
@@ -259,7 +265,10 @@ impl FirstParser {
                 }
                 _ => (self.escape()?, false),
             },
-            '.' => (First::of(|other| !super::is_line_terminator(other), true), false),
+            '.' => (
+                First::of(|other| !super::is_line_terminator(other), true),
+                false,
+            ),
             '^' | '$' => (First::none(), true),
             '*' | '+' | '?' | '{' | ')' | '|' => return None,
             _ => (First::of(|other| other == ch, !ch.is_ascii()), false),
@@ -490,10 +499,7 @@ impl Grammar {
                         .iter()
                         .map(|(word, kind)| {
                             let kind = kind.as_str()?;
-                            Some((
-                                word.clone(),
-                                (!kind.starts_with('_')).then(|| intern(kind)),
-                            ))
+                            Some((word.clone(), (!kind.starts_with('_')).then(|| intern(kind))))
                         })
                         .collect::<Option<HashMap<_, _>>>()?,
                 ),
@@ -612,7 +618,13 @@ impl Grammar {
     /// The first match at or after `from` of the rules from `start_at` on:
     /// at each character the first rule that matches there, as the one
     /// pattern re_highlight joins them into finds it.
-    fn exec_multi(&self, mode: usize, start_at: usize, text: &str, from: usize) -> Option<Option<Found>> {
+    fn exec_multi(
+        &self,
+        mode: usize,
+        start_at: usize,
+        text: &str,
+        from: usize,
+    ) -> Option<Option<Found>> {
         let mut at = from;
         let mut before = text[..from].chars().next_back().map_or(0, char::len_utf8);
         loop {
@@ -915,7 +927,11 @@ impl Run<'_> {
             }
         }
         self.start_mode(mode, found)?;
-        Some(if definition.return_begin { 0 } else { lexeme.len() })
+        Some(if definition.return_begin {
+            0
+        } else {
+            lexeme.len()
+        })
     }
 
     fn end(&mut self, found: &Found) -> Option<usize> {

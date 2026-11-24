@@ -3,8 +3,6 @@ import 'dart:math';
 
 import 'package:flutter/widgets.dart';
 
-import 'package:code_forge/src/rust/api/editor.dart';
-
 import 'controller.dart';
 
 /// Controller for managing text search functionality in [CodeForge].
@@ -121,9 +119,7 @@ class FindController extends ChangeNotifier {
     final end = lastLine + 1 < controller.lineCount
         ? controller.getLineStartOffset(lastLine + 1) - 1
         : controller.length;
-    final ranges = _search(
-      controller.getLinesRange(firstLine, lastLine + 1).join('\n'),
-    );
+    final ranges = _searchRange(start, end);
     if (ranges == null) return true;
     final found = [
       for (final range in ranges)
@@ -166,9 +162,10 @@ class FindController extends ChangeNotifier {
   }
 
   /// The matches in scalar values, or null when the query is no valid regex.
-  List<TextRange>? _search(String text) {
-    final ends = searchFind(
-      text: text,
+  List<TextRange>? _searchRange(int start, int end) {
+    final ends = _codeController.findMatchesInRange(
+      start,
+      end,
       pattern: _lastQuery,
       isRegex: _isRegex,
       caseSensitive: _caseSensitive,
@@ -296,7 +293,7 @@ class FindController extends ChangeNotifier {
       return;
     }
 
-    _matches = _search(_codeController.text) ?? [];
+    _matches = _searchRange(0, _codeController.length) ?? [];
     _selectMatchAtCaret();
     if (scrollToMatch) _scrollToCurrentMatch();
     _updateHighlights();
@@ -340,16 +337,13 @@ class FindController extends ChangeNotifier {
   void replaceAll() {
     _codeController.commitComposition();
     if (_matches.isEmpty) return;
-    final replaced = searchReplaceAll(
-      text: _codeController.text,
+    _codeController.replaceAllMatches(
       pattern: _lastQuery,
       isRegex: _isRegex,
       caseSensitive: _caseSensitive,
       wholeWord: _matchWholeWord,
       replacement: replaceInputController.text,
     );
-    if (replaced == null) return;
-    _codeController.replaceText(replaced);
     _reperformSearch();
   }
 

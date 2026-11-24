@@ -5,6 +5,17 @@ import 'package:flutter/services.dart';
 
 import 'package:code_forge/src/rust/api/editor.dart';
 
+class DocumentSnapshot {
+  final RopeSnapshot _snapshot;
+
+  DocumentSnapshot._(this._snapshot);
+
+  factory DocumentSnapshot.fromText(String text) =>
+      DocumentSnapshot._(RopeSnapshot.fromText(text: text));
+
+  void dispose() => _snapshot.dispose();
+}
+
 class Rope {
   final RopeBridge _rope;
   RopeBridge get core => _rope;
@@ -12,9 +23,50 @@ class Rope {
   Rope([String initialText = ''])
     : _rope = RopeBridge.create(initialText: initialText);
 
+  Rope._(this._rope);
+
+  static Future<Rope> fromFile(String path) async =>
+      Rope._(await RopeBridge.loadFile(path: path));
+
   int get length => _rope.lenChars().toInt();
 
   void dispose() => _rope.dispose();
+
+  DocumentSnapshot snapshot({
+    int dirtyStart = 0,
+    int dirtyEnd = 0,
+    String? dirtyText,
+  }) => DocumentSnapshot._(
+    _rope.snapshot(
+      dirtyStart: BigInt.from(dirtyStart),
+      dirtyEnd: BigInt.from(dirtyEnd),
+      dirtyText: dirtyText,
+    ),
+  );
+
+  bool equalsSnapshot(
+    DocumentSnapshot snapshot, {
+    int dirtyStart = 0,
+    int dirtyEnd = 0,
+    String? dirtyText,
+  }) => _rope.equalsSnapshot(
+    snapshot: snapshot._snapshot,
+    dirtyStart: BigInt.from(dirtyStart),
+    dirtyEnd: BigInt.from(dirtyEnd),
+    dirtyText: dirtyText,
+  );
+
+  RopeTextEdit? diffText(
+    String newText, {
+    int dirtyStart = 0,
+    int dirtyEnd = 0,
+    String? dirtyText,
+  }) => _rope.diffText(
+    dirtyStart: BigInt.from(dirtyStart),
+    dirtyEnd: BigInt.from(dirtyEnd),
+    dirtyText: dirtyText,
+    newText: newText,
+  );
 
   String getText() {
     return _rope.getText();

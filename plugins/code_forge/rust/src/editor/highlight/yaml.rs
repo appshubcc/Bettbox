@@ -171,10 +171,8 @@ fn key(line: &Line, at: usize, keyless: &mut usize) -> Option<usize> {
         return None;
     }
     let end = run(line, at + 1, is_key_char);
-    (chars.get(end) == Some(&first)
-        && chars.get(end + 1) == Some(&':')
-        && ends_key(line, end + 1))
-    .then_some(end + 2)
+    (chars.get(end) == Some(&first) && chars.get(end + 1) == Some(&':') && ends_key(line, end + 1))
+        .then_some(end + 2)
 }
 
 /// Whether `(?<=^[ \t]*(?:-[ \t]+)*)` matches here.
@@ -857,9 +855,11 @@ pub fn highlight(text: &str) -> Vec<u32> {
         }
         let next = line.at(at + 1);
         let token = match ch {
-            '-' => document_marker(&line, at).map(|end| (META, end)).or_else(|| {
-                (next == Some(' ') || line.ends_at(at + 1)).then_some((BULLET, at + 1))
-            }),
+            '-' => document_marker(&line, at)
+                .map(|end| (META, end))
+                .or_else(|| {
+                    (next == Some(' ') || line.ends_at(at + 1)).then_some((BULLET, at + 1))
+                }),
             '!' => tag(&line, at).map(|end| (TYPE, end)),
             '&' | '*' => anchor(&line, at).map(|end| (META, end)),
             _ => None,

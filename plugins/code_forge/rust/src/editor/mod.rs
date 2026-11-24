@@ -9,7 +9,7 @@ pub mod highlight;
 pub mod search;
 mod words;
 
-pub use buffer::Buffer;
+pub use buffer::{diff_slice_and_str, ropes_equal, Buffer};
 pub use folds::{compute_all as compute_folds, find_matching_bracket};
 pub use guides::compute_viewport as compute_guides;
 pub use words::extract as extract_words;

@@ -586,10 +586,8 @@ extension _ControllerIme on CodeForgeController {
     final comp = _imeMirror.composing;
     final raw = comp.textInside(_imeMirror.text);
     var compStartLocal = comp.start;
-    if (_imeMirrorDeletion case (
-      :final start,
-      :final text,
-    ) when compStartLocal >= start + text.length) {
+    if (_imeMirrorDeletion case (:final start, :final text)
+        when compStartLocal >= start + text.length) {
       compStartLocal -= text.length;
     }
     final anchorGlobal =
@@ -956,6 +954,7 @@ extension _ControllerEditPipeline on CodeForgeController {
     _bufferDirty = true;
     _selection = after;
     _currentVersion++;
+    _cachedText = null;
     _logLineEdit(_bufferLineIndex!, 0, 0);
     _change._typing = true;
     _recordChange(
@@ -997,6 +996,7 @@ extension _ControllerEditPipeline on CodeForgeController {
     });
     final added = _rope.length - length + safeEnd - safeStart;
     _currentVersion++;
+    _cachedText = null;
     _selection = after ?? TextSelection.collapsed(offset: safeStart + added);
     _recordLineEdit(lines.line, lines.removed, lines.added);
     _recordChange(

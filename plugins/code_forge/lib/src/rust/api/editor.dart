@@ -4,10 +4,11 @@
 // ignore_for_file: invalid_use_of_internal_member, unused_import, unnecessary_import
 
 import '../frb_generated.dart';
+
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
 // These functions are ignored because they are not marked as `pub`: `search_query`
-// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `clone`, `clone`, `fmt`, `fmt`
+// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `clone`, `clone`, `clone`, `fmt`, `fmt`, `fmt`
 
 Future<List<RustFoldRange>> foldsComputeAll({
   required RopeBridge rope,
@@ -54,6 +55,30 @@ Uint32List? searchFind({
   wholeWord: wholeWord,
 );
 
+Uint32List? searchFindRope({
+  required RopeBridge rope,
+  required BigInt startChar,
+  required BigInt endChar,
+  required BigInt dirtyStart,
+  required BigInt dirtyEnd,
+  String? dirtyText,
+  required String pattern,
+  required bool isRegex,
+  required bool caseSensitive,
+  required bool wholeWord,
+}) => RustLib.instance.api.crateApiEditorSearchFindRope(
+  rope: rope,
+  startChar: startChar,
+  endChar: endChar,
+  dirtyStart: dirtyStart,
+  dirtyEnd: dirtyEnd,
+  dirtyText: dirtyText,
+  pattern: pattern,
+  isRegex: isRegex,
+  caseSensitive: caseSensitive,
+  wholeWord: wholeWord,
+);
+
 String? searchReplaceAll({
   required String text,
   required String pattern,
@@ -63,6 +88,28 @@ String? searchReplaceAll({
   required String replacement,
 }) => RustLib.instance.api.crateApiEditorSearchReplaceAll(
   text: text,
+  pattern: pattern,
+  isRegex: isRegex,
+  caseSensitive: caseSensitive,
+  wholeWord: wholeWord,
+  replacement: replacement,
+);
+
+RopeTextEdit? searchReplaceAllRope({
+  required RopeBridge rope,
+  required BigInt dirtyStart,
+  required BigInt dirtyEnd,
+  String? dirtyText,
+  required String pattern,
+  required bool isRegex,
+  required bool caseSensitive,
+  required bool wholeWord,
+  required String replacement,
+}) => RustLib.instance.api.crateApiEditorSearchReplaceAllRope(
+  rope: rope,
+  dirtyStart: dirtyStart,
+  dirtyEnd: dirtyEnd,
+  dirtyText: dirtyText,
   pattern: pattern,
   isRegex: isRegex,
   caseSensitive: caseSensitive,
@@ -96,6 +143,20 @@ abstract class RopeBridge implements RustOpaqueInterface {
       .api
       .crateApiEditorRopeBridgeCreate(initialText: initialText);
 
+  RopeTextEdit? diffText({
+    required BigInt dirtyStart,
+    required BigInt dirtyEnd,
+    String? dirtyText,
+    required String newText,
+  });
+
+  bool equalsSnapshot({
+    required RopeSnapshot snapshot,
+    required BigInt dirtyStart,
+    required BigInt dirtyEnd,
+    String? dirtyText,
+  });
+
   String getText();
 
   void insert({required BigInt charIdx, required String text});
@@ -108,9 +169,24 @@ abstract class RopeBridge implements RustOpaqueInterface {
 
   BigInt lineToChar({required BigInt lineIdx});
 
+  static Future<RopeBridge> loadFile({required String path}) =>
+      RustLib.instance.api.crateApiEditorRopeBridgeLoadFile(path: path);
+
   void remove({required BigInt start, required BigInt end});
 
   String slice({required BigInt start, required BigInt end});
+
+  RopeSnapshot snapshot({
+    required BigInt dirtyStart,
+    required BigInt dirtyEnd,
+    String? dirtyText,
+  });
+}
+
+// Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<RopeSnapshot>>
+abstract class RopeSnapshot implements RustOpaqueInterface {
+  static RopeSnapshot fromText({required String text}) =>
+      RustLib.instance.api.crateApiEditorRopeSnapshotFromText(text: text);
 }
 
 class GuideBlock {
@@ -142,6 +218,31 @@ class GuideBlock {
           endLine == other.endLine &&
           indentLevel == other.indentLevel &&
           leadingSpaces == other.leadingSpaces;
+}
+
+class RopeTextEdit {
+  final int startScalar;
+  final int endScalar;
+  final String replacement;
+
+  const RopeTextEdit({
+    required this.startScalar,
+    required this.endScalar,
+    required this.replacement,
+  });
+
+  @override
+  int get hashCode =>
+      startScalar.hashCode ^ endScalar.hashCode ^ replacement.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is RopeTextEdit &&
+          runtimeType == other.runtimeType &&
+          startScalar == other.startScalar &&
+          endScalar == other.endScalar &&
+          replacement == other.replacement;
 }
 
 class RustFoldRange {

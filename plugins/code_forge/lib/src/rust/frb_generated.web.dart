@@ -8,9 +8,12 @@
 
 import 'api/editor.dart';
 import 'api/script.dart';
+
 import 'dart:async';
 import 'dart:convert';
+
 import 'frb_generated.dart';
+
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated_web.dart';
 
 abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
@@ -25,9 +28,19 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   get rust_arc_decrement_strong_count_RopeBridgePtr => wire
       .rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerRopeBridge;
 
+  CrossPlatformFinalizerArg
+  get rust_arc_decrement_strong_count_RopeSnapshotPtr => wire
+      .rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerRopeSnapshot;
+
   @protected
   RopeBridge
   dco_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerRopeBridge(
+    dynamic raw,
+  );
+
+  @protected
+  RopeSnapshot
+  dco_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerRopeSnapshot(
     dynamic raw,
   );
 
@@ -38,8 +51,20 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
+  RopeSnapshot
+  dco_decode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerRopeSnapshot(
+    dynamic raw,
+  );
+
+  @protected
   RopeBridge
   dco_decode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerRopeBridge(
+    dynamic raw,
+  );
+
+  @protected
+  RopeSnapshot
+  dco_decode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerRopeSnapshot(
     dynamic raw,
   );
 
@@ -48,6 +73,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   bool dco_decode_bool(dynamic raw);
+
+  @protected
+  RopeTextEdit dco_decode_box_autoadd_rope_text_edit(dynamic raw);
 
   @protected
   BigInt dco_decode_box_autoadd_usize(dynamic raw);
@@ -80,10 +108,16 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   String? dco_decode_opt_String(dynamic raw);
 
   @protected
+  RopeTextEdit? dco_decode_opt_box_autoadd_rope_text_edit(dynamic raw);
+
+  @protected
   BigInt? dco_decode_opt_box_autoadd_usize(dynamic raw);
 
   @protected
   Uint32List? dco_decode_opt_list_prim_u_32_strict(dynamic raw);
+
+  @protected
+  RopeTextEdit dco_decode_rope_text_edit(dynamic raw);
 
   @protected
   RustFoldRange dco_decode_rust_fold_range(dynamic raw);
@@ -119,8 +153,20 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
+  RopeSnapshot
+  sse_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerRopeSnapshot(
+    SseDeserializer deserializer,
+  );
+
+  @protected
   RopeBridge
   sse_decode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerRopeBridge(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  RopeSnapshot
+  sse_decode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerRopeSnapshot(
     SseDeserializer deserializer,
   );
 
@@ -131,10 +177,21 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
+  RopeSnapshot
+  sse_decode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerRopeSnapshot(
+    SseDeserializer deserializer,
+  );
+
+  @protected
   String sse_decode_String(SseDeserializer deserializer);
 
   @protected
   bool sse_decode_bool(SseDeserializer deserializer);
+
+  @protected
+  RopeTextEdit sse_decode_box_autoadd_rope_text_edit(
+    SseDeserializer deserializer,
+  );
 
   @protected
   BigInt sse_decode_box_autoadd_usize(SseDeserializer deserializer);
@@ -169,12 +226,20 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   String? sse_decode_opt_String(SseDeserializer deserializer);
 
   @protected
+  RopeTextEdit? sse_decode_opt_box_autoadd_rope_text_edit(
+    SseDeserializer deserializer,
+  );
+
+  @protected
   BigInt? sse_decode_opt_box_autoadd_usize(SseDeserializer deserializer);
 
   @protected
   Uint32List? sse_decode_opt_list_prim_u_32_strict(
     SseDeserializer deserializer,
   );
+
+  @protected
+  RopeTextEdit sse_decode_rope_text_edit(SseDeserializer deserializer);
 
   @protected
   RustFoldRange sse_decode_rust_fold_range(SseDeserializer deserializer);
@@ -212,8 +277,22 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   void
+  sse_encode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerRopeSnapshot(
+    RopeSnapshot self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void
   sse_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerRopeBridge(
     RopeBridge self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void
+  sse_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerRopeSnapshot(
+    RopeSnapshot self,
     SseSerializer serializer,
   );
 
@@ -225,10 +304,23 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
+  void
+  sse_encode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerRopeSnapshot(
+    RopeSnapshot self,
+    SseSerializer serializer,
+  );
+
+  @protected
   void sse_encode_String(String self, SseSerializer serializer);
 
   @protected
   void sse_encode_bool(bool self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_box_autoadd_rope_text_edit(
+    RopeTextEdit self,
+    SseSerializer serializer,
+  );
 
   @protected
   void sse_encode_box_autoadd_usize(BigInt self, SseSerializer serializer);
@@ -276,6 +368,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   void sse_encode_opt_String(String? self, SseSerializer serializer);
 
   @protected
+  void sse_encode_opt_box_autoadd_rope_text_edit(
+    RopeTextEdit? self,
+    SseSerializer serializer,
+  );
+
+  @protected
   void sse_encode_opt_box_autoadd_usize(BigInt? self, SseSerializer serializer);
 
   @protected
@@ -283,6 +381,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
     Uint32List? self,
     SseSerializer serializer,
   );
+
+  @protected
+  void sse_encode_rope_text_edit(RopeTextEdit self, SseSerializer serializer);
 
   @protected
   void sse_encode_rust_fold_range(RustFoldRange self, SseSerializer serializer);
@@ -335,6 +436,22 @@ class RustLibWire implements BaseWire {
       .rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerRopeBridge(
         ptr,
       );
+
+  void
+  rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerRopeSnapshot(
+    int ptr,
+  ) => wasmModule
+      .rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerRopeSnapshot(
+        ptr,
+      );
+
+  void
+  rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerRopeSnapshot(
+    int ptr,
+  ) => wasmModule
+      .rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerRopeSnapshot(
+        ptr,
+      );
 }
 
 @JS('wasm_bindgen')
@@ -350,6 +467,16 @@ extension type RustLibWasmModule._(JSObject _) implements JSObject {
 
   external void
   rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerRopeBridge(
+    int ptr,
+  );
+
+  external void
+  rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerRopeSnapshot(
+    int ptr,
+  );
+
+  external void
+  rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerRopeSnapshot(
     int ptr,
   );
 }

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:collection';
 import 'dart:io';
 import 'dart:math';
+import 'dart:typed_data';
 
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
@@ -11,10 +12,15 @@ import 'package:code_forge/src/rust/api/editor.dart';
 import '../code_forge.dart';
 import 'text.dart';
 
+export 'text.dart' show DocumentSnapshot;
+
 part 'input.dart';
 
-typedef DocumentEditListener =
-    void Function(int offset, int removed, int inserted);
+typedef DocumentEditListener = void Function(
+  int offset,
+  int removed,
+  int inserted,
+);
 
 /// What changed since the last [CodeForgeController.takeChange].
 final class CodeForgeChange {
@@ -353,11 +359,73 @@ class CodeForgeController implements DeltaTextInputClient {
   /// Lines break at LF alone, and a line's text leaves out the CR of a CRLF
   /// pair that its offsets still count, so CRLF and lone CR text comes in as LF.
   static String normalizeLineBreaks(String text) =>
-      text.replaceAll(RegExp(r'\r\n?'), '\n');
+      text.contains('\r') ? text.replaceAll(RegExp(r'\r\n?'), '\n') : text;
+
+  ({int start, int end, String? text}) get _dirtyOverlay => isBufferActive
+      ? (
+          start: _bufferLineRopeStart,
+          end: _bufferLineRopeStart + _bufferLineOriginalLength,
+          text: _bufferLineText,
+        )
+      : (start: 0, end: 0, text: null);
+
+  DocumentSnapshot saveSnapshot() {
+    final dirty = _dirtyOverlay;
+    return _rope.snapshot(
+      dirtyStart: dirty.start,
+      dirtyEnd: dirty.end,
+      dirtyText: dirty.text,
+    );
+  }
+
+  bool matchesSnapshot(DocumentSnapshot snapshot) {
+    final dirty = _dirtyOverlay;
+    return _rope.equalsSnapshot(
+      snapshot,
+      dirtyStart: dirty.start,
+      dirtyEnd: dirty.end,
+      dirtyText: dirty.text,
+    );
+  }
+
+  Uint32List? findMatchesInRange(
+    int startChar,
+    int endChar, {
+    required String pattern,
+    required bool isRegex,
+    required bool caseSensitive,
+    required bool wholeWord,
+  }) {
+    final dirty = _dirtyOverlay;
+    return searchFindRope(
+      rope: _rope.core,
+      startChar: BigInt.from(startChar),
+      endChar: BigInt.from(endChar),
+      dirtyStart: BigInt.from(dirty.start),
+      dirtyEnd: BigInt.from(dirty.end),
+      dirtyText: dirty.text,
+      pattern: pattern,
+      isRegex: isRegex,
+      caseSensitive: caseSensitive,
+      wholeWord: wholeWord,
+    );
+  }
+
+  Future<void> loadFile(String path) async {
+    final next = await Rope.fromFile(path);
+    if (_isDisposed) {
+      next.dispose();
+      return;
+    }
+    _resetWithRope(next);
+  }
 
   /// Keeps the undo history; a caller loading another file clears it.
   set text(String newText) {
-    final document = normalizeLineBreaks(newText);
+    _resetWithRope(Rope(newText));
+  }
+
+  void _resetWithRope(Rope nextRope) {
     final previousLength = length;
     _flushTimer?.cancel();
     _debounceTimer?.cancel();
@@ -372,12 +440,12 @@ class CodeForgeController implements DeltaTextInputClient {
     }
     _pendingSelectionReplacement = null;
     _rope.dispose();
-    _rope = Rope(document);
+    _rope = nextRope;
     _currentVersion++;
     _lineEditLog.clear();
     _lineEditLogStart = _currentVersion;
-    _cachedText = document;
-    _cachedTextVersion = _currentVersion;
+    _cachedText = null;
+    _cachedTextVersion = -1;
     _selection = TextSelection.collapsed(offset: _rope.length);
     foldings = {};
     _change = CodeForgeChange._().._replaced = true;
@@ -937,9 +1005,9 @@ extension CodeForgeControllerNavigation on CodeForgeController {
     }
 
     final before = getLineText(line).scalarSubstring(0, caret - lineStart);
-    final lastWord = RegExp(
-      '[$wordCharClass]+|[^$wordCharClass\\s]+',
-    ).allMatches(before).lastOrNull;
+    final lastWord = RegExp('[$wordCharClass]+|[^$wordCharClass\\s]+')
+        .allMatches(before)
+        .lastOrNull;
     _moveCaret(
       lineStart + before.toScalarOffset(lastWord?.start ?? 0),
       extend: extend,
@@ -1337,17 +1405,38 @@ extension CodeForgeControllerEditing on CodeForgeController {
 
   /// Rewrites the document as [text] in one edit over only what differs.
   void replaceText(String text) {
-    final current = this.text;
-    final change = _changedSpan(
-      current,
-      CodeForgeController.normalizeLineBreaks(text),
+    final dirty = _dirtyOverlay;
+    final edit = _rope.diffText(
+      text,
+      dirtyStart: dirty.start,
+      dirtyEnd: dirty.end,
+      dirtyText: dirty.text,
     );
-    if (change == null) return;
-    _replaceRange(
-      current.toScalarOffset(change.start),
-      current.toScalarOffset(change.end),
-      change.replacement,
+    if (edit == null) return;
+    _replaceRange(edit.startScalar, edit.endScalar, edit.replacement);
+  }
+
+  void replaceAllMatches({
+    required String pattern,
+    required bool isRegex,
+    required bool caseSensitive,
+    required bool wholeWord,
+    required String replacement,
+  }) {
+    final dirty = _dirtyOverlay;
+    final edit = searchReplaceAllRope(
+      rope: _rope.core,
+      dirtyStart: BigInt.from(dirty.start),
+      dirtyEnd: BigInt.from(dirty.end),
+      dirtyText: dirty.text,
+      pattern: pattern,
+      isRegex: isRegex,
+      caseSensitive: caseSensitive,
+      wholeWord: wholeWord,
+      replacement: replacement,
     );
+    if (edit == null) return;
+    _replaceRange(edit.startScalar, edit.endScalar, edit.replacement);
   }
 
   void _closeCompletion() {
@@ -1440,9 +1529,8 @@ extension CodeForgeControllerEditing on CodeForgeController {
       return;
     }
     final before = getLineText(line).scalarSubstring(0, caret - lineStart);
-    final match = RegExp(
-      '([$wordCharClass]+|[^$wordCharClass\\s]+)\\s*\$',
-    ).firstMatch(before);
+    final match = RegExp('([$wordCharClass]+|[^$wordCharClass\\s]+)\\s*\$')
+        .firstMatch(before);
     replaceRange(
       match != null
           ? lineStart + before.toScalarOffset(match.start)
@@ -1782,8 +1870,9 @@ class CodeForgeSuggestion {
   const CodeForgeSuggestion({required this.label, this.detail, this.snippet});
 }
 
-typedef CodeForgeCompletionSource =
-    CodeForgeCompletion? Function(CodeForgeCompletionRequest request);
+typedef CodeForgeCompletionSource = CodeForgeCompletion? Function(
+  CodeForgeCompletionRequest request,
+);
 
 extension CodeForgeControllerCompletion on CodeForgeController {
   /// Inserts the suggestion at [index], or the highlighted one, in place of
@@ -2076,9 +2165,8 @@ class _SnippetExpansion {
 
   int? _stopAt(int dollar) {
     final braced = dollar + 1 < _body.length && _body[dollar + 1] == '{';
-    final digits = RegExp(
-      r'\d+',
-    ).matchAsPrefix(_body, dollar + (braced ? 2 : 1));
+    final digits = RegExp(r'\d+')
+        .matchAsPrefix(_body, dollar + (braced ? 2 : 1));
     if (digits == null) return null;
     final number = int.parse(digits[0]!);
     final start = _length;

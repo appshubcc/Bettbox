@@ -35,6 +35,7 @@ final List<String> _emojiFontFallback = [FontFamily.twEmoji.value];
 class EditorPage extends ConsumerStatefulWidget {
   final String title;
   final String content;
+  final String? contentPath;
   final String? defaultContent;
   final List<Language> languages;
   final bool supportRemoteDownload;
@@ -55,7 +56,8 @@ class EditorPage extends ConsumerStatefulWidget {
   const EditorPage({
     super.key,
     required this.title,
-    required this.content,
+    this.content = '',
+    this.contentPath,
     this.defaultContent,
     this.titleEditable = false,
     this.readOnly = false,
@@ -99,28 +101,42 @@ class _EditorPageState extends ConsumerState<EditorPage> {
 
   bool get _editorHasFocus => _controller?.focusNode?.hasFocus ?? false;
 
-  late String _original = CodeForgeController.normalizeLineBreaks(
-    widget.content,
-  );
-  late final String? _defaultContent = widget.defaultContent == null
-      ? null
-      : CodeForgeController.normalizeLineBreaks(widget.defaultContent!);
-  int _loadedLength = 0;
+  DocumentSnapshot? _savedSnapshot;
+  DocumentSnapshot? _defaultSnapshot;
+  bool _savedMatchesDefault = true;
   int _checkedVersion = -1;
+  int _resetCheckedVersion = -1;
   bool _modified = false;
+  bool _canReset = false;
 
   bool get _isModified {
     final controller = _controller;
-    if (_isLoading || controller == null) return false;
+    final savedSnapshot = _savedSnapshot;
+    if (_isLoading || controller == null || savedSnapshot == null) {
+      return false;
+    }
+    if (controller.isComposingActive) return true;
     final version = controller.contentVersion;
     if (version != _checkedVersion) {
       _checkedVersion = version;
-      _modified =
-          controller.isComposingActive ||
-          controller.length != _loadedLength ||
-          controller.text != _original;
+      _modified = !controller.matchesSnapshot(savedSnapshot);
     }
     return _modified;
+  }
+
+  bool get _canResetToDefault {
+    final controller = _controller;
+    final defaultSnapshot = _defaultSnapshot;
+    if (_isLoading || controller == null || defaultSnapshot == null) {
+      return false;
+    }
+    if (!_savedMatchesDefault || controller.isComposingActive) return true;
+    final version = controller.contentVersion;
+    if (version != _resetCheckedVersion) {
+      _resetCheckedVersion = version;
+      _canReset = !controller.matchesSnapshot(defaultSnapshot);
+    }
+    return _canReset;
   }
 
   CodeForgeController _initEditorControllers() {
@@ -195,11 +211,34 @@ class _EditorPageState extends ConsumerState<EditorPage> {
       final (_, ready) = await (_routeSettled(), ensureRustLib()).wait;
       if (!mounted || !ready) return;
       final controller = _controller ?? _initEditorControllers();
-      controller
-        ..text = widget.content
-        ..selection = const TextSelection.collapsed(offset: 0);
-      _loadedLength = controller.length;
+      final path = widget.contentPath;
+      if (path != null && path.isNotEmpty) {
+        final loaded = await globalState.appController.safeRun(() async {
+          await controller.loadFile(path);
+          return true;
+        });
+        if (!mounted) return;
+        if (loaded != true) {
+          Navigator.of(context).pop();
+          return;
+        }
+      } else {
+        controller.text = widget.content;
+      }
+      controller.selection = const TextSelection.collapsed(offset: 0);
+      final saved = controller.saveSnapshot();
+      _savedSnapshot?.dispose();
+      _savedSnapshot = saved;
+      if (widget.defaultContent case final defaultContent?) {
+        final def = DocumentSnapshot.fromText(defaultContent);
+        _defaultSnapshot?.dispose();
+        _defaultSnapshot = def;
+        _savedMatchesDefault = controller.matchesSnapshot(def);
+      }
       _checkedVersion = controller.contentVersion;
+      _resetCheckedVersion = controller.contentVersion;
+      _modified = false;
+      _canReset = !_savedMatchesDefault;
       setState(() => _isLoading = false);
       if (widget.delayedFocus) {
         unawaited(controller.focusNode?.requestFocusWhenIdle());
@@ -221,6 +260,8 @@ class _EditorPageState extends ConsumerState<EditorPage> {
   void dispose() {
     _hideSelectionToolbar?.call();
     _removePasteHandler?.call();
+    _savedSnapshot?.dispose();
+    _defaultSnapshot?.dispose();
     _controller?.text = '';
     _findController?.dispose();
     _undoController.dispose();
@@ -263,7 +304,7 @@ class _EditorPageState extends ConsumerState<EditorPage> {
   }
 
   Future<void> _handleReset(BuildContext context) async {
-    final defaultContent = _defaultContent;
+    final defaultContent = widget.defaultContent;
     final controller = _controller;
     if (defaultContent == null || _isLoading || controller == null) return;
     if (widget.onReset != null) {
@@ -274,10 +315,14 @@ class _EditorPageState extends ConsumerState<EditorPage> {
     controller
       ..text = defaultContent
       ..selection = const TextSelection.collapsed(offset: 0);
-    _original = defaultContent;
-    _loadedLength = controller.length;
+    final saved = controller.saveSnapshot();
+    _savedSnapshot?.dispose();
+    _savedSnapshot = saved;
+    _savedMatchesDefault = true;
     _checkedVersion = controller.contentVersion;
+    _resetCheckedVersion = controller.contentVersion;
     _modified = false;
+    _canReset = false;
     setState(() {});
   }
 
@@ -628,13 +673,17 @@ class _EditorPageState extends ConsumerState<EditorPage> {
             return false;
           }
         }
-        if (widget.onPop == null) {
+        if (widget.onPop == null ||
+            _isLoading ||
+            (!_isModified &&
+                _titleController.text == widget.title &&
+                widget.title.isNotEmpty)) {
           return true;
         }
         final res = await widget.onPop!(
           context,
           _titleController.text,
-          _isLoading ? widget.content : (_controller?.text ?? widget.content),
+          _controller?.text ?? widget.content,
         );
         if (res && context.mounted) {
           return true;
@@ -733,12 +782,9 @@ class _EditorPageState extends ConsumerState<EditorPage> {
                     tooltip: appLocalizations.download,
                     icon: const AppIcon(Icons.arrow_downward),
                   ),
-                if (_defaultContent != null && !readOnly)
+                if (widget.defaultContent != null && !readOnly)
                   _wrapTitleController(() {
-                    final canReset =
-                        !_isLoading &&
-                        (_controller?.text != _defaultContent ||
-                            _original != _defaultContent);
+                    final canReset = _canResetToDefault;
                     return IconButton(
                       onPressed: canReset ? () => _handleReset(context) : null,
                       tooltip: appLocalizations.restoreBundled,

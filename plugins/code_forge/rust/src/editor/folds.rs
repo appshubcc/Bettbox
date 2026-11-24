@@ -268,4 +268,3 @@ mod tests {
         assert_eq!(find_matching_bracket(&r, 999), None);
     }
 }
-

@@ -6,8 +6,7 @@ final Mode editorYamlMode = Mode(
     ...?langYaml.refs,
     '~contains~14': Mode(
       className: 'number',
-      begin:
-          r'(-?)(\b0[xX][a-fA-F0-9]+|(\b\d+(\.\d*)?|\.\d+)([eE][-+]?\d+)?)\b(?=[\s,\]}]|$)',
+      begin: r'(-?)(\b0[xX][a-fA-F0-9]+|(\b\d+(\.\d*)?|\.\d+)([eE][-+]?\d+)?)\b(?=[\s,\]}]|$)',
       relevance: 0,
     ),
   },

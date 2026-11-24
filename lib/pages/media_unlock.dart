@@ -1281,6 +1281,7 @@ Widget mediaPlatformIcon(
   MediaUnlockStatus? status,
   bool? colorful,
   double size = 20,
+  AlignmentGeometry alignment = Alignment.center,
 }) {
   final assetPath = 'assets/svg/${platform.icon}';
   final scale = size / 20.0;
@@ -1339,7 +1340,7 @@ Widget mediaPlatformIcon(
   return SizedBox(
     width: size,
     height: size,
-    child: Center(child: icon),
+    child: Align(alignment: alignment, child: icon),
   );
 }
 

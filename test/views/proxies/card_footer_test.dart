@@ -6,8 +6,10 @@ import 'package:bett_box/providers/providers.dart';
 import 'package:bett_box/state.dart';
 import 'package:bett_box/views/proxies/card.dart';
 import 'package:bett_box/views/proxies/unlock_tags.dart';
+import 'package:bett_box/widgets/sheet.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
 
@@ -26,37 +28,77 @@ void main() {
     globalState.config = Config(themeProps: defaultThemeProps);
   });
 
-  testWidgets('settings keep the platform selection when badges are off', (
+  testWidgets('settings use aligned rows and apply changes on save', (
     tester,
   ) async {
+    globalState.appState = globalState.appState.copyWith(
+      viewSize: const Size(1000, 800),
+    );
     await tester.pumpWidget(
-      const ProviderScope(
+      ProviderScope(
         child: MaterialApp(
-          localizationsDelegates: [AppLocalizations.delegate],
-          home: Scaffold(body: ProxyUnlockTagsSetting()),
+          navigatorKey: globalState.navigatorKey,
+          localizationsDelegates: const [AppLocalizations.delegate],
+          home: const Scaffold(body: ProxyUnlockTagsSetting()),
         ),
       ),
     );
     await tester.pumpAndSettle();
 
     final title = appLocalizations.proxyUnlockTags;
+    final sheet = find.byType(AdaptiveSheetScaffold);
+    final back = find.byType(BackButton);
+    final save = find.byTooltip(appLocalizations.save);
+    Finder option(String label) => find.descendant(
+      of: sheet,
+      matching: find.widgetWithText(ListTile, label),
+    );
+    Finder toggle(Finder tile) =>
+        find.descendant(of: tile, matching: find.byType(Switch));
+
     await tester.tap(find.text(title));
     await tester.pumpAndSettle();
-    final toggle = find.widgetWithText(SwitchListTile, title);
-    final claude = find.widgetWithText(SwitchListTile, 'Claude');
-    await tester.tap(toggle);
+    expect(tester.getCenter(back).dx, lessThan(tester.getCenter(save).dx));
+    final master = option(title);
+    final claude = option('Claude');
+    expect(
+      tester
+          .getTopLeft(find.descendant(of: master, matching: find.text(title)))
+          .dx,
+      tester
+          .getTopLeft(
+            find.descendant(of: claude, matching: find.text('Claude')),
+          )
+          .dx,
+    );
+
+    await tester.tap(toggle(master));
     await tester.pumpAndSettle();
-    await tester.tap(claude);
+    await tester.tap(toggle(claude));
     await tester.pumpAndSettle();
+    expect(globalState.config.appSetting.showProxyUnlockTags, isFalse);
+    expect(globalState.config.appSetting.proxyUnlockPlatforms, isEmpty);
+
+    await tester.tap(save);
+    await tester.pumpAndSettle();
+    expect(sheet, findsNothing);
     expect(globalState.config.appSetting.showProxyUnlockTags, isTrue);
     expect(globalState.config.appSetting.proxyUnlockPlatforms, [
       MediaPlatform.claude,
     ]);
 
-    await tester.tap(toggle);
+    await tester.tap(find.text(title));
     await tester.pumpAndSettle();
-    expect(globalState.config.appSetting.showProxyUnlockTags, isFalse);
-    expect(tester.widget<SwitchListTile>(claude).value, isTrue);
+    await tester.tap(toggle(master));
+    await tester.pumpAndSettle();
+    expect(tester.widget<Switch>(toggle(claude)).value, isTrue);
+    await tester.tap(back);
+    await tester.pumpAndSettle();
+    expect(find.text(appLocalizations.saveChanges), findsOneWidget);
+    await tester.tap(find.text(appLocalizations.cancel));
+    await tester.pumpAndSettle();
+    expect(sheet, findsNothing);
+    expect(globalState.config.appSetting.showProxyUnlockTags, isTrue);
     expect(tester.takeException(), isNull);
   });
 
@@ -64,6 +106,11 @@ void main() {
     testWidgets(
       'shows selected unlock icons without moving the delay ($type)',
       (tester) async {
+        if (type != ProxyCardType.min) {
+          globalState.appState = globalState.appState.copyWith(
+            viewSize: const Size(1000, 800),
+          );
+        }
         const proxy = Proxy(name: 'Singapore', type: 'AnyTLS');
         final previousStatuses = mediaUnlockStore.results.value;
         mediaUnlockStore.results.value = {};
@@ -75,6 +122,7 @@ void main() {
               getDelayProvider(proxyName: proxy.name).overrideWith((ref) => -1),
             ],
             child: MaterialApp(
+              navigatorKey: globalState.navigatorKey,
               localizationsDelegates: const [AppLocalizations.delegate],
               home: Scaffold(
                 body: Center(
@@ -164,9 +212,15 @@ void main() {
         expect(grayscaleIcon(claude), findsNothing);
         expect(grayscaleIcon(youtube), findsOneWidget);
         final badges = tester.getRect(find.byType(SingleChildScrollView));
-        expect(badges.left, card.left + 12);
+        final firstIcon = find.descendant(
+          of: claude,
+          matching: find.byType(SvgPicture),
+        );
+        expect(badges.left, initialTitle.left);
+        expect(tester.getRect(firstIcon).left, badges.left);
+        expect(tester.getSize(claude).width, 13);
         expect(badges.top, greaterThanOrEqualTo(initialTitle.bottom));
-        expect(badges.bottom, lessThan(initialProtocol.top));
+        expect(badges.bottom, lessThan(initialDelay.top));
         expect(tester.getRect(cardFinder), card);
         expect(tester.getRect(title), initialTitle);
         expect(tester.getRect(protocol), initialProtocol);
@@ -177,6 +231,14 @@ void main() {
         expect(find.text(appLocalizations.unlocked), findsOneWidget);
         expect(find.text('SG'), findsOneWidget);
         expect(find.text('95 ms'), findsOneWidget);
+        final country = find.text(appLocalizations.countryOrRegion);
+        final delayLabel = find.text(appLocalizations.delay);
+        expect(tester.getTopLeft(country).dx, tester.getTopLeft(delayLabel).dx);
+        expect(
+          tester.getTopRight(find.text('SG')).dx,
+          tester.getTopRight(find.text('95 ms')).dx,
+        );
+
         await tester.tap(find.text(appLocalizations.confirm));
         await tester.pumpAndSettle();
 

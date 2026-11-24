@@ -227,32 +227,37 @@ class ProxyCard extends StatelessWidget {
               ),
             ),
           );
-    final footerRow = Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Flexible(child: protocol),
-        delayText,
-      ],
+    return SizedBox(
+      height: type == ProxyCardType.expand
+          ? measure.labelSmallHeight
+          : measure.bodySmallHeight,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Flexible(child: protocol),
+          delayText,
+        ],
+      ),
     );
-    if (type == ProxyCardType.expand) {
-      final labelSmallHeight = measure.labelSmallHeight;
-      return SizedBox(
-        height: labelSmallHeight * 2 + 4,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          spacing: 4,
-          children: [
-            SizedBox(
-              height: labelSmallHeight,
-              child: _ProxyDesc(proxy: proxy),
-            ),
-            SizedBox(height: labelSmallHeight, child: footerRow),
-          ],
-        ),
-      );
-    }
-    return SizedBox(height: measure.bodySmallHeight, child: footerRow);
+  }
+
+  Widget _buildSecondaryRow(bool hasActions) {
+    final tags = hasActions ? ProxyUnlockTags(proxyName: proxy.name) : null;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 2),
+      child: Align(
+        alignment: AlignmentDirectional.bottomStart,
+        child: type != ProxyCardType.expand
+            ? tags
+            : Stack(
+                alignment: AlignmentDirectional.centerStart,
+                children: [
+                  _ProxyDesc(proxy: proxy),
+                  ?tags,
+                ],
+              ),
+      ),
+    );
   }
 
   Future<void> _changeProxy(WidgetRef ref) async {
@@ -342,14 +347,7 @@ class ProxyCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     proxyNameWidget,
-                    Expanded(
-                      child: Align(
-                        alignment: AlignmentDirectional.centerStart,
-                        child: hasActions
-                            ? ProxyUnlockTags(proxyName: proxy.name)
-                            : null,
-                      ),
-                    ),
+                    Expanded(child: _buildSecondaryRow(hasActions)),
                     footerWidget,
                   ],
                 ),

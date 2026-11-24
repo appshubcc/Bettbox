@@ -2089,6 +2089,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "View checked rules",
     ),
     "rule": MessageLookupByLibrary.simpleMessage("Rule"),
+    "ruleAdded": MessageLookupByLibrary.simpleMessage("Rule added"),
     "ruleCount": m67,
     "ruleCountIncluded": m68,
     "ruleHits": MessageLookupByLibrary.simpleMessage("Rule hits"),

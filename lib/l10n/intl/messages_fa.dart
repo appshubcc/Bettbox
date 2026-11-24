@@ -2130,6 +2130,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "نمایش قوانین بررسی‌شده",
     ),
     "rule": MessageLookupByLibrary.simpleMessage("قوانین"),
+    "ruleAdded": MessageLookupByLibrary.simpleMessage("قانون افزوده شد"),
     "ruleCount": m67,
     "ruleCountIncluded": m68,
     "ruleHits": MessageLookupByLibrary.simpleMessage("تطابق قوانین"),

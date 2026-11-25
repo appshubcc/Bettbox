@@ -1,7 +1,7 @@
 name: bett_box
 description: A multi-platform proxy client based on Mihomo, simple and easy to use, open-source and ad-free.
 publish_to: 'none'
-version: 1.20.1+2026112402
+version: 1.20.1+2026112501
 environment:
   sdk: '>=3.13.0 <4.0.0'
 

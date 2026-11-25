@@ -128,6 +128,7 @@ data object VpnPlugin : FlutterPlugin, MethodChannel.MethodCallHandler {
         if (job.isCancelled) {
             job = SupervisorJob()
             scope = CoroutineScope(Dispatchers.Default + job as kotlin.coroutines.CoroutineContext)
+            ensureSpeedTicker()
         }
 
         val channel = MethodChannel(flutterPluginBinding.binaryMessenger, "vpn")
@@ -395,7 +396,10 @@ data object VpnPlugin : FlutterPlugin, MethodChannel.MethodCallHandler {
         Core.screenStateChanged(isOn)
         invokeDart("screenStateChanged", isOn)
         ServicePlugin.notifyScreenStateChanged(isOn)
-        if (isOn) {
+    }
+
+    fun updateSpeedTicker(isScreenOn: Boolean) {
+        if (isScreenOn) {
             ensureSpeedTicker()
         } else {
             stopSpeedTicker()
@@ -578,16 +582,16 @@ data object VpnPlugin : FlutterPlugin, MethodChannel.MethodCallHandler {
     private fun ensureSpeedTicker() {
         synchronized(speedTickerLock) {
             if (!GlobalState.isSpeedNotificationEnabled) return
+            if (GlobalState.currentRunState != RunState.START) return
             if (speedTickerJob?.isActive == true) return
+            if (!isInteractive()) return
             speedTickerJob = scope.launch {
                 while (isActive) {
                     delay(1000)
-                    if (!GlobalState.isSpeedNotificationEnabled ||
-                        GlobalState.currentRunState != RunState.START ||
-                        bettBoxService == null ||
-                        !isInteractive()
-                    ) {
-                        break
+                    if (!GlobalState.isSpeedNotificationEnabled || !isInteractive()) break
+                    if (GlobalState.currentRunState == RunState.STOP) break
+                    if (GlobalState.currentRunState != RunState.START || bettBoxService == null) {
+                        continue
                     }
                     val speedInfo = Core.trafficJson()?.let(::trafficSpeedInfo) ?: continue
                     updateNotificationSpeed(GlobalState.currentProfileName, speedInfo)
@@ -870,6 +874,7 @@ data object VpnPlugin : FlutterPlugin, MethodChannel.MethodCallHandler {
             shouldForceStop = force || bettBoxService == null
         }
 
+        stopSpeedTicker()
         suspendModule?.uninstall()
         suspendModule = null
         Core.stopTun()
@@ -914,6 +919,7 @@ data object VpnPlugin : FlutterPlugin, MethodChannel.MethodCallHandler {
             GlobalState.updateRunState(RunState.STOP)
             GlobalState.isSmartStopped = true
         }
+        stopSpeedTicker()
         suspendModule?.uninstall()
         suspendModule = null
         Core.stopTun()

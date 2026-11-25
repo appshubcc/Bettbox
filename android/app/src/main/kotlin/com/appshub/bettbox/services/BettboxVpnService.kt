@@ -65,10 +65,12 @@ class BettboxVpnService : VpnService(), BaseServiceInterface {
                 when (intent?.action) {
                     Intent.ACTION_SCREEN_OFF -> {
                         GlobalState.getCurrentVPNPlugin()?.notifyScreenStateChanged(false)
+                        VpnPlugin.updateSpeedTicker(false)
                         return
                     }
                     Intent.ACTION_SCREEN_ON -> {
                         GlobalState.getCurrentVPNPlugin()?.notifyScreenStateChanged(true)
+                        VpnPlugin.updateSpeedTicker(true)
                     }
                 }
                 lastNotificationText = null

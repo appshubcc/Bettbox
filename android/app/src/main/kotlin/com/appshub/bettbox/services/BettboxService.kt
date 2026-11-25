@@ -18,6 +18,7 @@ import com.appshub.bettbox.GlobalState
 import com.appshub.bettbox.R
 import com.appshub.bettbox.core.Core
 import com.appshub.bettbox.models.VpnOptions
+import com.appshub.bettbox.plugins.VpnPlugin
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -49,10 +50,12 @@ class BettboxService : Service(), BaseServiceInterface {
                 when (intent?.action) {
                     Intent.ACTION_SCREEN_OFF -> {
                         GlobalState.getCurrentVPNPlugin()?.notifyScreenStateChanged(false)
+                        VpnPlugin.updateSpeedTicker(false)
                         return
                     }
                     Intent.ACTION_SCREEN_ON -> {
                         GlobalState.getCurrentVPNPlugin()?.notifyScreenStateChanged(true)
+                        VpnPlugin.updateSpeedTicker(true)
                     }
                 }
                 lastNotificationText = null

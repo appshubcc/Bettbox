@@ -248,9 +248,11 @@ class _AgeToolPageState extends ConsumerState<AgeToolPage> {
             ),
           ],
           const SizedBox(height: 16),
-          ToolTvField(
-            controller: _secretController,
-            child: TextField(
+          TvTextField(
+            builder: (tv) => TextField(
+              focusNode: tv.focusNode,
+              readOnly: tv.readOnly,
+              showCursor: tv.showCursor,
               controller: _secretController,
               obscureText: !_showSecret,
               autocorrect: false,
@@ -276,11 +278,13 @@ class _AgeToolPageState extends ConsumerState<AgeToolPage> {
             ),
           ),
           const SizedBox(height: 12),
-          ToolTvField(
-            controller: _publicController,
-            child: TextField(
+          TvTextField(
+            readOnly: true,
+            builder: (tv) => TextField(
+              focusNode: tv.focusNode,
+              readOnly: tv.readOnly,
+              showCursor: tv.showCursor,
               controller: _publicController,
-              readOnly: true,
               minLines: 1,
               maxLines: 4,
               style: _keyType == _AgeKeyType.hybrid
@@ -330,9 +334,11 @@ class _AgeToolPageState extends ConsumerState<AgeToolPage> {
     TextEditingController controller,
     String label, {
     int minLines = 5,
-  }) => ToolTvField(
-    controller: controller,
-    child: TextField(
+  }) => TvTextField(
+    builder: (tv) => TextField(
+      focusNode: tv.focusNode,
+      readOnly: tv.readOnly,
+      showCursor: tv.showCursor,
       controller: controller,
       minLines: minLines,
       maxLines: 10,
@@ -420,9 +426,11 @@ class _AgeToolPageState extends ConsumerState<AgeToolPage> {
         children: [
           _input(_encryptInput, appLocalizations.agePlainText),
           const SizedBox(height: 12),
-          ToolTvField(
-            controller: _recipients,
-            child: TextField(
+          TvTextField(
+            builder: (tv) => TextField(
+              focusNode: tv.focusNode,
+              readOnly: tv.readOnly,
+              showCursor: tv.showCursor,
               controller: _recipients,
               minLines: 1,
               maxLines: 4,
@@ -451,9 +459,11 @@ class _AgeToolPageState extends ConsumerState<AgeToolPage> {
         children: [
           _input(_decryptInput, appLocalizations.ageCipherText),
           const SizedBox(height: 12),
-          ToolTvField(
-            controller: _decryptKey,
-            child: TextField(
+          TvTextField(
+            builder: (tv) => TextField(
+              focusNode: tv.focusNode,
+              readOnly: tv.readOnly,
+              showCursor: tv.showCursor,
               controller: _decryptKey,
               obscureText: true,
               autocorrect: false,

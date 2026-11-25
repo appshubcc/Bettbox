@@ -15,6 +15,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'chip.dart';
 import 'text.dart';
+import 'tv_text_field.dart';
 
 typedef OnKeywordsUpdateCallback = void Function(List<String> keywords);
 
@@ -208,16 +209,21 @@ class CommonScaffoldState extends State<CommonScaffold> {
 
   Widget _buildTitle(AppBarSearchState? startState) {
     return _isSearch
-        ? TextField(
+        ? TvTextField(
             focusNode: _searchFocusNode,
-            controller: _textController,
-            style: context.textTheme.titleLarge,
-            onChanged: (value) {
-              if (startState != null) {
-                startState.onSearch(value);
-              }
-            },
-            decoration: InputDecoration(hintText: appLocalizations.search),
+            builder: (tv) => TextField(
+              focusNode: tv.focusNode,
+              readOnly: tv.readOnly,
+              showCursor: tv.showCursor,
+              controller: _textController,
+              style: context.textTheme.titleLarge,
+              onChanged: (value) {
+                if (startState != null) {
+                  startState.onSearch(value);
+                }
+              },
+              decoration: InputDecoration(hintText: appLocalizations.search),
+            ),
           )
         : !_isEdit && widget.titleWidget != null
         ? widget.titleWidget!

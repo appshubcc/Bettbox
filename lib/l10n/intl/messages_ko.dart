@@ -361,6 +361,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "back": MessageLookupByLibrary.simpleMessage("뒤로"),
     "backgroundWatermark": MessageLookupByLibrary.simpleMessage("배경 워터마크"),
     "backup": MessageLookupByLibrary.simpleMessage("백업"),
+    "backupAll": MessageLookupByLibrary.simpleMessage("모든 데이터 백업"),
     "backupAndRecovery": MessageLookupByLibrary.simpleMessage("백업 및 복구"),
     "backupAndRecoveryDesc": MessageLookupByLibrary.simpleMessage(
       "WebDAV 또는 로컬로 데이터 동기화",
@@ -380,6 +381,11 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "backupPasswordWrong": MessageLookupByLibrary.simpleMessage(
       "백업 비밀번호가 올바르지 않습니다",
+    ),
+    "backupProfiles": MessageLookupByLibrary.simpleMessage("프로필만 백업"),
+    "backupScopeAllDesc": MessageLookupByLibrary.simpleMessage("프로필 및 모든 앱 설정"),
+    "backupScopeProfilesDesc": MessageLookupByLibrary.simpleMessage(
+      "구독, 오버라이드 스크립트, 노드, 관리 모드",
     ),
     "backupSuccess": MessageLookupByLibrary.simpleMessage("백업 성공"),
     "basicConfig": MessageLookupByLibrary.simpleMessage("코어 설정"),
@@ -802,7 +808,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "go": MessageLookupByLibrary.simpleMessage("이동"),
     "goDownload": MessageLookupByLibrary.simpleMessage("다운로드 이동"),
     "groupOrderTip": MessageLookupByLibrary.simpleMessage(
-      "위에서부터 순서대로 매칭되며, 드래그하여 순서 변경",
+      "드래그하여 표시 순서 변경 (사용자 지정 분기 우선 매칭)",
     ),
     "harmonyFont": MessageLookupByLibrary.simpleMessage("글꼴 복구"),
     "harmonyFontDesc": MessageLookupByLibrary.simpleMessage(
@@ -880,6 +886,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "inputCorrectHotkey": MessageLookupByLibrary.simpleMessage(
       "올바른 단축키를 입력하세요",
     ),
+    "install": MessageLookupByLibrary.simpleMessage("설치"),
     "installTime": MessageLookupByLibrary.simpleMessage("설치 시간"),
     "intelligentSelected": MessageLookupByLibrary.simpleMessage("스마트 선택"),
     "intelligentSelectedConfirm": MessageLookupByLibrary.simpleMessage(
@@ -913,7 +920,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "이 도메인을 확인할 수 없습니다",
     ),
     "ipLookupResult": MessageLookupByLibrary.simpleMessage("조회 결과"),
-    "ipPrivacyProtection": MessageLookupByLibrary.simpleMessage("IP 표시 숨기기"),
+    "ipPrivacyProtection": MessageLookupByLibrary.simpleMessage("IP 표시 보호"),
     "ipRiskAlert": MessageLookupByLibrary.simpleMessage("IP 위험 알림"),
     "ipRiskAmountHigh": MessageLookupByLibrary.simpleMessage("많음"),
     "ipRiskAmountLow": MessageLookupByLibrary.simpleMessage("적음"),
@@ -1735,6 +1742,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "routeTraceViewRules": MessageLookupByLibrary.simpleMessage("확인한 규칙 보기"),
     "rule": MessageLookupByLibrary.simpleMessage("규칙"),
+    "ruleAdded": MessageLookupByLibrary.simpleMessage("규칙이 추가되었습니다"),
     "ruleCount": m67,
     "ruleCountIncluded": m68,
     "ruleHits": MessageLookupByLibrary.simpleMessage("규칙 적중"),
@@ -2106,11 +2114,17 @@ class MessageLookup extends MessageLookupByLibrary {
     "updateDownloadFailed": MessageLookupByLibrary.simpleMessage(
       "업데이트 다운로드 실패",
     ),
+    "updateDownloadStarted": MessageLookupByLibrary.simpleMessage(
+      "새 버전 다운로드를 시작했습니다",
+    ),
+    "updateDownloaded": MessageLookupByLibrary.simpleMessage(
+      "새 버전 다운로드가 완료되었습니다",
+    ),
+    "updateDownloading": MessageLookupByLibrary.simpleMessage(
+      "새 버전을 다운로드하는 중입니다",
+    ),
     "updateInstallFailed": MessageLookupByLibrary.simpleMessage("업데이트 설치 실패"),
     "updateReadyAppTip": m77,
-    "updateReadyVpnTip": MessageLookupByLibrary.simpleMessage(
-      "새 버전 설치 패키지가 준비되었습니다. 서비스 보호를 위해 업그레이드 전에 실행 중인 VPN 서비스를 중지합니다. 확인을 누르면 설치를 시작합니다.",
-    ),
     "updateTime": MessageLookupByLibrary.simpleMessage("업데이트 시간"),
     "updateTip": MessageLookupByLibrary.simpleMessage("업그레이드 안내"),
     "upload": MessageLookupByLibrary.simpleMessage("업로드"),

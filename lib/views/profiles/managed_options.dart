@@ -210,15 +210,20 @@ class _SearchField extends StatelessWidget {
     final onSubmitted = this.onSubmitted;
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
-      child: TextField(
-        onChanged: onChanged,
-        onSubmitted: onSubmitted,
-        textInputAction: onSubmitted == null
-            ? TextInputAction.search
-            : TextInputAction.done,
-        decoration: InputDecoration(
-          hintText: hintText,
-          prefixIcon: const AppIcon(Icons.search),
+      child: TvTextField(
+        builder: (tv) => TextField(
+          focusNode: tv.focusNode,
+          readOnly: tv.readOnly,
+          showCursor: tv.showCursor,
+          onChanged: onChanged,
+          onSubmitted: onSubmitted,
+          textInputAction: onSubmitted == null
+              ? TextInputAction.search
+              : TextInputAction.done,
+          decoration: InputDecoration(
+            hintText: hintText,
+            prefixIcon: const AppIcon(Icons.search),
+          ),
         ),
       ),
     );
@@ -587,6 +592,19 @@ class _ManagedOptionsSheetState extends ConsumerState<ManagedOptionsSheet> {
             : catalog.iconUrlOf(route),
       ),
       title: Text(name, maxLines: 1, overflow: TextOverflow.ellipsis),
+      subtitle: route == null || route.sets.isEmpty
+          ? null
+          : Text(
+              [
+                for (final key in route.sets)
+                  catalog.sets[key]?.label ??
+                      CustomRuleSet.parse(key)?.name ??
+                      key.split(':').last,
+              ].join('、'),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: context.textTheme.bodySmall?.toLight,
+            ),
       trailing: _sorting
           ? ReorderableDragStartListener(
               index: index,
@@ -812,49 +830,61 @@ class _CustomRegionDialogState extends State<_CustomRegionDialog> {
         child: Wrap(
           runSpacing: 16,
           children: [
-            TextFormField(
-              controller: _nameController,
-              decoration: InputDecoration(
-                border: const OutlineInputBorder(),
-                labelText: appLocalizations.regionName,
+            TvTextField(
+              builder: (tv) => TextFormField(
+                focusNode: tv.focusNode,
+                readOnly: tv.readOnly,
+                showCursor: tv.showCursor,
+                controller: _nameController,
+                decoration: InputDecoration(
+                  border: const OutlineInputBorder(),
+                  labelText: appLocalizations.regionName,
+                ),
+                validator: (value) {
+                  final trimmed = value?.trim() ?? '';
+                  if (trimmed.isEmpty) {
+                    return appLocalizations.emptyTip(
+                      appLocalizations.regionName,
+                    );
+                  }
+                  if (trimmed.contains(',') || trimmed.contains('\n')) {
+                    return appLocalizations.routeNameInvalid;
+                  }
+                  if (widget.region?.name != trimmed &&
+                      widget.existingNames.contains(trimmed)) {
+                    return appLocalizations.existsTip(
+                      appLocalizations.regionName,
+                    );
+                  }
+                  return null;
+                },
               ),
-              validator: (value) {
-                final trimmed = value?.trim() ?? '';
-                if (trimmed.isEmpty) {
-                  return appLocalizations.emptyTip(appLocalizations.regionName);
-                }
-                if (trimmed.contains(',') || trimmed.contains('\n')) {
-                  return appLocalizations.routeNameInvalid;
-                }
-                if (widget.region?.name != trimmed &&
-                    widget.existingNames.contains(trimmed)) {
-                  return appLocalizations.existsTip(
-                    appLocalizations.regionName,
-                  );
-                }
-                return null;
-              },
             ),
-            TextFormField(
-              controller: _regexController,
-              decoration: InputDecoration(
-                border: const OutlineInputBorder(),
-                labelText: appLocalizations.regionRegex,
+            TvTextField(
+              builder: (tv) => TextFormField(
+                focusNode: tv.focusNode,
+                readOnly: tv.readOnly,
+                showCursor: tv.showCursor,
+                controller: _regexController,
+                decoration: InputDecoration(
+                  border: const OutlineInputBorder(),
+                  labelText: appLocalizations.regionRegex,
+                ),
+                validator: (value) {
+                  final trimmed = value?.trim() ?? '';
+                  if (trimmed.isEmpty) {
+                    return appLocalizations.emptyTip(
+                      appLocalizations.regionRegex,
+                    );
+                  }
+                  try {
+                    RegExp(trimmed);
+                  } catch (_) {
+                    return appLocalizations.regexInvalid;
+                  }
+                  return null;
+                },
               ),
-              validator: (value) {
-                final trimmed = value?.trim() ?? '';
-                if (trimmed.isEmpty) {
-                  return appLocalizations.emptyTip(
-                    appLocalizations.regionRegex,
-                  );
-                }
-                try {
-                  RegExp(trimmed);
-                } catch (_) {
-                  return appLocalizations.regexInvalid;
-                }
-                return null;
-              },
             ),
           ],
         ),
@@ -1655,13 +1685,18 @@ class _RouteSheetState extends State<_RouteSheet> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              TextField(
-                controller: _nameController,
-                textInputAction: TextInputAction.done,
-                onChanged: (_) => _change(() => _error = null),
-                decoration: InputDecoration(
-                  labelText: appLocalizations.name,
-                  errorText: _error,
+              TvTextField(
+                builder: (tv) => TextField(
+                  focusNode: tv.focusNode,
+                  readOnly: tv.readOnly,
+                  showCursor: tv.showCursor,
+                  controller: _nameController,
+                  textInputAction: TextInputAction.done,
+                  onChanged: (_) => _change(() => _error = null),
+                  decoration: InputDecoration(
+                    labelText: appLocalizations.name,
+                    errorText: _error,
+                  ),
                 ),
               ),
               const SizedBox(height: 12),
@@ -1820,18 +1855,23 @@ class _MrsUrlDialogState extends State<_MrsUrlDialog> with IdleAutofocusMixin {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          TextField(
-            controller: _controller,
+          TvTextField(
             focusNode: autofocusNode,
-            keyboardType: TextInputType.url,
-            textInputAction: TextInputAction.done,
-            onChanged: (_) => setState(() => _error = null),
-            onSubmitted: (_) => _handleSubmit(),
-            decoration: InputDecoration(
-              border: const OutlineInputBorder(),
-              labelText: appLocalizations.url,
-              errorText: _error,
-              errorMaxLines: 2,
+            builder: (tv) => TextField(
+              focusNode: tv.focusNode,
+              readOnly: tv.readOnly,
+              showCursor: tv.showCursor,
+              controller: _controller,
+              keyboardType: TextInputType.url,
+              textInputAction: TextInputAction.done,
+              onChanged: (_) => setState(() => _error = null),
+              onSubmitted: (_) => _handleSubmit(),
+              decoration: InputDecoration(
+                border: const OutlineInputBorder(),
+                labelText: appLocalizations.url,
+                errorText: _error,
+                errorMaxLines: 2,
+              ),
             ),
           ),
           const SizedBox(height: 16),

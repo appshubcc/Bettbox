@@ -418,6 +418,9 @@ class MessageLookup extends MessageLookupByLibrary {
       "نشان پس‌زمینه",
     ),
     "backup": MessageLookupByLibrary.simpleMessage("پشتیبان‌گیری"),
+    "backupAll": MessageLookupByLibrary.simpleMessage(
+      "پشتیبان‌گیری از تمام داده‌ها",
+    ),
     "backupAndRecovery": MessageLookupByLibrary.simpleMessage(
       "پشتیبان‌گیری و بازیابی",
     ),
@@ -439,6 +442,15 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "backupPasswordWrong": MessageLookupByLibrary.simpleMessage(
       "رمز عبور پشتیبان نادرست است",
+    ),
+    "backupProfiles": MessageLookupByLibrary.simpleMessage(
+      "فقط پشتیبان‌گیری از پروفایل‌ها",
+    ),
+    "backupScopeAllDesc": MessageLookupByLibrary.simpleMessage(
+      "پروفایل‌ها و همه تنظیمات برنامه",
+    ),
+    "backupScopeProfilesDesc": MessageLookupByLibrary.simpleMessage(
+      "اشتراک‌ها، اسکریپت‌های اورراید، گره‌ها و حالت مدیریت‌شده",
     ),
     "backupSuccess": MessageLookupByLibrary.simpleMessage(
       "پشتیبان‌گیری با موفقیت انجام شد",
@@ -947,7 +959,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "go": MessageLookupByLibrary.simpleMessage("رفتن"),
     "goDownload": MessageLookupByLibrary.simpleMessage("رفتن به دانلود"),
     "groupOrderTip": MessageLookupByLibrary.simpleMessage(
-      "از بالا به پایین بررسی می‌شود، برای تغییر ترتیب بکشید",
+      "برای تغییر ترتیب نمایش بکشید؛ مسیرهای سفارشی اولویت دارند",
     ),
     "harmonyFont": MessageLookupByLibrary.simpleMessage("ترمیم فونت"),
     "harmonyFontDesc": MessageLookupByLibrary.simpleMessage(
@@ -1039,6 +1051,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "inputCorrectHotkey": MessageLookupByLibrary.simpleMessage(
       "لطفاً کلید میانبر معتبری وارد کنید",
     ),
+    "install": MessageLookupByLibrary.simpleMessage("نصب"),
     "installTime": MessageLookupByLibrary.simpleMessage("زمان نصب"),
     "intelligentSelected": MessageLookupByLibrary.simpleMessage(
       "انتخاب هوشمند",
@@ -1081,7 +1094,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "ipLookupResult": MessageLookupByLibrary.simpleMessage("نتایج"),
     "ipPrivacyProtection": MessageLookupByLibrary.simpleMessage(
-      "پنهان‌سازی IP",
+      "محافظت از نمایش IP",
     ),
     "ipRiskAlert": MessageLookupByLibrary.simpleMessage("هشدار ریسک IP"),
     "ipRiskAmountHigh": MessageLookupByLibrary.simpleMessage("زیاد"),
@@ -2120,6 +2133,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "نمایش قوانین بررسی‌شده",
     ),
     "rule": MessageLookupByLibrary.simpleMessage("قوانین"),
+    "ruleAdded": MessageLookupByLibrary.simpleMessage("قانون افزوده شد"),
     "ruleCount": m67,
     "ruleCountIncluded": m68,
     "ruleHits": MessageLookupByLibrary.simpleMessage("تطابق قوانین"),
@@ -2561,13 +2575,19 @@ class MessageLookup extends MessageLookupByLibrary {
     "updateDownloadFailed": MessageLookupByLibrary.simpleMessage(
       "دانلود به‌روزرسانی ناموفق بود",
     ),
+    "updateDownloadStarted": MessageLookupByLibrary.simpleMessage(
+      "دانلود نسخه جدید آغاز شد",
+    ),
+    "updateDownloaded": MessageLookupByLibrary.simpleMessage(
+      "نسخه جدید دانلود شد",
+    ),
+    "updateDownloading": MessageLookupByLibrary.simpleMessage(
+      "نسخه جدید در حال دانلود است",
+    ),
     "updateInstallFailed": MessageLookupByLibrary.simpleMessage(
       "نصب به‌روزرسانی ناموفق بود",
     ),
     "updateReadyAppTip": m77,
-    "updateReadyVpnTip": MessageLookupByLibrary.simpleMessage(
-      "بسته نسخه جدید آماده است. برای حفظ عملکرد سرویس، پیش از ارتقا سرویس VPN در حال اجرا متوقف می‌شود. برای شروع نصب تأیید کنید.",
-    ),
     "updateTime": MessageLookupByLibrary.simpleMessage("زمان به‌روزرسانی"),
     "updateTip": MessageLookupByLibrary.simpleMessage("اعلان ارتقا"),
     "upload": MessageLookupByLibrary.simpleMessage("آپلود"),

@@ -530,11 +530,16 @@ class _UpdateGeoUrlFormDialogState extends State<UpdateGeoUrlFormDialog> {
       child: Wrap(
         runSpacing: 16,
         children: [
-          TextField(
-            maxLines: 5,
-            minLines: 1,
-            controller: urlController,
-            decoration: const InputDecoration(border: OutlineInputBorder()),
+          TvTextField(
+            builder: (tv) => TextField(
+              focusNode: tv.focusNode,
+              readOnly: tv.readOnly,
+              showCursor: tv.showCursor,
+              maxLines: 5,
+              minLines: 1,
+              controller: urlController,
+              decoration: const InputDecoration(border: OutlineInputBorder()),
+            ),
           ),
         ],
       ),

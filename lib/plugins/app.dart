@@ -152,11 +152,13 @@ class App {
     return result ?? 0;
   }
 
+  bool? ignoringBatteryOptimizations;
+
   Future<bool> isIgnoringBatteryOptimizations() async {
     final result = await methodChannel.invokeMethod<bool>(
       'isIgnoringBatteryOptimizations',
     );
-    return result ?? false;
+    return ignoringBatteryOptimizations = result ?? false;
   }
 
   Future<void> requestIgnoreBatteryOptimizations() async {

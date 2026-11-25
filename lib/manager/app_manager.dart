@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:math' as math;
 
 import 'package:bett_box/clash/core.dart';
@@ -83,6 +84,22 @@ class _AppStateManagerState extends ConsumerState<AppStateManager>
       if (!next.hasAddedOrChanged(prev)) return;
       globalState.appController.autoBackupDebounce();
     });
+    ref.listenManual(
+      nodesProvider,
+      (_, _) => globalState.appController.autoBackupDebounce(),
+    );
+    ref.listenManual(
+      nodesProvider.select((state) => jsonEncode(state.regionNodeNames)),
+      (_, _) => globalState.appController.generateAllBundles(),
+    );
+    ref.listenManual(
+      scriptStateProvider,
+      (_, _) => globalState.appController.autoBackupDebounce(),
+    );
+    ref.listenManual(
+      managedSettingProvider,
+      (_, _) => globalState.appController.autoBackupDebounce(),
+    );
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _updateDashboardRefreshState();
       detectionState.tryStartCheck();

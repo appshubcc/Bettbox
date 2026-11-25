@@ -1050,21 +1050,46 @@ class AppLocalizations {
     );
   }
 
-  /// `Upgrade Notice`
-  String get updateTip {
+  /// `Install`
+  String get install {
+    return Intl.message('Install', name: 'install', desc: '', args: []);
+  }
+
+  /// `Update download started`
+  String get updateDownloadStarted {
     return Intl.message(
-      'Upgrade Notice',
-      name: 'updateTip',
+      'Update download started',
+      name: 'updateDownloadStarted',
       desc: '',
       args: [],
     );
   }
 
-  /// `The new version package is ready. To keep the service safe, the running VPN service will be stopped before upgrading. Confirm to start the installation.`
-  String get updateReadyVpnTip {
+  /// `Update is downloading`
+  String get updateDownloading {
     return Intl.message(
-      'The new version package is ready. To keep the service safe, the running VPN service will be stopped before upgrading. Confirm to start the installation.',
-      name: 'updateReadyVpnTip',
+      'Update is downloading',
+      name: 'updateDownloading',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Update downloaded`
+  String get updateDownloaded {
+    return Intl.message(
+      'Update downloaded',
+      name: 'updateDownloaded',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Upgrade Notice`
+  String get updateTip {
+    return Intl.message(
+      'Upgrade Notice',
+      name: 'updateTip',
       desc: '',
       args: [],
     );
@@ -2030,6 +2055,46 @@ class AppLocalizations {
     return Intl.message(
       'Restore All Data',
       name: 'recoveryAll',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Back Up Profiles Only`
+  String get backupProfiles {
+    return Intl.message(
+      'Back Up Profiles Only',
+      name: 'backupProfiles',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Back Up All Data`
+  String get backupAll {
+    return Intl.message(
+      'Back Up All Data',
+      name: 'backupAll',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Subscriptions, override scripts, nodes and managed mode`
+  String get backupScopeProfilesDesc {
+    return Intl.message(
+      'Subscriptions, override scripts, nodes and managed mode',
+      name: 'backupScopeProfilesDesc',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Profiles and all app settings`
+  String get backupScopeAllDesc {
+    return Intl.message(
+      'Profiles and all app settings',
+      name: 'backupScopeAllDesc',
       desc: '',
       args: [],
     );
@@ -4705,10 +4770,10 @@ class AppLocalizations {
     );
   }
 
-  /// `Hide IP Display`
+  /// `Protect IP Display`
   String get ipPrivacyProtection {
     return Intl.message(
-      'Hide IP Display',
+      'Protect IP Display',
       name: 'ipPrivacyProtection',
       desc: '',
       args: [],
@@ -10494,10 +10559,10 @@ class AppLocalizations {
     );
   }
 
-  /// `Matched from top to bottom, drag to reorder`
+  /// `Drag to reorder display; custom routes match first`
   String get groupOrderTip {
     return Intl.message(
-      'Matched from top to bottom, drag to reorder',
+      'Drag to reorder display; custom routes match first',
       name: 'groupOrderTip',
       desc: '',
       args: [],
@@ -11353,6 +11418,11 @@ class AppLocalizations {
       desc: '',
       args: [],
     );
+  }
+
+  /// `Rule added`
+  String get ruleAdded {
+    return Intl.message('Rule added', name: 'ruleAdded', desc: '', args: []);
   }
 
   /// `When on, the rule applies to all managed profiles. When off, or in non-managed mode, it only applies to the current profile`

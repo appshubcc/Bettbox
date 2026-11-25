@@ -332,12 +332,17 @@ class _SnifferPortDialogState extends State<_SnifferPortDialog> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            TextField(
-              controller: _portsController,
-              decoration: InputDecoration(
-                border: const OutlineInputBorder(),
-                labelText: appLocalizations.snifferPorts,
-                hintText: '443, 8443',
+            TvTextField(
+              builder: (tv) => TextField(
+                focusNode: tv.focusNode,
+                readOnly: tv.readOnly,
+                showCursor: tv.showCursor,
+                controller: _portsController,
+                decoration: InputDecoration(
+                  border: const OutlineInputBorder(),
+                  labelText: appLocalizations.snifferPorts,
+                  hintText: '443, 8443',
+                ),
               ),
             ),
             const SizedBox(height: 16),

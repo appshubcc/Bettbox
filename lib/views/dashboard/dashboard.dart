@@ -669,14 +669,19 @@ class _DashboardTitleDialogState extends State<_DashboardTitleDialog> {
       ],
       child: Padding(
         padding: const EdgeInsets.only(top: 8.0),
-        child: TextField(
-          controller: _controller,
-          decoration: InputDecoration(
-            hintText: 'Have fun with Bettbox',
-            errorText: _errorText,
-            border: const OutlineInputBorder(),
+        child: TvTextField(
+          builder: (tv) => TextField(
+            focusNode: tv.focusNode,
+            readOnly: tv.readOnly,
+            showCursor: tv.showCursor,
+            controller: _controller,
+            decoration: InputDecoration(
+              hintText: 'Have fun with Bettbox',
+              errorText: _errorText,
+              border: const OutlineInputBorder(),
+            ),
+            onChanged: _validate,
           ),
-          onChanged: _validate,
         ),
       ),
     );
@@ -945,9 +950,11 @@ class _UpdateMark extends ConsumerWidget {
           ),
         ),
         child: Text(
-          status == AppUpdateStatus.downloading
-              ? '${(progress * 100).floor()}%'
-              : 'NEW',
+          switch (status) {
+            AppUpdateStatus.downloading => '${(progress * 100).floor()}%',
+            AppUpdateStatus.ready => 'UPDATE',
+            AppUpdateStatus.available => 'NEW',
+          },
           style: context.textTheme.labelSmall?.copyWith(
             fontSize: 9.5,
             height: 1.3,

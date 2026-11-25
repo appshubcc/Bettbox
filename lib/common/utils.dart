@@ -615,27 +615,6 @@ class Utils {
     return valueRaw.substring(valueRaw.length - 2);
   }
 
-  String generateRandomString({int minLength = 10, int maxLength = 100}) {
-    const latinChars =
-        'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-    final random = Random();
-
-    int length = minLength + random.nextInt(maxLength - minLength + 1);
-
-    String result = '';
-    for (int i = 0; i < length; i++) {
-      if (random.nextBool()) {
-        result += String.fromCharCode(
-          0x4E00 + random.nextInt(0x9FA5 - 0x4E00 + 1),
-        );
-      } else {
-        result += latinChars[random.nextInt(latinChars.length)];
-      }
-    }
-
-    return result;
-  }
-
   String get uuidV4 {
     final Random random = Random();
     final bytes = List.generate(16, (_) => random.nextInt(256));

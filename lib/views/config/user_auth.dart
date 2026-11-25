@@ -155,67 +155,77 @@ class _UserAuthDialogState extends ConsumerState<UserAuthDialog> {
                     ),
                   ],
                 ),
-                TextFormField(
-                  controller: _entries[i].usernameController,
-                  decoration: InputDecoration(
-                    labelText: appLocalizations.username,
-                    prefixIcon: const AppIcon(Icons.person_outline),
-                    isDense: true,
+                TvTextField(
+                  builder: (tv) => TextFormField(
+                    focusNode: tv.focusNode,
+                    readOnly: tv.readOnly,
+                    showCursor: tv.showCursor,
+                    controller: _entries[i].usernameController,
+                    decoration: InputDecoration(
+                      labelText: appLocalizations.username,
+                      prefixIcon: const AppIcon(Icons.person_outline),
+                      isDense: true,
+                    ),
+                    validator: (value) {
+                      final trimmed = value?.trim() ?? '';
+                      if (trimmed.isEmpty) {
+                        return appLocalizations.emptyTip(
+                          appLocalizations.username,
+                        );
+                      }
+                      if (trimmed.contains(':')) {
+                        return appLocalizations.usernameCannotContainColon;
+                      }
+                      final hasDuplicate = _entries.asMap().entries.any(
+                        (e) =>
+                            e.key != i &&
+                            e.value.usernameController.text.trim() == trimmed &&
+                            trimmed.isNotEmpty,
+                      );
+                      if (hasDuplicate) {
+                        return appLocalizations.existsTip(
+                          appLocalizations.username,
+                        );
+                      }
+                      return null;
+                    },
                   ),
-                  validator: (value) {
-                    final trimmed = value?.trim() ?? '';
-                    if (trimmed.isEmpty) {
-                      return appLocalizations.emptyTip(
-                        appLocalizations.username,
-                      );
-                    }
-                    if (trimmed.contains(':')) {
-                      return appLocalizations.usernameCannotContainColon;
-                    }
-                    final hasDuplicate = _entries.asMap().entries.any(
-                      (e) =>
-                          e.key != i &&
-                          e.value.usernameController.text.trim() == trimmed &&
-                          trimmed.isNotEmpty,
-                    );
-                    if (hasDuplicate) {
-                      return appLocalizations.existsTip(
-                        appLocalizations.username,
-                      );
-                    }
-                    return null;
-                  },
                 ),
                 const SizedBox(height: 12),
-                TextFormField(
-                  controller: _entries[i].passwordController,
-                  obscureText: _entries[i].obscurePassword,
-                  decoration: InputDecoration(
-                    labelText: appLocalizations.password,
-                    prefixIcon: const AppIcon(Icons.lock_outline),
-                    isDense: true,
-                    suffixIcon: IconButton(
-                      icon: AppIcon(
-                        _entries[i].obscurePassword
-                            ? Icons.visibility_off
-                            : Icons.visibility,
+                TvTextField(
+                  builder: (tv) => TextFormField(
+                    focusNode: tv.focusNode,
+                    readOnly: tv.readOnly,
+                    showCursor: tv.showCursor,
+                    controller: _entries[i].passwordController,
+                    obscureText: _entries[i].obscurePassword,
+                    decoration: InputDecoration(
+                      labelText: appLocalizations.password,
+                      prefixIcon: const AppIcon(Icons.lock_outline),
+                      isDense: true,
+                      suffixIcon: IconButton(
+                        icon: AppIcon(
+                          _entries[i].obscurePassword
+                              ? Icons.visibility_off
+                              : Icons.visibility,
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            _entries[i].obscurePassword =
+                                !_entries[i].obscurePassword;
+                          });
+                        },
                       ),
-                      onPressed: () {
-                        setState(() {
-                          _entries[i].obscurePassword =
-                              !_entries[i].obscurePassword;
-                        });
-                      },
                     ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return appLocalizations.emptyTip(
+                          appLocalizations.password,
+                        );
+                      }
+                      return null;
+                    },
                   ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return appLocalizations.emptyTip(
-                        appLocalizations.password,
-                      );
-                    }
-                    return null;
-                  },
                 ),
               ],
             ],

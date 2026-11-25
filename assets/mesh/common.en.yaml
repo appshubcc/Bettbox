@@ -7,7 +7,8 @@
 # interface-name: wlan0
 # routing-mark: 6666
 # ip-version: dual  # dual, ipv4, ipv6, ipv4-prefer or ipv6-prefer.
-# These two keys are decoded but the three mesh adapters do not pass them to their dialers.
+# Socket options for the underlay connections. They apply to direct dialing and are not
+# used when a front proxy carries the connection. Support depends on the platform.
 # tfo: true
 # mptcp: true
 

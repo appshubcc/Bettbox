@@ -6,7 +6,8 @@
 # interface-name: wlan0
 # routing-mark: 6666
 # ip-version: dual  # 可选 dual、ipv4、ipv6、ipv4-prefer、ipv6-prefer。
-# 以下两个字段能被解码，但当前三个 mesh 适配器都未传入底层拨号器。
+# 底层连接的套接字选项，仅在直接拨号时生效，使用前置代理时由前置负责。
+# 是否可用取决于所在平台。
 # tfo: true
 # mptcp: true
 

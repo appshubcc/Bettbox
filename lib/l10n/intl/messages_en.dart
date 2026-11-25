@@ -1688,7 +1688,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "nodeTestFailed": MessageLookupByLibrary.simpleMessage("Unreachable"),
     "nodesSort": MessageLookupByLibrary.simpleMessage("Node Sorting"),
     "nonManagedRuleTip": MessageLookupByLibrary.simpleMessage(
-      "Not in managed mode, so this rule only applies to the current profile",
+      "Rule added to the current profile only",
     ),
     "none": MessageLookupByLibrary.simpleMessage("None"),
     "notRecommended": MessageLookupByLibrary.simpleMessage("Not Recommended"),

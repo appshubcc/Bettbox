@@ -1426,7 +1426,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "nodeTestFailed": MessageLookupByLibrary.simpleMessage("사용 불가"),
     "nodesSort": MessageLookupByLibrary.simpleMessage("노드 정렬"),
     "nonManagedRuleTip": MessageLookupByLibrary.simpleMessage(
-      "관리 모드가 아니므로 현재 프로필에만 적용됩니다",
+      "규칙이 추가되었습니다 (현재 프로필에만 적용)",
     ),
     "none": MessageLookupByLibrary.simpleMessage("없음"),
     "notRecommended": MessageLookupByLibrary.simpleMessage("권장하지 않음"),

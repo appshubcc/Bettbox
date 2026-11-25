@@ -11390,10 +11390,10 @@ class AppLocalizations {
     );
   }
 
-  /// `Not in managed mode, so this rule only applies to the current profile`
+  /// `Rule added to the current profile only`
   String get nonManagedRuleTip {
     return Intl.message(
-      'Not in managed mode, so this rule only applies to the current profile',
+      'Rule added to the current profile only',
       name: 'nonManagedRuleTip',
       desc: '',
       args: [],

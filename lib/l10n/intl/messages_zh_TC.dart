@@ -1279,9 +1279,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "nodeShareUri": MessageLookupByLibrary.simpleMessage("節點分享(URI)"),
     "nodeTestFailed": MessageLookupByLibrary.simpleMessage("不可用"),
     "nodesSort": MessageLookupByLibrary.simpleMessage("節點排序"),
-    "nonManagedRuleTip": MessageLookupByLibrary.simpleMessage(
-      "非託管模式下，僅針對目前配置生效",
-    ),
+    "nonManagedRuleTip": MessageLookupByLibrary.simpleMessage("規則已新增，僅目前配置生效"),
     "none": MessageLookupByLibrary.simpleMessage("無"),
     "notRecommended": MessageLookupByLibrary.simpleMessage("不推薦"),
     "notSelectedTip": MessageLookupByLibrary.simpleMessage("目前的代理群組無法選取"),

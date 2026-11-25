@@ -1766,7 +1766,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "nodeTestFailed": MessageLookupByLibrary.simpleMessage("Недоступен"),
     "nodesSort": MessageLookupByLibrary.simpleMessage("Сортировка узлов"),
     "nonManagedRuleTip": MessageLookupByLibrary.simpleMessage(
-      "Профиль не в управляемом режиме, правило действует только для текущего профиля",
+      "Правило добавлено только в текущий профиль",
     ),
     "none": MessageLookupByLibrary.simpleMessage("Нет"),
     "notRecommended": MessageLookupByLibrary.simpleMessage("Не рекомендуется"),

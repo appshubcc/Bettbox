@@ -1709,7 +1709,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "nodeTestFailed": MessageLookupByLibrary.simpleMessage("در دسترس نیست"),
     "nodesSort": MessageLookupByLibrary.simpleMessage("مرتب‌سازی گره‌ها"),
     "nonManagedRuleTip": MessageLookupByLibrary.simpleMessage(
-      "در حالت غیرمدیریت‌شده، این قانون فقط روی پروفایل فعلی اعمال می‌شود",
+      "قانون فقط به پروفایل فعلی افزوده شد",
     ),
     "none": MessageLookupByLibrary.simpleMessage("هیچکدام"),
     "notRecommended": MessageLookupByLibrary.simpleMessage("توصیه نمی‌شود"),

@@ -1425,7 +1425,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "nodeTestFailed": MessageLookupByLibrary.simpleMessage("利用不可"),
     "nodesSort": MessageLookupByLibrary.simpleMessage("ノードの並び替え"),
     "nonManagedRuleTip": MessageLookupByLibrary.simpleMessage(
-      "マネージドモードではないため、現在のプロファイルにのみ適用されます",
+      "ルールを追加しました（現在のプロファイルのみ）",
     ),
     "none": MessageLookupByLibrary.simpleMessage("なし"),
     "notRecommended": MessageLookupByLibrary.simpleMessage("非推奨"),

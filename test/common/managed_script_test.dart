@@ -220,10 +220,16 @@ void main() {
       0,
       routed.content.length - plain.content.length,
     );
-    expect(prelude.startsWith('const bettboxRoutes = '), isTrue);
+    final lines = prelude.trimRight().split('\n');
+    expect(lines.first.startsWith('const bettboxRoutes = '), isTrue);
     final routes =
-        jsonDecode(prelude.substring(22, prelude.length - 2)) as List;
+        jsonDecode(lines.first.substring(22, lines.first.length - 1)) as List;
     expect(routes.length, 2);
+    expect(lines.length, 2);
+    expect(lines.last.startsWith('const bettboxRuleDeps = '), isTrue);
+    final deps =
+        jsonDecode(lines.last.substring(24, lines.last.length - 1)) as List;
+    expect(deps, contains(equals(['Date', 'Google'])));
     final first = routes.first as Map;
     expect(first['name'], 'Date');
     expect(first['target'], '美国');

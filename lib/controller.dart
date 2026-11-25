@@ -79,6 +79,11 @@ class AppController {
   AppController(this.context, WidgetRef ref) : _ref = ref;
 
   DateTime _lastModeChangeTime = DateTime.fromMillisecondsSinceEpoch(0);
+  Mode? _appliedMode;
+
+  bool get _closeConnectionsOnSwitch => system.isAndroid
+      ? _ref.read(vpnSettingProvider).quickResponse
+      : _ref.read(appSettingProvider).closeConnections;
 
   void scheduleIdleGc({Duration delay = const Duration(seconds: 2)}) {
     _idleGcTimer?.cancel();
@@ -425,6 +430,7 @@ class AppController {
       }
     }
     if (message.isNotEmpty) throw message;
+    _appliedMode = realPatchConfig.mode;
     _applyGlobalSelection(result.global);
     _loadedProfileId = currentProfile.id;
     if (system.isDesktop) {
@@ -1287,6 +1293,14 @@ class AppController {
       updateParams.copyWith.tun(enable: realTunEnable),
     );
     if (message.isNotEmpty) throw message;
+    final previousMode = _appliedMode;
+    _appliedMode = updateParams.mode;
+    if (previousMode != null &&
+        previousMode != updateParams.mode &&
+        globalState.isStart &&
+        _closeConnectionsOnSwitch) {
+      await clashCore.closeConnections();
+    }
 
     if (system.isDesktop) {
       final prefs = await preferences.sharedPreferencesCompleter.future;
@@ -1665,10 +1679,7 @@ class AppController {
     await clashCore.changeProxy(
       ChangeProxyParams(groupName: groupName, proxyName: proxyName),
     );
-    final closeConnections = system.isAndroid
-        ? _ref.read(vpnSettingProvider).quickResponse
-        : _ref.read(appSettingProvider).closeConnections;
-    if (closeConnections) {
+    if (_closeConnectionsOnSwitch) {
       await clashCore.closeGroupConnections(groupName);
     }
     addCheckIp();

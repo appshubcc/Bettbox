@@ -724,9 +724,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "global": MessageLookupByLibrary.simpleMessage("全局"),
     "go": MessageLookupByLibrary.simpleMessage("前往"),
     "goDownload": MessageLookupByLibrary.simpleMessage("前往下载"),
-    "groupOrderTip": MessageLookupByLibrary.simpleMessage(
-      "拖动调整分组顺序，有包含关系的分流会自动优先匹配具体规则",
-    ),
+    "groupOrderTip": MessageLookupByLibrary.simpleMessage("拖动调整分组顺序，确认并保存后生效"),
     "harmonyFont": MessageLookupByLibrary.simpleMessage("字体修复"),
     "harmonyFontDesc": MessageLookupByLibrary.simpleMessage("使用内置字体解决显示异常问题"),
     "hasCacheChange": MessageLookupByLibrary.simpleMessage("是否缓存修改"),

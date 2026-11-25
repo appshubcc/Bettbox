@@ -804,7 +804,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "go": MessageLookupByLibrary.simpleMessage("移動"),
     "goDownload": MessageLookupByLibrary.simpleMessage("ダウンロードへ"),
     "groupOrderTip": MessageLookupByLibrary.simpleMessage(
-      "ドラッグでグループの順序を変更（包含関係のあるルールはより具体的なものが自動で優先されます）",
+      "ドラッグでグループの順序を変更（確認して保存すると反映されます）",
     ),
     "harmonyFont": MessageLookupByLibrary.simpleMessage("フォント修復"),
     "harmonyFontDesc": MessageLookupByLibrary.simpleMessage(

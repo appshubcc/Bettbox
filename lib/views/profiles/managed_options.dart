@@ -597,12 +597,12 @@ class _ManagedOptionsSheetState extends ConsumerState<ManagedOptionsSheet> {
       subtitle: route == null || route.sets.isEmpty
           ? null
           : Text(
-              [
+              {
                 for (final key in route.sets)
                   catalog.sets[key]?.label ??
                       CustomRuleSet.parse(key)?.name ??
                       key.split(':').last,
-              ].join('、'),
+              }.join('、'),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: context.textTheme.bodySmall?.toLight,

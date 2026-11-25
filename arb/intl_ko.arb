@@ -1246,7 +1246,7 @@
   "iconUrl": "아이콘 URL",
   "checkUrlTip": "URL이 올바른지 확인해 주세요",
   "routeNameInvalid": "이름에 쉼표나 줄바꿈을 포함할 수 없습니다",
-  "groupOrderTip": "드래그하여 그룹 순서를 변경하세요. 포함 관계가 있는 분기는 더 구체적인 규칙이 자동으로 우선 매칭됩니다",
+  "groupOrderTip": "드래그하여 그룹 순서를 변경하세요. 확인 후 저장하면 적용됩니다",
   "regionGroups": "지역 그룹",
   "regionGroupsTip": "일치하는 노드가 없는 지역은 그룹을 만들지 않으며, 어느 지역에도 해당하지 않는 노드는 「其他节点」(기타 노드)로 분류됩니다",
   "searchServices": "서비스 이름 검색",

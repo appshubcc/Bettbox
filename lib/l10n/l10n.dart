@@ -10549,10 +10549,10 @@ class AppLocalizations {
     );
   }
 
-  /// `Drag to reorder groups; more specific overlapping routes match first automatically`
+  /// `Drag to reorder groups; takes effect after you confirm and save`
   String get groupOrderTip {
     return Intl.message(
-      'Drag to reorder groups; more specific overlapping routes match first automatically',
+      'Drag to reorder groups; takes effect after you confirm and save',
       name: 'groupOrderTip',
       desc: '',
       args: [],

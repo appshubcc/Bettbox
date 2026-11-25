@@ -1246,7 +1246,7 @@
   "iconUrl": "圖示 URL",
   "checkUrlTip": "請檢查 URL 是否正確",
   "routeNameInvalid": "名稱不能包含逗號或換行",
-  "groupOrderTip": "拖曳調整分組順序，有包含關係的分流會自動優先比對具體規則",
+  "groupOrderTip": "拖曳調整分組順序，確認並儲存後生效",
   "regionGroups": "地區分組",
   "regionGroupsTip": "沒有符合節點的地區不會產生策略組，未符合任何地區的節點歸入「其他节点」",
   "searchServices": "搜尋服務名稱",

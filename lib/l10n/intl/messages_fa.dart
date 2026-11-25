@@ -956,7 +956,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "go": MessageLookupByLibrary.simpleMessage("رفتن"),
     "goDownload": MessageLookupByLibrary.simpleMessage("رفتن به دانلود"),
     "groupOrderTip": MessageLookupByLibrary.simpleMessage(
-      "برای تغییر ترتیب گروه‌ها بکشید؛ مسیرهای هم‌پوشان دقیق‌تر به‌طور خودکار اولویت می‌گیرند",
+      "برای تغییر ترتیب گروه‌ها بکشید؛ پس از تأیید و ذخیره اعمال می‌شود",
     ),
     "harmonyFont": MessageLookupByLibrary.simpleMessage("ترمیم فونت"),
     "harmonyFontDesc": MessageLookupByLibrary.simpleMessage(

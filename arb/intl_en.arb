@@ -1245,7 +1245,7 @@
   "iconUrl": "Icon URL",
   "checkUrlTip": "Please check that the URL is correct",
   "routeNameInvalid": "Name cannot contain commas or line breaks",
-  "groupOrderTip": "Drag to reorder groups; more specific overlapping routes match first automatically",
+  "groupOrderTip": "Drag to reorder groups; takes effect after you confirm and save",
   "regionGroups": "Region groups",
   "regionGroupsTip": "Regions without matching nodes are skipped; nodes that match no region go to 其他节点 (other nodes)",
   "searchServices": "Search services",

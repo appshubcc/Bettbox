@@ -907,7 +907,7 @@ func handleGetCountryCode(ip string, fn func(value string)) {
 	go func() {
 		runLock.Lock()
 		defer runLock.Unlock()
-		codes := mmdb.IPInstance().LookupCode(net.ParseIP(ip))
+		codes := mmdb.LookupCode(net.ParseIP(ip))
 		if len(codes) == 0 {
 			fn("")
 			return

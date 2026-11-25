@@ -281,11 +281,7 @@ func updateConfig(params *UpdateParams) {
 	updateListeners()
 }
 
-var (
-	mmdbUnloaded bool
-	asnUnloaded  bool
-	geoDataLock  sync.Mutex
-)
+var geoDataLock sync.Mutex
 
 func checkActiveGeoUsage() (hasMMDB, hasSite, hasASN bool) {
 	for _, r := range tunnel.Rules() {
@@ -356,27 +352,15 @@ func tryUnloadGeoData() {
 	defer geoDataLock.Unlock()
 	hasMMDB, _, hasASN := checkActiveGeoUsage()
 
-	if hasMMDB {
-		mmdbUnloaded = false
-	} else if !mmdbUnloaded && geodata.GeoIpEnable() {
+	if !hasMMDB && geodata.GeoIpEnable() {
 		if _, err := os.Stat(constant.Path.MMDB()); err == nil {
-			if reader := mmdb.IPInstance().Reader; reader != nil {
-				_ = reader.Close()
-			}
-			mmdb.ReloadIP()
-			mmdbUnloaded = true
+			_ = mmdb.ReplaceIP(nil)
 		}
 	}
 
-	if hasASN {
-		asnUnloaded = false
-	} else if !asnUnloaded && geodata.ASNEnable() {
+	if !hasASN && geodata.ASNEnable() {
 		if _, err := os.Stat(constant.Path.ASN()); err == nil {
-			if reader := mmdb.ASNInstance().Reader; reader != nil {
-				_ = reader.Close()
-			}
-			mmdb.ReloadASN()
-			asnUnloaded = true
+			_ = mmdb.ReplaceASN(nil)
 		}
 	}
 }

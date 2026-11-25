@@ -22,7 +22,7 @@ type Stream struct {
 
 	dieOnce sync.Once
 	dieHook func()
-	dieErr  error
+	dieErr  dieError
 
 	reportOnce sync.Once
 }
@@ -40,8 +40,10 @@ func newStream(id uint32, sess *Session) *Stream {
 // Read implements net.Conn
 func (s *Stream) Read(b []byte) (n int, err error) {
 	n, err = s.pipeR.Read(b)
-	if n == 0 && s.dieErr != nil {
-		err = s.dieErr
+	if n == 0 {
+		if dieErr := s.dieErr.Load(); dieErr != nil {
+			err = dieErr
+		}
 	}
 	return
 }
@@ -53,8 +55,8 @@ func (s *Stream) Write(b []byte) (n int, err error) {
 		return 0, os.ErrDeadlineExceeded
 	default:
 	}
-	if s.dieErr != nil {
-		return 0, s.dieErr
+	if dieErr := s.dieErr.Load(); dieErr != nil {
+		return 0, dieErr
 	}
 	n, err = s.sess.writeDataFrame(s.id, b)
 	return
@@ -69,7 +71,7 @@ func (s *Stream) Close() error {
 func (s *Stream) closeLocally() {
 	var once bool
 	s.dieOnce.Do(func() {
-		s.dieErr = net.ErrClosed
+		s.dieErr.Store(net.ErrClosed)
 		s.pipeR.Close()
 		once = true
 	})
@@ -84,7 +86,7 @@ func (s *Stream) closeLocally() {
 func (s *Stream) closeWithError(err error) error {
 	var once bool
 	s.dieOnce.Do(func() {
-		s.dieErr = err
+		s.dieErr.Store(err)
 		s.pipeR.Close()
 		once = true
 	})
@@ -96,7 +98,7 @@ func (s *Stream) closeWithError(err error) error {
 		}
 		return err
 	} else {
-		return s.dieErr
+		return s.dieErr.Load()
 	}
 }
 

@@ -48,6 +48,7 @@ type Resolver struct {
 	cache                 dnsCache
 	policy                []dnsPolicy
 	defaultResolver       *Resolver
+	transports            []dnsClient
 }
 
 func (r *Resolver) LookupIPPrimaryIPv4(ctx context.Context, host string) (ips []netip.Addr, err error) {
@@ -398,12 +399,7 @@ func (r *Resolver) ClearCache() {
 
 func (r *Resolver) ResetConnection() {
 	if r != nil {
-		for _, c := range r.main {
-			c.ResetConnection()
-		}
-		for _, c := range r.fallback {
-			c.ResetConnection()
-		}
+		r.resetClients()
 		if dr := r.defaultResolver; dr != nil {
 			dr.ResetConnection()
 		}
@@ -534,6 +530,7 @@ func NewResolver(config Config) (rs Resolvers) {
 		NameServer
 		dnsClient
 	}
+	var transports []dnsClient
 	cacheTransform := func(nameserver []NameServer) (result []dnsClient) {
 	LOOP:
 		for _, ns := range nameserver {
@@ -555,6 +552,7 @@ func NewResolver(config Config) (rs Resolvers) {
 					continue
 				}
 				dc = built[0]
+				transports = append(transports, dc)
 			}
 			nameServerCache = append(nameServerCache, struct {
 				NameServer
@@ -632,6 +630,7 @@ func NewResolver(config Config) (rs Resolvers) {
 		r.fallbackDomainFilters = config.FallbackDomainFilter
 		r.fallbackLazyQuery = config.FallbackLazyQuery
 	}
+	r.transports = transports
 
 	return
 }

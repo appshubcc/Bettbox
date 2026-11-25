@@ -8,7 +8,6 @@ import (
 )
 
 func UpdateMMDBWithPath(path string) (err error) {
-	defer mmdb.ReloadIP()
 	data, err := downloadForBytes(geodata.MmdbUrl())
 	if err != nil {
 		return fmt.Errorf("can't download MMDB database file: %w", err)
@@ -19,15 +18,13 @@ func UpdateMMDBWithPath(path string) (err error) {
 	}
 	_ = instance.Close()
 
-	mmdb.IPInstance().Reader.Close()
-	if err = saveFile(data, path); err != nil {
+	if err = mmdb.ReplaceIP(func() error { return saveFile(data, path) }); err != nil {
 		return fmt.Errorf("can't save MMDB database file: %w", err)
 	}
 	return nil
 }
 
 func UpdateASNWithPath(path string) (err error) {
-	defer mmdb.ReloadASN()
 	data, err := downloadForBytes(geodata.ASNUrl())
 	if err != nil {
 		return fmt.Errorf("can't download ASN database file: %w", err)
@@ -39,8 +36,7 @@ func UpdateASNWithPath(path string) (err error) {
 	}
 	_ = instance.Close()
 
-	mmdb.ASNInstance().Reader.Close()
-	if err = saveFile(data, path); err != nil {
+	if err = mmdb.ReplaceASN(func() error { return saveFile(data, path) }); err != nil {
 		return fmt.Errorf("can't save ASN database file: %w", err)
 	}
 	return nil

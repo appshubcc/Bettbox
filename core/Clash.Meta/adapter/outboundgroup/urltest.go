@@ -136,6 +136,10 @@ func (u *URLTest) fast(touch bool) C.Proxy {
 			}
 
 		}
+		if keep := u.keepDeadFastNode(proxies, fast); keep != nil {
+			u.fastNode = keep
+			return keep, nil
+		}
 		// tolerance
 		if u.fastNode == nil || fastNotExist || !u.fastNode.AliveForTestUrl(u.testUrl) || u.fastNode.LastDelayForTestUrl(u.testUrl) > fast.LastDelayForTestUrl(u.testUrl)+u.tolerance {
 			u.fastNode = fast

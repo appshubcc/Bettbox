@@ -10,9 +10,10 @@ import (
 )
 
 type classicalStrategy struct {
-	rules []C.Rule
-	count int
-	parse common.ParseRuleFunc
+	rules    []C.Rule
+	segments []classicalSegment
+	count    int
+	parse    common.ParseRuleFunc
 }
 
 func (c *classicalStrategy) Behavior() P.RuleBehavior {
@@ -20,13 +21,7 @@ func (c *classicalStrategy) Behavior() P.RuleBehavior {
 }
 
 func (c *classicalStrategy) Match(metadata *C.Metadata, helper C.RuleMatchHelper) bool {
-	for _, rule := range c.rules {
-		if m, _ := rule.Match(metadata, helper); m {
-			return true
-		}
-	}
-
-	return false
+	return c.matchSegments(metadata, helper)
 }
 
 func (c *classicalStrategy) Count() int {
@@ -35,6 +30,7 @@ func (c *classicalStrategy) Count() int {
 
 func (c *classicalStrategy) Reset() {
 	c.rules = nil
+	c.segments = nil
 	c.count = 0
 }
 
@@ -57,7 +53,9 @@ func (c *classicalStrategy) payloadToRule(rule string) (C.Rule, error) {
 	return c.parse(tp, payload, target, params, nil)
 }
 
-func (c *classicalStrategy) FinishInsert() {}
+func (c *classicalStrategy) FinishInsert() {
+	c.buildSegments()
+}
 
 func NewClassicalStrategy(parse common.ParseRuleFunc) *classicalStrategy {
 	return &classicalStrategy{rules: []C.Rule{}, parse: parse}

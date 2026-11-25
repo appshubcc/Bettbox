@@ -201,6 +201,13 @@ func (v *Vless) CloseIdle() {
 	if v.gunClient != nil {
 		v.gunClient.CloseIdle()
 	}
+	if v.xhttpClient != nil {
+		v.xhttpClient.CloseIdle()
+	}
+}
+
+func (t *AnyTLS) CloseIdle() {
+	t.client.CloseIdle()
 }
 
 func (t *Tuic) Close() error {

@@ -83,7 +83,7 @@ func (g *GEOIP) Match(metadata *C.Metadata, helper C.RuleMatchHelper) (bool, str
 			return slices.Contains(metadata.DstGeoIP, g.country), g.adapter
 		}
 	}
-	codes := mmdb.IPInstance().LookupCode(ip.AsSlice())
+	codes := mmdb.LookupCode(ip.AsSlice())
 	if g.isSourceIP {
 		metadata.SrcGeoIP = codes
 	} else {
@@ -113,7 +113,7 @@ func (g *GEOIP) MatchIp(ip netip.Addr) bool {
 		return matcher.Match(ip)
 	}
 
-	codes := mmdb.IPInstance().LookupCode(ip.AsSlice())
+	codes := mmdb.LookupCode(ip.AsSlice())
 	return slices.Contains(codes, g.country)
 }
 
@@ -139,7 +139,7 @@ func (g dnsFallbackFilter) MatchIp(ip netip.Addr) bool {
 		return !matcher.Match(ip)
 	}
 
-	codes := mmdb.IPInstance().LookupCode(ip.AsSlice())
+	codes := mmdb.LookupCode(ip.AsSlice())
 	return !slices.Contains(codes, g.country)
 }
 

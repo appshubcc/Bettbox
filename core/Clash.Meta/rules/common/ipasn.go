@@ -28,7 +28,7 @@ func (a *ASN) Match(metadata *C.Metadata, helper C.RuleMatchHelper) (bool, strin
 		return false, ""
 	}
 
-	asn, aso := mmdb.ASNInstance().LookupASN(ip.AsSlice())
+	asn, aso := mmdb.LookupASN(ip.AsSlice())
 	if a.isSourceIP {
 		metadata.SrcIPASN = asn + " " + aso
 	} else {

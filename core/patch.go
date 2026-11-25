@@ -6,12 +6,14 @@ import (
 	"encoding/json"
 	"fmt"
 	"net"
+	"net/url"
 	"path/filepath"
 	"runtime"
 	"strconv"
 	"strings"
 
 	"github.com/dlclark/regexp2"
+	"github.com/metacubex/mihomo/common/orderedmap"
 	"github.com/metacubex/mihomo/common/utils"
 	"github.com/metacubex/mihomo/common/yaml"
 	"github.com/metacubex/mihomo/config"
@@ -130,8 +132,11 @@ func applyPatch(raw *config.RawConfig, params *PatchParams) (string, error) {
 			return "", fmt.Errorf("patch experimental: %w", err)
 		}
 	}
-	patchProxyGroups(raw, params)
+	hasFilteredEmpty := patchProxyGroups(raw, params)
 	patchNodes(raw, params.Nodes)
+	if hasFilteredEmpty {
+		pruneFilteredEmptyGroups(raw, params)
+	}
 
 	patchProxies(raw)
 
@@ -358,7 +363,8 @@ func combineExcludeFilter(target map[string]any, filter string) {
 	target["exclude-filter"] = filter
 }
 
-func patchProxyGroups(raw *config.RawConfig, params *PatchParams) {
+func patchProxyGroups(raw *config.RawConfig, params *PatchParams) bool {
+	hasFilteredEmpty := false
 	filter := params.NodeExcludeFilter
 	if raw.ProxyGroup != nil && (filter != "" || params.HealthCheckTimeout != defaultHealthCheckTimeout) {
 		var filterRegex *regexp2.Regexp
@@ -417,13 +423,8 @@ func patchProxyGroups(raw *config.RawConfig, params *PatchParams) {
 						filtered = append(filtered, item)
 					}
 				}
-				useList, useIsList := use.([]any)
-				if len(filtered) == 0 && (!hasUse || (useIsList && len(useList) == 0)) && !hasGroupSource(group) {
-					if filtered == nil || cap(filtered) == 0 {
-						filtered = []any{"DIRECT"}
-					} else {
-						filtered = append(filtered[:0], "DIRECT")
-					}
+				if len(filtered) == 0 && !hasGroupSource(group) {
+					hasFilteredEmpty = true
 				}
 				group["proxies"] = filtered
 			}
@@ -451,6 +452,159 @@ func patchProxyGroups(raw *config.RawConfig, params *PatchParams) {
 			if value, err := strconv.Atoi(strings.TrimSpace(tolerance)); err == nil {
 				group["tolerance"] = value
 			}
+		}
+	}
+	return hasFilteredEmpty
+}
+
+func referencedGroups(raw *config.RawConfig, params *PatchParams) map[string]bool {
+	referenced := map[string]bool{}
+	addRules := func(rules []string) {
+		for _, rule := range rules {
+			parsed := parseRule(rule)
+			if parsed.hasTarget && parsed.target != "" {
+				referenced[parsed.target] = true
+			}
+		}
+	}
+	addRules(raw.Rule)
+	for _, sub := range raw.SubRules {
+		addRules(sub)
+	}
+	addRules(params.PrependRules)
+	if params.OverrideRules != nil {
+		addRules(params.OverrideRules.Rules)
+	}
+	for _, proxy := range raw.Proxy {
+		if dialer, ok := proxy["dialer-proxy"].(string); ok && dialer != "" {
+			referenced[dialer] = true
+		}
+	}
+	for _, tunnel := range raw.Tunnels {
+		if tunnel.Proxy != "" {
+			referenced[tunnel.Proxy] = true
+		}
+	}
+	for _, listener := range raw.Listeners {
+		if proxy, ok := listener["proxy"].(string); ok && proxy != "" {
+			referenced[proxy] = true
+		}
+	}
+	addName := func(value any) {
+		if name, ok := value.(string); ok && name != "" {
+			referenced[name] = true
+		}
+	}
+	for _, provider := range raw.ProxyProvider {
+		addName(provider["proxy"])
+		addName(provider["dialer-proxy"])
+		if override, ok := provider["override"].(map[string]any); ok {
+			addName(override["dialer-proxy"])
+		}
+	}
+	for _, provider := range raw.RuleProvider {
+		addName(provider["proxy"])
+	}
+	addName(raw.NTP.DialerProxy)
+	addServers := func(servers []string) {
+		for _, server := range servers {
+			if !strings.Contains(server, "://") {
+				server = "udp://" + server
+			}
+			u, err := url.Parse(server)
+			if err != nil {
+				continue
+			}
+			for _, part := range strings.Split(u.Fragment, "&") {
+				if part != "" && !strings.Contains(part, "=") {
+					referenced[part] = true
+				}
+			}
+		}
+	}
+	addPolicy := func(policy *orderedmap.OrderedMap[string, any]) {
+		if policy == nil {
+			return
+		}
+		for pair := policy.Oldest(); pair != nil; pair = pair.Next() {
+			if pair.Value == nil {
+				continue
+			}
+			if servers, err := utils.ToStringSlice(pair.Value); err == nil {
+				addServers(servers)
+			}
+		}
+	}
+	dns := &raw.DNS
+	addServers(dns.NameServer)
+	addServers(dns.Fallback)
+	addServers(dns.DefaultNameserver)
+	addServers(dns.ProxyServerNameserver)
+	addServers(dns.DirectNameServer)
+	addPolicy(dns.NameServerPolicy)
+	addPolicy(dns.ProxyServerNameserverPolicy)
+	return referenced
+}
+
+func pruneFilteredEmptyGroups(raw *config.RawConfig, params *PatchParams) {
+	referenced := referencedGroups(raw, params)
+	removed := map[string]bool{}
+	for _, group := range raw.ProxyGroup {
+		name, ok := groupName(group)
+		if !ok || referenced[name] || hasGroupSource(group) {
+			continue
+		}
+		if proxies, ok := group["proxies"].([]any); ok && len(proxies) == 0 {
+			removed[name] = true
+		}
+	}
+	if len(removed) > 0 {
+		for changed := true; changed; {
+			changed = false
+			for _, group := range raw.ProxyGroup {
+				name, ok := groupName(group)
+				if !ok || removed[name] {
+					continue
+				}
+				proxies, ok := group["proxies"].([]any)
+				if !ok || len(proxies) == 0 {
+					continue
+				}
+				firstRemoved := -1
+				for i, proxy := range proxies {
+					if value, ok := proxy.(string); ok && removed[value] {
+						firstRemoved = i
+						break
+					}
+				}
+				if firstRemoved == -1 {
+					continue
+				}
+				kept := make([]any, firstRemoved, len(proxies)-1)
+				copy(kept, proxies[:firstRemoved])
+				for _, proxy := range proxies[firstRemoved+1:] {
+					if value, ok := proxy.(string); ok && removed[value] {
+						continue
+					}
+					kept = append(kept, proxy)
+				}
+				group["proxies"] = kept
+				if len(kept) == 0 && !referenced[name] && !hasGroupSource(group) {
+					removed[name] = true
+					changed = true
+				}
+			}
+		}
+		raw.ProxyGroup = filterGroups(raw.ProxyGroup, func(name string) bool {
+			return !removed[name]
+		})
+	}
+	for _, group := range raw.ProxyGroup {
+		if group == nil || hasGroupSource(group) {
+			continue
+		}
+		if proxies, ok := group["proxies"].([]any); ok && len(proxies) == 0 {
+			group["proxies"] = []any{"DIRECT"}
 		}
 	}
 }

@@ -39,7 +39,6 @@ const _optionIcons = {
   '过滤高倍率节点': Icons.trending_up,
   '过滤非地区节点': Icons.public_off,
   '禁用内核QUIC流量': Icons.block,
-  '优先国内DNS加速': Icons.dns_outlined,
   '优先连接IPv6节点': Icons.looks_6_outlined,
 };
 

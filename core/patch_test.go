@@ -849,3 +849,137 @@ rules:
 		t.Fatalf("rules without fallback = %v", rawCfg.Rule)
 	}
 }
+
+func TestNodeExcludeFilterPrunesEmptyRegionGroups(t *testing.T) {
+	rawCfg := parsePatchProfile(t, `
+proxies:
+  - {name: HK 01, type: ss, server: hk.example.com, port: 443, cipher: aes-128-gcm, password: p}
+  - {name: Mystery 01, type: ss, server: other.example.com, port: 443, cipher: aes-128-gcm, password: p}
+proxy-groups:
+  - {name: 默认代理, type: select, proxies: [香港, 其他节点, 手动选择]}
+  - {name: 手动选择, type: select, proxies: [HK 01, Mystery 01]}
+  - {name: 香港-自动选择, type: url-test, exclude-type: DIRECT, empty-fallback: REJECT, proxies: [HK 01]}
+  - {name: 香港, type: select, proxies: [香港-自动选择, HK 01]}
+  - {name: 其他节点-自动选择, type: url-test, exclude-type: DIRECT, empty-fallback: REJECT, proxies: [Mystery 01]}
+  - {name: 其他节点, type: select, proxies: [其他节点-自动选择, Mystery 01]}
+rules:
+  - MATCH,默认代理
+`)
+	params := patchParams(t, `{"node-exclude-filter":"Mystery"}`)
+	if _, err := applyPatch(rawCfg, params); err != nil {
+		t.Fatal(err)
+	}
+	groups := map[string][]any{}
+	for _, group := range rawCfg.ProxyGroup {
+		name, _ := groupName(group)
+		proxies, _ := group["proxies"].([]any)
+		groups[name] = proxies
+	}
+	if _, ok := groups["其他节点"]; ok {
+		t.Fatalf("empty 其他节点 should be pruned: %v", groups)
+	}
+	if _, ok := groups["其他节点-自动选择"]; ok {
+		t.Fatalf("empty 其他节点-自动选择 should be pruned: %v", groups)
+	}
+	if !reflect.DeepEqual(groups["默认代理"], []any{"香港", "手动选择"}) {
+		t.Fatalf("默认代理 proxies = %v", groups["默认代理"])
+	}
+	if !reflect.DeepEqual(groups["手动选择"], []any{"HK 01"}) {
+		t.Fatalf("手动选择 proxies = %v", groups["手动选择"])
+	}
+
+	rawCfgAll := parsePatchProfile(t, `
+proxies:
+  - {name: Mystery 01, type: ss, server: other.example.com, port: 443, cipher: aes-128-gcm, password: p}
+proxy-groups:
+  - {name: 默认代理, type: select, proxies: [其他节点]}
+  - {name: 其他节点-自动选择, type: url-test, exclude-type: DIRECT, empty-fallback: REJECT, proxies: [Mystery 01]}
+  - {name: 其他节点, type: select, proxies: [其他节点-自动选择, Mystery 01]}
+rules:
+  - MATCH,默认代理
+`)
+	if _, err := applyPatch(rawCfgAll, params); err != nil {
+		t.Fatal(err)
+	}
+	groupsAll := map[string][]any{}
+	for _, group := range rawCfgAll.ProxyGroup {
+		name, _ := groupName(group)
+		proxies, _ := group["proxies"].([]any)
+		groupsAll[name] = proxies
+	}
+	if _, ok := groupsAll["其他节点"]; ok {
+		t.Fatalf("empty 其他节点 should be pruned when all excluded: %v", groupsAll)
+	}
+	if !reflect.DeepEqual(groupsAll["默认代理"], []any{"DIRECT"}) {
+		t.Fatalf("referenced group should fallback to DIRECT: %v", groupsAll["默认代理"])
+	}
+
+	rawCfgWithNode := parsePatchProfile(t, `
+proxies:
+  - {name: Mystery 01, type: ss, server: other.example.com, port: 443, cipher: aes-128-gcm, password: p}
+proxy-groups:
+  - {name: 默认代理, type: select, proxies: [香港]}
+  - {name: 香港-自动选择, type: url-test, x-region: 香港, exclude-type: DIRECT, empty-fallback: REJECT, proxies: [Mystery 01]}
+  - {name: 香港, type: select, x-region: 香港, x-region-nodes: [HK Home], proxies: [香港-自动选择, Mystery 01]}
+rules:
+  - MATCH,默认代理
+`)
+	paramsWithNode := patchParams(t, `{
+		"node-exclude-filter":"Mystery",
+		"nodes":[{"proxy":{"name":"HK Home","type":"ss","server":"home.example.com","port":443,"cipher":"aes-128-gcm","password":"p"},"regions":true}]
+	}`)
+	if _, err := applyPatch(rawCfgWithNode, paramsWithNode); err != nil {
+		t.Fatal(err)
+	}
+	groupsWithNode := map[string][]any{}
+	for _, group := range rawCfgWithNode.ProxyGroup {
+		name, _ := groupName(group)
+		proxies, _ := group["proxies"].([]any)
+		groupsWithNode[name] = proxies
+	}
+	if !reflect.DeepEqual(groupsWithNode["香港-自动选择"], []any{"HK Home"}) {
+		t.Fatalf("香港-自动选择 proxies = %v", groupsWithNode["香港-自动选择"])
+	}
+	if !reflect.DeepEqual(groupsWithNode["香港"], []any{"香港-自动选择", "HK Home"}) {
+		t.Fatalf("香港 proxies = %v", groupsWithNode["香港"])
+	}
+
+	rawCfgRefs := parsePatchProfile(t, `
+proxies:
+  - {name: Mystery 01, type: ss, server: other.example.com, port: 443, cipher: aes-128-gcm, password: p}
+proxy-groups:
+  - {name: DNS出口, type: select, proxies: [Mystery 01]}
+  - {name: 策略出口, type: select, proxies: [Mystery 01]}
+  - {name: 前置, type: select, proxies: [Mystery 01]}
+  - {name: 规则下载, type: select, proxies: [Mystery 01]}
+  - {name: 孤立, type: select, proxies: [Mystery 01]}
+proxy-providers:
+  sub: {type: http, url: https://example.com/sub, override: {dialer-proxy: 前置}}
+rule-providers:
+  ads: {type: http, behavior: domain, format: mrs, url: https://example.com/ads.mrs, proxy: 规则下载}
+dns:
+  enable: true
+  nameserver: [https://1.1.1.1/dns-query#DNS出口&h3=true]
+  nameserver-policy:
+    "+.example.com": [tls://8.8.8.8#策略出口]
+rules:
+  - MATCH,DIRECT
+`)
+	if _, err := applyPatch(rawCfgRefs, params); err != nil {
+		t.Fatal(err)
+	}
+	groupsRefs := map[string][]any{}
+	for _, group := range rawCfgRefs.ProxyGroup {
+		name, _ := groupName(group)
+		proxies, _ := group["proxies"].([]any)
+		groupsRefs[name] = proxies
+	}
+	if _, ok := groupsRefs["孤立"]; ok {
+		t.Fatalf("unreferenced 孤立 should be pruned: %v", groupsRefs)
+	}
+	for _, name := range []string{"DNS出口", "策略出口", "前置", "规则下载"} {
+		if !reflect.DeepEqual(groupsRefs[name], []any{"DIRECT"}) {
+			t.Fatalf("%s should fallback to DIRECT: %v", name, groupsRefs)
+		}
+	}
+}

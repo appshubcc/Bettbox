@@ -522,16 +522,18 @@ class _RuleHits extends StatelessWidget {
     }
     return SizedBox(
       height: 140,
-      child: ListView.separated(
+      child: ListView.builder(
         scrollDirection: Axis.horizontal,
         clipBehavior: Clip.none,
         itemCount: rules.length,
-        itemExtentBuilder: (index, _) => index.isEven ? 136.0 : 10.0,
-        separatorBuilder: (_, _) => const SizedBox(width: 10),
-        itemBuilder: (_, index) => _RuleCard(
+        itemExtentBuilder: (index, _) =>
+            index == rules.length - 1 ? 136.0 : 146.0,
+        itemBuilder: (_, index) => Padding(
           key: ValueKey(rules[index].name),
-          rule: rules[index],
-          total: total,
+          padding: EdgeInsetsDirectional.only(
+            end: index == rules.length - 1 ? 0 : 10,
+          ),
+          child: _RuleCard(rule: rules[index], total: total),
         ),
       ),
     );
@@ -542,7 +544,7 @@ class _RuleCard extends StatelessWidget {
   final TrafficStatsItem rule;
   final int total;
 
-  const _RuleCard({super.key, required this.rule, required this.total});
+  const _RuleCard({required this.rule, required this.total});
 
   String _percent(double ratio) {
     final value = ratio * 100;

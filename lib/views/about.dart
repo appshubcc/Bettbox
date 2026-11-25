@@ -193,6 +193,7 @@ class AboutView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final iconCacheSize = (48 * MediaQuery.devicePixelRatioOf(context)).ceil();
     final items = [
       ListTile(
         title: Column(
@@ -211,9 +212,8 @@ class AboutView extends StatelessWidget {
                           'assets/images/icon.png',
                           width: 48,
                           height: 48,
-                          cacheWidth: 48,
-                          cacheHeight: 48,
-                          useLogicalCacheSize: true,
+                          cacheWidth: iconCacheSize,
+                          cacheHeight: iconCacheSize,
                         ),
                       ),
                       Column(
@@ -391,8 +391,8 @@ class _ContributorsWallState extends State<_ContributorsWall> {
               child: Image.asset(
                 contributor.avatar,
                 fit: BoxFit.cover,
-                cacheWidth: _base.ceil(),
-                useLogicalCacheSize: true,
+                cacheWidth: (_base * MediaQuery.devicePixelRatioOf(context))
+                    .ceil(),
               ),
             ),
           ),

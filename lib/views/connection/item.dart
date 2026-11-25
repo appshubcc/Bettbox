@@ -15,7 +15,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:bett_box/providers/providers.dart';
 
 final _iconCache = <String, Uint8List?>{};
-final _iconDprs = <String, Set<double>>{};
+final _iconDecodeSizes = <String, Set<int>>{};
 final _iconPending = <String, Future<Uint8List?>>{};
 const _maxIconCacheSize = 100;
 const _processIconSize = 38;
@@ -27,7 +27,7 @@ void _addToIconCache(String key, Uint8List? value) {
   while (_iconCache.length >= _maxIconCacheSize) {
     final evictedKey = _iconCache.keys.first;
     final evicted = _iconCache.remove(evictedKey);
-    final dprs = _iconDprs.remove(evictedKey);
+    final sizes = _iconDecodeSizes.remove(evictedKey);
     if (evicted != null) {
       final fallbackDpr =
           WidgetsBinding
@@ -37,15 +37,18 @@ void _addToIconCache(String key, Uint8List? value) {
               .firstOrNull
               ?.devicePixelRatio ??
           1.0;
-      for (final dpr in dprs ?? {fallbackDpr}) {
+      final fallbackSize = (_processIconSize * fallbackDpr).ceil().clamp(
+        1,
+        512,
+      );
+      for (final size in sizes ?? {fallbackSize}) {
         ResizeImage(
               MemoryImage(evicted),
-              width: _processIconSize,
-              height: _processIconSize,
-              useLogicalSize: true,
+              width: size,
+              height: size,
               allowUpscaling: false,
             )
-            .obtainKey(ImageConfiguration(devicePixelRatio: dpr))
+            .obtainKey(ImageConfiguration.empty)
             .then((cacheKey) => imageCache.evict(cacheKey, includeLive: false));
       }
     }
@@ -383,9 +386,10 @@ class _ConnectionProcessIconState extends State<ConnectionProcessIcon> {
   @override
   Widget build(BuildContext context) {
     final cacheKey = _cacheKey;
-    final dpr = MediaQuery.maybeDevicePixelRatioOf(context);
-    if (dpr != null && cacheKey.isNotEmpty) {
-      (_iconDprs[cacheKey] ??= {}).add(dpr);
+    final dpr = MediaQuery.maybeDevicePixelRatioOf(context) ?? 1.0;
+    final decodeSize = (_processIconSize * dpr).ceil().clamp(1, 512);
+    if (cacheKey.isNotEmpty) {
+      (_iconDecodeSizes[cacheKey] ??= {}).add(decodeSize);
     }
     return RepaintBoundary(
       child: GestureDetector(
@@ -437,9 +441,8 @@ class _ConnectionProcessIconState extends State<ConnectionProcessIcon> {
               return Image(
                 image: ResizeImage(
                   MemoryImage(iconBytes),
-                  width: _processIconSize,
-                  height: _processIconSize,
-                  useLogicalSize: true,
+                  width: decodeSize,
+                  height: decodeSize,
                   allowUpscaling: false,
                 ),
                 width: _processIconSize.toDouble(),

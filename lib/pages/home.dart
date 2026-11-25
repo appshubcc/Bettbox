@@ -496,7 +496,7 @@ class _HomePageViewState extends ConsumerState<_HomePageView> {
     if (!animate ||
         !ref.read(isMobileViewProvider) ||
         !ref.read(appSettingProvider).enableNavBarHapticFeedback ||
-        MediaQuery.reduceMotionOf(context)) {
+        context.reduceMotion) {
       _pageController.jumpToPage(index);
       return;
     }

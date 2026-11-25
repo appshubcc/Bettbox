@@ -76,6 +76,14 @@ extension BuildContextExtension on BuildContext {
 
   TextTheme get textTheme => Theme.of(this).textTheme;
 
+  bool get reduceMotion {
+    return (MediaQuery.maybeDisableAnimationsOf(this) ?? false) ||
+        (View.maybeOf(
+              this,
+            )?.platformDispatcher.accessibilityFeatures.reduceMotion ??
+            false);
+  }
+
   T? findLastStateOfType<T extends State>() {
     T? state;
 

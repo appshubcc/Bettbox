@@ -46,13 +46,22 @@ class SiteIconCache {
     return file;
   }
 
-  ImageProvider imageOf(String domain, File file, int size) {
-    (_decodedSizes[domain] ??= {}).add(size);
+  ImageProvider imageOf(
+    String domain,
+    File file,
+    int size, {
+    double? devicePixelRatio,
+  }) {
+    final ratio =
+        devicePixelRatio ??
+        ui.PlatformDispatcher.instance.views.firstOrNull?.devicePixelRatio ??
+        1.0;
+    final decodeSize = (size * ratio).ceil().clamp(1, 512);
+    (_decodedSizes[domain] ??= {}).add(decodeSize);
     return ResizeImage(
       FileImage(file),
-      width: size,
-      height: size,
-      useLogicalSize: true,
+      width: decodeSize,
+      height: decodeSize,
     );
   }
 
@@ -86,18 +95,9 @@ class SiteIconCache {
     final file = _files.remove(domain);
     final sizes = _decodedSizes.remove(domain);
     if (file == null || sizes == null) return;
-    final ratio =
-        ui.PlatformDispatcher.instance.views.firstOrNull?.devicePixelRatio ??
-        1.0;
-    final configuration = ImageConfiguration(devicePixelRatio: ratio);
     for (final size in sizes) {
-      ResizeImage(
-            FileImage(file),
-            width: size,
-            height: size,
-            useLogicalSize: true,
-          )
-          .obtainKey(configuration)
+      ResizeImage(FileImage(file), width: size, height: size)
+          .obtainKey(ImageConfiguration.empty)
           .then((key) => imageCache.evict(key, includeLive: false));
     }
   }
@@ -534,7 +534,12 @@ class _SiteIconState extends State<SiteIcon> {
     return ClipRRect(
       borderRadius: radius,
       child: Image(
-        image: siteIconCache.imageOf(_domain, icon, size.toInt()),
+        image: siteIconCache.imageOf(
+          _domain,
+          icon,
+          size.toInt(),
+          devicePixelRatio: MediaQuery.devicePixelRatioOf(context),
+        ),
         width: size,
         height: size,
         fit: BoxFit.cover,

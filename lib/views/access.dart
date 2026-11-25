@@ -771,14 +771,15 @@ class PackageIcon extends ConsumerWidget {
         builder: (context, snapshot) {
           final path = snapshot.data;
           if (path == null || path.isEmpty) return _buildDefaultIcon(context);
+          final cacheSize = (48 * MediaQuery.devicePixelRatioOf(context))
+              .ceil();
           return Image.file(
             File(path),
             gaplessPlayback: true,
             width: 48,
             height: 48,
-            cacheWidth: 48,
-            cacheHeight: 48,
-            useLogicalCacheSize: true,
+            cacheWidth: cacheSize,
+            cacheHeight: cacheSize,
             errorBuilder: (_, _, _) {
               if (_packageIconPathCache[packageName] == path) {
                 _packageIconPathCache.remove(packageName);

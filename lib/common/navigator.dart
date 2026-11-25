@@ -1,3 +1,4 @@
+import 'package:bett_box/common/context.dart';
 import 'package:bett_box/common/frame_probe.dart';
 import 'package:bett_box/enum/enum.dart';
 import 'package:bett_box/models/app.dart';
@@ -43,7 +44,7 @@ class BaseNavigator {
         ),
       );
     }
-    final reduceMotion = MediaQuery.maybeReduceMotionOf(context) ?? false;
+    final reduceMotion = context.reduceMotion;
     final keyboardVisible = (View.maybeOf(context)?.viewInsets.bottom ?? 0) > 0;
     await _dismissKeyboard(context);
     if (keyboardVisible) await WidgetsBinding.instance.endOfFrame;

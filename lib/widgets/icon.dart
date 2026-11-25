@@ -407,15 +407,16 @@ class _CommonTargetIconState extends State<CommonTargetIcon> {
       );
     }
     final base64 = widget.src.getBase64;
-    final iconSize = widget.size.toInt();
+    final cacheSize = (widget.size * MediaQuery.devicePixelRatioOf(context))
+        .ceil()
+        .clamp(1, 1024);
 
     if (base64 != null) {
       return Image(
         image: ResizeImage(
           MemoryImage(base64),
-          width: iconSize,
-          height: iconSize,
-          useLogicalSize: true,
+          width: cacheSize,
+          height: cacheSize,
           policy: ResizeImagePolicy.fit,
         ),
         gaplessPlayback: true,
@@ -449,9 +450,8 @@ class _CommonTargetIconState extends State<CommonTargetIcon> {
         _file!,
         gaplessPlayback: true,
         fit: BoxFit.contain,
-        cacheWidth: iconSize,
-        cacheHeight: iconSize,
-        useLogicalCacheSize: true,
+        cacheWidth: cacheSize,
+        cacheHeight: cacheSize,
         errorBuilder: (_, _, _) {
           _moduleFileCache.remove(key);
           _moduleFailureCache[key] = DateTime.now();

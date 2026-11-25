@@ -84,7 +84,9 @@ class AppController {
     _idleGcTimer?.cancel();
     _idleGcTimer = Timer(delay, () {
       _idleGcTimer = null;
-      unawaited(clashCore.requestGc(forceFreeOSMemory: true));
+      unawaited(
+        clashCore.requestGc(forceFreeOSMemory: true, purge: system.isAndroid),
+      );
     });
   }
 
@@ -354,9 +356,7 @@ class AppController {
           _ref.read(groupsProvider.notifier).value = groups;
         }
 
-        await Future.delayed(const Duration(seconds: 2));
-        if (version != _backgroundLoadVersion) return;
-        await clashCore.requestGc(forceFreeOSMemory: true);
+        scheduleIdleGc();
       } catch (e) {
         commonPrint.warn('Background load failed: $e');
       }
@@ -1334,12 +1334,6 @@ class AppController {
 
   Future<void> _applyProfile() async {
     _invalidateCoreReads();
-    unawaited(
-      clashCore.requestGc().then<void>(
-        (_) {},
-        onError: (Object e) => commonPrint.debug('requestGc ignored: $e'),
-      ),
-    );
     final configured = await _setupCoreConfig();
     if (!configured) return;
     _ref.read(delayDataSourceProvider.notifier).clear();

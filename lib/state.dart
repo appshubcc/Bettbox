@@ -79,7 +79,9 @@ class GlobalState {
   bool _isExecutingTasks = false;
   bool _needsTaskRestart = false;
   Timer? _backgroundCoreGcTimer;
+  int _backgroundCoreGcToken = 0;
   Timer? _backgroundCleanupTimer;
+  DateTime? _backgroundCleanupAt;
   final Lock _scriptEvaluateLock = Lock();
   int _relayStamp = 0;
   bool isInit = false;
@@ -364,10 +366,12 @@ class GlobalState {
     }
     backgroundMode.value = false;
     windows?.setBackgroundMemoryPriority(false);
+    _backgroundCoreGcToken++;
     _backgroundCoreGcTimer?.cancel();
     _backgroundCoreGcTimer = null;
     _backgroundCleanupTimer?.cancel();
     _backgroundCleanupTimer = null;
+    _backgroundCleanupAt = null;
     _syncVpnState();
   }
 
@@ -403,35 +407,59 @@ class GlobalState {
   }
 
   void _scheduleBackgroundCleanup() {
-    _backgroundCoreGcTimer?.cancel();
-    _backgroundCoreGcTimer = Timer(const Duration(seconds: 30), () {
-      _backgroundCoreGcTimer = null;
-      if (!backgroundMode.value) {
-        return;
-      }
-      _checkAndRunBackgroundCoreGc();
-    });
-
-    _backgroundCleanupTimer?.cancel();
-    _backgroundCleanupTimer = Timer(
-      Duration(seconds: system.isAndroid ? 180 : 300),
-      () {
-        _backgroundCleanupTimer = null;
-        if (!backgroundMode.value) {
-          return;
-        }
-        cleanupBackgroundResources();
-      },
+    _scheduleBackgroundCoreGc(const Duration(seconds: 30), idleOnly: true);
+    _scheduleBackgroundResourceCleanup(
+      DateTime.now().add(Duration(seconds: system.isAndroid ? 180 : 300)),
     );
   }
 
-  Future<void> _checkAndRunBackgroundCoreGc() async {
-    if (!backgroundMode.value) return;
+  void _scheduleBackgroundResourceCleanup(DateTime at) {
+    _backgroundCleanupAt = at;
+    _backgroundCleanupTimer?.cancel();
+    _backgroundCleanupTimer = Timer(at.difference(DateTime.now()), () {
+      _backgroundCleanupTimer = null;
+      _backgroundCleanupAt = null;
+      if (!backgroundMode.value) {
+        return;
+      }
+      cleanupBackgroundResources();
+    });
+  }
+
+  void _scheduleBackgroundCoreGc(Duration delay, {required bool idleOnly}) {
+    _backgroundCoreGcTimer?.cancel();
+    final token = ++_backgroundCoreGcToken;
+    _backgroundCoreGcTimer = Timer(delay, () {
+      _backgroundCoreGcTimer = null;
+      if (!backgroundMode.value || token != _backgroundCoreGcToken) {
+        return;
+      }
+      unawaited(_checkAndRunBackgroundCoreGc(token, idleOnly));
+    });
+  }
+
+  Future<void> _checkAndRunBackgroundCoreGc(int token, bool idleOnly) async {
+    if (!backgroundMode.value || !isInit || token != _backgroundCoreGcToken) {
+      return;
+    }
     try {
-      await clashCore.requestGc(
+      final executed = await clashCore.requestGc(
         forceFreeOSMemory: true,
-        purge: system.isAndroid,
+        purge: !system.isWindows,
+        idleOnly: idleOnly,
       );
+      if (executed ||
+          !idleOnly ||
+          !backgroundMode.value ||
+          token != _backgroundCoreGcToken) {
+        return;
+      }
+      const postpone = Duration(seconds: 30);
+      _scheduleBackgroundCoreGc(postpone, idleOnly: false);
+      final cleanupAt = _backgroundCleanupAt;
+      if (cleanupAt != null) {
+        _scheduleBackgroundResourceCleanup(cleanupAt.add(postpone));
+      }
     } catch (e) {
       commonPrint.debug('Background requestGc ignored: $e');
     }

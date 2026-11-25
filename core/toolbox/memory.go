@@ -1,6 +1,7 @@
 package toolbox
 
 import (
+	"runtime"
 	"runtime/debug"
 	"sync"
 	"time"
@@ -23,6 +24,7 @@ func releaseToolMemory() {
 		toolMemoryLock.Lock()
 		toolMemoryTimer = nil
 		toolMemoryLock.Unlock()
+		runtime.GC()
 		debug.FreeOSMemory()
 	})
 }

@@ -955,13 +955,15 @@ class ClashCore {
     _forget(clashInterface.clearRequests(), 'clearRequests');
   }
 
-  Future<void> requestGc({
+  Future<bool> requestGc({
     bool forceFreeOSMemory = false,
     bool purge = true,
-  }) async {
-    await clashInterface.forceGc(
+    bool idleOnly = false,
+  }) {
+    return clashInterface.forceGc(
       forceFreeOSMemory: forceFreeOSMemory,
       purge: purge,
+      idleOnly: idleOnly,
     );
   }
 

@@ -119,19 +119,71 @@ func handleGetIsInit() bool {
 	return isInit
 }
 
-func handleForceGc(forceFreeOSMemory, purge bool) {
-	go func() {
-		log.Infoln("[APP] Request force GC, forceFreeOSMemory=%t", forceFreeOSMemory)
-		tryUnloadGeoData()
-		if forceFreeOSMemory {
-			debug.FreeOSMemory()
-			if purge {
-				purgeNativeMemory()
-			}
-		} else {
-			runtime.GC()
+const (
+	idleTrafficThreshold = 1024 * 1024
+	idleTrafficSamples   = 3
+)
+
+var (
+	forceGcMu      sync.Mutex
+	idleGcChecking atomic.Bool
+)
+
+func isCoreTrafficBusy() bool {
+	up, down := statistic.DefaultManager.Now()
+	if up+down > idleTrafficThreshold {
+		return true
+	}
+	prevUp, prevDown := statistic.DefaultManager.Total()
+	prevTotal := prevUp + prevDown
+	for range idleTrafficSamples {
+		time.Sleep(time.Second)
+		curUp, curDown := statistic.DefaultManager.Total()
+		curTotal := curUp + curDown
+		if curTotal < prevTotal || curTotal-prevTotal > idleTrafficThreshold {
+			return true
 		}
-	}()
+		prevTotal = curTotal
+	}
+	return false
+}
+
+func freeCoreMemory(purge bool) {
+	tryUnloadGeoData()
+	runtime.GC()
+	debug.FreeOSMemory()
+	if purge {
+		purgeNativeMemory()
+	}
+}
+
+func handleForceGc(forceFreeOSMemory, purge, idleOnly bool) bool {
+	if idleOnly {
+		if !idleGcChecking.CompareAndSwap(false, true) {
+			return false
+		}
+		defer idleGcChecking.Store(false)
+		if isCoreTrafficBusy() {
+			return false
+		}
+		if !forceGcMu.TryLock() {
+			return false
+		}
+		defer forceGcMu.Unlock()
+		log.Infoln("[APP] Request idle force GC, purge=%t", purge)
+		freeCoreMemory(purge)
+		return true
+	}
+	forceGcMu.Lock()
+	defer forceGcMu.Unlock()
+	log.Infoln("[APP] Request force GC, forceFreeOSMemory=%t, purge=%t", forceFreeOSMemory, purge)
+	if forceFreeOSMemory {
+		freeCoreMemory(purge)
+	} else {
+		tryUnloadGeoData()
+		runtime.GC()
+	}
+	return true
 }
 
 func handleShutdown() bool {
@@ -1361,8 +1413,7 @@ func handleSuspend(mode int) bool {
 		})
 		closeIdleOutbounds(tunnel.Proxies(), tunnel.Providers())
 
-		debug.FreeOSMemory()
-		purgeNativeMemory()
+		freeCoreMemory(true)
 		currentSuspendMode = 1
 
 	case 2:
@@ -1373,8 +1424,7 @@ func handleSuspend(mode int) bool {
 		pauseHealthChecks()
 		closeIdleOutbounds(tunnel.Proxies(), tunnel.Providers())
 		toolbox.SuspendTrafficStats(true)
-		debug.FreeOSMemory()
-		purgeNativeMemory()
+		freeCoreMemory(true)
 		currentSuspendMode = 2
 
 	case 0:

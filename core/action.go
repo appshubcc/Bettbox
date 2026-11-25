@@ -91,18 +91,16 @@ func handleAction(action *Action, result ActionResult) {
 		result.success(handleGetIsInit())
 		return
 	case forceGcMethod:
-		var forceFreeOSMemory, purge bool
-		if action.Data != nil {
-			if strVal, ok := action.Data.(string); ok {
-				forceFreeOSMemory = strVal == "true" || strVal == "free"
-				purge = strVal == "true"
-			} else if boolVal, ok := action.Data.(bool); ok {
-				forceFreeOSMemory = boolVal
-				purge = boolVal
-			}
+		var forceFreeOSMemory, purge, idleOnly bool
+		if strVal, ok := action.Data.(string); ok {
+			forceFreeOSMemory = strVal == "true" || strVal == "free" || strVal == "idle" || strVal == "idle-free"
+			purge = strVal == "true" || strVal == "idle"
+			idleOnly = strVal == "idle" || strVal == "idle-free"
+		} else if boolVal, ok := action.Data.(bool); ok {
+			forceFreeOSMemory = boolVal
+			purge = boolVal
 		}
-		handleForceGc(forceFreeOSMemory, purge)
-		result.success(true)
+		result.success(handleForceGc(forceFreeOSMemory, purge, idleOnly))
 		return
 	case shutdownMethod:
 		result.success(handleShutdown())

@@ -55,7 +55,7 @@ class _CoreStatusDialogState extends State<CoreStatusDialog> {
   Future<String> _handleForceGc() async {
     final before = _status?.physical ?? 0;
     await clashCore.requestGc(forceFreeOSMemory: true);
-    await Future<void>.delayed(const Duration(milliseconds: 800));
+    await Future<void>.delayed(const Duration(milliseconds: 200));
     final after = await clashCore.getCoreStatus();
     if (after == null) return appLocalizations.success;
     if (mounted) setState(() => _status = after);

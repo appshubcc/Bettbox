@@ -284,6 +284,7 @@ func updateConfig(params *UpdateParams) {
 var (
 	mmdbUnloaded bool
 	asnUnloaded  bool
+	geoDataLock  sync.Mutex
 )
 
 func checkActiveGeoUsage() (hasMMDB, hasSite, hasASN bool) {
@@ -351,6 +352,8 @@ func checkActiveGeoUsage() (hasMMDB, hasSite, hasASN bool) {
 }
 
 func tryUnloadGeoData() {
+	geoDataLock.Lock()
+	defer geoDataLock.Unlock()
 	hasMMDB, _, hasASN := checkActiveGeoUsage()
 
 	if hasMMDB {
@@ -527,7 +530,9 @@ func setupConfig(params *SetupParams) (global string, err error) {
 	applyStart := time.Now()
 	oldProxies, oldProviders := tunnel.Proxies(), tunnel.Providers()
 	currentConfig = prepared.cfg
+	geoDataLock.Lock()
 	currentRawConfig = residentRawConfig(prepared.rawCfg)
+	geoDataLock.Unlock()
 	currentTunInet6 = prepared.tunInet6
 	hub.ApplyConfig(currentConfig)
 	closeIdleOutbounds(oldProxies, oldProviders)

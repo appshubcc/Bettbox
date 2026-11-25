@@ -16,7 +16,11 @@ mixin ClashInterface {
 
   Future<bool> get isInit;
 
-  Future<bool> forceGc({bool forceFreeOSMemory = false, bool purge = true});
+  Future<bool> forceGc({
+    bool forceFreeOSMemory = false,
+    bool purge = true,
+    bool idleOnly = false,
+  });
 
   FutureOr<String> validateConfig(
     String data, {
@@ -382,11 +386,17 @@ abstract class ClashHandlerInterface with ClashInterface {
   }
 
   @override
-  Future<bool> forceGc({bool forceFreeOSMemory = false, bool purge = true}) {
-    return invoke<bool>(
-      method: ActionMethod.forceGc,
-      data: forceFreeOSMemory ? (purge ? 'true' : 'free') : 'false',
-    );
+  Future<bool> forceGc({
+    bool forceFreeOSMemory = false,
+    bool purge = true,
+    bool idleOnly = false,
+  }) {
+    final data = !forceFreeOSMemory
+        ? 'false'
+        : idleOnly
+        ? (purge ? 'idle' : 'idle-free')
+        : (purge ? 'true' : 'free');
+    return invoke<bool>(method: ActionMethod.forceGc, data: data);
   }
 
   @override

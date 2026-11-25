@@ -10549,10 +10549,10 @@ class AppLocalizations {
     );
   }
 
-  /// `Drag to reorder display; custom routes match first`
+  /// `Drag to reorder groups; more specific overlapping routes match first automatically`
   String get groupOrderTip {
     return Intl.message(
-      'Drag to reorder display; custom routes match first',
+      'Drag to reorder groups; more specific overlapping routes match first automatically',
       name: 'groupOrderTip',
       desc: '',
       args: [],
@@ -10614,9 +10614,9 @@ class AppLocalizations {
     );
   }
 
-  /// `Rule Order`
+  /// `Group Order`
   String get ruleSort {
-    return Intl.message('Rule Order', name: 'ruleSort', desc: '', args: []);
+    return Intl.message('Group Order', name: 'ruleSort', desc: '', args: []);
   }
 
   /// `{count} rules, included in the {group} group`

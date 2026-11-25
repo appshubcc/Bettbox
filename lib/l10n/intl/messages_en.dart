@@ -957,7 +957,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "go": MessageLookupByLibrary.simpleMessage("Go"),
     "goDownload": MessageLookupByLibrary.simpleMessage("Download Now"),
     "groupOrderTip": MessageLookupByLibrary.simpleMessage(
-      "Drag to reorder display; custom routes match first",
+      "Drag to reorder groups; more specific overlapping routes match first automatically",
     ),
     "harmonyFont": MessageLookupByLibrary.simpleMessage("Font Fix"),
     "harmonyFontDesc": MessageLookupByLibrary.simpleMessage(
@@ -2101,7 +2101,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "Rule Providers",
     ),
     "ruleSets": MessageLookupByLibrary.simpleMessage("Rule sets"),
-    "ruleSort": MessageLookupByLibrary.simpleMessage("Rule Order"),
+    "ruleSort": MessageLookupByLibrary.simpleMessage("Group Order"),
     "ruleTarget": MessageLookupByLibrary.simpleMessage("Rule Target"),
     "ruleTypeDesc": m69,
     "ruleTypeName": m70,

@@ -443,6 +443,17 @@ _RouteRuleSet _$RouteRuleSetFromJson(Map<String, dynamic> json) =>
       name: json['name'] as String?,
       icon: json['icon'] as String?,
       count: (json['count'] as num?)?.toInt(),
+      parents:
+          (json['in'] as List<dynamic>?)
+              ?.map((e) => (e as num).toInt())
+              .toList() ??
+          const [],
+      under:
+          (json['under'] as List<dynamic>?)
+              ?.map((e) => (e as num).toInt())
+              .toList() ??
+          const [],
+      broad: json['broad'] as bool? ?? false,
     );
 
 Map<String, dynamic> _$RouteRuleSetToJson(_RouteRuleSet instance) =>
@@ -452,6 +463,9 @@ Map<String, dynamic> _$RouteRuleSetToJson(_RouteRuleSet instance) =>
       'name': instance.name,
       'icon': instance.icon,
       'count': instance.count,
+      'in': instance.parents,
+      'under': instance.under,
+      'broad': instance.broad,
     };
 
 _RouteService _$RouteServiceFromJson(

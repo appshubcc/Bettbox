@@ -804,7 +804,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "go": MessageLookupByLibrary.simpleMessage("移動"),
     "goDownload": MessageLookupByLibrary.simpleMessage("ダウンロードへ"),
     "groupOrderTip": MessageLookupByLibrary.simpleMessage(
-      "ドラッグで表示順を変更（カスタム振り分けを優先照合）",
+      "ドラッグでグループの順序を変更（包含関係のあるルールはより具体的なものが自動で優先されます）",
     ),
     "harmonyFont": MessageLookupByLibrary.simpleMessage("フォント修復"),
     "harmonyFontDesc": MessageLookupByLibrary.simpleMessage(
@@ -1758,7 +1758,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "ruleProviders": MessageLookupByLibrary.simpleMessage("ルールプロバイダー"),
     "ruleProvidersCount": MessageLookupByLibrary.simpleMessage("ルールセット"),
     "ruleSets": MessageLookupByLibrary.simpleMessage("ルールセット"),
-    "ruleSort": MessageLookupByLibrary.simpleMessage("ルールの順序"),
+    "ruleSort": MessageLookupByLibrary.simpleMessage("グループの順序"),
     "ruleTarget": MessageLookupByLibrary.simpleMessage("ルールターゲット"),
     "ruleTypeDesc": m69,
     "ruleTypeName": m70,

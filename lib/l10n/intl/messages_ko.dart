@@ -807,7 +807,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "go": MessageLookupByLibrary.simpleMessage("이동"),
     "goDownload": MessageLookupByLibrary.simpleMessage("다운로드 이동"),
     "groupOrderTip": MessageLookupByLibrary.simpleMessage(
-      "드래그하여 표시 순서 변경 (사용자 지정 분기 우선 매칭)",
+      "드래그하여 그룹 순서를 변경하세요. 포함 관계가 있는 분기는 더 구체적인 규칙이 자동으로 우선 매칭됩니다",
     ),
     "harmonyFont": MessageLookupByLibrary.simpleMessage("글꼴 복구"),
     "harmonyFontDesc": MessageLookupByLibrary.simpleMessage(
@@ -1751,7 +1751,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "ruleProviders": MessageLookupByLibrary.simpleMessage("규칙 프로바이더"),
     "ruleProvidersCount": MessageLookupByLibrary.simpleMessage("규칙 세트"),
     "ruleSets": MessageLookupByLibrary.simpleMessage("규칙 세트"),
-    "ruleSort": MessageLookupByLibrary.simpleMessage("규칙 순서"),
+    "ruleSort": MessageLookupByLibrary.simpleMessage("그룹 순서"),
     "ruleTarget": MessageLookupByLibrary.simpleMessage("규칙 목적지"),
     "ruleTypeDesc": m69,
     "ruleTypeName": m70,

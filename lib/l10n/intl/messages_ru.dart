@@ -987,7 +987,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "go": MessageLookupByLibrary.simpleMessage("Перейти"),
     "goDownload": MessageLookupByLibrary.simpleMessage("Перейти к загрузке"),
     "groupOrderTip": MessageLookupByLibrary.simpleMessage(
-      "Перетащите для порядка отображения; пользовательские маршруты в приоритете",
+      "Перетащите для порядка групп; более точные вложенные маршруты срабатывают раньше автоматически",
     ),
     "harmonyFont": MessageLookupByLibrary.simpleMessage("Исправление шрифта"),
     "harmonyFontDesc": MessageLookupByLibrary.simpleMessage(
@@ -2193,7 +2193,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "ruleProviders": MessageLookupByLibrary.simpleMessage("Провайдеры правил"),
     "ruleProvidersCount": MessageLookupByLibrary.simpleMessage("Наборы правил"),
     "ruleSets": MessageLookupByLibrary.simpleMessage("Наборы правил"),
-    "ruleSort": MessageLookupByLibrary.simpleMessage("Порядок правил"),
+    "ruleSort": MessageLookupByLibrary.simpleMessage("Порядок групп"),
     "ruleTarget": MessageLookupByLibrary.simpleMessage("Цель правила"),
     "ruleTypeDesc": m69,
     "ruleTypeName": m70,

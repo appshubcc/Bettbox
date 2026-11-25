@@ -4,7 +4,7 @@
  * 自定义分流远程规则集：@appshubcc https://github.com/appshubcc/bett-rules 
  */
 
-// @version 2026112401
+// @version 2026112502
 const Compatible_With_Bettbox = { ruleOptionsEnable: true };
 
 const ruleOptionsEnable = {
@@ -678,6 +678,16 @@ Compatible_With_Bettbox.policyGroupOptions = serviceConfigs.map((svc) => svc.nam
 
 const customRoutes = typeof bettboxRoutes !== 'undefined' && Array.isArray(bettboxRoutes) ? bettboxRoutes : [];
 const groupOrder = typeof bettboxOrder !== 'undefined' && Array.isArray(bettboxOrder) ? bettboxOrder : [];
+const builtinRuleDeps = [
+  ['AI', 'Google'],
+  ['AI', 'Microsoft'],
+  ['YouTube', 'Google'],
+  ['FCM', 'Google'],
+  ['GitHub', 'Microsoft'],
+];
+const customRuleDeps =
+  typeof bettboxRuleDeps !== 'undefined' && Array.isArray(bettboxRuleDeps) ? bettboxRuleDeps : [];
+const allRuleDeps = [...builtinRuleDeps, ...customRuleDeps];
 const builtInReservedNames = [
   'GLOBAL',
   'DIRECT',
@@ -966,24 +976,27 @@ function buildRegionGroups(filteredProxies) {
     }
   }
 
-  const generatedRegionGroups = sortByGroupOrder(allRegionDefinitions)
-    .filter((r) => regionGroups[r.name].length > 0 && (generateRateGroupEnabled || !rateRegionDefinitions.includes(r)))
-    .flatMap((r) =>
-      createRegionGroup(
-        r.name,
-        r.icon,
-        regionGroups[r.name],
-        activeRegionDefinitions.includes(r)
-          ? userNodeNames.filter((name) => Compatible_With_Bettbox.nodeRegions[name].includes(r.name))
-          : undefined,
-      ),
-    );
+  const regionDefs = [
+    ...allRegionDefinitions.filter(
+      (r) => regionGroups[r.name].length > 0 && (generateRateGroupEnabled || !rateRegionDefinitions.includes(r)),
+    ),
+    ...(otherProxies.length > 0
+      ? [{ name: '其他节点', icon: `${iconBaseUrl}common/WorldMap.svg`, other: true }]
+      : []),
+  ];
 
-  if (otherProxies.length > 0) {
-    generatedRegionGroups.push(...createRegionGroup('其他节点', `${iconBaseUrl}common/WorldMap.svg`, otherProxies));
-  }
-
-  return generatedRegionGroups;
+  return sortByGroupOrder(regionDefs).flatMap((r) =>
+    r.other
+      ? createRegionGroup(r.name, r.icon, otherProxies)
+      : createRegionGroup(
+          r.name,
+          r.icon,
+          regionGroups[r.name],
+          activeRegionDefinitions.includes(r)
+            ? userNodeNames.filter((name) => Compatible_With_Bettbox.nodeRegions[name].includes(r.name))
+            : undefined,
+        ),
+  );
 }
 
 /**
@@ -1053,10 +1066,14 @@ function buildCustomServices(reservedNames) {
 const groupOrderKeys = (() => {
   if (!groupOrder.length) return null;
 
-  const names = serviceConfigs.map((svc) => svc.name);
-  const anchorIndex = names.indexOf('AdBlock');
-  names.splice(anchorIndex < 0 ? names.length : anchorIndex, 0, ...customRoutes.map((route) => route?.name));
-  names.push('直连', ...allRegionDefinitions.map((region) => region.name), '其他节点');
+  const serviceNames = serviceConfigs.map((svc) => svc.name);
+  const anchorIndex = serviceNames.indexOf('AdBlock');
+  serviceNames.splice(
+    anchorIndex < 0 ? serviceNames.length : anchorIndex,
+    0,
+    ...customRoutes.map((route) => route?.name).filter((name) => typeof name === 'string'),
+  );
+  const names = [...serviceNames, ...allRegionDefinitions.map((region) => region.name)];
 
   const rank = new Map(groupOrder.map((name, index) => [name, index]));
   const keys = new Map();
@@ -1066,6 +1083,16 @@ const groupOrderKeys = (() => {
     if (order !== undefined) last = order;
     if (typeof name === 'string' && !keys.has(name)) keys.set(name, [order ?? last + 0.5, index]);
   });
+
+  const serviceRanks = serviceNames
+    .map((name) => rank.get(name))
+    .filter((order) => order !== undefined);
+  const directOrder = rank.get('直连');
+  const directFallback = serviceRanks.length ? Math.max(...serviceRanks) + 0.75 : -0.25;
+  keys.set('直连', [directOrder ?? directFallback, names.length]);
+
+  const otherOrder = rank.get('其他节点');
+  keys.set('其他节点', [otherOrder ?? groupOrder.length, names.length + 1]);
   return keys;
 })();
 
@@ -1078,6 +1105,59 @@ function sortByGroupOrder(services) {
     .map((svc, index) => ({ svc, index, key: keyOf(svc.name) }))
     .sort((a, b) => a.key[0] - b.key[0] || a.key[1] - b.key[1] || a.index - b.index)
     .map((entry) => entry.svc);
+}
+
+function sortRuleServices(services) {
+  if (services.length <= 1) return services;
+
+  const indexByName = new Map(services.map((svc, index) => [svc.name, index]));
+  const adj = Array.from({ length: services.length }, () => new Set());
+  const indegree = new Array(services.length).fill(0);
+
+  for (const dep of allRuleDeps) {
+    if (!Array.isArray(dep) || dep.length < 2) continue;
+    const from = indexByName.get(dep[0]);
+    const to = indexByName.get(dep[1]);
+    if (from === undefined || to === undefined || from === to || adj[from].has(to)) continue;
+    adj[from].add(to);
+    indegree[to]++;
+  }
+
+  const priority = Array.from({ length: services.length }, (_, index) => index);
+  for (let pass = 0; pass < services.length; pass++) {
+    let changed = false;
+    for (let u = 0; u < services.length; u++) {
+      for (const v of adj[u]) {
+        if (priority[v] < priority[u]) {
+          priority[u] = priority[v];
+          changed = true;
+        }
+      }
+    }
+    if (!changed) break;
+  }
+
+  const placed = new Array(services.length).fill(false);
+  const result = [];
+  for (let count = 0; count < services.length; count++) {
+    let next = -1;
+    for (let i = 0; i < services.length; i++) {
+      if (!placed[i] && indegree[i] === 0) {
+        if (next === -1 || priority[i] < priority[next]) next = i;
+      }
+    }
+    if (next === -1) {
+      for (let i = 0; i < services.length; i++) {
+        if (!placed[i] && (next === -1 || priority[i] < priority[next])) next = i;
+      }
+    }
+    placed[next] = true;
+    result.push(services[next]);
+    for (const target of adj[next]) {
+      indegree[target]--;
+    }
+  }
+  return result;
 }
 
 /**
@@ -1164,13 +1244,15 @@ function buildFunctionalGroups(filteredProxies, generatedRegionGroups) {
     ...builtInReservedNames,
     ...allProxiesNames,
   ]);
-  const customServices = sortByGroupOrder(buildCustomServices(reservedNames));
   const builtinServices = serviceConfigs.filter((svc) => ruleOptionsEnable[svc.name]);
+  const allServices = [...builtinServices];
+  const anchorIndex = allServices.findIndex((svc) => svc.name === 'AdBlock');
+  allServices.splice(anchorIndex < 0 ? allServices.length : anchorIndex, 0, ...buildCustomServices(reservedNames));
+  const orderedServices = sortByGroupOrder(allServices);
+
   const ruleServices = [
-    ...customServices.filter((svc) => svc.reject),
-    ...builtinServices.filter((svc) => svc.priority),
-    ...customServices.filter((svc) => !svc.reject),
-    ...builtinServices.filter((svc) => !svc.priority),
+    ...sortRuleServices(orderedServices.filter((svc) => svc.priority || svc.reject)),
+    ...sortRuleServices(orderedServices.filter((svc) => !svc.priority && !svc.reject)),
   ];
 
   for (const svc of ruleServices) {
@@ -1182,11 +1264,7 @@ function buildFunctionalGroups(filteredProxies, generatedRegionGroups) {
     }
   }
 
-  const displayServices = [...builtinServices];
-  const anchorIndex = displayServices.findIndex((svc) => svc.name === 'AdBlock');
-  displayServices.splice(anchorIndex < 0 ? displayServices.length : anchorIndex, 0, ...customServices);
-
-  for (const svc of displayServices) {
+  for (const svc of orderedServices) {
     let groupProxies = [];
     if (svc.includeAll) {
       groupProxies = [...allProxiesNames];

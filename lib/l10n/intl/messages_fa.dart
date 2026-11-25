@@ -956,7 +956,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "go": MessageLookupByLibrary.simpleMessage("رفتن"),
     "goDownload": MessageLookupByLibrary.simpleMessage("رفتن به دانلود"),
     "groupOrderTip": MessageLookupByLibrary.simpleMessage(
-      "برای تغییر ترتیب نمایش بکشید؛ مسیرهای سفارشی اولویت دارند",
+      "برای تغییر ترتیب گروه‌ها بکشید؛ مسیرهای هم‌پوشان دقیق‌تر به‌طور خودکار اولویت می‌گیرند",
     ),
     "harmonyFont": MessageLookupByLibrary.simpleMessage("ترمیم فونت"),
     "harmonyFontDesc": MessageLookupByLibrary.simpleMessage(
@@ -2142,7 +2142,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "ruleProvidersCount": MessageLookupByLibrary.simpleMessage("مجموعه قوانین"),
     "ruleSets": MessageLookupByLibrary.simpleMessage("مجموعه‌های قوانین"),
-    "ruleSort": MessageLookupByLibrary.simpleMessage("ترتیب قوانین"),
+    "ruleSort": MessageLookupByLibrary.simpleMessage("ترتیب گروه‌ها"),
     "ruleTarget": MessageLookupByLibrary.simpleMessage("مقصد قانون"),
     "ruleTypeDesc": m69,
     "ruleTypeName": m70,

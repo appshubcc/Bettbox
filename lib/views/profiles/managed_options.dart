@@ -321,6 +321,7 @@ class _ManagedOptionsSheetState extends ConsumerState<ManagedOptionsSheet> {
       _icons = {
         for (final MapEntry(:key, :value) in managedRateGroupIcons.entries)
           key: ?routeIconUrl(value),
+        managedOtherRegionGroup: ?routeIconUrl(managedOtherRegionIcon),
         ...icons,
       };
       _regions = managedRegions(
@@ -351,6 +352,7 @@ class _ManagedOptionsSheetState extends ConsumerState<ManagedOptionsSheet> {
     customs: [for (final route in _routes) route.name],
     saved: saved,
     regions: [..._regions, ..._rateGroups],
+    tail: const [managedOtherRegionGroup],
   );
 
   void _change(VoidCallback callback) {
@@ -646,7 +648,7 @@ class _ManagedOptionsSheetState extends ConsumerState<ManagedOptionsSheet> {
       );
     }
     final routes = {for (final route in _routes) route.name: route};
-    final hidden = {..._regions, ..._rateGroups};
+    final hidden = {..._regions, ..._rateGroups, managedOtherRegionGroup};
     final items = _sorting
         ? _order
         : [

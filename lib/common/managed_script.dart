@@ -20,9 +20,30 @@ const managedFilterLowRateOption = '过滤低倍率节点';
 const managedFilterHighRateOption = '过滤高倍率节点';
 const managedLowRateGroup = '低倍率节点';
 const managedHighRateGroup = '高倍率节点';
+const managedOtherRegionGroup = '其他节点';
+const managedOtherRegionIcon = 'common/WorldMap.svg';
 const managedRateGroupIcons = {
   managedLowRateGroup: 'common/Available.svg',
   managedHighRateGroup: 'common/Airport.svg',
+};
+const managedBuiltinRuleSets = <String, List<String>>{
+  'AI': ['geosite:category-ai-!cn', 'geoip:openai'],
+  'YouTube': ['geosite:youtube'],
+  'FCM': ['geosite:googlefcm'],
+  'Google': ['geosite:google', 'geoip:google'],
+  'Telegram': ['geosite:telegram', 'geoip:telegram'],
+  'GitHub': ['geosite:github'],
+  'Microsoft': ['geosite:microsoft', 'geoip:microsoft'],
+  'Apple': ['geosite:apple', 'geoip:apple'],
+  'Steam': ['geosite:steam', 'geoip:steam'],
+  'TikTok': ['geosite:tiktok', 'geoip:tiktok'],
+  'Twitter': ['geosite:twitter', 'geoip:twitter'],
+  'Meta': ['geosite:meta', 'geoip:facebook'],
+  'Netflix': ['geosite:netflix', 'geoip:netflix'],
+  'PikPak': ['geosite:pikpak'],
+  'Spotify': ['geosite:spotify', 'geoip:spotify'],
+  'Crypto': ['geosite:category-cryptocurrency'],
+  'AdBlock': ['geosite:category-ads'],
 };
 const _managedScriptAsset = 'assets/scripts/managed.js';
 const _routeCatalogAsset = 'assets/scripts/routing.json';
@@ -151,19 +172,31 @@ List<String> orderManagedGroups({
   required List<String> customs,
   required List<String> saved,
   List<String> regions = const [],
+  List<String> tail = const [],
 }) {
   final groups = [...presets];
   final anchor = groups.indexOf(managedAnchorGroup);
   groups.insertAll(anchor < 0 ? groups.length : anchor, customs);
   groups.addAll(regions);
+  final bodyCount = groups.length;
+  groups.addAll(tail);
   if (saved.isEmpty) return groups;
   final rank = {for (final (index, name) in saved.indexed) name: index};
+  final tailKey = saved.length.toDouble();
   var last = -1.0;
   final keyed = <({String name, int index, double key})>[];
   for (final (index, name) in groups.indexed) {
     final order = rank[name];
-    if (order != null) last = order.toDouble();
-    keyed.add((name: name, index: index, key: order?.toDouble() ?? last + 0.5));
+    if (index < bodyCount) {
+      if (order != null) last = order.toDouble();
+      keyed.add((
+        name: name,
+        index: index,
+        key: order?.toDouble() ?? last + 0.5,
+      ));
+    } else {
+      keyed.add((name: name, index: index, key: order?.toDouble() ?? tailKey));
+    }
   }
   keyed.sort(
     (a, b) => a.key != b.key ? a.key.compareTo(b.key) : a.index - b.index,
@@ -244,6 +277,8 @@ class RouteCatalogIndex {
   final RouteCatalog catalog;
   final Map<String, RouteRuleSet> sets;
   final Map<String, String> icons;
+  final Map<String, int> _setIndices;
+  final Map<int, Set<int>> _ancestorsCache = {};
   final Set<String> _names;
   final Map<String, String> _aliases;
   final List<String> _sortedAliasKeys;
@@ -252,6 +287,9 @@ class RouteCatalogIndex {
   RouteCatalogIndex(this.catalog)
     : sets = {for (final set in catalog.sets) set.key: set},
       icons = routeIconIndex(catalog.icons),
+      _setIndices = {
+        for (final (index, set) in catalog.sets.indexed) set.key: index,
+      },
       _names = catalog.icons.toSet(),
       _aliases = _buildAliases(catalog, catalog.icons.toSet()),
       _sortedAliasKeys = _buildSortedAliasKeys(
@@ -262,6 +300,72 @@ class RouteCatalogIndex {
           if (service.icon case final icon? when icon.isNotEmpty)
             for (final key in service.sets) key: icon,
       };
+
+  Set<int> _ancestors(int index) {
+    final cached = _ancestorsCache[index];
+    if (cached != null) return cached;
+    final result = <int>{};
+    for (final parent in catalog.sets[index].parents) {
+      if (parent >= 0 && parent < catalog.sets.length && result.add(parent)) {
+        result.addAll(_ancestors(parent));
+      }
+    }
+    return _ancestorsCache[index] = result;
+  }
+
+  bool _setBefore(int aIndex, int bIndex) {
+    if (aIndex == bIndex) return false;
+    final a = catalog.sets[aIndex];
+    final b = catalog.sets[bIndex];
+    if (a.type != b.type) return false;
+    if (a.type == 'geoip') {
+      return a.tag.length > 2 && b.tag.length == 2;
+    }
+    if (!a.broad && b.broad) return true;
+    if (_ancestors(aIndex).contains(bIndex)) return true;
+    for (final mid in a.under) {
+      if (mid == bIndex || _ancestors(mid).contains(bIndex)) return true;
+    }
+    return false;
+  }
+
+  List<List<String>> ruleDependencies(
+    Map<String, List<String>> groupSets, {
+    Set<String> builtinNames = const {},
+  }) {
+    final entries = [
+      for (final MapEntry(:key, :value) in groupSets.entries)
+        if ([for (final setKey in value) ?_setIndices[setKey]]
+            case final indices when indices.isNotEmpty)
+          (name: key, sets: indices),
+    ];
+    final deps = <List<String>>[];
+    for (var i = 0; i < entries.length; i++) {
+      final a = entries[i];
+      for (var j = i + 1; j < entries.length; j++) {
+        final b = entries[j];
+        if (builtinNames.contains(a.name) && builtinNames.contains(b.name)) {
+          continue;
+        }
+        var aBeforeB = false;
+        var bBeforeA = false;
+        for (final ai in a.sets) {
+          for (final bi in b.sets) {
+            if (!aBeforeB && _setBefore(ai, bi)) aBeforeB = true;
+            if (!bBeforeA && _setBefore(bi, ai)) bBeforeA = true;
+            if (aBeforeB && bBeforeA) break;
+          }
+          if (aBeforeB && bBeforeA) break;
+        }
+        if (aBeforeB && !bBeforeA) {
+          deps.add([a.name, b.name]);
+        } else if (bBeforeA && !aBeforeB) {
+          deps.add([b.name, a.name]);
+        }
+      }
+    }
+    return deps;
+  }
 
   static Map<String, String> _buildAliases(
     RouteCatalog catalog,
@@ -376,16 +480,25 @@ class ManagedScript {
     return index;
   }
 
-  static Future<List<Map<String, Object?>>> _routes(ManagedProps props) async {
+  static Future<({List<Map<String, Object?>> routes, List<List<String>> deps})>
+  _routesAndDeps(ManagedProps props) async {
     final enabled = [
       for (final route in props.routes)
         if (route.enabled && route.sets.isNotEmpty) route,
     ];
-    if (enabled.isEmpty) return const [];
-    final index = enabled.any((route) => route.icon?.isHttpUrl != true)
-        ? await catalog()
-        : null;
-    return [
+    if (enabled.isEmpty) {
+      return (
+        routes: const <Map<String, Object?>>[],
+        deps: const <List<String>>[],
+      );
+    }
+    final needCatalog = enabled.any(
+      (route) =>
+          route.icon?.isHttpUrl != true ||
+          route.sets.any(_catalogSetPattern.hasMatch),
+    );
+    final index = needCatalog ? await catalog() : null;
+    final routes = [
       for (final route in enabled)
         {
           'name': route.name,
@@ -405,6 +518,17 @@ class ManagedScript {
           ],
         },
     ];
+    final deps = index == null
+        ? const <List<String>>[]
+        : index.ruleDependencies({
+            for (final MapEntry(:key, :value) in managedBuiltinRuleSets.entries)
+              if (props.options[key] != false && !props.removed.contains(key))
+                key: value,
+            for (final route in enabled)
+              if (!managedBuiltinRuleSets.containsKey(route.name))
+                route.name: route.sets,
+          }, builtinNames: managedBuiltinRuleSets.keys.toSet());
+    return (routes: routes, deps: deps);
   }
 
   static const _customVersionPrefix = 'custom:';
@@ -484,9 +608,10 @@ class ManagedScript {
     List<String> nodeNames = const [],
   }) async {
     final source = raw ?? (bundled ? await readBundled() : await read(props));
-    final routes = await _routes(props);
+    final (:routes, :deps) = await _routesAndDeps(props);
     final prelude = [
       if (routes.isNotEmpty) 'const bettboxRoutes = ${jsonEncode(routes)};',
+      if (deps.isNotEmpty) 'const bettboxRuleDeps = ${jsonEncode(deps)};',
       if (props.regions case final regions?)
         'const bettboxRegions = ${jsonEncode(regions)};',
       if (props.customRegions.isNotEmpty)

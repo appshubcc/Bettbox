@@ -6927,7 +6927,7 @@ as bool?,
 /// @nodoc
 mixin _$RouteRuleSet {
 
- String get tag; String get type; String? get name; String? get icon; int? get count;
+ String get tag; String get type; String? get name; String? get icon; int? get count;@JsonKey(name: 'in') List<int> get parents; List<int> get under; bool get broad;
 /// Create a copy of RouteRuleSet
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -6941,20 +6941,20 @@ $RouteRuleSetCopyWith<RouteRuleSet> get copyWith => _$RouteRuleSetCopyWithImpl<R
 @override
 bool operator ==(Object other) {
   final _this = this as RouteRuleSet;
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is RouteRuleSet&&(identical(other.tag, _this.tag) || other.tag == _this.tag)&&(identical(other.type, _this.type) || other.type == _this.type)&&(identical(other.name, _this.name) || other.name == _this.name)&&(identical(other.icon, _this.icon) || other.icon == _this.icon)&&(identical(other.count, _this.count) || other.count == _this.count));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is RouteRuleSet&&(identical(other.tag, _this.tag) || other.tag == _this.tag)&&(identical(other.type, _this.type) || other.type == _this.type)&&(identical(other.name, _this.name) || other.name == _this.name)&&(identical(other.icon, _this.icon) || other.icon == _this.icon)&&(identical(other.count, _this.count) || other.count == _this.count)&&const DeepCollectionEquality().equals(other.parents, _this.parents)&&const DeepCollectionEquality().equals(other.under, _this.under)&&(identical(other.broad, _this.broad) || other.broad == _this.broad));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
 int get hashCode {
   final _this = this as RouteRuleSet;
-  return Object.hash(runtimeType,_this.tag,_this.type,_this.name,_this.icon,_this.count);
+  return Object.hash(runtimeType,_this.tag,_this.type,_this.name,_this.icon,_this.count,const DeepCollectionEquality().hash(_this.parents),const DeepCollectionEquality().hash(_this.under),_this.broad);
 }
 
 @override
 String toString() {
   final _this = this as RouteRuleSet;
-  return 'RouteRuleSet(tag: ${_this.tag}, type: ${_this.type}, name: ${_this.name}, icon: ${_this.icon}, count: ${_this.count})';
+  return 'RouteRuleSet(tag: ${_this.tag}, type: ${_this.type}, name: ${_this.name}, icon: ${_this.icon}, count: ${_this.count}, parents: ${_this.parents}, under: ${_this.under}, broad: ${_this.broad})';
 }
 
 
@@ -6965,7 +6965,7 @@ abstract mixin class $RouteRuleSetCopyWith<$Res>  {
   factory $RouteRuleSetCopyWith(RouteRuleSet value, $Res Function(RouteRuleSet) _then) = _$RouteRuleSetCopyWithImpl;
 @useResult
 $Res call({
- String tag, String type, String? name, String? icon, int? count
+ String tag, String type, String? name, String? icon, int? count,@JsonKey(name: 'in') List<int> parents, List<int> under, bool broad
 });
 
 
@@ -6982,14 +6982,17 @@ class _$RouteRuleSetCopyWithImpl<$Res>
 
 /// Create a copy of RouteRuleSet
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? tag = null,Object? type = null,Object? name = freezed,Object? icon = freezed,Object? count = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? tag = null,Object? type = null,Object? name = freezed,Object? icon = freezed,Object? count = freezed,Object? parents = null,Object? under = null,Object? broad = null,}) {
   return _then(RouteRuleSet(
 tag: null == tag ? _self.tag : tag // ignore: cast_nullable_to_non_nullable
 as String,type: null == type ? _self.type : type // ignore: cast_nullable_to_non_nullable
 as String,name: freezed == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
 as String?,icon: freezed == icon ? _self.icon : icon // ignore: cast_nullable_to_non_nullable
 as String?,count: freezed == count ? _self.count : count // ignore: cast_nullable_to_non_nullable
-as int?,
+as int?,parents: null == parents ? _self.parents : parents // ignore: cast_nullable_to_non_nullable
+as List<int>,under: null == under ? _self.under : under // ignore: cast_nullable_to_non_nullable
+as List<int>,broad: null == broad ? _self.broad : broad // ignore: cast_nullable_to_non_nullable
+as bool,
   ));
 }
 
@@ -7074,10 +7077,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String tag,  String type,  String? name,  String? icon,  int? count)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String tag,  String type,  String? name,  String? icon,  int? count, @JsonKey(name: 'in')  List<int> parents,  List<int> under,  bool broad)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _RouteRuleSet() when $default != null:
-return $default(_that.tag,_that.type,_that.name,_that.icon,_that.count);case _:
+return $default(_that.tag,_that.type,_that.name,_that.icon,_that.count,_that.parents,_that.under,_that.broad);case _:
   return orElse();
 
 }
@@ -7095,10 +7098,10 @@ return $default(_that.tag,_that.type,_that.name,_that.icon,_that.count);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String tag,  String type,  String? name,  String? icon,  int? count)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String tag,  String type,  String? name,  String? icon,  int? count, @JsonKey(name: 'in')  List<int> parents,  List<int> under,  bool broad)  $default,) {final _that = this;
 switch (_that) {
 case _RouteRuleSet():
-return $default(_that.tag,_that.type,_that.name,_that.icon,_that.count);case _:
+return $default(_that.tag,_that.type,_that.name,_that.icon,_that.count,_that.parents,_that.under,_that.broad);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -7115,10 +7118,10 @@ return $default(_that.tag,_that.type,_that.name,_that.icon,_that.count);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String tag,  String type,  String? name,  String? icon,  int? count)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String tag,  String type,  String? name,  String? icon,  int? count, @JsonKey(name: 'in')  List<int> parents,  List<int> under,  bool broad)?  $default,) {final _that = this;
 switch (_that) {
 case _RouteRuleSet() when $default != null:
-return $default(_that.tag,_that.type,_that.name,_that.icon,_that.count);case _:
+return $default(_that.tag,_that.type,_that.name,_that.icon,_that.count,_that.parents,_that.under,_that.broad);case _:
   return null;
 
 }
@@ -7130,7 +7133,7 @@ return $default(_that.tag,_that.type,_that.name,_that.icon,_that.count);case _:
 @JsonSerializable()
 
 class _RouteRuleSet implements RouteRuleSet {
-  const _RouteRuleSet({required this.tag, this.type = 'geosite', this.name, this.icon, this.count});
+  const _RouteRuleSet({required this.tag, this.type = 'geosite', this.name, this.icon, this.count, @JsonKey(name: 'in')  List<int> parents = const [],  List<int> under = const [], this.broad = false}): _parents = parents,_under = under;
   factory _RouteRuleSet.fromJson(Map<String, dynamic> json) => _$RouteRuleSetFromJson(json);
 
 @override final  String tag;
@@ -7138,6 +7141,21 @@ class _RouteRuleSet implements RouteRuleSet {
 @override final  String? name;
 @override final  String? icon;
 @override final  int? count;
+ final  List<int> _parents;
+@override@JsonKey(name: 'in') List<int> get parents {
+  if (_parents is EqualUnmodifiableListView) return _parents;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_parents);
+}
+
+ final  List<int> _under;
+@override@JsonKey() List<int> get under {
+  if (_under is EqualUnmodifiableListView) return _under;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_under);
+}
+
+@override@JsonKey() final  bool broad;
 
 /// Create a copy of RouteRuleSet
 /// with the given fields replaced by the non-null parameter values.
@@ -7152,18 +7170,18 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _RouteRuleSet&&(identical(other.tag, tag) || other.tag == tag)&&(identical(other.type, type) || other.type == type)&&(identical(other.name, name) || other.name == name)&&(identical(other.icon, icon) || other.icon == icon)&&(identical(other.count, count) || other.count == count));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _RouteRuleSet&&(identical(other.tag, tag) || other.tag == tag)&&(identical(other.type, type) || other.type == type)&&(identical(other.name, name) || other.name == name)&&(identical(other.icon, icon) || other.icon == icon)&&(identical(other.count, count) || other.count == count)&&const DeepCollectionEquality().equals(other.parents, _parents)&&const DeepCollectionEquality().equals(other.under, _under)&&(identical(other.broad, broad) || other.broad == broad));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
 int get hashCode {
-    return Object.hash(runtimeType,tag,type,name,icon,count);
+    return Object.hash(runtimeType,tag,type,name,icon,count,const DeepCollectionEquality().hash(_parents),const DeepCollectionEquality().hash(_under),broad);
 }
 
 @override
 String toString() {
-    return 'RouteRuleSet(tag: $tag, type: $type, name: $name, icon: $icon, count: $count)';
+    return 'RouteRuleSet(tag: $tag, type: $type, name: $name, icon: $icon, count: $count, parents: $parents, under: $under, broad: $broad)';
 }
 
 
@@ -7174,7 +7192,7 @@ abstract mixin class _$RouteRuleSetCopyWith<$Res> implements $RouteRuleSetCopyWi
   factory _$RouteRuleSetCopyWith(_RouteRuleSet value, $Res Function(_RouteRuleSet) _then) = __$RouteRuleSetCopyWithImpl;
 @override @useResult
 $Res call({
- String tag, String type, String? name, String? icon, int? count
+ String tag, String type, String? name, String? icon, int? count,@JsonKey(name: 'in') List<int> parents, List<int> under, bool broad
 });
 
 
@@ -7191,14 +7209,17 @@ class __$RouteRuleSetCopyWithImpl<$Res>
 
 /// Create a copy of RouteRuleSet
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? tag = null,Object? type = null,Object? name = freezed,Object? icon = freezed,Object? count = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? tag = null,Object? type = null,Object? name = freezed,Object? icon = freezed,Object? count = freezed,Object? parents = null,Object? under = null,Object? broad = null,}) {
   return _then(_RouteRuleSet(
 tag: null == tag ? _self.tag : tag // ignore: cast_nullable_to_non_nullable
 as String,type: null == type ? _self.type : type // ignore: cast_nullable_to_non_nullable
 as String,name: freezed == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
 as String?,icon: freezed == icon ? _self.icon : icon // ignore: cast_nullable_to_non_nullable
 as String?,count: freezed == count ? _self.count : count // ignore: cast_nullable_to_non_nullable
-as int?,
+as int?,parents: null == parents ? _self._parents : parents // ignore: cast_nullable_to_non_nullable
+as List<int>,under: null == under ? _self._under : under // ignore: cast_nullable_to_non_nullable
+as List<int>,broad: null == broad ? _self.broad : broad // ignore: cast_nullable_to_non_nullable
+as bool,
   ));
 }
 

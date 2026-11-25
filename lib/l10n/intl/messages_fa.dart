@@ -1293,6 +1293,43 @@ class MessageLookup extends MessageLookupByLibrary {
       "نمایش آیکون برنامه در Dock",
     ),
     "key": MessageLookupByLibrary.simpleMessage("کلید"),
+    "lanAddresses": MessageLookupByLibrary.simpleMessage("نشانی‌های محلی"),
+    "lanFirewall": MessageLookupByLibrary.simpleMessage("دیوارهٔ آتش"),
+    "lanFirewallActive": MessageLookupByLibrary.simpleMessage("قانون فعال است"),
+    "lanFirewallAllow": MessageLookupByLibrary.simpleMessage(
+      "فعال کردن سیاست دیوارهٔ آتش",
+    ),
+    "lanFirewallConfirm": MessageLookupByLibrary.simpleMessage(
+      "اعمال سیاست دیوارهٔ آتش",
+    ),
+    "lanFirewallDisable": MessageLookupByLibrary.simpleMessage(
+      "غیرفعال کردن سیاست دیوارهٔ آتش",
+    ),
+    "lanFirewallDisableLegacy": MessageLookupByLibrary.simpleMessage(
+      "غیرفعال خواهد شد",
+    ),
+    "lanFirewallInactive": MessageLookupByLibrary.simpleMessage(
+      "قانون غیرفعال است",
+    ),
+    "lanFirewallLegacy": MessageLookupByLibrary.simpleMessage(
+      "قانون قبلی فعال است (هر مبدأ)",
+    ),
+    "lanFirewallNetworks": MessageLookupByLibrary.simpleMessage(
+      "شبکه‌های خصوصی و عمومی",
+    ),
+    "lanFirewallOldRule": MessageLookupByLibrary.simpleMessage("قانون قبلی"),
+    "lanFirewallReview": MessageLookupByLibrary.simpleMessage(
+      "قانون نیاز به به‌روزرسانی دارد",
+    ),
+    "lanFirewallSources": MessageLookupByLibrary.simpleMessage(
+      "فقط زیرشبکهٔ محلی",
+    ),
+    "lanFirewallUnavailable": MessageLookupByLibrary.simpleMessage(
+      "خواندن قوانین ممکن نیست. سرویس کمکی را بررسی کنید.",
+    ),
+    "lanNoAddresses": MessageLookupByLibrary.simpleMessage(
+      "نشانی در دسترس نیست",
+    ),
     "lanSharing": MessageLookupByLibrary.simpleMessage(
       "اشتراک‌گذاری در شبکه محلی",
     ),
@@ -1897,8 +1934,10 @@ class MessageLookup extends MessageLookupByLibrary {
     "profilesSort": MessageLookupByLibrary.simpleMessage(
       "مرتب‌سازی پروفایل‌ها",
     ),
+    "program": MessageLookupByLibrary.simpleMessage("برنامه"),
     "progress": MessageLookupByLibrary.simpleMessage("پردازش"),
     "project": MessageLookupByLibrary.simpleMessage("پروژه"),
+    "protocol": MessageLookupByLibrary.simpleMessage("پروتکل"),
     "providers": MessageLookupByLibrary.simpleMessage("ارائه‌دهندگان"),
     "providersCount": m59,
     "provinceAndCity": MessageLookupByLibrary.simpleMessage("استان / شهر"),
@@ -2220,9 +2259,6 @@ class MessageLookup extends MessageLookupByLibrary {
     "skipDstAddress": MessageLookupByLibrary.simpleMessage("IP مقصد مستثنی"),
     "skipLocalAuth": MessageLookupByLibrary.simpleMessage(
       "رد شدن از احراز هویت محلی",
-    ),
-    "skipLocalAuthDesc": MessageLookupByLibrary.simpleMessage(
-      "دسترسی بدون احراز هویت برای سیستم محلی",
     ),
     "skipSrcAddress": MessageLookupByLibrary.simpleMessage("IP مبدا مستثنی"),
     "slow": MessageLookupByLibrary.simpleMessage("کند"),

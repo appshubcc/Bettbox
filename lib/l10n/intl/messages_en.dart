@@ -1286,6 +1286,43 @@ class MessageLookup extends MessageLookupByLibrary {
       "Keep the app icon in the Dock",
     ),
     "key": MessageLookupByLibrary.simpleMessage("Key"),
+    "lanAddresses": MessageLookupByLibrary.simpleMessage("Local addresses"),
+    "lanFirewall": MessageLookupByLibrary.simpleMessage("Firewall"),
+    "lanFirewallActive": MessageLookupByLibrary.simpleMessage("Rule enabled"),
+    "lanFirewallAllow": MessageLookupByLibrary.simpleMessage(
+      "Enable firewall policy",
+    ),
+    "lanFirewallConfirm": MessageLookupByLibrary.simpleMessage(
+      "Apply firewall policy",
+    ),
+    "lanFirewallDisable": MessageLookupByLibrary.simpleMessage(
+      "Disable firewall policy",
+    ),
+    "lanFirewallDisableLegacy": MessageLookupByLibrary.simpleMessage(
+      "Will be disabled",
+    ),
+    "lanFirewallInactive": MessageLookupByLibrary.simpleMessage(
+      "Rule disabled",
+    ),
+    "lanFirewallLegacy": MessageLookupByLibrary.simpleMessage(
+      "Old rule active (any source)",
+    ),
+    "lanFirewallNetworks": MessageLookupByLibrary.simpleMessage(
+      "Private and public networks",
+    ),
+    "lanFirewallOldRule": MessageLookupByLibrary.simpleMessage("Old rule"),
+    "lanFirewallReview": MessageLookupByLibrary.simpleMessage(
+      "Rule needs updating",
+    ),
+    "lanFirewallSources": MessageLookupByLibrary.simpleMessage(
+      "Local subnet only",
+    ),
+    "lanFirewallUnavailable": MessageLookupByLibrary.simpleMessage(
+      "Cannot read rules. Check the helper service.",
+    ),
+    "lanNoAddresses": MessageLookupByLibrary.simpleMessage(
+      "No addresses available",
+    ),
     "lanSharing": MessageLookupByLibrary.simpleMessage("LAN Sharing"),
     "landingNode": MessageLookupByLibrary.simpleMessage("Landing node"),
     "landingNodeDesc": MessageLookupByLibrary.simpleMessage(
@@ -1868,8 +1905,10 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "profiles": MessageLookupByLibrary.simpleMessage("Profiles"),
     "profilesSort": MessageLookupByLibrary.simpleMessage("Profile Sorting"),
+    "program": MessageLookupByLibrary.simpleMessage("Program"),
     "progress": MessageLookupByLibrary.simpleMessage("Progress"),
     "project": MessageLookupByLibrary.simpleMessage("Project"),
+    "protocol": MessageLookupByLibrary.simpleMessage("Protocol"),
     "providers": MessageLookupByLibrary.simpleMessage("Providers"),
     "providersCount": m59,
     "provinceAndCity": MessageLookupByLibrary.simpleMessage("Province / City"),
@@ -2176,10 +2215,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "Skip Destination IP",
     ),
     "skipLocalAuth": MessageLookupByLibrary.simpleMessage(
-      "Skip Local Authentication",
-    ),
-    "skipLocalAuthDesc": MessageLookupByLibrary.simpleMessage(
-      "Allow local access without credentials",
+      "Skip local authentication",
     ),
     "skipSrcAddress": MessageLookupByLibrary.simpleMessage("Skip Source IP"),
     "slow": MessageLookupByLibrary.simpleMessage("Slow"),

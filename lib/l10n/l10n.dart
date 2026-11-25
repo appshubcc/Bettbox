@@ -850,6 +850,161 @@ class AppLocalizations {
     );
   }
 
+  /// `Firewall`
+  String get lanFirewall {
+    return Intl.message('Firewall', name: 'lanFirewall', desc: '', args: []);
+  }
+
+  /// `Enable firewall policy`
+  String get lanFirewallAllow {
+    return Intl.message(
+      'Enable firewall policy',
+      name: 'lanFirewallAllow',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Local addresses`
+  String get lanAddresses {
+    return Intl.message(
+      'Local addresses',
+      name: 'lanAddresses',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `No addresses available`
+  String get lanNoAddresses {
+    return Intl.message(
+      'No addresses available',
+      name: 'lanNoAddresses',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Apply firewall policy`
+  String get lanFirewallConfirm {
+    return Intl.message(
+      'Apply firewall policy',
+      name: 'lanFirewallConfirm',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Old rule`
+  String get lanFirewallOldRule {
+    return Intl.message(
+      'Old rule',
+      name: 'lanFirewallOldRule',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Will be disabled`
+  String get lanFirewallDisableLegacy {
+    return Intl.message(
+      'Will be disabled',
+      name: 'lanFirewallDisableLegacy',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Disable firewall policy`
+  String get lanFirewallDisable {
+    return Intl.message(
+      'Disable firewall policy',
+      name: 'lanFirewallDisable',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Rule enabled`
+  String get lanFirewallActive {
+    return Intl.message(
+      'Rule enabled',
+      name: 'lanFirewallActive',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Rule disabled`
+  String get lanFirewallInactive {
+    return Intl.message(
+      'Rule disabled',
+      name: 'lanFirewallInactive',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Rule needs updating`
+  String get lanFirewallReview {
+    return Intl.message(
+      'Rule needs updating',
+      name: 'lanFirewallReview',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Old rule active (any source)`
+  String get lanFirewallLegacy {
+    return Intl.message(
+      'Old rule active (any source)',
+      name: 'lanFirewallLegacy',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Private and public networks`
+  String get lanFirewallNetworks {
+    return Intl.message(
+      'Private and public networks',
+      name: 'lanFirewallNetworks',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Local subnet only`
+  String get lanFirewallSources {
+    return Intl.message(
+      'Local subnet only',
+      name: 'lanFirewallSources',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Protocol`
+  String get protocol {
+    return Intl.message('Protocol', name: 'protocol', desc: '', args: []);
+  }
+
+  /// `Program`
+  String get program {
+    return Intl.message('Program', name: 'program', desc: '', args: []);
+  }
+
+  /// `Cannot read rules. Check the helper service.`
+  String get lanFirewallUnavailable {
+    return Intl.message(
+      'Cannot read rules. Check the helper service.',
+      name: 'lanFirewallUnavailable',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `TUN`
   String get tun {
     return Intl.message('TUN', name: 'tun', desc: '', args: []);
@@ -6575,21 +6730,11 @@ class AppLocalizations {
     );
   }
 
-  /// `Skip Local Authentication`
+  /// `Skip local authentication`
   String get skipLocalAuth {
     return Intl.message(
-      'Skip Local Authentication',
+      'Skip local authentication',
       name: 'skipLocalAuth',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Allow local access without credentials`
-  String get skipLocalAuthDesc {
-    return Intl.message(
-      'Allow local access without credentials',
-      name: 'skipLocalAuthDesc',
       desc: '',
       args: [],
     );

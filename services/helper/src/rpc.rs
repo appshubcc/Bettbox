@@ -40,16 +40,16 @@ pub fn init_auth_key() {
     std::env::remove_var("HELPER_AUTH_KEY");
 }
 
-pub async fn handle_payload(payload: &str) -> String {
+pub async fn handle_payload(payload: &str, installed_client: bool) -> String {
     match HelperRequest::decode(payload) {
-        Ok(request) => handle_request(request).await.encode(),
+        Ok(request) => handle_request(request, installed_client).await.encode(),
         Err(e) => {
             HelperResponse::error("", HelperError::new("INVALID_REQUEST", e.to_string())).encode()
         }
     }
 }
 
-async fn handle_request(request: HelperRequest) -> HelperResponse {
+async fn handle_request(request: HelperRequest, installed_client: bool) -> HelperResponse {
     if request.version != PROTOCOL_VERSION {
         return HelperResponse::error(
             &request.id,
@@ -91,12 +91,57 @@ async fn handle_request(request: HelperRequest) -> HelperResponse {
         }
         "core.stop" => result_to_response(&request.id, ops::core::stop_core(), "CORE_STOP_FAILED"),
         "process.set_priority" => handle_set_priority(&request).await,
+        #[cfg(windows)]
+        "firewall.lan" if installed_client => handle_lan_firewall(&request).await,
+        #[cfg(windows)]
+        "firewall.lan" => HelperResponse::error(
+            &request.id,
+            HelperError::new(
+                "UNAUTHORIZED",
+                "Open the Bettbox app installed alongside this helper",
+            ),
+        ),
         _ => HelperResponse::error(
             &request.id,
             HelperError::new(
                 "UNKNOWN_METHOD",
                 format!("Unknown method: {}", request.method),
             ),
+        ),
+    }
+}
+
+#[cfg(windows)]
+async fn handle_lan_firewall(request: &HelperRequest) -> HelperResponse {
+    use crate::firewall::{handle, Request};
+    let action = match serde_json::from_str::<Request>(&request.body) {
+        Ok(action) => action,
+        Err(e) => {
+            return HelperResponse::error(
+                &request.id,
+                HelperError::new("INVALID_BODY", e.to_string()),
+            )
+        }
+    };
+    let result = tokio::task::spawn_blocking(move || {
+        let mutation = !matches!(action, Request::Status { .. });
+        let description = format!("{action:?}");
+        let result = handle(action);
+        if mutation {
+            ops::logs::log_message(format!("LAN firewall {description}: {result:?}"));
+        }
+        result
+    })
+    .await;
+    match result {
+        Ok(Ok(status)) => HelperResponse::success(&request.id, serde_json::json!(status)),
+        Ok(Err(e)) => HelperResponse::error(
+            &request.id,
+            HelperError::new("FIREWALL_FAILED", e.to_string()),
+        ),
+        Err(e) => HelperResponse::error(
+            &request.id,
+            HelperError::new("FIREWALL_FAILED", e.to_string()),
         ),
     }
 }

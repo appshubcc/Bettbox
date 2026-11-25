@@ -1342,6 +1342,47 @@ class MessageLookup extends MessageLookupByLibrary {
       "Сохранять иконку приложения в Dock",
     ),
     "key": MessageLookupByLibrary.simpleMessage("Ключ"),
+    "lanAddresses": MessageLookupByLibrary.simpleMessage("Локальные адреса"),
+    "lanFirewall": MessageLookupByLibrary.simpleMessage("Брандмауэр"),
+    "lanFirewallActive": MessageLookupByLibrary.simpleMessage(
+      "Правило включено",
+    ),
+    "lanFirewallAllow": MessageLookupByLibrary.simpleMessage(
+      "Включить политику брандмауэра",
+    ),
+    "lanFirewallConfirm": MessageLookupByLibrary.simpleMessage(
+      "Применить политику брандмауэра",
+    ),
+    "lanFirewallDisable": MessageLookupByLibrary.simpleMessage(
+      "Отключить политику брандмауэра",
+    ),
+    "lanFirewallDisableLegacy": MessageLookupByLibrary.simpleMessage(
+      "Будет отключено",
+    ),
+    "lanFirewallInactive": MessageLookupByLibrary.simpleMessage(
+      "Правило отключено",
+    ),
+    "lanFirewallLegacy": MessageLookupByLibrary.simpleMessage(
+      "Старое правило активно (любой источник)",
+    ),
+    "lanFirewallNetworks": MessageLookupByLibrary.simpleMessage(
+      "Частные и общедоступные сети",
+    ),
+    "lanFirewallOldRule": MessageLookupByLibrary.simpleMessage(
+      "Старое правило",
+    ),
+    "lanFirewallReview": MessageLookupByLibrary.simpleMessage(
+      "Требуется обновить правило",
+    ),
+    "lanFirewallSources": MessageLookupByLibrary.simpleMessage(
+      "Только локальная подсеть",
+    ),
+    "lanFirewallUnavailable": MessageLookupByLibrary.simpleMessage(
+      "Не удалось прочитать правила. Проверьте вспомогательную службу.",
+    ),
+    "lanNoAddresses": MessageLookupByLibrary.simpleMessage(
+      "Нет доступных адресов",
+    ),
     "lanSharing": MessageLookupByLibrary.simpleMessage("Общий доступ в LAN"),
     "landingNode": MessageLookupByLibrary.simpleMessage("Выходной узел"),
     "landingNodeDesc": MessageLookupByLibrary.simpleMessage(
@@ -1952,8 +1993,10 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "profiles": MessageLookupByLibrary.simpleMessage("Профили"),
     "profilesSort": MessageLookupByLibrary.simpleMessage("Сортировка профилей"),
+    "program": MessageLookupByLibrary.simpleMessage("Программа"),
     "progress": MessageLookupByLibrary.simpleMessage("Процесс"),
     "project": MessageLookupByLibrary.simpleMessage("Проект"),
+    "protocol": MessageLookupByLibrary.simpleMessage("Протокол"),
     "providers": MessageLookupByLibrary.simpleMessage("Провайдеры"),
     "providersCount": m59,
     "provinceAndCity": MessageLookupByLibrary.simpleMessage(
@@ -2276,10 +2319,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "Пропустить IP назначения",
     ),
     "skipLocalAuth": MessageLookupByLibrary.simpleMessage(
-      "Пропустить локальную аутентификацию",
-    ),
-    "skipLocalAuthDesc": MessageLookupByLibrary.simpleMessage(
-      "Доступ без пароля для локального устройства",
+      "Без авторизации на этом устройстве",
     ),
     "skipSrcAddress": MessageLookupByLibrary.simpleMessage(
       "Пропустить IP источника",

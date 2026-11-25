@@ -17,6 +17,7 @@ class CommonDialog extends ConsumerWidget {
   final Widget? child;
   final List<Widget>? actions;
   final EdgeInsets? padding;
+  final double maxContentWidth;
   final bool overrideScroll;
   final Color? backgroundColor;
 
@@ -27,6 +28,7 @@ class CommonDialog extends ConsumerWidget {
     this.actions,
     this.child,
     this.padding,
+    this.maxContentWidth = 300,
     this.overrideScroll = false,
     this.backgroundColor,
   });
@@ -170,7 +172,7 @@ class CommonDialog extends ConsumerWidget {
           child: Container(
             constraints: BoxConstraints(
               maxHeight: min(size.height - 40, 500),
-              maxWidth: 300,
+              maxWidth: maxContentWidth,
             ),
             width: size.width - 40,
             child: !overrideScroll

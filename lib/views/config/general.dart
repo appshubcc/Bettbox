@@ -268,10 +268,6 @@ class Ipv6Item extends ConsumerWidget {
 class AllowLanItem extends ConsumerWidget {
   const AllowLanItem({super.key});
 
-  Future<void> _showUserAuthDialog() async {
-    await globalState.showCommonDialog(child: const UserAuthDialog());
-  }
-
   @override
   Widget build(BuildContext context, ref) {
     final allowLan = ref.watch(
@@ -283,25 +279,7 @@ class AllowLanItem extends ConsumerWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(appLocalizations.allowLan),
-          Tooltip(
-            message: appLocalizations.userAuth,
-            child: Material(
-              color: Colors.transparent,
-              child: InkResponse(
-                radius: 16,
-                highlightShape: BoxShape.circle,
-                onTap: _showUserAuthDialog,
-                child: Padding(
-                  padding: const EdgeInsets.all(7),
-                  child: AppIcon(
-                    Icons.settings_outlined,
-                    size: 18,
-                    color: context.colorScheme.onSurfaceVariant,
-                  ),
-                ),
-              ),
-            ),
-          ),
+          const LanSettingsButton(),
         ],
       ),
       subtitle: Text(appLocalizations.allowLanDesc),

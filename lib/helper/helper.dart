@@ -116,11 +116,44 @@ class HelperRpcException implements Exception {
   String toString() => '$code: $message';
 }
 
+enum LanFirewallStatus { inactive, scoped, legacy, needsReview }
+
 class HelperClient {
   HelperClient({required this._transport});
 
+  static const _lanFirewallScope = 'mixed_tcp_udp_private_public_local_subnet';
   final HelperTransport _transport;
   final Random _random = Random.secure();
+
+  Future<LanFirewallStatus> lanFirewallStatus(int port) async {
+    final result = await _request(
+      'firewall.lan',
+      body: {'action': 'status', 'port': port, 'scope': _lanFirewallScope},
+    );
+    return switch (result.data) {
+      'inactive' => LanFirewallStatus.inactive,
+      'scoped' => LanFirewallStatus.scoped,
+      'legacy' => LanFirewallStatus.legacy,
+      'needs_review' => LanFirewallStatus.needsReview,
+      _ => throw const FormatException('Unknown LAN firewall rule status'),
+    };
+  }
+
+  Future<void> allowLanFirewall(int port, String corePath) async {
+    await _request(
+      'firewall.lan',
+      body: {
+        'action': 'allow',
+        'port': port,
+        'expected_core': corePath,
+        'scope': _lanFirewallScope,
+      },
+    );
+  }
+
+  Future<void> disableLanFirewall() async {
+    await _request('firewall.lan', body: {'action': 'disable'});
+  }
 
   Future<bool> ping(String expectedToken) async {
     try {

@@ -209,26 +209,6 @@ begin
   Exec('sc', 'delete ' + ServiceName, '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
 end;
 
-function CoreFirewallRuleArgs: String;
-begin
-  Result := 'name="{{DISPLAY_NAME}} Core" program="' + ExpandConstant('{app}\{{CORE_EXECUTABLE_NAME}}') + '"';
-end;
-
-procedure UnregisterCoreFirewallRule;
-var
-  ResultCode: Integer;
-begin
-  Exec('netsh', 'advfirewall firewall delete rule ' + CoreFirewallRuleArgs, '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
-end;
-
-procedure RegisterCoreFirewallRule;
-var
-  ResultCode: Integer;
-begin
-  UnregisterCoreFirewallRule;
-  Exec('netsh', 'advfirewall firewall add rule ' + CoreFirewallRuleArgs + ' dir=in action=allow enable=yes profile=any', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
-end;
-
 procedure UnregisterTaskScheduler;
 var
   ResultCode: Integer;
@@ -317,7 +297,6 @@ begin
   if CurStep = ssPostInstall then
   begin
     RegisterHelperService;
-    RegisterCoreFirewallRule;
   end;
 end;
 
@@ -332,7 +311,6 @@ begin
   if CurUninstallStep = usPostUninstall then
   begin
     UnregisterHelperService;
-    UnregisterCoreFirewallRule;
     
     UnregisterTaskScheduler;
     

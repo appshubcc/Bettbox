@@ -3,6 +3,8 @@ use crate::service::hub::run_service;
 #[cfg(not(all(feature = "windows-service", target_os = "windows")))]
 use tokio::runtime::Runtime;
 
+#[cfg(windows)]
+mod firewall;
 mod ipc;
 mod ops;
 mod rpc;

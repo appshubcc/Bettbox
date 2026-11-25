@@ -5,6 +5,7 @@ import 'package:bett_box/enum/enum.dart';
 import 'package:bett_box/providers/app.dart';
 import 'package:bett_box/providers/config.dart';
 import 'package:bett_box/state.dart';
+import 'package:bett_box/views/config/user_auth.dart';
 import 'package:bett_box/widgets/widgets.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
@@ -333,6 +334,7 @@ class _IntranetIpInfoDialogState extends ConsumerState<_IntranetIpInfoDialog> {
               overflow: TextOverflow.ellipsis,
             ),
           ),
+          const LanSettingsButton(),
           Switch(
             materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
             value: allowLan,

@@ -48,12 +48,13 @@ pub mod named_pipe {
     async fn handle_connection(
         pipe: &mut tokio::net::windows::named_pipe::NamedPipeServer,
     ) -> anyhow::Result<()> {
-        if !verify_client_process(pipe) {
+        let installed_client = verify_client_process(pipe);
+        if !installed_client && !crate::ops::core::is_dev_mode() {
             crate::ops::logs::log_message("Rejected unauthorized pipe client process".to_string());
             return Ok(());
         }
         if let Some(request) = read_frame(pipe).await? {
-            let response = rpc::handle_payload(&request).await;
+            let response = rpc::handle_payload(&request, installed_client).await;
             write_frame(pipe, &response).await?;
         }
         Ok(())
@@ -69,9 +70,6 @@ pub mod named_pipe {
             PROCESS_QUERY_LIMITED_INFORMATION,
         };
 
-        if crate::ops::core::is_dev_mode() {
-            return true;
-        }
         let mut pid = 0u32;
         let mut buffer = [0u16; 1024];
         let mut size = buffer.len() as u32;

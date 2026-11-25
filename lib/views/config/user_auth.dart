@@ -2,6 +2,8 @@ import 'package:bett_box/common/common.dart';
 import 'package:bett_box/models/clash_config.dart';
 import 'package:bett_box/providers/config.dart';
 import 'package:bett_box/state.dart';
+import 'package:bett_box/views/config/lan_addresses.dart';
+import 'package:bett_box/views/config/lan_firewall.dart';
 import 'package:bett_box/widgets/widgets.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -19,6 +21,21 @@ class _UserAuthEntry {
   void dispose() {
     usernameController.dispose();
     passwordController.dispose();
+  }
+}
+
+class LanSettingsButton extends StatelessWidget {
+  const LanSettingsButton({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return IconButton(
+      visualDensity: VisualDensity.compact,
+      tooltip: appLocalizations.lanSharing,
+      icon: const AppIcon(Icons.settings_outlined, size: 18),
+      onPressed: () =>
+          globalState.showCommonDialog(child: const UserAuthDialog()),
+    );
   }
 }
 
@@ -106,7 +123,7 @@ class _UserAuthDialogState extends ConsumerState<UserAuthDialog> {
   @override
   Widget build(BuildContext context) {
     return CommonDialog(
-      title: appLocalizations.userAuth,
+      title: appLocalizations.lanSharing,
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
@@ -121,6 +138,16 @@ class _UserAuthDialogState extends ConsumerState<UserAuthDialog> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            if (system.isWindows) ...[
+              const LanFirewallItem(),
+              const Divider(height: 24),
+            ],
+            const LanAddresses(),
+            const Divider(height: 24),
+            Text(
+              appLocalizations.userAuth,
+              style: context.textTheme.titleSmall,
+            ),
             if (_entries.isEmpty)
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 8),
@@ -234,21 +261,9 @@ class _UserAuthDialogState extends ConsumerState<UserAuthDialog> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        appLocalizations.skipLocalAuth,
-                        style: context.textTheme.bodyMedium,
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        appLocalizations.skipLocalAuthDesc,
-                        style: context.textTheme.bodySmall?.copyWith(
-                          color: context.colorScheme.onSurfaceVariant,
-                        ),
-                      ),
-                    ],
+                  child: Text(
+                    appLocalizations.skipLocalAuth,
+                    style: context.textTheme.bodyMedium,
                   ),
                 ),
                 Switch(

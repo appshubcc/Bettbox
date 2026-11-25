@@ -5,6 +5,7 @@ import 'dart:math';
 import 'dart:ui';
 
 import 'package:bett_box/common/common.dart';
+import 'package:bett_box/common/lan_interface_order.dart';
 import 'package:bett_box/enum/enum.dart';
 import 'package:bett_box/models/models.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
@@ -972,13 +973,19 @@ class Utils {
     ];
   }
 
-  Future<List<CoreInterface>> getNetworkInterfaces() async {
-    final interfaces = await NetworkInterface.list(includeLoopback: false);
+  Future<List<CoreInterface>> getNetworkInterfaces({
+    bool includeVirtual = false,
+    bool includeLinkLocal = false,
+  }) async {
+    final interfaces = await NetworkInterface.list(
+      includeLinkLocal: includeLinkLocal,
+    );
     final result = <CoreInterface>[
       for (final interface in interfaces)
         if (interface.addresses.isNotEmpty &&
-            !_virtualInterfaceRegExp.hasMatch(interface.name) &&
-            !_bridgeInterfaceRegExp.hasMatch(interface.name))
+            (includeVirtual ||
+                (!_virtualInterfaceRegExp.hasMatch(interface.name) &&
+                    !_bridgeInterfaceRegExp.hasMatch(interface.name))))
           CoreInterface(
             name: interface.name,
             addresses: [
@@ -986,6 +993,7 @@ class Utils {
             ],
           ),
     ];
+    if (includeVirtual) return sortLanInterfaces(result);
     return result..sort((a, b) => a.name.compareTo(b.name));
   }
 

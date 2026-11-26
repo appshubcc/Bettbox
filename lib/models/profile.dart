@@ -143,6 +143,7 @@ abstract class ProfileBundle with _$ProfileBundle {
     @Default(BundleReport()) BundleReport report,
     @Default({}) Map<String, String> failures,
     @Default(false) bool collapsed,
+    String? scriptKey,
   }) = _ProfileBundle;
 
   factory ProfileBundle.fromJson(Map<String, Object?> json) =>

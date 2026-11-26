@@ -817,6 +817,7 @@ class AppController {
             bundle: latestBundle.copyWith(
               report: generated.bundle?.report ?? latestBundle.report,
               failures: generated.bundle?.failures ?? const {},
+              scriptKey: generated.bundle?.scriptKey,
             ),
           ),
         );
@@ -843,14 +844,13 @@ class AppController {
   }) async {
     final profile = _ref.read(profilesProvider).getProfile(id);
     if (profile == null || profile.bundle == null) return;
-    if ((scriptId == null) != profile.isManaged) {
+    if (scriptId != profile.scriptId) {
       await generateBundle(
         id,
         update: (profile) => profile.copyWith(scriptId: scriptId),
       );
       return;
     }
-    setProfile(profile.copyWith(scriptId: scriptId));
     if (regenerate) await generateBundle(id);
   }
 
@@ -888,6 +888,21 @@ class AppController {
       if (scripts.findScript(profile.scriptId) != null) continue;
       unawaited(safeRun(() => updateBundleScript(profile.id, null)));
     }
+    syncScriptBundles();
+  }
+
+  String _bundleScriptKey(Script script) =>
+      '${script.id}:${script.digest}:${json.encode(script.customOptions ?? const <String, bool>{})}';
+
+  void syncScriptBundles() {
+    final scripts = _ref.read(scriptStateProvider);
+    scheduleBundles([
+      for (final profile in _ref.read(profilesProvider))
+        if (profile.bundle case final bundle? when !profile.isManaged)
+          if (scripts.findScript(profile.scriptId) case final script?
+              when bundle.scriptKey != _bundleScriptKey(script))
+            profile.id,
+    ]);
   }
 
   void updateManagedSetting(ManagedProps Function(ManagedProps state) builder) {
@@ -1123,7 +1138,7 @@ class AppController {
             _ref.read(managedSettingProvider),
             nodeNames: _ref.read(nodesProvider).regionNodeNames,
           )
-        : null;
+        : _ref.read(scriptStateProvider).findScript(profile.scriptId);
     final inputs = <({String prefix, String path})>[];
     final failures = <String, String>{};
     final files = <File>[];
@@ -1137,7 +1152,8 @@ class AppController {
               : await globalState.writeScriptedConfig(
                   target,
                   script,
-                  managed: true,
+                  managed: profile.isManaged,
+                  expandProviders: true,
                   refresh: refresh,
                 );
           files.add(File(path));
@@ -1168,7 +1184,13 @@ class AppController {
           profile,
           _ref.read(profilesProvider),
         ),
-        bundle: profile.bundle?.copyWith(report: report, failures: failures),
+        bundle: profile.bundle?.copyWith(
+          report: report,
+          failures: failures,
+          scriptKey: script == null || profile.isManaged
+              ? null
+              : _bundleScriptKey(script),
+        ),
       );
     } finally {
       for (final file in files) {
@@ -2202,6 +2224,7 @@ class AppController {
 
     await updateGroups();
     unawaited(checkManagedScriptVersionUpgrade());
+    syncScriptBundles();
 
     unawaited(
       autoLaunch?.updateStatus(_ref.read(appSettingProvider).autoLaunch),

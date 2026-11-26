@@ -1267,7 +1267,7 @@ as int,
 /// @nodoc
 mixin _$ProfileBundle {
 
- List<BundleMember> get members; BundleReport get report; Map<String, String> get failures; bool get collapsed;
+ List<BundleMember> get members; BundleReport get report; Map<String, String> get failures; bool get collapsed; String? get scriptKey;
 /// Create a copy of ProfileBundle
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -1281,20 +1281,20 @@ $ProfileBundleCopyWith<ProfileBundle> get copyWith => _$ProfileBundleCopyWithImp
 @override
 bool operator ==(Object other) {
   final _this = this as ProfileBundle;
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ProfileBundle&&const DeepCollectionEquality().equals(other.members, _this.members)&&(identical(other.report, _this.report) || other.report == _this.report)&&const DeepCollectionEquality().equals(other.failures, _this.failures)&&(identical(other.collapsed, _this.collapsed) || other.collapsed == _this.collapsed));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ProfileBundle&&const DeepCollectionEquality().equals(other.members, _this.members)&&(identical(other.report, _this.report) || other.report == _this.report)&&const DeepCollectionEquality().equals(other.failures, _this.failures)&&(identical(other.collapsed, _this.collapsed) || other.collapsed == _this.collapsed)&&(identical(other.scriptKey, _this.scriptKey) || other.scriptKey == _this.scriptKey));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
 int get hashCode {
   final _this = this as ProfileBundle;
-  return Object.hash(runtimeType,const DeepCollectionEquality().hash(_this.members),_this.report,const DeepCollectionEquality().hash(_this.failures),_this.collapsed);
+  return Object.hash(runtimeType,const DeepCollectionEquality().hash(_this.members),_this.report,const DeepCollectionEquality().hash(_this.failures),_this.collapsed,_this.scriptKey);
 }
 
 @override
 String toString() {
   final _this = this as ProfileBundle;
-  return 'ProfileBundle(members: ${_this.members}, report: ${_this.report}, failures: ${_this.failures}, collapsed: ${_this.collapsed})';
+  return 'ProfileBundle(members: ${_this.members}, report: ${_this.report}, failures: ${_this.failures}, collapsed: ${_this.collapsed}, scriptKey: ${_this.scriptKey})';
 }
 
 
@@ -1305,7 +1305,7 @@ abstract mixin class $ProfileBundleCopyWith<$Res>  {
   factory $ProfileBundleCopyWith(ProfileBundle value, $Res Function(ProfileBundle) _then) = _$ProfileBundleCopyWithImpl;
 @useResult
 $Res call({
- List<BundleMember> members, BundleReport report, Map<String, String> failures, bool collapsed
+ List<BundleMember> members, BundleReport report, Map<String, String> failures, bool collapsed, String? scriptKey
 });
 
 
@@ -1322,13 +1322,14 @@ class _$ProfileBundleCopyWithImpl<$Res>
 
 /// Create a copy of ProfileBundle
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? members = null,Object? report = null,Object? failures = null,Object? collapsed = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? members = null,Object? report = null,Object? failures = null,Object? collapsed = null,Object? scriptKey = freezed,}) {
   return _then(ProfileBundle(
 members: null == members ? _self.members : members // ignore: cast_nullable_to_non_nullable
 as List<BundleMember>,report: null == report ? _self.report : report // ignore: cast_nullable_to_non_nullable
 as BundleReport,failures: null == failures ? _self.failures : failures // ignore: cast_nullable_to_non_nullable
 as Map<String, String>,collapsed: null == collapsed ? _self.collapsed : collapsed // ignore: cast_nullable_to_non_nullable
-as bool,
+as bool,scriptKey: freezed == scriptKey ? _self.scriptKey : scriptKey // ignore: cast_nullable_to_non_nullable
+as String?,
   ));
 }
 /// Create a copy of ProfileBundle
@@ -1422,10 +1423,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( List<BundleMember> members,  BundleReport report,  Map<String, String> failures,  bool collapsed)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( List<BundleMember> members,  BundleReport report,  Map<String, String> failures,  bool collapsed,  String? scriptKey)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _ProfileBundle() when $default != null:
-return $default(_that.members,_that.report,_that.failures,_that.collapsed);case _:
+return $default(_that.members,_that.report,_that.failures,_that.collapsed,_that.scriptKey);case _:
   return orElse();
 
 }
@@ -1443,10 +1444,10 @@ return $default(_that.members,_that.report,_that.failures,_that.collapsed);case 
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( List<BundleMember> members,  BundleReport report,  Map<String, String> failures,  bool collapsed)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( List<BundleMember> members,  BundleReport report,  Map<String, String> failures,  bool collapsed,  String? scriptKey)  $default,) {final _that = this;
 switch (_that) {
 case _ProfileBundle():
-return $default(_that.members,_that.report,_that.failures,_that.collapsed);case _:
+return $default(_that.members,_that.report,_that.failures,_that.collapsed,_that.scriptKey);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -1463,10 +1464,10 @@ return $default(_that.members,_that.report,_that.failures,_that.collapsed);case 
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( List<BundleMember> members,  BundleReport report,  Map<String, String> failures,  bool collapsed)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( List<BundleMember> members,  BundleReport report,  Map<String, String> failures,  bool collapsed,  String? scriptKey)?  $default,) {final _that = this;
 switch (_that) {
 case _ProfileBundle() when $default != null:
-return $default(_that.members,_that.report,_that.failures,_that.collapsed);case _:
+return $default(_that.members,_that.report,_that.failures,_that.collapsed,_that.scriptKey);case _:
   return null;
 
 }
@@ -1478,7 +1479,7 @@ return $default(_that.members,_that.report,_that.failures,_that.collapsed);case 
 @JsonSerializable()
 
 class _ProfileBundle implements ProfileBundle {
-  const _ProfileBundle({ List<BundleMember> members = const [], this.report = const BundleReport(),  Map<String, String> failures = const {}, this.collapsed = false}): _members = members,_failures = failures;
+  const _ProfileBundle({ List<BundleMember> members = const [], this.report = const BundleReport(),  Map<String, String> failures = const {}, this.collapsed = false, this.scriptKey}): _members = members,_failures = failures;
   factory _ProfileBundle.fromJson(Map<String, dynamic> json) => _$ProfileBundleFromJson(json);
 
  final  List<BundleMember> _members;
@@ -1497,6 +1498,7 @@ class _ProfileBundle implements ProfileBundle {
 }
 
 @override@JsonKey() final  bool collapsed;
+@override final  String? scriptKey;
 
 /// Create a copy of ProfileBundle
 /// with the given fields replaced by the non-null parameter values.
@@ -1511,18 +1513,18 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _ProfileBundle&&const DeepCollectionEquality().equals(other.members, _members)&&(identical(other.report, report) || other.report == report)&&const DeepCollectionEquality().equals(other.failures, _failures)&&(identical(other.collapsed, collapsed) || other.collapsed == collapsed));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _ProfileBundle&&const DeepCollectionEquality().equals(other.members, _members)&&(identical(other.report, report) || other.report == report)&&const DeepCollectionEquality().equals(other.failures, _failures)&&(identical(other.collapsed, collapsed) || other.collapsed == collapsed)&&(identical(other.scriptKey, scriptKey) || other.scriptKey == scriptKey));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
 int get hashCode {
-    return Object.hash(runtimeType,const DeepCollectionEquality().hash(_members),report,const DeepCollectionEquality().hash(_failures),collapsed);
+    return Object.hash(runtimeType,const DeepCollectionEquality().hash(_members),report,const DeepCollectionEquality().hash(_failures),collapsed,scriptKey);
 }
 
 @override
 String toString() {
-    return 'ProfileBundle(members: $members, report: $report, failures: $failures, collapsed: $collapsed)';
+    return 'ProfileBundle(members: $members, report: $report, failures: $failures, collapsed: $collapsed, scriptKey: $scriptKey)';
 }
 
 
@@ -1533,7 +1535,7 @@ abstract mixin class _$ProfileBundleCopyWith<$Res> implements $ProfileBundleCopy
   factory _$ProfileBundleCopyWith(_ProfileBundle value, $Res Function(_ProfileBundle) _then) = __$ProfileBundleCopyWithImpl;
 @override @useResult
 $Res call({
- List<BundleMember> members, BundleReport report, Map<String, String> failures, bool collapsed
+ List<BundleMember> members, BundleReport report, Map<String, String> failures, bool collapsed, String? scriptKey
 });
 
 
@@ -1550,13 +1552,14 @@ class __$ProfileBundleCopyWithImpl<$Res>
 
 /// Create a copy of ProfileBundle
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? members = null,Object? report = null,Object? failures = null,Object? collapsed = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? members = null,Object? report = null,Object? failures = null,Object? collapsed = null,Object? scriptKey = freezed,}) {
   return _then(_ProfileBundle(
 members: null == members ? _self._members : members // ignore: cast_nullable_to_non_nullable
 as List<BundleMember>,report: null == report ? _self.report : report // ignore: cast_nullable_to_non_nullable
 as BundleReport,failures: null == failures ? _self._failures : failures // ignore: cast_nullable_to_non_nullable
 as Map<String, String>,collapsed: null == collapsed ? _self.collapsed : collapsed // ignore: cast_nullable_to_non_nullable
-as bool,
+as bool,scriptKey: freezed == scriptKey ? _self.scriptKey : scriptKey // ignore: cast_nullable_to_non_nullable
+as String?,
   ));
 }
 

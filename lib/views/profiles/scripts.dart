@@ -1014,7 +1014,8 @@ class __ScriptCustomOptionsSheetState
     try {
       final applyFuture = onSave != null
           ? onSave(Map<String, bool>.from(_options))
-          : ref.read(currentProfileScriptProvider)?.id == widget.script.id
+          : ref.read(currentProfileScriptProvider)?.id == widget.script.id &&
+                ref.read(currentProfileProvider)?.bundle == null
           ? globalState.appController.applyProfile(silence: true)
           : Future.value();
       await Future.wait([applyFuture, Future.delayed(_kMinLoadingDuration)]);

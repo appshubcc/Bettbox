@@ -487,7 +487,9 @@ extension ScriptPropsExt on ScriptProps {
       scripts.where((script) => script.id == id).firstOrNull;
 
   Script? scriptOf(Profile profile) =>
-      profile.isManaged ? null : findScript(profile.scriptId);
+      profile.isManaged || profile.bundle?.scriptKey != null
+      ? null
+      : findScript(profile.scriptId);
 
   Future<ScriptProps> externalize() async {
     if (scripts.every((script) => script.content.isEmpty)) return this;

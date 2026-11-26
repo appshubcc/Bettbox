@@ -1095,7 +1095,12 @@ needSetup(Ref ref) {
       (profile) => profile?.runsManagedScript ?? false,
     ),
   );
-  final script = ref.watch(currentProfileScriptProvider);
+  final bakedScript = ref.watch(
+    currentProfileProvider.select(
+      (profile) => profile?.bundle?.scriptKey != null,
+    ),
+  );
+  final script = bakedScript ? null : ref.watch(currentProfileScriptProvider);
   final scriptDigest = runsManagedScript
       ? ref.watch(
           managedSettingProvider.select(

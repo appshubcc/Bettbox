@@ -141,6 +141,7 @@ _ProfileBundle _$ProfileBundleFromJson(Map<String, dynamic> json) =>
           ) ??
           const {},
       collapsed: json['collapsed'] as bool? ?? false,
+      scriptKey: json['scriptKey'] as String?,
     );
 
 Map<String, dynamic> _$ProfileBundleToJson(_ProfileBundle instance) =>
@@ -149,6 +150,7 @@ Map<String, dynamic> _$ProfileBundleToJson(_ProfileBundle instance) =>
       'report': instance.report,
       'failures': instance.failures,
       'collapsed': instance.collapsed,
+      'scriptKey': instance.scriptKey,
     };
 
 _OverrideData _$OverrideDataFromJson(Map<String, dynamic> json) =>

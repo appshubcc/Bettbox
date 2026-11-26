@@ -92,10 +92,10 @@ class _AppStateManagerState extends ConsumerState<AppStateManager>
       nodesProvider.select((state) => jsonEncode(state.regionNodeNames)),
       (_, _) => globalState.appController.generateAllBundles(),
     );
-    ref.listenManual(
-      scriptStateProvider,
-      (_, _) => globalState.appController.autoBackupDebounce(),
-    );
+    ref.listenManual(scriptStateProvider, (_, _) {
+      globalState.appController.autoBackupDebounce();
+      globalState.appController.syncScriptBundles();
+    });
     ref.listenManual(
       managedSettingProvider,
       (_, _) => globalState.appController.autoBackupDebounce(),

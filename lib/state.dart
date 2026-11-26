@@ -754,6 +754,10 @@ class GlobalState {
   bool _scriptActive(Profile profile) =>
       profile.runsManagedScript || config.scriptProps.scriptOf(profile) != null;
 
+  bool _groupSwitchesIgnored(Profile profile) =>
+      profile.isManaged ||
+      config.scriptProps.findScript(profile.scriptId) != null;
+
   Future<SetupParams?> buildValidateParams(Profile profile) async {
     final currentProfileId = config.currentProfileId;
     if (isService ||
@@ -938,15 +942,21 @@ class GlobalState {
     Profile profile,
     Script script, {
     bool managed = false,
+    bool expandProviders = false,
     bool refresh = false,
     bool cache = true,
   }) async {
+    final expand = managed || expandProviders;
     final stamp = _nextRelayStamp;
     final relayPath = await appPath.relayPath;
     final separator = Platform.pathSeparator;
     final file = File('$relayPath${separator}scripted-$stamp.json');
-    final stem =
-        '$relayPath${separator}cache-${profile.id}${managed ? '-managed' : ''}';
+    final suffix = managed
+        ? '-managed'
+        : expand
+        ? '-expanded'
+        : '';
+    final stem = '$relayPath${separator}cache-${profile.id}$suffix';
     return _scriptEvaluateLock.synchronized(() async {
       unawaited(_sweepRelay(relayPath));
       final cacheFile = File('$stem.json');
@@ -961,7 +971,7 @@ class GlobalState {
       }
       final key = !cache || volatile
           ? null
-          : await _scriptedCacheKey(profile, script, digest, managed: managed);
+          : await _scriptedCacheKey(profile, script, digest, managed: expand);
       final exported = File('$relayPath${separator}profile-$stamp.json');
       try {
         if (!refresh &&
@@ -975,7 +985,7 @@ class GlobalState {
         await _exportProfileConfig(
           profile,
           exported.path,
-          managed: managed,
+          managed: expand,
           refresh: refresh,
         );
         await JavaScriptRuntimeManager.evaluateScriptFile(
@@ -1173,7 +1183,7 @@ class GlobalState {
       'global-ua': patchConfig.globalUa,
     };
 
-    final scriptActive = profile.isManaged || _scriptActive(profile);
+    final scriptActive = _groupSwitchesIgnored(profile);
     final overrideData = profile.overrideData;
     final listenPorts = patchConfig.listenPorts;
 
@@ -1276,7 +1286,8 @@ class GlobalState {
       if (scripted != null) return scripted;
     }
     final ageSecretKey = profile?.ageSecretKey;
-    final disabledGroups = effective && profile != null
+    final disabledGroups =
+        effective && profile != null && !_groupSwitchesIgnored(profile)
         ? [
             for (final entry in profile.groupSwitches.entries)
               if (!entry.value) entry.key,

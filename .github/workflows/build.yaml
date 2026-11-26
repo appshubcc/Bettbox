@@ -228,14 +228,15 @@ jobs:
           channel: 'stable'
           cache: true
           cache-key: flutter-${{ matrix.platform }}-${{ matrix.arch }}-${{ hashFiles('**/pubspec.lock') }}
-          flutter-version: '3.47.9'
+          flutter-version-file: '.fvmrc'
 
       - name: Setup Flutter (ARM)
         if: ${{ contains(matrix.os, 'arm') }}
         shell: bash
         run: |
+          FLUTTER_VERSION="$(jq -er '.flutter | select(type == "string" and length > 0)' .fvmrc)"
           FLUTTER_DIR="${RUNNER_TEMP}/flutter"
-          git clone --depth 1 --branch 3.47.9 https://github.com/flutter/flutter.git "${FLUTTER_DIR}"
+          git clone --depth 1 --branch "${FLUTTER_VERSION}" https://github.com/flutter/flutter.git "${FLUTTER_DIR}"
           PUB_CACHE_DIR="${HOME}/.pub-cache"
           mkdir -p "${PUB_CACHE_DIR}/bin"
           if command -v cygpath >/dev/null 2>&1; then

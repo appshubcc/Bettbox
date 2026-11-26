@@ -94,6 +94,7 @@ flutter:
   uses-material-design: true
   assets:
     - assets/data/
+    - assets/mesh/
     - assets/fonts/
     - assets/images/
     - assets/images/avatars/

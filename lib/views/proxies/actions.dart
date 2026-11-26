@@ -218,12 +218,16 @@ PopupMenuItemData _buildConfigItem(BuildContext context, Proxy proxy) {
   );
 }
 
-Future<({String yaml, String uri})?> _loadConfig(String name) => globalState
-    .appController
-    .safeRun(() => globalState.getProxyConfig(name), needLoading: true);
+Future<({String yaml, String uri})?> _loadConfig(
+  String name, {
+  bool forSharing = false,
+}) => globalState.appController.safeRun(
+  () => globalState.getProxyConfig(name, forSharing: forSharing),
+  needLoading: true,
+);
 
 Future<void> _copyConfig(String name, {required bool uri}) async {
-  final config = await _loadConfig(name);
+  final config = await _loadConfig(name, forSharing: true);
   if (config == null) return;
   final text = uri ? config.uri : config.yaml;
   if (text.isEmpty) {
@@ -244,7 +248,7 @@ Future<void> _viewConfig(BuildContext context, String name) async {
 }
 
 Future<void> _showQrCode(String name) async {
-  final config = await _loadConfig(name);
+  final config = await _loadConfig(name, forSharing: true);
   if (config == null) return;
   final isUri = config.uri.isNotEmpty;
   final data = isUri ? config.uri : config.yaml;

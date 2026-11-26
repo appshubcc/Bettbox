@@ -1,0 +1,29 @@
+# Bettbox landing node: after saving, choose Landing node, a Front proxy for the target profile,
+# and the proxy groups to join. Import strips dialer-proxy and regenerates it from that binding.
+# dialer-proxy: MyFrontProxy
+
+# Mihomo underlay dial options. Interface names and routing marks are platform-specific.
+# A selected front proxy handles its own dialing.
+# interface-name: wlan0
+# routing-mark: 6666
+# ip-version: dual  # dual, ipv4, ipv6, ipv4-prefer or ipv6-prefer.
+# Socket options for the underlay connections. They apply to direct dialing and are not
+# used when a front proxy carries the connection. Support depends on the platform.
+# tfo: true
+# mptcp: true
+
+# Advanced: Mihomo's generic sing-mux wrapper requires a compatible service at the other end.
+# A normal mesh peer does not speak sing-mux. Keep indentation when enabling nested options.
+# smux:
+#   enabled: false
+#   protocol: smux
+#   max-connections: 4
+#   min-streams: 4
+#   max-streams: 0  # A positive cap is an alternative to max-connections/min-streams.
+#   padding: false
+#   statistic: false
+#   only-tcp: true
+#   brutal-opts:
+#     enabled: false
+#     up: 20 Mbps
+#     down: 100 Mbps

@@ -1,0 +1,57 @@
+# 请使用标准版，向组网管理员索取网络名、共享密钥和可访问的对端 URI。
+# 替换下方示例网络名和对端地址。如果网络设有共享密钥，取消 network-secret 的注释并填写。
+# 保存后将流量路由到此节点，再访问对端虚拟 IPv4 地址上的服务。首次使用时才会启动组网。
+name: EasyTier  # Bettbox 策略组里显示的节点名，可改为「家里出口」。
+type: easytier
+network-name: my-mesh
+# network-secret: "<shared-network-secret>"
+peers:
+  - "tcp://peer.example.invalid:11010"
+  # - "udp://peer.example.invalid:11010"  # 对端监听 UDP 时，使用这个地址格式。
+  # 如需校验对端公钥，在对应 URI 末尾加上 ?peer-public-key=<peer-base64-public-key>（也可写 peer_public_key）。
+
+# 本机身份与地址
+# hostname: mesh-laptop            # 其他节点可用此主机名查询本机。
+# instance-name: laptop-mesh       # 本地实例名称，默认取 name。
+# state-dir: nodes/easytier/laptop # 用于保存实例 ID。留空不填此项时，应用会为每个节点分配独立目录。
+# 自定义路径应位于核心数据目录内，并由此节点单独使用。
+# ipv4: 10.144.0.20/24            # 使用静态地址时，填写未占用的组网 IPv4，并关闭 DHCP。
+# dhcp: true                      # 省略 ipv4 时会自动启用，即使 dhcp 写为 false。
+# udp: true                       # 允许应用通过此出站发送 UDP，与对端 URI 使用的协议无关。
+
+# 连接对端
+# 对端 URI 使用 tcp:// 或 udp://。默认不会添加公共对端或监听地址；此适配器不支持 FakeTCP。
+# listeners: ["tcp://0.0.0.0:11010"]  # 接受对端接入。仅监听的节点可以省略 peers。
+# no-listener: true                  # 启用时必须填写 peers，且不能配置监听地址。单设为 false 会在所有 IPv4 接口监听 TCP 11010。
+# mapped-listeners: ["tcp://gateway.example.invalid:21110"]  # 公布外部可达地址，需先将该地址映射到本机监听端口。
+# 用作落地节点时，在应用中选择连接对端的前置代理。建议先使用 TCP 对端。
+# UDP 对端需要前置代理支持 UDP。对外监听 TCP 需要直连拨号器。
+
+# 组网路由
+# exit-nodes: ["10.144.0.1"]       # 远端出口的虚拟 IPv4 地址。请填写已开启出口服务且可达的对端。
+# enable-exit-node: true          # 允许其他对端使用本机作为出口。
+# proxy-networks: ["192.168.50.0/24"]  # 发布可经本机访问的子网，例如本机所在的局域网。
+# 应用目标必须有 IPv4 地址和可用的组网路由。访问互联网需要相应路由或出口。
+# latency-first: true             # 优先选择延迟较低的路由。
+# disable-p2p: true               # 禁用自动建立的点对点直连，使用已配置的连接或中继。
+# mtu: 1380                       # 虚拟网络 MTU，单位为字节。按组网管理员建议设置。
+
+# 组网 DNS
+# accept-dns: true                # 启用 EasyTier 的 MagicDNS 选项。Mihomo 另有独立的组网 DNS 查询功能。
+# tld-dns-zone: "et.net."         # 组网域名后缀，例如 mesh-laptop.et.net。
+# 若要在 Mihomo DNS 中查询组网 A/PTR 记录，可为相应域配置解析器 easytier://EasyTier，名称须与节点名一致。
+
+# 安全设置
+# enable-encryption: true         # 加密对端之间传输的流量。
+# encryption-algorithm: aes-gcm   # 使用组网约定的加密算法。
+# private-mode: true              # 拒绝使用不同密钥的外部网络连接。
+# secure-mode: true               # 启用安全握手，并填写组网使用的非空 network-secret。
+# local-private-key: "<local-base64-x25519-private-key>"  # 填写本机自己的私钥，以固定安全身份。
+# local-public-key: "<local-base64-x25519-public-key>"    # 可选，须与 local-private-key 配套填写。
+# 填写本机密钥或固定对端公钥会自动启用安全模式，与 secure-mode: false 冲突。
+
+# 以下高级选项传给内置 EasyTier 核心，用于处理 TCP 流；是否生效取决于核心编译时启用的功能。
+# enable-kcp-proxy: true          # 请求通过 KCP 传输出站 TCP 流。
+# disable-kcp-input: true         # 拒绝传入的 KCP 代理流。
+# enable-quic-proxy: true         # 请求通过 QUIC 传输出站 TCP 流。
+# disable-quic-input: true        # 拒绝传入的 QUIC 代理流。

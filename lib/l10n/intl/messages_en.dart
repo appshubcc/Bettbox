@@ -1467,6 +1467,9 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "merged": MessageLookupByLibrary.simpleMessage("Merged"),
     "mergedSubscriptionName": m45,
+    "meshNodeDesc": MessageLookupByLibrary.simpleMessage(
+      "Mesh node from an editable template",
+    ),
     "messageTest": MessageLookupByLibrary.simpleMessage("Message Test"),
     "messageTestTip": MessageLookupByLibrary.simpleMessage(
       "This is a message.",

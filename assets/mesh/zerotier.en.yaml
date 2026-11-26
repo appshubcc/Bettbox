@@ -1,0 +1,37 @@
+# Use the Standard core. Copy the network ID from your ZeroTier controller.
+name: ZeroTier
+type: zerotier
+network: "0123456789abcdef"  # Replace this example. Keep all 16 hex digits in quotes.
+# Select this node and connect to a service at a member’s managed IP. First use starts the join.
+# For a private network, authorize the 10-digit node ID from the core log and assign a managed IP.
+# For Internet access, publish a managed default route (0.0.0.0/0 or ::/0) via a member
+# that forwards traffic and has NAT or a return route. Test a mesh service first.
+
+# state-dir: "nodes/zerotier/my-laptop"  # The app assigns a private folder per import. To override, choose a unique, writable core-relative folder and keep it to retain this identity.
+# identity-secret: "<paste-your-full-identity.secret>"  # Optional private identity text, not a file path. Omit to generate and persist a new identity. Never share it or use it on two running nodes.
+# udp: true  # Enable UDP for applications (default false). ZeroTier can still use UDP to reach peers when this is off.
+# remote-dns-resolve: true  # Resolve destination names over ZeroTier. Uses dns below first, then controller DNS. With neither, uses the core resolver.
+# dns:  # With remote-dns-resolve enabled, set resolvers reachable over a managed route.
+#   - "192.0.2.53"  # Replace with your network’s resolver.
+
+# mtu: 1400  # Cap the virtual network MTU in bytes (1280–10000). Omit to follow the network.
+# physical-mtu: 1432  # Wire packet MTU in bytes (510–10324, default 1432).
+# ip-stack:
+#   mode: auto  # auto uses mips. gvisor requires a core built with with_gvisor.
+#   congestion-controller: cubic  # TCP congestion control for mips: cubic, reno, bbr or bbr3.
+
+# In the landing node settings, a front proxy carries the connection to ZeroTier peers.
+# Use a UDP-capable front for UDP transport, or force TCP with a reachable ZeroTier relay.
+# primary-port: 9993  # Local shared UDP port (0 = automatic, max 65535). Shared sockets are off behind a front proxy or in forced TCP mode.
+# secondary-port: 29993  # Second shared UDP port (0 = automatic, -1 = off). Fixed ports must differ.
+# tcp-fallback-mode: auto  # auto tries TCP after direct UDP fails; force uses only TCP; disable uses only UDP.
+# tcp-fallback-relay: "relay.example.invalid:443"  # Use your ZeroTier TCP relay host:port, or omit for the built-in relay. This transports ZeroTier packets; Internet exit still needs a route.
+# low-bandwidth: true  # Reduce background control traffic on metered links.
+# encrypted-hello: true  # Enable encrypted HELLO handshakes.
+
+# planet: "zerotier/custom.planet"  # Optional trusted binary planet file under the core directory. Omit for the built-in public roots.
+# orbit:  # Add a moon (supplemental roots). Get both IDs from its operator.
+#   - world: "000000a1b2c3d4e5"  # Unique, nonzero 16-digit hex moon world ID.
+#     seed: "a1b2c3d4e5"  # 10-digit hex seed node ID.
+# remote-trace-target: "b1c2d3e4f5"  # Send diagnostics to your trace collector’s 10-digit hex node ID.
+# remote-trace-level: 0  # Verbosity for that collector, 0–30 (0 normal, 10 verbose, 15 rules, 20 debug, 30 highest).

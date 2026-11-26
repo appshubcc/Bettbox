@@ -1,0 +1,37 @@
+# 请使用标准版内核，并从 ZeroTier 控制器复制网络 ID。
+name: ZeroTier
+type: zerotier
+network: "0123456789abcdef"  # 请替换示例值。用引号保留全部 16 位十六进制数字。
+# 选择此节点，连接某个成员的托管 IP 上的服务。首次使用会开始加入网络。
+# 私有网络需在控制器中授权内核日志里的 10 位节点 ID，并分配托管 IP。
+# 如需访问互联网，在控制器中发布默认托管路由（0.0.0.0/0 或 ::/0），下一跳设为网关成员。
+# 网关须启用转发，并配置 NAT 或回程路由。建议先测试网内服务。
+
+# state-dir: "nodes/zerotier/my-laptop"  # 应用为每个导入的节点分配独立目录。如需指定，请选内核目录下独占、可写的子目录；保留目录即可沿用身份。
+# identity-secret: "<paste-your-full-identity.secret>"  # 可选，填写私有身份的完整内容。省略时会生成并保存新身份。请勿填写文件路径、泄露密钥或让两个运行中的节点共用身份。
+# udp: true  # 允许应用通过此节点发送 UDP（默认关闭）。关闭时 ZeroTier 本身仍可通过 UDP 联系对等节点。
+# remote-dns-resolve: true  # 通过 ZeroTier 解析目标域名。优先使用下方 dns，其次使用控制器下发的 DNS；两者均无则使用内核解析器。
+# dns:  # 启用 remote-dns-resolve 时，可填写托管路由可达的 DNS 服务器。
+#   - "192.0.2.53"  # 替换为你的网络所用的 DNS 服务器。
+
+# mtu: 1400  # 限制虚拟网络 MTU（1280–10000 字节）。省略则使用网络配置。
+# physical-mtu: 1432  # 底层传输报文的 MTU（510–10324 字节，默认 1432）。
+# ip-stack:
+#   mode: auto  # auto 使用 mips。gvisor 需要内核编译时启用 with_gvisor。
+#   congestion-controller: cubic  # mips 的 TCP 拥塞控制算法可选 cubic、reno、bbr 或 bbr3。
+
+# 在落地节点设置中选择前置代理，可让 ZeroTier 经前置连接对等节点。
+# 如需底层 UDP，请选择支持 UDP 的前置；也可选用可达的 ZeroTier 中继并强制使用 TCP。
+# primary-port: 9993  # 本地共享 UDP 端口（0 为自动，最大 65535）。使用前置代理或强制 TCP 时不启用共享套接字。
+# secondary-port: 29993  # 第二个共享 UDP 端口（0 为自动，-1 为关闭）。两个固定端口必须不同。
+# tcp-fallback-mode: auto  # auto 在直连 UDP 失败后尝试 TCP；force 只用 TCP；disable 只用 UDP。
+# tcp-fallback-relay: "relay.example.invalid:443"  # 填写自己的 ZeroTier TCP 中继主机和端口，或省略以使用内置中继。它负责传输 ZeroTier 报文，访问互联网仍需配置出口路由。
+# low-bandwidth: true  # 在按流量计费的连接上减少后台控制流量。
+# encrypted-hello: true  # 启用加密 HELLO 握手。
+
+# planet: "zerotier/custom.planet"  # 可填写内核目录下受信任的二进制 planet 文件。省略时使用内置公共根节点。
+# orbit:  # 添加 moon（补充根节点）。向其管理员获取以下两个 ID。
+#   - world: "000000a1b2c3d4e5"  # 不重复且非零的 16 位十六进制 moon 世界 ID。
+#     seed: "a1b2c3d4e5"  # 10 位十六进制种子节点 ID。
+# remote-trace-target: "b1c2d3e4f5"  # 填写诊断收集节点的 10 位十六进制 ID，将跟踪信息发送给它。
+# remote-trace-level: 0  # 发往该节点的诊断详细程度为 0–30（0 常规，10 详细，15 规则，20 调试，30 最高）。

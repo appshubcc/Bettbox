@@ -13,6 +13,7 @@ import (
 	"github.com/metacubex/mihomo/common/utils"
 	"github.com/metacubex/mihomo/common/yaml"
 	"github.com/metacubex/mihomo/config"
+	C "github.com/metacubex/mihomo/constant"
 )
 
 type PatchNode struct {
@@ -71,6 +72,28 @@ func nodeMappings(value any) []map[string]any {
 	return nil
 }
 
+func isMeshType(proxy map[string]any) bool {
+	kind, _ := proxy["type"].(string)
+	switch strings.ToLower(kind) {
+	case "easytier", "tailscale", "zerotier":
+		return true
+	default:
+		return false
+	}
+}
+
+// parseNodeProxy validates a node mapping without disturbing live outbounds.
+// Mesh outbounds register DNS clients by name, so a same-named validation
+// instance would replace the running node's client and remove it on Close.
+func parseNodeProxy(mapping map[string]any) (C.Proxy, error) {
+	if !isMeshType(mapping) {
+		return adapter.ParseProxy(mapping)
+	}
+	probe := cloneMapping(mapping)
+	probe["name"] = "validate-" + utils.NewUUIDV4().String()
+	return adapter.ParseProxy(probe)
+}
+
 func parseNodes(text string) ([]map[string]any, int, error) {
 	text = strings.TrimSpace(text)
 	if text == "" {
@@ -97,7 +120,7 @@ func parseNodes(text string) ([]map[string]any, int, error) {
 			continue
 		}
 		delete(mapping, "dialer-proxy")
-		proxy, err := adapter.ParseProxy(mapping)
+		proxy, err := parseNodeProxy(mapping)
 		if err != nil {
 			lastErr = err
 			continue

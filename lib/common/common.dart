@@ -25,6 +25,7 @@ export 'link.dart';
 export 'managed_script.dart';
 export 'lock.dart';
 export 'measure.dart';
+export 'mesh_template.dart';
 export 'mixin.dart';
 export 'navigation.dart';
 export 'navigator.dart';

@@ -694,8 +694,40 @@ abstract class Config with _$Config {
       }
     } catch (_) {}
 
-    return Config.fromJson(json);
+    try {
+      return Config.fromJson(json);
+    } catch (e) {
+      commonPrint.warn('Config partially invalid: $e');
+      return Config.fromJson(_dropInvalidSections(json));
+    }
   }
+}
+
+bool _isValidConfig(Map<String, Object?> json) {
+  try {
+    Config.fromJson(json);
+    return true;
+  } catch (_) {
+    return false;
+  }
+}
+
+Map<String, Object?> _dropInvalidSections(Map<String, Object?> json) {
+  final result = <String, Object?>{};
+  for (final MapEntry(:key, :value) in json.entries) {
+    if (_isValidConfig({key: value})) {
+      result[key] = value;
+    } else if (value is List) {
+      result[key] = [
+        for (final item in value)
+          if (_isValidConfig({
+            key: [item],
+          }))
+            item,
+      ];
+    }
+  }
+  return result;
 }
 
 const _legacySkipDstAddress = {

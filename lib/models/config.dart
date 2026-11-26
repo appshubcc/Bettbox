@@ -10,7 +10,16 @@ import 'models.dart';
 part 'generated/config.freezed.dart';
 part 'generated/config.g.dart';
 
+const _restoredBypassDomain = [
+  '*.jd.com',
+  '*.360buyimg.com',
+  '*.zhihu.com',
+  '*.zhimg.com',
+  '*.qq.com',
+];
+
 const defaultBypassDomain = [
+  ..._restoredBypassDomain,
   'localhost',
   '127.*',
   '[::1]',
@@ -350,13 +359,9 @@ abstract class VpnProps with _$VpnProps {
 const _removedBypassDomain = {
   '::1',
   '*jd.com',
-  '*.jd.com',
   '*zhihu.com',
-  '*.zhihu.com',
   '*zhimg.com',
-  '*.zhimg.com',
   '*360buyimg.com',
-  '*.360buyimg.com',
 };
 
 List<String> bypassDomainSafeFromJson(List<dynamic>? bypassDomain) {
@@ -387,6 +392,7 @@ abstract class NetworkProps with _$NetworkProps {
     @Default(true) bool bypassPrivateRoute,
     @Default([]) List<String> bypassPrivateRouteAddress,
     @Default(ProfileSwitchMode.hotReload) ProfileSwitchMode profileSwitchMode,
+    @Default(1) int bypassDomainRevision,
   }) = _NetworkProps;
 
   factory NetworkProps.fromJson(Map<String, Object?>? json) =>
@@ -675,6 +681,22 @@ abstract class Config with _$Config {
     return Config.fromJson(json);
   }
 }
+    try {
+      final networkProps = json['networkProps'];
+      final bypassDomain = networkProps is Map
+          ? networkProps['bypassDomain']
+          : null;
+      if (networkProps is Map && networkProps['bypassDomainRevision'] == null) {
+        if (bypassDomain is List) {
+          networkProps['bypassDomain'] = [
+            ..._restoredBypassDomain.where((e) => !bypassDomain.contains(e)),
+            ...bypassDomain,
+          ];
+        }
+        networkProps['bypassDomainRevision'] = 1;
+      }
+    } catch (_) {}
+
 
 const _legacySkipDstAddress = {
   '91.108.56.0/22',

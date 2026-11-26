@@ -58,6 +58,7 @@ Future<void> main(List<String> args) async {
     loadBundledRouteIcons(),
   ]);
 
+  await mediaUnlockStore.load();
   await _runApp();
 }
 

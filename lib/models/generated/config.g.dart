@@ -32,6 +32,10 @@ _AppSettingProps _$AppSettingPropsFromJson(
   mediaUnlockRefreshOnNodeChange:
       json['mediaUnlockRefreshOnNodeChange'] as bool? ?? true,
   mediaUnlockColorfulIcons: json['mediaUnlockColorfulIcons'] as bool? ?? true,
+  showProxyUnlockTags: json['showProxyUnlockTags'] as bool? ?? false,
+  proxyUnlockPlatforms: json['proxyUnlockPlatforms'] == null
+      ? const <MediaPlatform>[]
+      : proxyUnlockPlatformsFromJson(json['proxyUnlockPlatforms'] as List?),
   mediaUnlockRefreshByCategory:
       json['mediaUnlockRefreshByCategory'] as bool? ?? true,
   onlyStatisticsProxy: json['onlyStatisticsProxy'] as bool? ?? true,
@@ -140,6 +144,10 @@ Map<String, dynamic> _$AppSettingPropsToJson(_AppSettingProps instance) =>
       'mediaUnlockExtraDetails': instance.mediaUnlockExtraDetails,
       'mediaUnlockRefreshOnNodeChange': instance.mediaUnlockRefreshOnNodeChange,
       'mediaUnlockColorfulIcons': instance.mediaUnlockColorfulIcons,
+      'showProxyUnlockTags': instance.showProxyUnlockTags,
+      'proxyUnlockPlatforms': instance.proxyUnlockPlatforms
+          .map((e) => _$MediaPlatformEnumMap[e]!)
+          .toList(),
       'mediaUnlockRefreshByCategory': instance.mediaUnlockRefreshByCategory,
       'onlyStatisticsProxy': instance.onlyStatisticsProxy,
       'autoLaunch': instance.autoLaunch,

@@ -7,6 +7,7 @@ import 'package:bett_box/views/proxies/actions.dart';
 import 'package:bett_box/views/proxies/common.dart';
 import 'package:bett_box/views/proxies/list.dart';
 import 'package:bett_box/views/proxies/tab.dart';
+import 'package:bett_box/views/proxies/unlock_tags.dart';
 import 'package:bett_box/widgets/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
@@ -213,60 +214,48 @@ class ProxyCard extends StatelessWidget {
   }
 
   Widget _buildFooter(BuildContext context, Widget delayText) {
-    if (type == ProxyCardType.expand) {
-      final labelSmallHeight = measure.labelSmallHeight;
-      return SizedBox(
-        height: labelSmallHeight * 2 + 4,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          spacing: 4,
-          children: [
-            SizedBox(
-              height: labelSmallHeight,
-              child: _ProxyDesc(proxy: proxy),
-            ),
-            SizedBox(
-              height: labelSmallHeight,
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                spacing: 4,
-                children: [
-                  Expanded(
-                    child: Align(
-                      alignment: Alignment.centerLeft,
-                      child: _ProxyMetaTag(proxy.type),
-                    ),
-                  ),
-                  delayText,
-                ],
+    final bodySmallStyle = context.textTheme.bodySmall;
+    final protocol = type == ProxyCardType.expand
+        ? _ProxyMetaTag(proxy.type)
+        : TooltipText(
+            text: Text(
+              proxy.type,
+              maxLines: 1,
+              style: bodySmallStyle?.copyWith(
+                overflow: TextOverflow.ellipsis,
+                color: bodySmallStyle.color?.opacity80,
               ),
             ),
-          ],
-        ),
-      );
-    }
-    final bodySmallStyle = context.textTheme.bodySmall;
+          );
     return SizedBox(
-      height: measure.bodySmallHeight,
+      height: type == ProxyCardType.expand
+          ? measure.labelSmallHeight
+          : measure.bodySmallHeight,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Flexible(
-            flex: 1,
-            child: TooltipText(
-              text: Text(
-                proxy.type,
-                style: bodySmallStyle?.copyWith(
-                  overflow: TextOverflow.ellipsis,
-                  color: bodySmallStyle.color?.opacity80,
-                ),
-              ),
-            ),
-          ),
+          Flexible(child: protocol),
           delayText,
         ],
+      ),
+    );
+  }
+
+  Widget _buildSecondaryRow(bool hasActions) {
+    final tags = hasActions ? ProxyUnlockTags(proxyName: proxy.name) : null;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 2),
+      child: Align(
+        alignment: AlignmentDirectional.bottomStart,
+        child: type != ProxyCardType.expand
+            ? tags
+            : Stack(
+                alignment: AlignmentDirectional.centerStart,
+                children: [
+                  _ProxyDesc(proxy: proxy),
+                  ?tags,
+                ],
+              ),
       ),
     );
   }
@@ -348,13 +337,19 @@ class ProxyCard extends StatelessWidget {
               onLongPress: hasActions ? () => _openActions(context, ref) : null,
               isSelected: isSelected,
               child: Container(
+                height: getItemHeight(type),
                 alignment: Alignment.centerLeft,
-                padding: const EdgeInsets.symmetric(horizontal: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
                 child: Column(
-                  mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  spacing: 8,
-                  children: [proxyNameWidget, footerWidget],
+                  children: [
+                    proxyNameWidget,
+                    Expanded(child: _buildSecondaryRow(hasActions)),
+                    footerWidget,
+                  ],
                 ),
               ),
             ),

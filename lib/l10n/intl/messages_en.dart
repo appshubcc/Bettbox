@@ -1890,6 +1890,10 @@ class MessageLookup extends MessageLookupByLibrary {
     "proxyProvidersCount": MessageLookupByLibrary.simpleMessage(
       "Proxy Providers",
     ),
+    "proxyUnlockNotTested": MessageLookupByLibrary.simpleMessage(
+      "Not tested yet",
+    ),
+    "proxyUnlockTags": MessageLookupByLibrary.simpleMessage("Unlock badges"),
     "pulse": MessageLookupByLibrary.simpleMessage("Pulse"),
     "pulsingGrid": MessageLookupByLibrary.simpleMessage("Pulsing Grid"),
     "pumpingHeart": MessageLookupByLibrary.simpleMessage("Pumping Heart"),

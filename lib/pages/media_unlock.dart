@@ -1048,6 +1048,9 @@ class _MediaBatchSheetState extends ConsumerState<_MediaBatchSheet> {
           );
         }
         _checkers.remove(checker);
+        if (mounted && serial == _serial) {
+          unawaited(mediaUnlockStore.update(name, result));
+        }
         _update(
           serial,
           index,
@@ -1276,7 +1279,9 @@ Widget mediaPlatformIcon(
   BuildContext context,
   MediaPlatform platform, {
   MediaUnlockStatus? status,
+  bool? colorful,
   double size = 20,
+  AlignmentGeometry alignment = Alignment.center,
 }) {
   final assetPath = 'assets/svg/${platform.icon}';
   final scale = size / 20.0;
@@ -1301,7 +1306,11 @@ Widget mediaPlatformIcon(
       height: iconHeight,
       fit: BoxFit.contain,
       colorFilter: ColorFilter.mode(
-        isUnlocked
+        colorful != null
+            ? (colorful
+                  ? context.colorScheme.primary
+                  : context.colorScheme.onSurfaceVariant)
+            : isUnlocked
             ? context.colorScheme.onSurface
             : (isTestingOrUnknown
                   ? context.colorScheme.onSurfaceVariant
@@ -1309,7 +1318,7 @@ Widget mediaPlatformIcon(
         BlendMode.srcIn,
       ),
     );
-  } else if (isUnlocked) {
+  } else if (colorful ?? isUnlocked) {
     icon = SvgPicture.asset(
       assetPath,
       width: iconWidth,
@@ -1331,7 +1340,7 @@ Widget mediaPlatformIcon(
   return SizedBox(
     width: size,
     height: size,
-    child: Center(child: icon),
+    child: Align(alignment: alignment, child: icon),
   );
 }
 

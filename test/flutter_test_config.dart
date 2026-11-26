@@ -8,6 +8,7 @@ Future<void> testExecutable(FutureOr<void> Function() testMain) async {
   globalState.backgroundMode.value;
   routeIdleObserver.busy.value;
   MediaUnlockStateNotifier().state.value;
+  mediaUnlockStore.results.value;
   LeakTesting.enable();
   LeakTesting.settings = LeakTesting.settings.withIgnored(
     createdByTestHelpers: true,

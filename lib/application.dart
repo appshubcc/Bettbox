@@ -17,6 +17,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'controller.dart';
 import 'pages/pages.dart';
+import 'utils/platform_font.dart';
 
 class Application extends ConsumerStatefulWidget {
   const Application({super.key});
@@ -375,9 +376,10 @@ class ApplicationState extends ConsumerState<Application>
               appSettingProvider.select((state) => state.locale),
             );
             final themeProps = ref.watch(themeSettingProvider);
+            // linux-arm64 官方引擎缺 fontconfig，默认字体要换成随包/系统注入的中文字体
             final fontFamily = themeProps.useHarmonyFont
-                ? 'HarmonyOS_Sans'
-                : null;
+                ? PlatformFontFallback.bundledFamily
+                : PlatformFontFallback.defaultFontFamily;
             final lightColorScheme = ref.read(
               genColorSchemeProvider(Brightness.light),
             );

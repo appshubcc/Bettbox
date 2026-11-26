@@ -20,6 +20,7 @@ import 'clash/core.dart';
 import 'clash/lib.dart';
 import 'common/common.dart';
 import 'common/external_control.dart';
+import 'utils/platform_font.dart';
 import 'common/network_matcher.dart';
 import 'models/models.dart';
 
@@ -56,6 +57,8 @@ Future<void> main(List<String> args) async {
     globalState.initApp(version),
     clashCore.preload(),
     loadBundledRouteIcons(),
+    // linux-arm64 官方引擎缺 fontconfig，先把系统 CJK 字体喂给引擎（见该文件注释）
+    PlatformFontFallback.ensureLoaded(),
   ]);
 
   await _runApp();

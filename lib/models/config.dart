@@ -678,9 +678,6 @@ abstract class Config with _$Config {
       }
     } catch (_) {}
 
-    return Config.fromJson(json);
-  }
-}
     try {
       final networkProps = json['networkProps'];
       final bypassDomain = networkProps is Map
@@ -697,6 +694,9 @@ abstract class Config with _$Config {
       }
     } catch (_) {}
 
+    return Config.fromJson(json);
+  }
+}
 
 const _legacySkipDstAddress = {
   '91.108.56.0/22',

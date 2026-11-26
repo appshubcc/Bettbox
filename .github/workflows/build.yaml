@@ -168,6 +168,31 @@ jobs:
           java-version: '21'
           cache: 'gradle'
 
+      - name: Setup Maven Mirror (Android)
+        if: matrix.platform == 'android'
+        shell: bash
+        run: |
+          mkdir -p ~/.gradle/init.d
+          cat > ~/.gradle/init.d/maven-mirror.gradle <<'EOF'
+          def mirror = 'https://maven-central.storage-download.googleapis.com/maven2/'
+          def redirect = { RepositoryHandler repositories ->
+              repositories.withType(MavenArtifactRepository).configureEach { repo ->
+                  def host = repo.url?.host
+                  if (host == 'repo.maven.apache.org' || host == 'repo1.maven.org') {
+                      repo.url = mirror
+                  }
+              }
+          }
+          beforeSettings { settings ->
+              redirect(settings.pluginManagement.repositories)
+              redirect(settings.dependencyResolutionManagement.repositories)
+          }
+          beforeProject { project ->
+              redirect(project.buildscript.repositories)
+              redirect(project.repositories)
+          }
+          EOF
+
       - name: Setup Android NDK
         if: matrix.platform == 'android'
         shell: bash

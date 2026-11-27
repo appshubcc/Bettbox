@@ -78,7 +78,6 @@ app.*.map.json
 
 # FVM Version Cache
 .fvm/
-.fvmrc
 
 /assets/data/GeoSite.dat
 /assets/data/geoip.metadb

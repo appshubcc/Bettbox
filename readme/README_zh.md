@@ -87,7 +87,7 @@ Bettbox 取自 Better Network Toolbox。项目已通过 SignPath 开源基金会
 以 Windows 平台构建为例：
 
 * 系统需求：Windows 10 及以上
-* 依赖环境：Git, Visual Studio, Flutter 3.47.x, Golang, Inno Setup, Rust
+* 依赖环境：Git, Visual Studio, Flutter 3.47.x（Linux 桌面构建需 ≥3.50.1）, Golang, Inno Setup, Rust
 ```bash
 * flutter pub get (获取相关依赖)
 * dart .\setup.dart windows --arch amd64 --out core (仅构建Core核心)

@@ -87,7 +87,7 @@
 نمونه ساخت بر روی پلتفرم ویندوز:
 
 * نیازمندی‌های سیستم: ویندوز ۱۰ به بالا
-* پیش‌نیازها: Git, Visual Studio, Flutter 3.47.x, Golang, Inno Setup, Rust
+* پیش‌نیازها: Git, Visual Studio, Flutter 3.47.x（Linux 桌面构建需 ≥3.50.1）, Golang, Inno Setup, Rust
 ```bash
 * flutter pub get (دریافت وابستگی‌ها)
 * dart .\setup.dart windows --arch amd64 --out core (تنها ساخت هسته Core)

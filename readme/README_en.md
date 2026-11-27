@@ -87,7 +87,7 @@ Please visit the **[[Releases]](https://github.com/appshubcc/Bettbox/releases)**
 Taking Windows build as an example:
 
 * System Requirements: Windows 10 or later
-* Dependencies: Git, Visual Studio, Flutter 3.47.x, Golang, Inno Setup, Rust
+* Dependencies: Git, Visual Studio, Flutter 3.47.x（Linux 桌面构建需 ≥3.50.1）, Golang, Inno Setup, Rust
 ```bash
 * flutter pub get (fetch dependencies)
 * dart .\setup.dart windows --arch amd64 --out core (build Core only)

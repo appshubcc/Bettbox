@@ -87,7 +87,7 @@ Bettbox は「Better Network Toolbox」を意味します。本プロジェク�
 Windows プラットフォームでのビルド例：
 
 * システム要件：Windows 10 以上
-* 必要環境：Git, Visual Studio, Flutter 3.47.x, Golang, Inno Setup, Rust
+* 必要環境：Git, Visual Studio, Flutter 3.47.x（Linux 桌面构建需 ≥3.50.1）, Golang, Inno Setup, Rust
 ```bash
 * flutter pub get (依存関係の取得)
 * dart .\setup.dart windows --arch amd64 --out core (Core コアのみビルド)

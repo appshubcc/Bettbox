@@ -87,7 +87,7 @@ Bettbox는 Better Network Toolbox를 의미합니다. 본 프로젝트는 SignPa
 Windows 플랫폼 빌드를 예로 들면:
 
 * 시스템 요구 사항: Windows 10 이상
-* 필수 환경: Git, Visual Studio, Flutter 3.47.x, Golang, Inno Setup, Rust
+* 필수 환경: Git, Visual Studio, Flutter 3.47.x（Linux 桌面构建需 ≥3.50.1）, Golang, Inno Setup, Rust
 ```bash
 * flutter pub get (관련 종속성 가져오기)
 * dart .\setup.dart windows --arch amd64 --out core (Core 코어만 빌드)

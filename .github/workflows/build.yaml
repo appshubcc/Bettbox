@@ -228,14 +228,18 @@ jobs:
           channel: 'stable'
           cache: true
           cache-key: flutter-${{ matrix.platform }}-${{ matrix.arch }}-${{ hashFiles('**/pubspec.lock') }}
-          flutter-version: '3.47.9'
+          # Linux 桌面版必须 >= 3.50.1: 3.49 之前的官方 arm64 桌面引擎没有链 libfontconfig,
+          # 中文/其它非 ASCII 字形渲染为空(flutter#90951, 修复 #180235); 3.50.1 是第一个带修复的 stable。
+          # 其它平台暂留 3.47.9(升级到 3.50 会连带要求 AGP>=9.1.1/Gradle>=9.5, 另开一轮统一升)。
+          flutter-version: ${{ matrix.platform == 'linux' && '3.50.1' || '3.47.9' }}
 
       - name: Setup Flutter (ARM)
         if: ${{ contains(matrix.os, 'arm') }}
         shell: bash
         run: |
           FLUTTER_DIR="${RUNNER_TEMP}/flutter"
-          git clone --depth 1 --branch 3.47.9 https://github.com/flutter/flutter.git "${FLUTTER_DIR}"
+          # 仅 ubuntu-24.04-arm(linux arm64) 走这条; >=3.50.1 才有带 fontconfig 的 arm64 桌面引擎
+          git clone --depth 1 --branch 3.50.1 https://github.com/flutter/flutter.git "${FLUTTER_DIR}"
           PUB_CACHE_DIR="${HOME}/.pub-cache"
           mkdir -p "${PUB_CACHE_DIR}/bin"
           if command -v cygpath >/dev/null 2>&1; then

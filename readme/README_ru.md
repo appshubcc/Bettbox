@@ -87,7 +87,7 @@ Bettbox означает Better Network Toolbox. Проект прошёл ру�
 Пример сборки для платформы Windows:
 
 * Системные требования: Windows 10 или новее
-* Зависимости: Git, Visual Studio, Flutter 3.47.x, Golang, Inno Setup, Rust
+* Зависимости: Git, Visual Studio, Flutter 3.47.x（Linux 桌面构建需 ≥3.50.1）, Golang, Inno Setup, Rust
 ```bash
 * flutter pub get (получение зависимостей)
 * dart .\setup.dart windows --arch amd64 --out core (сборка только ядра Core)
